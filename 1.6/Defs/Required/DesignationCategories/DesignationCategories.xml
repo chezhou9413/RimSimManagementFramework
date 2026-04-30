@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+    <DesignationCategoryDef>
+        <defName>SimManagementBuildings</defName>
+        <label>模拟经营框架</label>
+        <order>650</order>
+        <specialDesignatorClasses>
+            <li>Designator_Cancel</li>
+            <li>Designator_Deconstruct</li>
+            <li>Designator_SmoothWalls</li>
+            <li>Designator_RemoveFoundation</li>
+        </specialDesignatorClasses>
+    </DesignationCategoryDef>
+</Defs>
