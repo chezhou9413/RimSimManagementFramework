@@ -11,6 +11,13 @@
       <li>Town_Guard</li>
       <li>Town_Trader</li>
       <li>Town_Councilman</li>
+      <li MayRequire="Ancot.KiiroRace">Kiiro_Towner</li>
+      <li MayRequire="Ancot.MiliraRace">Milira_Citizen</li>
+      <li MayRequire="MelonDove.WolfeinRace">Wolfein_MegaCorpCivilian</li>
+      <li MayRequire="HenTaiLoliTeam.Axolotl">Axolotl_Businessman</li>
+      <li MayRequire="OARK.RatkinFaction.OberoniaAurea">OA_RK_Traveller</li>
+      <!--li MayRequire="chezhou.Race.PhoenixRace">Phoenix_Colonist</li -->
+      <!--li MayRequire="Aurora.Nebula.NemesisRaceThePunisher">Nemesis_Race</li -->
     </pawnKindDefs>
 
     <arrivalCurve>
