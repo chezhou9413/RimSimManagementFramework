@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <WorkGiverDef>
+    <defName>RestockMegaStorage</defName>
+    <label>补货柜</label>
+    <giverClass>SimManagementLib.SimWorkGiver.WorkGiver_RestockMegaStorage</giverClass>
+    <workType>Restocking</workType>
+    <priorityInType>100</priorityInType>
+    <verb>restock</verb>
+    <gerund>restocking</gerund>
+    <requiredCapacities>
+      <li>Manipulation</li>
+    </requiredCapacities>
+  </WorkGiverDef>
+
+  <WorkGiverDef>
+    <defName>WithdrawFromMegaStorage</defName>
+    <label>清理货柜多余商品</label>
+    <giverClass>SimManagementLib.SimWorkGiver.WorkGiver_WithdrawFromMegaStorage</giverClass>
+    <workType>Hauling</workType>
+    <priorityInType>70</priorityInType>
+    <verb>withdraw</verb>
+    <gerund>withdrawing excess goods</gerund>
+    <requiredCapacities>
+      <li>Manipulation</li>
+    </requiredCapacities>
+  </WorkGiverDef>
+</Defs>

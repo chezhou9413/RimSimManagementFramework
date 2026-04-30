@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ThingDef ParentName="MoteBase">
+    <defName>Sim_ShopPopupMote</defName>
+    <label>shop popup mote</label>
+    <thingClass>SimManagementLib.Tool.Mote_ShopPopup</thingClass>
+    <drawGUIOverlay>true</drawGUIOverlay>
+    <altitudeLayer>MetaOverlays</altitudeLayer>
+    <graphicData>
+      <texPath>Things/Mote/Transparent</texPath>
+    </graphicData>
+    <mote>
+      <realTime>true</realTime>
+      <attachedToHead>true</attachedToHead>
+      <attachedDrawOffset>(0,0,0)</attachedDrawOffset>
+      <fadeInTime>0.08</fadeInTime>
+      <solidTime>3.00</solidTime>
+      <fadeOutTime>0.22</fadeOutTime>
+    </mote>
+  </ThingDef>
+</Defs>

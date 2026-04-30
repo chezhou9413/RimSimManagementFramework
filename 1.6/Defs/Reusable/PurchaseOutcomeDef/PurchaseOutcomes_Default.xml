@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+  <!-- 购后附加行为：买了指定商品后，有概率触发额外 Job。 -->
+  <SimManagementLib.SimDef.PurchaseOutcomeDef>
+    <defName>PurchaseOutcome_Food_DineInShop</defName>
+    <label>购买食物后店内用餐</label>
+    <workerClass>SimManagementLib.SimDef.PurchaseOutcomeWorker_DineInShop</workerClass>
+    <triggerChance>0.65</triggerChance>
+    <triggerOncePerCheckout>true</triggerOncePerCheckout>
+    <triggerGoodsDefs>
+      <li>Goods_Foods</li>
+    </triggerGoodsDefs>
+    <configuredJobDef>Ingest</configuredJobDef>
+    <jobDurationTicks>500~1200</jobDurationTicks>
+    <maxJobsToQueue>1</maxJobsToQueue>
+  </SimManagementLib.SimDef.PurchaseOutcomeDef>
+
+  <SimManagementLib.SimDef.PurchaseOutcomeDef>
+    <defName>PurchaseOutcome_AddictiveDrug_UseInShop</defName>
+    <label>购买成瘾品后店内吸食</label>
+    <workerClass>SimManagementLib.SimDef.PurchaseOutcomeWorker_UseDrugInShop</workerClass>
+    <triggerChance>0.8</triggerChance>
+    <triggerOncePerCheckout>true</triggerOncePerCheckout>
+    <triggerGoodsDefs>
+      <li>Goods_AddictiveDrugs</li>
+    </triggerGoodsDefs>
+    <configuredJobDef>Customer_UseDrugInShop</configuredJobDef>
+    <targetMode>RandomStandableCellInShop</targetMode>
+    <jobDurationTicks>420~900</jobDurationTicks>
+    <maxJobsToQueue>1</maxJobsToQueue>
+  </SimManagementLib.SimDef.PurchaseOutcomeDef>
+
+  <!-- 这里保留了一个专用 JobDef，方便你后续改成自定义 driver。 -->
+  <JobDef>
+    <defName>Customer_DineInShop</defName>
+    <driverClass>SimManagementLib.SimAI.JobDriver_PostPurchaseDineInShop</driverClass>
+    <reportString>正在店内用餐。</reportString>
+    <casualInterruptible>true</casualInterruptible>
+  </JobDef>
+
+  <!-- 复制 PurchaseOutcomeDef 节点可实现更多购后行为。 -->
+</Defs>

@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+  <!-- 示例顾客配置，方便开发者快速复制改名。 -->
+  <SimManagementLib.SimDef.CustomerKindDef>
+    <defName>Test_BasicCustomer</defName>
+    <label>基础顾客</label>
+
+    <pawnKindDefs>
+      <li>Villager</li>
+      <li>Villager_Child</li>
+      <li>Town_Guard</li>
+      <li>Town_Trader</li>
+      <li>Town_Councilman</li>
+    </pawnKindDefs>
+
+    <arrivalCurve>
+      <points>
+        <li>(0, 0.2)</li>
+        <li>(8, 0.8)</li>
+        <li>(12, 1.2)</li>
+        <li>(18, 1.0)</li>
+        <li>(24, 0.2)</li>
+      </points>
+    </arrivalCurve>
+
+    <budgetRange>300~1200</budgetRange>
+    <queuePatienceRange>1200~3200</queuePatienceRange>
+    <activeHourRange>7~22</activeHourRange>
+
+    <allowedWeathers>
+      <li>Clear</li>
+      <li>Fog</li>
+      <li>Rain</li>
+    </allowedWeathers>
+
+    <spawnProfiles>
+      <li>
+        <label>上班族</label>
+        <weight>1.2</weight>
+        <budgetRange>500~1500</budgetRange>
+        <queuePatienceRange>900~1800</queuePatienceRange>
+        <activeHourRange>8~20</activeHourRange>
+        <allowedWeathers>
+          <li>Clear</li>
+          <li>Fog</li>
+        </allowedWeathers>
+        <preferredGoodsCategories>
+          <li>Goods_Foods</li>
+        </preferredGoodsCategories>
+      </li>
+      <li>
+        <label>夜猫子</label>
+        <weight>0.8</weight>
+        <budgetRange>300~900</budgetRange>
+        <queuePatienceRange>1800~3600</queuePatienceRange>
+        <activeHourRange>20~4</activeHourRange>
+        <allowedWeathers>
+          <li>Clear</li>
+          <li>Rain</li>
+          <li>FoggyRain</li>
+        </allowedWeathers>
+        <preferredThings>
+          <li>MealFine</li>
+          <li>MealLavish</li>
+        </preferredThings>
+      </li>
+    </spawnProfiles>
+
+    <shoppingBehavior>
+      <browseTimeRange>300~500</browseTimeRange>
+      <maxShelvesToVisit>3</maxShelvesToVisit>
+      <queuePatience>1800</queuePatience>
+    </shoppingBehavior>
+  </SimManagementLib.SimDef.CustomerKindDef>
+</Defs>

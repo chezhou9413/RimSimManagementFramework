@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+  <!-- 收银岗位，会出现在工作优先级面板里。 -->
+  <WorkTypeDef>
+    <defName>Sim_ServiceWork</defName>
+    <labelShort>服务</labelShort>
+    <pawnLabel>收银员</pawnLabel>
+    <gerundLabel>正在收银</gerundLabel>
+    <description>在商店收银台提供服务，接待顾客。工作效率和顾客满意度受社交技能影响。</description>
+    <naturalPriority>850</naturalPriority>
+    <relevantSkills>
+      <li>Social</li>
+    </relevantSkills>
+    <workTags>
+      <li>Social</li>
+    </workTags>
+  </WorkTypeDef>
+</Defs>

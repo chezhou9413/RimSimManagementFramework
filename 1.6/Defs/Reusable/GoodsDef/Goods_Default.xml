@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <!-- 默认商品分类。新增分类时复制一个 GoodsDef 改 defName 即可。 -->
+
+  <SimManagementLib.SimDef.GoodsDef>
+    <defName>Goods_Foods</defName>
+    <label>食物（综合）</label>
+    <GoodsList>
+      <li>RawRice</li>
+      <li>RawPotatoes</li>
+      <li>RawCorn</li>
+      <li>RawBerries</li>
+      <li>RawFungus</li>
+      <li>RawAgave</li>
+      <li>MealSurvivalPack</li>
+      <li>MealSimple</li>
+      <li>MealFine</li>
+      <li>MealLavish</li>
+    </GoodsList>
+  </SimManagementLib.SimDef.GoodsDef>
+
+  <SimManagementLib.SimDef.GoodsDef>
+    <defName>Goods_Meals</defName>
+    <label>即食餐品</label>
+    <GoodsList>
+      <li>MealSurvivalPack</li>
+      <li>MealSimple</li>
+      <li>MealFine</li>
+      <li>MealLavish</li>
+    </GoodsList>
+  </SimManagementLib.SimDef.GoodsDef>
+
+  <SimManagementLib.SimDef.GoodsDef>
+    <defName>Goods_Medicine</defName>
+    <label>药品</label>
+    <GoodsList>
+      <li>MedicineHerbal</li>
+      <li>MedicineIndustrial</li>
+      <li>MedicineUltratech</li>
+      <li>Penoxycyline</li>
+    </GoodsList>
+  </SimManagementLib.SimDef.GoodsDef>
+
+  <SimManagementLib.SimDef.GoodsDef>
+    <defName>Goods_Drugs</defName>
+    <label>饮品与药物</label>
+    <GoodsList>
+      <li>Beer</li>
+      <li>SmokeleafJoint</li>
+      <li>PsychiteTea</li>
+      <li>Ambrosia</li>
+      <li>WakeUp</li>
+      <li>GoJuice</li>
+      <li>Yayo</li>
+      <li>Flake</li>
+    </GoodsList>
+  </SimManagementLib.SimDef.GoodsDef>
+
+  <SimManagementLib.SimDef.GoodsDef>
+    <defName>Goods_AddictiveDrugs</defName>
+    <label>成瘾品</label>
+    <GoodsList>
+      <li>SmokeleafJoint</li>
+      <li>PsychiteTea</li>
+      <li>Ambrosia</li>
+      <li>WakeUp</li>
+      <li>GoJuice</li>
+      <li>Yayo</li>
+      <li>Flake</li>
+    </GoodsList>
+  </SimManagementLib.SimDef.GoodsDef>
+
+  <SimManagementLib.SimDef.GoodsDef>
+    <defName>Goods_ResourcesBasic</defName>
+    <label>基础资源</label>
+    <GoodsList>
+      <li>Steel</li>
+      <li>WoodLog</li>
+      <li>Cloth</li>
+      <li>DevilstrandCloth</li>
+      <li>Silver</li>
+      <li>Gold</li>
+      <li>Plasteel</li>
+      <li>Uranium</li>
+      <li>ComponentIndustrial</li>
+      <li>ComponentSpacer</li>
+      <li>BlocksGranite</li>
+      <li>BlocksLimestone</li>
+    </GoodsList>
+  </SimManagementLib.SimDef.GoodsDef>
+
+  <SimManagementLib.SimDef.GoodsDef>
+    <defName>Goods_ApparelBasic</defName>
+    <label>基础服饰</label>
+    <GoodsList>
+      <li>Apparel_BasicShirt</li>
+      <li>Apparel_Pants</li>
+      <li>Apparel_Jacket</li>
+      <li>Apparel_Duster</li>
+      <li>Apparel_Parka</li>
+      <li>Apparel_Tuque</li>
+      <li>Apparel_CowboyHat</li>
+      <li>Apparel_FlakVest</li>
+    </GoodsList>
+  </SimManagementLib.SimDef.GoodsDef>
+
+  <SimManagementLib.SimDef.GoodsDef>
+    <defName>Goods_MeleeWeapons</defName>
+    <label>近战武器</label>
+    <GoodsList>
+      <li>MeleeWeapon_Knife</li>
+      <li>MeleeWeapon_Club</li>
+      <li>MeleeWeapon_Gladius</li>
+      <li>MeleeWeapon_Mace</li>
+      <li>MeleeWeapon_LongSword</li>
+      <li>MeleeWeapon_Spear</li>
+      <li>MeleeWeapon_Ikwa</li>
+      <li>MeleeWeapon_BreachAxe</li>
+    </GoodsList>
+  </SimManagementLib.SimDef.GoodsDef>
+
+  <SimManagementLib.SimDef.GoodsDef>
+    <defName>Goods_Weapons</defName>
+    <label>枪械</label>
+    <GoodsList>
+      <li>Gun_Revolver</li>
+      <li>Gun_Autopistol</li>
+      <li>Gun_BoltActionRifle</li>
+      <li>Gun_PumpShotgun</li>
+      <li>Gun_AssaultRifle</li>
+      <li>Gun_SniperRifle</li>
+      <li>Gun_LMG</li>
+      <li>Gun_HeavySMG</li>
+      <li>Gun_ChainShotgun</li>
+      <li>Gun_ChargeRifle</li>
+    </GoodsList>
+  </SimManagementLib.SimDef.GoodsDef>
+
+  <!-- 需要扩展时请继续复制 SimManagementLib.SimDef.GoodsDef 节点。 -->
+</Defs>

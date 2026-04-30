@@ -1,0 +1,354 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+  <!-- 更多原版顾客画像示例，可按需复制并改 defName。 -->
+
+  <SimManagementLib.SimDef.CustomerKindDef>
+    <defName>SimCustomer_WorkdayOffice</defName>
+    <label>通勤白领顾客</label>
+
+    <pawnKindDefs>
+      <li>Villager</li>
+      <li>Town_Trader</li>
+      <li>Town_Councilman</li>
+      <li>SpaceRefugee_Clothed</li>
+    </pawnKindDefs>
+
+    <arrivalCurve>
+      <points>
+        <li>(0, 0.1)</li>
+        <li>(7, 0.7)</li>
+        <li>(12, 1.35)</li>
+        <li>(18, 1.1)</li>
+        <li>(24, 0.15)</li>
+      </points>
+    </arrivalCurve>
+
+    <baseMtbDays>0.22</baseMtbDays>
+    <budgetRange>700~1800</budgetRange>
+    <queuePatienceRange>1400~3600</queuePatienceRange>
+    <activeHourRange>7~21</activeHourRange>
+
+    <allowedWeathers>
+      <li>Clear</li>
+      <li>Fog</li>
+      <li>Rain</li>
+    </allowedWeathers>
+
+    <targetGoodsCategories>
+      <li>Goods_Meals</li>
+      <li>Goods_ApparelBasic</li>
+    </targetGoodsCategories>
+
+    <spawnProfiles>
+      <li>
+        <label>午餐快买</label>
+        <weight>1.4</weight>
+        <budgetRange>500~1200</budgetRange>
+        <queuePatienceRange>1000~1800</queuePatienceRange>
+        <activeHourRange>10~15</activeHourRange>
+        <preferredThings>
+          <li>MealSimple</li>
+          <li>MealFine</li>
+        </preferredThings>
+      </li>
+      <li>
+        <label>下班购物</label>
+        <weight>1.0</weight>
+        <budgetRange>800~2000</budgetRange>
+        <queuePatienceRange>1800~3600</queuePatienceRange>
+        <activeHourRange>16~22</activeHourRange>
+        <preferredGoodsCategories>
+          <li>Goods_ApparelBasic</li>
+          <li>Goods_Drugs</li>
+        </preferredGoodsCategories>
+      </li>
+    </spawnProfiles>
+
+    <shoppingBehavior>
+      <browseTimeRange>260~520</browseTimeRange>
+      <maxShelvesToVisit>4</maxShelvesToVisit>
+      <queuePatience>2000</queuePatience>
+    </shoppingBehavior>
+  </SimManagementLib.SimDef.CustomerKindDef>
+
+  <SimManagementLib.SimDef.CustomerKindDef>
+    <defName>SimCustomer_NightMarket</defName>
+    <label>夜市顾客</label>
+
+    <pawnKindDefs>
+      <li>Villager</li>
+      <li>SpaceRefugee</li>
+      <li>Tribal_Trader</li>
+      <li>Town_Guard</li>
+    </pawnKindDefs>
+
+    <arrivalCurve>
+      <points>
+        <li>(0, 0.9)</li>
+        <li>(6, 0.2)</li>
+        <li>(12, 0.15)</li>
+        <li>(18, 0.75)</li>
+        <li>(24, 1.25)</li>
+      </points>
+    </arrivalCurve>
+
+    <baseMtbDays>0.26</baseMtbDays>
+    <budgetRange>400~1300</budgetRange>
+    <queuePatienceRange>2200~4200</queuePatienceRange>
+    <activeHourRange>18~5</activeHourRange>
+
+    <allowedWeathers>
+      <li>Clear</li>
+      <li>Fog</li>
+      <li>Rain</li>
+      <li>FoggyRain</li>
+    </allowedWeathers>
+
+    <targetGoodsCategories>
+      <li>Goods_Drugs</li>
+      <li>Goods_Meals</li>
+    </targetGoodsCategories>
+
+    <spawnProfiles>
+      <li>
+        <label>夜宵党</label>
+        <weight>1.2</weight>
+        <budgetRange>350~900</budgetRange>
+        <queuePatienceRange>2000~3200</queuePatienceRange>
+        <activeHourRange>20~3</activeHourRange>
+        <preferredThings>
+          <li>MealSimple</li>
+          <li>MealFine</li>
+          <li>Beer</li>
+        </preferredThings>
+      </li>
+      <li>
+        <label>深夜慢逛</label>
+        <weight>0.8</weight>
+        <budgetRange>800~1800</budgetRange>
+        <queuePatienceRange>3000~5200</queuePatienceRange>
+        <activeHourRange>22~5</activeHourRange>
+        <preferredGoodsCategories>
+          <li>Goods_Drugs</li>
+          <li>Goods_MeleeWeapons</li>
+        </preferredGoodsCategories>
+      </li>
+    </spawnProfiles>
+
+    <shoppingBehavior>
+      <browseTimeRange>420~900</browseTimeRange>
+      <maxShelvesToVisit>5</maxShelvesToVisit>
+      <queuePatience>3200</queuePatience>
+    </shoppingBehavior>
+  </SimManagementLib.SimDef.CustomerKindDef>
+
+  <SimManagementLib.SimDef.CustomerKindDef>
+    <defName>SimCustomer_PracticalFamily</defName>
+    <label>务实家庭顾客</label>
+
+    <pawnKindDefs>
+      <li>Villager</li>
+      <li>Town_Trader</li>
+      <li>Tribal_Trader</li>
+      <li>SpaceRefugee_Clothed</li>
+    </pawnKindDefs>
+
+    <arrivalCurve>
+      <points>
+        <li>(0, 0.2)</li>
+        <li>(8, 0.85)</li>
+        <li>(12, 1.0)</li>
+        <li>(18, 1.2)</li>
+        <li>(24, 0.25)</li>
+      </points>
+    </arrivalCurve>
+
+    <baseMtbDays>0.24</baseMtbDays>
+    <budgetRange>600~1700</budgetRange>
+    <queuePatienceRange>1400~3200</queuePatienceRange>
+    <activeHourRange>8~23</activeHourRange>
+
+    <allowedWeathers>
+      <li>Clear</li>
+      <li>Fog</li>
+      <li>Rain</li>
+    </allowedWeathers>
+
+    <targetGoodsCategories>
+      <li>Goods_Foods</li>
+      <li>Goods_ResourcesBasic</li>
+      <li>Goods_Medicine</li>
+    </targetGoodsCategories>
+
+    <spawnProfiles>
+      <li>
+        <label>补给采购</label>
+        <weight>1.1</weight>
+        <budgetRange>700~1800</budgetRange>
+        <queuePatienceRange>1600~2800</queuePatienceRange>
+        <activeHourRange>9~19</activeHourRange>
+        <preferredGoodsCategories>
+          <li>Goods_ResourcesBasic</li>
+          <li>Goods_Medicine</li>
+        </preferredGoodsCategories>
+      </li>
+      <li>
+        <label>家常晚餐</label>
+        <weight>1.3</weight>
+        <budgetRange>500~1200</budgetRange>
+        <queuePatienceRange>1400~2600</queuePatienceRange>
+        <activeHourRange>16~22</activeHourRange>
+        <preferredThings>
+          <li>RawRice</li>
+          <li>RawPotatoes</li>
+          <li>MealSimple</li>
+        </preferredThings>
+      </li>
+    </spawnProfiles>
+
+    <shoppingBehavior>
+      <browseTimeRange>300~620</browseTimeRange>
+      <maxShelvesToVisit>4</maxShelvesToVisit>
+      <queuePatience>2200</queuePatience>
+    </shoppingBehavior>
+  </SimManagementLib.SimDef.CustomerKindDef>
+
+  <SimManagementLib.SimDef.CustomerKindDef>
+    <defName>SimCustomer_Collector</defName>
+    <label>高消费收藏顾客</label>
+
+    <pawnKindDefs>
+      <li>Town_Councilman</li>
+      <li>Town_Trader</li>
+      <li>SpaceRefugee_Clothed</li>
+      <li>Town_Guard</li>
+    </pawnKindDefs>
+
+    <arrivalCurve>
+      <points>
+        <li>(0, 0.05)</li>
+        <li>(8, 0.35)</li>
+        <li>(12, 0.95)</li>
+        <li>(18, 1.25)</li>
+        <li>(24, 0.08)</li>
+      </points>
+    </arrivalCurve>
+
+    <baseMtbDays>0.38</baseMtbDays>
+    <budgetRange>1500~4200</budgetRange>
+    <queuePatienceRange>2400~5200</queuePatienceRange>
+    <activeHourRange>11~22</activeHourRange>
+
+    <allowedWeathers>
+      <li>Clear</li>
+      <li>Fog</li>
+    </allowedWeathers>
+
+    <targetGoodsCategories>
+      <li>Goods_Weapons</li>
+      <li>Goods_MeleeWeapons</li>
+      <li>Goods_ApparelBasic</li>
+    </targetGoodsCategories>
+
+    <spawnProfiles>
+      <li>
+        <label>武备收藏</label>
+        <weight>1.0</weight>
+        <budgetRange>1800~4600</budgetRange>
+        <queuePatienceRange>2800~5600</queuePatienceRange>
+        <activeHourRange>12~22</activeHourRange>
+        <preferredGoodsCategories>
+          <li>Goods_Weapons</li>
+          <li>Goods_MeleeWeapons</li>
+        </preferredGoodsCategories>
+      </li>
+      <li>
+        <label>精品置装</label>
+        <weight>0.7</weight>
+        <budgetRange>1400~3200</budgetRange>
+        <queuePatienceRange>2200~4600</queuePatienceRange>
+        <activeHourRange>14~21</activeHourRange>
+        <preferredGoodsCategories>
+          <li>Goods_ApparelBasic</li>
+        </preferredGoodsCategories>
+      </li>
+    </spawnProfiles>
+
+    <shoppingBehavior>
+      <browseTimeRange>500~980</browseTimeRange>
+      <maxShelvesToVisit>6</maxShelvesToVisit>
+      <queuePatience>3600</queuePatience>
+    </shoppingBehavior>
+  </SimManagementLib.SimDef.CustomerKindDef>
+
+  <SimManagementLib.SimDef.CustomerKindDef>
+    <defName>SimCustomer_AddictiveSeeker</defName>
+    <label>成瘾品顾客</label>
+
+    <pawnKindDefs>
+      <li>Villager</li>
+      <li>SpaceRefugee</li>
+      <li>SpaceRefugee_Clothed</li>
+      <li>Town_Guard</li>
+      <li>Town_Trader</li>
+    </pawnKindDefs>
+
+    <arrivalCurve>
+      <points>
+        <li>(0, 0.95)</li>
+        <li>(6, 0.25)</li>
+        <li>(12, 0.12)</li>
+        <li>(18, 0.9)</li>
+        <li>(24, 1.3)</li>
+      </points>
+    </arrivalCurve>
+
+    <baseMtbDays>0.3</baseMtbDays>
+    <budgetRange>350~1500</budgetRange>
+    <queuePatienceRange>1200~2600</queuePatienceRange>
+    <activeHourRange>18~6</activeHourRange>
+
+    <allowedWeathers>
+      <li>Clear</li>
+      <li>Fog</li>
+      <li>Rain</li>
+      <li>FoggyRain</li>
+    </allowedWeathers>
+
+    <targetGoodsCategories>
+      <li>Goods_AddictiveDrugs</li>
+      <li>Goods_Drugs</li>
+    </targetGoodsCategories>
+
+    <spawnProfiles>
+      <li>
+        <label>瘾头上来</label>
+        <weight>1.3</weight>
+        <budgetRange>250~900</budgetRange>
+        <queuePatienceRange>900~1800</queuePatienceRange>
+        <activeHourRange>20~4</activeHourRange>
+        <preferredThings>
+          <li>SmokeleafJoint</li>
+          <li>Yayo</li>
+          <li>Flake</li>
+        </preferredThings>
+      </li>
+      <li>
+        <label>夜间续命</label>
+        <weight>0.9</weight>
+        <budgetRange>500~1700</budgetRange>
+        <queuePatienceRange>1400~2600</queuePatienceRange>
+        <activeHourRange>18~6</activeHourRange>
+        <preferredGoodsCategories>
+          <li>Goods_AddictiveDrugs</li>
+        </preferredGoodsCategories>
+      </li>
+    </spawnProfiles>
+
+    <shoppingBehavior>
+      <browseTimeRange>220~480</browseTimeRange>
+      <maxShelvesToVisit>3</maxShelvesToVisit>
+      <queuePatience>1500</queuePatience>
+    </shoppingBehavior>
+  </SimManagementLib.SimDef.CustomerKindDef>
+</Defs>

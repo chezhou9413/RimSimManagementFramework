@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <JobDef>
+    <defName>DepositToMegaStorage</defName>
+    <driverClass>SimManagementLib.SimAI.JobDriver_DepositToMegaStorage</driverClass>
+    <reportString>正在补货。</reportString>
+  </JobDef>
+
+  <JobDef>
+    <defName>WithdrawFromMegaStorage</defName>
+    <driverClass>SimManagementLib.SimAI.JobDriver_WithdrawFromMegaStorage</driverClass>
+    <reportString>正在取出多余货物。</reportString>
+  </JobDef>
+</Defs>

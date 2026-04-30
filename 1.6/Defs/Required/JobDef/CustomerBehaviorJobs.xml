@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+  <JobDef>
+    <defName>Customer_BrowseAndPick</defName>
+    <driverClass>SimManagementLib.SimAI.JobDriver_BrowseAndPick</driverClass>
+    <reportString>正在挑选商品。</reportString>
+    <joyDuration>300</joyDuration>
+    <joyKind>Meditative</joyKind>
+  </JobDef>
+
+  <JobDef>
+    <defName>Customer_PayAtRegister</defName>
+    <driverClass>SimManagementLib.SimAI.JobDriver_PayAtRegister</driverClass>
+    <reportString>正在排队结账。</reportString>
+    <joyDuration>300</joyDuration>
+    <joyKind>Meditative</joyKind>
+  </JobDef>
+
+  <JobDef>
+    <defName>Customer_UseDrugInShop</defName>
+    <driverClass>SimManagementLib.SimAI.JobDriver_PostPurchaseUseDrugInShop</driverClass>
+    <reportString>正在店内吸食成瘾品。</reportString>
+    <casualInterruptible>true</casualInterruptible>
+    <joyDuration>480</joyDuration>
+    <joyKind>Chemical</joyKind>
+  </JobDef>
+</Defs>

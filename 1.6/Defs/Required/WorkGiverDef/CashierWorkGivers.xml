@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+  <WorkGiverDef>
+    <defName>Sim_WorkGiver_ManCashRegister</defName>
+    <label>收银台值班</label>
+    <giverClass>SimManagementLib.SimWorkGiver.WorkGiver_ManCashRegister</giverClass>
+    <workType>Sim_ServiceWork</workType>
+    <priorityInType>100</priorityInType>
+    <verb>值班</verb>
+    <gerund>正在收银台值班</gerund>
+    <requiredCapacities>
+      <li>Manipulation</li>
+      <li>Talking</li>
+    </requiredCapacities>
+  </WorkGiverDef>
+
+  <!-- 下班后把收银台里积累的白银统一搬走。 -->
+  <WorkGiverDef>
+    <defName>Sim_WorkGiver_CollectCashRegisterSilver</defName>
+    <label>收银台取现搬运</label>
+    <giverClass>SimManagementLib.SimWorkGiver.WorkGiver_CollectCashRegisterSilver</giverClass>
+    <workType>Hauling</workType>
+    <priorityInType>95</priorityInType>
+    <verb>搬运</verb>
+    <gerund>正在从收银台取现</gerund>
+    <requiredCapacities>
+      <li>Manipulation</li>
+    </requiredCapacities>
+  </WorkGiverDef>
+</Defs>

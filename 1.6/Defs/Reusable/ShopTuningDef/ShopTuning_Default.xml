@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <!-- 全局经营调参。建议从小幅度改动开始，便于观察客流和评分变化。 -->
+  <SimManagementLib.SimDef.ShopTuningDef>
+    <defName>SimShop_DefaultTuning</defName>
+    <label>shop tuning</label>
+
+    <evaluateIntervalTicks>120</evaluateIntervalTicks>
+    <defaultReputation>50</defaultReputation>
+    <defaultSatisfaction>50</defaultSatisfaction>
+
+    <operationWeight>0.35</operationWeight>
+    <goodsWeight>0.25</goodsWeight>
+    <serviceWeight>0.20</serviceWeight>
+    <environmentWeight>0.20</environmentWeight>
+
+    <beautyWeight>0.60</beautyWeight>
+    <cleanlinessWeight>0.25</cleanlinessWeight>
+    <indoorWeight>0.15</indoorWeight>
+    <beautyRange>
+      <min>-2</min>
+      <max>8</max>
+    </beautyRange>
+
+    <operationRegisterDivisor>3.5</operationRegisterDivisor>
+    <operationStorageDivisor>8</operationStorageDivisor>
+    <operationCoverageDivisorCells>14</operationCoverageDivisorCells>
+    <operationRegisterComponentWeight>0.45</operationRegisterComponentWeight>
+    <operationStorageComponentWeight>0.30</operationStorageComponentWeight>
+    <operationCoverageComponentWeight>0.25</operationCoverageComponentWeight>
+
+    <goodsVarietyTarget>24</goodsVarietyTarget>
+    <goodsComboTarget>8</goodsComboTarget>
+    <goodsVarietyWeight>0.45</goodsVarietyWeight>
+    <goodsStockWeight>0.40</goodsStockWeight>
+    <goodsComboWeight>0.15</goodsComboWeight>
+
+    <serviceFallbackSuccessRate>0.65</serviceFallbackSuccessRate>
+    <serviceFallbackAvgWaitTicks>900</serviceFallbackAvgWaitTicks>
+    <serviceWaitPenaltyTicks>2800</serviceWaitPenaltyTicks>
+    <serviceSuccessWeight>0.45</serviceSuccessWeight>
+    <serviceWaitWeight>0.35</serviceWaitWeight>
+    <serviceStaffWeight>0.20</serviceStaffWeight>
+
+    <stageBase>0.65</stageBase>
+    <wealthRange>
+      <min>30000</min>
+      <max>500000</max>
+    </wealthRange>
+    <wealthWeight>0.45</wealthWeight>
+    <colonistTarget>20</colonistTarget>
+    <colonistWeight>0.35</colonistWeight>
+    <shopCountTarget>6</shopCountTarget>
+    <shopCountWeight>0.25</shopCountWeight>
+
+    <qualityMultiplierRange>
+      <min>0.45</min>
+      <max>1.80</max>
+    </qualityMultiplierRange>
+    <reputationMultiplierRange>
+      <min>0.55</min>
+      <max>1.60</max>
+    </reputationMultiplierRange>
+    <demandFactorClamp>
+      <min>0.20</min>
+      <max>4.00</max>
+    </demandFactorClamp>
+
+    <capacityRegisterFactor>2.5</capacityRegisterFactor>
+    <capacityMannedFactor>2.0</capacityMannedFactor>
+    <capacityStorageFactor>1.0</capacityStorageFactor>
+    <capacityQualityMulRange>
+      <min>0.65</min>
+      <max>1.40</max>
+    </capacityQualityMulRange>
+    <capacityReputationMulRange>
+      <min>0.75</min>
+      <max>1.20</max>
+    </capacityReputationMulRange>
+    <capacityMin>2</capacityMin>
+    <capacityMax>72</capacityMax>
+    <capacityZoneCellCapDivisor>2</capacityZoneCellCapDivisor>
+
+    <satisfactionQueueWeight>0.25</satisfactionQueueWeight>
+    <satisfactionBudgetWeight>0.20</satisfactionBudgetWeight>
+    <satisfactionGoodsWeight>0.20</satisfactionGoodsWeight>
+    <satisfactionEnvironmentWeight>0.15</satisfactionEnvironmentWeight>
+    <satisfactionCompletionWeight>0.20</satisfactionCompletionWeight>
+
+    <satisfactionNoBuyBase>35</satisfactionNoBuyBase>
+    <satisfactionTimeoutNoBuy>10</satisfactionTimeoutNoBuy>
+    <satisfactionPaidGoods>90</satisfactionPaidGoods>
+    <satisfactionCompletionSuccess>100</satisfactionCompletionSuccess>
+    <satisfactionCompletionFail>30</satisfactionCompletionFail>
+    <satisfactionCompletionTimeout>5</satisfactionCompletionTimeout>
+    <satisfactionBudgetBase>40</satisfactionBudgetBase>
+    <satisfactionBudgetScale>60</satisfactionBudgetScale>
+    <satisfactionBudgetTargetUsage>0.75</satisfactionBudgetTargetUsage>
+
+    <satisfactionEmaOldWeight>0.80</satisfactionEmaOldWeight>
+    <satisfactionEmaNewWeight>0.20</satisfactionEmaNewWeight>
+    <reputationEmaOldWeight>0.97</reputationEmaOldWeight>
+    <reputationEmaNewWeight>0.03</reputationEmaNewWeight>
+  </SimManagementLib.SimDef.ShopTuningDef>
+</Defs>

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+  <!--
+    CustomerKindDef 基础示例（可直接复制一整段改 defName 使用）
+
+    字段速览：
+    1. pawnKindDefs：这类顾客可用的人物原型池。
+    2. arrivalCurve：24 小时到访权重曲线，值越高越容易触发该类顾客。
+    3. budgetRange：顾客预算范围（银币）。
+    4. queuePatienceRange：排队耐心（tick）。
+    5. activeHourRange：可活动时段；支持跨午夜（例如 20~4）。
+    6. allowedWeathers：允许出没的天气，留空表示不限制天气。
+    7. targetGoodsCategories：偏好的 GoodsDef 分类，用于兴趣匹配。
+    8. spawnProfiles：同一顾客类型下的“子画像”；命中后会覆盖基础预算/耐心等参数。
+    9. shoppingBehavior：浏览行为参数（逛店时间、最多访问货柜数、基础排队耐心）。
+
+    注意：
+    - defName 必须全局唯一。
+    - queuePatienceRange 与 shoppingBehavior.queuePatience 并存时，优先按运行时画像参数计算。
+    - spawnProfiles 可为空；为空时会回退到本节点的基础参数。
+  -->
+  <SimManagementLib.SimDef.CustomerKindDef>
+    <!-- 顾客类型唯一 ID（代码和其他 Def 引用用这个） -->
+    <defName>BasicSimCustomerKind</defName>
+    <!-- 游戏内显示名称 -->
+    <label>常规顾客</label>
+
+    <!--
+      顾客 PawnKind 候选池。
+      会从这里随机选择一个作为来访顾客外观/基础属性来源。
+    -->
+    <pawnKindDefs>
+      <li>Villager</li>
+      <li>Villager_Child</li>
+      <li>Town_Guard</li>
+      <li>Town_Trader</li>
+      <li>Town_Councilman</li>
+    </pawnKindDefs>
+
+    <!--
+      到访时段曲线（0~24 小时）。
+      示例含义：中午和傍晚更容易来客，深夜较少。
+      y 值是权重，不是百分比，可大于 1。
+    -->
+    <arrivalCurve>
+      <points>
+        <li>(0, 0.3)</li>
+        <li>(8, 0.9)</li>
+        <li>(12, 1.1)</li>
+        <li>(18, 1.0)</li>
+        <li>(24, 0.3)</li>
+      </points>
+    </arrivalCurve>
+
+    <!-- 顾客可支配预算范围 -->
+    <budgetRange>500~1000</budgetRange>
+    <!-- 排队耐心范围（tick），越大越愿意久等 -->
+    <queuePatienceRange>1200~3000</queuePatienceRange>
+    <!-- 活跃时段（本地小时）；如需跨午夜可写成 20~4 -->
+    <activeHourRange>6~23</activeHourRange>
+
+    <!--
+      天气过滤：
+      仅在这些天气下刷新该类顾客。若整段移除或留空，表示全天气可刷新。
+    -->
+    <allowedWeathers>
+      <li>Clear</li>
+      <li>Fog</li>
+      <li>Rain</li>
+      <li>FoggyRain</li>
+    </allowedWeathers>
+
+    <!--
+      顾客偏好的商品大类（GoodsDef）。
+      用于“商店商品结构是否吸引该顾客”计算。
+    -->
+    <targetGoodsCategories>
+      <li>Goods_Foods</li>
+    </targetGoodsCategories>
+
+    <!--
+      顾客子画像（可定义多个）：
+      - 会按 weight 权重随机命中一个“当前时段/天气可出现”的画像。
+      - 画像命中后，预算、耐心、偏好会以画像为准。
+      - label 建议写成便于调试识别的名字。
+    -->
+    <spawnProfiles>
+      <li>
+        <label>快买快走</label>
+        <!-- 权重越高越常见 -->
+        <weight>1.0</weight>
+        <budgetRange>400~900</budgetRange>
+        <queuePatienceRange>800~1400</queuePatienceRange>
+        <activeHourRange>9~18</activeHourRange>
+        <!-- 更偏好具体物品（ThingDef） -->
+        <preferredThings>
+          <li>MealSimple</li>
+          <li>MealSurvivalPack</li>
+        </preferredThings>
+      </li>
+      <li>
+        <label>高消费慢逛</label>
+        <weight>0.7</weight>
+        <budgetRange>900~1600</budgetRange>
+        <queuePatienceRange>2200~4200</queuePatienceRange>
+        <activeHourRange>10~22</activeHourRange>
+        <preferredThings>
+          <li>MealFine</li>
+          <li>MealLavish</li>
+        </preferredThings>
+        <!-- 也可以额外偏好某个商品分类 -->
+        <preferredGoodsCategories>
+          <li>Goods_Foods</li>
+        </preferredGoodsCategories>
+      </li>
+    </spawnProfiles>
+
+    <!--
+      购物行为参数：
+      - browseTimeRange：在货柜附近停留挑选时长（tick）。
+      - maxShelvesToVisit：本次购物最多访问的货柜数量。
+      - queuePatience：行为层基础值（当画像未给出有效值时可作为回退）。
+    -->
+    <shoppingBehavior>
+      <browseTimeRange>300~500</browseTimeRange>
+      <maxShelvesToVisit>3</maxShelvesToVisit>
+      <queuePatience>1800</queuePatience>
+    </shoppingBehavior>
+  </SimManagementLib.SimDef.CustomerKindDef>
+</Defs>

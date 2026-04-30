@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <!-- 商店后勤工作：把商品补进货柜。 -->
+  <WorkTypeDef>
+    <defName>Restocking</defName>
+    <labelShort>补货</labelShort>
+    <pawnLabel>Restocker</pawnLabel>
+    <gerundLabel>restocking</gerundLabel>
+    <description>搬运物资到货柜，直到达到配置目标数量。</description>
+    <verb>Restock</verb>
+    <naturalPriority>450</naturalPriority>
+    <alwaysStartActive>false</alwaysStartActive>
+    <requireCapableColonist>true</requireCapableColonist>
+    <workTags>
+      <li>ManualDumb</li>
+      <li>Hauling</li>
+      <li>Commoner</li>
+      <li>AllWork</li>
+    </workTags>
+  </WorkTypeDef>
+</Defs>

@@ -1,0 +1,7 @@
+# 文本文件统一使用 LF，减少跨平台换行差异
+* text=auto eol=lf
+
+# 二进制资源保持原样
+*.dll binary
+*.pdb binary
+*.png binary

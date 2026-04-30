@@ -1,0 +1,15 @@
+# 编译输出与中间缓存
+1.6/Source/**/bin/
+1.6/Source/**/obj/
+
+# IDE 与本机用户配置
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# 系统临时文件
+Thumbs.db
+Desktop.ini

@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <!-- 默认货柜。开发者可以复制这个 ThingDef 做小型/中型/精致货柜。 -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>MegaStorageBox</defName>
+    <label>货柜</label>
+    <description>用于商店运营的货柜。可集中存放并管理店铺售卖物资，方便补货与结算。</description>
+    <thingClass>SimManagementLib.SimThingClass.Building_SimContainer</thingClass>
+
+    <graphicData>
+      <texPath>Things/Building/Furniture/ShelfSmall</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <drawSize>(2, 2)</drawSize>
+    </graphicData>
+
+    <size>(1, 1)</size>
+    <altitudeLayer>Building</altitudeLayer>
+    <passability>PassThroughOnly</passability>
+    <pathCost>50</pathCost>
+    <fillPercent>0.4</fillPercent>
+    <castEdgeShadows>true</castEdgeShadows>
+    <staticSunShadowHeight>0.5</staticSunShadowHeight>
+    <drawerType>MapMeshOnly</drawerType>
+    <selectable>true</selectable>
+    <leaveResourcesWhenKilled>true</leaveResourcesWhenKilled>
+    <noRightClickDraftAttack>true</noRightClickDraftAttack>
+    <surfaceType>Item</surfaceType>
+    <category>Building</category>
+    <filthLeaving>Filth_RubbleBuilding</filthLeaving>
+    <repairEffect>Repair</repairEffect>
+    <soundImpactDefault>BulletImpact_Metal</soundImpactDefault>
+    <defaultPlacingRot>South</defaultPlacingRot>
+    <canOverlapZones>true</canOverlapZones>
+
+    <statBases>
+      <MaxHitPoints>100</MaxHitPoints>
+      <WorkToBuild>500</WorkToBuild>
+      <Mass>5</Mass>
+      <Flammability>0.5</Flammability>
+      <Beauty>1</Beauty>
+      <SellPriceFactor>0.7</SellPriceFactor>
+    </statBases>
+
+    <costList>
+      <Steel>10</Steel>
+    </costList>
+
+    <terrainAffordanceNeeded>Light</terrainAffordanceNeeded>
+    <designationCategory>Furniture</designationCategory>
+
+    <building>
+      <maxItemsInCell>999</maxItemsInCell>
+      <preventDeteriorationOnTop>true</preventDeteriorationOnTop>
+      <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
+      <blueprintClass>Blueprint_Storage</blueprintClass>
+
+      <!-- 这部分是硬限制，避免存入明显不合适的物品。 -->
+      <fixedStorageSettings>
+        <filter>
+          <disallowNotEverStorable>true</disallowNotEverStorable>
+          <categories>
+            <li>Root</li>
+          </categories>
+          <disallowedCategories>
+            <li>Chunks</li>
+            <li>Plants</li>
+            <li>Buildings</li>
+          </disallowedCategories>
+          <specialFiltersToDisallow>
+            <li>AllowLargeCorpses</li>
+          </specialFiltersToDisallow>
+        </filter>
+      </fixedStorageSettings>
+
+      <!-- 这部分是默认筛选，玩家可以在游戏里继续调整。 -->
+      <defaultStorageSettings>
+        <priority>Preferred</priority>
+        <filter>
+          <categories>
+            <li>Foods</li>
+            <li>Manufactured</li>
+            <li>ResourcesRaw</li>
+            <li>Items</li>
+            <li>Weapons</li>
+            <li>Apparel</li>
+            <li>BodyParts</li>
+          </categories>
+        </filter>
+      </defaultStorageSettings>
+    </building>
+
+    <minifiedDef>MinifiedThing</minifiedDef>
+    <thingCategories>
+      <li>BuildingsFurniture</li>
+    </thingCategories>
+
+    <comps>
+      <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
+        <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
+        <maxTotalCapacity>600</maxTotalCapacity>
+      </li>
+    </comps>
+  </ThingDef>
+</Defs>
