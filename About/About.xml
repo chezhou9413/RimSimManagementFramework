@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
-  <name>边缘模拟经营框架</name>
-  <author>作者:牢大</author>
+  <name>RimSimManagementFramework边缘模拟经营框架</name>
+  <author>追踪虫 and Migua</author>
   <supportedVersions>
     <li>1.6</li>
   </supportedVersions>
-  <description></description>
+  <description>本mod提供了一个模拟经营框架，排序时请尽量加载在各种种族mod的下方</description>
   <packageId>chezhou.Framework.RimSimManagementFramework</packageId>
   <modDependencies>
     <li>
@@ -16,6 +16,12 @@
   </modDependencies>
   <loadAfter>
     <li>brrainz.harmony</li>
+    <li>Ancot.KiiroRace</li>
+    <li>Ancot.MiliraRace</li>
+    <li>MelonDove.WolfeinRace</li>
+    <li>HenTaiLoliTeam.Axolotl</li>
+    <li>OARK.RatkinFaction.OberoniaAurea</li>
   </loadAfter>
+  <modIconPath IgnoreIfNoMatchingField="True">Things/Icon/Mod_Icon</modIconPath>
 </ModMetaData>
 
