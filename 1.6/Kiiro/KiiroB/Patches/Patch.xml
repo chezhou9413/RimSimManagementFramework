@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Patch>
+	<Operation Class="PatchOperationAdd">
+		<xpath>/Defs/ThingDef[@Name='Kiiro_WoodBoxSmall'][@ParentName='Kiiro_FurnitureBase'][@Abstract='true']/building</xpath>
+		<value>
+			<fixedStorageSettings>
+                <filter>
+                    <disallowNotEverStorable>true</disallowNotEverStorable>
+                    <categories>
+                        <li>Root</li>
+                    </categories>
+                    <disallowedCategories>
+                        <li>Chunks</li>
+                        <li>Plants</li>
+                        <li>Buildings</li>
+                    </disallowedCategories>
+                    <specialFiltersToDisallow>
+                        <li>AllowLargeCorpses</li>
+                    </specialFiltersToDisallow>
+                </filter>
+            </fixedStorageSettings>
+            <defaultStorageSettings>
+                <priority>Preferred</priority>
+                <filter>
+                    <categories>
+                        <li>Foods</li>
+                        <li>Manufactured</li>
+                        <li>ResourcesRaw</li>
+                        <li>Items</li>
+                        <li>Weapons</li>
+                        <li>Apparel</li>
+                        <li>BodyParts</li>
+                    </categories>
+                </filter>
+            </defaultStorageSettings>
+		</value>
+	</Operation>
+    <Operation Class="PatchOperationAdd">
+        <xpath>/Defs/ThingDef[@Name='Kiiro_WoodBoxSmall'][@ParentName='Kiiro_FurnitureBase'][@Abstract='true']/comps</xpath>
+        <value>
+            <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
+                <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
+                <maxTotalCapacity>100</maxTotalCapacity>
+            </li>
+        </value>
+    </Operation>
+    <!--Operation Class="PatchOperationAdd">
+        <xpath>/Defs/ThingDef[@Name='Kiiro_WoodBoxSmall'][@ParentName='Kiiro_FurnitureBase'][@Abstract='true']</xpath>
+        <value>
+            <thingClass>SimManagementLib.SimThingClass.Building_SimContainer</thingClass>
+        <value>
+    </Operation-->
+</Patch>

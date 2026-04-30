@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+  <!-- 更多原版顾客画像示例，可按需复制并改 defName。 -->
+
+  <SimManagementLib.SimDef.CustomerKindDef>
+    <defName>SimCustomer_Kiiro_Soldier</defName>
+    <label>绮罗 游击队物资采买商</label>
+
+    <pawnKindDefs>
+      <li>Kiiro_GuerrillaMedic</li>
+      <li>Kiiro_Guerrilla</li>
+    </pawnKindDefs>
+
+    <arrivalCurve>
+      <points>
+        <li>(0, 1.35)</li>
+        <li>(7, 0.7)</li>
+        <li>(12, 0.1)</li>
+        <li>(18, 1.1)</li>
+        <li>(24, 1.35)</li>
+      </points>
+    </arrivalCurve>
+
+    <baseMtbDays>0.22</baseMtbDays>
+    <budgetRange>700~1800</budgetRange>
+    <queuePatienceRange>1400~3600</queuePatienceRange>
+    <activeHourRange>21~7</activeHourRange>
+
+    <allowedWeathers>
+    </allowedWeathers>
+
+    <targetGoodsCategories>
+      <li>Goods_Meals</li>
+      <li>Goods_Medicine</li>
+    </targetGoodsCategories>
+
+    <spawnProfiles>
+      <li>
+        <label>补给采购</label>
+        <weight>1.4</weight>
+        <budgetRange>500~1200</budgetRange>
+        <queuePatienceRange>1000~1800</queuePatienceRange>
+        <activeHourRange>20~7</activeHourRange>
+        <preferredThings>
+          <li>MealSurvivalPack</li>
+          <li>Kiiro_CannedCatFood</li>
+          <li>Kiiro_CannedMintedCatFood</li>
+          <li MayRequire="Ancot.MiliraRace">Milira_TravellerFood</li>
+        </preferredThings>
+        <preferredGoodsCategories>
+          <li>Goods_Medicine</li>
+        </preferredGoodsCategories>
+      </li>
+      <li>
+        <label>军火采购</label>
+        <weight>0.7</weight>
+        <budgetRange>2000~4000</budgetRange>
+        <queuePatienceRange>1800~3600</queuePatienceRange>
+        <activeHourRange>20~7</activeHourRange>
+        <preferredThings>
+          <li>Kiiro_MixedMedicineHerbal</li>
+        </preferredThings>
+        <preferredGoodsCategories>
+          <li>Goods_Medicine</li>
+          <li>Goods_Weapons</li>
+        </preferredGoodsCategories>
+      </li>
+    </spawnProfiles>
+
+    <shoppingBehavior>
+      <browseTimeRange>400~800</browseTimeRange>
+      <maxShelvesToVisit>8</maxShelvesToVisit>
+      <queuePatience>4000</queuePatience>
+    </shoppingBehavior>
+  </SimManagementLib.SimDef.CustomerKindDef>
+
+  <SimManagementLib.SimDef.CustomerKindDef>
+    <defName>SimCustomer_Kiiro_Foodie</defName>
+    <label>绮罗 小馋猫</label>
+
+    <pawnKindDefs>
+      <li>Kiiro_Towner</li>
+      <li>Kiiro_TownerII</li>
+    </pawnKindDefs>
+
+    <arrivalCurve>
+      <points>
+        <li>(0, 1.35)</li>
+        <li>(7, 0.7)</li>
+        <li>(12, 0.1)</li>
+        <li>(18, 1.1)</li>
+        <li>(24, 1.35)</li>
+      </points>
+    </arrivalCurve>
+
+    <baseMtbDays>0.22</baseMtbDays>
+    <budgetRange>700~1800</budgetRange>
+    <queuePatienceRange>1400~3600</queuePatienceRange>
+    <activeHourRange>21~7</activeHourRange>
+
+    <allowedWeathers>
+      <li>Clear</li>
+    </allowedWeathers>
+
+    <targetGoodsCategories>
+      <li>Goods_Foods</li>
+      <li>Goods_Meals</li>
+    </targetGoodsCategories>
+
+    <spawnProfiles>
+      <li>
+        <label>零食大补充！</label>
+        <weight>2.0</weight>
+        <budgetRange>400~600</budgetRange>
+        <queuePatienceRange>800~1800</queuePatienceRange>
+        <activeHourRange>20~7</activeHourRange>
+        <preferredThings>
+        </preferredThings>
+        <preferredGoodsCategories>
+          <li>Goods_Foods</li>
+          <li>Goods_Meals</li>
+        </preferredGoodsCategories>
+      </li>
+    </spawnProfiles>
+
+    <shoppingBehavior>
+      <browseTimeRange>400~800</browseTimeRange>
+      <maxShelvesToVisit>8</maxShelvesToVisit>
+      <queuePatience>4000</queuePatience>
+    </shoppingBehavior>
+  </SimManagementLib.SimDef.CustomerKindDef>
+
+  <SimManagementLib.SimDef.CustomerKindDef>
+    <defName>SimCustomer_Kiiro_Wholesaler</defName>
+    <label>绮罗 批发商</label>
+
+    <pawnKindDefs>
+      <li>Kiiro_Trader</li>
+    </pawnKindDefs>
+
+    <arrivalCurve>
+      <points>
+        <li>(0, 0.9)</li>
+        <li>(7, 1.1)</li>
+        <li>(12, 1.5)</li>
+        <li>(18, 1.1)</li>
+        <li>(24, 0.9)</li>
+      </points>
+    </arrivalCurve>
+
+    <baseMtbDays>0.22</baseMtbDays>
+    <budgetRange>1200~3200</budgetRange>
+    <queuePatienceRange>1900~3600</queuePatienceRange>
+    <activeHourRange>7~21</activeHourRange>
+
+    <allowedWeathers>
+      <li>Clear</li>
+    </allowedWeathers>
+
+    <targetGoodsCategories>
+      <li>Goods_Foods</li>
+      <li>Goods_Meals</li>
+      <li>Goods_Medicine</li>
+      <li>Goods_Drugs</li>
+      <li>Goods_ResourcesBasic</li>
+      <li>Goods_ApparelBasic</li>
+    </targetGoodsCategories>
+
+    <spawnProfiles>
+      <li>
+        <label>进货！进货！</label>
+        <weight>2.0</weight>
+        <budgetRange>2400~4000</budgetRange>
+        <queuePatienceRange>800~1800</queuePatienceRange>
+        <activeHourRange>20~7</activeHourRange>
+        <preferredThings>
+        </preferredThings>
+        <preferredGoodsCategories>
+          <li>Goods_Foods</li>
+          <li>Goods_Meals</li>
+          <li>Goods_Medicine</li>
+          <li>Goods_Drugs</li>
+          <li>Goods_ResourcesBasic</li>
+          <li>Goods_ApparelBasic</li>
+        </preferredGoodsCategories>
+      </li>
+    </spawnProfiles>
+
+    <shoppingBehavior>
+      <browseTimeRange>400~800</browseTimeRange>
+      <maxShelvesToVisit>8</maxShelvesToVisit>
+      <queuePatience>4000</queuePatience>
+    </shoppingBehavior>
+  </SimManagementLib.SimDef.CustomerKindDef>
+</Defs>
