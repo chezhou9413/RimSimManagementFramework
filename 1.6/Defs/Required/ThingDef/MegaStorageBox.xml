@@ -1,104 +1,357 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Defs>
-  <!-- 默认货柜。开发者可以复制这个 ThingDef 做小型/中型/精致货柜。 -->
-  <ThingDef ParentName="BuildingBase">
-    <defName>MegaStorageBox</defName>
-    <label>货柜</label>
-    <description>用于商店运营的货柜。可集中存放并管理店铺售卖物资，方便补货与结算。</description>
-    <thingClass>SimManagementLib.SimThingClass.Building_SimContainer</thingClass>
 
-    <graphicData>
-      <texPath>Things/Building/Furniture/ShelfSmall</texPath>
-      <graphicClass>Graphic_Multi</graphicClass>
-      <drawSize>(2, 2)</drawSize>
-    </graphicData>
+    <ThingDef Name="MegaStorageBox" ParentName="BuildingBase" Abstract="True">
+        <thingClass>SimManagementLib.SimThingClass.Building_SimContainer</thingClass>
+        <graphicData>
+            <graphicClass>Graphic_Multi</graphicClass>
+        </graphicData>
+        <altitudeLayer>Building</altitudeLayer>
+        <passability>PassThroughOnly</passability>
+        <pathCost>50</pathCost>
+        <fillPercent>0.4</fillPercent>
+        <castEdgeShadows>true</castEdgeShadows>
+        <staticSunShadowHeight>0.5</staticSunShadowHeight>
+        <drawerType>MapMeshOnly</drawerType>
+        <selectable>true</selectable>
+        <leaveResourcesWhenKilled>true</leaveResourcesWhenKilled>
+        <noRightClickDraftAttack>true</noRightClickDraftAttack>
+        <surfaceType>Item</surfaceType>
+        <category>Building</category>
+        <filthLeaving>Filth_RubbleBuilding</filthLeaving>
+        <repairEffect>Repair</repairEffect>
+        <soundImpactDefault>BulletImpact_Metal</soundImpactDefault>
+        <defaultPlacingRot>South</defaultPlacingRot>
+        <canOverlapZones>true</canOverlapZones>
+        <statBases>
+            <MaxHitPoints>100</MaxHitPoints>
+            <WorkToBuild>500</WorkToBuild>
+            <Mass>5</Mass>
+            <Flammability>0.5</Flammability>
+            <Beauty>6</Beauty>
+            <SellPriceFactor>0.7</SellPriceFactor>
+        </statBases>
+        <terrainAffordanceNeeded>Light</terrainAffordanceNeeded>
+        <designationCategory>SimManagementBuildings</designationCategory>
+        <building>
+            <maxItemsInCell>999</maxItemsInCell>
+            <preventDeteriorationOnTop>true</preventDeteriorationOnTop>
+            <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
+            <blueprintClass>Blueprint_Storage</blueprintClass>
+            <!-- 这部分是硬限制，避免存入明显不合适的物品。 -->
+            <fixedStorageSettings>
+                <filter>
+                    <disallowNotEverStorable>true</disallowNotEverStorable>
+                    <categories>
+                        <li>Root</li>
+                    </categories>
+                    <disallowedCategories>
+                        <li>Chunks</li>
+                        <li>Plants</li>
+                        <li>Buildings</li>
+                    </disallowedCategories>
+                    <specialFiltersToDisallow>
+                        <li>AllowLargeCorpses</li>
+                    </specialFiltersToDisallow>
+                </filter>
+            </fixedStorageSettings>
+            <!-- 这部分是默认筛选，玩家可以在游戏里继续调整。 -->
+            <defaultStorageSettings>
+                <priority>Preferred</priority>
+                <filter>
+                    <categories>
+                        <li>Foods</li>
+                        <li>Manufactured</li>
+                        <li>ResourcesRaw</li>
+                        <li>Items</li>
+                        <li>Weapons</li>
+                        <li>Apparel</li>
+                        <li>BodyParts</li>
+                    </categories>
+                </filter>
+            </defaultStorageSettings>
+        </building>
+        <minifiedDef>MinifiedThing</minifiedDef>
+        <thingCategories>
+            <li>BuildingsFurniture</li>
+        </thingCategories>
+    </ThingDef>
 
-    <size>(1, 1)</size>
-    <altitudeLayer>Building</altitudeLayer>
-    <passability>PassThroughOnly</passability>
-    <pathCost>50</pathCost>
-    <fillPercent>0.4</fillPercent>
-    <castEdgeShadows>true</castEdgeShadows>
-    <staticSunShadowHeight>0.5</staticSunShadowHeight>
-    <drawerType>MapMeshOnly</drawerType>
-    <selectable>true</selectable>
-    <leaveResourcesWhenKilled>true</leaveResourcesWhenKilled>
-    <noRightClickDraftAttack>true</noRightClickDraftAttack>
-    <surfaceType>Item</surfaceType>
-    <category>Building</category>
-    <filthLeaving>Filth_RubbleBuilding</filthLeaving>
-    <repairEffect>Repair</repairEffect>
-    <soundImpactDefault>BulletImpact_Metal</soundImpactDefault>
-    <defaultPlacingRot>South</defaultPlacingRot>
-    <canOverlapZones>true</canOverlapZones>
+    <!-- 默认货柜。开发者可以复制这个 ThingDef 做小型/中型/精致货柜。 -->
+    <ThingDef ParentName="MegaStorageBox">
+        <defName>BigStorageBox</defName>
+        <label>大货柜</label>
+        <description>用于商店运营的大货柜。可集中存放并管理店铺售卖物资，方便补货与结算。</description>
+        <graphicData>
+            <texPath>Things/Building/MegaStorageBox/BigStorageBox</texPath>
+            <drawSize>(2.8, 2.8)</drawSize>
+            <drawOffsetSouth>(0, 0.1, 0.19)</drawOffsetSouth>
+            <drawOffsetNorth>(0, 0.1, 0.19)</drawOffsetNorth>
+            <drawOffsetEast>(0, 0.1, 0.35)</drawOffsetEast>
+            <drawOffsetWest>(0, 0.1, 0.35)</drawOffsetWest>
+        </graphicData>
+        <size>(2, 1)</size>
+        <costList>
+            <Steel>15</Steel>
+        </costList>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
+            <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
+            <maxTotalCapacity>900</maxTotalCapacity>
+            </li>
+        </comps>
+    </ThingDef>
 
-    <statBases>
-      <MaxHitPoints>100</MaxHitPoints>
-      <WorkToBuild>500</WorkToBuild>
-      <Mass>5</Mass>
-      <Flammability>0.5</Flammability>
-      <Beauty>1</Beauty>
-      <SellPriceFactor>0.7</SellPriceFactor>
-    </statBases>
+    <ThingDef ParentName="MegaStorageBox">
+        <defName>ClothesStorageBox</defName>
+        <label>大服装货柜</label>
+        <description>用于商店运营的大货柜。可集中存放并管理店铺售卖物资，方便补货与结算。</description>
+        <graphicData>
+            <texPath>Things/Building/MegaStorageBox/ClothesStorageBox</texPath>
+            <drawSize>(4, 4)</drawSize>
+            <drawOffsetSouth>(0, 0.1, 0.58)</drawOffsetSouth>
+            <drawOffsetNorth>(0, 0.1, 0.58)</drawOffsetNorth>
+            <drawOffsetEast>(0.05, 0.1, 0.4)</drawOffsetEast>
+            <drawOffsetWest>(-0.05, 0.1, 0.4)</drawOffsetWest>
+        </graphicData>
+        <size>(3, 1)</size>
+        <costList>
+            <Steel>15</Steel>
+        </costList>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
+            <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
+            <maxTotalCapacity>900</maxTotalCapacity>
+            </li>
+        </comps>
+    </ThingDef>
 
-    <costList>
-      <Steel>10</Steel>
-    </costList>
+    <ThingDef ParentName="MegaStorageBox">
+        <defName>ToolsStorageBox</defName>
+        <label>工具货柜</label>
+        <description>用于商店运营的大货柜。可集中存放并管理店铺售卖物资，方便补货与结算。</description>
+        <graphicData>
+            <texPath>Things/Building/MegaStorageBox/ToolsStorageBox</texPath>
+            <drawSize>(3, 3)</drawSize>
+            <drawOffsetSouth>(0, 0.1, 0.4)</drawOffsetSouth>
+            <drawOffsetNorth>(0, 0.1, 0.4)</drawOffsetNorth>
+            <drawOffsetEast>(0, 0.1, 0.4)</drawOffsetEast>
+            <drawOffsetWest>(0, 0.1, 0.4)</drawOffsetWest>
+        </graphicData>
+        <size>(1, 1)</size>
+        <costList>
+            <Steel>5</Steel>
+        </costList>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
+            <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
+            <maxTotalCapacity>300</maxTotalCapacity>
+            </li>
+        </comps>
+    </ThingDef>
 
-    <terrainAffordanceNeeded>Light</terrainAffordanceNeeded>
-    <designationCategory>Furniture</designationCategory>
+    <ThingDef ParentName="MegaStorageBox">
+        <defName>BeverageMachineA</defName>
+        <label>饮料机A</label>
+        <description>用于商店运营的饮料机。可集中存放并管理店铺售卖的饮料，方便补货与结算。</description>
+        <graphicData>
+            <texPath>Things/Building/MegaStorageBox/BeverageMachineA</texPath>
+            <drawSize>(2.65, 2.65)</drawSize>
+            <drawOffsetSouth>(0, 0.1, 0.25)</drawOffsetSouth>
+            <drawOffsetNorth>(0, 0.1, 0.25)</drawOffsetNorth>
+            <drawOffsetEast>(-0.2, 0.1, 0.465)</drawOffsetEast>
+            <drawOffsetWest>(0.2, 0.1, 0.465)</drawOffsetWest>
+        </graphicData>
+        <size>(1, 1)</size>
+        <costList>
+            <Steel>15</Steel>
+        </costList>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
+            <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
+            <maxTotalCapacity>300</maxTotalCapacity>
+            </li>
+            <li Class="CompProperties_Forbiddable"/>
+            <li Class="CompProperties_Power">
+                <compClass>CompPowerTrader</compClass>
+                <basePowerConsumption>70</basePowerConsumption>
+            </li>
+            <li Class="CompProperties_Flickable"/>
+            <li Class="CompProperties_Schedule">
+            <!-- Match plant growing times -->
+                <startTime>0.25</startTime>
+                <endTime>0.8</endTime>
+                <offMessage>Off for plant resting period</offMessage>
+            </li>
+            <li Class="CompProperties_Glower">
+                <overlightRadius>7.0</overlightRadius>
+                <glowRadius>3</glowRadius>
+                <glowColor>(370,370,370,0)</glowColor>
+            </li>
+        </comps>
+    </ThingDef>
 
-    <building>
-      <maxItemsInCell>999</maxItemsInCell>
-      <preventDeteriorationOnTop>true</preventDeteriorationOnTop>
-      <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
-      <blueprintClass>Blueprint_Storage</blueprintClass>
+    <ThingDef ParentName="MegaStorageBox">
+        <defName>BeverageMachineB</defName>
+        <label>饮料机B</label>
+        <description>用于商店运营的饮料机。可集中存放并管理店铺售卖的饮料，方便补货与结算。</description>
+        <graphicData>
+            <texPath>Things/Building/MegaStorageBox/BeverageMachineB</texPath>
+            <drawSize>(2.65, 2.65)</drawSize>
+            <drawOffsetSouth>(0, 0.1, 0.25)</drawOffsetSouth>
+            <drawOffsetNorth>(0, 0.1, 0.25)</drawOffsetNorth>
+            <drawOffsetEast>(-0.2, 0.1, 0.465)</drawOffsetEast>
+            <drawOffsetWest>(0.2, 0.1, 0.465)</drawOffsetWest>
+        </graphicData>
+        <size>(1, 1)</size>
+        <costList>
+            <Steel>15</Steel>
+        </costList>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
+            <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
+            <maxTotalCapacity>300</maxTotalCapacity>
+            </li>
+            <li Class="CompProperties_Forbiddable"/>
+            <li Class="CompProperties_Power">
+                <compClass>CompPowerTrader</compClass>
+                <basePowerConsumption>70</basePowerConsumption>
+            </li>
+            <li Class="CompProperties_Flickable"/>
+            <li Class="CompProperties_Schedule">
+            <!-- Match plant growing times -->
+                <startTime>0.25</startTime>
+                <endTime>0.8</endTime>
+                <offMessage>Off for plant resting period</offMessage>
+            </li>
+            <li Class="CompProperties_Glower">
+                <overlightRadius>7.0</overlightRadius>
+                <glowRadius>3</glowRadius>
+                <glowColor>(370,370,370,0)</glowColor>
+            </li>
+        </comps>
+    </ThingDef>
 
-      <!-- 这部分是硬限制，避免存入明显不合适的物品。 -->
-      <fixedStorageSettings>
-        <filter>
-          <disallowNotEverStorable>true</disallowNotEverStorable>
-          <categories>
-            <li>Root</li>
-          </categories>
-          <disallowedCategories>
-            <li>Chunks</li>
-            <li>Plants</li>
-            <li>Buildings</li>
-          </disallowedCategories>
-          <specialFiltersToDisallow>
-            <li>AllowLargeCorpses</li>
-          </specialFiltersToDisallow>
-        </filter>
-      </fixedStorageSettings>
+    <ThingDef ParentName="MegaStorageBox">
+        <defName>FoodStorageBoxA</defName>
+        <label>食品货柜A</label>
+        <description>用于商店运营的食品货柜。可集中存放并管理店铺售卖的食品，方便补货与结算。</description>
+        <graphicData>
+            <texPath>Things/Building/MegaStorageBox/FoodStorageBoxA</texPath>
+            <drawSize>(2.85, 2.85)</drawSize>
+            <drawOffsetSouth>(0, 0.1, 0.265)</drawOffsetSouth>
+            <drawOffsetNorth>(0, 0.1, 0.265)</drawOffsetNorth>
+            <drawOffsetEast>(-0.1, 0.1, 0.25)</drawOffsetEast>
+            <drawOffsetWest>(0.1, 0.1, 0.25)</drawOffsetWest>
+        </graphicData>
+        <size>(2, 1)</size>
+        <costList>
+            <Steel>10</Steel>
+        </costList>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
+            <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
+            <maxTotalCapacity>600</maxTotalCapacity>
+            </li>
+            <li Class="CompProperties_Forbiddable"/>
+            <li Class="CompProperties_Power">
+                <compClass>CompPowerTrader</compClass>
+                <basePowerConsumption>70</basePowerConsumption>
+            </li>
+            <li Class="CompProperties_Flickable"/>
+            <li Class="CompProperties_Schedule">
+            <!-- Match plant growing times -->
+                <startTime>0.25</startTime>
+                <endTime>0.8</endTime>
+                <offMessage>Off for plant resting period</offMessage>
+            </li>
+            <li Class="CompProperties_Glower">
+                <overlightRadius>7.0</overlightRadius>
+                <glowRadius>3</glowRadius>
+                <glowColor>(370,370,370,0)</glowColor>
+            </li>
+        </comps>
+    </ThingDef>
 
-      <!-- 这部分是默认筛选，玩家可以在游戏里继续调整。 -->
-      <defaultStorageSettings>
-        <priority>Preferred</priority>
-        <filter>
-          <categories>
-            <li>Foods</li>
-            <li>Manufactured</li>
-            <li>ResourcesRaw</li>
-            <li>Items</li>
-            <li>Weapons</li>
-            <li>Apparel</li>
-            <li>BodyParts</li>
-          </categories>
-        </filter>
-      </defaultStorageSettings>
-    </building>
+    <ThingDef ParentName="MegaStorageBox">
+        <defName>FoodStorageBoxB</defName>
+        <label>食品货柜B</label>
+        <description>用于商店运营的食品货柜。可集中存放并管理店铺售卖的食品，方便补货与结算。</description>
+        <graphicData>
+            <texPath>Things/Building/MegaStorageBox/FoodStorageBoxB</texPath>
+            <drawSize>(2.85, 2.85)</drawSize>
+            <drawOffsetSouth>(0, 0.1, 0.265)</drawOffsetSouth>
+            <drawOffsetNorth>(0, 0.1, 0.265)</drawOffsetNorth>
+            <drawOffsetEast>(-0.1, 0.1, 0.25)</drawOffsetEast>
+            <drawOffsetWest>(0.1, 0.1, 0.25)</drawOffsetWest>
+        </graphicData>
+        <size>(2, 1)</size>
+        <costList>
+            <Steel>10</Steel>
+        </costList>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
+            <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
+            <maxTotalCapacity>600</maxTotalCapacity>
+            </li>
+            <li Class="CompProperties_Forbiddable"/>
+            <li Class="CompProperties_Power">
+                <compClass>CompPowerTrader</compClass>
+                <basePowerConsumption>70</basePowerConsumption>
+            </li>
+            <li Class="CompProperties_Flickable"/>
+            <li Class="CompProperties_Schedule">
+            <!-- Match plant growing times -->
+                <startTime>0.25</startTime>
+                <endTime>0.8</endTime>
+                <offMessage>Off for plant resting period</offMessage>
+            </li>
+            <li Class="CompProperties_Glower">
+                <overlightRadius>7.0</overlightRadius>
+                <glowRadius>3</glowRadius>
+                <glowColor>(370,370,370,0)</glowColor>
+            </li>
+        </comps>
+    </ThingDef>
 
-    <minifiedDef>MinifiedThing</minifiedDef>
-    <thingCategories>
-      <li>BuildingsFurniture</li>
-    </thingCategories>
-
-    <comps>
-      <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
-        <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
-        <maxTotalCapacity>600</maxTotalCapacity>
-      </li>
-    </comps>
-  </ThingDef>
+    <ThingDef ParentName="MegaStorageBox">
+        <defName>BigBeverageStorageBox</defName>
+        <label>大饮料货柜</label>
+        <description>用于商店运营的大饮料货柜。可集中存放并管理店铺售卖的饮料，方便补货与结算。</description>
+        <graphicData>
+            <texPath>Things/Building/MegaStorageBox/BigBeverageStorageBox</texPath>
+            <drawSize>(4, 4)</drawSize>
+            <drawOffsetSouth>(0, 0.1, 0.45)</drawOffsetSouth>
+            <drawOffsetNorth>(0, 0.1, 0.4)</drawOffsetNorth>
+            <drawOffsetEast>(-0.2, 0.1, 0.4)</drawOffsetEast>
+            <drawOffsetWest>(0.2, 0.1, 0.4)</drawOffsetWest>
+        </graphicData>
+        <size>(3, 1)</size>
+        <costList>
+            <Steel>15</Steel>
+        </costList>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
+            <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
+            <maxTotalCapacity>900</maxTotalCapacity>
+            </li>
+            <li Class="CompProperties_Forbiddable"/>
+            <li Class="CompProperties_Power">
+                <compClass>CompPowerTrader</compClass>
+                <basePowerConsumption>70</basePowerConsumption>
+            </li>
+            <li Class="CompProperties_Flickable"/>
+            <li Class="CompProperties_Schedule">
+            <!-- Match plant growing times -->
+                <startTime>0.25</startTime>
+                <endTime>0.8</endTime>
+                <offMessage>Off for plant resting period</offMessage>
+            </li>
+            <li Class="CompProperties_Glower">
+                <overlightRadius>7.0</overlightRadius>
+                <glowRadius>8</glowRadius>
+                <glowColor>(370,370,370,0)</glowColor>
+            </li>
+        </comps>
+    </ThingDef>
 </Defs>

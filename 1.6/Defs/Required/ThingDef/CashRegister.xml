@@ -7,9 +7,13 @@
     <description>供殖民者接待顾客结账的工作台。需要有人值班才能营业。</description>
     <thingClass>SimManagementLib.SimThingClass.Building_CashRegister</thingClass>
     <graphicData>
-      <texPath>Things/Building/Production/TableMachining</texPath>
+      <texPath>Things/Building/CashRegister/Sim_CashRegister</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
-      <drawSize>(3.5,1.5)</drawSize>
+      <drawSize>(3.2,3.2)</drawSize>
+      <drawOffsetSouth>(0, 0.0,-0.035)</drawOffsetSouth>
+            <drawOffsetNorth>(0, 0.0, 0.165)</drawOffsetNorth>
+            <drawOffsetEast>(0.05, 0.0, 0)</drawOffsetEast>
+            <drawOffsetWest>(-0.05, 0.0, 0)</drawOffsetWest>
       <damageData>
         <cornerTL>Damage/Corner</cornerTL>
         <cornerTR>Damage/Corner</cornerTR>
@@ -28,11 +32,133 @@
     <!-- 顾客在收银台对面等待，和收银员面对面结账。 -->
     <interactionCellOffset>(0,0,-1)</interactionCellOffset>
     <surfaceType>Item</surfaceType>
-    <designationCategory>Production</designationCategory>
+    <designationCategory>SimManagementBuildings</designationCategory>
     <statBases>
       <WorkToBuild>1500</WorkToBuild>
       <MaxHitPoints>180</MaxHitPoints>
       <Flammability>1.0</Flammability>
     </statBases>
+    <comps>
+      <li Class="CompProperties_AffectedByFacilities">
+        <linkableFacilities>
+          <li>Sim_PaymentCode</li>
+        </linkableFacilities>
+      </li>
+    </comps>
+    <placeWorkers>
+      <li>PlaceWorker_ShowFacilitiesConnections</li>
+      <li>PlaceWorker_PreventInteractionSpotOverlap</li>
+    </placeWorkers>
+  </ThingDef>
+
+  <ThingDef ParentName="BuildingBase">
+    <defName>Sim_CashRegisterMachine</defName>
+    <label>商店收银台</label>
+    <description>供殖民者接待顾客结账的工作台。需要有人值班才能营业。</description>
+    <thingClass>SimManagementLib.SimThingClass.Building_CashRegister</thingClass>
+    <graphicData>
+      <texPath>Things/Building/CashRegister/Sim_CashRegisterMachine</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <drawSize>(1.5,1.5)</drawSize>
+      <damageData>
+        <cornerTL>Damage/Corner</cornerTL>
+        <cornerTR>Damage/Corner</cornerTR>
+        <cornerBL>Damage/Corner</cornerBL>
+        <cornerBR>Damage/Corner</cornerBR>
+      </damageData>
+    </graphicData>
+    <castEdgeShadows>true</castEdgeShadows>
+    <staticSunShadowHeight>0.20</staticSunShadowHeight>
+    <altitudeLayer>BuildingOnTop</altitudeLayer>
+    <size>(1,1)</size>
+    <fillPercent>0.5</fillPercent>
+    <passability>PassThroughOnly</passability>
+    <pathCost>50</pathCost>
+    <hasInteractionCell>true</hasInteractionCell>
+    <!-- 顾客在收银台对面等待，和收银员面对面结账。 -->
+    <interactionCellOffset>(0,0,-1)</interactionCellOffset>
+    <surfaceType>Item</surfaceType>
+    <designationCategory>SimManagementBuildings</designationCategory>
+    <statBases>
+      <WorkToBuild>500</WorkToBuild>
+      <MaxHitPoints>180</MaxHitPoints>
+      <Flammability>1.0</Flammability>
+    </statBases>
+    <comps>
+      <li Class="CompProperties_AffectedByFacilities">
+        <linkableFacilities>
+          <li>Sim_PaymentCode</li>
+        </linkableFacilities>
+      </li>
+    </comps>
+    <placeWorkers>
+      <li>PlaceWorker_ShowFacilitiesConnections</li>
+      <li>PlaceWorker_PreventInteractionSpotOverlap</li>
+    </placeWorkers>
+    <building>
+      <isEdifice>false</isEdifice>
+    </building>
+  </ThingDef>
+
+  <ThingDef ParentName="BuildingBase">
+    <defName>Sim_PaymentCode</defName>
+    <label>收款码</label>
+    <description>一张收款码</description>
+    <graphicData>
+      <texPath>Things/Building/CashRegister/PaymentCode</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(1.5,1.5)</drawSize>
+      <color>(96,114,95)</color>
+      <damageData>
+        <cornerTL>Damage/Corner</cornerTL>
+        <cornerTR>Damage/Corner</cornerTR>
+        <cornerBL>Damage/Corner</cornerBL>
+        <cornerBR>Damage/Corner</cornerBR>
+      </damageData>
+    </graphicData>
+    <altitudeLayer>BuildingOnTop</altitudeLayer>
+    <passability>PassThroughOnly</passability>
+    <castEdgeShadows>true</castEdgeShadows>
+    <staticSunShadowHeight>0.35</staticSunShadowHeight>
+    <fillPercent>0.5</fillPercent>
+    <canOverlapZones>false</canOverlapZones>
+    <pathCost>42</pathCost>
+    <statBases>
+      <MaxHitPoints>100</MaxHitPoints>
+      <WorkToBuild>1800</WorkToBuild>
+      <Mass>20</Mass>
+      <Flammability>0.5</Flammability>
+    </statBases>
+    <size>(1,1)</size>
+    <costList>
+      <Steel>5</Steel>
+    </costList>
+    <building>
+      <destroySound>BuildingDestroyed_Metal_Small</destroySound>
+    </building>
+    <researchPrerequisites>
+      <li>ComplexFurniture</li>
+    </researchPrerequisites>
+    <designationCategory>SimManagementBuildings</designationCategory>
+    <minifiedDef>MinifiedThing</minifiedDef>
+    <constructionSkillPrerequisite>4</constructionSkillPrerequisite>
+    <thingCategories>
+      <li>BuildingsMisc</li>
+    </thingCategories>
+    <comps>
+      <li Class="CompProperties_Facility">
+        <statOffsets>
+          <WorkTableWorkSpeedFactor>0.1</WorkTableWorkSpeedFactor>
+        </statOffsets>
+        <maxSimultaneous>1</maxSimultaneous>
+      </li>
+    </comps>
+    <designationHotKey>Misc6</designationHotKey>
+    <placeWorkers>
+      <li>PlaceWorker_ShowFacilitiesConnections</li>
+    </placeWorkers>
+    <building>
+      <isEdifice>false</isEdifice>
+    </building>
   </ThingDef>
 </Defs>
