@@ -89,7 +89,7 @@
         <label>快买快走</label>
         <!-- 权重越高越常见 -->
         <weight>1.0</weight>
-        <budgetRange>400~900</budgetRange>
+        <budgetRange>80~500</budgetRange>
         <queuePatienceRange>800~1400</queuePatienceRange>
         <activeHourRange>9~18</activeHourRange>
         <!-- 更偏好具体物品（ThingDef） -->
