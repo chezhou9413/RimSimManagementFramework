@@ -97,7 +97,7 @@
         <comps>
             <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
             <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
-            <maxTotalCapacity>900</maxTotalCapacity>
+            <maxTotalCapacity>90</maxTotalCapacity>
             </li>
         </comps>
     </ThingDef>
@@ -121,7 +121,7 @@
         <comps>
             <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
             <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
-            <maxTotalCapacity>900</maxTotalCapacity>
+            <maxTotalCapacity>90</maxTotalCapacity>
             </li>
         </comps>
     </ThingDef>
@@ -145,7 +145,7 @@
         <comps>
             <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
             <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
-            <maxTotalCapacity>300</maxTotalCapacity>
+            <maxTotalCapacity>30</maxTotalCapacity>
             </li>
         </comps>
     </ThingDef>
@@ -169,7 +169,7 @@
         <comps>
             <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
             <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
-            <maxTotalCapacity>300</maxTotalCapacity>
+            <maxTotalCapacity>30</maxTotalCapacity>
             </li>
             <li Class="CompProperties_Forbiddable"/>
             <li Class="CompProperties_Power">
@@ -210,7 +210,7 @@
         <comps>
             <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
             <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
-            <maxTotalCapacity>300</maxTotalCapacity>
+            <maxTotalCapacity>30</maxTotalCapacity>
             </li>
             <li Class="CompProperties_Forbiddable"/>
             <li Class="CompProperties_Power">
@@ -251,7 +251,7 @@
         <comps>
             <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
             <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
-            <maxTotalCapacity>600</maxTotalCapacity>
+            <maxTotalCapacity>60</maxTotalCapacity>
             </li>
             <li Class="CompProperties_Forbiddable"/>
             <li Class="CompProperties_Power">
@@ -292,7 +292,7 @@
         <comps>
             <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
             <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
-            <maxTotalCapacity>600</maxTotalCapacity>
+            <maxTotalCapacity>60</maxTotalCapacity>
             </li>
             <li Class="CompProperties_Forbiddable"/>
             <li Class="CompProperties_Power">
@@ -333,7 +333,7 @@
         <comps>
             <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
             <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
-            <maxTotalCapacity>900</maxTotalCapacity>
+            <maxTotalCapacity>90</maxTotalCapacity>
             </li>
             <li Class="CompProperties_Forbiddable"/>
             <li Class="CompProperties_Power">
