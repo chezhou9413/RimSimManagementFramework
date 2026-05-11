@@ -15,6 +15,9 @@ namespace SimManagementLib.SimDialog
 {
     public partial class MainTabWindow_BusinessManager
     {
+        /// <summary>
+        /// 绘制商店管理页，展示商店状态、经营指标、客流倍率和快捷管理入口。
+        /// </summary>
         private void DrawShopManagementPage(Rect rect)
         {
             List<ShopViewData> shops = CollectAllShops();
@@ -46,6 +49,7 @@ namespace SimManagementLib.SimDialog
                 int comboCount = comboManager?.GetCombosForZone(zone)?.Count ?? 0;
                 ShopMetricsSnapshot metrics = analytics?.GetOrEvaluateShopMetrics(zone);
                 bool valid = zone.IsValidShop();
+                bool open = zone.IsOpenNow();
 
                 Text.Font = GameFont.Small;
                 Text.Anchor = TextAnchor.MiddleLeft;
@@ -56,8 +60,8 @@ namespace SimManagementLib.SimDialog
                 GUI.color = CDim;
                 Widgets.Label(new Rect(row.x + 10f, row.y + 30f, 500f, 20f), $"地图: {entry.Map.info?.parent?.LabelCap ?? entry.Map.ToString()}");
 
-                GUI.color = valid ? COk : CWarn;
-                Widgets.Label(new Rect(row.x + 10f, row.y + 50f, 220f, 20f), valid ? "状态: 可营业" : "状态: 条件未满足");
+                GUI.color = open ? COk : CWarn;
+                Widgets.Label(new Rect(row.x + 10f, row.y + 50f, 220f, 20f), open ? "状态: 营业中" : "状态: " + zone.GetOpenStatusMessage().Truncate(90f));
 
                 GUI.color = Color.white;
                 Widgets.Label(new Rect(row.x + 240f, row.y + 50f, 420f, 20f), $"货柜: {storages.Count}   在售商品: {goodsKinds}   有库存: {inStockKinds}   套餐: {comboCount}");
@@ -68,11 +72,14 @@ namespace SimManagementLib.SimDialog
                     Widgets.Label(
                         new Rect(row.x + 10f, row.y + 72f, row.width - 220f, 18f),
                         $"评分 {metrics.score:F1}   口碑 {metrics.reputation:F1}   满意度 {metrics.satisfaction:F1}   美观 {metrics.beautyAverage:F1}   容量 {metrics.dynamicCapacity}");
+                    Widgets.Label(
+                        new Rect(row.x + 10f, row.y + 90f, row.width - 220f, 18f),
+                        $"客流 {metrics.spawnDemandFactor:F2}x   美观 {metrics.beautyDemandMultiplier:F2}x   规模 {metrics.scaleDemandMultiplier:F2}x   容量规模 {metrics.scaleCapacityMultiplier:F2}x   有效规模 {metrics.effectiveScale:F1}");
                 }
 
                 string comboPreview = BuildComboPreview(comboManager?.GetCombosForZone(zone));
                 GUI.color = CDim;
-                Widgets.Label(new Rect(row.x + 10f, row.y + 92f, row.width - 220f, 32f), "套餐预览: " + comboPreview);
+                Widgets.Label(new Rect(row.x + 10f, row.y + 112f, row.width - 220f, 26f), "套餐预览: " + comboPreview);
                 ResetText();
 
                 float btnW = 92f;
@@ -367,7 +374,7 @@ namespace SimManagementLib.SimDialog
                 List<ShopStaffRoleDef> roles = ShopStaffUtility.GetVisibleRoles(zone);
                 int assignedCount = roles.Sum(r => zone.GetAssignedPawns(r.defName).Count);
                 Widgets.Label(new Rect(row.x + 10f, row.y + 32f, 520f, 18f), $"地图: {entry.Map.info?.parent?.LabelCap ?? entry.Map.ToString()}");
-                Widgets.Label(new Rect(row.x + 10f, row.y + 50f, 600f, 18f), $"岗位数: {roles.Count}   已分配店员: {assignedCount}   状态: {(zone.IsValidShop() ? "有效" : zone.GetValidationMessage())}");
+                Widgets.Label(new Rect(row.x + 10f, row.y + 50f, 600f, 18f), $"岗位数: {roles.Count}   已分配店员: {assignedCount}   营业状态: {zone.GetOpenStatusMessage()}");
 
                 Rect openRect = new Rect(row.xMax - 150f, row.y + 26f, 128f, 34f);
                 if (SimUiStyle.DrawPrimaryButton(openRect, "打开店员配置", true, GameFont.Tiny))

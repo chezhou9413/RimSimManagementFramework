@@ -14,6 +14,9 @@ using Verse.AI.Group;
 
 namespace SimManagementLib.SimAI
 {
+    /// <summary>
+    /// 执行顾客排队、等待收银员、付款、财务提交和结账失败回滚的收银台工作。
+    /// </summary>
     public class JobDriver_PayAtRegister : JobDriver
     {
         private const int ServiceTicks = 300;
@@ -30,10 +33,13 @@ namespace SimManagementLib.SimAI
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
-            // Customers do not reserve the register building itself.
+            // 顾客不独占收银台建筑本体，多个顾客通过排队顺序控制结账。
             return true;
         }
 
+        /// <summary>
+        /// 构建顾客从排队到付款完成的 Toil 序列。
+        /// </summary>
         protected override IEnumerable<Toil> MakeNewToils()
         {
             this.FailOnDespawnedOrNull(TargetIndex.A);
@@ -56,6 +62,7 @@ namespace SimManagementLib.SimAI
             {
                 totalWaitTicks++;
                 FaceCashierOrRegister();
+                ShopProgressBarUtility.Report(pawn, Mathf.Min(1f, totalWaitTicks / (float)Mathf.Max(1, maxQueueWaitTicks)), new Color(0.95f, 0.72f, 0.36f, 0.95f));
 
                 LordJob_CustomerVisit lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
                 if (lordJob == null)
@@ -86,7 +93,7 @@ namespace SimManagementLib.SimAI
 
                 ReadyForNextToil();
             };
-            waitInQueue.WithProgressBar(TargetIndex.A, () => Mathf.Min(1f, totalWaitTicks / (float)Mathf.Max(1, maxQueueWaitTicks)));
+            waitInQueue.AddFinishAction(() => ShopProgressBarUtility.Clear(pawn));
             yield return waitInQueue;
 
             yield return Toils_Goto.GotoCell(TargetIndex.C, PathEndMode.OnCell);
@@ -104,6 +111,7 @@ namespace SimManagementLib.SimAI
             {
                 totalWaitTicks++;
                 FaceCashierOrRegister();
+                ShopProgressBarUtility.Report(pawn, 1f - ticksLeftThisToil / (float)Mathf.Max(1, serviceTicksRequired));
 
                 LordJob_CustomerVisit lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
                 if (lordJob == null)
@@ -130,7 +138,7 @@ namespace SimManagementLib.SimAI
                     ReadyForNextToil();
                 }
             };
-            doService.WithProgressBar(TargetIndex.A, () => 1f - (ticksLeftThisToil / (float)Mathf.Max(1, serviceTicksRequired)));
+            doService.AddFinishAction(() => ShopProgressBarUtility.Clear(pawn));
             yield return doService;
 
             Toil finalize = new Toil();
@@ -164,6 +172,7 @@ namespace SimManagementLib.SimAI
                     int silverAmount = Mathf.CeilToInt(amountOwed);
                     Register.DepositSilver(silverAmount);
                     finance?.CommitCheckout(pawn, Register, silverAmount);
+                    lordJob.ResolveServiceOrdersOnCheckoutPaid(pawn, shopZone);
                     PurchaseOutcomeResolver.TryQueuePostPurchaseJobs(pawn, lordJob, pawnId, shopZone, purchasedItems);
                     CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.CheckoutPaid);
                     ShopBubbleUtility.ShowSilverPayment(pawn, silverAmount);
@@ -173,6 +182,7 @@ namespace SimManagementLib.SimAI
                 else
                 {
                     finance?.ClearPendingBill(pawn);
+                    lordJob.ResolveServiceOrdersOnCheckoutPaid(pawn, shopZone);
                     PurchaseOutcomeResolver.TryQueuePostPurchaseJobs(pawn, lordJob, pawnId, shopZone, purchasedItems);
                     lordJob.ClearCustomerCart(pawnId);
                     analytics?.RecordCheckoutResult(shopZone, totalWaitTicks, maxQueueWaitTicks, 0, budget, success: true, timeout: false);
@@ -183,6 +193,9 @@ namespace SimManagementLib.SimAI
             yield return finalize;
         }
 
+        /// <summary>
+        /// 确保排队格和服务格在当前地图状态下可用。
+        /// </summary>
         private Toil MakeEnsureQueueAndServiceCellsToil()
         {
             Toil toil = new Toil();
@@ -206,6 +219,9 @@ namespace SimManagementLib.SimAI
             return toil;
         }
 
+        /// <summary>
+        /// 为顾客查找可站立且可到达的收银服务格。
+        /// </summary>
         private IntVec3 FindServiceCell(Map map)
         {
             IntVec3 cashierCell = Register.InteractionCell;
@@ -224,6 +240,9 @@ namespace SimManagementLib.SimAI
             return pawn.Position;
         }
 
+        /// <summary>
+        /// 判断指定格子是否可作为收银服务或排队位置。
+        /// </summary>
         private static bool IsServiceCellUsable(Map map, IntVec3 cell, Pawn pawn)
         {
             if (!cell.IsValid) return false;
@@ -239,6 +258,9 @@ namespace SimManagementLib.SimAI
             return true;
         }
 
+        /// <summary>
+        /// 判断当前顾客是否已经轮到在该收银台结账。
+        /// </summary>
         private bool IsMyTurn(LordJob_CustomerVisit lordJob)
         {
             int myId = pawn.thingIDNumber;
@@ -263,6 +285,9 @@ namespace SimManagementLib.SimAI
             return true;
         }
 
+        /// <summary>
+        /// 处理顾客排队超时，负责退回商品、清账并标记服务订单失败或取消。
+        /// </summary>
         private void HandleCheckoutTimeout(LordJob_CustomerVisit lordJob, GameComponent_ShopFinanceManager finance, int pawnId, Zone_Shop shopZone)
         {
             if (shopZone != null)
@@ -271,11 +296,16 @@ namespace SimManagementLib.SimAI
             }
 
             finance?.ClearPendingBill(pawn);
+            lordJob.ResolveServiceOrdersOnCheckoutFailure(pawnId);
             lordJob.ClearCustomerCart(pawnId);
+            lordJob.ClearCustomerServiceOrders(pawnId);
             CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.CheckoutTimeout);
             ShopBubbleUtility.ShowTextBubble(pawn, "排队超时，已放回商品", new Color(1f, 0.72f, 0.4f));
         }
 
+        /// <summary>
+        /// 复制顾客当前商品购物车，供付款后购后行为规则读取。
+        /// </summary>
         private static List<CustomerCartItem> SnapshotCartItems(LordJob_CustomerVisit lordJob, int pawnId)
         {
             List<CustomerCartItem> raw = lordJob?.GetCartItems(pawnId);
@@ -291,6 +321,9 @@ namespace SimManagementLib.SimAI
                 .ToList();
         }
 
+        /// <summary>
+        /// 让顾客朝向当前收银员，缺少收银员时朝向收银台。
+        /// </summary>
         private void FaceCashierOrRegister()
         {
             Pawn cashier = Register.CurrentCashier;
@@ -300,6 +333,9 @@ namespace SimManagementLib.SimAI
                 pawn.rotationTracker.FaceTarget(Register);
         }
 
+        /// <summary>
+        /// 根据收银员全局工作速度和社交影响力计算收银服务速度。
+        /// </summary>
         private float GetCashierServiceSpeed()
         {
             Pawn cashier = Register.CurrentCashier;

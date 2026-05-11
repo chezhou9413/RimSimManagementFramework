@@ -1,6 +1,7 @@
 using SimManagementLib.Pojo;
 using SimManagementLib.SimDialog;
 using SimManagementLib.SimThingClass;
+using SimManagementLib.Tool;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -8,9 +9,13 @@ using Verse;
 
 namespace SimManagementLib.SimZone
 {
+    /// <summary>
+    /// 表示玩家划定的商店区域，负责营业条件验证、店员岗位绑定和商店管理入口。
+    /// </summary>
     public class Zone_Shop : Zone
     {
         private List<ShopRoleAssignment> roleAssignments = new List<ShopRoleAssignment>();
+        private ShopScheduleData schedule = new ShopScheduleData();
 
         public Zone_Shop()
         {
@@ -22,17 +27,70 @@ namespace SimManagementLib.SimZone
 
         protected override Color NextZoneColor => new Color(0.9f, 0.7f, 0.2f, 0.3f);
 
+        /// <summary>
+        /// 判断商店区域当前是否满足营业条件。
+        /// </summary>
         public bool IsValidShop()
         {
             return ComputeValidShopNow(out _);
         }
 
+        /// <summary>
+        /// 判断商店区域当前是否允许营业，要求设施有效且营业开关和日程均允许。
+        /// </summary>
+        public bool IsOpenNow()
+        {
+            if (!IsValidShop()) return false;
+            return GetSchedule().IsOpenNow(Map);
+        }
+
+        /// <summary>
+        /// 返回商店当前是否能接待顾客和安排店员工作的说明文本。
+        /// </summary>
+        public string GetOpenStatusMessage()
+        {
+            if (!ComputeValidShopNow(out string validationMessage))
+                return validationMessage;
+
+            ShopScheduleData data = GetSchedule();
+            if (!data.manualOpen)
+                return "商店已手动停业。";
+            if (data.useSchedule && !data.IsOpenNow(Map))
+                return $"当前不在营业时间内：{data.GetScheduleSummary()}。";
+
+            return "商店正在营业中。";
+        }
+
+        /// <summary>
+        /// 返回商店营业日程数据，并在旧存档缺失时创建默认配置。
+        /// </summary>
+        public ShopScheduleData GetSchedule()
+        {
+            if (schedule == null)
+                schedule = new ShopScheduleData();
+            return schedule;
+        }
+
+        /// <summary>
+        /// 用指定日程覆盖商店当前营业设置。
+        /// </summary>
+        public void ApplySchedule(ShopScheduleData newSchedule)
+        {
+            GetSchedule().CopyFrom(newSchedule);
+        }
+
+        /// <summary>
+        /// 返回商店区域当前营业条件的说明文本。
+        /// </summary>
         public string GetValidationMessage()
         {
             ComputeValidShopNow(out string message);
             return message;
         }
 
+        /// <summary>
+        /// 实时扫描区域内设施和室内状态，计算商店是否可以营业。
+        /// </summary>
         private bool ComputeValidShopNow(out string message)
         {
             if (Map == null || Cells == null || Cells.Count == 0)
@@ -41,8 +99,11 @@ namespace SimManagementLib.SimZone
                 return false;
             }
 
+            RepairEmbeddedFacilityCoverage();
+
             bool hasStorage = false;
             bool hasCashRegister = false;
+            bool hasServiceProvider = false;
             int outdoorCount = 0;
             IntVec3 firstOutdoorCell = IntVec3.Invalid;
 
@@ -62,6 +123,7 @@ namespace SimManagementLib.SimZone
                 {
                     if (thing is Building_SimContainer) hasStorage = true;
                     if (thing is Building_CashRegister) hasCashRegister = true;
+                    if (ShopServiceUtility.HasEnabledService(thing)) hasServiceProvider = true;
                 }
             }
 
@@ -71,15 +133,15 @@ namespace SimManagementLib.SimZone
                 return false;
             }
 
-            if (!hasStorage && !hasCashRegister)
+            if (!hasStorage && !hasServiceProvider && !hasCashRegister)
             {
-                message = "缺少货柜和收银台。";
+                message = "缺少货柜、服务建筑和收银台。";
                 return false;
             }
 
-            if (!hasStorage)
+            if (!hasStorage && !hasServiceProvider)
             {
-                message = "缺少货柜。";
+                message = "缺少货柜或服务建筑。";
                 return false;
             }
 
@@ -89,8 +151,128 @@ namespace SimManagementLib.SimZone
                 return false;
             }
 
-            message = "商店正在营业中。";
+            message = "商店设施有效。";
             return true;
+        }
+
+        /// <summary>
+        /// 修复先划商店区再建造设施时可能被旧区划重叠逻辑切掉的设施占用格。
+        /// </summary>
+        private void RepairEmbeddedFacilityCoverage()
+        {
+            if (Map == null || Cells == null || Cells.Count == 0) return;
+
+            HashSet<Thing> candidates = new HashSet<Thing>();
+            foreach (IntVec3 cell in Cells)
+            {
+                for (int dx = -1; dx <= 1; dx++)
+                {
+                    for (int dz = -1; dz <= 1; dz++)
+                    {
+                        IntVec3 near = new IntVec3(cell.x + dx, 0, cell.z + dz);
+                        if (!near.InBounds(Map)) continue;
+
+                        List<Thing> things = Map.thingGrid.ThingsListAt(near);
+                        for (int i = 0; i < things.Count; i++)
+                        {
+                            Thing thing = things[i];
+                            if (thing is Building_SimContainer || thing is Building_CashRegister || ShopServiceUtility.HasEnabledService(thing))
+                                candidates.Add(thing);
+                        }
+                    }
+                }
+            }
+
+            bool changed = false;
+            foreach (Thing thing in candidates)
+            {
+                if (!ShouldRepairFacilityCoverage(thing)) continue;
+
+                CellRect rect = thing.OccupiedRect();
+                for (int z = rect.minZ; z <= rect.maxZ; z++)
+                {
+                    for (int x = rect.minX; x <= rect.maxX; x++)
+                    {
+                        IntVec3 cell = new IntVec3(x, 0, z);
+                        if (!cell.InBounds(Map)) continue;
+                        if (Map.zoneManager.ZoneAt(cell) != null) continue;
+
+                        AddCell(cell);
+                        changed = true;
+                    }
+                }
+            }
+
+            if (changed)
+                CheckContiguous();
+        }
+
+        /// <summary>
+        /// 判断设施占用格是否像是被商店区域包围或部分覆盖，需要重新纳入商店区。
+        /// </summary>
+        private bool ShouldRepairFacilityCoverage(Thing thing)
+        {
+            if (thing == null || thing.Destroyed || thing.Map != Map) return false;
+            if (!(thing is Building_SimContainer) && !(thing is Building_CashRegister) && !ShopServiceUtility.HasEnabledService(thing)) return false;
+
+            bool hasShopCell = false;
+            bool hasMissingCell = false;
+            CellRect rect = thing.OccupiedRect();
+            for (int z = rect.minZ; z <= rect.maxZ; z++)
+            {
+                for (int x = rect.minX; x <= rect.maxX; x++)
+                {
+                    IntVec3 cell = new IntVec3(x, 0, z);
+                    if (!cell.InBounds(Map)) continue;
+
+                    Zone zone = Map.zoneManager.ZoneAt(cell);
+                    if (zone == this)
+                        hasShopCell = true;
+                    else if (zone == null)
+                        hasMissingCell = true;
+                    else
+                        return false;
+                }
+            }
+
+            if (!hasMissingCell) return false;
+            if (hasShopCell) return true;
+
+            return CountAdjacentShopCells(rect) >= GetRequiredAdjacentShopCells(rect);
+        }
+
+        /// <summary>
+        /// 统计设施占用矩形周围紧邻的商店格数量，用于区分内部洞和区域外设施。
+        /// </summary>
+        private int CountAdjacentShopCells(CellRect rect)
+        {
+            int count = 0;
+            for (int z = rect.minZ - 1; z <= rect.maxZ + 1; z++)
+            {
+                for (int x = rect.minX - 1; x <= rect.maxX + 1; x++)
+                {
+                    bool insideRect = x >= rect.minX && x <= rect.maxX && z >= rect.minZ && z <= rect.maxZ;
+                    if (insideRect) continue;
+
+                    IntVec3 cell = new IntVec3(x, 0, z);
+                    if (!cell.InBounds(Map)) continue;
+                    if (Map.zoneManager.ZoneAt(cell) == this)
+                        count++;
+                }
+            }
+
+            return count;
+        }
+
+        /// <summary>
+        /// 根据设施占用面积返回自动修复所需的最小邻接商店格数量。
+        /// </summary>
+        private static int GetRequiredAdjacentShopCells(CellRect rect)
+        {
+            int area = rect.Area;
+            if (area <= 1) return 4;
+            if (area <= 3) return 4;
+            return 6;
         }
 
         public List<Pawn> GetAssignedPawns(string roleDefName)
@@ -171,7 +353,8 @@ namespace SimManagementLib.SimZone
         public override string GetInspectString()
         {
             string text = base.GetInspectString();
-            text += "\n" + (IsValidShop() ? "商店正在营业中" : ("警告: " + GetValidationMessage()));
+            text += "\n设施状态: " + (IsValidShop() ? "有效" : GetValidationMessage());
+            text += "\n营业状态: " + GetOpenStatusMessage();
             return text;
         }
 
@@ -219,8 +402,11 @@ namespace SimManagementLib.SimZone
         {
             base.ExposeData();
             Scribe_Collections.Look(ref roleAssignments, "roleAssignments", LookMode.Deep);
+            Scribe_Deep.Look(ref schedule, "schedule");
             if (roleAssignments == null)
                 roleAssignments = new List<ShopRoleAssignment>();
+            if (schedule == null)
+                schedule = new ShopScheduleData();
         }
     }
 }

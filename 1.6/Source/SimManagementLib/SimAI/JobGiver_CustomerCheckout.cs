@@ -12,8 +12,14 @@ using Verse.AI.Group;
 
 namespace SimManagementLib.SimAI
 {
+    /// <summary>
+    /// 为进入结账阶段的顾客分配收银台排队 Job 或付款后的服务使用 Job。
+    /// </summary>
     public class JobGiver_CustomerCheckout : ThinkNode_JobGiver
     {
+        /// <summary>
+        /// 根据顾客账单、购后队列和收银台状态决定下一项结账阶段工作。
+        /// </summary>
         protected override Job TryGiveJob(Pawn pawn)
         {
             Lord lord = pawn.Map.lordManager.LordOf(pawn);
@@ -52,7 +58,9 @@ namespace SimManagementLib.SimAI
                 {
                     ShopDataUtility.ReturnCartItemsToShop(targetShop, lordJob.GetCartItems(pawnId));
                 }
+                lordJob.ResolveServiceOrdersOnCheckoutFailure(pawnId);
                 lordJob.ClearCustomerCart(pawnId);
+                lordJob.ClearCustomerServiceOrders(pawnId);
                 lordJob.CheckAllCheckoutsDone();
                 return null;
             }
@@ -77,6 +85,9 @@ namespace SimManagementLib.SimAI
             return job;
         }
 
+        /// <summary>
+        /// 统计指定收银台当前已有多少顾客正在排队或结账。
+        /// </summary>
         private static int GetQueueSizeForRegister(Map map, Building_CashRegister register)
         {
             int count = 0;
@@ -92,6 +103,9 @@ namespace SimManagementLib.SimAI
             return count;
         }
 
+        /// <summary>
+        /// 计算当前顾客在指定收银台前面还有多少更早进入队列的顾客。
+        /// </summary>
         private static int GetQueueIndexForPawn(Map map, Building_CashRegister register, LordJob_CustomerVisit lordJob, int pawnId, int myOrder)
         {
             int ahead = 0;
@@ -110,6 +124,9 @@ namespace SimManagementLib.SimAI
             return ahead;
         }
 
+        /// <summary>
+        /// 查找顾客与收银台交互时使用的服务格。
+        /// </summary>
         private static IntVec3 FindServiceCell(Building_CashRegister register, Pawn pawn)
         {
             Map map = register.Map;
@@ -129,6 +146,9 @@ namespace SimManagementLib.SimAI
             return pawn.Position;
         }
 
+        /// <summary>
+        /// 按服务格和队列序号查找顾客应该等待的排队格。
+        /// </summary>
         private static IntVec3 FindQueueCell(Building_CashRegister register, IntVec3 serviceCell, int queueIndex, Pawn pawn)
         {
             Map map = register.Map;
@@ -150,6 +170,9 @@ namespace SimManagementLib.SimAI
             return register.Position;
         }
 
+        /// <summary>
+        /// 判断指定格子是否适合作为排队或服务位置。
+        /// </summary>
         private static bool IsValidQueueCell(IntVec3 cell, Map map, Pawn pawn)
         {
             if (!cell.InBounds(map)) return false;

@@ -22,6 +22,7 @@ namespace SimManagementLib.SimDef
         public float minShopReputation = 0f;
         public List<GoodsDef> targetGoodsCategories = new List<GoodsDef>();
         public List<string> targetGoodsCategoryIds = new List<string>();
+        public List<string> targetServiceCategoryIds = new List<string>();
         public List<ItemPreference> itemPreferences = new List<ItemPreference>();
         public ShoppingBehaviorProps shoppingBehavior = new ShoppingBehaviorProps();
 
@@ -133,6 +134,17 @@ namespace SimManagementLib.SimDef
             if (!targetGoodsCategories.NullOrEmpty())
                 ids.AddRange(targetGoodsCategories.Where(g => g != null).Select(g => g.defName));
             return ids.Distinct().ToList();
+        }
+
+        /// <summary>
+        /// 返回该类顾客明确感兴趣的服务分类，空列表表示不限制服务分类。
+        /// </summary>
+        public List<string> GetTargetServiceCategoryIds()
+        {
+            return targetServiceCategoryIds?
+                .Where(id => !string.IsNullOrEmpty(id))
+                .Distinct()
+                .ToList() ?? new List<string>();
         }
 
         private int GetFallbackQueuePatience()

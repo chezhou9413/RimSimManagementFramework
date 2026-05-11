@@ -11,7 +11,7 @@ using Verse;
 namespace SimManagementLib.SimDialog
 {
     /// <summary>
-    /// Provides the in-game editor for player-defined goods categories and item links.
+    /// 提供玩家自定义商品类型和商品关联的游戏内编辑窗口。
     /// </summary>
     public partial class Dialog_CustomGoodsRegistry : Window
     {
@@ -39,11 +39,13 @@ namespace SimManagementLib.SimDialog
         private CustomGoodsDatabaseData draftData;
         private List<RuntimeGoodsCategory> previewCategories = new List<RuntimeGoodsCategory>();
         private List<ThingDef> allCandidateThings = new List<ThingDef>();
+        private List<ThingCategoryDef> candidateThingCategories = new List<ThingCategoryDef>();
 
         private string selectedCategoryId = string.Empty;
         private string newCategoryLabelBuffer = string.Empty;
         private string selectedCategoryLabelBuffer = string.Empty;
         private string browserSearch = string.Empty;
+        private ThingCategoryDef selectedThingCategory;
 
         private Vector2 categoryScroll;
         private Vector2 currentItemsScroll;
@@ -54,7 +56,7 @@ namespace SimManagementLib.SimDialog
         public override Vector2 InitialSize => new Vector2(1380f, 860f);
 
         /// <summary>
-        /// Initializes the registry window and loads the current custom goods draft.
+        /// 初始化注册窗口并加载当前自定义商品草稿。
         /// </summary>
         public Dialog_CustomGoodsRegistry()
         {
@@ -69,7 +71,7 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Draws the full registry window while restoring global IMGUI state after custom painting.
+        /// 绘制完整注册窗口，并在绘制结束后恢复全局 IMGUI 状态。
         /// </summary>
         public override void DoWindowContents(Rect inRect)
         {
@@ -107,7 +109,7 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Draws the title, explanatory text, and import/export/save actions.
+        /// 绘制标题、说明文本以及导入、导出、保存操作。
         /// </summary>
         private void DrawHeader(Rect rect)
         {
@@ -147,14 +149,14 @@ namespace SimManagementLib.SimDialog
 
             right -= 124f;
             if (SimUiStyle.DrawSecondaryButton(new Rect(right, buttonY, 112f, 34f), "导入 B64"))
-                Find.WindowStack.Add(new Dialog_CustomGoodsImport(HandleImportReplace));
+                Find.WindowStack.Add(new Dialog_CustomGoodsImport(HandleImport));
 
             Text.Font = GameFont.Small;
             GUI.color = Color.white;
         }
 
         /// <summary>
-        /// Draws the goods category list and the new-category input footer.
+        /// 绘制商品类型列表和新建类型输入区。
         /// </summary>
         private void DrawSidebar(Rect rect)
         {
@@ -198,7 +200,7 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Draws one selectable category row with source badge and item count.
+        /// 绘制一个可选择的商品类型行，并显示来源标记和商品数量。
         /// </summary>
         private void DrawCategoryRow(Rect rect, RuntimeGoodsCategory category)
         {
@@ -238,7 +240,7 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Draws the selected category details, current item grid, and candidate browser.
+        /// 绘制当前商品类型详情、已包含商品列表和候选商品浏览器。
         /// </summary>
         private void DrawContent(Rect rect)
         {
@@ -270,7 +272,7 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Draws metadata and edit controls for the currently selected category.
+        /// 绘制当前商品类型的元数据和编辑控件。
         /// </summary>
         private void DrawCategoryInfo(Rect rect, RuntimeGoodsCategory category)
         {
@@ -312,7 +314,7 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Draws the items already present in the selected category.
+        /// 绘制当前商品类型中已经包含的商品。
         /// </summary>
         private void DrawSelectedItems(Rect rect, RuntimeGoodsCategory category)
         {
@@ -346,7 +348,7 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Draws one item card in the current-category grid.
+        /// 绘制当前类型商品网格中的单个商品卡片。
         /// </summary>
         private void DrawSelectedItemCard(Rect rect, RuntimeGoodsCategory category, RuntimeGoodsItem item)
         {
@@ -384,7 +386,7 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Draws the searchable candidate item browser for appending goods.
+        /// 绘制可搜索、可按物品分类筛选的候选商品浏览器。
         /// </summary>
         private void DrawBrowser(Rect rect, RuntimeGoodsCategory category)
         {
@@ -394,6 +396,10 @@ namespace SimManagementLib.SimDialog
             Text.Font = GameFont.Small;
             GUI.color = Color.white;
             Widgets.Label(new Rect(rect.x + 16f, rect.y + 10f, 220f, Text.LineHeightOf(GameFont.Small) + 4f), "可追加商品");
+
+            Rect categoryButtonRect = new Rect(rect.x + 144f, rect.y + 8f, 190f, 28f);
+            if (SimUiStyle.DrawSecondaryButton(categoryButtonRect, GetSelectedThingCategoryLabel(), true, GameFont.Tiny))
+                OpenThingCategoryFilterMenu();
 
             string newSearch = Widgets.TextField(new Rect(rect.xMax - 260f, rect.y + 8f, 244f, 28f), browserSearch);
             if (newSearch != browserSearch)
@@ -410,10 +416,7 @@ namespace SimManagementLib.SimDialog
                 Widgets.Label(new Rect(rect.xMax - 252f, rect.y + 14f, 220f, Text.LineHeightOf(GameFont.Tiny) + 2f), "按名称或 DefName 搜索");
             }
 
-            List<ThingDef> filtered = allCandidateThings.Where(thing =>
-                string.IsNullOrEmpty(browserSearch)
-                || (thing.label != null && thing.label.IndexOf(browserSearch, StringComparison.OrdinalIgnoreCase) >= 0)
-                || thing.defName.IndexOf(browserSearch, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+            List<ThingDef> filtered = allCandidateThings.Where(IsThingVisibleInBrowser).ToList();
 
             int pageCount = Mathf.Max(1, Mathf.CeilToInt(filtered.Count / (float)BrowserPageSize));
             browserPageIndex = Mathf.Clamp(browserPageIndex, 0, pageCount - 1);
@@ -438,7 +441,7 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Draws paging controls for the candidate browser.
+        /// 绘制候选商品浏览器的分页控件。
         /// </summary>
         private void DrawBrowserPager(Rect rect, int totalItemCount, int pageCount)
         {
@@ -468,7 +471,7 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Draws one searchable candidate item row and its append/existing action.
+        /// 绘制一个候选商品行及其追加或已存在状态。
         /// </summary>
         private void DrawBrowserRow(Rect rect, RuntimeGoodsCategory category, ThingDef thingDef)
         {
@@ -501,12 +504,83 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Loads custom goods data and rebuilds runtime preview lists.
+        /// 判断候选商品是否符合当前搜索文本和物品分类筛选。
+        /// </summary>
+        private bool IsThingVisibleInBrowser(ThingDef thing)
+        {
+            if (thing == null) return false;
+
+            if (selectedThingCategory != null && !selectedThingCategory.ContainedInThisOrDescendant(thing))
+                return false;
+
+            return string.IsNullOrEmpty(browserSearch)
+                || (thing.label != null && thing.label.IndexOf(browserSearch, StringComparison.OrdinalIgnoreCase) >= 0)
+                || thing.defName.IndexOf(browserSearch, StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        /// <summary>
+        /// 返回当前候选商品分类筛选按钮显示文本。
+        /// </summary>
+        private string GetSelectedThingCategoryLabel()
+        {
+            return selectedThingCategory == null
+                ? "物品分类: 全部"
+                : ("物品分类: " + selectedThingCategory.LabelCap.RawText).Truncate(180f);
+        }
+
+        /// <summary>
+        /// 打开候选商品物品分类筛选菜单。
+        /// </summary>
+        private void OpenThingCategoryFilterMenu()
+        {
+            List<FloatMenuOption> options = new List<FloatMenuOption>
+            {
+                new FloatMenuOption("全部物品分类", delegate
+                {
+                    selectedThingCategory = null;
+                    browserPageIndex = 0;
+                    browserScroll = Vector2.zero;
+                })
+            };
+
+            for (int i = 0; i < candidateThingCategories.Count; i++)
+            {
+                ThingCategoryDef category = candidateThingCategories[i];
+                string label = category.LabelCap.RawText + " / " + category.defName;
+                options.Add(new FloatMenuOption(label, delegate
+                {
+                    selectedThingCategory = category;
+                    browserPageIndex = 0;
+                    browserScroll = Vector2.zero;
+                }));
+            }
+
+            Find.WindowStack.Add(new FloatMenu(options));
+        }
+
+        /// <summary>
+        /// 重建可用于候选商品筛选的物品分类列表。
+        /// </summary>
+        private void RebuildCandidateThingCategories()
+        {
+            candidateThingCategories = DefDatabase<ThingCategoryDef>.AllDefsListForReading
+                .Where(category => category != null && allCandidateThings.Any(category.ContainedInThisOrDescendant))
+                .OrderBy(category => category.LabelCap.RawText)
+                .ThenBy(category => category.defName)
+                .ToList();
+
+            if (selectedThingCategory != null && !candidateThingCategories.Contains(selectedThingCategory))
+                selectedThingCategory = null;
+        }
+
+        /// <summary>
+        /// 加载自定义商品数据并重建运行时预览列表。
         /// </summary>
         private void LoadDraft()
         {
             draftData = CustomGoodsDatabase.Load();
             allCandidateThings = CustomGoodsDatabase.GetAllCandidateThings();
+            RebuildCandidateThingCategories();
             RebuildPreviewFromDraft();
             EnsureValidSelection();
             browserPageIndex = 0;
@@ -514,7 +588,7 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Combines Def-based categories with player records for the editable preview model.
+        /// 将 Def 商品类型和玩家记录合并为可编辑预览模型。
         /// </summary>
         private void RebuildPreviewFromDraft()
         {
@@ -570,7 +644,7 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Returns the currently selected category from the preview list.
+        /// 从预览列表中返回当前选中的商品类型。
         /// </summary>
         private RuntimeGoodsCategory GetSelectedCategory()
         {
@@ -578,7 +652,7 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Keeps selection pointed at an existing category after preview data changes.
+        /// 在预览数据变化后保持选择指向仍然存在的商品类型。
         /// </summary>
         private void EnsureValidSelection()
         {
@@ -595,7 +669,7 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Creates a new player-defined goods category from the sidebar input.
+        /// 根据侧栏输入创建新的玩家自定义商品类型。
         /// </summary>
         private void CreateCategory()
         {
@@ -628,7 +702,7 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Renames the currently selected player-defined goods category.
+        /// 重命名当前选中的玩家自定义商品类型。
         /// </summary>
         private void RenameSelectedCategory()
         {
@@ -657,7 +731,7 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Opens a confirmation dialog before deleting a player-defined category.
+        /// 删除玩家自定义类型前打开确认对话框。
         /// </summary>
         private void ConfirmDeleteCategory()
         {
@@ -671,7 +745,7 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Removes the selected player-defined category from the draft data.
+        /// 从草稿数据中移除当前选中的玩家自定义商品类型。
         /// </summary>
         private void DeleteSelectedCategory()
         {
@@ -684,7 +758,7 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Adds a ThingDef to the selected category as a player-defined association.
+        /// 将 ThingDef 作为玩家自定义关联追加到当前商品类型。
         /// </summary>
         private void AddItemToSelectedCategory(ThingDef thingDef)
         {
@@ -709,7 +783,7 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Removes a player-defined ThingDef association from the selected category.
+        /// 从当前商品类型移除一个玩家自定义 ThingDef 关联。
         /// </summary>
         private void RemoveItemFromSelectedCategory(ThingDef thingDef)
         {
@@ -730,7 +804,7 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Persists the draft data and asks the runtime goods catalog to rebuild.
+        /// 保存草稿数据并通知运行时商品目录重建。
         /// </summary>
         private void SaveDraft()
         {
@@ -741,7 +815,7 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Reloads custom goods data, asking for confirmation when unsaved edits exist.
+        /// 重新加载自定义商品数据，存在未保存改动时先请求确认。
         /// </summary>
         private void ConfirmReload()
         {
@@ -758,11 +832,13 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Replaces the current draft with imported data and persists it.
+        /// 按导入模式处理外部商品数据并保存。
         /// </summary>
-        private void HandleImportReplace(CustomGoodsDatabaseData importedData)
+        private void HandleImport(CustomGoodsDatabaseData importedData, bool replaceExisting)
         {
-            draftData = importedData ?? new CustomGoodsDatabaseData();
+            draftData = replaceExisting
+                ? (importedData ?? new CustomGoodsDatabaseData())
+                : MergeImportedData(draftData, importedData);
             RebuildPreviewFromDraft();
             EnsureValidSelection();
             browserPageIndex = 0;
@@ -770,7 +846,58 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Finds or creates the draft record backing a category override.
+        /// 将导入数据增量合并到当前草稿，按商品类型 ID 合并并对商品 DefName 去重。
+        /// </summary>
+        private static CustomGoodsDatabaseData MergeImportedData(CustomGoodsDatabaseData currentData, CustomGoodsDatabaseData importedData)
+        {
+            CustomGoodsDatabaseData merged = currentData ?? new CustomGoodsDatabaseData();
+            if (merged.categories == null)
+                merged.categories = new List<CustomGoodsCategoryRecord>();
+            if (importedData?.categories == null)
+                return merged;
+
+            for (int i = 0; i < importedData.categories.Count; i++)
+            {
+                CustomGoodsCategoryRecord source = importedData.categories[i];
+                if (source == null || string.IsNullOrEmpty(source.categoryId))
+                    continue;
+
+                CustomGoodsCategoryRecord target = merged.categories.FirstOrDefault(record => string.Equals(record.categoryId, source.categoryId, StringComparison.OrdinalIgnoreCase));
+                if (target == null)
+                {
+                    target = new CustomGoodsCategoryRecord
+                    {
+                        categoryId = source.categoryId,
+                        label = source.label,
+                        builtInCategory = source.builtInCategory,
+                        itemDefNames = new List<string>()
+                    };
+                    merged.categories.Add(target);
+                }
+                else
+                {
+                    target.builtInCategory |= source.builtInCategory;
+                    if (!target.builtInCategory && string.IsNullOrEmpty(target.label) && !string.IsNullOrEmpty(source.label))
+                        target.label = source.label;
+                }
+
+                if (target.itemDefNames == null)
+                    target.itemDefNames = new List<string>();
+
+                List<string> sourceItems = source.itemDefNames ?? new List<string>();
+                for (int itemIndex = 0; itemIndex < sourceItems.Count; itemIndex++)
+                {
+                    string defName = sourceItems[itemIndex];
+                    if (!string.IsNullOrEmpty(defName) && !target.itemDefNames.Any(existing => string.Equals(existing, defName, StringComparison.OrdinalIgnoreCase)))
+                        target.itemDefNames.Add(defName);
+                }
+            }
+
+            return merged;
+        }
+
+        /// <summary>
+        /// 查找或创建支撑商品类型覆盖配置的草稿记录。
         /// </summary>
         private CustomGoodsCategoryRecord GetOrCreateDraftRecord(string categoryId, bool builtInCategory, string label)
         {
@@ -790,7 +917,7 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Finds or creates a preview category while preserving Def metadata when present.
+        /// 查找或创建预览商品类型，并在存在 Def 元数据时保留其来源信息。
         /// </summary>
         private static RuntimeGoodsCategory GetOrCreatePreviewCategory(
             IDictionary<string, RuntimeGoodsCategory> categoriesById,
@@ -820,7 +947,7 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Finds or creates a preview item record for a valid ThingDef.
+        /// 为有效 ThingDef 查找或创建预览商品记录。
         /// </summary>
         private static RuntimeGoodsItem GetOrCreatePreviewItem(IDictionary<string, RuntimeGoodsItem> itemsById, ThingDef thingDef)
         {
@@ -840,7 +967,7 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Draws a compact source/status badge and restores standard text state afterwards.
+        /// 绘制紧凑来源或状态标记，并在结束后恢复常规文本状态。
         /// </summary>
         private static void DrawBadge(Rect rect, string label, Color fill)
         {

@@ -64,8 +64,8 @@ namespace SimManagementLib.SimDialog
 
             Text.Font = GameFont.Tiny;
             Text.Anchor = TextAnchor.MiddleRight;
-            GUI.color = zone.IsValidShop() ? Ok : Warn;
-            Widgets.Label(new Rect(rect.x + 240f, rect.y + 2f, rect.width - 252f, rect.height), zone.IsValidShop() ? "商店状态: 有效" : $"商店状态: {zone.GetValidationMessage()}");
+            GUI.color = zone.IsOpenNow() ? Ok : Warn;
+            Widgets.Label(new Rect(rect.x + 240f, rect.y + 2f, rect.width - 252f, rect.height), "营业状态: " + zone.GetOpenStatusMessage());
 
             ResetText();
         }

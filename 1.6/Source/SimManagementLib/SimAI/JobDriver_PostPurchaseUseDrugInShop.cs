@@ -6,6 +6,9 @@ using Verse.AI;
 
 namespace SimManagementLib.SimAI
 {
+    /// <summary>
+    /// 执行顾客付款后在店内使用药物的行为，负责寻找可用格、面向关注目标并显示进度。
+    /// </summary>
     public class JobDriver_PostPurchaseUseDrugInShop : JobDriver
     {
         private const int DefaultUseTicks = 600;
@@ -17,6 +20,9 @@ namespace SimManagementLib.SimAI
             return true;
         }
 
+        /// <summary>
+        /// 构建店内使用药物行为的 Toil 序列。
+        /// </summary>
         protected override IEnumerable<Toil> MakeNewToils()
         {
             yield return EnsureUseCellToil();
@@ -30,6 +36,7 @@ namespace SimManagementLib.SimAI
             };
             useDrug.tickAction = () =>
             {
+                ShopProgressBarUtility.Report(pawn, 1f - ticksLeftThisToil / (float)Mathf.Max(1, DurationTicks), new Color(0.7f, 1f, 0.7f, 0.95f));
                 LocalTargetInfo focus = job.GetTarget(TargetIndex.B);
                 if (focus.IsValid)
                     pawn.rotationTracker.FaceTarget(focus);
@@ -37,11 +44,14 @@ namespace SimManagementLib.SimAI
             useDrug.AddFinishAction(() =>
             {
                 CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.DrugUseFinish);
+                ShopProgressBarUtility.Clear(pawn);
             });
-            useDrug.WithProgressBar(TargetIndex.A, () => 1f - (ticksLeftThisToil / (float)Mathf.Max(1, DurationTicks)));
             yield return useDrug;
         }
 
+        /// <summary>
+        /// 确保顾客拥有可站立的店内使用格。
+        /// </summary>
         private Toil EnsureUseCellToil()
         {
             Toil toil = new Toil();
@@ -70,6 +80,9 @@ namespace SimManagementLib.SimAI
                 out found);
         }
 
+        /// <summary>
+        /// 判断指定格子是否能作为顾客店内使用药物位置。
+        /// </summary>
         private bool IsUsableCell(IntVec3 cell)
         {
             if (!cell.IsValid || pawn.Map == null) return false;

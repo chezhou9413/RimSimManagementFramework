@@ -2,6 +2,7 @@ using RimWorld;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimDef;
 using SimManagementLib.SimThingClass;
+using SimManagementLib.SimThingComp;
 using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
 using System;
@@ -12,6 +13,9 @@ using Verse;
 
 namespace SimManagementLib.GameComp
 {
+    /// <summary>
+    /// 维护商店经营指标、满意度、口碑和客流缓存，供刷客系统和经营界面读取。
+    /// </summary>
     public class GameComponent_ShopAnalyticsManager : GameComponent
     {
         private static readonly ShopTuningDef FallbackTuning = new ShopTuningDef();
@@ -26,7 +30,7 @@ namespace SimManagementLib.GameComp
         private List<ShopAnalyticsState> tmpStateValues;
         private List<string> tmpStringValues;
 
-        // Legacy save compatibility.
+        // 旧存档兼容字段。
         private Dictionary<int, float> legacyShopReputation;
         private Dictionary<int, float> legacyShopSatisfactionEma;
         private Dictionary<int, int> legacyShopSuccessfulCheckouts;
@@ -75,6 +79,9 @@ namespace SimManagementLib.GameComp
             }
         }
 
+        /// <summary>
+        /// 获取或重新计算指定商店的经营指标快照，并按调参间隔缓存结果。
+        /// </summary>
         public ShopMetricsSnapshot GetOrEvaluateShopMetrics(Zone_Shop zone, bool forceRecalculate = false)
         {
             if (zone == null || zone.Map == null) return null;
@@ -101,7 +108,9 @@ namespace SimManagementLib.GameComp
             int registerCount = registers.Count;
             int mannedCount = registers.Count(r => r.IsManned);
 
-            int storageCount = ShopDataUtility.GetStoragesInZone(zone).Count;
+            HashSet<Building_SimContainer> storages = ShopDataUtility.GetStoragesInZone(zone);
+            int storageCount = storages.Count;
+            int stockedStorageCount = CountStockedStorages(storages);
 
             List<ShopItemStatus> goods = ShopDataUtility.GetAllSellableGoods(zone);
             int goodsKinds = goods.Count;
@@ -133,8 +142,18 @@ namespace SimManagementLib.GameComp
 
             float reputation = GetReputation(zoneId);
             float satisfaction = GetSatisfaction(zoneId);
-            int capacity = CalculateDynamicCapacity(tuning, zone, score01, reputation / 100f, registerCount, mannedCount, storageCount);
-            float demand = CalculateSpawnDemandFactor(tuning, zone, score01, reputation / 100f);
+            float effectiveScale = ShopDemandCurveUtility.CalculateEffectiveScale(
+                tuning,
+                registerCount,
+                mannedCount,
+                stockedStorageCount,
+                inStockKinds,
+                zone.Cells.Count);
+            float beautyDemandMultiplier = ShopDemandCurveUtility.CalculateBeautyDemandMultiplier(tuning, beautyAverage);
+            float scaleDemandMultiplier = ShopDemandCurveUtility.CalculateScaleDemandMultiplier(tuning, effectiveScale);
+            float scaleCapacityMultiplier = ShopDemandCurveUtility.CalculateScaleCapacityMultiplier(tuning, effectiveScale);
+            int capacity = CalculateDynamicCapacity(tuning, zone, score01, reputation / 100f, registerCount, mannedCount, stockedStorageCount, scaleCapacityMultiplier);
+            float demand = CalculateSpawnDemandFactor(tuning, zone, score01, reputation / 100f, beautyDemandMultiplier, scaleDemandMultiplier);
 
             ShopMetricsSnapshot snapshot = new ShopMetricsSnapshot
             {
@@ -148,6 +167,10 @@ namespace SimManagementLib.GameComp
                 reputation = reputation,
                 satisfaction = satisfaction,
                 beautyAverage = beautyAverage,
+                effectiveScale = effectiveScale,
+                beautyDemandMultiplier = beautyDemandMultiplier,
+                scaleDemandMultiplier = scaleDemandMultiplier,
+                scaleCapacityMultiplier = scaleCapacityMultiplier,
                 dynamicCapacity = capacity,
                 spawnDemandFactor = demand
             };
@@ -364,7 +387,10 @@ namespace SimManagementLib.GameComp
             return roofed / (float)Mathf.Max(1, zone.Cells.Count);
         }
 
-        private float CalculateSpawnDemandFactor(ShopTuningDef tuning, Zone_Shop zone, float score01, float rep01)
+        /// <summary>
+        /// 计算商店最终刷客需求倍率，包含地图发展阶段、商店质量、口碑、美观和有效规模。
+        /// </summary>
+        private float CalculateSpawnDemandFactor(ShopTuningDef tuning, Zone_Shop zone, float score01, float rep01, float beautyDemandMultiplier, float scaleDemandMultiplier)
         {
             if (zone?.Map == null) return 1f;
 
@@ -385,19 +411,22 @@ namespace SimManagementLib.GameComp
             float quality = Mathf.Lerp(tuning.qualityMultiplierRange.min, tuning.qualityMultiplierRange.max, Mathf.Clamp01(score01));
             float reputation = Mathf.Lerp(tuning.reputationMultiplierRange.min, tuning.reputationMultiplierRange.max, Mathf.Clamp01(rep01));
 
-            float demand = stage * quality * reputation;
+            float demand = stage * quality * reputation * beautyDemandMultiplier * scaleDemandMultiplier;
             return Mathf.Clamp(demand, tuning.demandFactorClamp.min, tuning.demandFactorClamp.max);
         }
 
-        private int CalculateDynamicCapacity(ShopTuningDef tuning, Zone_Shop zone, float score01, float rep01, int registerCount, int mannedCount, int storageCount)
+        /// <summary>
+        /// 计算商店动态顾客容量，容量只把有库存货柜计入货柜贡献并叠加有效规模倍率。
+        /// </summary>
+        private int CalculateDynamicCapacity(ShopTuningDef tuning, Zone_Shop zone, float score01, float rep01, int registerCount, int mannedCount, int stockedStorageCount, float scaleCapacityMultiplier)
         {
             float baseCapacity = registerCount * tuning.capacityRegisterFactor
                                + mannedCount * tuning.capacityMannedFactor
-                               + storageCount * tuning.capacityStorageFactor;
+                               + stockedStorageCount * tuning.capacityStorageFactor;
 
             float qualityMul = Mathf.Lerp(tuning.capacityQualityMulRange.min, tuning.capacityQualityMulRange.max, Mathf.Clamp01(score01));
             float repMul = Mathf.Lerp(tuning.capacityReputationMulRange.min, tuning.capacityReputationMulRange.max, Mathf.Clamp01(rep01));
-            int cap = Mathf.RoundToInt(baseCapacity * qualityMul * repMul);
+            int cap = Mathf.RoundToInt(baseCapacity * qualityMul * repMul * Mathf.Max(0.01f, scaleCapacityMultiplier));
 
             if (zone != null && zone.Cells.Count > 0)
             {
@@ -406,6 +435,43 @@ namespace SimManagementLib.GameComp
             }
 
             return Mathf.Clamp(cap, Mathf.Max(1, tuning.capacityMin), Mathf.Max(tuning.capacityMin, tuning.capacityMax));
+        }
+
+        /// <summary>
+        /// 统计至少有一种启用商品且当前有库存的货柜数量。
+        /// </summary>
+        private static int CountStockedStorages(HashSet<Building_SimContainer> storages)
+        {
+            if (storages == null || storages.Count == 0) return 0;
+
+            int count = 0;
+            foreach (Building_SimContainer storage in storages)
+            {
+                if (storage == null || storage.Destroyed) continue;
+                if (HasAnyStockedActiveDef(storage))
+                    count++;
+            }
+
+            return count;
+        }
+
+        /// <summary>
+        /// 判断货柜是否存在任意启用商品并且该商品有库存。
+        /// </summary>
+        private static bool HasAnyStockedActiveDef(Building_SimContainer storage)
+        {
+            if (storage == null) return false;
+            ThingComp_GoodsData comp = storage.GetComp<ThingComp_GoodsData>();
+            if (comp == null) return false;
+
+            foreach (ThingDef thingDef in storage.ActiveDefs)
+            {
+                GoodsItemData data = comp.FindItemData(thingDef);
+                if (data != null && data.enabled && thingDef != null && storage.CountStored(thingDef) > 0)
+                    return true;
+            }
+
+            return false;
         }
 
         private static float ComputeCellBeautyApprox(Map map, IntVec3 center)

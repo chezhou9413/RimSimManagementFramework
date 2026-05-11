@@ -44,7 +44,7 @@ namespace SimManagementLib.SimDialog
         private static readonly Color CTextMid = new Color(0.78f, 0.78f, 0.78f, 1f);
         private static readonly Color CGold = new Color(0.95f, 0.82f, 0.35f, 1f);
 
-        private enum MenuType { Overview, ManageGoods, ComboEdit }
+        private enum MenuType { Overview, BusinessHours, ManageGoods, ManageServices, ComboEdit }
 
         private MenuType curMenu = MenuType.Overview;
         private Zone_Shop shopZone;
@@ -54,9 +54,12 @@ namespace SimManagementLib.SimDialog
         private Vector2 listScroll;
         private string searchQuery = "";
         private Dictionary<string, GoodsItemData> draftItemData = new Dictionary<string, GoodsItemData>();
+        private Dictionary<int, List<ServiceSlotData>> draftServiceData = new Dictionary<int, List<ServiceSlotData>>();
         private List<ThingDef> availableGoodsDefs = new List<ThingDef>();
+        private List<Thing> serviceProviders = new List<Thing>();
         private Dictionary<string, string> countBuffers = new Dictionary<string, string>();
         private Dictionary<string, string> priceBuffers = new Dictionary<string, string>();
+        private ShopScheduleData draftSchedule;
         private string comboPriceBuf = "";
         private bool priceJustCalculated;
 
@@ -74,6 +77,7 @@ namespace SimManagementLib.SimDialog
 
             GameComponent_ShopComboManager comboManager = Current.Game.GetComponent<GameComponent_ShopComboManager>();
             zoneCombos = comboManager.GetCombosForZone(zone);
+            draftSchedule = zone.GetSchedule().Clone();
 
             HashSet<Building_SimContainer> storages = ShopDataUtility.GetStoragesInZone(shopZone);
             HashSet<string> addedDefNames = new HashSet<string>();
@@ -94,6 +98,24 @@ namespace SimManagementLib.SimDialog
                     if (addedDefNames.Add(def.defName))
                         availableGoodsDefs.Add(def);
                 }
+            }
+
+            foreach (Thing provider in ShopServiceUtility.GetServiceProvidersInZone(shopZone))
+            {
+                ThingComp_ServiceProvider comp = ShopServiceUtility.GetProviderComp(provider);
+                if (comp == null) continue;
+                comp.EnsureDefaultSlots();
+                serviceProviders.Add(provider);
+                draftServiceData[provider.thingIDNumber] = comp.serviceSlots
+                    .Where(s => s != null)
+                    .Select(s => new ServiceSlotData
+                    {
+                        serviceDefName = s.serviceDefName,
+                        enabled = s.enabled,
+                        priceOverride = s.priceOverride,
+                        maxSimultaneousUsers = s.maxSimultaneousUsers
+                    })
+                    .ToList();
             }
         }
 
@@ -127,7 +149,9 @@ namespace SimManagementLib.SimDialog
             Rect panelRect = new Rect(innerRect.x, SearchBarH + 4f, innerRect.width, innerRect.height - SearchBarH - 4f);
 
             if (curMenu == MenuType.Overview) DrawOverviewPanel(panelRect);
+            else if (curMenu == MenuType.BusinessHours) DrawBusinessHoursPanel(panelRect);
             else if (curMenu == MenuType.ManageGoods) DrawManagePanel(panelRect);
+            else if (curMenu == MenuType.ManageServices) DrawServicesPanel(panelRect);
             else if (curMenu == MenuType.ComboEdit) DrawComboPanel(panelRect);
 
             GUI.EndGroup();

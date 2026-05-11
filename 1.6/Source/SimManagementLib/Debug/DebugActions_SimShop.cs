@@ -100,6 +100,76 @@ namespace SimManagementLib.Debug
             Messages.Message("已生成完整商店：货柜会按 GoodsDef 轮换铺满。", MessageTypeDefOf.TaskCompletion, false);
         }
 
+        [DebugAction("SimShop", "生成收费公厕（点选位置）", false, false, false, false, false, 0, false,
+            actionType = DebugActionType.ToolMap,
+            allowedGameStates = AllowedGameStates.PlayingOnMap)]
+        private static void SpawnPaidToiletTestShopAtCell()
+        {
+            Map map = Find.CurrentMap;
+            if (map == null) return;
+
+            IntVec3 clickCell = UI.MouseCell();
+            if (!clickCell.InBounds(map)) return;
+
+            ThingDef registerDef = DefDatabase<ThingDef>.GetNamedSilentFail("Sim_CashRegister");
+            ThingDef toiletDef = DefDatabase<ThingDef>.GetNamedSilentFail("Sim_Toilet");
+            ThingDef wallDef = ThingDefOf.Wall;
+            ThingDef doorDef = ThingDefOf.Door;
+            TerrainDef floorDef = DefDatabase<TerrainDef>.GetNamedSilentFail("Tile")
+                                  ?? TerrainDefOf.PavedTile;
+
+            if (registerDef == null || toiletDef == null || wallDef == null || doorDef == null)
+            {
+                Messages.Message("生成收费公厕失败：缺少收银台、马桶、墙或门 Def。", MessageTypeDefOf.RejectInput, false);
+                return;
+            }
+
+            CellRect outer = CellRect.CenteredOn(clickCell, 4).ClipInsideMap(map);
+            if (outer.Width < 7 || outer.Height < 7)
+            {
+                Messages.Message("生成收费公厕失败：位置太靠近地图边缘。", MessageTypeDefOf.RejectInput, false);
+                return;
+            }
+
+            CellRect inner = outer.ContractedBy(1);
+            ClearAreaForShop(map, outer);
+            BuildRoomShell(map, outer, wallDef, doorDef);
+            SetConstructedRoof(map, inner);
+            SetFloorTerrain(map, inner, floorDef);
+
+            SimZone.Zone_Shop zone = CreateShopZone(map, inner);
+            if (zone == null)
+            {
+                Messages.Message("生成收费公厕失败：无法创建商店区。", MessageTypeDefOf.RejectInput, false);
+                return;
+            }
+
+            IntVec3 registerCell = inner.CenterCell + IntVec3.South * 2;
+            if (!inner.Contains(registerCell))
+                registerCell = inner.CenterCell;
+
+            Building_CashRegister register = SpawnRegister(map, registerDef, registerCell);
+            if (register == null)
+            {
+                Messages.Message("生成收费公厕失败：无法放置收银台。", MessageTypeDefOf.RejectInput, false);
+                return;
+            }
+
+            IntVec3 toiletCell = inner.CenterCell + IntVec3.North * 2;
+            if (!inner.Contains(toiletCell))
+                toiletCell = inner.CenterCell + IntVec3.North;
+
+            Thing toilet = SpawnFurnitureForShop(map, toiletDef, toiletCell, Rot4.South);
+            if (toilet == null)
+            {
+                Messages.Message("生成收费公厕失败：无法放置马桶。", MessageTypeDefOf.RejectInput, false);
+                return;
+            }
+
+            SpawnCashier(map, register);
+            Messages.Message("已生成收费公厕：包含商店区、收银台、马桶服务建筑和收银员。", MessageTypeDefOf.TaskCompletion, false);
+        }
+
         [DebugAction("SimShop", "生成豪华餐厅（点选位置）", false, false, false, false, false, 0, false,
             actionType = DebugActionType.ToolMap,
             allowedGameStates = AllowedGameStates.PlayingOnMap)]

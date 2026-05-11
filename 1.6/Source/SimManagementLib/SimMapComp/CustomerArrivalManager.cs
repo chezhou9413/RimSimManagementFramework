@@ -12,6 +12,9 @@ using Verse.AI.Group;
 
 namespace SimManagementLib.SimMapComp
 {
+    /// <summary>
+    /// 管理地图上商店顾客的周期性刷新、强制刷新和顾客队伍生成。
+    /// </summary>
     public class CustomerArrivalManager : MapComponent
     {
         private const int DefaultCheckInterval = 500;
@@ -66,21 +69,35 @@ namespace SimManagementLib.SimMapComp
             List<RuntimeCustomerKind> orderedKinds = kinds
                 .OrderByDescending(k => k.EvaluateArrivalWeight(hour))
                 .ToList();
+            string lastFailReason = "";
 
             foreach (CustomerArrivalShopContext context in contexts.OrderBy(_ => Rand.Value))
             {
                 foreach (RuntimeCustomerKind kind in orderedKinds)
                 {
-                    if (!ignoreConditions && !CanSpawnWave(context, kind)) continue;
-                    if (TrySpawnCustomerWave(context.Shop, kind, false, out int spawnedCount, out _))
+                    if (ignoreConditions)
+                    {
+                        if (!CanForceSpawnWave(context, kind)) continue;
+                    }
+                    else if (!CanSpawnWave(context, kind))
+                    {
+                        continue;
+                    }
+
+                    if (TrySpawnCustomerWave(context.Shop, kind, false, out int spawnedCount, out string failReason))
                     {
                         resultMessage = $"已强制刷新顾客：商店[{context.Shop.label}]，人数 {spawnedCount}。";
                         return true;
                     }
+
+                    if (!string.IsNullOrEmpty(failReason))
+                        lastFailReason = failReason;
                 }
             }
 
-            resultMessage = "强制刷新失败：找不到可用的出生点或顾客派系。";
+            resultMessage = string.IsNullOrEmpty(lastFailReason)
+                ? "强制刷新失败：没有顾客类型匹配当前商店。"
+                : "强制刷新失败：" + lastFailReason;
             return false;
         }
 
@@ -106,7 +123,7 @@ namespace SimManagementLib.SimMapComp
             List<CustomerArrivalShopContext> result = new List<CustomerArrivalShopContext>();
             GameComponent_ShopAnalyticsManager analytics = Current.Game?.GetComponent<GameComponent_ShopAnalyticsManager>();
 
-            foreach (Zone_Shop shop in map.zoneManager.AllZones.OfType<Zone_Shop>().Where(z => z.IsValidShop()))
+            foreach (Zone_Shop shop in map.zoneManager.AllZones.OfType<Zone_Shop>().Where(z => z.IsOpenNow()))
             {
                 CustomerArrivalShopContext context = BuildShopContext(shop, analytics);
                 if (context != null)
@@ -169,6 +186,23 @@ namespace SimManagementLib.SimMapComp
             return Rand.MTBEventOccurs(mtbDays, 60000f, GetCheckIntervalTicks());
         }
 
+        /// <summary>
+        /// 判断 Debug 强制刷新是否允许指定顾客进入商店，只跳过时间、天气和随机概率，不跳过商店匹配。
+        /// </summary>
+        private bool CanForceSpawnWave(CustomerArrivalShopContext context, RuntimeCustomerKind kind)
+        {
+            if (context == null || !context.CanSpawn(kind)) return false;
+            if (kind == null) return false;
+            if (kind.minShopReputation > 0f)
+            {
+                float reputation = Current.Game?.GetComponent<GameComponent_ShopAnalyticsManager>()?.GetReputation(context.Shop.ID) ?? 0f;
+                if (reputation < kind.minShopReputation)
+                    return false;
+            }
+
+            return true;
+        }
+
         private int CalculateShopCustomerCapacity(Zone_Shop shop)
         {
             int storageCount = 0;
@@ -215,19 +249,15 @@ namespace SimManagementLib.SimMapComp
             return count;
         }
 
+        /// <summary>
+        /// 为指定商店生成一位顾客并绑定顾客 Lord，失败时返回具体原因。
+        /// </summary>
         private bool TrySpawnCustomerWave(Zone_Shop shop, RuntimeCustomerKind kind, bool showArrivalMessage, out int spawnedCount, out string failReason)
         {
             spawnedCount = 0;
             failReason = string.Empty;
 
-            Faction faction = FindSafeCustomerFaction();
-            if (faction == null)
-            {
-                failReason = "no safe faction";
-                return false;
-            }
-
-            PawnKindDef selectedKind = kind.pawnKindDefs.RandomElement();
+            PawnKindDef selectedKind = SelectPawnKindWithCompatibleFaction(kind, out Faction faction);
             if (selectedKind == null)
             {
                 failReason = "no pawn kind";
@@ -244,6 +274,13 @@ namespace SimManagementLib.SimMapComp
             if (pawn == null)
             {
                 failReason = "no pawn generated";
+                return false;
+            }
+
+            if (!CustomerNeutralFactionUtility.ConvertPawnToCustomerFaction(pawn, out Faction customerFaction))
+            {
+                Find.WorldPawns.PassToWorld(pawn);
+                failReason = "no neutral customer faction";
                 return false;
             }
 
@@ -266,7 +303,8 @@ namespace SimManagementLib.SimMapComp
             lordJob.customerKindId = kind.kindId;
             CustomerRuntimeSettings settings = kind.BuildRuntimeSettings(map);
             lordJob.SetPawnSettings(pawn.thingIDNumber, settings);
-            LordMaker.MakeNewLord(faction, lordJob, map, new List<Pawn> { pawn });
+            // 顾客 Pawn 和 Lord 都使用商店专用中立派系，避免敌对来源派系残留为红名或触发战斗 AI。
+            LordMaker.MakeNewLord(customerFaction, lordJob, map, new List<Pawn> { pawn });
             spawnedCount = 1;
             CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.Arrival);
 
@@ -287,47 +325,63 @@ namespace SimManagementLib.SimMapComp
             return true;
         }
 
-        private Faction FindSafeCustomerFaction()
+        /// <summary>
+        /// 从顾客候选 PawnKind 中选择一个能匹配当前世界派系的 PawnKind，并输出兼容派系。
+        /// </summary>
+        private PawnKindDef SelectPawnKindWithCompatibleFaction(RuntimeCustomerKind kind, out Faction faction)
         {
-            HashSet<Faction> activeCustomerFactions = new HashSet<Faction>();
-            for (int i = 0; i < map.lordManager.lords.Count; i++)
-            {
-                Lord lord = map.lordManager.lords[i];
-                if (lord?.LordJob is LordJob_CustomerVisit && lord.faction != null)
-                {
-                    activeCustomerFactions.Add(lord.faction);
-                }
-            }
+            faction = null;
+            if (kind == null || kind.pawnKindDefs.NullOrEmpty()) return null;
 
-            if (activeCustomerFactions.Count > 0)
-            {
-                List<Faction> activeValid = activeCustomerFactions
-                    .Where(IsValidCustomerFaction)
-                    .ToList();
-                if (!activeValid.NullOrEmpty())
-                    return activeValid.RandomElement();
-            }
-
-            List<Faction> candidates = Find.FactionManager.AllFactionsListForReading
-                .Where(IsValidCustomerFaction)
-                .Where(f => IsCompatibleWithActiveCustomerFactions(f, activeCustomerFactions))
+            List<PawnKindDef> shuffledKinds = kind.pawnKindDefs
+                .Where(k => k?.race?.race != null)
+                .InRandomOrder()
                 .ToList();
-            if (candidates.NullOrEmpty())
-            {
-                candidates = Find.FactionManager.AllFactionsListForReading
-                    .Where(IsValidCustomerFaction)
-                    .ToList();
-            }
-            if (candidates.NullOrEmpty()) return null;
 
+            for (int i = 0; i < shuffledKinds.Count; i++)
+            {
+                PawnKindDef pawnKind = shuffledKinds[i];
+                faction = FindCustomerFactionForPawnKind(pawnKind);
+                if (faction != null)
+                    return pawnKind;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 从当前世界派系列表中选择可作为指定 PawnKind 顾客来源的派系，不按敌对关系排除候选。
+        /// </summary>
+        private Faction FindCustomerFactionForPawnKind(PawnKindDef pawnKind)
+        {
+            if (pawnKind?.race?.race == null) return null;
+
+            List<Faction> candidates = new List<Faction>();
+            List<Faction> allFactions = Find.FactionManager.AllFactionsListForReading;
+            for (int i = 0; i < allFactions.Count; i++)
+            {
+                Faction faction = allFactions[i];
+                if (IsValidCustomerFaction(faction, pawnKind))
+                    candidates.Add(faction);
+            }
+
+            if (candidates.NullOrEmpty()) return null;
             return candidates.RandomElement();
         }
 
-        private static bool IsValidCustomerFaction(Faction faction)
+        /// <summary>
+        /// 判断派系是否能作为指定 PawnKind 的顾客来源，保留敌对派系但排除物种类型不兼容的派系。
+        /// </summary>
+        private static bool IsValidCustomerFaction(Faction faction, PawnKindDef pawnKind)
         {
             if (faction == null || faction == Faction.OfPlayer) return false;
             if (faction.defeated) return false;
-            if (faction.HostileTo(Faction.OfPlayer)) return false;
+            if (faction.def == null || pawnKind?.race?.race == null) return false;
+
+            bool pawnHumanlike = pawnKind.race.race.Humanlike;
+            if (pawnHumanlike && !faction.def.humanlikeFaction) return false;
+            if (!pawnHumanlike && faction.def.humanlikeFaction) return false;
+
             return true;
         }
 
@@ -337,18 +391,5 @@ namespace SimManagementLib.SimMapComp
             return Mathf.Clamp(value, 120, 5000);
         }
 
-        private static bool IsCompatibleWithActiveCustomerFactions(Faction candidate, HashSet<Faction> activeFactions)
-        {
-            if (candidate == null || activeFactions == null || activeFactions.Count == 0) return true;
-
-            foreach (Faction active in activeFactions)
-            {
-                if (active == null) continue;
-                if (candidate.HostileTo(active) || active.HostileTo(candidate))
-                    return false;
-            }
-
-            return true;
-        }
     }
 }

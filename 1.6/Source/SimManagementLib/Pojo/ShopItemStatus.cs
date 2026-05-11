@@ -8,6 +8,9 @@ using Verse;
 
 namespace SimManagementLib.Pojo
 {
+    /// <summary>
+    /// 表示商店区域中某一种可售商品的配置和当前库存状态。
+    /// </summary>
     public class ShopItemStatus
     {
         public ThingDef Def;

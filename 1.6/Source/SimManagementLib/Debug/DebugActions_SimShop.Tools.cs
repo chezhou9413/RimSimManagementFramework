@@ -266,16 +266,24 @@ namespace SimManagementLib.Debug
 
         private static void TrySpawnFurniture(Map map, ThingDef thingDef, IntVec3 cell, Rot4 rot)
         {
-            if (map == null || thingDef == null) return;
-            if (!cell.InBounds(map) || !cell.Standable(map)) return;
+            SpawnFurnitureForShop(map, thingDef, cell, rot);
+        }
+
+        /// <summary>
+        /// 在商店测试场景中生成指定建筑或家具，并返回生成后的 Thing。
+        /// </summary>
+        private static Thing SpawnFurnitureForShop(Map map, ThingDef thingDef, IntVec3 cell, Rot4 rot)
+        {
+            if (map == null || thingDef == null) return null;
+            if (!cell.InBounds(map) || !cell.Standable(map)) return null;
 
             Thing thing = MakeThingWithDefaultStuff(thingDef);
-            if (thing == null) return;
+            if (thing == null) return null;
 
             if (thing.def.CanHaveFaction)
                 thing.SetFactionDirect(Faction.OfPlayer);
 
-            GenSpawn.Spawn(thing, cell, map, rot, WipeMode.Vanish);
+            return GenSpawn.Spawn(thing, cell, map, rot, WipeMode.Vanish);
         }
 
         private static void SpawnCashier(Map map, Building_CashRegister register)

@@ -61,6 +61,27 @@ namespace SimManagementLib.SimDialog
                     }
                 }
 
+                foreach (Thing provider in serviceProviders)
+                {
+                    if (provider == null || provider.Destroyed) continue;
+                    ThingComp_ServiceProvider comp = ShopServiceUtility.GetProviderComp(provider);
+                    if (comp == null) continue;
+                    if (!draftServiceData.TryGetValue(provider.thingIDNumber, out List<ServiceSlotData> drafts)) continue;
+
+                    comp.serviceSlots = drafts
+                        .Where(s => s != null)
+                        .Select(s => new ServiceSlotData
+                        {
+                            serviceDefName = s.serviceDefName,
+                            enabled = s.enabled,
+                            priceOverride = Mathf.Max(0f, s.priceOverride),
+                            maxSimultaneousUsers = Mathf.Max(1, s.maxSimultaneousUsers)
+                        })
+                        .ToList();
+                }
+
+                shopZone.ApplySchedule(draftSchedule);
+
                 if (totalTrimmed > 0)
                 {
                     Messages.Message($"已按货柜容量上限自动调整目标量：{trimmedStorageCount} 个货柜共裁剪 {totalTrimmed} 件超额配置。", MessageTypeDefOf.NeutralEvent, false);

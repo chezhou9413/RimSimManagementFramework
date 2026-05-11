@@ -12,7 +12,7 @@ namespace SimManagementLib.SimDialog
 {
     public class Dialog_GoodsManager : Window
     {
-        // ── 尺寸与布局常量 (优化了间距和比例) ──
+        // 尺寸与布局常量。
         private const float SidebarW = 160f;
         private const float DivW = 2f;
         private const float RowH = 46f;
@@ -24,11 +24,11 @@ namespace SimManagementLib.SimDialog
         private const float ColGap = 10f;
         private const float RowPad = 8f;
         private const float HeaderH = 30f;
-        private const float BottomH = 50f;
+        private const float BottomH = 74f;
         private const float SearchBarH = 30f;
         private const float ScrW = 16f;
 
-        // ── 配色方案 ──
+        // 配色方案。
         private static readonly Color CAccent = new Color(0.25f, 0.65f, 0.85f, 1f);
         private static readonly Color CSideBg = new Color(0.12f, 0.13f, 0.14f, 1f);
         private static readonly Color CSideSel = new Color(0.2f, 0.3f, 0.4f, 0.4f);
@@ -247,7 +247,7 @@ namespace SimManagementLib.SimDialog
                     d.count = 1;
                     d.countBuffer = "1";
                 }
-                // ── 【修改】首次勾选时，若尚未设置价格，自动填入市场价 ──
+                // 首次勾选商品时补齐默认价格，避免保存出 0 价商品。
                 if (d.enabled && d.price <= 0f)
                 {
                     d.price = td.BaseMarketValue > 0f ? td.BaseMarketValue : 1f;
@@ -266,7 +266,7 @@ namespace SimManagementLib.SimDialog
             rightX -= FieldW;
             if (nowEnabled)
             {
-                // ── 【修改】初始化 priceBuffer 时，若价格为 0 则先填入市场价 ──
+                // 初始化价格输入缓存时补齐默认价格，保证输入框和数据一致。
                 if (d.priceBuffer == null)
                 {
                     if (d.price <= 0f)
@@ -356,10 +356,12 @@ namespace SimManagementLib.SimDialog
         {
             Widgets.DrawLineHorizontal(rect.x, rect.y, rect.width);
 
-            float btnY = rect.y + (rect.height - 30f) / 2f;
-            Rect capacityRect = new Rect(rect.x + 170f, rect.y + 2f, rect.width - 400f, 16f);
+            float statusY = rect.y + 6f;
+            float btnY = rect.yMax - 36f;
+            Rect capacityRect = new Rect(rect.x + 166f, statusY, rect.width - 178f, 22f);
 
             Pojo.RuntimeGoodsCategory activeDef = GoodsCatalog.GetCategory(draftActiveDefName);
+            DrawStockLegend(new Rect(rect.x + 10f, statusY, 150f, 22f));
             if (storage != null && activeDef != null)
             {
                 int total = GetDraftTargetTotal(activeDef);
@@ -373,18 +375,11 @@ namespace SimManagementLib.SimDialog
                 GUI.color = Color.white;
             }
 
-            Text.Font = GameFont.Tiny; Text.Anchor = TextAnchor.MiddleLeft;
-            float lx = rect.x + 10f;
-            GUI.color = CStockOk; Widgets.Label(new Rect(lx, rect.y, 48f, rect.height), "■ 充足"); lx += 50f;
-            GUI.color = CStockLow; Widgets.Label(new Rect(lx, rect.y, 48f, rect.height), "■ 不足"); lx += 50f;
-            GUI.color = CStockNo; Widgets.Label(new Rect(lx, rect.y, 48f, rect.height), "■ 缺货");
-            GUI.color = Color.white; Text.Font = GameFont.Small; Text.Anchor = TextAnchor.UpperLeft;
-
             if (!string.IsNullOrEmpty(draftActiveDefName))
             {
-                if (SimUiStyle.DrawSecondaryButton(new Rect(rect.center.x - 110f, btnY, 100f, 30f), "全选当前页", true, GameFont.Tiny))
+                if (SimUiStyle.DrawSecondaryButton(new Rect(rect.x + 10f, btnY, 100f, 30f), "全选当前页", true, GameFont.Tiny))
                     ToggleAllCurrentDef(true);
-                if (SimUiStyle.DrawSecondaryButton(new Rect(rect.center.x + 10f, btnY, 100f, 30f), "清空当前页", true, GameFont.Tiny))
+                if (SimUiStyle.DrawSecondaryButton(new Rect(rect.x + 118f, btnY, 100f, 30f), "清空当前页", true, GameFont.Tiny))
                     ToggleAllCurrentDef(false);
             }
 
@@ -402,6 +397,27 @@ namespace SimManagementLib.SimDialog
                 Close();
         }
 
+        /// <summary>
+        /// 绘制库存颜色图例，固定占用底栏左上角空间，避免和操作按钮重叠。
+        /// </summary>
+        private void DrawStockLegend(Rect rect)
+        {
+            Text.Font = GameFont.Tiny;
+            Text.Anchor = TextAnchor.MiddleLeft;
+            float lx = rect.x;
+            GUI.color = CStockOk;
+            Widgets.Label(new Rect(lx, rect.y, 48f, rect.height), "■ 充足");
+            lx += 50f;
+            GUI.color = CStockLow;
+            Widgets.Label(new Rect(lx, rect.y, 48f, rect.height), "■ 不足");
+            lx += 50f;
+            GUI.color = CStockNo;
+            Widgets.Label(new Rect(lx, rect.y, 48f, rect.height), "■ 缺货");
+            GUI.color = Color.white;
+            Text.Font = GameFont.Small;
+            Text.Anchor = TextAnchor.UpperLeft;
+        }
+
         private void ToggleAllCurrentDef(bool enable)
         {
             Pojo.RuntimeGoodsCategory def = GoodsCatalog.GetCategory(draftActiveDefName);
@@ -413,7 +429,7 @@ namespace SimManagementLib.SimDialog
                 var d = GetDraftItem(td);
                 d.enabled = enable;
                 if (enable && d.count <= 0) { d.count = 1; d.countBuffer = "1"; }
-                // ── 【修改】全选时也自动填入市场价 ──
+                // 全选时同步补齐未设置价格的商品，避免后续保存出 0 价。
                 if (enable && d.price <= 0f)
                 {
                     d.price = td.BaseMarketValue > 0f ? td.BaseMarketValue : 1f;

@@ -62,13 +62,22 @@ namespace SimManagementLib.SimDialog
 
             Text.Font = GameFont.Tiny;
             GUI.color = CAccent;
-            Widgets.Label(new Rect(rect.x + 10f, nameplate.y + 28f, rect.width - 14f, 20f), $"在售 {enabledCount} 种商品");
+            int enabledServiceCount = 0;
+            foreach (List<ServiceSlotData> slots in draftServiceData.Values)
+            {
+                if (slots == null) continue;
+                for (int i = 0; i < slots.Count; i++)
+                {
+                    if (slots[i] != null && slots[i].enabled) enabledServiceCount++;
+                }
+            }
+            Widgets.Label(new Rect(rect.x + 10f, nameplate.y + 28f, rect.width - 14f, 20f), $"商品 {enabledCount} / 服务 {enabledServiceCount}");
             GUI.color = Color.white;
             Widgets.DrawLineHorizontal(rect.x, nameplate.yMax, rect.width);
 
             Rect outRect = new Rect(rect.x, nameplate.yMax + 4f, rect.width, rect.height - nameplate.height - 4f);
             float itemH = 36f;
-            Rect viewRect = new Rect(0f, 0f, rect.width - ScrW, (4 + zoneCombos.Count) * itemH + 30f);
+            Rect viewRect = new Rect(0f, 0f, rect.width - ScrW, (5 + zoneCombos.Count) * itemH + 30f);
 
             Widgets.BeginScrollView(outRect, ref sideScroll, viewRect);
             float y = 4f;
@@ -76,7 +85,13 @@ namespace SimManagementLib.SimDialog
             DrawSidebarItem(new Rect(0f, y, viewRect.width, itemH), "📊  库存概览", curMenu == MenuType.Overview, delegate { SwitchMenu(MenuType.Overview); });
             y += itemH;
 
+            DrawSidebarItem(new Rect(0f, y, viewRect.width, itemH), "🕘  营业设置", curMenu == MenuType.BusinessHours, delegate { SwitchMenu(MenuType.BusinessHours); });
+            y += itemH;
+
             DrawSidebarItem(new Rect(0f, y, viewRect.width, itemH), "📦  货品上架", curMenu == MenuType.ManageGoods, delegate { SwitchMenu(MenuType.ManageGoods); });
+            y += itemH;
+
+            DrawSidebarItem(new Rect(0f, y, viewRect.width, itemH), "💧  服务配置", curMenu == MenuType.ManageServices, delegate { SwitchMenu(MenuType.ManageServices); });
             y += itemH + 6f;
 
             Widgets.DrawBoxSolid(new Rect(0f, y, viewRect.width, 1f), CDivider);

@@ -62,6 +62,9 @@ namespace SimManagementLib.Pojo
         public List<string> targetGoodsCategoryIds = new List<string>();
 
         [DataMember]
+        public List<string> targetServiceCategoryIds = new List<string>();
+
+        [DataMember]
         public List<CustomCustomerPreferenceRecord> itemPreferences = new List<CustomCustomerPreferenceRecord>();
 
         [DataMember]

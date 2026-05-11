@@ -31,6 +31,14 @@ namespace SimManagementLib.Tool
             return ShopDataUtility.FindShopZone(storage.Map, storage.Position);
         }
 
+        /// <summary>
+        /// 判断指定商店当前是否允许店员执行商店工作，找不到商店时保持兼容允许工作。
+        /// </summary>
+        public static bool IsShopOpenForWork(Zone_Shop zone)
+        {
+            return zone == null || zone.IsOpenNow();
+        }
+
         public static List<ShopStaffRoleDef> GetVisibleRoles(Zone_Shop zone)
         {
             if (zone?.Map == null) return new List<ShopStaffRoleDef>();

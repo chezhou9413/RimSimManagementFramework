@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+  <FactionDef ParentName="OutlanderFactionBase">
+    <defName>SimShop_NeutralCustomerFaction</defName>
+    <label>商店顾客</label>
+    <description>商店系统用于承载临时顾客身份的隐藏中立派系。</description>
+    <fixedName>商店顾客</fixedName>
+    <hidden>true</hidden>
+    <humanlikeFaction>true</humanlikeFaction>
+    <requiredCountAtGameStart>0</requiredCountAtGameStart>
+    <settlementGenerationWeight>0</settlementGenerationWeight>
+    <canSiege>false</canSiege>
+    <canStageAttacks>false</canStageAttacks>
+    <raidsForbidden>true</raidsForbidden>
+    <mustStartOneEnemy>false</mustStartOneEnemy>
+    <naturalEnemy>false</naturalEnemy>
+    <permanentEnemy>false</permanentEnemy>
+    <permanentEnemyToEveryoneExceptPlayer>false</permanentEnemyToEveryoneExceptPlayer>
+    <autoFlee>false</autoFlee>
+    <canRequestTraders>false</canRequestTraders>
+    <canRequestMilitaryAid>false</canRequestMilitaryAid>
+    <canRequestOrbitalTrader>false</canRequestOrbitalTrader>
+    <canGenerateQuestSites>false</canGenerateQuestSites>
+    <basicMemberKind>Villager</basicMemberKind>
+    <pawnSingular>顾客</pawnSingular>
+    <pawnsPlural>顾客</pawnsPlural>
+    <leaderTitle>顾客代表</leaderTitle>
+    <factionIconPath>World/WorldObjects/Expanding/Town</factionIconPath>
+    <settlementTexturePath>World/WorldObjects/DefaultSettlement</settlementTexturePath>
+    <colorSpectrum>
+      <li>(0.30, 0.62, 0.78)</li>
+      <li>(0.44, 0.78, 0.88)</li>
+    </colorSpectrum>
+  </FactionDef>
+</Defs>

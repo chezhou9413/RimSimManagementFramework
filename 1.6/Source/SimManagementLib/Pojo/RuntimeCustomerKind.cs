@@ -21,6 +21,7 @@ namespace SimManagementLib.Pojo
         public List<WeatherDef> allowedWeathers = new List<WeatherDef>();
         public float minShopReputation;
         public List<string> targetGoodsCategoryIds = new List<string>();
+        public List<string> targetServiceCategoryIds = new List<string>();
         public List<RuntimeItemPreference> itemPreferences = new List<RuntimeItemPreference>();
         public ShoppingBehaviorProps shoppingBehavior = new ShoppingBehaviorProps();
         public List<RuntimeCustomerProfile> spawnProfiles = new List<RuntimeCustomerProfile>();
@@ -46,6 +47,17 @@ namespace SimManagementLib.Pojo
         public List<string> GetTargetGoodsCategoryIds()
         {
             return targetGoodsCategoryIds?
+                .Where(id => !string.IsNullOrEmpty(id))
+                .Distinct()
+                .ToList() ?? new List<string>();
+        }
+
+        /// <summary>
+        /// 返回运行时顾客明确感兴趣的服务分类，空列表表示不限制服务分类。
+        /// </summary>
+        public List<string> GetTargetServiceCategoryIds()
+        {
+            return targetServiceCategoryIds?
                 .Where(id => !string.IsNullOrEmpty(id))
                 .Distinct()
                 .ToList() ?? new List<string>();
@@ -124,6 +136,7 @@ namespace SimManagementLib.Pojo
                 allowedWeathers = def.allowedWeathers?.Where(w => w != null).ToList() ?? new List<WeatherDef>(),
                 minShopReputation = def.minShopReputation,
                 targetGoodsCategoryIds = def.GetTargetGoodsCategoryIds(),
+                targetServiceCategoryIds = def.GetTargetServiceCategoryIds(),
                 itemPreferences = RuntimeItemPreference.FromDefs(def.itemPreferences),
                 shoppingBehavior = def.shoppingBehavior ?? new ShoppingBehaviorProps(),
                 spawnProfiles = RuntimeCustomerProfile.FromDefs(def.spawnProfiles)
@@ -162,6 +175,10 @@ namespace SimManagementLib.Pojo
                     .ToList() ?? new List<WeatherDef>(),
                 minShopReputation = Mathf.Clamp(record.minShopReputation, 0f, 100f),
                 targetGoodsCategoryIds = record.targetGoodsCategoryIds?
+                    .Where(id => !string.IsNullOrEmpty(id))
+                    .Distinct()
+                    .ToList() ?? new List<string>(),
+                targetServiceCategoryIds = record.targetServiceCategoryIds?
                     .Where(id => !string.IsNullOrEmpty(id))
                     .Distinct()
                     .ToList() ?? new List<string>(),

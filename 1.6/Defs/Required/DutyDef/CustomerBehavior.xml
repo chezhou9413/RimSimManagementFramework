@@ -4,8 +4,10 @@
   <DutyDef>
     <defName>Customer_BrowseShelf</defName>
     <alwaysShowWeapon>false</alwaysShowWeapon>
+    <threatDisabled>true</threatDisabled>
     <thinkNode Class="ThinkNode_Priority">
       <subNodes>
+        <li Class="SimManagementLib.SimAI.JobGiver_Customer_SelectPaidService" />
         <li Class="SimManagementLib.SimAI.JobGiver_Customer_BrowseAndPick" />
         <li Class="ThinkNode_ConditionalStarving">
           <subNodes>
@@ -23,6 +25,7 @@
   <DutyDef>
     <defName>Customer_Checkout</defName>
     <alwaysShowWeapon>false</alwaysShowWeapon>
+    <threatDisabled>true</threatDisabled>
     <thinkNode Class="ThinkNode_Priority">
       <subNodes>
         <li Class="SimManagementLib.SimAI.JobGiver_CustomerCheckout" />

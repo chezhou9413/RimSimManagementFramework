@@ -10,7 +10,7 @@ namespace SimManagementLib.SimDialog
     public partial class Dialog_CustomGoodsRegistry
     {
         /// <summary>
-        /// Displays exportable Base64 data for sharing the custom goods database.
+        /// 显示可分享的自定义商品数据库 Base64 导出内容。
         /// </summary>
         private sealed class Dialog_CustomGoodsTransfer : Window
         {
@@ -20,7 +20,7 @@ namespace SimManagementLib.SimDialog
             public override Vector2 InitialSize => new Vector2(900f, 520f);
 
             /// <summary>
-            /// Initializes the export dialog with the serialized custom goods text.
+            /// 使用序列化后的自定义商品文本初始化导出窗口。
             /// </summary>
             public Dialog_CustomGoodsTransfer(string exportText)
             {
@@ -32,7 +32,7 @@ namespace SimManagementLib.SimDialog
             }
 
             /// <summary>
-            /// Draws the export text area and clipboard copy action.
+            /// 绘制导出文本区域和复制到剪贴板操作。
             /// </summary>
             public override void DoWindowContents(Rect inRect)
             {
@@ -81,20 +81,21 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// Accepts Base64 data and imports it as the replacement custom goods database.
+        /// 接收 Base64 数据，并按增量合并或覆盖替换模式导入自定义商品数据库。
         /// </summary>
         private sealed class Dialog_CustomGoodsImport : Window
         {
-            private readonly Action<CustomGoodsDatabaseData> importAction;
+            private readonly Action<CustomGoodsDatabaseData, bool> importAction;
             private string importText = string.Empty;
             private Vector2 scroll;
+            private bool replaceExisting;
 
             public override Vector2 InitialSize => new Vector2(900f, 560f);
 
             /// <summary>
-            /// Initializes the import dialog with the callback that receives parsed data.
+            /// 使用接收解析结果和导入模式的回调初始化导入窗口。
             /// </summary>
-            public Dialog_CustomGoodsImport(Action<CustomGoodsDatabaseData> importAction)
+            public Dialog_CustomGoodsImport(Action<CustomGoodsDatabaseData, bool> importAction)
             {
                 this.importAction = importAction;
                 forcePause = true;
@@ -104,7 +105,7 @@ namespace SimManagementLib.SimDialog
             }
 
             /// <summary>
-            /// Draws the import text area, paste action, and confirmation action.
+            /// 绘制导入模式切换、文本区域、粘贴操作和确认操作。
             /// </summary>
             public override void DoWindowContents(Rect inRect)
             {
@@ -120,14 +121,19 @@ namespace SimManagementLib.SimDialog
                     GUI.color = Color.white;
 
                     Text.Font = GameFont.Medium;
-                    Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width - CloseXReservedWidth, Text.LineHeightOf(GameFont.Medium) + 4f), "导入并覆盖");
+                    Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width - CloseXReservedWidth, Text.LineHeightOf(GameFont.Medium) + 4f), "导入 Base64");
 
                     Text.Font = GameFont.Tiny;
-                    string infoText = "导入后会覆盖玩家本地所有自定义商品数据，但不会改动任何 GoodsDef 配置。粘贴 Base64 后点击确认导入。";
+                    string infoText = replaceExisting
+                        ? "覆盖替换会用导入内容替换玩家本地所有自定义商品数据，但不会改动任何 GoodsDef 配置。"
+                        : "增量合并会保留本地现有商品类型和关联，并把导入内容按类型 ID 追加合并。";
                     float infoHeight = Mathf.Ceil(Text.CalcHeight(infoText, inRect.width)) + 4f;
                     Widgets.Label(new Rect(inRect.x, inRect.y + 34f, inRect.width, infoHeight), infoText);
 
-                    Rect textRect = new Rect(inRect.x, inRect.y + 42f + infoHeight, inRect.width, Mathf.Max(90f, inRect.height - infoHeight - 108f));
+                    Rect modeRect = new Rect(inRect.x, inRect.y + 42f + infoHeight, inRect.width, 34f);
+                    DrawImportModeSelector(modeRect);
+
+                    Rect textRect = new Rect(inRect.x, modeRect.yMax + 8f, inRect.width, Mathf.Max(90f, inRect.height - infoHeight - 150f));
                     Widgets.DrawBoxSolid(textRect, new Color(0f, 0f, 0f, 0.22f));
                     SimUiStyle.DrawBorder(textRect, new Color(1f, 1f, 1f, 0.10f));
 
@@ -148,9 +154,9 @@ namespace SimManagementLib.SimDialog
                             return;
                         }
 
-                        importAction?.Invoke(data);
+                        importAction?.Invoke(data, replaceExisting);
                         Close();
-                        Messages.Message("自定义商品数据已导入并覆盖本地内容。", MessageTypeDefOf.PositiveEvent, false);
+                        Messages.Message(replaceExisting ? "自定义商品数据已导入并覆盖本地内容。" : "自定义商品数据已增量合并到本地内容。", MessageTypeDefOf.PositiveEvent, false);
                     }
                 }
                 finally
@@ -160,6 +166,28 @@ namespace SimManagementLib.SimDialog
                     Text.WordWrap = oldWordWrap;
                     GUI.color = oldColor;
                 }
+            }
+
+            /// <summary>
+            /// 绘制导入模式选择控件。
+            /// </summary>
+            private void DrawImportModeSelector(Rect rect)
+            {
+                float buttonWidth = 124f;
+                Rect mergeRect = new Rect(rect.x, rect.y, buttonWidth, 30f);
+                Rect replaceRect = new Rect(mergeRect.xMax + 8f, rect.y, buttonWidth, 30f);
+
+                bool mergeSelected = !replaceExisting;
+                if ((mergeSelected ? SimUiStyle.DrawPrimaryButton(mergeRect, "增量合并", true, GameFont.Tiny) : SimUiStyle.DrawSecondaryButton(mergeRect, "增量合并", true, GameFont.Tiny)))
+                    replaceExisting = false;
+
+                if ((replaceExisting ? SimUiStyle.DrawPrimaryButton(replaceRect, "覆盖替换", true, GameFont.Tiny) : SimUiStyle.DrawSecondaryButton(replaceRect, "覆盖替换", true, GameFont.Tiny)))
+                    replaceExisting = true;
+
+                Text.Font = GameFont.Tiny;
+                GUI.color = new Color(0.73f, 0.77f, 0.82f, 1f);
+                Widgets.Label(new Rect(replaceRect.xMax + 12f, rect.y + 6f, rect.width - replaceRect.width - mergeRect.width - 28f, 20f), replaceExisting ? "用导入内容替换本地自定义商品。" : "保留本地内容，只追加导入内容。");
+                GUI.color = Color.white;
             }
         }
     }

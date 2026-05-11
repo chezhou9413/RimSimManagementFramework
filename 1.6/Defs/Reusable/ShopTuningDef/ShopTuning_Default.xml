@@ -66,6 +66,29 @@
       <max>4.00</max>
     </demandFactorClamp>
 
+    <beautyDemandRange>
+      <min>-2</min>
+      <max>12</max>
+    </beautyDemandRange>
+    <beautyDemandMultiplierRange>
+      <min>0.75</min>
+      <max>1.35</max>
+    </beautyDemandMultiplierRange>
+    <scaleDemandTarget>18</scaleDemandTarget>
+    <scaleDemandMultiplierRange>
+      <min>0.70</min>
+      <max>1.60</max>
+    </scaleDemandMultiplierRange>
+    <scaleCapacityMultiplierRange>
+      <min>0.85</min>
+      <max>1.30</max>
+    </scaleCapacityMultiplierRange>
+    <scaleRegisterWeight>2.5</scaleRegisterWeight>
+    <scaleMannedRegisterWeight>2.0</scaleMannedRegisterWeight>
+    <scaleStockedStorageWeight>1.2</scaleStockedStorageWeight>
+    <scaleGoodsKindWeight>0.12</scaleGoodsKindWeight>
+    <scaleAreaSqrtWeight>0.35</scaleAreaSqrtWeight>
+
     <capacityRegisterFactor>2.5</capacityRegisterFactor>
     <capacityMannedFactor>2.0</capacityMannedFactor>
     <capacityStorageFactor>1.0</capacityStorageFactor>

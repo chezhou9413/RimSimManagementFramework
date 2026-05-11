@@ -20,7 +20,7 @@ namespace SimManagementLib.SimWorkGiver
         {
             foreach (Thing t in pawn.Map.listerBuildings.allBuildingsColonist.OfType<Building_SimContainer>())
             {
-                if (t is Building_SimContainer storage && NeedsRestock(storage, pawn))
+                if (t is Building_SimContainer storage && ShopStaffUtility.IsShopOpenForWork(ShopStaffUtility.FindShopFor(storage)) && NeedsRestock(storage, pawn))
                     yield return storage;
             }
         }
@@ -63,8 +63,10 @@ namespace SimManagementLib.SimWorkGiver
         private static bool NeedsRestock(Building_SimContainer storage, Pawn pawn)
         {
             if (storage.Destroyed || !storage.Spawned) return false;
+            Zone_Shop shop = ShopStaffUtility.FindShopFor(storage);
+            if (!ShopStaffUtility.IsShopOpenForWork(shop)) return false;
             WorkGiver_RestockMegaStorage workGiver = DefDatabase<WorkGiverDef>.GetNamedSilentFail("RestockMegaStorage")?.Worker as WorkGiver_RestockMegaStorage;
-            if (workGiver != null && !ShopStaffUtility.AllowsPawnForWorkGiver(ShopStaffUtility.FindShopFor(storage), pawn, workGiver.def))
+            if (workGiver != null && !ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, workGiver.def))
                 return false;
             if (!pawn.CanReach(storage, PathEndMode.Touch, Danger.Deadly)) return false;
 

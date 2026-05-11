@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+  <!-- 专门会被收费厕所服务吸引的顾客。 -->
+  <SimManagementLib.SimDef.CustomerKindDef>
+    <defName>Sim_ToiletCustomerKind</defName>
+    <label>厕所顾客</label>
+
+    <pawnKindDefs>
+      <li>Villager</li>
+      <li>Town_Trader</li>
+      <li>Town_Guard</li>
+      <li>Town_Councilman</li>
+    </pawnKindDefs>
+
+    <arrivalCurve>
+      <points>
+        <li>(0, 0.4)</li>
+        <li>(8, 0.8)</li>
+        <li>(12, 1.1)</li>
+        <li>(18, 1.0)</li>
+        <li>(24, 0.4)</li>
+      </points>
+    </arrivalCurve>
+
+    <baseMtbDays>0.18</baseMtbDays>
+    <budgetRange>40~120</budgetRange>
+    <queuePatienceRange>900~2200</queuePatienceRange>
+    <activeHourRange>0~24</activeHourRange>
+    <targetServiceCategoryIds>
+      <li>Service_Toilet</li>
+    </targetServiceCategoryIds>
+
+    <shoppingBehavior>
+      <browseTimeRange>120~240</browseTimeRange>
+      <maxShelvesToVisit>1</maxShelvesToVisit>
+      <queuePatience>1500</queuePatience>
+    </shoppingBehavior>
+  </SimManagementLib.SimDef.CustomerKindDef>
+</Defs>

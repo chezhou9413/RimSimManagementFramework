@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+  <!-- 收费厕所服务。使用 PayBeforeUse 表示顾客先结账获得使用资格，再到马桶读条使用。 -->
+  <SimManagementLib.SimService.ShopServiceDef>
+    <defName>Sim_Service_Toilet</defName>
+    <label>收费厕所</label>
+    <description>顾客支付一次厕所服务费用后，可以在马桶处停留完成服务。</description>
+    <serviceCategoryId>Service_Toilet</serviceCategoryId>
+    <basePrice>25</basePrice>
+    <durationTicks>420~720</durationTicks>
+    <billingMode>PayBeforeUse</billingMode>
+    <workerClass>SimManagementLib.SimService.ShopServiceWorker_Toilet</workerClass>
+    <useJobDef>Customer_UsePaidService</useJobDef>
+  </SimManagementLib.SimService.ShopServiceDef>
+</Defs>

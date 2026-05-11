@@ -8,6 +8,9 @@ using Verse.AI;
 using Verse.AI.Group;
 namespace SimManagementLib.SimAI
 {
+    /// <summary>
+    /// 为顾客分配浏览货柜并挑选商品的工作，负责按预算、库存和货柜可预约状态选择目标货柜。
+    /// </summary>
     public class JobGiver_Customer_BrowseAndPick : ThinkNode_JobGiver
     {
         // 货柜全部挤满时，最多等待的 tick 数（按真实游戏 Tick 计算），超过后强制去结账
@@ -21,6 +24,12 @@ namespace SimManagementLib.SimAI
 
             // 计算该 pawn 的剩余预算
             int pId = pawn.thingIDNumber;
+            if (lordJob.HasReachedConsumptionLimit(pId))
+            {
+                lordJob.MarkPawnReadyForCheckout(pId);
+                return null;
+            }
+
             float alreadySpent = lordJob.cartValues.TryGetValue(pId, out float v) ? v : 0f;
             float remainingBudget = lordJob.GetBudgetForPawn(pId) - alreadySpent;
 
@@ -52,12 +61,8 @@ namespace SimManagementLib.SimAI
                 {
                     if (s.CountStored(def) <= 0) return false;
                     if (hasAffordableCombo) return true;
-                    // 检查该物品单价是否在预算内
-                    Thing storedThing = s.GetDirectlyHeldThings()
-                        .FirstOrDefault(t => t.def == def);
-                    float unitPrice = storedThing != null
-                        ? Mathf.CeilToInt(storedThing.MarketValue)
-                        : 1f;
+                    // 使用统一价格规则判断预算，避免筛选价格和实际购买价格不一致。
+                    float unitPrice = ShopPricingUtility.GetUnitPrice(s, def);
                     return unitPrice <= remainingBudget;
                 }))
                 .ToList();
@@ -65,6 +70,9 @@ namespace SimManagementLib.SimAI
             // 没有任何买得起的货，直接去结账
             if (allStockedStorages.NullOrEmpty())
             {
+                if (ShopServiceUtility.TryFindServiceForCustomer(pawn, shopZone, remainingBudget, out _, out _, out _))
+                    return null;
+
                 // 确保 cartValues 有记录，防止 CheckAllCheckoutsDone 误判
                 if (!lordJob.cartValues.ContainsKey(pId))
                     lordJob.cartValues[pId] = 0f;

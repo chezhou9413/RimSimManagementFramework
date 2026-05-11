@@ -1,6 +1,24 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Defs>
   <JobDef>
+    <defName>Customer_SelectPaidService</defName>
+    <driverClass>SimManagementLib.SimAI.JobDriver_SelectPaidService</driverClass>
+    <reportString>正在选择付费服务。</reportString>
+    <casualInterruptible>true</casualInterruptible>
+    <joyDuration>300</joyDuration>
+    <joyKind>Meditative</joyKind>
+  </JobDef>
+
+  <JobDef>
+    <defName>Customer_UsePaidService</defName>
+    <driverClass>SimManagementLib.SimAI.JobDriver_UsePaidService</driverClass>
+    <reportString>正在使用付费服务。</reportString>
+    <casualInterruptible>true</casualInterruptible>
+    <joyDuration>300</joyDuration>
+    <joyKind>Meditative</joyKind>
+  </JobDef>
+
+  <JobDef>
     <defName>Customer_BrowseAndPick</defName>
     <driverClass>SimManagementLib.SimAI.JobDriver_BrowseAndPick</driverClass>
     <reportString>正在挑选商品。</reportString>

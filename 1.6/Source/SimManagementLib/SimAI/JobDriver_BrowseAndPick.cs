@@ -14,6 +14,9 @@ using Verse.AI.Group;
 
 namespace SimManagementLib.SimAI
 {
+    /// <summary>
+    /// 执行顾客到货柜浏览、选择商品、扣减虚拟库存并写入购物车的流程。
+    /// </summary>
     public class JobDriver_BrowseAndPick : JobDriver
     {
         private const int MaxShelfReservations = 24;
@@ -34,7 +37,11 @@ namespace SimManagementLib.SimAI
             {
                 CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.BrowseStart);
             };
-            browse.WithProgressBarToilDelay(TargetIndex.A);
+            browse.tickAction = () =>
+            {
+                ShopProgressBarUtility.Report(pawn, 1f - ticksLeftThisToil / 300f);
+            };
+            browse.AddFinishAction(() => ShopProgressBarUtility.Clear(pawn));
             yield return browse;
 
             Toil pickItem = new Toil();
@@ -95,26 +102,19 @@ namespace SimManagementLib.SimAI
                                 $"选购套餐: {comboName}",
                                 new Color(0.95f, 0.8f, 0.35f),
                                 Color.white);
-                            lordJob.MarkPawnReadyForCheckout(pId);
+                            if (lordJob.RegisterConsumptionActionAndShouldCheckout(pId))
+                                lordJob.MarkPawnReadyForCheckout(pId);
                             return;
                         }
                     }
                 }
 
                 List<(ThingDef def, float unitPrice)> candidates = new List<(ThingDef def, float unitPrice)>();
-                ThingComp_GoodsData comp = TargetShelf.GetComp<ThingComp_GoodsData>();
                 foreach (ThingDef def in TargetShelf.ActiveDefs)
                 {
                     if (TargetShelf.CountStored(def) <= 0) continue;
 
-                    float configuredPrice = comp?.itemData != null
-                        && comp.itemData.TryGetValue(def.defName, out GoodsItemData data)
-                        && data != null
-                        && data.enabled
-                        && data.price > 0f
-                        ? data.price
-                        : 0f;
-                    float unitPrice = configuredPrice > 0f ? configuredPrice : Mathf.Max(1f, Mathf.CeilToInt(def.BaseMarketValue));
+                    float unitPrice = ShopPricingUtility.GetUnitPrice(TargetShelf, def);
                     if (unitPrice <= remainingBudget)
                     {
                         candidates.Add((def, unitPrice));
@@ -162,7 +162,8 @@ namespace SimManagementLib.SimAI
                         Color.white);
                 }
 
-                lordJob.MarkPawnReadyForCheckout(pId);
+                if (lordJob.RegisterConsumptionActionAndShouldCheckout(pId))
+                    lordJob.MarkPawnReadyForCheckout(pId);
             };
 
             yield return pickItem;

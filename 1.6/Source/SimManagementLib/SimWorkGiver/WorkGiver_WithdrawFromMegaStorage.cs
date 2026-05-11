@@ -1,6 +1,7 @@
 using RimWorld;
 using SimManagementLib.SimAI;
 using SimManagementLib.SimThingClass;
+using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace SimManagementLib.SimWorkGiver
         {
             foreach (Thing t in pawn.Map.listerBuildings.allBuildingsColonist.OfType<Building_SimContainer>())
             {
-                if (t is Building_SimContainer storage && HasExcess(storage, pawn))
+                if (t is Building_SimContainer storage && ShopStaffUtility.IsShopOpenForWork(ShopStaffUtility.FindShopFor(storage)) && HasExcess(storage, pawn))
                     yield return storage;
             }
         }
@@ -57,8 +58,10 @@ namespace SimManagementLib.SimWorkGiver
         private static bool HasExcess(Building_SimContainer storage, Pawn pawn)
         {
             if (storage.Destroyed || !storage.Spawned) return false;
+            Zone_Shop shop = ShopStaffUtility.FindShopFor(storage);
+            if (!ShopStaffUtility.IsShopOpenForWork(shop)) return false;
             WorkGiverDef currentDef = DefDatabase<WorkGiverDef>.GetNamedSilentFail("WithdrawFromMegaStorage");
-            if (!ShopStaffUtility.AllowsPawnForWorkGiver(ShopStaffUtility.FindShopFor(storage), pawn, currentDef))
+            if (!ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, currentDef))
                 return false;
 
             foreach ((ThingDef _, int excess) in storage.GetExcessItems())

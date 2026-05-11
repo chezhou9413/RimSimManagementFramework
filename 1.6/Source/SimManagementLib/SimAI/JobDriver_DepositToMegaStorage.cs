@@ -1,12 +1,16 @@
 using System.Collections.Generic;
 using RimWorld;
 using SimManagementLib.SimThingClass;
+using SimManagementLib.Tool;
 using UnityEngine;
 using Verse;
 using Verse.AI;
 
 namespace SimManagementLib.SimAI
 {
+    /// <summary>
+    /// 执行店员把物品存入商店大货柜的工作。
+    /// </summary>
     public class JobDriver_DepositToMegaStorage : JobDriver
     {
         private const TargetIndex ThingInd = TargetIndex.A;
@@ -23,6 +27,9 @@ namespace SimManagementLib.SimAI
             return pawn.Reserve(ToHaul, job, 1, ReservedCount, null, errorOnFailed);
         }
 
+        /// <summary>
+        /// 构建搬运物品并存入大货柜的 Toil 序列。
+        /// </summary>
         protected override IEnumerable<Toil> MakeNewToils()
         {
             this.FailOnDestroyedOrNull(ThingInd);
@@ -40,6 +47,9 @@ namespace SimManagementLib.SimAI
             yield return MakeDepositToil();
         }
 
+        /// <summary>
+        /// 创建向大货柜存入物品前的准备工作读条。
+        /// </summary>
         private Toil MakeWorkToil(string debugName, float workRequired)
         {
             float workDone = 0f;
@@ -49,13 +59,17 @@ namespace SimManagementLib.SimAI
             {
                 pawn.rotationTracker.FaceTarget(Storage);
                 workDone += pawn.GetStatValue(StatDefOf.GeneralLaborSpeed);
+                ShopProgressBarUtility.Report(pawn, Mathf.Clamp01(workDone / workRequired), new Color(0.55f, 0.82f, 1f, 0.95f));
                 if (workDone >= workRequired)
                     ReadyForNextToil();
             };
-            toil.WithProgressBar(StorageInd, () => Mathf.Clamp01(workDone / workRequired));
+            toil.AddFinishAction(() => ShopProgressBarUtility.Clear(pawn));
             return toil;
         }
 
+        /// <summary>
+        /// 把当前携带物品写入大货柜库存并结束工作。
+        /// </summary>
         private Toil MakeDepositToil()
         {
             Toil toil = ToilMaker.MakeToil("DepositToMegaStorage");
@@ -90,6 +104,9 @@ namespace SimManagementLib.SimAI
             return toil;
         }
 
+        /// <summary>
+        /// 取消大货柜的待入库预约，避免中断工作后长期占用容量。
+        /// </summary>
         private void CancelReservation()
         {
             if (reservationCancelled) return;
@@ -100,6 +117,9 @@ namespace SimManagementLib.SimAI
                 storage.CancelPending(thing.def, ReservedCount);
         }
 
+        /// <summary>
+        /// 初始化工作运行状态。
+        /// </summary>
         public override void Notify_Starting()
         {
             base.Notify_Starting();

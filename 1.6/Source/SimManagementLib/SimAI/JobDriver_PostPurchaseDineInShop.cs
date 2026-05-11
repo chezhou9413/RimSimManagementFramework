@@ -6,6 +6,9 @@ using SimManagementLib.Tool;
 
 namespace SimManagementLib.SimAI
 {
+    /// <summary>
+    /// 执行顾客付款后在店内就餐停留的行为，负责寻找可用座位、面向桌子并显示进度。
+    /// </summary>
     public class JobDriver_PostPurchaseDineInShop : JobDriver
     {
         private const int DefaultDineTicks = 700;
@@ -17,6 +20,9 @@ namespace SimManagementLib.SimAI
             return true;
         }
 
+        /// <summary>
+        /// 构建店内就餐行为的 Toil 序列。
+        /// </summary>
         protected override IEnumerable<Toil> MakeNewToils()
         {
             yield return EnsureSeatCellToil();
@@ -29,6 +35,7 @@ namespace SimManagementLib.SimAI
             };
             dine.tickAction = () =>
             {
+                ShopProgressBarUtility.Report(pawn, 1f - ticksLeftThisToil / (float)Mathf.Max(1, DurationTicks));
                 LocalTargetInfo table = job.GetTarget(TargetIndex.B);
                 if (table.IsValid)
                     pawn.rotationTracker.FaceTarget(table);
@@ -36,11 +43,14 @@ namespace SimManagementLib.SimAI
             dine.AddFinishAction(() =>
             {
                 CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.DineFinish);
+                ShopProgressBarUtility.Clear(pawn);
             });
-            dine.WithProgressBar(TargetIndex.A, () => 1f - (ticksLeftThisToil / (float)Mathf.Max(1, DurationTicks)));
             yield return dine;
         }
 
+        /// <summary>
+        /// 确保顾客拥有可站立的店内就餐格。
+        /// </summary>
         private Toil EnsureSeatCellToil()
         {
             Toil toil = new Toil();
@@ -69,6 +79,9 @@ namespace SimManagementLib.SimAI
                 out found);
         }
 
+        /// <summary>
+        /// 判断指定格子是否能作为顾客店内就餐位置。
+        /// </summary>
         private bool IsUsableSeatCell(IntVec3 cell)
         {
             if (!cell.IsValid || pawn.Map == null) return false;

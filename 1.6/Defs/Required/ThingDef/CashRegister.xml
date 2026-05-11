@@ -25,6 +25,7 @@
     <staticSunShadowHeight>0.20</staticSunShadowHeight>
     <altitudeLayer>Building</altitudeLayer>
     <size>(3,1)</size>
+    <canOverlapZones>true</canOverlapZones>
     <fillPercent>0.5</fillPercent>
     <passability>PassThroughOnly</passability>
     <pathCost>50</pathCost>
@@ -71,6 +72,7 @@
     <staticSunShadowHeight>0.20</staticSunShadowHeight>
     <altitudeLayer>BuildingOnTop</altitudeLayer>
     <size>(1,1)</size>
+    <canOverlapZones>true</canOverlapZones>
     <fillPercent>0.5</fillPercent>
     <passability>PassThroughOnly</passability>
     <pathCost>50</pathCost>
@@ -121,7 +123,7 @@
     <castEdgeShadows>true</castEdgeShadows>
     <staticSunShadowHeight>0.35</staticSunShadowHeight>
     <fillPercent>0.5</fillPercent>
-    <canOverlapZones>false</canOverlapZones>
+    <canOverlapZones>true</canOverlapZones>
     <pathCost>42</pathCost>
     <statBases>
       <MaxHitPoints>100</MaxHitPoints>

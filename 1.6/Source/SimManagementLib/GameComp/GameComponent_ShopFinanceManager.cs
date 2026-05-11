@@ -10,6 +10,9 @@ using Verse;
 
 namespace SimManagementLib.GameComp
 {
+    /// <summary>
+    /// 管理商店收入、利润、待结账账单和历史账单，负责把商品、套餐和服务收入提交到统一财务统计。
+    /// </summary>
     public class GameComponent_ShopFinanceManager : GameComponent
     {
         private const int DefaultMaxBillRecords = 2000;
@@ -21,6 +24,9 @@ namespace SimManagementLib.GameComp
 
         private Dictionary<string, int> comboSoldCounts = new Dictionary<string, int>();
         private Dictionary<string, float> comboRevenues = new Dictionary<string, float>();
+
+        private Dictionary<string, int> serviceSoldCounts = new Dictionary<string, int>();
+        private Dictionary<string, float> serviceRevenues = new Dictionary<string, float>();
 
         private Dictionary<int, ShopFinanceState> shopStates = new Dictionary<int, ShopFinanceState>();
         private Dictionary<int, float> dailyRevenue = new Dictionary<int, float>();
@@ -34,7 +40,7 @@ namespace SimManagementLib.GameComp
         private List<int> tmpStateKeys;
         private List<ShopFinanceState> tmpStateValues;
 
-        // Legacy save compatibility.
+        // 旧存档兼容字段，用于把早期按区域分散保存的收入迁移到 ShopFinanceState。
         private Dictionary<int, float> legacyShopRevenue;
         private Dictionary<int, float> legacyShopProfit;
         private Dictionary<int, string> legacyShopLabels;
@@ -45,6 +51,8 @@ namespace SimManagementLib.GameComp
         public IReadOnlyDictionary<string, float> ProductRevenues => productRevenues;
         public IReadOnlyDictionary<string, int> ComboSoldCounts => comboSoldCounts;
         public IReadOnlyDictionary<string, float> ComboRevenues => comboRevenues;
+        public IReadOnlyDictionary<string, int> ServiceSoldCounts => serviceSoldCounts;
+        public IReadOnlyDictionary<string, float> ServiceRevenues => serviceRevenues;
         public IReadOnlyDictionary<int, float> ShopRevenue => shopStates.ToDictionary(kv => kv.Key, kv => kv.Value?.revenue ?? 0f);
         public IReadOnlyDictionary<int, float> ShopProfit => shopStates.ToDictionary(kv => kv.Key, kv => kv.Value?.profit ?? 0f);
         public IReadOnlyDictionary<int, float> DailyRevenue => dailyRevenue;
@@ -65,6 +73,8 @@ namespace SimManagementLib.GameComp
             Scribe_Collections.Look(ref productRevenues, "productRevenues", LookMode.Value, LookMode.Value);
             Scribe_Collections.Look(ref comboSoldCounts, "comboSoldCounts", LookMode.Value, LookMode.Value);
             Scribe_Collections.Look(ref comboRevenues, "comboRevenues", LookMode.Value, LookMode.Value);
+            Scribe_Collections.Look(ref serviceSoldCounts, "serviceSoldCounts", LookMode.Value, LookMode.Value);
+            Scribe_Collections.Look(ref serviceRevenues, "serviceRevenues", LookMode.Value, LookMode.Value);
             Scribe_Collections.Look(ref shopStates, "shopStates", LookMode.Value, LookMode.Deep, ref tmpStateKeys, ref tmpStateValues);
             Scribe_Collections.Look(ref dailyRevenue, "dailyRevenue", LookMode.Value, LookMode.Value);
             Scribe_Collections.Look(ref dailyProfit, "dailyProfit", LookMode.Value, LookMode.Value);
@@ -82,6 +92,8 @@ namespace SimManagementLib.GameComp
             if (productRevenues == null) productRevenues = new Dictionary<string, float>();
             if (comboSoldCounts == null) comboSoldCounts = new Dictionary<string, int>();
             if (comboRevenues == null) comboRevenues = new Dictionary<string, float>();
+            if (serviceSoldCounts == null) serviceSoldCounts = new Dictionary<string, int>();
+            if (serviceRevenues == null) serviceRevenues = new Dictionary<string, float>();
             if (shopStates == null) shopStates = new Dictionary<int, ShopFinanceState>();
             if (dailyRevenue == null) dailyRevenue = new Dictionary<int, float>();
             if (dailyProfit == null) dailyProfit = new Dictionary<int, float>();
@@ -102,6 +114,7 @@ namespace SimManagementLib.GameComp
             PendingFinanceBill pending = GetOrCreatePending(customer, zone);
             pending.AddOrMergeLine(new FinanceLineItem
             {
+                lineType = FinanceLineTypes.Product,
                 isCombo = false,
                 label = productDef.LabelCap.RawText,
                 defName = productDef.defName,
@@ -119,12 +132,33 @@ namespace SimManagementLib.GameComp
             PendingFinanceBill pending = GetOrCreatePending(customer, zone);
             pending.AddOrMergeLine(new FinanceLineItem
             {
+                lineType = FinanceLineTypes.Combo,
                 isCombo = true,
                 label = finalName,
                 defName = "",
                 count = 1,
                 amount = amount,
                 cost = Mathf.Max(0f, cost)
+            });
+        }
+
+        /// <summary>
+        /// 把顾客选择或完成的服务费用加入待结账账单。
+        /// </summary>
+        public void QueueServiceSale(Pawn customer, Zone_Shop zone, string serviceDefName, string serviceLabel, int count, float amount)
+        {
+            if (customer == null || string.IsNullOrEmpty(serviceDefName) || count <= 0 || amount <= 0f) return;
+
+            PendingFinanceBill pending = GetOrCreatePending(customer, zone);
+            pending.AddOrMergeLine(new FinanceLineItem
+            {
+                lineType = FinanceLineTypes.Service,
+                isCombo = false,
+                label = string.IsNullOrEmpty(serviceLabel) ? serviceDefName : serviceLabel,
+                defName = serviceDefName,
+                count = count,
+                amount = amount,
+                cost = 0f
             });
         }
 
@@ -187,11 +221,18 @@ namespace SimManagementLib.GameComp
                 if (line == null || line.count <= 0 || line.amount <= 0f) continue;
                 totalCost += Mathf.Max(0f, line.cost);
 
-                if (line.isCombo)
+                string lineType = line.EffectiveLineType;
+                if (lineType == FinanceLineTypes.Combo)
                 {
                     string comboKey = string.IsNullOrEmpty(line.label) ? "未命名套餐" : line.label;
                     AddInt(comboSoldCounts, comboKey, line.count);
                     AddFloat(comboRevenues, comboKey, line.amount);
+                }
+                else if (lineType == FinanceLineTypes.Service)
+                {
+                    string serviceKey = string.IsNullOrEmpty(line.defName) ? line.label : line.defName;
+                    AddInt(serviceSoldCounts, serviceKey, line.count);
+                    AddFloat(serviceRevenues, serviceKey, line.amount);
                 }
                 else
                 {
@@ -309,6 +350,7 @@ namespace SimManagementLib.GameComp
                 {
                     label = line.label,
                     defName = line.defName,
+                    lineType = line.EffectiveLineType,
                     isCombo = line.isCombo,
                     count = line.count,
                     amount = line.amount,
