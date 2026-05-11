@@ -24,7 +24,7 @@
     </arrivalCurve>
 
     <baseMtbDays>0.22</baseMtbDays>
-    <budgetRange>700~1800</budgetRange>
+    <budgetRange>500~1500</budgetRange>
     <queuePatienceRange>1400~3600</queuePatienceRange>
     <activeHourRange>7~21</activeHourRange>
 
@@ -43,7 +43,7 @@
       <li>
         <label>午餐快买</label>
         <weight>1.4</weight>
-        <budgetRange>500~1200</budgetRange>
+        <budgetRange>15~100</budgetRange>
         <queuePatienceRange>1000~1800</queuePatienceRange>
         <activeHourRange>10~15</activeHourRange>
         <preferredThings>
@@ -54,7 +54,7 @@
       <li>
         <label>下班购物</label>
         <weight>1.0</weight>
-        <budgetRange>800~2000</budgetRange>
+        <budgetRange>200~500</budgetRange>
         <queuePatienceRange>1800~3600</queuePatienceRange>
         <activeHourRange>16~22</activeHourRange>
         <preferredGoodsCategories>
@@ -93,7 +93,7 @@
     </arrivalCurve>
 
     <baseMtbDays>0.26</baseMtbDays>
-    <budgetRange>400~1300</budgetRange>
+    <budgetRange>40~130</budgetRange>
     <queuePatienceRange>2200~4200</queuePatienceRange>
     <activeHourRange>18~5</activeHourRange>
 
@@ -113,7 +113,7 @@
       <li>
         <label>夜宵党</label>
         <weight>1.2</weight>
-        <budgetRange>350~900</budgetRange>
+        <budgetRange>40~130</budgetRange>
         <queuePatienceRange>2000~3200</queuePatienceRange>
         <activeHourRange>20~3</activeHourRange>
         <preferredThings>
@@ -125,7 +125,7 @@
       <li>
         <label>深夜慢逛</label>
         <weight>0.8</weight>
-        <budgetRange>800~1800</budgetRange>
+        <budgetRange>40~200</budgetRange>
         <queuePatienceRange>3000~5200</queuePatienceRange>
         <activeHourRange>22~5</activeHourRange>
         <preferredGoodsCategories>
@@ -164,7 +164,7 @@
     </arrivalCurve>
 
     <baseMtbDays>0.24</baseMtbDays>
-    <budgetRange>600~1700</budgetRange>
+    <budgetRange>80~500</budgetRange>
     <queuePatienceRange>1400~3200</queuePatienceRange>
     <activeHourRange>8~23</activeHourRange>
 
@@ -184,7 +184,7 @@
       <li>
         <label>补给采购</label>
         <weight>1.1</weight>
-        <budgetRange>700~1800</budgetRange>
+        <budgetRange>500~1500</budgetRange>
         <queuePatienceRange>1600~2800</queuePatienceRange>
         <activeHourRange>9~19</activeHourRange>
         <preferredGoodsCategories>
@@ -195,7 +195,7 @@
       <li>
         <label>家常晚餐</label>
         <weight>1.3</weight>
-        <budgetRange>500~1200</budgetRange>
+        <budgetRange>100~500</budgetRange>
         <queuePatienceRange>1400~2600</queuePatienceRange>
         <activeHourRange>16~22</activeHourRange>
         <preferredThings>
@@ -304,7 +304,7 @@
     </arrivalCurve>
 
     <baseMtbDays>0.3</baseMtbDays>
-    <budgetRange>350~1500</budgetRange>
+    <budgetRange>350~700</budgetRange>
     <queuePatienceRange>1200~2600</queuePatienceRange>
     <activeHourRange>18~6</activeHourRange>
 
@@ -324,7 +324,7 @@
       <li>
         <label>瘾头上来</label>
         <weight>1.3</weight>
-        <budgetRange>250~900</budgetRange>
+        <budgetRange>250~700</budgetRange>
         <queuePatienceRange>900~1800</queuePatienceRange>
         <activeHourRange>20~4</activeHourRange>
         <preferredThings>

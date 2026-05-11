@@ -30,7 +30,7 @@
       </points>
     </arrivalCurve>
 
-    <budgetRange>300~1200</budgetRange>
+    <budgetRange>80~500</budgetRange>
     <queuePatienceRange>1200~3200</queuePatienceRange>
     <activeHourRange>7~22</activeHourRange>
 
@@ -44,7 +44,7 @@
       <li>
         <label>上班族</label>
         <weight>1.2</weight>
-        <budgetRange>500~1500</budgetRange>
+        <budgetRange>80~500</budgetRange>
         <queuePatienceRange>900~1800</queuePatienceRange>
         <activeHourRange>8~20</activeHourRange>
         <allowedWeathers>
@@ -58,8 +58,8 @@
       <li>
         <label>夜猫子</label>
         <weight>0.8</weight>
-        <budgetRange>300~900</budgetRange>
-        <queuePatienceRange>1800~3600</queuePatienceRange>
+        <budgetRange>80~500</budgetRange>
+        <queuePatienceRange>500~3600</queuePatienceRange>
         <activeHourRange>20~4</activeHourRange>
         <allowedWeathers>
           <li>Clear</li>

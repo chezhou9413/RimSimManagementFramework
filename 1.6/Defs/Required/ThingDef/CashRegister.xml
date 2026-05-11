@@ -67,7 +67,9 @@
         <cornerBL>Damage/Corner</cornerBL>
         <cornerBR>Damage/Corner</cornerBR>
       </damageData>
+      <drawOffset>(0,0.1,0)</drawOffset>
     </graphicData>
+    <clearBuildingArea>false</clearBuildingArea>    <!-- 不清除底下的东西 -->
     <castEdgeShadows>true</castEdgeShadows>
     <staticSunShadowHeight>0.20</staticSunShadowHeight>
     <altitudeLayer>BuildingOnTop</altitudeLayer>
@@ -79,7 +81,6 @@
     <hasInteractionCell>true</hasInteractionCell>
     <!-- 顾客在收银台对面等待，和收银员面对面结账。 -->
     <interactionCellOffset>(0,0,-1)</interactionCellOffset>
-    <surfaceType>Item</surfaceType>
     <designationCategory>SimManagementBuildings</designationCategory>
     <statBases>
       <WorkToBuild>500</WorkToBuild>
@@ -99,6 +100,7 @@
     </placeWorkers>
     <building>
       <isEdifice>false</isEdifice>
+      <canPlaceOverWall>false</canPlaceOverWall>
     </building>
   </ThingDef>
 
@@ -117,8 +119,10 @@
         <cornerBL>Damage/Corner</cornerBL>
         <cornerBR>Damage/Corner</cornerBR>
       </damageData>
+      <drawOffset>(0,0.1,0)</drawOffset>
     </graphicData>
     <altitudeLayer>BuildingOnTop</altitudeLayer>
+    <clearBuildingArea>false</clearBuildingArea>
     <passability>PassThroughOnly</passability>
     <castEdgeShadows>true</castEdgeShadows>
     <staticSunShadowHeight>0.35</staticSunShadowHeight>
@@ -161,6 +165,7 @@
     </placeWorkers>
     <building>
       <isEdifice>false</isEdifice>
+      <canPlaceOverWall>true</canPlaceOverWall>
     </building>
   </ThingDef>
 </Defs>

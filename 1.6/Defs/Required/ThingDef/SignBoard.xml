@@ -1,0 +1,494 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+    <ThingDef ParentName="LampBase">
+        <defName>Sim_SignBoard1A</defName>
+        <label>招牌1A</label>
+        <description>招牌1A</description>
+        <rotatable>false</rotatable>
+        <defaultPlacingRot>South</defaultPlacingRot>
+        <graphicData>
+            <texPath>Things/Building/SignBoard/SignBoardA/SignBoard1A</texPath>
+            <graphicClass>Graphic_Single</graphicClass>
+            <drawOffset>(0,0,0.52)</drawOffset>
+            <drawSize>(2.0,2.5)</drawSize>
+            <damageData>
+                <enabled>false</enabled>
+            </damageData>
+        </graphicData>
+        <uiIconPath>Things/Building/SignBoard/SignBoardA/SignBoard1A</uiIconPath>
+        <altitudeLayer>BuildingOnTop</altitudeLayer>
+        <costList>
+          <Steel>15</Steel>
+        </costList>
+        <statBases>
+          <WorkToBuild>330</WorkToBuild>
+          <MaxHitPoints>35</MaxHitPoints>
+          <Mass>2</Mass>
+        </statBases>
+        <designationCategory>SimManagementBuildings</designationCategory>
+        <size>(1,1)</size>
+        <uiOrder>2991</uiOrder>
+        <passability>Standable</passability>
+        <terrainAffordanceNeeded IsNull="True" />
+        <pathCost>0</pathCost>
+        <overrideMinifiedRot>North</overrideMinifiedRot>
+        <minifiedDrawOffset>(0, 0, 0.2)</minifiedDrawOffset>
+        <building>
+          <isEdifice>false</isEdifice>
+          <isAttachment>true</isAttachment>
+        </building>
+        <placeWorkers>
+          <li>Placeworker_AttachedToWall</li>
+        </placeWorkers>
+        <comps>
+          <li Class="CompProperties_Power">
+            <compClass>CompPowerTrader</compClass>
+            <basePowerConsumption>30</basePowerConsumption>
+            <powerUpgrades>
+              <li>
+                <researchProject>ColoredLights</researchProject>
+                <factor>0.5</factor>
+              </li>
+            </powerUpgrades>
+          </li>
+          <li Class="CompProperties_Styleable" />
+          <li Class="CompProperties_Glower">
+            <glowRadius>11</glowRadius>
+            <glowColor>(214,148,94,0)</glowColor>
+            <colorPickerEnabled>true</colorPickerEnabled>
+            <darklightToggle>true</darklightToggle>
+          </li>
+        </comps>
+    </ThingDef>
+
+    <ThingDef ParentName="LampBase">
+        <defName>Sim_SignBoard2A</defName>
+        <label>招牌2A</label>
+        <description>招牌2A</description>
+        <rotatable>false</rotatable>
+        <defaultPlacingRot>South</defaultPlacingRot>
+        <graphicData>
+            <texPath>Things/Building/SignBoard/SignBoardA/SignBoard2A</texPath>
+            <graphicClass>Graphic_Single</graphicClass>
+            <drawOffset>(0,0,0.52)</drawOffset>
+            <drawSize>(2.45,2.5)</drawSize>
+            <damageData>
+                <enabled>false</enabled>
+            </damageData>
+        </graphicData>
+        <uiIconPath>Things/Building/SignBoard/SignBoardA/SignBoard2A</uiIconPath>
+        <altitudeLayer>BuildingOnTop</altitudeLayer>
+        <costList>
+          <Steel>15</Steel>
+        </costList>
+        <statBases>
+          <WorkToBuild>330</WorkToBuild>
+          <MaxHitPoints>35</MaxHitPoints>
+          <Mass>2</Mass>
+        </statBases>
+        <designationCategory>SimManagementBuildings</designationCategory>
+        <size>(2,1)</size>
+        <uiOrder>2991</uiOrder>
+        <passability>Standable</passability>
+        <terrainAffordanceNeeded IsNull="True" />
+        <pathCost>0</pathCost>
+        <overrideMinifiedRot>North</overrideMinifiedRot>
+        <minifiedDrawOffset>(0, 0, 0.2)</minifiedDrawOffset>
+        <building>
+          <isEdifice>false</isEdifice>
+          <isAttachment>true</isAttachment>
+        </building>
+        <placeWorkers>
+          <li>Placeworker_AttachedToWall</li>
+        </placeWorkers>
+        <comps>
+          <li Class="CompProperties_Power">
+            <compClass>CompPowerTrader</compClass>
+            <basePowerConsumption>30</basePowerConsumption>
+            <powerUpgrades>
+              <li>
+                <researchProject>ColoredLights</researchProject>
+                <factor>0.5</factor>
+              </li>
+            </powerUpgrades>
+          </li>
+          <li Class="CompProperties_Styleable" />
+          <li Class="CompProperties_Glower">
+            <glowRadius>11</glowRadius>
+            <glowColor>(214,148,94,0)</glowColor>
+            <colorPickerEnabled>true</colorPickerEnabled>
+            <darklightToggle>true</darklightToggle>
+          </li>
+          <li Class="CompProperties_Flickable"/>
+        </comps>
+    </ThingDef>
+
+    <ThingDef ParentName="LampBase">
+        <defName>Sim_SignBoard3A</defName>
+        <label>招牌3A</label>
+        <description>招牌3A</description>
+        <rotatable>false</rotatable>
+        <defaultPlacingRot>South</defaultPlacingRot>
+        <graphicData>
+            <texPath>Things/Building/SignBoard/SignBoardA/SignBoard3A</texPath>
+            <graphicClass>Graphic_Single</graphicClass>
+            <drawOffset>(0,0,0.52)</drawOffset>
+            <drawSize>(5.0,5.0)</drawSize>
+            <damageData>
+                <enabled>false</enabled>
+            </damageData>
+        </graphicData>
+        <uiIconPath>Things/Building/SignBoard/SignBoardA/SignBoard3A</uiIconPath>
+        <altitudeLayer>BuildingOnTop</altitudeLayer>
+        <costList>
+          <Steel>15</Steel>
+        </costList>
+        <statBases>
+          <WorkToBuild>330</WorkToBuild>
+          <MaxHitPoints>35</MaxHitPoints>
+          <Mass>2</Mass>
+        </statBases>
+        <designationCategory>SimManagementBuildings</designationCategory>
+        <size>(3,1)</size>
+        <uiOrder>2991</uiOrder>
+        <passability>Standable</passability>
+        <terrainAffordanceNeeded IsNull="True" />
+        <pathCost>0</pathCost>
+        <overrideMinifiedRot>North</overrideMinifiedRot>
+        <minifiedDrawOffset>(0, 0, 0.2)</minifiedDrawOffset>
+        <building>
+          <isEdifice>false</isEdifice>
+          <isAttachment>true</isAttachment>
+        </building>
+        <placeWorkers>
+          <li>Placeworker_AttachedToWall</li>
+        </placeWorkers>
+        <comps>
+          <li Class="CompProperties_Power">
+            <compClass>CompPowerTrader</compClass>
+            <basePowerConsumption>30</basePowerConsumption>
+            <powerUpgrades>
+              <li>
+                <researchProject>ColoredLights</researchProject>
+                <factor>0.5</factor>
+              </li>
+            </powerUpgrades>
+          </li>
+          <li Class="CompProperties_Styleable" />
+          <li Class="CompProperties_Glower">
+            <glowRadius>11</glowRadius>
+            <glowColor>(214,148,94,0)</glowColor>
+            <colorPickerEnabled>true</colorPickerEnabled>
+            <darklightToggle>true</darklightToggle>
+          </li>
+        </comps>
+    </ThingDef>
+
+    <ThingDef ParentName="LampBase">
+        <defName>Sim_SignBoard4A</defName>
+        <label>招牌4A</label>
+        <description>招牌4A</description>
+        <rotatable>false</rotatable>
+        <defaultPlacingRot>South</defaultPlacingRot>
+        <graphicData>
+            <texPath>Things/Building/SignBoard/SignBoardA/SignBoard4A</texPath>
+            <graphicClass>Graphic_Single</graphicClass>
+            <drawOffset>(0,0,0.52)</drawOffset>
+            <drawSize>(5.1,5.2)</drawSize>
+            <damageData>
+                <enabled>false</enabled>
+            </damageData>
+        </graphicData>
+        <uiIconPath>Things/Building/SignBoard/SignBoardA/SignBoard4A</uiIconPath>
+        <altitudeLayer>BuildingOnTop</altitudeLayer>
+        <costList>
+          <Steel>15</Steel>
+        </costList>
+        <statBases>
+          <WorkToBuild>330</WorkToBuild>
+          <MaxHitPoints>35</MaxHitPoints>
+          <Mass>2</Mass>
+        </statBases>
+        <designationCategory>SimManagementBuildings</designationCategory>
+        <size>(4,1)</size>
+        <uiOrder>2991</uiOrder>
+        <passability>Standable</passability>
+        <terrainAffordanceNeeded IsNull="True" />
+        <pathCost>0</pathCost>
+        <overrideMinifiedRot>North</overrideMinifiedRot>
+        <minifiedDrawOffset>(0, 0, 0.2)</minifiedDrawOffset>
+        <building>
+          <isEdifice>false</isEdifice>
+          <isAttachment>true</isAttachment>
+        </building>
+        <placeWorkers>
+          <li>Placeworker_AttachedToWall</li>
+        </placeWorkers>
+        <comps>
+          <li Class="CompProperties_Power">
+            <compClass>CompPowerTrader</compClass>
+            <basePowerConsumption>30</basePowerConsumption>
+            <powerUpgrades>
+              <li>
+                <researchProject>ColoredLights</researchProject>
+                <factor>0.5</factor>
+              </li>
+            </powerUpgrades>
+          </li>
+          <li Class="CompProperties_Styleable" />
+          <li Class="CompProperties_Glower">
+            <glowRadius>11</glowRadius>
+            <glowColor>(214,148,94,0)</glowColor>
+            <colorPickerEnabled>true</colorPickerEnabled>
+            <darklightToggle>true</darklightToggle>
+          </li>
+        </comps>
+    </ThingDef>
+
+    <ThingDef ParentName="LampBase">
+        <defName>Sim_SignBoard1B</defName>
+        <label>招牌1B</label>
+        <description>招牌1B</description>
+        <rotatable>false</rotatable>
+        <defaultPlacingRot>West</defaultPlacingRot>
+        <graphicData>
+            <texPath>Things/Building/SignBoard/SignBoardB/SignBoard1B</texPath>
+            <graphicClass>Graphic_Single</graphicClass>
+            <drawOffset>(0.25,0,0)</drawOffset>
+            <drawSize>(2.0,2.5)</drawSize>
+            <damageData>
+                <enabled>false</enabled>
+            </damageData>
+        </graphicData>
+        <uiIconPath>Things/Building/SignBoard/SignBoardB/SignBoard1B</uiIconPath>
+        <altitudeLayer>BuildingOnTop</altitudeLayer>
+        <costList>
+          <Steel>15</Steel>
+        </costList>
+        <statBases>
+          <WorkToBuild>330</WorkToBuild>
+          <MaxHitPoints>35</MaxHitPoints>
+          <Mass>2</Mass>
+        </statBases>
+        <designationCategory>SimManagementBuildings</designationCategory>
+        <size>(1,1)</size>
+        <uiOrder>2991</uiOrder>
+        <passability>Standable</passability>
+        <terrainAffordanceNeeded IsNull="True" />
+        <pathCost>0</pathCost>
+        <overrideMinifiedRot>North</overrideMinifiedRot>
+        <minifiedDrawOffset>(0, 0, 0.2)</minifiedDrawOffset>
+        <building>
+          <isEdifice>false</isEdifice>
+          <isAttachment>true</isAttachment>
+        </building>
+        <placeWorkers>
+          <li>Placeworker_AttachedToWall</li>
+        </placeWorkers>
+        <comps>
+          <li Class="CompProperties_Power">
+            <compClass>CompPowerTrader</compClass>
+            <basePowerConsumption>30</basePowerConsumption>
+            <powerUpgrades>
+              <li>
+                <researchProject>ColoredLights</researchProject>
+                <factor>0.5</factor>
+              </li>
+            </powerUpgrades>
+          </li>
+          <li Class="CompProperties_Styleable" />
+          <li Class="CompProperties_Glower">
+            <glowRadius>11</glowRadius>
+            <glowColor>(214,148,94,0)</glowColor>
+            <colorPickerEnabled>true</colorPickerEnabled>
+            <darklightToggle>true</darklightToggle>
+          </li>
+        </comps>
+    </ThingDef>
+
+    <ThingDef ParentName="LampBase">
+        <defName>Sim_SignBoard2B</defName>
+        <label>招牌2B</label>
+        <description>招牌2B</description>
+        <rotatable>false</rotatable>
+        <defaultPlacingRot>West</defaultPlacingRot>
+        <graphicData>
+            <texPath>Things/Building/SignBoard/SignBoardB/SignBoard2B</texPath>
+            <graphicClass>Graphic_Single</graphicClass>
+            <drawOffset>(0.25,0,0)</drawOffset>
+            <drawSize>(2.4,2.5)</drawSize>
+            <damageData>
+                <enabled>false</enabled>
+            </damageData>
+        </graphicData>
+        <uiIconPath>Things/Building/SignBoard/SignBoardB/SignBoard2B</uiIconPath>
+        <altitudeLayer>BuildingOnTop</altitudeLayer>
+        <costList>
+          <Steel>15</Steel>
+        </costList>
+        <statBases>
+          <WorkToBuild>330</WorkToBuild>
+          <MaxHitPoints>35</MaxHitPoints>
+          <Mass>2</Mass>
+        </statBases>
+        <designationCategory>SimManagementBuildings</designationCategory>
+        <size>(2,1)</size>
+        <uiOrder>2991</uiOrder>
+        <passability>Standable</passability>
+        <terrainAffordanceNeeded IsNull="True" />
+        <pathCost>0</pathCost>
+        <overrideMinifiedRot>North</overrideMinifiedRot>
+        <minifiedDrawOffset>(0, 0, 0.2)</minifiedDrawOffset>
+        <building>
+          <isEdifice>false</isEdifice>
+          <isAttachment>true</isAttachment>
+        </building>
+        <placeWorkers>
+          <li>Placeworker_AttachedToWall</li>
+        </placeWorkers>
+        <comps>
+          <li Class="CompProperties_Power">
+            <compClass>CompPowerTrader</compClass>
+            <basePowerConsumption>30</basePowerConsumption>
+            <powerUpgrades>
+              <li>
+                <researchProject>ColoredLights</researchProject>
+                <factor>0.5</factor>
+              </li>
+            </powerUpgrades>
+          </li>
+          <li Class="CompProperties_Styleable" />
+          <li Class="CompProperties_Glower">
+            <glowRadius>11</glowRadius>
+            <glowColor>(214,148,94,0)</glowColor>
+            <colorPickerEnabled>true</colorPickerEnabled>
+            <darklightToggle>true</darklightToggle>
+          </li>
+        </comps>
+    </ThingDef>
+
+    <ThingDef ParentName="LampBase">
+        <defName>Sim_SignBoard3B</defName>
+        <label>招牌3B</label>
+        <description>招牌3B</description>
+        <rotatable>false</rotatable>
+        <defaultPlacingRot>West</defaultPlacingRot>
+        <graphicData>
+            <texPath>Things/Building/SignBoard/SignBoardB/SignBoard3B</texPath>
+            <graphicClass>Graphic_Single</graphicClass>
+            <drawOffset>(0.25,0,0)</drawOffset>
+            <drawSize>(5.0,5.0)</drawSize>
+            <damageData>
+                <enabled>false</enabled>
+            </damageData>
+        </graphicData>
+        <uiIconPath>Things/Building/SignBoard/SignBoardB/SignBoard3B</uiIconPath>
+        <altitudeLayer>BuildingOnTop</altitudeLayer>
+        <costList>
+          <Steel>15</Steel>
+        </costList>
+        <statBases>
+          <WorkToBuild>330</WorkToBuild>
+          <MaxHitPoints>35</MaxHitPoints>
+          <Mass>2</Mass>
+        </statBases>
+        <designationCategory>SimManagementBuildings</designationCategory>
+        <size>(3,1)</size>
+        <uiOrder>2991</uiOrder>
+        <passability>Standable</passability>
+        <terrainAffordanceNeeded IsNull="True" />
+        <pathCost>0</pathCost>
+        <overrideMinifiedRot>North</overrideMinifiedRot>
+        <minifiedDrawOffset>(0, 0, 0.2)</minifiedDrawOffset>
+        <building>
+          <isEdifice>false</isEdifice>
+          <isAttachment>true</isAttachment>
+        </building>
+        <placeWorkers>
+          <li>Placeworker_AttachedToWall</li>
+        </placeWorkers>
+        <comps>
+          <li Class="CompProperties_Power">
+            <compClass>CompPowerTrader</compClass>
+            <basePowerConsumption>30</basePowerConsumption>
+            <powerUpgrades>
+              <li>
+                <researchProject>ColoredLights</researchProject>
+                <factor>0.5</factor>
+              </li>
+            </powerUpgrades>
+          </li>
+          <li Class="CompProperties_Styleable" />
+          <li Class="CompProperties_Glower">
+            <glowRadius>11</glowRadius>
+            <glowColor>(214,148,94,0)</glowColor>
+            <colorPickerEnabled>true</colorPickerEnabled>
+            <darklightToggle>true</darklightToggle>
+          </li>
+        </comps>
+    </ThingDef>
+
+    <ThingDef ParentName="LampBase">
+        <defName>Sim_SignBoard4B</defName>
+        <label>招牌4B</label>
+        <description>招牌4B</description>
+        <rotatable>false</rotatable>
+        <defaultPlacingRot>West</defaultPlacingRot>
+        <graphicData>
+            <texPath>Things/Building/SignBoard/SignBoardB/SignBoard4B</texPath>
+            <graphicClass>Graphic_Single</graphicClass>
+            <drawOffset>(0.25,0,0)</drawOffset>
+            <drawSize>(5.0,5.0)</drawSize>
+            <damageData>
+                <enabled>false</enabled>
+            </damageData>
+        </graphicData>
+        <uiIconPath>Things/Building/SignBoard/SignBoardB/SignBoard4B</uiIconPath>
+        <altitudeLayer>BuildingOnTop</altitudeLayer>
+        <costList>
+          <Steel>15</Steel>
+        </costList>
+        <statBases>
+          <WorkToBuild>330</WorkToBuild>
+          <MaxHitPoints>35</MaxHitPoints>
+          <Mass>2</Mass>
+        </statBases>
+        <designationCategory>SimManagementBuildings</designationCategory>
+        <size>(4,1)</size>
+        <uiOrder>2991</uiOrder>
+        <passability>Standable</passability>
+        <terrainAffordanceNeeded IsNull="True" />
+        <pathCost>0</pathCost>
+        <overrideMinifiedRot>North</overrideMinifiedRot>
+        <minifiedDrawOffset>(0, 0, 0.2)</minifiedDrawOffset>
+        <building>
+          <isEdifice>false</isEdifice>
+          <isAttachment>true</isAttachment>
+        </building>
+        <placeWorkers>
+          <li>Placeworker_AttachedToWall</li>
+        </placeWorkers>
+        <comps>
+          <li Class="CompProperties_Power">
+            <compClass>CompPowerTrader</compClass>
+            <basePowerConsumption>30</basePowerConsumption>
+            <powerUpgrades>
+              <li>
+                <researchProject>ColoredLights</researchProject>
+                <factor>0.5</factor>
+              </li>
+            </powerUpgrades>
+          </li>
+          <li Class="CompProperties_Styleable" />
+          <li Class="CompProperties_Glower">
+            <glowRadius>11</glowRadius>
+            <glowColor>(214,148,94,0)</glowColor>
+            <colorPickerEnabled>true</colorPickerEnabled>
+            <darklightToggle>true</darklightToggle>
+          </li>
+        </comps>
+    </ThingDef>
+
+</Defs>
+
