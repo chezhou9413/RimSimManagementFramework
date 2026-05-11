@@ -17,6 +17,7 @@
             </damageData>
         </graphicData>
         <uiIconPath>Things/Building/SignBoard/SignBoardA/SignBoard1A</uiIconPath>
+        <drawerType>MapMeshAndRealTime</drawerType>
         <altitudeLayer>BuildingOnTop</altitudeLayer>
         <costList>
           <Steel>15</Steel>
@@ -59,6 +60,7 @@
             <colorPickerEnabled>true</colorPickerEnabled>
             <darklightToggle>true</darklightToggle>
           </li>
+          <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
         </comps>
     </ThingDef>
 
@@ -78,6 +80,7 @@
             </damageData>
         </graphicData>
         <uiIconPath>Things/Building/SignBoard/SignBoardA/SignBoard2A</uiIconPath>
+        <drawerType>MapMeshAndRealTime</drawerType>
         <altitudeLayer>BuildingOnTop</altitudeLayer>
         <costList>
           <Steel>15</Steel>
@@ -121,6 +124,7 @@
             <darklightToggle>true</darklightToggle>
           </li>
           <li Class="CompProperties_Flickable"/>
+          <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
         </comps>
     </ThingDef>
 
@@ -140,6 +144,7 @@
             </damageData>
         </graphicData>
         <uiIconPath>Things/Building/SignBoard/SignBoardA/SignBoard3A</uiIconPath>
+        <drawerType>MapMeshAndRealTime</drawerType>
         <altitudeLayer>BuildingOnTop</altitudeLayer>
         <costList>
           <Steel>15</Steel>
@@ -182,6 +187,7 @@
             <colorPickerEnabled>true</colorPickerEnabled>
             <darklightToggle>true</darklightToggle>
           </li>
+          <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
         </comps>
     </ThingDef>
 
@@ -201,6 +207,7 @@
             </damageData>
         </graphicData>
         <uiIconPath>Things/Building/SignBoard/SignBoardA/SignBoard4A</uiIconPath>
+        <drawerType>MapMeshAndRealTime</drawerType>
         <altitudeLayer>BuildingOnTop</altitudeLayer>
         <costList>
           <Steel>15</Steel>
@@ -243,6 +250,7 @@
             <colorPickerEnabled>true</colorPickerEnabled>
             <darklightToggle>true</darklightToggle>
           </li>
+          <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
         </comps>
     </ThingDef>
 
@@ -262,6 +270,7 @@
             </damageData>
         </graphicData>
         <uiIconPath>Things/Building/SignBoard/SignBoardB/SignBoard1B</uiIconPath>
+        <drawerType>MapMeshAndRealTime</drawerType>
         <altitudeLayer>BuildingOnTop</altitudeLayer>
         <costList>
           <Steel>15</Steel>
@@ -304,6 +313,7 @@
             <colorPickerEnabled>true</colorPickerEnabled>
             <darklightToggle>true</darklightToggle>
           </li>
+          <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
         </comps>
     </ThingDef>
 
@@ -323,6 +333,7 @@
             </damageData>
         </graphicData>
         <uiIconPath>Things/Building/SignBoard/SignBoardB/SignBoard2B</uiIconPath>
+        <drawerType>MapMeshAndRealTime</drawerType>
         <altitudeLayer>BuildingOnTop</altitudeLayer>
         <costList>
           <Steel>15</Steel>
@@ -365,6 +376,7 @@
             <colorPickerEnabled>true</colorPickerEnabled>
             <darklightToggle>true</darklightToggle>
           </li>
+          <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
         </comps>
     </ThingDef>
 
@@ -384,6 +396,7 @@
             </damageData>
         </graphicData>
         <uiIconPath>Things/Building/SignBoard/SignBoardB/SignBoard3B</uiIconPath>
+        <drawerType>MapMeshAndRealTime</drawerType>
         <altitudeLayer>BuildingOnTop</altitudeLayer>
         <costList>
           <Steel>15</Steel>
@@ -426,6 +439,7 @@
             <colorPickerEnabled>true</colorPickerEnabled>
             <darklightToggle>true</darklightToggle>
           </li>
+          <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
         </comps>
     </ThingDef>
 
@@ -445,6 +459,7 @@
             </damageData>
         </graphicData>
         <uiIconPath>Things/Building/SignBoard/SignBoardB/SignBoard4B</uiIconPath>
+        <drawerType>MapMeshAndRealTime</drawerType>
         <altitudeLayer>BuildingOnTop</altitudeLayer>
         <costList>
           <Steel>15</Steel>
@@ -487,6 +502,7 @@
             <colorPickerEnabled>true</colorPickerEnabled>
             <darklightToggle>true</darklightToggle>
           </li>
+          <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
         </comps>
     </ThingDef>
 

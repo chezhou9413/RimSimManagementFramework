@@ -1,6 +1,7 @@
 using RimWorld;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimThingClass;
+using SimManagementLib.SimThingComp;
 using SimManagementLib.Tool;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,7 @@ namespace SimManagementLib.SimDialog
         private static readonly Color SoftAccent = new Color(0.18f, 0.69f, 0.87f, 0.12f);
         private static readonly Color MutedText = new Color(0.73f, 0.77f, 0.82f, 1f);
 
-        private readonly Building_CustomSign sign;
+        private readonly ThingComp_CustomSign sign;
         private SignFaceData southDraft;
         private SignFaceData eastDraft;
         private SignFaceData northDraft;
@@ -44,7 +45,7 @@ namespace SimManagementLib.SimDialog
         /// <summary>
         /// 负责初始化招牌编辑器并创建建筑数据草稿。
         /// </summary>
-        public Dialog_CustomSignEditor(Building_CustomSign sign)
+        public Dialog_CustomSignEditor(ThingComp_CustomSign sign)
         {
             this.sign = sign;
             forcePause = true;
@@ -149,15 +150,26 @@ namespace SimManagementLib.SimDialog
             Widgets.Label(new Rect(rect.x + 12f, rect.y + 12f, rect.width - 24f, Text.LineHeightOf(GameFont.Small) + 4f), "编辑面");
 
             float y = rect.y + 50f;
-            DrawFaceTab(new Rect(rect.x + 12f, y, rect.width - 24f, 38f), SignFaceKind.South, "南面");
-            y += 46f;
-            DrawFaceTab(new Rect(rect.x + 12f, y, rect.width - 24f, 38f), SignFaceKind.East, "东面");
-            y += 46f;
-            DrawFaceTab(new Rect(rect.x + 12f, y, rect.width - 24f, 38f), SignFaceKind.North, "北面");
+            if (IsSingleFixedGraphic)
+            {
+                SignFaceKind face = FaceForDefaultPlacingRotation();
+                DrawFaceTab(new Rect(rect.x + 12f, y, rect.width - 24f, 38f), face, LabelForSingleFixedFace(face));
+            }
+            else
+            {
+                DrawFaceTab(new Rect(rect.x + 12f, y, rect.width - 24f, 38f), SignFaceKind.South, "南面");
+                y += 46f;
+                DrawFaceTab(new Rect(rect.x + 12f, y, rect.width - 24f, 38f), SignFaceKind.East, "东面");
+                y += 46f;
+                DrawFaceTab(new Rect(rect.x + 12f, y, rect.width - 24f, 38f), SignFaceKind.North, "北面");
+            }
 
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
-            Widgets.Label(new Rect(rect.x + 12f, rect.yMax - 86f, rect.width - 24f, 72f), "建筑朝西时会复用东面数据，并在地图绘制时镜像显示。");
+            string help = IsSingleFixedGraphic
+                ? "该招牌 Def 只有一张底图，编辑器只显示实际会被地图使用的招牌面。"
+                : "建筑朝西时会复用东面数据，并在地图绘制时镜像显示。";
+            Widgets.Label(new Rect(rect.x + 12f, rect.yMax - 86f, rect.width - 24f, 72f), help);
             GUI.color = Color.white;
         }
 
@@ -174,6 +186,9 @@ namespace SimManagementLib.SimDialog
             }
         }
 
+        /// <summary>
+        /// 负责绘制招牌实时预览区域和当前图层参数编辑区。
+        /// </summary>
         private void DrawPreview(Rect rect)
         {
             Widgets.DrawBoxSolid(rect, PanelBg);
@@ -187,8 +202,12 @@ namespace SimManagementLib.SimDialog
             Widgets.DrawBoxSolid(previewArea, new Color(1f, 1f, 1f, 0.03f));
             SimUiStyle.DrawBorder(previewArea, new Color(1f, 1f, 1f, 0.08f));
 
-            Vector2 drawSize = sign.def.graphicData?.drawSize ?? sign.def.size.ToVector2();
-            Rect signRect = FitRect(previewArea.ContractedBy(28f), Mathf.Max(0.1f, drawSize.x), Mathf.Max(0.1f, drawSize.y));
+            Thing signThing = SignThing;
+            Rot4 previewRot = PreviewRotation();
+            Vector2 drawSize = signThing.def.graphicData?.drawSize ?? signThing.def.size.ToVector2();
+            float previewWidth = RotatesQuarterTurn(previewRot) ? drawSize.y : drawSize.x;
+            float previewHeight = RotatesQuarterTurn(previewRot) ? drawSize.x : drawSize.y;
+            Rect signRect = FitRect(previewArea.ContractedBy(28f), Mathf.Max(0.1f, previewWidth), Mathf.Max(0.1f, previewHeight));
             DrawBuildingPreviewBase(signRect);
             DrawPreviewLayers(signRect);
 
@@ -196,42 +215,35 @@ namespace SimManagementLib.SimDialog
             DrawSelectedLayerParams(paramsRect);
         }
 
+        /// <summary>
+        /// 负责把当前草稿图层按真实预览朝向绘制到招牌预览框。
+        /// </summary>
         private void DrawPreviewLayers(Rect signRect)
         {
-            List<SignImageLayerData> layers = CurrentFace.layers.OrderBy(layer => layer.drawOrder).ToList();
-            for (int i = 0; i < layers.Count; i++)
-            {
-                SignImageLayerData layer = layers[i];
-                if (layer == null || !layer.enabled)
-                    continue;
-
-                Texture2D texture = SignTextureCache.GetTexture(layer.imageId);
-                Vector2 imageSize = Building_CustomSign.KeepAspectSize(new Vector2(
-                    signRect.width * Building_CustomSign.LayerWidthRatio * Mathf.Max(0.05f, layer.scaleX),
-                    signRect.height * Building_CustomSign.LayerHeightRatio * Mathf.Max(0.05f, layer.scaleY)), texture);
-                Rect imageRect = new Rect(
-                    signRect.center.x + layer.x * signRect.width * 0.5f - imageSize.x * 0.5f,
-                    signRect.center.y - layer.y * signRect.height * 0.5f - imageSize.y * 0.5f,
-                    imageSize.x,
-                    imageSize.y);
-
-                Matrix4x4 oldMatrix = GUI.matrix;
-                GUIUtility.RotateAroundPivot(layer.angle, imageRect.center);
-                GUI.DrawTexture(imageRect, texture, ScaleMode.StretchToFill, true);
-                GUI.matrix = oldMatrix;
-
-                if (CurrentFace.layers.IndexOf(layer) == selectedLayerIndex)
-                    SimUiStyle.DrawBorder(imageRect, Accent, 2f);
-            }
+            CustomSignDrawUtility.DrawPreviewFaceLayers(
+                signRect,
+                PreviewRotation(),
+                southDraft,
+                eastDraft,
+                northDraft,
+                sign.LayerWidthRatio,
+                sign.LayerHeightRatio,
+                selectedLayerIndex,
+                Accent);
         }
 
+        /// <summary>
+        /// 负责绘制招牌建筑底图，并按真实朝向旋转显示。
+        /// </summary>
         private void DrawBuildingPreviewBase(Rect signRect)
         {
             Widgets.DrawBoxSolid(signRect, new Color(0f, 0f, 0f, 0.18f));
-            Material material = sign.Graphic.MatAt(RotForSelectedFace(), sign);
+            Thing signThing = SignThing;
+            Rot4 rot = PreviewRotation();
+            Material material = signThing.Graphic.MatAt(rot, signThing);
             Texture texture = material != null ? material.mainTexture : null;
             if (texture != null)
-                GUI.DrawTexture(signRect, texture, ScaleMode.ScaleToFit, true);
+                DrawRotatedPreviewTexture(signRect, texture, rot);
             else
                 Widgets.DrawBoxSolid(signRect, new Color(1f, 1f, 1f, 0.80f));
 
@@ -502,7 +514,7 @@ namespace SimManagementLib.SimDialog
             if (sign == null)
                 return SignFaceKind.South;
 
-            Rot4 defaultRot = sign.def?.defaultPlacingRot ?? Rot4.South;
+            Rot4 defaultRot = SignThing?.def?.defaultPlacingRot ?? Rot4.South;
             if (defaultRot == Rot4.North)
                 return SignFaceKind.North;
             if (defaultRot == Rot4.East || defaultRot == Rot4.West)
@@ -510,13 +522,80 @@ namespace SimManagementLib.SimDialog
             return SignFaceKind.South;
         }
 
-        private Rot4 RotForSelectedFace()
+        /// <summary>
+        /// 返回单贴图固定朝向招牌的编辑入口标签。
+        /// </summary>
+        private string LabelForSingleFixedFace(SignFaceKind face)
         {
+            Rot4 defaultRot = SignThing?.def?.defaultPlacingRot ?? Rot4.South;
+            if (defaultRot == Rot4.West)
+                return "西面";
+            if (face == SignFaceKind.North)
+                return "北面";
+            if (face == SignFaceKind.East)
+                return "东面";
+            return "南面";
+        }
+
+        /// <summary>
+        /// 返回当前预览应使用的真实建筑朝向。
+        /// </summary>
+        private Rot4 PreviewRotation()
+        {
+            if (IsSingleFixedGraphic)
+                return SignThing?.Rotation ?? SignThing?.def?.defaultPlacingRot ?? Rot4.South;
+
             if (selectedFace == SignFaceKind.North)
                 return Rot4.North;
             if (selectedFace == SignFaceKind.East)
                 return Rot4.East;
             return Rot4.South;
+        }
+
+        /// <summary>
+        /// 负责按 RimWorld 地图绘制的朝向规则旋转预览底图。
+        /// </summary>
+        private static void DrawRotatedPreviewTexture(Rect signRect, Texture texture, Rot4 rot)
+        {
+            Rect textureRect = LogicalRectForRotation(signRect, rot);
+            Matrix4x4 oldMatrix = GUI.matrix;
+            GUIUtility.RotateAroundPivot(AngleForRotation(rot), signRect.center);
+            GUI.DrawTexture(textureRect, texture, ScaleMode.ScaleToFit, true);
+            GUI.matrix = oldMatrix;
+        }
+
+        /// <summary>
+        /// 返回旋转前的逻辑绘制框，供预览底图按地图网格旋转后落回显示框。
+        /// </summary>
+        private static Rect LogicalRectForRotation(Rect displayRect, Rot4 rot)
+        {
+            if (!RotatesQuarterTurn(rot))
+                return displayRect;
+
+            return new Rect(
+                displayRect.center.x - displayRect.height * 0.5f,
+                displayRect.center.y - displayRect.width * 0.5f,
+                displayRect.height,
+                displayRect.width);
+        }
+
+        /// <summary>
+        /// 判断指定朝向是否会让绘制平面产生九十度旋转。
+        /// </summary>
+        private static bool RotatesQuarterTurn(Rot4 rot)
+        {
+            return rot == Rot4.East || rot == Rot4.West;
+        }
+
+        /// <summary>
+        /// 返回指定朝向在二维预览中需要使用的旋转角度。
+        /// </summary>
+        private static float AngleForRotation(Rot4 rot)
+        {
+            if (rot == Rot4.East) return 90f;
+            if (rot == Rot4.West) return 270f;
+            if (rot == Rot4.North) return 180f;
+            return 0f;
         }
 
         private static Rect FitRect(Rect area, float aspectWidth, float aspectHeight)
@@ -532,5 +611,22 @@ namespace SimManagementLib.SimDialog
             float height = area.width / targetAspect;
             return new Rect(area.x, area.center.y - height * 0.5f, area.width, height);
         }
+
+        /// <summary>
+        /// 判断当前招牌是否是单贴图且固定朝向的 Def。
+        /// </summary>
+        private bool IsSingleFixedGraphic
+        {
+            get
+            {
+                Thing thing = SignThing;
+                return thing?.def?.graphicData?.graphicClass == typeof(Graphic_Single) && !thing.def.rotatable;
+            }
+        }
+
+        /// <summary>
+        /// 返回当前编辑组件所在的建筑实例，供预览和 Def 尺寸读取使用。
+        /// </summary>
+        private Thing SignThing => sign?.parent;
     }
 }

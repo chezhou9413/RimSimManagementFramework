@@ -44,6 +44,8 @@ namespace SimManagementLib.SimThingClass
                 sb.Append("名称: ").Append(customName).Append("\n");
 
             sb.Append($"总容量: {CountTotalStored()}/{MaxTotalCapacity}");
+            if (Tool.VendingMachineUtility.IsVendingMachine(this))
+                sb.Append("\n类型: 自动售货机");
             int pending = CountTotalPendingIn();
             if (pending > 0)
                 sb.Append($" (+{pending} 途中)");

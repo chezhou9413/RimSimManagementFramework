@@ -1,29 +1,46 @@
-using System;
-using System.Text;
+using SimManagementLib.SimThingComp;
 using Verse;
 
 namespace SimManagementLib.SimThingClass
 {
+    /// <summary>
+    /// 商店收银台建筑，负责提供收银员识别、结账存银和取现兼容入口。
+    /// </summary>
     public class Building_CashRegister : Building
     {
-        private int storedSilver;
-        private int pendingWithdrawSilver;
+        private int storedSilverLegacy;
+        private int pendingWithdrawSilverLegacy;
 
-        public int StoredSilver => storedSilver;
-        public int PendingWithdrawSilver => pendingWithdrawSilver;
-        public int AvailableForWithdraw => Math.Max(0, storedSilver - pendingWithdrawSilver);
+        private ThingComp_CashStorage CashStorage => this.GetComp<ThingComp_CashStorage>();
 
-        // 获取当前正在这个收银台工作的殖民者
+        /// <summary>
+        /// 返回收银台内部已经收取但尚未取出的白银数量。
+        /// </summary>
+        public int StoredSilver => CashStorage?.StoredSilver ?? storedSilverLegacy;
+
+        /// <summary>
+        /// 返回已经被搬运工作预约但尚未实际取出的白银数量。
+        /// </summary>
+        public int PendingWithdrawSilver => CashStorage?.PendingWithdrawSilver ?? pendingWithdrawSilverLegacy;
+
+        /// <summary>
+        /// 返回当前还可以被新工作预约取出的白银数量。
+        /// </summary>
+        public int AvailableForWithdraw => CashStorage?.AvailableForWithdraw ?? System.Math.Max(0, storedSilverLegacy - pendingWithdrawSilverLegacy);
+
+        /// <summary>
+        /// 获取当前正在这个收银台工作的殖民者。
+        /// </summary>
         public Pawn CurrentCashier
         {
             get
             {
                 if (!Spawned) return null;
 
-                // 检查交互点（InteractionCell，也就是小人站的位置）上有没有人
+                // 检查交互点，也就是收银员应该站立的位置上是否有人。
                 Pawn pawn = Map.thingGrid.ThingAt<Pawn>(InteractionCell);
 
-                // 如果有人，且他正在执行“收银”任务，那他就是收银员
+                // 只有正在执行收银任务的小人才算正在值班。
                 if (pawn != null && pawn.CurJobDef != null && pawn.CurJobDef.defName == "Sim_ManCashRegister")
                 {
                     return pawn;
@@ -35,68 +52,55 @@ namespace SimManagementLib.SimThingClass
 
         public bool IsManned => CurrentCashier != null;
 
+        /// <summary>
+        /// 把顾客结账支付的白银存入收银台现金库存。
+        /// </summary>
         public void DepositSilver(int amount)
         {
-            if (amount <= 0) return;
-            storedSilver += amount;
+            ThingComp_CashStorage cash = CashStorage;
+            if (cash != null)
+                cash.DepositSilver(amount);
         }
 
+        /// <summary>
+        /// 为搬运工作预约指定数量的收银台白银。
+        /// </summary>
         public int ReserveWithdrawSilver(int desiredCount)
         {
-            if (desiredCount <= 0) return 0;
-
-            int available = AvailableForWithdraw;
-            if (available <= 0) return 0;
-
-            int actual = Math.Min(desiredCount, available);
-            pendingWithdrawSilver += actual;
-            return actual;
+            return CashStorage?.ReserveWithdrawSilver(desiredCount) ?? 0;
         }
 
+        /// <summary>
+        /// 取消已经预约但未完成的收银台取现数量。
+        /// </summary>
         public void CancelWithdrawReservation(int reservedCount)
         {
-            if (reservedCount <= 0) return;
-            pendingWithdrawSilver = Math.Max(0, pendingWithdrawSilver - reservedCount);
+            CashStorage?.CancelWithdrawReservation(reservedCount);
         }
 
+        /// <summary>
+        /// 从收银台现金库存取出已经预约的白银数量。
+        /// </summary>
         public int WithdrawReservedSilver(int reservedCount)
         {
-            if (reservedCount <= 0) return 0;
-
-            int actual = Math.Min(reservedCount, storedSilver);
-            storedSilver -= actual;
-
-            // 归还预约：按 reservedCount 扣除，避免预约残留。
-            pendingWithdrawSilver = Math.Max(0, pendingWithdrawSilver - reservedCount);
-            return actual;
+            return CashStorage?.WithdrawReservedSilver(reservedCount) ?? 0;
         }
 
+        /// <summary>
+        /// 保存旧字段并在读档后把旧现金迁入现金库存组件。
+        /// </summary>
         public override void ExposeData()
         {
             base.ExposeData();
-            Scribe_Values.Look(ref storedSilver, "storedSilver", 0);
-            Scribe_Values.Look(ref pendingWithdrawSilver, "pendingWithdrawSilver", 0);
-        }
+            Scribe_Values.Look(ref storedSilverLegacy, "storedSilver", 0);
+            Scribe_Values.Look(ref pendingWithdrawSilverLegacy, "pendingWithdrawSilver", 0);
 
-        public override string GetInspectString()
-        {
-            string baseText = base.GetInspectString();
-            var sb = new StringBuilder();
-
-            if (!string.IsNullOrEmpty(baseText))
+            if (Scribe.mode == LoadSaveMode.PostLoadInit && storedSilverLegacy > 0)
             {
-                sb.Append(baseText);
+                CashStorage?.DepositSilver(storedSilverLegacy);
+                storedSilverLegacy = 0;
+                pendingWithdrawSilverLegacy = 0;
             }
-
-            if (sb.Length > 0) sb.AppendLine();
-            sb.Append("白银库存: ").Append(storedSilver);
-
-            if (pendingWithdrawSilver > 0)
-            {
-                sb.Append(" (待搬运 ").Append(pendingWithdrawSilver).Append(")");
-            }
-
-            return sb.ToString();
         }
     }
 }

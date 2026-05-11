@@ -37,6 +37,7 @@ namespace SimManagementLib.SimDialog
         private Vector2 financeLogScrollPos;
         private Vector2 customerScrollPos;
         private Vector2 staffScrollPos;
+        private Vector2 vendingScrollPos;
         private int financeSubPageIndex;
         private int financeLogPageIndex;
 
@@ -75,6 +76,7 @@ namespace SimManagementLib.SimDialog
             if (!pages.NullOrEmpty()) return;
 
             pages.Add(new PageDef { Label = "商店管理", DrawAction = DrawShopManagementPage });
+            pages.Add(new PageDef { Label = "自动售卖", DrawAction = DrawVendingMachinePage });
             pages.Add(new PageDef { Label = "财务", DrawAction = DrawFinancePage });
             pages.Add(new PageDef { Label = "顾客", DrawAction = DrawCustomerPage });
             pages.Add(new PageDef { Label = "店员", DrawAction = DrawStaffPage });
@@ -102,6 +104,7 @@ namespace SimManagementLib.SimDialog
                     financeLogScrollPos = Vector2.zero;
                     customerScrollPos = Vector2.zero;
                     staffScrollPos = Vector2.zero;
+                    vendingScrollPos = Vector2.zero;
                 }
 
                 x += w + 8f;

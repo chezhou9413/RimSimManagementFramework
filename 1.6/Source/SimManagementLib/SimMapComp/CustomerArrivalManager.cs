@@ -2,12 +2,15 @@ using RimWorld;
 using SimManagementLib.GameComp;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimAI;
+using SimManagementLib.SimThingClass;
+using SimManagementLib.SimThingComp;
 using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Verse;
+using Verse.AI;
 using Verse.AI.Group;
 
 namespace SimManagementLib.SimMapComp
@@ -31,20 +34,27 @@ namespace SimManagementLib.SimMapComp
             if (Find.TickManager.TicksGame % checkInterval != 0) return;
 
             List<CustomerArrivalShopContext> contexts = CollectActiveShopContexts();
-            if (contexts.NullOrEmpty()) return;
-
-            foreach (CustomerArrivalShopContext context in contexts)
+            if (!contexts.NullOrEmpty())
             {
-                TrySpawnOneCustomerForShop(context);
+                foreach (CustomerArrivalShopContext context in contexts)
+                {
+                    TrySpawnOneCustomerForShop(context);
+                }
             }
+
+            TrySpawnOneCustomerForVendingMachines(checkInterval);
         }
 
         public bool ForceSpawnOneWave(bool ignoreConditions, out string resultMessage)
         {
             List<CustomerArrivalShopContext> contexts = CollectActiveShopContexts();
-            if (contexts.NullOrEmpty())
+            List<Building_SimContainer> vendingMachines = VendingMachineUtility.GetAllVendingMachines(map)
+                .Where(VendingMachineUtility.IsUsableVendingMachine)
+                .ToList();
+
+            if (contexts.NullOrEmpty() && vendingMachines.NullOrEmpty())
             {
-                resultMessage = "强制刷新失败：当前地图没有可营业的商店区域。";
+                resultMessage = "强制刷新失败：当前地图没有可营业的商店区域或自动售货机。";
                 return false;
             }
 
@@ -95,8 +105,25 @@ namespace SimManagementLib.SimMapComp
                 }
             }
 
+            foreach (Building_SimContainer machine in vendingMachines.InRandomOrder())
+            {
+                foreach (RuntimeCustomerKind kind in orderedKinds)
+                {
+                    if (!VendingMachineUtility.MatchesCustomerKind(machine, kind)) continue;
+                    if (!ignoreConditions && !kind.CanAppearNow(map)) continue;
+                    if (TrySpawnVendingMachineCustomer(machine, kind, true, out int spawnedCount, out string failReason))
+                    {
+                        resultMessage = $"已强制刷新自动售货机顾客：[{machine.StorageDisplayLabel}]，人数 {spawnedCount}。";
+                        return true;
+                    }
+
+                    if (!string.IsNullOrEmpty(failReason))
+                        lastFailReason = failReason;
+                }
+            }
+
             resultMessage = string.IsNullOrEmpty(lastFailReason)
-                ? "强制刷新失败：没有顾客类型匹配当前商店。"
+                ? "强制刷新失败：没有顾客类型匹配当前商店或自动售货机。"
                 : "强制刷新失败：" + lastFailReason;
             return false;
         }
@@ -133,6 +160,46 @@ namespace SimManagementLib.SimMapComp
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// 周期性尝试为地图上的自动售货机刷新顾客。
+        /// </summary>
+        private void TrySpawnOneCustomerForVendingMachines(int checkInterval)
+        {
+            List<Building_SimContainer> machines = VendingMachineUtility.GetAllVendingMachines(map)
+                .Where(VendingMachineUtility.IsUsableVendingMachine)
+                .Where(machine =>
+                {
+                    ThingComp_VendingMachine comp = machine.GetComp<ThingComp_VendingMachine>();
+                    return comp != null && VendingMachineUtility.CountActiveCustomers(map, machine) < comp.MaxSimultaneousCustomers;
+                })
+                .ToList();
+            if (machines.NullOrEmpty()) return;
+
+            List<RuntimeCustomerKind> kinds = CustomerCatalog.Kinds
+                .Where(k => k != null && !k.pawnKindDefs.NullOrEmpty() && k.CanAppearNow(map))
+                .ToList();
+            kinds = ApplyForcedCustomerKindFilter(kinds);
+            if (kinds.NullOrEmpty()) return;
+
+            float hour = GenLocalDate.HourFloat(map);
+            foreach (Building_SimContainer machine in machines.InRandomOrder())
+            {
+                ThingComp_VendingMachine comp = machine.GetComp<ThingComp_VendingMachine>();
+                List<RuntimeCustomerKind> candidates = kinds
+                    .Where(k => VendingMachineUtility.MatchesCustomerKind(machine, k))
+                    .ToList();
+                if (candidates.NullOrEmpty()) continue;
+
+                RuntimeCustomerKind selected = candidates.RandomElementByWeight(k => k.EvaluateArrivalWeight(hour));
+                if (selected == null) continue;
+
+                float mtbDays = comp.BaseMtbDays / Mathf.Max(selected.EvaluateArrivalWeight(hour), 0.05f);
+                if (!Rand.MTBEventOccurs(mtbDays, 60000f, checkInterval)) continue;
+
+                TrySpawnVendingMachineCustomer(machine, selected, false, out _, out _);
+            }
         }
 
         /// <summary>
@@ -320,6 +387,77 @@ namespace SimManagementLib.SimMapComp
                         MessageTypeDefOf.NeutralEvent,
                         historical: true);
                 }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 为指定自动售货机生成一位顾客并绑定独立的自动售货机访问 Lord。
+        /// </summary>
+        private bool TrySpawnVendingMachineCustomer(Building_SimContainer machine, RuntimeCustomerKind kind, bool showArrivalMessage, out int spawnedCount, out string failReason)
+        {
+            spawnedCount = 0;
+            failReason = string.Empty;
+            if (machine == null || kind == null || !VendingMachineUtility.IsUsableVendingMachine(machine))
+            {
+                failReason = "invalid vending machine";
+                return false;
+            }
+
+            PawnKindDef selectedKind = SelectPawnKindWithCompatibleFaction(kind, out Faction faction);
+            if (selectedKind == null)
+            {
+                failReason = "no pawn kind";
+                return false;
+            }
+
+            Pawn pawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(
+                selectedKind,
+                faction,
+                PawnGenerationContext.NonPlayer,
+                tile: -1,
+                forceGenerateNewPawn: false));
+            if (pawn == null)
+            {
+                failReason = "no pawn generated";
+                return false;
+            }
+
+            if (!CustomerNeutralFactionUtility.ConvertPawnToCustomerFaction(pawn, out Faction customerFaction))
+            {
+                Find.WorldPawns.PassToWorld(pawn);
+                failReason = "no neutral customer faction";
+                return false;
+            }
+
+            if (!CellFinder.TryFindRandomEdgeCellWith(
+                c => map.reachability.CanReach(c, machine.Position, PathEndMode.Touch, TraverseParms.For(TraverseMode.PassDoors)) && !c.Fogged(map),
+                map,
+                CellFinder.EdgeRoadChance_Neutral,
+                out IntVec3 spawnSpot))
+            {
+                Find.WorldPawns.PassToWorld(pawn);
+                failReason = "no edge spawn cell";
+                return false;
+            }
+
+            GenSpawn.Spawn(pawn, spawnSpot, map);
+            int fallbackBudget = kind.budgetRange.RandomInRange;
+            LordJob_VendingMachineVisit lordJob = new LordJob_VendingMachineVisit(kind.sourceDef, machine, fallbackBudget);
+            lordJob.customerKindId = kind.kindId;
+            lordJob.SetPawnSettings(pawn.thingIDNumber, kind.BuildRuntimeSettings(map));
+            LordMaker.MakeNewLord(customerFaction, lordJob, map, new List<Pawn> { pawn });
+            spawnedCount = 1;
+            CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.Arrival);
+
+            if (showArrivalMessage && (SimManagementLibMod.Settings?.showCustomerArrivalMessage ?? true))
+            {
+                Messages.Message(
+                    $"有一位顾客正在前往自动售货机：{machine.StorageDisplayLabel}。",
+                    pawn,
+                    MessageTypeDefOf.NeutralEvent,
+                    historical: true);
             }
 
             return true;

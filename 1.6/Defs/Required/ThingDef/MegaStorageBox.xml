@@ -171,6 +171,12 @@
             <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
             <maxTotalCapacity>30</maxTotalCapacity>
             </li>
+            <li Class="SimManagementLib.SimThingComp.CompProperties_VendingMachine" />
+            <li Class="SimManagementLib.SimThingComp.CompProperties_CashStorage">
+                <!-- 白银达到该数量后，服务工作类型的小人会自动取现。 -->
+                <defaultWithdrawThreshold>200</defaultWithdrawThreshold>
+                <maxWithdrawThreshold>1000</maxWithdrawThreshold>
+            </li>
             <li Class="CompProperties_Forbiddable"/>
             <li Class="CompProperties_Power">
                 <compClass>CompPowerTrader</compClass>
@@ -211,6 +217,12 @@
             <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
             <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
             <maxTotalCapacity>30</maxTotalCapacity>
+            </li>
+            <li Class="SimManagementLib.SimThingComp.CompProperties_VendingMachine" />
+            <li Class="SimManagementLib.SimThingComp.CompProperties_CashStorage">
+                <!-- 白银达到该数量后，服务工作类型的小人会自动取现。 -->
+                <defaultWithdrawThreshold>200</defaultWithdrawThreshold>
+                <maxWithdrawThreshold>1000</maxWithdrawThreshold>
             </li>
             <li Class="CompProperties_Forbiddable"/>
             <li Class="CompProperties_Power">

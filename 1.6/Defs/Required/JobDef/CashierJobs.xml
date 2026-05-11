@@ -11,7 +11,7 @@
   <JobDef>
     <defName>Sim_CollectCashRegisterSilver</defName>
     <driverClass>SimManagementLib.SimAI.JobDriver_CollectCashRegisterSilver</driverClass>
-    <reportString>正在从收银台取出白银并搬运入库。</reportString>
+    <reportString>正在从经营建筑取出白银并搬运入库。</reportString>
     <casualInterruptible>true</casualInterruptible>
   </JobDef>
 </Defs>

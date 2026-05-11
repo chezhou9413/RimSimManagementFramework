@@ -142,17 +142,21 @@
     <Compile Include="SimAI\JobDriver_ManCashRegister.cs" />
     <Compile Include="SimAI\JobDriver_PayAtRegister.cs" />
     <Compile Include="SimAI\JobDriver_SelectPaidService.cs" />
+    <Compile Include="SimAI\JobDriver_UseVendingMachine.cs" />
     <Compile Include="SimAI\JobDriver_UsePaidService.cs" />
     <Compile Include="SimAI\JobDriver_PostPurchaseDineInShop.cs" />
     <Compile Include="SimAI\JobDriver_PostPurchaseUseDrugInShop.cs" />
     <Compile Include="SimAI\JobGiver_CustomerCheckout.cs" />
     <Compile Include="SimAI\JobGiver_Customer_SelectPaidService.cs" />
     <Compile Include="SimAI\JobGiver_Customer_BrowseAndPick.cs" />
+    <Compile Include="SimAI\JobGiver_Customer_UseVendingMachine.cs" />
     <Compile Include="SimAI\LordJob_CustomerVisit.cs" />
     <Compile Include="SimAI\LordJob_CustomerVisit.Persistence.cs" />
     <Compile Include="SimAI\LordJob_CustomerVisit.Runtime.cs" />
+    <Compile Include="SimAI\LordJob_VendingMachineVisit.cs" />
     <Compile Include="SimAI\LordToil_CustomerBrowse.cs" />
     <Compile Include="SimAI\LordToil_CustomerCheckout.cs" />
+    <Compile Include="SimAI\LordToil_VendingMachineUse.cs" />
     <Compile Include="SimDef\CustomerKindDef.cs" />
     <Compile Include="SimDef\CustomerExpressionSetDef.cs" />
     <Compile Include="SimDef\PurchaseOutcomeDef.cs" />
@@ -173,6 +177,7 @@
     <Compile Include="SimDialog\MainTabWindow_BusinessManager.cs" />
     <Compile Include="SimDialog\MainTabWindow_BusinessManager.Data.cs" />
     <Compile Include="SimDialog\MainTabWindow_BusinessManager.Pages.cs" />
+    <Compile Include="SimDialog\MainTabWindow_BusinessManager.Vending.cs" />
     <Compile Include="SimDialog\SimUiStyle.cs" />
     <Compile Include="SimManagementLibMod.cs" />
     <Compile Include="Patch\Patch_CustomerCombatSafety.cs" />
@@ -198,8 +203,12 @@
     <Compile Include="SimThingClass\Building_SimContainer.Capacity.cs" />
     <Compile Include="SimThingClass\Building_SimContainer.Transfer.cs" />
     <Compile Include="SimThingClass\Building_SimContainer.UI.cs" />
+    <Compile Include="SimThingComp\Gizmo_CashWithdrawThreshold.cs" />
+    <Compile Include="SimThingComp\ThingComp_CustomSign.cs" />
+    <Compile Include="SimThingComp\ThingComp_CashStorage.cs" />
     <Compile Include="SimThingComp\ThingComp_GoodsData.cs" />
     <Compile Include="SimThingComp\ThingComp_ServiceProvider.cs" />
+    <Compile Include="SimThingComp\ThingComp_VendingMachine.cs" />
     <Compile Include="SimWorkGiver\WorkGiver_CollectCashRegisterSilver.cs" />
     <Compile Include="SimWorkGiver\WorkGiver_ManCashRegister.cs" />
     <Compile Include="SimWorkGiver\WorkGiver_RestockMegaStorage.cs" />
@@ -214,6 +223,7 @@
     <Compile Include="Tool\CustomerCombatSafetyUtility.cs" />
     <Compile Include="Tool\CustomerExpressionUtility.cs" />
     <Compile Include="Tool\CustomerNeutralFactionUtility.cs" />
+    <Compile Include="Tool\CustomSignDrawUtility.cs" />
     <Compile Include="Tool\GoodsCatalog.cs" />
     <Compile Include="Tool\Mote_ShopPopup.cs" />
     <Compile Include="Tool\PurchaseOutcomeCatalog.cs" />
@@ -226,6 +236,7 @@
     <Compile Include="Tool\ShopStaffUtility.cs" />
     <Compile Include="Tool\SignImageLibrary.cs" />
     <Compile Include="Tool\SignTextureCache.cs" />
+    <Compile Include="Tool\VendingMachineUtility.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

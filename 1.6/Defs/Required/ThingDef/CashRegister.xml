@@ -40,6 +40,11 @@
       <Flammability>1.0</Flammability>
     </statBases>
     <comps>
+      <li Class="SimManagementLib.SimThingComp.CompProperties_CashStorage">
+        <!-- 白银达到该数量后，服务工作类型的小人会自动取现。 -->
+        <defaultWithdrawThreshold>100</defaultWithdrawThreshold>
+        <maxWithdrawThreshold>1000</maxWithdrawThreshold>
+      </li>
       <li Class="CompProperties_AffectedByFacilities">
         <linkableFacilities>
           <li>Sim_PaymentCode</li>
@@ -88,6 +93,11 @@
       <Flammability>1.0</Flammability>
     </statBases>
     <comps>
+      <li Class="SimManagementLib.SimThingComp.CompProperties_CashStorage">
+        <!-- 白银达到该数量后，服务工作类型的小人会自动取现。 -->
+        <defaultWithdrawThreshold>100</defaultWithdrawThreshold>
+        <maxWithdrawThreshold>1000</maxWithdrawThreshold>
+      </li>
       <li Class="CompProperties_AffectedByFacilities">
         <linkableFacilities>
           <li>Sim_PaymentCode</li>

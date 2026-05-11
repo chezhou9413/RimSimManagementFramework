@@ -35,6 +35,14 @@
   </JobDef>
 
   <JobDef>
+    <defName>Customer_UseVendingMachine</defName>
+    <driverClass>SimManagementLib.SimAI.JobDriver_UseVendingMachine</driverClass>
+    <reportString>正在使用自动售货机。</reportString>
+    <joyDuration>300</joyDuration>
+    <joyKind>Meditative</joyKind>
+  </JobDef>
+
+  <JobDef>
     <defName>Customer_UseDrugInShop</defName>
     <driverClass>SimManagementLib.SimAI.JobDriver_PostPurchaseUseDrugInShop</driverClass>
     <reportString>正在店内吸食成瘾品。</reportString>

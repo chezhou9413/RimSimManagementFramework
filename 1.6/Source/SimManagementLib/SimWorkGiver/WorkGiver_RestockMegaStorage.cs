@@ -20,7 +20,7 @@ namespace SimManagementLib.SimWorkGiver
         {
             foreach (Thing t in pawn.Map.listerBuildings.allBuildingsColonist.OfType<Building_SimContainer>())
             {
-                if (t is Building_SimContainer storage && ShopStaffUtility.IsShopOpenForWork(ShopStaffUtility.FindShopFor(storage)) && NeedsRestock(storage, pawn))
+                if (t is Building_SimContainer storage && IsAllowedByBusinessState(storage) && NeedsRestock(storage, pawn))
                     yield return storage;
             }
         }
@@ -64,9 +64,9 @@ namespace SimManagementLib.SimWorkGiver
         {
             if (storage.Destroyed || !storage.Spawned) return false;
             Zone_Shop shop = ShopStaffUtility.FindShopFor(storage);
-            if (!ShopStaffUtility.IsShopOpenForWork(shop)) return false;
+            if (!VendingMachineUtility.IsVendingMachine(storage) && !ShopStaffUtility.IsShopOpenForWork(shop)) return false;
             WorkGiver_RestockMegaStorage workGiver = DefDatabase<WorkGiverDef>.GetNamedSilentFail("RestockMegaStorage")?.Worker as WorkGiver_RestockMegaStorage;
-            if (workGiver != null && !ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, workGiver.def))
+            if (!VendingMachineUtility.IsVendingMachine(storage) && workGiver != null && !ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, workGiver.def))
                 return false;
             if (!pawn.CanReach(storage, PathEndMode.Touch, Danger.Deadly)) return false;
 
@@ -75,6 +75,16 @@ namespace SimManagementLib.SimWorkGiver
                 if (storage.CountNeeded(td) > 0) return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// 判断货柜是否允许被补货扫描，自动售货机不依赖商店营业状态。
+        /// </summary>
+        private static bool IsAllowedByBusinessState(Building_SimContainer storage)
+        {
+            if (VendingMachineUtility.IsVendingMachine(storage))
+                return true;
+            return ShopStaffUtility.IsShopOpenForWork(ShopStaffUtility.FindShopFor(storage));
         }
 
         private static Thing FindBestSupply(Pawn pawn, Building_SimContainer storage)

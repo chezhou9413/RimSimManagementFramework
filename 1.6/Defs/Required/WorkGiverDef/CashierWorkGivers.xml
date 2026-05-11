@@ -14,15 +14,15 @@
     </requiredCapacities>
   </WorkGiverDef>
 
-  <!-- 下班后把收银台里积累的白银统一搬走。 -->
+  <!-- 服务人员把经营建筑里达到阈值的白银统一搬走。 -->
   <WorkGiverDef>
     <defName>Sim_WorkGiver_CollectCashRegisterSilver</defName>
-    <label>收银台取现搬运</label>
+    <label>经营建筑取现搬运</label>
     <giverClass>SimManagementLib.SimWorkGiver.WorkGiver_CollectCashRegisterSilver</giverClass>
-    <workType>Hauling</workType>
+    <workType>Sim_ServiceWork</workType>
     <priorityInType>95</priorityInType>
     <verb>搬运</verb>
-    <gerund>正在从收银台取现</gerund>
+    <gerund>正在从经营建筑取现</gerund>
     <requiredCapacities>
       <li>Manipulation</li>
     </requiredCapacities>

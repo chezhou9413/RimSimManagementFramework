@@ -1,5 +1,6 @@
 using RimWorld;
 using SimManagementLib.SimThingClass;
+using SimManagementLib.SimThingComp;
 using SimManagementLib.Tool;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ using Verse.AI;
 namespace SimManagementLib.SimWorkGiver
 {
     /// <summary>
-    /// 为营业中的商店收银台分配取走已结算银币的工作。
+    /// 为带现金库存的经营建筑分配取走已结算银币的服务工作。
     /// </summary>
     public class WorkGiver_CollectCashRegisterSilver : WorkGiver_Scanner
     {
@@ -18,48 +19,52 @@ namespace SimManagementLib.SimWorkGiver
         public override PathEndMode PathEndMode => PathEndMode.Touch;
 
         /// <summary>
-        /// 枚举当前地图中属于营业商店的玩家收银台。
+        /// 枚举当前地图中带现金库存的玩家建筑。
         /// </summary>
         public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn)
         {
             if (pawn?.Map == null) yield break;
 
-            foreach (Building_CashRegister register in pawn.Map.listerBuildings.allBuildingsColonist.OfType<Building_CashRegister>())
+            foreach (Building building in pawn.Map.listerBuildings.allBuildingsColonist.OfType<Building>())
             {
-                if (register != null && ShopStaffUtility.IsShopOpenForWork(ShopStaffUtility.FindShopFor(register)))
-                    yield return register;
+                if (building?.GetComp<ThingComp_CashStorage>() != null)
+                    yield return building;
             }
         }
 
         /// <summary>
-        /// 判断指定 Pawn 是否能从该收银台取走可提取银币。
+        /// 判断指定 Pawn 是否能从该建筑取走达到阈值的可提取银币。
         /// </summary>
         public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
+            if (t == null || t.Destroyed || !t.Spawned) return false;
+            ThingComp_CashStorage cash = t.TryGetComp<ThingComp_CashStorage>();
+            if (cash == null || !cash.ShouldAutoWithdraw()) return false;
             Building_CashRegister register = t as Building_CashRegister;
-            if (register == null || register.Destroyed || !register.Spawned) return false;
-            if (!ShopStaffUtility.IsShopOpenForWork(ShopStaffUtility.FindShopFor(register))) return false;
-            if (register.IsManned) return false; // 下班后再统一取钱
-            if (register.AvailableForWithdraw <= 0) return false;
-            if (!pawn.CanReserve(register, 1, -1, null, forced)) return false;
-            if (!pawn.CanReach(register, PathEndMode.Touch, Danger.Deadly)) return false;
+            if (register != null)
+            {
+                if (!ShopStaffUtility.IsShopOpenForWork(ShopStaffUtility.FindShopFor(register))) return false;
+                if (register.IsManned) return false;
+            }
+            if (!pawn.CanReserve(t, 1, -1, null, forced)) return false;
+            if (!pawn.CanReach(t, PathEndMode.Touch, Danger.Deadly)) return false;
             return true;
         }
 
         /// <summary>
-        /// 创建从收银台取出一批银币的 Job。
+        /// 创建从经营建筑取出一批银币的 Job。
         /// </summary>
         public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
-            Building_CashRegister register = t as Building_CashRegister;
-            if (register == null) return null;
+            ThingComp_CashStorage cash = t?.TryGetComp<ThingComp_CashStorage>();
+            if (cash == null) return null;
 
             int batchSize = Mathf.Max(1, ThingDefOf.Silver.stackLimit);
-            int desired = Mathf.Min(register.AvailableForWithdraw, batchSize);
-            int reserved = register.ReserveWithdrawSilver(desired);
+            int desired = Mathf.Min(cash.AvailableForWithdraw, batchSize);
+            int reserved = cash.ReserveWithdrawSilver(desired);
             if (reserved <= 0) return null;
 
-            Job job = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Sim_CollectCashRegisterSilver"), register);
+            Job job = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Sim_CollectCashRegisterSilver"), t);
             job.count = reserved;
             return job;
         }

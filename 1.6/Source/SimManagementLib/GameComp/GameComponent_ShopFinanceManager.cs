@@ -162,6 +162,50 @@ namespace SimManagementLib.GameComp
             });
         }
 
+        /// <summary>
+        /// 提交自动售货机直接成交的商品收入，不经过顾客待结账账单和收银台。
+        /// </summary>
+        public void CommitVendingMachineSale(Pawn customer, Building_SimContainer machine, ThingDef productDef, int count, int paidSilver, float cost = 0f)
+        {
+            if (machine == null || productDef == null || count <= 0 || paidSilver <= 0) return;
+
+            int machineId = GetVendingMachineFinanceKey(machine);
+            string machineLabel = machine.StorageDisplayLabel;
+            int gameDay = GenDate.DaysPassed;
+            FinanceLineItem line = new FinanceLineItem
+            {
+                lineType = FinanceLineTypes.Product,
+                isCombo = false,
+                label = productDef.LabelCap.RawText,
+                defName = productDef.defName,
+                count = count,
+                amount = paidSilver,
+                cost = Mathf.Max(0f, cost)
+            };
+
+            billRecords.Add(new FinanceBillRecord
+            {
+                tickAbs = Find.TickManager.TicksAbs,
+                gameDay = gameDay,
+                zoneId = machineId,
+                zoneLabel = "自动售货机: " + machineLabel,
+                customerName = customer?.LabelShortCap ?? "自动售货机顾客",
+                paidSilver = paidSilver,
+                lines = new List<FinanceLineItem> { line }
+            });
+            TrimBillRecordsIfNeeded();
+
+            totalIncome += paidSilver;
+            AddFloat(dailyRevenue, gameDay, paidSilver);
+            AddFloat(dailyProfit, gameDay, Mathf.Max(0f, paidSilver - Mathf.Max(0f, cost)));
+            AddInt(productSoldCounts, productDef.defName, count);
+            AddFloat(productRevenues, productDef.defName, paidSilver);
+
+            ShopFinanceState state = GetOrCreateShopState(machineId, "自动售货机: " + machineLabel);
+            state.revenue += paidSilver;
+            state.profit += Mathf.Max(0f, paidSilver - Mathf.Max(0f, cost));
+        }
+
         public void ClearPendingBill(Pawn customer)
         {
             if (customer == null) return;
@@ -254,9 +298,9 @@ namespace SimManagementLib.GameComp
 
         public string GetShopLabel(int zoneId)
         {
-            if (zoneId < 0) return "未知商店";
             if (shopStates.TryGetValue(zoneId, out ShopFinanceState state) && state != null && !string.IsNullOrEmpty(state.label))
                 return state.label;
+            if (zoneId < 0) return "未知商店";
             return "商店 #" + zoneId;
         }
 
@@ -297,6 +341,14 @@ namespace SimManagementLib.GameComp
             }
 
             return state;
+        }
+
+        /// <summary>
+        /// 为自动售货机生成不会与商店区域 ID 冲突的财务键。
+        /// </summary>
+        private static int GetVendingMachineFinanceKey(Building_SimContainer machine)
+        {
+            return -1000000 - Mathf.Max(0, machine?.thingIDNumber ?? 0);
         }
 
         private void MigrateLegacyShopStates()

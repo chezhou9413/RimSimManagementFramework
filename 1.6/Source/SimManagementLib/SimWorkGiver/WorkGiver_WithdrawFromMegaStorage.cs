@@ -20,7 +20,7 @@ namespace SimManagementLib.SimWorkGiver
         {
             foreach (Thing t in pawn.Map.listerBuildings.allBuildingsColonist.OfType<Building_SimContainer>())
             {
-                if (t is Building_SimContainer storage && ShopStaffUtility.IsShopOpenForWork(ShopStaffUtility.FindShopFor(storage)) && HasExcess(storage, pawn))
+                if (t is Building_SimContainer storage && IsAllowedByBusinessState(storage) && HasExcess(storage, pawn))
                     yield return storage;
             }
         }
@@ -59,9 +59,9 @@ namespace SimManagementLib.SimWorkGiver
         {
             if (storage.Destroyed || !storage.Spawned) return false;
             Zone_Shop shop = ShopStaffUtility.FindShopFor(storage);
-            if (!ShopStaffUtility.IsShopOpenForWork(shop)) return false;
+            if (!VendingMachineUtility.IsVendingMachine(storage) && !ShopStaffUtility.IsShopOpenForWork(shop)) return false;
             WorkGiverDef currentDef = DefDatabase<WorkGiverDef>.GetNamedSilentFail("WithdrawFromMegaStorage");
-            if (!ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, currentDef))
+            if (!VendingMachineUtility.IsVendingMachine(storage) && !ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, currentDef))
                 return false;
 
             foreach ((ThingDef _, int excess) in storage.GetExcessItems())
@@ -69,6 +69,16 @@ namespace SimManagementLib.SimWorkGiver
                 if (excess > 0) return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// 判断货柜是否允许被清理库存扫描，自动售货机不依赖商店营业状态。
+        /// </summary>
+        private static bool IsAllowedByBusinessState(Building_SimContainer storage)
+        {
+            if (VendingMachineUtility.IsVendingMachine(storage))
+                return true;
+            return ShopStaffUtility.IsShopOpenForWork(ShopStaffUtility.FindShopFor(storage));
         }
     }
 }

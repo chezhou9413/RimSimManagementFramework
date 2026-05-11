@@ -18,7 +18,7 @@
         <cornerBR>Damage/Corner</cornerBR>
       </damageData>
     </graphicData>
-    <drawerType>RealtimeOnly</drawerType>
+    <drawerType>MapMeshAndRealTime</drawerType>
     <altitudeLayer>Building</altitudeLayer>
     <size>(3,1)</size>
     <fillPercent>0.20</fillPercent>
@@ -49,5 +49,8 @@
     <building>
       <destroySound>BuildingDestroyed_Metal_Small</destroySound>
     </building>
+    <comps>
+      <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
+    </comps>
   </ThingDef>
 </Defs>

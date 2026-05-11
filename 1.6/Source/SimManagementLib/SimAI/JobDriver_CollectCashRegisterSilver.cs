@@ -1,5 +1,5 @@
 using RimWorld;
-using SimManagementLib.SimThingClass;
+using SimManagementLib.SimThingComp;
 using SimManagementLib.Tool;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,22 +9,23 @@ using Verse.AI;
 namespace SimManagementLib.SimAI
 {
     /// <summary>
-    /// 执行店员从收银台取出银币并搬运到仓储位置的工作。
+    /// 执行店员从经营建筑现金库存取出银币并搬运到仓储位置的工作。
     /// </summary>
     public class JobDriver_CollectCashRegisterSilver : JobDriver
     {
-        private const TargetIndex RegisterInd = TargetIndex.A;
+        private const TargetIndex CashBuildingInd = TargetIndex.A;
         private const TargetIndex SilverThingInd = TargetIndex.B;
         private const TargetIndex StoreCellInd = TargetIndex.C;
         private const float CashHandlingWorkRequired = 22f;
 
-        private Building_CashRegister Register => job.GetTarget(RegisterInd).Thing as Building_CashRegister;
+        private Thing CashBuilding => job.GetTarget(CashBuildingInd).Thing;
+        private ThingComp_CashStorage CashStorage => CashBuilding?.TryGetComp<ThingComp_CashStorage>();
         private int ReservedCount => job.count;
         private bool reservationCleared;
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
-            return pawn.Reserve(Register, job, 1, -1, null, errorOnFailed);
+            return pawn.Reserve(CashBuilding, job, 1, -1, null, errorOnFailed);
         }
 
         /// <summary>
@@ -41,16 +42,16 @@ namespace SimManagementLib.SimAI
         /// </summary>
         protected override IEnumerable<Toil> MakeNewToils()
         {
-            this.FailOnDestroyedOrNull(RegisterInd);
+            this.FailOnDestroyedOrNull(CashBuildingInd);
             AddFinishAction(_ =>
             {
                 if (reservationCleared) return;
-                Register?.CancelWithdrawReservation(ReservedCount);
+                CashStorage?.CancelWithdrawReservation(ReservedCount);
                 reservationCleared = true;
             });
 
-            yield return Toils_Goto.GotoThing(RegisterInd, PathEndMode.Touch)
-                .FailOnDestroyedOrNull(RegisterInd);
+            yield return Toils_Goto.GotoThing(CashBuildingInd, PathEndMode.Touch)
+                .FailOnDestroyedOrNull(CashBuildingInd);
 
             yield return MakeWorkToil("PrepareWithdrawCashRegisterSilver", CashHandlingWorkRequired);
             yield return MakeWithdrawToil();
@@ -93,14 +94,14 @@ namespace SimManagementLib.SimAI
             Toil toil = ToilMaker.MakeToil("WithdrawCashRegisterSilver");
             toil.initAction = delegate
             {
-                Building_CashRegister register = Register;
-                if (register == null || register.Destroyed)
+                ThingComp_CashStorage cash = CashStorage;
+                if (cash == null || CashBuilding == null || CashBuilding.Destroyed)
                 {
                     pawn.jobs.EndCurrentJob(JobCondition.Incompletable);
                     return;
                 }
 
-                int silverCount = register.WithdrawReservedSilver(ReservedCount);
+                int silverCount = cash.WithdrawReservedSilver(ReservedCount);
                 reservationCleared = true;
 
                 if (silverCount <= 0)
