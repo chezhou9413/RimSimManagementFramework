@@ -95,7 +95,7 @@ namespace SimManagementLib.Debug
                 return;
             }
 
-            FillStoragesWithAllGoods(storages, 60);
+            FillStoragesWithAllGoods(storages);
             SpawnCashier(map, register);
             Messages.Message("已生成完整商店：货柜会按 GoodsDef 轮换铺满。", MessageTypeDefOf.TaskCompletion, false);
         }
@@ -248,7 +248,7 @@ namespace SimManagementLib.Debug
             }
 
             foreach (Building_SimContainer storage in storages)
-                ConfigureAndFillStorage(storage, goodsLimit: 10, targetCount: 80);
+                ConfigureAndFillStorage(storage, goodsLimit: 10);
 
             SpawnLuxuryDiningLayout(map, inner, tableDef, chairDef, lampDef, plantDef);
             SpawnCashier(map, register);
@@ -330,8 +330,7 @@ namespace SimManagementLib.Debug
 
             FillStoragesWithGoodsSet(
                 storages,
-                mixedDrugGoods != null ? new[] { addictiveGoods, mixedDrugGoods } : new[] { addictiveGoods },
-                120);
+                mixedDrugGoods != null ? new[] { addictiveGoods, mixedDrugGoods } : new[] { addictiveGoods });
 
             SpawnLuxuryDiningLayout(map, inner, tableDef, chairDef, lampDef, null);
             SpawnCashier(map, register);

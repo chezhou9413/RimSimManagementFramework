@@ -3,6 +3,7 @@ using SimManagementLib.SimDef;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimThingComp;
 using SimManagementLib.SimZone;
+using SimManagementLib.Tool;
 using System.Collections.Generic;
 using System.Linq;
 using Verse;
@@ -125,67 +126,30 @@ namespace SimManagementLib.Debug
             return result;
         }
 
-        private static void ConfigureAndFillStorage(Building_SimContainer storage, int goodsLimit = 8, int targetCount = 40)
+        /// <summary>
+        /// 使用默认食品分类配置货柜，并按货柜容量快速铺满库存。
+        /// </summary>
+        private static void ConfigureAndFillStorage(Building_SimContainer storage, int goodsLimit = 8)
         {
-            ThingComp_GoodsData comp = storage.GetComp<ThingComp_GoodsData>();
-            if (comp == null) return;
-
             GoodsDef goodsDef = DefDatabase<GoodsDef>.GetNamedSilentFail("Goods_Foods")
                                ?? DefDatabase<GoodsDef>.AllDefs.FirstOrDefault(d => d.GoodsList != null && d.GoodsList.Count > 0);
             if (goodsDef == null || goodsDef.GoodsList.NullOrEmpty()) return;
 
-            Dictionary<string, GoodsItemData> settings = new Dictionary<string, GoodsItemData>();
-            foreach (ThingDef thingDef in goodsDef.GoodsList.Take(UnityEngine.Mathf.Max(1, goodsLimit)))
-            {
-                if (thingDef == null) continue;
-
-                settings[thingDef.defName] = new GoodsItemData
-                {
-                    enabled = true,
-                    count = targetCount,
-                    price = UnityEngine.Mathf.Max(1f, UnityEngine.Mathf.Round(thingDef.BaseMarketValue))
-                };
-            }
-
-            comp.ApplySettings(goodsDef.defName, settings);
-
-            foreach (ThingDef thingDef in goodsDef.GoodsList)
-            {
-                GoodsItemData cfg = comp.FindItemData(thingDef);
-                if (cfg == null || !cfg.enabled || cfg.count <= 0) continue;
-                storage.TryCreateAndStore(thingDef, cfg.count);
-            }
+            ShopStorageUtility.ConfigureCategoryAndFillToCapacity(storage, goodsDef, UnityEngine.Mathf.Max(1, goodsLimit));
         }
 
-        private static void ConfigureAndFillStorage(Building_SimContainer storage, GoodsDef goodsDef, int targetCount = 40)
+        /// <summary>
+        /// 使用指定货品分类配置货柜，并按货柜容量快速铺满库存。
+        /// </summary>
+        private static void ConfigureAndFillStorage(Building_SimContainer storage, GoodsDef goodsDef)
         {
-            ThingComp_GoodsData comp = storage.GetComp<ThingComp_GoodsData>();
-            if (comp == null || goodsDef == null || goodsDef.GoodsList.NullOrEmpty()) return;
-
-            Dictionary<string, GoodsItemData> settings = new Dictionary<string, GoodsItemData>();
-            foreach (ThingDef thingDef in goodsDef.GoodsList)
-            {
-                if (thingDef == null) continue;
-
-                settings[thingDef.defName] = new GoodsItemData
-                {
-                    enabled = true,
-                    count = targetCount,
-                    price = UnityEngine.Mathf.Max(1f, UnityEngine.Mathf.Round(thingDef.BaseMarketValue))
-                };
-            }
-
-            comp.ApplySettings(goodsDef.defName, settings);
-
-            foreach (ThingDef thingDef in goodsDef.GoodsList)
-            {
-                GoodsItemData cfg = comp.FindItemData(thingDef);
-                if (cfg == null || !cfg.enabled || cfg.count <= 0) continue;
-                storage.TryCreateAndStore(thingDef, cfg.count);
-            }
+            ShopStorageUtility.ConfigureCategoryAndFillToCapacity(storage, goodsDef);
         }
 
-        private static void FillStoragesWithAllGoods(List<Building_SimContainer> storages, int targetCount = 60)
+        /// <summary>
+        /// 将一组货柜按全部 GoodsDef 轮换配置，并分别铺满容量。
+        /// </summary>
+        private static void FillStoragesWithAllGoods(List<Building_SimContainer> storages)
         {
             if (storages.NullOrEmpty()) return;
 
@@ -196,10 +160,13 @@ namespace SimManagementLib.Debug
             if (allGoodsDefs.NullOrEmpty()) return;
 
             for (int i = 0; i < storages.Count; i++)
-                ConfigureAndFillStorage(storages[i], allGoodsDefs[i % allGoodsDefs.Count], targetCount);
+                ConfigureAndFillStorage(storages[i], allGoodsDefs[i % allGoodsDefs.Count]);
         }
 
-        private static void FillStoragesWithGoodsSet(List<Building_SimContainer> storages, IEnumerable<GoodsDef> goodsDefs, int targetCount = 120)
+        /// <summary>
+        /// 将一组货柜按指定 GoodsDef 集合轮换配置，并分别铺满容量。
+        /// </summary>
+        private static void FillStoragesWithGoodsSet(List<Building_SimContainer> storages, IEnumerable<GoodsDef> goodsDefs)
         {
             if (storages.NullOrEmpty() || goodsDefs == null) return;
 
@@ -207,7 +174,7 @@ namespace SimManagementLib.Debug
             if (list.NullOrEmpty()) return;
 
             for (int i = 0; i < storages.Count; i++)
-                ConfigureAndFillStorage(storages[i], list[i % list.Count], targetCount);
+                ConfigureAndFillStorage(storages[i], list[i % list.Count]);
         }
 
         private static void SetFloorTerrain(Map map, CellRect inner, TerrainDef floorDef)

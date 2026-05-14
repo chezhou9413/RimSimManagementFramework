@@ -64,12 +64,15 @@ namespace SimManagementLib.SimDialog
             draggable = true;
 
             GoodsCatalog.EnsureInitialized();
-            allDefs = GoodsCatalog.Manager?.Categories
+            allDefs = (GoodsCatalog.Categories ?? Enumerable.Empty<Pojo.RuntimeGoodsCategory>())
+                .Where(d => d != null && comp.AllowsGoodsCategory(d.categoryId))
                 .Where(d => d != null && d.Items != null && d.Items.Count > 0)
                 .OrderBy(d => d.label)
-                .ToList() ?? new List<Pojo.RuntimeGoodsCategory>();
+                .ToList();
 
             draftActiveDefName = comp.ActiveGoodsDefName;
+            if (!comp.AllowsGoodsCategory(draftActiveDefName))
+                draftActiveDefName = "";
             draftItemData = comp.CloneItemData();
         }
 
@@ -107,7 +110,9 @@ namespace SimManagementLib.SimDialog
 
             Rect titleRect = new Rect(rect.x, rect.y, rect.width, 36f);
             Text.Font = GameFont.Small; Text.Anchor = TextAnchor.MiddleCenter; GUI.color = Color.white;
-            Widgets.Label(titleRect, "分类导航");
+            Widgets.Label(titleRect, comp.HasGoodsCategoryRestriction ? "可售分类" : "分类导航");
+            if (comp.HasGoodsCategoryRestriction)
+                TooltipHandler.TipRegion(titleRect, "该货柜只允许选择：" + comp.GetAllowedGoodsCategoryLabelSummary());
             Widgets.DrawLineHorizontal(rect.x + 10f, titleRect.yMax, rect.width - 20f);
 
             Rect outR = new Rect(rect.x, titleRect.yMax + 4f, rect.width, rect.height - 40f);
@@ -152,7 +157,8 @@ namespace SimManagementLib.SimDialog
             if (def == null)
             {
                 Text.Anchor = TextAnchor.MiddleCenter; GUI.color = new Color(0.5f, 0.5f, 0.5f);
-                Widgets.Label(rect, "请在左侧选择需要管理的货品分类");
+                string text = allDefs.Count > 0 ? "请在左侧选择需要管理的货品分类" : "该货柜没有可用的货品分类";
+                Widgets.Label(rect, text);
                 Text.Anchor = TextAnchor.UpperLeft; GUI.color = Color.white;
                 return;
             }
@@ -221,7 +227,6 @@ namespace SimManagementLib.SimDialog
         {
             GoodsItemData d = GetDraftItem(td);
             bool nowEnabled = d.enabled;
-            bool changed = false;
 
             if (nowEnabled) Widgets.DrawBoxSolid(row, CCheckedBg);
             else if (alt) Widgets.DrawBoxSolid(row, new Color(1f, 1f, 1f, 0.02f));
@@ -241,7 +246,6 @@ namespace SimManagementLib.SimDialog
             if (nowEnabled != d.enabled)
             {
                 d.enabled = nowEnabled;
-                changed = true;
                 if (d.enabled && d.count <= 0)
                 {
                     d.count = 1;
@@ -289,7 +293,6 @@ namespace SimManagementLib.SimDialog
                 if (d.count != prevCount)
                 {
                     d.countBuffer = d.count.ToString();
-                    changed = true;
                 }
             }
             else { DrawDisabledDash(new Rect(rightX, row.y, FieldW, RowH)); }
@@ -304,16 +307,10 @@ namespace SimManagementLib.SimDialog
                 {
                     d.count = newCount;
                     d.countBuffer = newCount.ToString();
-                    changed = true;
                 }
             }
             else { DrawDisabledDash(new Rect(rightX, row.y, SliderW, RowH)); }
             rightX -= ColGap;
-
-            if (changed)
-            {
-                ClampDraftCapacity(activeDef);
-            }
 
             // 3. 库存数量
             rightX -= StockW;
@@ -508,6 +505,12 @@ namespace SimManagementLib.SimDialog
 
         private void TrySwitchDef(string newDefName)
         {
+            if (!string.IsNullOrEmpty(newDefName) && !comp.AllowsGoodsCategory(newDefName))
+            {
+                Messages.Message("该货柜不能售卖这个商品分类。", MessageTypeDefOf.RejectInput, false);
+                return;
+            }
+
             draftActiveDefName = newDefName ?? "";
             searchQuery = "";
             listScroll = Vector2.zero;

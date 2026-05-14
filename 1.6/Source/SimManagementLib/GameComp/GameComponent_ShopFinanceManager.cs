@@ -212,6 +212,17 @@ namespace SimManagementLib.GameComp
             pendingBills.Remove(customer.thingIDNumber);
         }
 
+        /// <summary>
+        /// 返回顾客当前待结账账单明细副本，用于在提交或清理账单前生成顾客点评摘要。
+        /// </summary>
+        public List<FinanceLineItem> GetPendingBillLines(Pawn customer)
+        {
+            if (customer == null) return new List<FinanceLineItem>();
+            if (!pendingBills.TryGetValue(customer.thingIDNumber, out PendingFinanceBill pending) || pending == null)
+                return new List<FinanceLineItem>();
+            return CloneLines(pending.lines);
+        }
+
         public void CommitCheckout(Pawn customer, Building_CashRegister register, int paidSilver)
         {
             if (customer == null || paidSilver <= 0) return;

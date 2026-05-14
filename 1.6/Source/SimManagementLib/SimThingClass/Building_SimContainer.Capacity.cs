@@ -64,6 +64,7 @@ namespace SimManagementLib.SimThingClass
         {
             ThingComp_GoodsData comp = GoodsComp;
             if (comp == null || string.IsNullOrEmpty(comp.ActiveGoodsDefName)) return 0;
+            if (!comp.AllowsGoodsCategory(comp.ActiveGoodsDefName)) return 0;
             if (!GoodsCatalog.Contains(comp.ActiveGoodsDefName, thingDef)) return 0;
             GoodsItemData item = comp.FindItemData(thingDef);
             if (item == null || !item.enabled) return 0;
@@ -97,6 +98,7 @@ namespace SimManagementLib.SimThingClass
             {
                 ThingComp_GoodsData comp = GoodsComp;
                 if (comp == null || string.IsNullOrEmpty(comp.ActiveGoodsDefName)) yield break;
+                if (!comp.AllowsGoodsCategory(comp.ActiveGoodsDefName)) yield break;
 
                 IReadOnlyList<Pojo.RuntimeGoodsItem> items = GoodsCatalog.GetItems(comp.ActiveGoodsDefName);
                 for (int i = 0; i < items.Count; i++)
@@ -111,6 +113,10 @@ namespace SimManagementLib.SimThingClass
         public Dictionary<string, GoodsItemData> ClampSettingsToCapacity(string activeDefName, Dictionary<string, GoodsItemData> source, out int trimmedCount)
         {
             trimmedCount = 0;
+            ThingComp_GoodsData comp = GoodsComp;
+            if (comp != null && !comp.AllowsGoodsCategory(activeDefName))
+                return new Dictionary<string, GoodsItemData>();
+
             Dictionary<string, GoodsItemData> result = CloneSettings(source);
             IReadOnlyList<Pojo.RuntimeGoodsItem> items = GoodsCatalog.GetItems(activeDefName);
             if (items.Count <= 0) return result;

@@ -31,15 +31,21 @@ namespace SimManagementLib.SimDialog
         }
 
         private readonly List<PageDef> pages = new List<PageDef>();
+        private bool pagesBuiltWithReviews;
         private int curPageIndex;
         private Vector2 shopScrollPos;
         private Vector2 financeScrollPos;
         private Vector2 financeLogScrollPos;
         private Vector2 customerScrollPos;
+        private Vector2 reviewScrollPos;
+        private int reviewPageIndex;
         private Vector2 staffScrollPos;
         private Vector2 vendingScrollPos;
         private int financeSubPageIndex;
         private int financeLogPageIndex;
+        private int reviewSortMode;
+        private int reviewFilterZoneId = int.MinValue;
+        private readonly HashSet<string> expandedReviewReplyIds = new HashSet<string>();
 
         private static readonly Color CAccent = new Color(0.25f, 0.65f, 0.85f, 1f);
         private static readonly Color CPanel = new Color(0f, 0f, 0f, 0.18f);
@@ -58,28 +64,55 @@ namespace SimManagementLib.SimDialog
 
         public override void DoWindowContents(Rect inRect)
         {
-            EnsurePages();
+            GameFont oldFont = Text.Font;
+            TextAnchor oldAnchor = Text.Anchor;
+            bool oldWordWrap = Text.WordWrap;
+            Color oldColor = GUI.color;
 
-            Rect tabRect = new Rect(inRect.x, inRect.y, inRect.width, 42f);
-            DrawPageTabs(tabRect);
-
-            Rect bodyRect = new Rect(inRect.x, tabRect.yMax + 6f, inRect.width, inRect.height - tabRect.height - 6f);
-            Widgets.DrawBoxSolid(bodyRect, CPanel);
-            if (curPageIndex >= 0 && curPageIndex < pages.Count)
+            try
             {
-                pages[curPageIndex].DrawAction?.Invoke(bodyRect.ContractedBy(10f));
+                EnsurePages();
+
+                Rect tabRect = new Rect(inRect.x, inRect.y, inRect.width, 42f);
+                DrawPageTabs(tabRect);
+
+                Rect bodyRect = new Rect(inRect.x, tabRect.yMax + 6f, inRect.width, inRect.height - tabRect.height - 6f);
+                Widgets.DrawBoxSolid(bodyRect, CPanel);
+                if (curPageIndex >= 0 && curPageIndex < pages.Count)
+                {
+                    pages[curPageIndex].DrawAction?.Invoke(bodyRect.ContractedBy(10f));
+                }
+            }
+            finally
+            {
+                Text.Font = oldFont;
+                Text.Anchor = oldAnchor;
+                Text.WordWrap = oldWordWrap;
+                GUI.color = oldColor;
             }
         }
 
         private void EnsurePages()
         {
-            if (!pages.NullOrEmpty()) return;
+            bool shouldShowReviews = SimManagementLibMod.Settings?.HasValidReviewAiConfig() == true;
+            if (!pages.NullOrEmpty() && pagesBuiltWithReviews == shouldShowReviews)
+            {
+                if (curPageIndex >= pages.Count)
+                    curPageIndex = Mathf.Max(0, pages.Count - 1);
+                return;
+            }
 
+            pages.Clear();
+            pagesBuiltWithReviews = shouldShowReviews;
             pages.Add(new PageDef { Label = "商店管理", DrawAction = DrawShopManagementPage });
             pages.Add(new PageDef { Label = "自动售卖", DrawAction = DrawVendingMachinePage });
             pages.Add(new PageDef { Label = "财务", DrawAction = DrawFinancePage });
+            if (shouldShowReviews)
+                pages.Add(new PageDef { Label = "顾客评价", DrawAction = DrawCustomerReviewsPage });
             pages.Add(new PageDef { Label = "顾客", DrawAction = DrawCustomerPage });
             pages.Add(new PageDef { Label = "店员", DrawAction = DrawStaffPage });
+            if (curPageIndex >= pages.Count)
+                curPageIndex = Mathf.Max(0, pages.Count - 1);
         }
 
         private void DrawPageTabs(Rect rect)
@@ -103,6 +136,8 @@ namespace SimManagementLib.SimDialog
                     financeScrollPos = Vector2.zero;
                     financeLogScrollPos = Vector2.zero;
                     customerScrollPos = Vector2.zero;
+                    reviewScrollPos = Vector2.zero;
+                    reviewPageIndex = 0;
                     staffScrollPos = Vector2.zero;
                     vendingScrollPos = Vector2.zero;
                 }
@@ -123,6 +158,7 @@ namespace SimManagementLib.SimDialog
         {
             Text.Anchor = TextAnchor.UpperLeft;
             Text.Font = GameFont.Small;
+            Text.WordWrap = true;
             GUI.color = Color.white;
         }
     }

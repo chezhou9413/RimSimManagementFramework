@@ -72,13 +72,15 @@ namespace SimManagementLib.SimAI
                 if (shopZone != null)
                 {
                     List<ComboData> combos = ShopDataUtility.GetAffordableInStockCombos(shopZone, remainingBudget);
+                    List<CustomerCartItem> currentCart = lordJob.GetCartItems(pId);
                     if (!combos.NullOrEmpty())
                     {
                         ComboData targetCombo = combos
+                            .Where(c => CustomerPurchaseDeliveryUtility.CanCarryCombo(pawn, currentCart, c.items))
                             .OrderByDescending(c => GetComboPreferenceScore(lordJob, pId, c))
                             .ThenByDescending(c => c.totalPrice)
                             .FirstOrDefault();
-                        if (ShopDataUtility.TryPurchaseCombo(shopZone, targetCombo, out float comboPrice))
+                        if (targetCombo != null && ShopDataUtility.TryPurchaseCombo(shopZone, targetCombo, out float comboPrice))
                         {
                             float comboCost = 0f;
                             for (int i = 0; i < targetCombo.items.Count; i++)
@@ -110,6 +112,8 @@ namespace SimManagementLib.SimAI
                 }
 
                 List<(ThingDef def, float unitPrice)> candidates = new List<(ThingDef def, float unitPrice)>();
+                List<CustomerCartItem> cartBeforeItem = lordJob.GetCartItems(pId);
+                bool blockedOnlyByMass = false;
                 foreach (ThingDef def in TargetShelf.ActiveDefs)
                 {
                     if (TargetShelf.CountStored(def) <= 0) continue;
@@ -117,14 +121,23 @@ namespace SimManagementLib.SimAI
                     float unitPrice = ShopPricingUtility.GetUnitPrice(TargetShelf, def);
                     if (unitPrice <= remainingBudget)
                     {
+                        if (CustomerPurchaseDeliveryUtility.MaxAdditionalCountByMass(pawn, cartBeforeItem, def) <= 0)
+                        {
+                            blockedOnlyByMass = true;
+                            continue;
+                        }
+
                         candidates.Add((def, unitPrice));
                     }
                 }
 
                 if (candidates.NullOrEmpty())
                 {
-                    CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.BrowseNoMatch);
-                    ShopBubbleUtility.ShowTextBubble(pawn, "没有合适的商品", new Color(0.88f, 0.88f, 0.88f));
+                    if (!blockedOnlyByMass)
+                    {
+                        CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.BrowseNoMatch);
+                        ShopBubbleUtility.ShowTextBubble(pawn, "没有合适的商品", new Color(0.88f, 0.88f, 0.88f));
+                    }
                     lordJob.MarkPawnReadyForCheckout(pId);
                     return;
                 }
@@ -134,7 +147,13 @@ namespace SimManagementLib.SimAI
 
                 int maxByBudget = Mathf.FloorToInt(remainingBudget / itemPrice);
                 int maxByStock = TargetShelf.CountStored(itemToBuy);
-                int maxCount = Mathf.Min(maxByBudget, maxByStock);
+                int maxByMass = CustomerPurchaseDeliveryUtility.MaxAdditionalCountByMass(pawn, lordJob.GetCartItems(pId), itemToBuy);
+                int maxCount = Mathf.Min(maxByBudget, maxByStock, maxByMass);
+                if (maxCount <= 0)
+                {
+                    lordJob.MarkPawnReadyForCheckout(pId);
+                    return;
+                }
                 int buyCount = maxCount > 1 ? Rand.RangeInclusive(1, maxCount) : 1;
 
                 Thing taken = TargetShelf.TryVirtualBuy(itemToBuy, buyCount, out _);

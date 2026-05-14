@@ -44,6 +44,13 @@ namespace SimManagementLib.SimDialog
 
         public static bool DrawTabButton(Rect rect, string label, bool selected, Color normalTextColor)
         {
+            GameFont oldFont = Text.Font;
+            TextAnchor oldAnchor = Text.Anchor;
+            bool oldWordWrap = Text.WordWrap;
+            Color oldColor = GUI.color;
+
+            try
+            {
             bool mouseOver = Mouse.IsOver(rect);
             Color fill = selected ? TabSelectedFill : (mouseOver ? TabHoverFill : TabNormalFill);
             Color border = selected ? TabSelectedBorder : TabNormalBorder;
@@ -55,9 +62,13 @@ namespace SimManagementLib.SimDialog
             Text.Font = GameFont.Small;
             GUI.color = selected ? Color.white : normalTextColor;
             Widgets.Label(rect, label);
-            ResetText();
 
             return !selected && Widgets.ButtonInvisible(rect, false);
+            }
+            finally
+            {
+                RestoreText(oldFont, oldAnchor, oldWordWrap, oldColor);
+            }
         }
 
         public static void DrawBorder(Rect rect, Color color, float thickness = 1f)
@@ -78,6 +89,13 @@ namespace SimManagementLib.SimDialog
             bool enabled,
             GameFont font)
         {
+            GameFont oldFont = Text.Font;
+            TextAnchor oldAnchor = Text.Anchor;
+            bool oldWordWrap = Text.WordWrap;
+            Color oldColor = GUI.color;
+
+            try
+            {
             bool mouseOver = Mouse.IsOver(rect);
             Color fill = !enabled ? DisabledFill : (mouseOver ? hoverColor : fillColor);
             Color border = enabled ? borderColor : DisabledBorder;
@@ -90,16 +108,24 @@ namespace SimManagementLib.SimDialog
             Text.Font = font;
             GUI.color = text;
             Widgets.Label(rect, label);
-            ResetText();
 
             return enabled && Widgets.ButtonInvisible(rect, false);
+            }
+            finally
+            {
+                RestoreText(oldFont, oldAnchor, oldWordWrap, oldColor);
+            }
         }
 
-        private static void ResetText()
+        /// <summary>
+        /// 恢复进入控件绘制前的 IMGUI 文本状态，负责避免按钮绘制污染同一帧后续窗口。
+        /// </summary>
+        private static void RestoreText(GameFont font, TextAnchor anchor, bool wordWrap, Color color)
         {
-            Text.Anchor = TextAnchor.UpperLeft;
-            Text.Font = GameFont.Small;
-            GUI.color = Color.white;
+            Text.Anchor = anchor;
+            Text.Font = font;
+            Text.WordWrap = wordWrap;
+            GUI.color = color;
         }
     }
 }

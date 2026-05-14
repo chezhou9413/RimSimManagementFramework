@@ -161,6 +161,7 @@ namespace SimManagementLib.SimAI
 
                 if (abortedByTimeout)
                 {
+                    CustomerReviewSnapshotBuilder.TryEnqueueReview(pawn, lordJob, shopZone, new List<FinanceLineItem>(), 0, "等太久没轮到收银，离店前没有付款，商品已放回店里");
                     HandleCheckoutTimeout(lordJob, finance, pawnId, shopZone);
                     analytics?.RecordCheckoutResult(shopZone, totalWaitTicks, maxQueueWaitTicks, 0, budget, success: false, timeout: true);
                     lordJob.CheckAllCheckoutsDone();
@@ -170,10 +171,13 @@ namespace SimManagementLib.SimAI
                 if (lordJob.cartValues.TryGetValue(pawnId, out float amountOwed) && amountOwed > 0f)
                 {
                     int silverAmount = Mathf.CeilToInt(amountOwed);
+                    List<FinanceLineItem> reviewLines = finance?.GetPendingBillLines(pawn) ?? new List<FinanceLineItem>();
                     Register.DepositSilver(silverAmount);
                     finance?.CommitCheckout(pawn, Register, silverAmount);
                     lordJob.ResolveServiceOrdersOnCheckoutPaid(pawn, shopZone);
+                    CustomerPurchaseDeliveryUtility.DeliverPurchasedItems(pawn, purchasedItems);
                     PurchaseOutcomeResolver.TryQueuePostPurchaseJobs(pawn, lordJob, pawnId, shopZone, purchasedItems);
+                    CustomerReviewSnapshotBuilder.TryEnqueueReview(pawn, lordJob, shopZone, reviewLines, silverAmount, "付款完成");
                     CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.CheckoutPaid);
                     ShopBubbleUtility.ShowSilverPayment(pawn, silverAmount);
                     lordJob.ClearCustomerCart(pawnId);
@@ -181,9 +185,12 @@ namespace SimManagementLib.SimAI
                 }
                 else
                 {
+                    List<FinanceLineItem> reviewLines = finance?.GetPendingBillLines(pawn) ?? new List<FinanceLineItem>();
                     finance?.ClearPendingBill(pawn);
                     lordJob.ResolveServiceOrdersOnCheckoutPaid(pawn, shopZone);
+                    CustomerPurchaseDeliveryUtility.DeliverPurchasedItems(pawn, purchasedItems);
                     PurchaseOutcomeResolver.TryQueuePostPurchaseJobs(pawn, lordJob, pawnId, shopZone, purchasedItems);
+                    CustomerReviewSnapshotBuilder.TryEnqueueReview(pawn, lordJob, shopZone, reviewLines, 0, "未消费离店");
                     lordJob.ClearCustomerCart(pawnId);
                     analytics?.RecordCheckoutResult(shopZone, totalWaitTicks, maxQueueWaitTicks, 0, budget, success: true, timeout: false);
                 }

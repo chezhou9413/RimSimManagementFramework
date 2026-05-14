@@ -44,9 +44,7 @@ namespace SimManagementLib.SimWorkGiver
             if (register != null)
             {
                 if (!ShopStaffUtility.IsShopOpenForWork(ShopStaffUtility.FindShopFor(register))) return false;
-                if (register.IsManned) return false;
             }
-            if (!pawn.CanReserve(t, 1, -1, null, forced)) return false;
             if (!pawn.CanReach(t, PathEndMode.Touch, Danger.Deadly)) return false;
             return true;
         }
@@ -59,13 +57,11 @@ namespace SimManagementLib.SimWorkGiver
             ThingComp_CashStorage cash = t?.TryGetComp<ThingComp_CashStorage>();
             if (cash == null) return null;
 
-            int batchSize = Mathf.Max(1, ThingDefOf.Silver.stackLimit);
-            int desired = Mathf.Min(cash.AvailableForWithdraw, batchSize);
-            int reserved = cash.ReserveWithdrawSilver(desired);
-            if (reserved <= 0) return null;
+            int desired = cash.AutoWithdrawAmount;
+            if (desired <= 0) return null;
 
             Job job = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Sim_CollectCashRegisterSilver"), t);
-            job.count = reserved;
+            job.count = desired;
             return job;
         }
     }

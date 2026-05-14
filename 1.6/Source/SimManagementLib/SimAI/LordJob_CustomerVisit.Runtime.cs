@@ -326,12 +326,56 @@ namespace SimManagementLib.SimAI
             return pawnId > 0 && postCheckoutRequired.Contains(pawnId);
         }
 
+        /// <summary>
+        /// 返回指定顾客当前购后 Job 队列的简短说明，负责给顾客评价快照提供售后行为上下文。
+        /// </summary>
+        public string DescribePostCheckoutJobs(int pawnId)
+        {
+            if (pawnId <= 0 || !postCheckoutJobs.TryGetValue(pawnId, out List<Job> list) || list.NullOrEmpty())
+                return "无付款后行为。";
+
+            List<string> parts = new List<string>();
+            for (int i = 0; i < list.Count && parts.Count < 5; i++)
+            {
+                Job job = list[i];
+                if (job?.def == null) continue;
+                string label = !string.IsNullOrEmpty(job.def.label) ? job.def.label : job.def.defName;
+                string targets = DescribeJobTargets(job);
+                parts.Add(string.IsNullOrEmpty(targets) ? label : label + "(" + targets + ")");
+            }
+
+            return parts.Count > 0 ? string.Join("；", parts) : "无可描述的付款后行为。";
+        }
+
         public void MarkPostCheckoutCompleted(int pawnId)
         {
             if (pawnId <= 0) return;
             postCheckoutRequired.Remove(pawnId);
             postCheckoutJobs.Remove(pawnId);
             ClearCustomerServiceOrders(pawnId);
+        }
+
+        /// <summary>
+        /// 构造 Job 目标摘要，负责避免把完整 Job 对象传给后台点评线程。
+        /// </summary>
+        private static string DescribeJobTargets(Job job)
+        {
+            List<string> parts = new List<string>();
+            AppendTarget(parts, "A", job.targetA);
+            AppendTarget(parts, "B", job.targetB);
+            return parts.Count > 0 ? string.Join("，", parts) : "";
+        }
+
+        /// <summary>
+        /// 添加单个 Job 目标摘要。
+        /// </summary>
+        private static void AppendTarget(List<string> parts, string label, LocalTargetInfo target)
+        {
+            if (!target.IsValid) return;
+            if (target.HasThing && target.Thing != null)
+                parts.Add(label + ":" + target.Thing.LabelShortCap);
+            else if (target.Cell.IsValid)
+                parts.Add(label + ":" + target.Cell.ToString());
         }
 
         public int GetOrInitBrowseWaitStartTick(int pawnId, int nowTick)

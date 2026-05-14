@@ -19,7 +19,7 @@ namespace SimManagementLib.SimZone
             this.zoneTypeToPlace = typeof(Zone_Shop);
             this.defaultLabel = "划定商店区";
             this.defaultDesc = "划定一个用于经营的商店区域。商店区域可以覆盖建筑，但必须在室内，且区域内至少放置货柜和收银台。";
-            this.icon = ContentFinder<Texture2D>.Get("UI/Designators/ZoneCreate_Growing", true);
+            this.icon = ContentFinder<Texture2D>.Get("Things/Icon/Mod_Icon", true);
             this.hotKey = KeyBindingDefOf.Misc1;
         }
 

@@ -1,4 +1,5 @@
 using RimWorld;
+using SimManagementLib.Tool;
 using SimManagementLib.SimZone;
 using System.Collections.Generic;
 using System.Linq;
@@ -107,6 +108,10 @@ namespace SimManagementLib.SimDef
             if (customer == null || foodDef == null)
                 return null;
 
+            Thing delivered = CustomerPurchaseDeliveryUtility.FindDeliveredThing(customer, foodDef);
+            if (delivered != null)
+                return delivered;
+
             Thing food = ThingMaker.MakeThing(foodDef, foodDef.MadeFromStuff ? GenStuff.DefaultStuffFor(foodDef) : null);
             if (food == null)
                 return null;
@@ -206,6 +211,10 @@ namespace SimManagementLib.SimDef
         {
             if (customer == null || thingDef == null)
                 return null;
+
+            Thing delivered = CustomerPurchaseDeliveryUtility.FindDeliveredThing(customer, thingDef);
+            if (delivered != null)
+                return delivered;
 
             Thing thing = ThingMaker.MakeThing(thingDef, thingDef.MadeFromStuff ? GenStuff.DefaultStuffFor(thingDef) : null);
             if (thing == null)

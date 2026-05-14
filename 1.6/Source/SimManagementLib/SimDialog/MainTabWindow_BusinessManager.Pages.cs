@@ -48,8 +48,12 @@ namespace SimManagementLib.SimDialog
                 int inStockKinds = ShopDataUtility.GetInStockGoods(zone).Count;
                 int comboCount = comboManager?.GetCombosForZone(zone)?.Count ?? 0;
                 ShopMetricsSnapshot metrics = analytics?.GetOrEvaluateShopMetrics(zone);
+                GameComponent_CustomerReviewManager reviewManager = Current.Game?.GetComponent<GameComponent_CustomerReviewManager>();
                 bool valid = zone.IsValidShop();
                 bool open = zone.IsOpenNow();
+                float avgStars = 0f;
+                int reviewCount = 0;
+                reviewManager?.GetShopReviewStats(zone.ID, out avgStars, out reviewCount);
 
                 Text.Font = GameFont.Small;
                 Text.Anchor = TextAnchor.MiddleLeft;
@@ -71,7 +75,7 @@ namespace SimManagementLib.SimDialog
                 {
                     Widgets.Label(
                         new Rect(row.x + 10f, row.y + 72f, row.width - 220f, 18f),
-                        $"评分 {metrics.score:F1}   口碑 {metrics.reputation:F1}   满意度 {metrics.satisfaction:F1}   美观 {metrics.beautyAverage:F1}   容量 {metrics.dynamicCapacity}");
+                        $"评分 {metrics.score:F1}   口碑 {metrics.reputation:F1}   满意度 {metrics.satisfaction:F1}   美观 {metrics.beautyAverage:F1}   容量 {metrics.dynamicCapacity}   点评 {avgStars:F1}★/{reviewCount}");
                     Widgets.Label(
                         new Rect(row.x + 10f, row.y + 90f, row.width - 220f, 18f),
                         $"客流 {metrics.spawnDemandFactor:F2}x   美观 {metrics.beautyDemandMultiplier:F2}x   规模 {metrics.scaleDemandMultiplier:F2}x   容量规模 {metrics.scaleCapacityMultiplier:F2}x   有效规模 {metrics.effectiveScale:F1}");

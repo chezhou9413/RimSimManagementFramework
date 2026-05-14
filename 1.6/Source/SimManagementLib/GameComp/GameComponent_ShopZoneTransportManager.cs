@@ -8,14 +8,23 @@ using Verse;
 
 namespace SimManagementLib.GameComp
 {
+    /// <summary>
+    /// 负责在重力舰搬迁前后保存和恢复随船移动的商店区域。
+    /// </summary>
     public class GameComponent_ShopZoneTransportManager : GameComponent
     {
         private Dictionary<string, List<MoveableShopZone>> zonesByGravshipId = new Dictionary<string, List<MoveableShopZone>>();
 
+        /// <summary>
+        /// 初始化商店区域搬迁管理组件。
+        /// </summary>
         public GameComponent_ShopZoneTransportManager(Game game)
         {
         }
 
+        /// <summary>
+        /// 保存商店区域搬迁数据，确保跨存档读写后仍能恢复随船区域。
+        /// </summary>
         public override void ExposeData()
         {
             base.ExposeData();
@@ -26,6 +35,9 @@ namespace SimManagementLib.GameComp
             if (zonesByGravshipId == null) zonesByGravshipId = new Dictionary<string, List<MoveableShopZone>>();
         }
 
+        /// <summary>
+        /// 捕获位于重力舰地板上的商店区域格子，并从旧地图移除已搬迁区域。
+        /// </summary>
         public void CaptureShopZones(Gravship gravship, Map oldMap, IntVec3 origin, HashSet<IntVec3> engineFloors)
         {
             if (gravship == null || oldMap?.zoneManager == null || engineFloors == null || engineFloors.Count == 0) return;
@@ -67,6 +79,9 @@ namespace SimManagementLib.GameComp
             zonesByGravshipId[gravshipId] = movedZones;
         }
 
+        /// <summary>
+        /// 在目标地图按重力舰旋转和落点恢复此前捕获的商店区域格子。
+        /// </summary>
         public void RestoreShopZones(Gravship gravship, Map map, IntVec3 root)
         {
             if (gravship == null || map?.zoneManager == null) return;
@@ -91,7 +106,6 @@ namespace SimManagementLib.GameComp
                     IntVec3 destinationCell = root + PrefabUtility.GetAdjustedLocalPosition(relativeCell, gravship.Rotation);
                     if (!destinationCell.InBounds(map)) continue;
                     if (map.zoneManager.ZoneAt(destinationCell) != null) continue;
-                    if (!CanOverlapAllThingsAt(map, destinationCell)) continue;
                     zone.AddCell(destinationCell);
                 }
 
@@ -100,18 +114,6 @@ namespace SimManagementLib.GameComp
             }
 
             zonesByGravshipId.Remove(gravshipId);
-        }
-
-        private static bool CanOverlapAllThingsAt(Map map, IntVec3 cell)
-        {
-            List<Thing> things = map.thingGrid.ThingsListAt(cell);
-            for (int i = 0; i < things.Count; i++)
-            {
-                if (!things[i].def.CanOverlapZones)
-                    return false;
-            }
-
-            return true;
         }
     }
 }

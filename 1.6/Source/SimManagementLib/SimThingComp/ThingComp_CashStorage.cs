@@ -34,6 +34,7 @@ namespace SimManagementLib.SimThingComp
         private int storedSilver;
         private int pendingWithdrawSilver;
         private int withdrawThreshold = -1;
+        private bool silverLeavingsHandled;
 
         private CompProperties_CashStorage CashProps => props as CompProperties_CashStorage;
 
@@ -51,6 +52,11 @@ namespace SimManagementLib.SimThingComp
         /// 返回当前还可以被新工作预约取出的白银数量。
         /// </summary>
         public int AvailableForWithdraw => Math.Max(0, storedSilver - pendingWithdrawSilver);
+
+        /// <summary>
+        /// 返回当前用于自动取现的可预约白银数量，避免单次任务超过白银堆叠上限。
+        /// </summary>
+        public int AutoWithdrawAmount => ShouldAutoWithdraw() ? Math.Min(AvailableForWithdraw, Mathf.Max(1, ThingDefOf.Silver.stackLimit)) : 0;
 
         /// <summary>
         /// 返回触发自动取现工作的最小可取白银数量。
@@ -76,6 +82,7 @@ namespace SimManagementLib.SimThingComp
             Scribe_Values.Look(ref storedSilver, "storedSilver", 0);
             Scribe_Values.Look(ref pendingWithdrawSilver, "pendingWithdrawSilver", 0);
             Scribe_Values.Look(ref withdrawThreshold, "withdrawThreshold", -1);
+            Scribe_Values.Look(ref silverLeavingsHandled, "silverLeavingsHandled", false);
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
                 SanitizeState();
         }
@@ -135,16 +142,33 @@ namespace SimManagementLib.SimThingComp
                 yield break;
             }
 
-            if (!selPawn.CanReserve(parent))
-            {
-                yield return new FloatMenuOption(label + "（无法预约）", null);
-                yield break;
-            }
-
-            yield return FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(label + $"（{AvailableForWithdraw}）", delegate
+            yield return new FloatMenuOption(label + $"（{AvailableForWithdraw}）", delegate
             {
                 TryStartForceWithdrawJob(selPawn);
-            }), selPawn, parent);
+            });
+        }
+
+        /// <summary>
+        /// 建筑拆除或破坏时额外掉落内部白银，负责避免存银随建筑消失。
+        /// </summary>
+        public override IEnumerable<ThingDefCountClass> GetAdditionalLeavings(Map map, DestroyMode mode)
+        {
+            if (storedSilver <= 0)
+                yield break;
+
+            yield return new ThingDefCountClass(ThingDefOf.Silver, storedSilver);
+            silverLeavingsHandled = true;
+            storedSilver = 0;
+            pendingWithdrawSilver = 0;
+        }
+
+        /// <summary>
+        /// 建筑被原版不产生额外掉落的模式销毁时兜底吐出白银，负责保护现金库存不被拆除吞掉。
+        /// </summary>
+        public override void PostDestroy(DestroyMode mode, Map previousMap)
+        {
+            base.PostDestroy(mode, previousMap);
+            TryDropStoredSilver(previousMap);
         }
 
         /// <summary>
@@ -210,19 +234,14 @@ namespace SimManagementLib.SimThingComp
                 return;
 
             int batchSize = Mathf.Max(1, ThingDefOf.Silver.stackLimit);
-            int reserved = ReserveWithdrawSilver(Mathf.Min(AvailableForWithdraw, batchSize));
-            if (reserved <= 0)
-                return;
+            int desired = Mathf.Min(AvailableForWithdraw, batchSize);
 
             JobDef jobDef = DefDatabase<JobDef>.GetNamedSilentFail("Sim_CollectCashRegisterSilver");
             if (jobDef == null)
-            {
-                CancelWithdrawReservation(reserved);
                 return;
-            }
 
             Job job = JobMaker.MakeJob(jobDef, parent);
-            job.count = reserved;
+            job.count = desired;
             pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
         }
 
@@ -236,6 +255,7 @@ namespace SimManagementLib.SimThingComp
             if (withdrawThreshold <= 0)
                 withdrawThreshold = DefaultWithdrawThreshold;
             withdrawThreshold = Mathf.Clamp(withdrawThreshold, 1, MaxWithdrawThreshold);
+            silverLeavingsHandled = false;
         }
 
         /// <summary>
@@ -244,6 +264,22 @@ namespace SimManagementLib.SimThingComp
         public void SetWithdrawThreshold(int threshold)
         {
             withdrawThreshold = Mathf.Clamp(threshold, 1, MaxWithdrawThreshold);
+        }
+
+        /// <summary>
+        /// 将内部白银生成到建筑附近，负责在非标准销毁模式下兜底返还库存。
+        /// </summary>
+        private void TryDropStoredSilver(Map map)
+        {
+            if (silverLeavingsHandled || storedSilver <= 0 || map == null || parent == null)
+                return;
+
+            Thing silver = ThingMaker.MakeThing(ThingDefOf.Silver);
+            silver.stackCount = storedSilver;
+            GenPlace.TryPlaceThing(silver, parent.PositionHeld, map, ThingPlaceMode.Near);
+            storedSilver = 0;
+            pendingWithdrawSilver = 0;
+            silverLeavingsHandled = true;
         }
     }
 }

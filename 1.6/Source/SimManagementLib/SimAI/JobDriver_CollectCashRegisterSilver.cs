@@ -22,10 +22,14 @@ namespace SimManagementLib.SimAI
         private ThingComp_CashStorage CashStorage => CashBuilding?.TryGetComp<ThingComp_CashStorage>();
         private int ReservedCount => job.count;
         private bool reservationCleared;
+        private bool silverReserved;
 
+        /// <summary>
+        /// 取现任务使用现金组件的金额预约，不独占收银台建筑，避免和值班收银员互相阻塞。
+        /// </summary>
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
-            return pawn.Reserve(CashBuilding, job, 1, -1, null, errorOnFailed);
+            return true;
         }
 
         /// <summary>
@@ -35,6 +39,7 @@ namespace SimManagementLib.SimAI
         {
             base.Notify_Starting();
             reservationCleared = false;
+            silverReserved = false;
         }
 
         /// <summary>
@@ -45,14 +50,16 @@ namespace SimManagementLib.SimAI
             this.FailOnDestroyedOrNull(CashBuildingInd);
             AddFinishAction(_ =>
             {
-                if (reservationCleared) return;
+                if (reservationCleared || !silverReserved) return;
                 CashStorage?.CancelWithdrawReservation(ReservedCount);
                 reservationCleared = true;
+                silverReserved = false;
             });
 
             yield return Toils_Goto.GotoThing(CashBuildingInd, PathEndMode.Touch)
                 .FailOnDestroyedOrNull(CashBuildingInd);
 
+            yield return MakeReserveSilverToil();
             yield return MakeWorkToil("PrepareWithdrawCashRegisterSilver", CashHandlingWorkRequired);
             yield return MakeWithdrawToil();
 
@@ -87,6 +94,36 @@ namespace SimManagementLib.SimAI
         }
 
         /// <summary>
+        /// 在实际到达经营建筑后预约可取白银，负责避免工作扫描阶段失败时锁住现金库存。
+        /// </summary>
+        private Toil MakeReserveSilverToil()
+        {
+            Toil toil = ToilMaker.MakeToil("ReserveCashRegisterSilver");
+            toil.initAction = delegate
+            {
+                ThingComp_CashStorage cash = CashStorage;
+                if (cash == null || CashBuilding == null || CashBuilding.Destroyed)
+                {
+                    pawn.jobs.EndCurrentJob(JobCondition.Incompletable);
+                    return;
+                }
+
+                int desired = ReservedCount > 0 ? ReservedCount : cash.AutoWithdrawAmount;
+                int reserved = cash.ReserveWithdrawSilver(desired);
+                if (reserved <= 0)
+                {
+                    pawn.jobs.EndCurrentJob(JobCondition.Incompletable);
+                    return;
+                }
+
+                job.count = reserved;
+                silverReserved = true;
+            };
+            toil.defaultCompleteMode = ToilCompleteMode.Instant;
+            return toil;
+        }
+
+        /// <summary>
         /// 从收银台取出已预约数量的银币并放到店员脚下。
         /// </summary>
         private Toil MakeWithdrawToil()
@@ -103,6 +140,7 @@ namespace SimManagementLib.SimAI
 
                 int silverCount = cash.WithdrawReservedSilver(ReservedCount);
                 reservationCleared = true;
+                silverReserved = false;
 
                 if (silverCount <= 0)
                 {
@@ -114,6 +152,7 @@ namespace SimManagementLib.SimAI
                 silver.stackCount = silverCount;
                 if (!GenPlace.TryPlaceThing(silver, pawn.Position, pawn.Map, ThingPlaceMode.Near, out Thing placedSilver) || placedSilver == null)
                 {
+                    cash.DepositSilver(silverCount);
                     pawn.jobs.EndCurrentJob(JobCondition.Incompletable);
                     return;
                 }

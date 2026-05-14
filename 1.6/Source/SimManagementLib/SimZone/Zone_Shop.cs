@@ -1,9 +1,12 @@
+using HarmonyLib;
+using RimWorld;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimDialog;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.Tool;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
 using Verse;
 
@@ -14,6 +17,9 @@ namespace SimManagementLib.SimZone
     /// </summary>
     public class Zone_Shop : Zone
     {
+        private static readonly FieldInfo ZoneGridField = AccessTools.Field(typeof(ZoneManager), "zoneGrid");
+        private static readonly FieldInfo CellsShuffledField = AccessTools.Field(typeof(Zone), "cellsShuffled");
+
         private List<ShopRoleAssignment> roleAssignments = new List<ShopRoleAssignment>();
         private ShopScheduleData schedule = new ShopScheduleData();
 
@@ -195,10 +201,11 @@ namespace SimManagementLib.SimZone
                     {
                         IntVec3 cell = new IntVec3(x, 0, z);
                         if (!cell.InBounds(Map)) continue;
-                        if (Map.zoneManager.ZoneAt(cell) != null) continue;
+                        Zone zone = Map.zoneManager.ZoneAt(cell);
+                        if (zone != null && zone != this) continue;
 
-                        AddCell(cell);
-                        changed = true;
+                        if (EnsureShopCell(cell, false))
+                            changed = true;
                     }
                 }
             }
@@ -358,9 +365,62 @@ namespace SimManagementLib.SimZone
             return text;
         }
 
+        /// <summary>
+        /// 将格子加入商店区域，并允许商店区覆盖普通建筑占用格。
+        /// </summary>
         public override void AddCell(IntVec3 c)
         {
-            base.AddCell(c);
+            EnsureShopCell(c, true);
+        }
+
+        /// <summary>
+        /// 确保指定格子属于当前商店区域，负责让划区和设施覆盖修复在已有建筑上保持幂等且不刷红字。
+        /// </summary>
+        private bool EnsureShopCell(IntVec3 c, bool notifyHomeArea)
+        {
+            if (Map == null || !c.InBounds(Map))
+                return false;
+
+            Zone existingZone = Map.zoneManager.ZoneAt(c);
+            if (existingZone != null && existingZone != this)
+                return false;
+
+            bool addedToCells = false;
+            if (!cells.Contains(c))
+            {
+                cells.Add(c);
+                addedToCells = true;
+            }
+
+            bool gridChanged = AddShopZoneGridCell(c);
+            if (addedToCells || gridChanged)
+                Map.mapDrawer.MapMeshDirty(c, MapMeshFlagDefOf.Zone);
+            if (addedToCells && notifyHomeArea)
+                AutoHomeAreaMaker.Notify_ZoneCellAdded(c, this);
+            if (addedToCells)
+                CellsShuffledField?.SetValue(this, false);
+
+            return addedToCells || gridChanged;
+        }
+
+        /// <summary>
+        /// 将商店区域写入原版区划网格，用于绕过原版不可覆盖建筑检查后的格子登记。
+        /// </summary>
+        private bool AddShopZoneGridCell(IntVec3 c)
+        {
+            Zone[] zoneGrid = ZoneGridField?.GetValue(zoneManager) as Zone[];
+            if (zoneGrid == null)
+            {
+                Log.Error("商店区域无法写入区划网格。");
+                return false;
+            }
+
+            int index = Map.cellIndices.CellToIndex(c);
+            if (zoneGrid[index] == this)
+                return false;
+
+            zoneGrid[index] = this;
+            return true;
         }
 
         public override void RemoveCell(IntVec3 c)
@@ -394,6 +454,18 @@ namespace SimManagementLib.SimZone
                 action = delegate
                 {
                     Find.WindowStack.Add(new Dialog_ShopStaffManager(this));
+                }
+            };
+
+            yield return new Command_Toggle
+            {
+                defaultLabel = "隐藏区域显示",
+                defaultDesc = "隐藏或显示商店区域的地面颜色覆盖。只影响区域绘制，不影响商店营业、补货、收银和顾客访问。",
+                icon = ContentFinder<Texture2D>.Get("UI/Buttons/ShowZones", false) ?? TexButton.Rename,
+                isActive = () => Hidden,
+                toggleAction = delegate
+                {
+                    Hidden = !Hidden;
                 }
             };
         }

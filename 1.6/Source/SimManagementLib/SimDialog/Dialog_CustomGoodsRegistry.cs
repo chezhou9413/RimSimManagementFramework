@@ -40,12 +40,16 @@ namespace SimManagementLib.SimDialog
         private List<RuntimeGoodsCategory> previewCategories = new List<RuntimeGoodsCategory>();
         private List<ThingDef> allCandidateThings = new List<ThingDef>();
         private List<ThingCategoryDef> candidateThingCategories = new List<ThingCategoryDef>();
+        private List<ThingDef> browserFilteredCache = new List<ThingDef>();
 
         private string selectedCategoryId = string.Empty;
         private string newCategoryLabelBuffer = string.Empty;
         private string selectedCategoryLabelBuffer = string.Empty;
         private string browserSearch = string.Empty;
+        private string browserFilterCacheSearch = null;
         private ThingCategoryDef selectedThingCategory;
+        private ThingCategoryDef browserFilterCacheCategory;
+        private bool browserFilterDirty = true;
 
         private Vector2 categoryScroll;
         private Vector2 currentItemsScroll;
@@ -336,13 +340,21 @@ namespace SimManagementLib.SimDialog
             Rect viewRect = new Rect(0f, 0f, Mathf.Max(0f, listRect.width - ScrollbarWidth), Mathf.Max(listRect.height, rows * (ItemCardHeight + 10f)));
 
             Widgets.BeginScrollView(listRect, ref currentItemsScroll, viewRect);
-            for (int i = 0; i < category.Items.Count; i++)
+            float rowStride = ItemCardHeight + 10f;
+            int firstVisibleRow = Mathf.Max(0, Mathf.FloorToInt(currentItemsScroll.y / rowStride));
+            int lastVisibleRow = Mathf.Min(rows - 1, Mathf.CeilToInt((currentItemsScroll.y + listRect.height) / rowStride));
+            for (int row = firstVisibleRow; row <= lastVisibleRow; row++)
             {
-                RuntimeGoodsItem item = category.Items[i];
-                int row = i / columns;
-                int column = i % columns;
-                Rect cardRect = new Rect(column * (cardWidth + 10f), row * (ItemCardHeight + 10f), cardWidth, ItemCardHeight);
-                DrawSelectedItemCard(cardRect, category, item);
+                for (int column = 0; column < columns; column++)
+                {
+                    int itemIndex = row * columns + column;
+                    if (itemIndex < 0 || itemIndex >= category.Items.Count)
+                        continue;
+
+                    RuntimeGoodsItem item = category.Items[itemIndex];
+                    Rect cardRect = new Rect(column * (cardWidth + 10f), row * rowStride, cardWidth, ItemCardHeight);
+                    DrawSelectedItemCard(cardRect, category, item);
+                }
             }
             Widgets.EndScrollView();
         }
@@ -407,6 +419,7 @@ namespace SimManagementLib.SimDialog
                 browserSearch = newSearch;
                 browserPageIndex = 0;
                 browserScroll = Vector2.zero;
+                MarkBrowserFilterDirty();
             }
 
             if (string.IsNullOrEmpty(browserSearch))
@@ -416,23 +429,24 @@ namespace SimManagementLib.SimDialog
                 Widgets.Label(new Rect(rect.xMax - 252f, rect.y + 14f, 220f, Text.LineHeightOf(GameFont.Tiny) + 2f), "按名称或 DefName 搜索");
             }
 
-            List<ThingDef> filtered = allCandidateThings.Where(IsThingVisibleInBrowser).ToList();
+            List<ThingDef> filtered = GetFilteredBrowserItems();
 
             int pageCount = Mathf.Max(1, Mathf.CeilToInt(filtered.Count / (float)BrowserPageSize));
             browserPageIndex = Mathf.Clamp(browserPageIndex, 0, pageCount - 1);
-            List<ThingDef> pageItems = filtered.Skip(browserPageIndex * BrowserPageSize).Take(BrowserPageSize).ToList();
+            int pageStartIndex = browserPageIndex * BrowserPageSize;
+            int pageItemCount = Mathf.Min(BrowserPageSize, Mathf.Max(0, filtered.Count - pageStartIndex));
 
             Rect pagerRect = new Rect(rect.x + 12f, rect.y + 44f, rect.width - 24f, 30f);
             DrawBrowserPager(pagerRect, filtered.Count, pageCount);
 
             Rect listRect = new Rect(rect.x + 12f, pagerRect.yMax + 4f, rect.width - 24f, Mathf.Max(0f, rect.height - 90f));
-            Rect viewRect = new Rect(0f, 0f, Mathf.Max(0f, listRect.width - ScrollbarWidth), Mathf.Max(listRect.height, pageItems.Count * BrowserRowHeight));
+            Rect viewRect = new Rect(0f, 0f, Mathf.Max(0f, listRect.width - ScrollbarWidth), Mathf.Max(listRect.height, pageItemCount * BrowserRowHeight));
 
             Widgets.BeginScrollView(listRect, ref browserScroll, viewRect);
             float y = 0f;
-            for (int i = 0; i < pageItems.Count; i++)
+            for (int i = 0; i < pageItemCount; i++)
             {
-                ThingDef thingDef = pageItems[i];
+                ThingDef thingDef = filtered[pageStartIndex + i];
                 Rect rowRect = new Rect(0f, y, viewRect.width, BrowserRowHeight);
                 DrawBrowserRow(rowRect, category, thingDef);
                 y += BrowserRowHeight;
@@ -519,6 +533,34 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
+        /// 返回候选商品过滤结果，负责避免 IMGUI 每帧重复遍历全部 ThingDef。
+        /// </summary>
+        private List<ThingDef> GetFilteredBrowserItems()
+        {
+            if (!browserFilterDirty
+                && browserFilteredCache != null
+                && browserFilterCacheSearch == browserSearch
+                && browserFilterCacheCategory == selectedThingCategory)
+            {
+                return browserFilteredCache;
+            }
+
+            browserFilteredCache = allCandidateThings.Where(IsThingVisibleInBrowser).ToList();
+            browserFilterCacheSearch = browserSearch;
+            browserFilterCacheCategory = selectedThingCategory;
+            browserFilterDirty = false;
+            return browserFilteredCache;
+        }
+
+        /// <summary>
+        /// 标记候选商品过滤缓存失效，负责在搜索词、分类或候选数据变化后延迟重算。
+        /// </summary>
+        private void MarkBrowserFilterDirty()
+        {
+            browserFilterDirty = true;
+        }
+
+        /// <summary>
         /// 返回当前候选商品分类筛选按钮显示文本。
         /// </summary>
         private string GetSelectedThingCategoryLabel()
@@ -540,6 +582,7 @@ namespace SimManagementLib.SimDialog
                     selectedThingCategory = null;
                     browserPageIndex = 0;
                     browserScroll = Vector2.zero;
+                    MarkBrowserFilterDirty();
                 })
             };
 
@@ -552,6 +595,7 @@ namespace SimManagementLib.SimDialog
                     selectedThingCategory = category;
                     browserPageIndex = 0;
                     browserScroll = Vector2.zero;
+                    MarkBrowserFilterDirty();
                 }));
             }
 
@@ -571,6 +615,7 @@ namespace SimManagementLib.SimDialog
 
             if (selectedThingCategory != null && !candidateThingCategories.Contains(selectedThingCategory))
                 selectedThingCategory = null;
+            MarkBrowserFilterDirty();
         }
 
         /// <summary>
@@ -584,6 +629,7 @@ namespace SimManagementLib.SimDialog
             RebuildPreviewFromDraft();
             EnsureValidSelection();
             browserPageIndex = 0;
+            MarkBrowserFilterDirty();
             dirty = false;
         }
 
