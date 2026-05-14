@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Patch>
-  <Operation Class="PatchOperationAdd">
+  <!--Operation Class="PatchOperationAdd">
     <xpath>/Defs/DesignationCategoryDef[defName="Zone"]/specialDesignatorClasses</xpath>
     <value>
       <li>SimManagementLib.SimZone.Designator_ZoneAdd_Shop</li>
     </value>
-  </Operation>
+  </Operation-->
 </Patch>
