@@ -100,7 +100,7 @@
             <maxTotalCapacity>90</maxTotalCapacity>
             <!-- 可售商品分类。留空表示通用货柜；配置后只能在货柜管理中选择这些 GoodsDef 分类。 -->
             <allowedGoodsCategoryIds>
-                <li>Goods_ApparelBasic</li>
+                <!--li>Goods_ApparelBasic</li-->
             </allowedGoodsCategoryIds>
             </li>
         </comps>
@@ -126,6 +126,10 @@
             <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
             <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
             <maxTotalCapacity>90</maxTotalCapacity>
+            <!-- 可售商品分类。留空表示通用货柜；配置后只能在货柜管理中选择这些 GoodsDef 分类。 -->
+            <allowedGoodsCategoryIds>
+                <li>Goods_ApparelBasic</li>
+            </allowedGoodsCategoryIds>
             </li>
         </comps>
     </ThingDef>
