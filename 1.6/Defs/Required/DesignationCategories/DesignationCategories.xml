@@ -7,8 +7,7 @@
         <specialDesignatorClasses>
             <li>Designator_Cancel</li>
             <li>Designator_Deconstruct</li>
-            <li>Designator_SmoothWalls</li>
-            <li>Designator_RemoveFoundation</li>
+            <li>SimManagementLib.SimZone.Designator_ZoneAdd_Shop</li>
         </specialDesignatorClasses>
     </DesignationCategoryDef>
 </Defs>
