@@ -363,10 +363,16 @@ namespace SimManagementLib.SimDialog
         private static float CalcItemCardHeight(CollectibleExchangeItemEntry item, float width)
         {
             float textWidth = Mathf.Max(120f, width - ItemIconSize - BuyButtonWidth - 58f);
+            Text.Font = GameFont.Small;
+            float titleHeight = Mathf.Max(24f, Text.LineHeightOf(GameFont.Small) + 4f);
             Text.Font = GameFont.Tiny;
             float descHeight = Text.CalcHeight(item?.DisplayDescription ?? "", textWidth);
-            float lineHeight = Text.LineHeightOf(GameFont.Tiny) + 4f;
-            return Mathf.Max(128f, 58f + descHeight + lineHeight * 2f);
+            float priceHeight = Mathf.Max(30f, CurrencyIconSize + 4f);
+            float remainingHeight = Mathf.Max(22f, Text.LineHeightOf(GameFont.Tiny) + 4f);
+            float textHeight = 10f + titleHeight + 4f + descHeight + 8f + priceHeight + 6f + remainingHeight + 12f;
+            float iconHeight = 14f + ItemIconSize + 14f;
+            float buttonHeight = 12f + Mathf.Max(32f, Text.LineHeightOf(GameFont.Small) + 12f) + 12f;
+            return Mathf.Max(136f, Mathf.Max(textHeight, Mathf.Max(iconHeight, buttonHeight)));
         }
 
         /// <summary>
@@ -429,7 +435,7 @@ namespace SimManagementLib.SimDialog
             float priceY = descY + descHeight + 8f;
             DrawPriceLine(new Rect(rect.x, priceY, rect.width, Mathf.Max(30f, CurrencyIconSize + 4f)), item);
 
-            float remainingY = priceY + CurrencyIconSize + 8f;
+            float remainingY = priceY + Mathf.Max(30f, CurrencyIconSize + 4f) + 6f;
             GUI.color = RemainingCount(item) > 0 ? Accent : WarnText;
             string countText = SimTranslation.T("RSMF.CollectibleExchange.SinglePurchaseCount", (item?.PurchaseCount ?? 1).Named("count"));
             Widgets.Label(new Rect(rect.x, remainingY, rect.width, Mathf.Max(22f, Text.LineHeightOf(GameFont.Tiny) + 4f)), RemainingText(item) + "  ·  " + countText);
@@ -457,9 +463,26 @@ namespace SimManagementLib.SimDialog
         /// </summary>
         private void DrawPurchaseArea(Rect buyRect, CollectibleExchangeItemEntry item)
         {
-            bool canBuy = item != null && item.thingDef != null && item.currencyDef != null && item.price > 0 && RemainingCount(item) > 0;
-            string label = canBuy ? SimTranslation.T("RSMF.CollectibleExchange.Buy") : SimTranslation.T("RSMF.CollectibleExchange.SoldOut");
-            if (SimUiStyle.DrawPrimaryButton(buyRect, label, canBuy, GameFont.Small))
+            bool configValid = item != null && item.thingDef != null && item.currencyDef != null && item.price > 0;
+            int remaining = RemainingCount(item);
+            int availableCurrency = configValid ? CollectibleExchangePurchaseUtility.CountAvailableCurrencyForCurrentPlayerMap(item.currencyDef) : 0;
+            bool hasEnoughCurrency = configValid && availableCurrency >= item.price;
+            bool canBuy = configValid && remaining > 0 && hasEnoughCurrency;
+            string label = remaining <= 0 ? SimTranslation.T("RSMF.CollectibleExchange.SoldOut") : SimTranslation.T("RSMF.CollectibleExchange.Buy");
+            if (configValid && remaining > 0 && !hasEnoughCurrency)
+            {
+                TooltipHandler.TipRegion(buyRect, SimTranslation.T(
+                    "RSMF.CollectibleExchange.NotEnoughCurrency",
+                    item.currencyDef.LabelCap.Named("currency"),
+                    item.price.Named("need"),
+                    availableCurrency.Named("have")));
+            }
+
+            bool clicked = canBuy
+                ? SimUiStyle.DrawPrimaryButton(buyRect, label, true, GameFont.Small)
+                : SimUiStyle.DrawDisabledClickableButton(buyRect, label, GameFont.Small);
+
+            if (clicked)
             {
                 if (!CollectibleExchangePurchaseUtility.TryPurchase(exchangeDef, item, out string failReason, out CollectibleExchangePurchaseFailKind failKind))
                 {

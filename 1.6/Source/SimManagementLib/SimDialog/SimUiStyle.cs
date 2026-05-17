@@ -32,6 +32,11 @@ namespace SimManagementLib.SimDialog
             return DrawButton(rect, label, PrimaryFill, PrimaryHover, PrimaryBorder, Color.white, enabled, font);
         }
 
+        public static bool DrawDisabledClickableButton(Rect rect, string label, GameFont font = GameFont.Small)
+        {
+            return DrawButton(rect, label, DisabledFill, SecondaryHover, DisabledBorder, DisabledText, true, font);
+        }
+
         public static bool DrawSecondaryButton(Rect rect, string label, bool enabled = true, GameFont font = GameFont.Small)
         {
             return DrawButton(rect, label, SecondaryFill, SecondaryHover, SecondaryBorder, Color.white, enabled, font);

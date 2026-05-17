@@ -35,31 +35,7 @@ namespace SimManagementLib.SimDialog
                 HashSet<Building_SimContainer> storages = ShopDataUtility.GetStoragesInZone(shopZone);
                 int totalTrimmed = 0;
                 int trimmedStorageCount = 0;
-
-                foreach (Building_SimContainer storage in storages)
-                {
-                    ThingComp_GoodsData comp = storage.GetComp<ThingComp_GoodsData>();
-                    if (comp != null && !string.IsNullOrEmpty(comp.ActiveGoodsDefName))
-                    {
-                        Dictionary<string, GoodsItemData> settingsCopy = draftItemData.ToDictionary(
-                            kv => kv.Key,
-                            kv => new GoodsItemData
-                            {
-                                enabled = kv.Value.enabled,
-                                count = kv.Value.count,
-                                price = kv.Value.price
-                            });
-
-                        Dictionary<string, GoodsItemData> clamped = storage.ClampSettingsToCapacity(comp.ActiveGoodsDefName, settingsCopy, out int trimmed);
-                        if (trimmed > 0)
-                        {
-                            totalTrimmed += trimmed;
-                            trimmedStorageCount++;
-                        }
-
-                        comp.ApplySettings(comp.ActiveGoodsDefName, clamped);
-                    }
-                }
+                ApplyDraftGoodsSettingsToStorages(storages, ref totalTrimmed, ref trimmedStorageCount);
 
                 foreach (Thing provider in serviceProviders)
                 {
@@ -91,6 +67,93 @@ namespace SimManagementLib.SimDialog
 
                 Close();
             }
+        }
+
+        /// <summary>
+        /// 将商店级货品草稿写回店内货柜，负责兼容已有分类货柜和未配置分类的空货柜。
+        /// </summary>
+        private void ApplyDraftGoodsSettingsToStorages(HashSet<Building_SimContainer> storages, ref int totalTrimmed, ref int trimmedStorageCount)
+        {
+            if (storages.NullOrEmpty()) return;
+
+            foreach (Building_SimContainer storage in storages)
+            {
+                if (storage == null || storage.Destroyed) continue;
+                ThingComp_GoodsData comp = storage.GetComp<ThingComp_GoodsData>();
+                if (comp == null) continue;
+
+                string categoryId = ResolveStorageCategoryForDraft(comp);
+                if (string.IsNullOrEmpty(categoryId)) continue;
+
+                Dictionary<string, GoodsItemData> settingsCopy = CloneDraftItemSettings();
+                Dictionary<string, GoodsItemData> clamped = storage.ClampSettingsToCapacity(categoryId, settingsCopy, out int trimmed);
+                if (trimmed > 0)
+                {
+                    totalTrimmed += trimmed;
+                    trimmedStorageCount++;
+                }
+
+                comp.ApplySettings(categoryId, clamped);
+            }
+        }
+
+        /// <summary>
+        /// 为单个货柜选择商店级草稿应写入的商品分类，负责让已有货柜保持原分类并给空货柜选择目标量最高的可用分类。
+        /// </summary>
+        private string ResolveStorageCategoryForDraft(ThingComp_GoodsData comp)
+        {
+            if (comp == null) return "";
+            if (!string.IsNullOrEmpty(comp.ActiveGoodsDefName) && comp.AllowsGoodsCategory(comp.ActiveGoodsDefName))
+                return comp.ActiveGoodsDefName;
+
+            return manageableGoodsCategoryIds
+                .Where(comp.AllowsGoodsCategory)
+                .Select(categoryId => new
+                {
+                    CategoryId = categoryId,
+                    Target = GetDraftTargetTotalForCategory(categoryId)
+                })
+                .Where(entry => entry.Target > 0)
+                .OrderByDescending(entry => entry.Target)
+                .ThenBy(entry => GoodsCatalog.GetCategory(entry.CategoryId)?.label ?? entry.CategoryId)
+                .Select(entry => entry.CategoryId)
+                .FirstOrDefault() ?? "";
+        }
+
+        /// <summary>
+        /// 复制商店级货品草稿，负责避免同一份 GoodsItemData 被多个货柜共享引用。
+        /// </summary>
+        private Dictionary<string, GoodsItemData> CloneDraftItemSettings()
+        {
+            return draftItemData.ToDictionary(
+                kv => kv.Key,
+                kv => new GoodsItemData
+                {
+                    enabled = kv.Value.enabled,
+                    count = kv.Value.count,
+                    price = kv.Value.price
+                });
+        }
+
+        /// <summary>
+        /// 统计指定分类在草稿中的目标数量，负责给未配置货柜自动选择写入分类。
+        /// </summary>
+        private int GetDraftTargetTotalForCategory(string categoryId)
+        {
+            if (string.IsNullOrEmpty(categoryId)) return 0;
+
+            int total = 0;
+            IReadOnlyList<RuntimeGoodsItem> items = GoodsCatalog.GetItems(categoryId);
+            for (int i = 0; i < items.Count; i++)
+            {
+                ThingDef thingDef = items[i]?.thingDef;
+                if (thingDef == null) continue;
+                if (!draftItemData.TryGetValue(thingDef.defName, out GoodsItemData data) || data == null) continue;
+                if (!data.enabled || data.count <= 0) continue;
+                total += data.count;
+            }
+
+            return total;
         }
 
         private void DrawTableHeader(Rect rect, System.Action drawColumns)

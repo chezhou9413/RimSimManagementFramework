@@ -57,6 +57,7 @@ namespace SimManagementLib.SimDialog
         private Dictionary<int, List<ServiceSlotData>> draftServiceData = new Dictionary<int, List<ServiceSlotData>>();
         private List<ThingDef> availableGoodsDefs = new List<ThingDef>();
         private List<Thing> serviceProviders = new List<Thing>();
+        private HashSet<string> manageableGoodsCategoryIds = new HashSet<string>();
         private Dictionary<string, string> countBuffers = new Dictionary<string, string>();
         private Dictionary<string, string> priceBuffers = new Dictionary<string, string>();
         private ShopScheduleData draftSchedule;
@@ -78,6 +79,7 @@ namespace SimManagementLib.SimDialog
             GameComponent_ShopComboManager comboManager = Current.Game.GetComponent<GameComponent_ShopComboManager>();
             zoneCombos = comboManager.GetCombosForZone(zone);
             draftSchedule = zone.GetSchedule().Clone();
+            GoodsCatalog.EnsureInitialized();
 
             HashSet<Building_SimContainer> storages = ShopDataUtility.GetStoragesInZone(shopZone);
             HashSet<string> addedDefNames = new HashSet<string>();
@@ -85,20 +87,30 @@ namespace SimManagementLib.SimDialog
             foreach (Building_SimContainer storage in storages)
             {
                 ThingComp_GoodsData comp = storage.GetComp<ThingComp_GoodsData>();
-                if (comp == null || string.IsNullOrEmpty(comp.ActiveGoodsDefName)) continue;
+                if (comp == null) continue;
+                RegisterManageableGoodsCategories(comp);
 
                 foreach (KeyValuePair<string, GoodsItemData> kvp in comp.CloneItemData())
                 {
                     if (!draftItemData.ContainsKey(kvp.Key))
                         draftItemData[kvp.Key] = kvp.Value;
                 }
+            }
 
-                foreach (ThingDef def in storage.ActiveDefs)
+            foreach (string categoryId in manageableGoodsCategoryIds)
+            {
+                IReadOnlyList<RuntimeGoodsItem> items = GoodsCatalog.GetItems(categoryId);
+                for (int i = 0; i < items.Count; i++)
                 {
-                    if (addedDefNames.Add(def.defName))
+                    ThingDef def = items[i]?.thingDef;
+                    if (def != null && addedDefNames.Add(def.defName))
                         availableGoodsDefs.Add(def);
                 }
             }
+
+            availableGoodsDefs = availableGoodsDefs
+                .OrderBy(def => def.label)
+                .ToList();
 
             foreach (Thing provider in ShopServiceUtility.GetServiceProvidersInZone(shopZone))
             {
@@ -116,6 +128,34 @@ namespace SimManagementLib.SimDialog
                         maxSimultaneousUsers = s.maxSimultaneousUsers
                     })
                     .ToList();
+            }
+        }
+
+        /// <summary>
+        /// 记录商店级货品上架面板可管理的分类，负责让空货柜和受限货柜也能通过快速设置写入配置。
+        /// </summary>
+        private void RegisterManageableGoodsCategories(ThingComp_GoodsData comp)
+        {
+            if (comp == null) return;
+
+            if (!string.IsNullOrEmpty(comp.ActiveGoodsDefName) && comp.AllowsGoodsCategory(comp.ActiveGoodsDefName))
+            {
+                manageableGoodsCategoryIds.Add(comp.ActiveGoodsDefName);
+                return;
+            }
+
+            List<string> allowedCategoryIds = comp.GetAllowedGoodsCategoryIds();
+            if (!allowedCategoryIds.NullOrEmpty())
+            {
+                for (int i = 0; i < allowedCategoryIds.Count; i++)
+                    manageableGoodsCategoryIds.Add(allowedCategoryIds[i]);
+                return;
+            }
+
+            foreach (RuntimeGoodsCategory category in GoodsCatalog.Categories ?? Enumerable.Empty<RuntimeGoodsCategory>())
+            {
+                if (category != null && !string.IsNullOrEmpty(category.categoryId))
+                    manageableGoodsCategoryIds.Add(category.categoryId);
             }
         }
 

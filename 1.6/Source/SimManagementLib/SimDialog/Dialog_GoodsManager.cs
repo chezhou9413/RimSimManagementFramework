@@ -41,6 +41,7 @@ namespace SimManagementLib.SimDialog
 
         private readonly ThingComp_GoodsData comp;
         private readonly Building_SimContainer storage;
+        private static GoodsClipboardData clipboardData;
         private List<Pojo.RuntimeGoodsCategory> allDefs;
         private Vector2 sideScroll;
         private Vector2 listScroll;
@@ -357,7 +358,7 @@ namespace SimManagementLib.SimDialog
 
             float statusY = rect.y + 6f;
             float btnY = rect.yMax - 36f;
-            Rect capacityRect = new Rect(rect.x + 166f, statusY, rect.width - 178f, 22f);
+            Rect capacityRect = new Rect(rect.x + 166f, statusY, rect.width - 508f, 22f);
 
             Pojo.RuntimeGoodsCategory activeDef = GoodsCatalog.GetCategory(draftActiveDefName);
             DrawStockLegend(new Rect(rect.x + 10f, statusY, 150f, 22f));
@@ -384,6 +385,12 @@ namespace SimManagementLib.SimDialog
                     ToggleAllCurrentDef(false);
             }
 
+            if (SimUiStyle.DrawSecondaryButton(new Rect(rect.xMax - 440f, btnY, 100f, 30f), SimTranslation.T("RSMF.GoodsManager.CopyConfig"), true, GameFont.Tiny))
+                CopyDraftConfig();
+
+            if (SimUiStyle.DrawSecondaryButton(new Rect(rect.xMax - 330f, btnY, 100f, 30f), SimTranslation.T("RSMF.GoodsManager.PasteConfig"), clipboardData != null, GameFont.Tiny))
+                PasteDraftConfig();
+
             if (SimUiStyle.DrawPrimaryButton(new Rect(rect.xMax - 110f, btnY, 100f, 30f), SimTranslation.T("RSMF.GoodsManager.Save"), true, GameFont.Tiny))
             {
                 int trimmed = ClampDraftCapacity(activeDef);
@@ -396,6 +403,94 @@ namespace SimManagementLib.SimDialog
             }
             if (SimUiStyle.DrawSecondaryButton(new Rect(rect.xMax - 220f, btnY, 100f, 30f), SimTranslation.T("RSMF.GoodsManager.Cancel"), true, GameFont.Tiny))
                 Close();
+        }
+
+        /// <summary>
+        /// 复制当前货柜草稿配置，负责把分类、启用状态、目标数量和价格暂存到内存剪贴板。
+        /// </summary>
+        private void CopyDraftConfig()
+        {
+            clipboardData = new GoodsClipboardData
+            {
+                activeCategoryId = draftActiveDefName ?? "",
+                itemData = CloneGoodsItemData(draftItemData)
+            };
+            Messages.Message(SimTranslation.T("RSMF.GoodsManager.CopyConfigDone"), MessageTypeDefOf.TaskCompletion, false);
+        }
+
+        /// <summary>
+        /// 粘贴已复制的货柜配置，负责按当前货柜分类限制应用并刷新输入缓存。
+        /// </summary>
+        private void PasteDraftConfig()
+        {
+            if (clipboardData == null)
+                return;
+
+            if (!string.IsNullOrEmpty(clipboardData.activeCategoryId) && !comp.AllowsGoodsCategory(clipboardData.activeCategoryId))
+            {
+                Messages.Message(SimTranslation.T("RSMF.GoodsManager.PasteConfigInvalidCategory"), MessageTypeDefOf.RejectInput, false);
+                return;
+            }
+
+            draftActiveDefName = clipboardData.activeCategoryId ?? "";
+            draftItemData = CloneGoodsItemData(clipboardData.itemData);
+            ResetDraftInputBuffers();
+            searchQuery = "";
+            listScroll = Vector2.zero;
+
+            Pojo.RuntimeGoodsCategory activeDef = GoodsCatalog.GetCategory(draftActiveDefName);
+            int trimmed = ClampDraftCapacity(activeDef);
+            if (trimmed > 0)
+            {
+                Messages.Message(SimTranslation.T("RSMF.GoodsManager.AutoTrimNotice", trimmed.Named("trimmed")), MessageTypeDefOf.NeutralEvent, false);
+            }
+
+            Messages.Message(SimTranslation.T("RSMF.GoodsManager.PasteConfigDone"), MessageTypeDefOf.TaskCompletion, false);
+        }
+
+        /// <summary>
+        /// 清理货柜草稿输入缓存，负责让粘贴后的数量和价格输入框重新按新配置显示。
+        /// </summary>
+        private void ResetDraftInputBuffers()
+        {
+            if (draftItemData == null) return;
+            foreach (GoodsItemData item in draftItemData.Values)
+            {
+                if (item == null) continue;
+                item.countBuffer = null;
+                item.priceBuffer = null;
+            }
+        }
+
+        /// <summary>
+        /// 克隆货柜商品配置字典，负责避免复制粘贴时多个货柜共享同一份配置对象。
+        /// </summary>
+        private static Dictionary<string, GoodsItemData> CloneGoodsItemData(Dictionary<string, GoodsItemData> source)
+        {
+            Dictionary<string, GoodsItemData> result = new Dictionary<string, GoodsItemData>();
+            if (source == null) return result;
+
+            foreach (KeyValuePair<string, GoodsItemData> kvp in source)
+            {
+                GoodsItemData item = kvp.Value;
+                result[kvp.Key] = new GoodsItemData
+                {
+                    enabled = item?.enabled ?? false,
+                    count = Mathf.Max(0, item?.count ?? 0),
+                    price = Mathf.Max(0f, item?.price ?? 0f)
+                };
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 保存货柜配置剪贴板内容，负责在不同货柜管理窗口之间传递配置草稿。
+        /// </summary>
+        private class GoodsClipboardData
+        {
+            public string activeCategoryId = "";
+            public Dictionary<string, GoodsItemData> itemData = new Dictionary<string, GoodsItemData>();
         }
 
         /// <summary>

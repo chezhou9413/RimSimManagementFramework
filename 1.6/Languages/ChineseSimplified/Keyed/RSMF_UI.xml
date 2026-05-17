@@ -370,6 +370,11 @@
   <RSMF.GoodsManager.ClearAllPage>清空当前页</RSMF.GoodsManager.ClearAllPage>
   <RSMF.GoodsManager.Save>确认保存</RSMF.GoodsManager.Save>
   <RSMF.GoodsManager.Cancel>取消</RSMF.GoodsManager.Cancel>
+  <RSMF.GoodsManager.CopyConfig>复制配置</RSMF.GoodsManager.CopyConfig>
+  <RSMF.GoodsManager.PasteConfig>粘贴配置</RSMF.GoodsManager.PasteConfig>
+  <RSMF.GoodsManager.CopyConfigDone>已复制当前货柜配置。</RSMF.GoodsManager.CopyConfigDone>
+  <RSMF.GoodsManager.PasteConfigDone>已粘贴货柜配置，保存后生效。</RSMF.GoodsManager.PasteConfigDone>
+  <RSMF.GoodsManager.PasteConfigInvalidCategory>目标货柜不能使用已复制的商品分类。</RSMF.GoodsManager.PasteConfigInvalidCategory>
   <RSMF.GoodsManager.AutoTrimNotice>已按货柜容量上限自动调整目标量，超出部分 {trimmed} 件已移除。</RSMF.GoodsManager.AutoTrimNotice>
   <RSMF.GoodsManager.StockOk>■ 充足</RSMF.GoodsManager.StockOk>
   <RSMF.GoodsManager.StockLow>■ 不足</RSMF.GoodsManager.StockLow>

@@ -139,6 +139,14 @@ namespace SimManagementLib.Tool
         }
 
         /// <summary>
+        /// 统计当前玩家地图中可用于收藏品兑换的货币数量，负责给 UI 提前判断购买按钮状态。
+        /// </summary>
+        public static int CountAvailableCurrencyForCurrentPlayerMap(ThingDef currencyDef)
+        {
+            return CountAvailableCurrency(ResolvePlayerMap(), currencyDef);
+        }
+
+        /// <summary>
         /// 扣除地图上的货币堆叠，职责是在外层已确认足额后按堆叠逐个减少数量。
         /// </summary>
         private static void DeductCurrency(Map map, ThingDef currencyDef, int amount)

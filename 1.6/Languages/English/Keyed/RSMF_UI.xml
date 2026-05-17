@@ -370,6 +370,11 @@
   <RSMF.GoodsManager.ClearAllPage>Clear page</RSMF.GoodsManager.ClearAllPage>
   <RSMF.GoodsManager.Save>Save</RSMF.GoodsManager.Save>
   <RSMF.GoodsManager.Cancel>Cancel</RSMF.GoodsManager.Cancel>
+  <RSMF.GoodsManager.CopyConfig>Copy config</RSMF.GoodsManager.CopyConfig>
+  <RSMF.GoodsManager.PasteConfig>Paste config</RSMF.GoodsManager.PasteConfig>
+  <RSMF.GoodsManager.CopyConfigDone>Current storage config copied.</RSMF.GoodsManager.CopyConfigDone>
+  <RSMF.GoodsManager.PasteConfigDone>Storage config pasted. Save to apply.</RSMF.GoodsManager.PasteConfigDone>
+  <RSMF.GoodsManager.PasteConfigInvalidCategory>The target storage cannot use the copied goods category.</RSMF.GoodsManager.PasteConfigInvalidCategory>
   <RSMF.GoodsManager.AutoTrimNotice>Target amounts were trimmed to the storage capacity limit; {trimmed} excess items were removed.</RSMF.GoodsManager.AutoTrimNotice>
   <RSMF.GoodsManager.StockOk>■ Enough</RSMF.GoodsManager.StockOk>
   <RSMF.GoodsManager.StockLow>■ Low</RSMF.GoodsManager.StockLow>
