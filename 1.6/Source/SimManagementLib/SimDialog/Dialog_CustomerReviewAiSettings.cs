@@ -1,5 +1,6 @@
 using SimManagementLib.Pojo;
 using SimManagementLib.Tool;
+using RimWorld;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ namespace SimManagementLib.SimDialog
     /// <summary>
     /// 绘制顾客 AI 点评配置窗口，负责接口、提示词和词库设置。
     /// </summary>
-    public class Dialog_CustomerReviewAiSettings : Window
+    public partial class Dialog_CustomerReviewAiSettings : Window
     {
         private int tabIndex;
         private Vector2 scrollPos;
@@ -21,7 +22,7 @@ namespace SimManagementLib.SimDialog
         private bool testingBaseUrl;
         private Task<CustomerReviewConnectionTestResult> baseUrlTestTask;
 
-        public override Vector2 InitialSize => new Vector2(780f, 620f);
+        public override Vector2 InitialSize => new Vector2(1040f, 760f);
 
         /// <summary>
         /// 初始化顾客 AI 点评配置窗口的基础行为。
@@ -33,6 +34,15 @@ namespace SimManagementLib.SimDialog
             absorbInputAroundWindow = false;
             draggable = true;
             resizeable = true;
+        }
+
+        /// <summary>
+        /// 关闭设置窗口前保存配置，负责避免接口配置页每帧写盘造成卡顿。
+        /// </summary>
+        public override void PreClose()
+        {
+            base.PreClose();
+            SimManagementLibMod.Settings?.Write();
         }
 
         /// <summary>
@@ -55,7 +65,7 @@ namespace SimManagementLib.SimDialog
                 Text.Font = GameFont.Medium;
                 Text.Anchor = TextAnchor.MiddleLeft;
                 GUI.color = Color.white;
-                Widgets.Label(new Rect(inRect.x, inRect.y, Mathf.Max(0f, inRect.width), titleH), "顾客评价配置");
+                Widgets.Label(new Rect(inRect.x, inRect.y, Mathf.Max(0f, inRect.width), titleH), SimTranslation.T("RSMF.ReviewSettings.Title"));
                 ResetText();
 
                 Rect tabRect = new Rect(inRect.x, inRect.y + titleH + 6f, Mathf.Max(0f, inRect.width), 34f);
@@ -82,7 +92,13 @@ namespace SimManagementLib.SimDialog
         private void DrawTabs(Rect rect)
         {
             float w = 120f;
-            string[] labels = { "接口配置", "提示词", "词库" };
+            string[] labels =
+            {
+                SimTranslation.T("RSMF.ReviewSettings.Tab.Api"),
+                SimTranslation.T("RSMF.ReviewSettings.Tab.Prompt"),
+                SimTranslation.T("RSMF.ReviewSettings.Tab.Injector"),
+                SimTranslation.T("RSMF.ReviewSettings.Tab.Lexicon")
+            };
             for (int i = 0; i < labels.Length; i++)
             {
                 Rect tab = new Rect(rect.x + i * (w + 8f), rect.y, w, rect.height);
@@ -100,10 +116,14 @@ namespace SimManagementLib.SimDialog
         private void DrawSelectedPage(Rect rect, SimManagementLibSettings settings)
         {
             float viewWidth = Mathf.Max(120f, rect.width - 18f);
-            Rect viewRect = new Rect(0f, 0f, viewWidth, tabIndex == 0 ? 1080f : 760f);
+            float viewHeight = tabIndex == 0 ? 1080f : (tabIndex == 2 ? CalcInjectorContentHeight() : 760f);
+            if (tabIndex == 2)
+                HandleInjectorNestedScrollWheel(rect, viewWidth, settings);
+            Rect viewRect = new Rect(0f, 0f, viewWidth, viewHeight);
             Widgets.BeginScrollView(rect, ref scrollPos, viewRect);
             if (tabIndex == 0) DrawApiPage(viewRect, settings);
             else if (tabIndex == 1) DrawPromptPage(viewRect, settings);
+            else if (tabIndex == 2) DrawInjectorPage(viewRect, settings);
             else DrawLexiconPage(viewRect, settings);
             Widgets.EndScrollView();
         }
@@ -114,15 +134,16 @@ namespace SimManagementLib.SimDialog
         private void DrawApiPage(Rect rect, SimManagementLibSettings settings)
         {
             float y = 0f;
-            DrawCheckbox(new Rect(0f, y, rect.width, 28f), "启用顾客评价", ref settings.reviewAiEnabled, "未启用时不会记录点评快照。");
+            DrawCheckbox(new Rect(0f, y, rect.width, 28f), SimTranslation.T("RSMF.ReviewSettings.EnableReviews"), ref settings.reviewAiEnabled, SimTranslation.T("RSMF.ReviewSettings.EnableReviewsTip"));
             y += 36f;
+            DrawRimTalkImportRow(rect.width, ref y, settings);
 
             Rect providerRect = new Rect(0f, y, 260f, 30f);
-            if (SimUiStyle.DrawSecondaryButton(providerRect, "供应商: " + settings.reviewProvider, true, GameFont.Small))
+            if (SimUiStyle.DrawSecondaryButton(providerRect, SimTranslation.T("RSMF.ReviewSettings.Provider", settings.reviewProvider.Named("provider")), true, GameFont.Small))
             {
                 Find.WindowStack.Add(new FloatMenu(new System.Collections.Generic.List<FloatMenuOption>
                 {
-                    new FloatMenuOption("OpenAI 兼容接口", () => settings.reviewProvider = CustomerReviewProvider.OpenAICompatible),
+                    new FloatMenuOption(SimTranslation.T("RSMF.ReviewSettings.Provider.OpenAICompatible"), () => settings.reviewProvider = CustomerReviewProvider.OpenAICompatible),
                     new FloatMenuOption("Anthropic", () => settings.reviewProvider = CustomerReviewProvider.Anthropic)
                 }));
             }
@@ -135,73 +156,77 @@ namespace SimManagementLib.SimDialog
             }
             else
             {
-                DrawTextField(rect.width, ref y, "OpenAI 兼容 Base URL", ref settings.openAiBaseUrl, false);
-                DrawTextField(rect.width, ref y, "OpenAI 兼容 API Key", ref settings.openAiApiKey, true);
-                DrawTextField(rect.width, ref y, "OpenAI 兼容 Model", ref settings.openAiModel, false);
+                DrawTextField(rect.width, ref y, SimTranslation.T("RSMF.ReviewSettings.OpenAIBaseUrl"), ref settings.openAiBaseUrl, false);
+                DrawTextField(rect.width, ref y, SimTranslation.T("RSMF.ReviewSettings.OpenAIApiKey"), ref settings.openAiApiKey, true);
+                DrawTextField(rect.width, ref y, SimTranslation.T("RSMF.ReviewSettings.OpenAIModel"), ref settings.openAiModel, false);
             }
             y += 8f;
 
             Text.Font = GameFont.Small;
             GUI.color = Color.white;
-            Widgets.Label(new Rect(0f, y, rect.width, 24f), $"抽样率: {(settings.reviewSampleRate * 100f):F0}%");
+            Widgets.Label(new Rect(0f, y, rect.width, 24f), SimTranslation.T("RSMF.ReviewSettings.SampleRate", (settings.reviewSampleRate * 100f).ToString("F0").Named("percent")));
             y += 24f;
             settings.reviewSampleRate = Widgets.HorizontalSlider(new Rect(0f, y, 360f, 24f), settings.reviewSampleRate, 0f, 1f, true);
             y += 34f;
-            Widgets.Label(new Rect(0f, y, rect.width, 24f), $"每分钟请求数: {settings.reviewRequestsPerMinute}");
+            Widgets.Label(new Rect(0f, y, rect.width, 24f), SimTranslation.T("RSMF.ReviewSettings.RequestsPerMinute", settings.reviewRequestsPerMinute.Named("count")));
             y += 24f;
             settings.reviewRequestsPerMinute = Mathf.RoundToInt(Widgets.HorizontalSlider(new Rect(0f, y, 360f, 24f), settings.reviewRequestsPerMinute, 1f, 60f, true));
             y += 34f;
-            Widgets.Label(new Rect(0f, y, rect.width, 24f), $"保存评价上限: {settings.maxReviewRecords} 条");
+            Widgets.Label(new Rect(0f, y, rect.width, 24f), SimTranslation.T("RSMF.ReviewSettings.RequestTimeout", settings.reviewRequestTimeoutSeconds.Named("seconds")));
+            y += 24f;
+            settings.reviewRequestTimeoutSeconds = Mathf.RoundToInt(Widgets.HorizontalSlider(new Rect(0f, y, 360f, 24f), settings.reviewRequestTimeoutSeconds, 20f, 180f, true));
+            y += 34f;
+            Widgets.Label(new Rect(0f, y, rect.width, 24f), SimTranslation.T("RSMF.ReviewSettings.MaxReviewRecords", settings.maxReviewRecords.Named("count")));
             y += 24f;
             settings.maxReviewRecords = Mathf.RoundToInt(Widgets.HorizontalSlider(new Rect(0f, y, 360f, 24f), settings.maxReviewRecords, 50f, 10000f, true));
             y += 28f;
             bool oldWrapForLimit = Text.WordWrap;
             Text.WordWrap = true;
             GUI.color = new Color(0.72f, 0.76f, 0.82f, 1f);
-            Widgets.Label(new Rect(0f, y, rect.width - 10f, Mathf.Max(Text.LineHeightOf(GameFont.Tiny), 22f)), "超过上限后自动覆盖最旧评价，不会停止生成新评价。");
+            Widgets.Label(new Rect(0f, y, rect.width - 10f, Mathf.Max(Text.LineHeightOf(GameFont.Tiny), 22f)), SimTranslation.T("RSMF.ReviewSettings.MaxReviewRecordsTip"));
             Text.WordWrap = oldWrapForLimit;
             y += 30f;
-            Widgets.Label(new Rect(0f, y, rect.width, 24f), $"请求温度: {settings.reviewTemperature:F2}");
+            Widgets.Label(new Rect(0f, y, rect.width, 24f), SimTranslation.T("RSMF.ReviewSettings.Temperature", settings.reviewTemperature.ToString("F2").Named("value")));
             y += 24f;
             settings.reviewTemperature = Widgets.HorizontalSlider(new Rect(0f, y, 360f, 24f), settings.reviewTemperature, 0.1f, 2f, true);
             y += 34f;
-            Widgets.Label(new Rect(0f, y, rect.width, 24f), $"点赞/点踩概率: {(settings.reviewForumReactionChance * 100f):F0}%");
+            Widgets.Label(new Rect(0f, y, rect.width, 24f), SimTranslation.T("RSMF.ReviewSettings.ReactionChance", (settings.reviewForumReactionChance * 100f).ToString("F0").Named("percent")));
             y += 24f;
             settings.reviewForumReactionChance = Widgets.HorizontalSlider(new Rect(0f, y, 360f, 24f), settings.reviewForumReactionChance, 0f, 1f, true);
             y += 34f;
-            Widgets.Label(new Rect(0f, y, rect.width, 24f), $"回复概率: {(settings.reviewForumReplyChance * 100f):F0}%");
+            Widgets.Label(new Rect(0f, y, rect.width, 24f), SimTranslation.T("RSMF.ReviewSettings.ReplyChance", (settings.reviewForumReplyChance * 100f).ToString("F0").Named("percent")));
             y += 24f;
             settings.reviewForumReplyChance = Widgets.HorizontalSlider(new Rect(0f, y, 360f, 24f), settings.reviewForumReplyChance, 0f, 1f, true);
             y += 28f;
             bool oldWrapForForum = Text.WordWrap;
             Text.WordWrap = true;
             GUI.color = new Color(0.72f, 0.76f, 0.82f, 1f);
-            Widgets.Label(new Rect(0f, y, rect.width - 10f, 44f), "回复概率控制模型生成回复后的保留率；极端好评、差评或反驳吐槽会额外更容易保留回复。");
+            Widgets.Label(new Rect(0f, y, rect.width - 10f, 44f), SimTranslation.T("RSMF.ReviewSettings.ReplyChanceTip"));
             Text.WordWrap = oldWrapForForum;
             y += 52f;
-            DrawCheckbox(new Rect(0f, y, rect.width, 28f), "刁钻和胡言乱语", ref settings.reviewAbsurdNitpickEnabled, "启用后只有部分评价会允许模型写荒谬、刁钻或没道理的好评/差评。");
+            DrawCheckbox(new Rect(0f, y, rect.width, 28f), SimTranslation.T("RSMF.ReviewSettings.AbsurdNitpick"), ref settings.reviewAbsurdNitpickEnabled, SimTranslation.T("RSMF.ReviewSettings.AbsurdNitpickTip"));
             y += 30f;
             if (settings.reviewAbsurdNitpickEnabled)
             {
-                Widgets.Label(new Rect(0f, y, rect.width, 24f), $"胡言乱语概率: {(settings.reviewAbsurdNitpickChance * 100f):F0}%");
+                Widgets.Label(new Rect(0f, y, rect.width, 24f), SimTranslation.T("RSMF.ReviewSettings.AbsurdNitpickChance", (settings.reviewAbsurdNitpickChance * 100f).ToString("F0").Named("percent")));
                 y += 24f;
                 settings.reviewAbsurdNitpickChance = Widgets.HorizontalSlider(new Rect(0f, y, 360f, 24f), settings.reviewAbsurdNitpickChance, 0f, 1f, true);
                 y += 28f;
                 bool oldWrapForAbsurd = Text.WordWrap;
                 Text.WordWrap = true;
                 GUI.color = new Color(0.72f, 0.76f, 0.82f, 1f);
-                Widgets.Label(new Rect(0f, y, rect.width - 10f, 44f), "这个概率只是在提示词里放行风格，不会本地拼接模板；未命中的评价仍保持普通论坛口吻。");
+                Widgets.Label(new Rect(0f, y, rect.width - 10f, 44f), SimTranslation.T("RSMF.ReviewSettings.AbsurdNitpickChanceTip"));
                 Text.WordWrap = oldWrapForAbsurd;
                 y += 52f;
             }
-            Widgets.Label(new Rect(0f, y, rect.width, 24f), $"对话上下文预算: {settings.reviewConversationContextMaxChars} 字符");
+            Widgets.Label(new Rect(0f, y, rect.width, 24f), SimTranslation.T("RSMF.ReviewSettings.ContextBudget", settings.reviewConversationContextMaxChars.Named("chars")));
             y += 24f;
             settings.reviewConversationContextMaxChars = Mathf.RoundToInt(Widgets.HorizontalSlider(new Rect(0f, y, 360f, 24f), settings.reviewConversationContextMaxChars, 0f, 64000f, true));
             y += 28f;
             bool oldWordWrap = Text.WordWrap;
             Text.WordWrap = true;
             GUI.color = new Color(0.72f, 0.76f, 0.82f, 1f);
-            Widgets.Label(new Rect(0f, y, rect.width - 10f, 44f), "同一轮对话历史会反复发送，超过预算后自动开启新对话。每个顾客都会重新生成评价，不复用旧评价。");
+            Widgets.Label(new Rect(0f, y, rect.width - 10f, 44f), SimTranslation.T("RSMF.ReviewSettings.ContextBudgetTip"));
             Text.WordWrap = oldWordWrap;
             ResetText();
         }
@@ -209,19 +234,19 @@ namespace SimManagementLib.SimDialog
         private void DrawPromptPage(Rect rect, SimManagementLibSettings settings)
         {
             float y = 0f;
-            DrawTextArea(rect.width, ref y, "系统提示词", ref settings.reviewSystemPrompt, 150f);
-            DrawTextArea(rect.width, ref y, "用户提示词模板", ref settings.reviewUserPrompt, 180f);
+            DrawTextArea(rect.width, ref y, SimTranslation.T("RSMF.ReviewSettings.SystemPrompt"), ref settings.reviewSystemPrompt, 150f);
+            DrawTextArea(rect.width, ref y, SimTranslation.T("RSMF.ReviewSettings.UserPromptTemplate"), ref settings.reviewUserPrompt, 180f);
         }
 
         private void DrawLexiconPage(Rect rect, SimManagementLibSettings settings)
         {
             float y = 0f;
-            DrawTextArea(rect.width, ref y, "网名风格边界 A", ref settings.reviewNicknamePrefixes, 95f);
-            DrawTextArea(rect.width, ref y, "网名风格边界 B", ref settings.reviewNicknameSuffixes, 95f);
-            DrawTextArea(rect.width, ref y, "评价语气词", ref settings.reviewToneWords, 95f);
-            DrawTextArea(rect.width, ref y, "正面关键词", ref settings.reviewPositiveWords, 95f);
-            DrawTextArea(rect.width, ref y, "负面关键词", ref settings.reviewNegativeWords, 95f);
-            DrawTextArea(rect.width, ref y, "禁用词", ref settings.reviewBannedWords, 95f);
+            DrawTextArea(rect.width, ref y, SimTranslation.T("RSMF.ReviewSettings.NicknameStyleA"), ref settings.reviewNicknamePrefixes, 95f);
+            DrawTextArea(rect.width, ref y, SimTranslation.T("RSMF.ReviewSettings.NicknameStyleB"), ref settings.reviewNicknameSuffixes, 95f);
+            DrawTextArea(rect.width, ref y, SimTranslation.T("RSMF.ReviewSettings.ToneWords"), ref settings.reviewToneWords, 95f);
+            DrawTextArea(rect.width, ref y, SimTranslation.T("RSMF.ReviewSettings.PositiveWords"), ref settings.reviewPositiveWords, 95f);
+            DrawTextArea(rect.width, ref y, SimTranslation.T("RSMF.ReviewSettings.NegativeWords"), ref settings.reviewNegativeWords, 95f);
+            DrawTextArea(rect.width, ref y, SimTranslation.T("RSMF.ReviewSettings.BannedWords"), ref settings.reviewBannedWords, 95f);
         }
 
         private void DrawBottomButtons(Rect rect, SimManagementLibSettings settings)
@@ -230,26 +255,32 @@ namespace SimManagementLib.SimDialog
             bool canTestApi = settings.HasReviewAiConnectionFields();
             float buttonH = Mathf.Min(34f, rect.height);
             float buttonY = rect.y + (rect.height - buttonH) * 0.5f;
-            float buttonW = Mathf.Min(128f, Mathf.Max(96f, (rect.width - 24f) / 3f));
+            float buttonW = Mathf.Min(118f, Mathf.Max(92f, (rect.width - 42f) / 5f));
             Rect baseUrlRect = new Rect(rect.x, buttonY, buttonW, buttonH);
-            if (SimUiStyle.DrawSecondaryButton(baseUrlRect, testingBaseUrl ? "探测中..." : "测试 BaseUrl", canTestBaseUrl && !testingBaseUrl, GameFont.Small))
+            if (SimUiStyle.DrawSecondaryButton(baseUrlRect, testingBaseUrl ? SimTranslation.T("RSMF.ReviewSettings.Probing") : SimTranslation.T("RSMF.ReviewSettings.TestBaseUrl"), canTestBaseUrl && !testingBaseUrl, GameFont.Small))
             {
                 StartBaseUrlTest(settings);
             }
 
             Rect apiRect = new Rect(baseUrlRect.xMax + 8f, buttonY, buttonW, buttonH);
-            if (SimUiStyle.DrawPrimaryButton(apiRect, testingApi ? "生成中..." : "测试请求", canTestApi && !testingApi, GameFont.Small))
+            if (SimUiStyle.DrawPrimaryButton(apiRect, testingApi ? SimTranslation.T("RSMF.ReviewSettings.Generating") : SimTranslation.T("RSMF.ReviewSettings.TestRequest"), canTestApi && !testingApi, GameFont.Small))
             {
                 StartApiTest(settings);
             }
 
             Rect resetRect = new Rect(apiRect.xMax + 8f, buttonY, Mathf.Min(140f, buttonW + 12f), buttonH);
-            if (SimUiStyle.DrawSecondaryButton(resetRect, "恢复默认提示词", true, GameFont.Small))
+            if (SimUiStyle.DrawSecondaryButton(resetRect, SimTranslation.T("RSMF.ReviewSettings.ResetDefaultPrompt"), true, GameFont.Small))
             {
                 CustomerReviewPromptDefaults.Reset(settings);
             }
 
-            float statusX = resetRect.xMax + 10f;
+            Rect terminalRect = new Rect(resetRect.xMax + 8f, buttonY, Mathf.Min(126f, buttonW + 8f), buttonH);
+            if (SimUiStyle.DrawSecondaryButton(terminalRect, SimTranslation.T("RSMF.ReviewSettings.DebugTerminal"), true, GameFont.Small))
+            {
+                Find.WindowStack.Add(new Dialog_CustomerReviewAiTerminal());
+            }
+
+            float statusX = terminalRect.xMax + 10f;
             float statusW = Mathf.Max(0f, rect.xMax - statusX);
             if (statusW > 80f)
             {
@@ -259,7 +290,33 @@ namespace SimManagementLib.SimDialog
                 Widgets.Label(new Rect(statusX, rect.y, statusW, rect.height), connectionStatus);
             }
             ResetText();
-            settings.Write();
+        }
+
+        /// <summary>
+        /// 绘制 RimTalk 配置导入行，负责让玩家一键复用 RimTalk 当前有效 API 和模型设置。
+        /// </summary>
+        private void DrawRimTalkImportRow(float width, ref float y, SimManagementLibSettings settings)
+        {
+            bool loaded = RimTalkConfigBridge.IsRimTalkLoaded();
+            float buttonW = Mathf.Min(260f, Mathf.Max(190f, width * 0.34f));
+            float rowH = 34f;
+            Rect buttonRect = new Rect(0f, y, buttonW, rowH);
+            if (SimUiStyle.DrawSecondaryButton(buttonRect, SimTranslation.T("RSMF.ReviewSettings.ImportRimTalkConfig"), loaded, GameFont.Small))
+            {
+                bool ok = RimTalkConfigBridge.TryApplyTo(settings, out string message);
+                connectionStatus = message;
+                Messages.Message(message, ok ? MessageTypeDefOf.PositiveEvent : MessageTypeDefOf.RejectInput, false);
+            }
+
+            Text.Font = GameFont.Tiny;
+            Text.Anchor = TextAnchor.MiddleLeft;
+            Text.WordWrap = true;
+            GUI.color = loaded ? new Color(0.72f, 0.86f, 0.72f, 1f) : new Color(0.72f, 0.76f, 0.82f, 1f);
+            string status = loaded ? SimTranslation.T("RSMF.ReviewSettings.RimTalkDetected") : SimTranslation.T("RSMF.ReviewSettings.RimTalkNotDetected");
+            Rect statusRect = new Rect(buttonRect.xMax + 10f, y, Mathf.Max(0f, width - buttonW - 10f), rowH);
+            Widgets.Label(statusRect, status);
+            ResetText();
+            y += rowH + 10f;
         }
 
         /// <summary>
@@ -268,7 +325,7 @@ namespace SimManagementLib.SimDialog
         private void StartBaseUrlTest(SimManagementLibSettings settings)
         {
             testingBaseUrl = true;
-            connectionStatus = "正在测试 BaseUrl...";
+            connectionStatus = SimTranslation.T("RSMF.ReviewSettings.Status.TestingBaseUrl");
             baseUrlTestTask = CustomerReviewAiClient.TestBaseUrlAsync(CopySettingsForTest(settings), CancellationToken.None);
         }
 
@@ -278,7 +335,7 @@ namespace SimManagementLib.SimDialog
         private void StartApiTest(SimManagementLibSettings settings)
         {
             testingApi = true;
-            connectionStatus = "正在测试 API 生成...";
+            connectionStatus = SimTranslation.T("RSMF.ReviewSettings.Status.TestingApi");
             apiTestTask = CustomerReviewAiClient.TestConnectionDetailedAsync(CopySettingsForTest(settings), CancellationToken.None);
         }
 
@@ -296,6 +353,7 @@ namespace SimManagementLib.SimDialog
             copy.anthropicApiKey = settings.anthropicApiKey;
             copy.anthropicModel = settings.anthropicModel;
             copy.reviewTemperature = settings.reviewTemperature;
+            copy.reviewRequestTimeoutSeconds = settings.reviewRequestTimeoutSeconds;
             copy.reviewForumReactionChance = settings.reviewForumReactionChance;
             copy.reviewForumReplyChance = settings.reviewForumReplyChance;
             copy.reviewAbsurdNitpickEnabled = settings.reviewAbsurdNitpickEnabled;
@@ -308,6 +366,10 @@ namespace SimManagementLib.SimDialog
             copy.reviewPositiveWords = settings.reviewPositiveWords;
             copy.reviewNegativeWords = settings.reviewNegativeWords;
             copy.reviewBannedWords = settings.reviewBannedWords;
+            copy.reviewPromptInputFormat = settings.reviewPromptInputFormat;
+            copy.reviewPromptEnabledNodeIds = settings.reviewPromptEnabledNodeIds;
+            copy.reviewPromptNodeOrder = settings.reviewPromptNodeOrder;
+            copy.reviewPromptCustomNodes = settings.reviewPromptCustomNodes;
             copy.reviewConversationContextMaxChars = 0;
             copy.reviewAiEnabled = true;
             return copy;
@@ -339,10 +401,10 @@ namespace SimManagementLib.SimDialog
         private static string FormatBaseUrlResult(Task<CustomerReviewConnectionTestResult> task)
         {
             if (task.Status != TaskStatus.RanToCompletion || task.Result == null)
-                return "BaseUrl 测试失败。";
+                return SimTranslation.T("RSMF.ReviewSettings.Result.BaseUrlFailed");
 
             CustomerReviewConnectionTestResult result = task.Result;
-            return result.baseUrlReachable ? $"BaseUrl 可访问，HTTP {result.statusCode}。" : result.message;
+            return result.baseUrlReachable ? SimTranslation.T("RSMF.ReviewSettings.Result.BaseUrlReachable", result.statusCode.Named("statusCode")) : result.message;
         }
 
         /// <summary>
@@ -351,16 +413,16 @@ namespace SimManagementLib.SimDialog
         private static string FormatApiResult(Task<CustomerReviewConnectionTestResult> task)
         {
             if (task.Status != TaskStatus.RanToCompletion || task.Result == null)
-                return "请求测试失败。";
+                return SimTranslation.T("RSMF.ReviewSettings.Result.RequestFailed");
 
             CustomerReviewConnectionTestResult result = task.Result;
             if (result.apiReachable)
-                return "请求测试成功，已能生成并解析评价。";
+                return SimTranslation.T("RSMF.ReviewSettings.Result.RequestSucceeded");
 
             if (!result.baseUrlReachable)
                 return result.message;
 
-            return "BaseUrl 可访问，但生成失败，请检查模型、密钥或网关 JSON 支持。";
+            return SimTranslation.T("RSMF.ReviewSettings.Result.GenerationFailed");
         }
 
         private static void DrawTextField(float width, ref float y, string label, ref string value, bool secret)

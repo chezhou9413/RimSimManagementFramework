@@ -51,7 +51,7 @@ namespace SimManagementLib.SimAI
 
                 int pawnId = pawn.thingIDNumber;
                 float alreadySpent = lordJob.cartValues.TryGetValue(pawnId, out float value) ? value : 0f;
-                float remainingBudget = lordJob.GetBudgetForPawn(pawnId) - alreadySpent;
+                float remainingBudget = lordJob.GetEffectiveBudgetForPawn(pawn, shopZone) - alreadySpent;
                 if (!TryPickService(shopZone, remainingBudget, out selectedService, out selectedPrice))
                 {
                     EndJobWith(JobCondition.Incompletable);
@@ -134,7 +134,7 @@ namespace SimManagementLib.SimAI
                 lordJob.AddServiceOrder(pawnId, activeOrder);
                 lordJob.cartValues[pawnId] += activeOrder.totalPrice;
                 finance?.QueueServiceSale(pawn, shopZone, activeOrder.serviceDefName, selectedService.DisplayLabel, activeOrder.count, activeOrder.totalPrice);
-                ShopBubbleUtility.ShowTextBubble(pawn, $"选择服务: {selectedService.DisplayLabel}", new Color(0.55f, 0.85f, 1f));
+                ShopBubbleUtility.ShowTextBubble(pawn, SimTranslation.T("RSMF.Bubble.SelectService", selectedService.DisplayLabel.Named("service")), new Color(0.55f, 0.85f, 1f));
 
                 if (lordJob.RegisterConsumptionActionAndShouldCheckout(pawnId))
                     lordJob.MarkPawnReadyForCheckout(pawnId);

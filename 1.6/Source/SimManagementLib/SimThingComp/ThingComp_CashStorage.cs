@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using RimWorld;
+using SimManagementLib.Tool;
 using UnityEngine;
 using Verse;
 using Verse.AI;
@@ -102,11 +103,11 @@ namespace SimManagementLib.SimThingComp
         public override string CompInspectStringExtra()
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append("白银库存: ").Append(storedSilver);
+            sb.Append(SimTranslation.T("RSMF.CashStorage.StoredSilver", storedSilver.Named("stored")));
             if (pendingWithdrawSilver > 0)
-                sb.Append(" (待搬运 ").Append(pendingWithdrawSilver).Append(")");
+                sb.Append(" ").Append(SimTranslation.T("RSMF.CashStorage.PendingWithdraw", pendingWithdrawSilver.Named("pending")));
             sb.AppendLine();
-            sb.Append("取现阈值: ").Append(WithdrawThreshold);
+            sb.Append(SimTranslation.T("RSMF.CashStorage.WithdrawThresholdInspect", WithdrawThreshold.Named("threshold")));
             return sb.ToString();
         }
 
@@ -129,20 +130,20 @@ namespace SimManagementLib.SimThingComp
             if (selPawn == null || parent == null)
                 yield break;
 
-            string label = "强制取出白银";
+            string label = SimTranslation.T("RSMF.CashStorage.ForceWithdraw");
             if (AvailableForWithdraw <= 0)
             {
-                yield return new FloatMenuOption(label + "（没有可取白银）", null);
+                yield return new FloatMenuOption(SimTranslation.T("RSMF.CashStorage.ForceWithdrawNoSilver", label.Named("label")), null);
                 yield break;
             }
 
             if (!selPawn.CanReach(parent, PathEndMode.Touch, Danger.Deadly))
             {
-                yield return new FloatMenuOption(label + "（无法到达）", null);
+                yield return new FloatMenuOption(SimTranslation.T("RSMF.CashStorage.ForceWithdrawUnreachable", label.Named("label")), null);
                 yield break;
             }
 
-            yield return new FloatMenuOption(label + $"（{AvailableForWithdraw}）", delegate
+            yield return new FloatMenuOption(SimTranslation.T("RSMF.CashStorage.ForceWithdrawAmount", label.Named("label"), AvailableForWithdraw.Named("amount")), delegate
             {
                 TryStartForceWithdrawJob(selPawn);
             });

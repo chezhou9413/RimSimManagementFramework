@@ -1,0 +1,770 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.Zone.ShopArea>Shop area</RSMF.Zone.ShopArea>
+  <RSMF.Designator.ZoneAddShop.Label>Create shop area</RSMF.Designator.ZoneAddShop.Label>
+  <RSMF.Designator.ZoneAddShop.Desc>Designate an area used for shop operations. Shop areas may cover buildings, but must be indoors and contain at least storage and a cash register.</RSMF.Designator.ZoneAddShop.Desc>
+  <RSMF.Zone.OpenStatus.ManuallyClosed>The shop is manually closed.</RSMF.Zone.OpenStatus.ManuallyClosed>
+  <RSMF.Zone.OpenStatus.OutOfSchedule>Outside business hours: {schedule}.</RSMF.Zone.OpenStatus.OutOfSchedule>
+  <RSMF.Zone.OpenStatus.Open>The shop is open.</RSMF.Zone.OpenStatus.Open>
+  <RSMF.Zone.Validation.Empty>The area is empty.</RSMF.Zone.Validation.Empty>
+  <RSMF.Zone.Validation.OutdoorCells>There are {count} outdoor cells, for example {cell}.</RSMF.Zone.Validation.OutdoorCells>
+  <RSMF.Zone.Validation.MissingStorageServiceAndRegister>Missing storage, service building, and cash register.</RSMF.Zone.Validation.MissingStorageServiceAndRegister>
+  <RSMF.Zone.Validation.MissingStorageOrService>Missing storage or service building.</RSMF.Zone.Validation.MissingStorageOrService>
+  <RSMF.Zone.Validation.MissingCashRegister>Missing cash register.</RSMF.Zone.Validation.MissingCashRegister>
+  <RSMF.Zone.Validation.Valid>Shop facilities are valid.</RSMF.Zone.Validation.Valid>
+  <RSMF.Zone.Inspect.FacilityStatus>Facilities: {status}</RSMF.Zone.Inspect.FacilityStatus>
+  <RSMF.Zone.Inspect.OpenStatus>Open status: {status}</RSMF.Zone.Inspect.OpenStatus>
+  <RSMF.Gizmo.ShopManagement.Label>Shop management</RSMF.Gizmo.ShopManagement.Label>
+  <RSMF.Gizmo.ShopManagement.Desc>View and manage sale goods and stock status for all storage buildings in this shop area.</RSMF.Gizmo.ShopManagement.Desc>
+  <RSMF.Gizmo.ShopStaff.Label>Staff setup</RSMF.Gizmo.ShopStaff.Label>
+  <RSMF.Gizmo.ShopStaff.Desc>Open the staff role assignment panel for this shop.</RSMF.Gizmo.ShopStaff.Desc>
+  <RSMF.Gizmo.ToggleZoneVisibility.Label>Hide zone overlay</RSMF.Gizmo.ToggleZoneVisibility.Label>
+  <RSMF.Gizmo.ToggleZoneVisibility.Desc>Hide or show the ground color overlay for this shop area. This only affects zone drawing, not opening, restocking, checkout, or customer visits.</RSMF.Gizmo.ToggleZoneVisibility.Desc>
+  <RSMF.CashStorage.WithdrawThreshold>Withdraw threshold</RSMF.CashStorage.WithdrawThreshold>
+  <RSMF.CashStorage.BarLabel>{stored} / {max}  threshold {threshold}</RSMF.CashStorage.BarLabel>
+  <RSMF.CashStorage.ThresholdTooltip>Shows current stored silver and the automatic withdrawal threshold. After moving the threshold marker, pawns doing service work will automatically withdraw and haul silver once available silver reaches the threshold.</RSMF.CashStorage.ThresholdTooltip>
+  <RSMF.CashStorage.StoredSilver>Stored silver: {stored}</RSMF.CashStorage.StoredSilver>
+  <RSMF.CashStorage.PendingWithdraw>(pending haul {pending})</RSMF.CashStorage.PendingWithdraw>
+  <RSMF.CashStorage.WithdrawThresholdInspect>Withdraw threshold: {threshold}</RSMF.CashStorage.WithdrawThresholdInspect>
+  <RSMF.CashStorage.ForceWithdraw>Force withdraw silver</RSMF.CashStorage.ForceWithdraw>
+  <RSMF.CashStorage.ForceWithdrawNoSilver>{label} (no silver available)</RSMF.CashStorage.ForceWithdrawNoSilver>
+  <RSMF.CashStorage.ForceWithdrawUnreachable>{label} (unreachable)</RSMF.CashStorage.ForceWithdrawUnreachable>
+  <RSMF.CashStorage.ForceWithdrawAmount>{label} ({amount})</RSMF.CashStorage.ForceWithdrawAmount>
+  <RSMF.Container.Inspect.Name>Name: {name}</RSMF.Container.Inspect.Name>
+  <RSMF.Container.Inspect.TotalCapacity>Total capacity: {stored}/{max}</RSMF.Container.Inspect.TotalCapacity>
+  <RSMF.Container.Inspect.VendingMachineType>Type: vending machine</RSMF.Container.Inspect.VendingMachineType>
+  <RSMF.Container.Inspect.PendingIn>(+{pending} incoming)</RSMF.Container.Inspect.PendingIn>
+  <RSMF.Container.Inspect.TargetTotal>Total target: {target}</RSMF.Container.Inspect.TargetTotal>
+  <RSMF.Container.DefaultLabel>Storage</RSMF.Container.DefaultLabel>
+  <RSMF.Service.ProviderFallback>Service building</RSMF.Service.ProviderFallback>
+  <RSMF.Gizmo.RenameContainer.Label>Rename storage</RSMF.Gizmo.RenameContainer.Label>
+  <RSMF.Gizmo.RenameContainer.Desc>Set a name for this storage building so it is easier to identify and locate.</RSMF.Gizmo.RenameContainer.Desc>
+  <RSMF.Gizmo.ContainerManagement.Label>Storage management</RSMF.Gizmo.ContainerManagement.Label>
+  <RSMF.Gizmo.ContainerManagement.Desc>Open the storage management panel to configure sale goods, target stock, and prices.</RSMF.Gizmo.ContainerManagement.Desc>
+  <RSMF.ReviewSettings.Title>Customer review settings</RSMF.ReviewSettings.Title>
+  <RSMF.ReviewSettings.Tab.Api>API</RSMF.ReviewSettings.Tab.Api>
+  <RSMF.ReviewSettings.Tab.Prompt>Prompt</RSMF.ReviewSettings.Tab.Prompt>
+  <RSMF.ReviewSettings.Tab.Injector>Injector</RSMF.ReviewSettings.Tab.Injector>
+  <RSMF.ReviewSettings.Tab.Lexicon>Lexicon</RSMF.ReviewSettings.Tab.Lexicon>
+  <RSMF.ReviewSettings.EnableReviews>Enable customer reviews</RSMF.ReviewSettings.EnableReviews>
+  <RSMF.ReviewSettings.EnableReviewsTip>No review snapshots are recorded while disabled.</RSMF.ReviewSettings.EnableReviewsTip>
+  <RSMF.ReviewSettings.ImportRimTalkConfig>Import RimTalk API config</RSMF.ReviewSettings.ImportRimTalkConfig>
+  <RSMF.ReviewSettings.RimTalkDetected>RimTalk detected. You can import its current API, model, and key.</RSMF.ReviewSettings.RimTalkDetected>
+  <RSMF.ReviewSettings.RimTalkNotDetected>RimTalk is not detected. Install and enable RimTalk before importing.</RSMF.ReviewSettings.RimTalkNotDetected>
+  <RSMF.ReviewSettings.RimTalkImport.NotLoaded>RimTalk is not detected.</RSMF.ReviewSettings.RimTalkImport.NotLoaded>
+  <RSMF.ReviewSettings.RimTalkImport.NoSettings>Could not read RimTalk settings.</RSMF.ReviewSettings.RimTalkImport.NoSettings>
+  <RSMF.ReviewSettings.RimTalkImport.NoActiveConfig>RimTalk has no active API config.</RSMF.ReviewSettings.RimTalkImport.NoActiveConfig>
+  <RSMF.ReviewSettings.RimTalkImport.UnsupportedProvider>RimTalk provider {provider} is not supported for import yet.</RSMF.ReviewSettings.RimTalkImport.UnsupportedProvider>
+  <RSMF.ReviewSettings.RimTalkImport.NoModel>RimTalk's current config has no usable model.</RSMF.ReviewSettings.RimTalkImport.NoModel>
+  <RSMF.ReviewSettings.RimTalkImport.Exception>Failed to read RimTalk settings: {message}</RSMF.ReviewSettings.RimTalkImport.Exception>
+  <RSMF.ReviewSettings.RimTalkImport.Success>Imported RimTalk config: {provider} / {model}.</RSMF.ReviewSettings.RimTalkImport.Success>
+  <RSMF.ReviewSettings.Provider>Provider: {provider}</RSMF.ReviewSettings.Provider>
+  <RSMF.ReviewSettings.Provider.OpenAICompatible>OpenAI-compatible API</RSMF.ReviewSettings.Provider.OpenAICompatible>
+  <RSMF.ReviewSettings.OpenAIBaseUrl>OpenAI-compatible Base URL</RSMF.ReviewSettings.OpenAIBaseUrl>
+  <RSMF.ReviewSettings.OpenAIApiKey>OpenAI-compatible API Key</RSMF.ReviewSettings.OpenAIApiKey>
+  <RSMF.ReviewSettings.OpenAIModel>OpenAI-compatible Model</RSMF.ReviewSettings.OpenAIModel>
+  <RSMF.ReviewSettings.SampleRate>Sample rate: {percent}%</RSMF.ReviewSettings.SampleRate>
+  <RSMF.ReviewSettings.RequestsPerMinute>Requests per minute: {count}</RSMF.ReviewSettings.RequestsPerMinute>
+  <RSMF.ReviewSettings.RequestTimeout>Request timeout: {seconds}s</RSMF.ReviewSettings.RequestTimeout>
+  <RSMF.ReviewSettings.MaxReviewRecords>Saved review limit: {count}</RSMF.ReviewSettings.MaxReviewRecords>
+  <RSMF.ReviewSettings.MaxReviewRecordsTip>After the limit is reached, the oldest reviews are overwritten. New reviews will still be generated.</RSMF.ReviewSettings.MaxReviewRecordsTip>
+  <RSMF.ReviewSettings.Temperature>Temperature: {value}</RSMF.ReviewSettings.Temperature>
+  <RSMF.ReviewSettings.ReactionChance>Upvote/downvote chance: {percent}%</RSMF.ReviewSettings.ReactionChance>
+  <RSMF.ReviewSettings.ReplyChance>Reply chance: {percent}%</RSMF.ReviewSettings.ReplyChance>
+  <RSMF.ReviewSettings.ReplyChanceTip>Reply chance controls retention after the model creates a reply. Extreme praise, criticism, disagreement, or complaints are more likely to keep replies.</RSMF.ReviewSettings.ReplyChanceTip>
+  <RSMF.ReviewSettings.AbsurdNitpick>Absurd nitpicks</RSMF.ReviewSettings.AbsurdNitpick>
+  <RSMF.ReviewSettings.AbsurdNitpickTip>When enabled, only some reviews may let the model write absurd, picky, or unreasonable praise or criticism.</RSMF.ReviewSettings.AbsurdNitpickTip>
+  <RSMF.ReviewSettings.AbsurdNitpickChance>Absurd nitpick chance: {percent}%</RSMF.ReviewSettings.AbsurdNitpickChance>
+  <RSMF.ReviewSettings.AbsurdNitpickChanceTip>This chance only permits the style in the prompt. It does not splice local templates; missed reviews keep the ordinary forum voice.</RSMF.ReviewSettings.AbsurdNitpickChanceTip>
+  <RSMF.ReviewSettings.ContextBudget>Conversation context budget: {chars} chars</RSMF.ReviewSettings.ContextBudget>
+  <RSMF.ReviewSettings.ContextBudgetTip>The stable prompt prefix is sent first to improve provider prefix-cache hits; dynamic customer data is placed last. Values above 0 keep only a small anti-repeat memo and no longer reuse old customer material.</RSMF.ReviewSettings.ContextBudgetTip>
+  <RSMF.ReviewSettings.SystemPrompt>System prompt</RSMF.ReviewSettings.SystemPrompt>
+  <RSMF.ReviewSettings.UserPromptTemplate>User prompt template</RSMF.ReviewSettings.UserPromptTemplate>
+  <RSMF.ReviewSettings.NicknameStyleA>Nickname style boundary A</RSMF.ReviewSettings.NicknameStyleA>
+  <RSMF.ReviewSettings.NicknameStyleB>Nickname style boundary B</RSMF.ReviewSettings.NicknameStyleB>
+  <RSMF.ReviewSettings.ToneWords>Review tone words</RSMF.ReviewSettings.ToneWords>
+  <RSMF.ReviewSettings.PositiveWords>Positive keywords</RSMF.ReviewSettings.PositiveWords>
+  <RSMF.ReviewSettings.NegativeWords>Negative keywords</RSMF.ReviewSettings.NegativeWords>
+  <RSMF.ReviewSettings.BannedWords>Banned words</RSMF.ReviewSettings.BannedWords>
+  <RSMF.ReviewSettings.Probing>Probing...</RSMF.ReviewSettings.Probing>
+  <RSMF.ReviewSettings.TestBaseUrl>Test BaseUrl</RSMF.ReviewSettings.TestBaseUrl>
+  <RSMF.ReviewSettings.Generating>Generating...</RSMF.ReviewSettings.Generating>
+  <RSMF.ReviewSettings.TestRequest>Test request</RSMF.ReviewSettings.TestRequest>
+  <RSMF.ReviewSettings.ResetDefaultPrompt>Reset default prompt</RSMF.ReviewSettings.ResetDefaultPrompt>
+  <RSMF.ReviewSettings.DebugTerminal>AI debug terminal</RSMF.ReviewSettings.DebugTerminal>
+  <RSMF.ReviewSettings.Status.TestingBaseUrl>Testing BaseUrl...</RSMF.ReviewSettings.Status.TestingBaseUrl>
+  <RSMF.ReviewSettings.Status.TestingApi>Testing API generation...</RSMF.ReviewSettings.Status.TestingApi>
+  <RSMF.ReviewSettings.Result.BaseUrlFailed>BaseUrl test failed.</RSMF.ReviewSettings.Result.BaseUrlFailed>
+  <RSMF.ReviewSettings.Result.BaseUrlReachable>BaseUrl reachable, HTTP {statusCode}.</RSMF.ReviewSettings.Result.BaseUrlReachable>
+  <RSMF.ReviewSettings.Result.RequestFailed>Request test failed.</RSMF.ReviewSettings.Result.RequestFailed>
+  <RSMF.ReviewSettings.Result.RequestSucceeded>Request test succeeded. Review generation and parsing are available.</RSMF.ReviewSettings.Result.RequestSucceeded>
+  <RSMF.ReviewSettings.Result.GenerationFailed>BaseUrl is reachable, but generation failed. Check the model, key, or gateway JSON support.</RSMF.ReviewSettings.Result.GenerationFailed>
+  <RSMF.ReviewSettings.Injector.InputStructure>Input structure</RSMF.ReviewSettings.Injector.InputStructure>
+  <RSMF.ReviewSettings.Injector.XmlFormat>XML style</RSMF.ReviewSettings.Injector.XmlFormat>
+  <RSMF.ReviewSettings.Injector.PlainTextFormat>Plain text</RSMF.ReviewSettings.Injector.PlainTextFormat>
+  <RSMF.ReviewSettings.Injector.XmlHint>XML tags only organize input; the model must still return JSON.</RSMF.ReviewSettings.Injector.XmlHint>
+  <RSMF.ReviewSettings.Injector.PlainHint>Compatible with the older plain text prompt node layout.</RSMF.ReviewSettings.Injector.PlainHint>
+  <RSMF.ReviewSettings.Injector.RootPromptNode>Root prompt node</RSMF.ReviewSettings.Injector.RootPromptNode>
+  <RSMF.ReviewSettings.Injector.RootXmlInfo>The root prompt is placed in &lt;rootPrompt&gt;, and other nodes are appended by priority as XML-style data blocks. XML is only the input structure and does not change the JSON output requirement.</RSMF.ReviewSettings.Injector.RootXmlInfo>
+  <RSMF.ReviewSettings.Injector.RootPlainInfo>The plain text structure keeps the root prompt first, then appends enabled nodes by priority.</RSMF.ReviewSettings.Injector.RootPlainInfo>
+  <RSMF.ReviewSettings.Injector.PreviewPrompt>Preview final prompt</RSMF.ReviewSettings.Injector.PreviewPrompt>
+  <RSMF.ReviewSettings.Injector.AvailableNodes>Available built-in nodes</RSMF.ReviewSettings.Injector.AvailableNodes>
+  <RSMF.ReviewSettings.Injector.ResetNodes>Reset nodes</RSMF.ReviewSettings.Injector.ResetNodes>
+  <RSMF.ReviewSettings.Injector.EnabledNodeOrder>Enabled node priority</RSMF.ReviewSettings.Injector.EnabledNodeOrder>
+  <RSMF.ReviewSettings.Injector.NoEnabledNodes>No enabled injection nodes</RSMF.ReviewSettings.Injector.NoEnabledNodes>
+  <RSMF.ReviewSettings.Injector.Drag>Drag</RSMF.ReviewSettings.Injector.Drag>
+  <RSMF.ReviewSettings.Injector.Disable>Disable</RSMF.ReviewSettings.Injector.Disable>
+  <RSMF.ReviewSettings.Injector.NewCustomNode>New custom node</RSMF.ReviewSettings.Injector.NewCustomNode>
+  <RSMF.ReviewSettings.Injector.NewNodeName>New node name</RSMF.ReviewSettings.Injector.NewNodeName>
+  <RSMF.ReviewSettings.Injector.NewNodeBody>New node body</RSMF.ReviewSettings.Injector.NewNodeBody>
+  <RSMF.ReviewSettings.Injector.AddNode>Add node</RSMF.ReviewSettings.Injector.AddNode>
+  <RSMF.ReviewSettings.Injector.CustomNode>Custom node</RSMF.ReviewSettings.Injector.CustomNode>
+  <RSMF.ReviewSettings.Injector.ExistingCustomNodes>Existing custom nodes</RSMF.ReviewSettings.Injector.ExistingCustomNodes>
+  <RSMF.PromptPreview.Title>Prompt preview</RSMF.PromptPreview.Title>
+  <RSMF.PromptPreview.Note>This uses a sample customer snapshot to preview node structure. Real reviews replace it with actual customer, shop, weather, condition, culture, and shopping data.</RSMF.PromptPreview.Note>
+  <RSMF.PromptPreview.NoSettings>No settings available.</RSMF.PromptPreview.NoSettings>
+  <RSMF.PromptPreview.Section.SystemPrompt>=== System Prompt ===</RSMF.PromptPreview.Section.SystemPrompt>
+  <RSMF.PromptPreview.Section.StablePrefix>=== Message[0] Stable User Prefix ===</RSMF.PromptPreview.Section.StablePrefix>
+  <RSMF.PromptPreview.Section.DynamicInput>=== Message[1] Dynamic Customer Input ===</RSMF.PromptPreview.Section.DynamicInput>
+  <RSMF.PromptPreview.Sample.Shop>Sample shop</RSMF.PromptPreview.Sample.Shop>
+  <RSMF.PromptPreview.Sample.Customer>Preview customer</RSMF.PromptPreview.Sample.Customer>
+  <RSMF.PromptPreview.Sample.Kind>Preview customer kind</RSMF.PromptPreview.Sample.Kind>
+  <RSMF.PromptPreview.Sample.KindDescription>Budget range 100-400 silver; queue patience 900-3000 ticks; target goods category Goods_Foods.</RSMF.PromptPreview.Sample.KindDescription>
+  <RSMF.PromptPreview.Sample.Race>Sample race</RSMF.PromptPreview.Sample.Race>
+  <RSMF.PromptPreview.Sample.RaceDescription>Real race description text appears here.</RSMF.PromptPreview.Sample.RaceDescription>
+  <RSMF.PromptPreview.Sample.Age>Biological age 42.0, chronological age 42.0</RSMF.PromptPreview.Sample.Age>
+  <RSMF.PromptPreview.Sample.Backstory>Sample childhood / Sample adulthood</RSMF.PromptPreview.Sample.Backstory>
+  <RSMF.PromptPreview.Sample.BackstoryDetails>Full real backstory descriptions appear here.</RSMF.PromptPreview.Sample.BackstoryDetails>
+  <RSMF.PromptPreview.Sample.Traits>Kind, description: more restrained expression; Abrasive, description: may sound sharp when in a bad mood.</RSMF.PromptPreview.Sample.Traits>
+  <RSMF.PromptPreview.Sample.Xenotype>Baseliner: naturally evolved human.</RSMF.PromptPreview.Sample.Xenotype>
+  <RSMF.PromptPreview.Sample.Genes>No notable genes</RSMF.PromptPreview.Sample.Genes>
+  <RSMF.PromptPreview.Sample.PersonalityBias>Review naturally based on the actual experience.</RSMF.PromptPreview.Sample.PersonalityBias>
+  <RSMF.PromptPreview.Sample.Mood>Mood 58%</RSMF.PromptPreview.Sample.Mood>
+  <RSMF.PromptPreview.Sample.Health>Health stable</RSMF.PromptPreview.Sample.Health>
+  <RSMF.PromptPreview.Sample.Budget>Budget 117 silver, actual payment 96 silver, checkout result: payment completed</RSMF.PromptPreview.Sample.Budget>
+  <RSMF.PromptPreview.Sample.Purchased>Packaged survival meal x4, 96 silver, description: preferred food for long travel.</RSMF.PromptPreview.Sample.Purchased>
+  <RSMF.PromptPreview.Sample.Service>No service used, checkout result: payment completed</RSMF.PromptPreview.Sample.Service>
+  <RSMF.PromptPreview.Sample.Environment>Environment reference values: overall 63.4, reputation 53.9, satisfaction 71.7, beauty 6.6.</RSMF.PromptPreview.Sample.Environment>
+  <RSMF.PromptPreview.Sample.Cashier>Sample cashier, social 4, social impact 0.93, work speed 0.80.</RSMF.PromptPreview.Sample.Cashier>
+  <RSMF.PromptPreview.Sample.CheckoutJob>Customer_PayAtRegister, queue position 1, result payment completed.</RSMF.PromptPreview.Sample.CheckoutJob>
+  <RSMF.PromptPreview.Sample.PostPurchase>No post-payment behavior.</RSMF.PromptPreview.Sample.PostPurchase>
+  <RSMF.PromptPreview.Sample.Room>Room role shop; size 80 cells; psychologically indoors; temperature 21.0C; beauty 6.6; cleanliness 0.10.</RSMF.PromptPreview.Sample.Room>
+  <RSMF.PromptPreview.Sample.Relations>Opinion 25 toward Sample colonist.</RSMF.PromptPreview.Sample.Relations>
+  <RSMF.PromptPreview.Sample.Weather>Current weather clear; duration 1200 ticks; rain 0.00; snow 0.00; move multiplier 1.00.</RSMF.PromptPreview.Sample.Weather>
+  <RSMF.PromptPreview.Sample.GameConditions>No notable ongoing conditions.</RSMF.PromptPreview.Sample.GameConditions>
+  <RSMF.PromptPreview.Sample.ColonyWealth>Total wealth 52000, items 18000, buildings 24000, pawns 10000, colonists 6.</RSMF.PromptPreview.Sample.ColonyWealth>
+  <RSMF.PromptPreview.Sample.ColonyShops>Shop areas 2, valid shops 2, currently open 1, names: Sample shop, medicine stall.</RSMF.PromptPreview.Sample.ColonyShops>
+  <RSMF.PromptPreview.Sample.ColonyLeader>Faction leader: Sample leader, title chief, social 12, backstory sample backstory, traits kind.</RSMF.PromptPreview.Sample.ColonyLeader>
+  <RSMF.PromptPreview.Sample.ColonyCulture>Main ideology sample ideology, culture sample culture, member name member, memes collectivist, trade preference.</RSMF.PromptPreview.Sample.ColonyCulture>
+  <RSMF.PromptPreview.Sample.RecentReviews>Same-shop recent reviews 1, average 4.0 stars; interactable review: reviewId=preview_review, SampleUser, 4 stars: goods were clear and checkout was fast.</RSMF.PromptPreview.Sample.RecentReviews>
+  <RSMF.AiTerminal.Title>AI debug terminal</RSMF.AiTerminal.Title>
+  <RSMF.AiTerminal.RecordCount>{count} in-memory records this game. API keys are not recorded or exported.</RSMF.AiTerminal.RecordCount>
+  <RSMF.AiTerminal.Filter.All>All</RSMF.AiTerminal.Filter.All>
+  <RSMF.AiTerminal.Filter.Success>Success</RSMF.AiTerminal.Filter.Success>
+  <RSMF.AiTerminal.Filter.Failed>Failed</RSMF.AiTerminal.Filter.Failed>
+  <RSMF.AiTerminal.Filter.Pending>Pending</RSMF.AiTerminal.Filter.Pending>
+  <RSMF.AiTerminal.NoRecords>No AI call records</RSMF.AiTerminal.NoRecords>
+  <RSMF.AiTerminal.UnknownShop>Unknown shop</RSMF.AiTerminal.UnknownShop>
+  <RSMF.AiTerminal.StarsAtTime>{stars} stars · {time}</RSMF.AiTerminal.StarsAtTime>
+  <RSMF.AiTerminal.PendingAtTime>Request pending · {time}</RSMF.AiTerminal.PendingAtTime>
+  <RSMF.AiTerminal.SelectRecord>Select a record on the left to view details</RSMF.AiTerminal.SelectRecord>
+  <RSMF.AiTerminal.Tab.Source>Source data</RSMF.AiTerminal.Tab.Source>
+  <RSMF.AiTerminal.Tab.Request>Sent to AI</RSMF.AiTerminal.Tab.Request>
+  <RSMF.AiTerminal.Tab.Output>AI output</RSMF.AiTerminal.Tab.Output>
+  <RSMF.AiTerminal.Tab.Parsed>Parsed result</RSMF.AiTerminal.Tab.Parsed>
+  <RSMF.AiTerminal.HttpAttemptsHeader>HTTP attempts:</RSMF.AiTerminal.HttpAttemptsHeader>
+  <RSMF.AiTerminal.Request.SystemPrompt>System prompt:</RSMF.AiTerminal.Request.SystemPrompt>
+  <RSMF.AiTerminal.Request.UserPrompt>Merged user prompt preview:</RSMF.AiTerminal.Request.UserPrompt>
+  <RSMF.AiTerminal.Request.StablePrefix>Stable user prefix:</RSMF.AiTerminal.Request.StablePrefix>
+  <RSMF.AiTerminal.Request.DynamicInput>Dynamic customer input:</RSMF.AiTerminal.Request.DynamicInput>
+  <RSMF.AiTerminal.Request.Messages>Messages:</RSMF.AiTerminal.Request.Messages>
+  <RSMF.AiTerminal.AssistantTextHeader>Final extracted assistant text:</RSMF.AiTerminal.AssistantTextHeader>
+  <RSMF.AiTerminal.HttpAttemptDetailsHeader>HTTP attempt details:</RSMF.AiTerminal.HttpAttemptDetailsHeader>
+  <RSMF.AiTerminal.FailureReasonHeader>Failure reason:</RSMF.AiTerminal.FailureReasonHeader>
+  <RSMF.AiTerminal.StatusLine>Status: {value}</RSMF.AiTerminal.StatusLine>
+  <RSMF.AiTerminal.TimeLine>Time: {value}</RSMF.AiTerminal.TimeLine>
+  <RSMF.AiTerminal.GameDayTickLine>Game day: {day}  Tick: {tick}</RSMF.AiTerminal.GameDayTickLine>
+  <RSMF.AiTerminal.ProviderLine>Provider: {value}</RSMF.AiTerminal.ProviderLine>
+  <RSMF.AiTerminal.ProviderModelLine>Provider: {provider}  Model: {model}</RSMF.AiTerminal.ProviderModelLine>
+  <RSMF.AiTerminal.ModelLine>Model: {value}</RSMF.AiTerminal.ModelLine>
+  <RSMF.AiTerminal.CustomerShopLine>Customer: {customer}  Shop: {shop}  ReviewId: {reviewId}</RSMF.AiTerminal.CustomerShopLine>
+  <RSMF.AiTerminal.NewConversationLine>New conversation: {value}</RSMF.AiTerminal.NewConversationLine>
+  <RSMF.AiTerminal.ConversationTurnsLine>Conversation turns: {value}</RSMF.AiTerminal.ConversationTurnsLine>
+  <RSMF.AiTerminal.ConversationCharsLine>Conversation chars: {value}</RSMF.AiTerminal.ConversationCharsLine>
+  <RSMF.AiTerminal.ParsedResultHeader>Parsed result:</RSMF.AiTerminal.ParsedResultHeader>
+  <RSMF.AiTerminal.SourceSection>=== Source data ===</RSMF.AiTerminal.SourceSection>
+  <RSMF.AiTerminal.RequestSection>=== Sent to AI ===</RSMF.AiTerminal.RequestSection>
+  <RSMF.AiTerminal.HttpSection>=== HTTP attempts ===</RSMF.AiTerminal.HttpSection>
+  <RSMF.AiTerminal.OutputSection>=== AI output ===</RSMF.AiTerminal.OutputSection>
+  <RSMF.AiTerminal.ParsedSection>=== Parsed result ===</RSMF.AiTerminal.ParsedSection>
+  <RSMF.AiTerminal.FailureSection>=== Failure reason ===</RSMF.AiTerminal.FailureSection>
+  <RSMF.AiTerminal.NoHttpAttempts>No HTTP attempts recorded.</RSMF.AiTerminal.NoHttpAttempts>
+  <RSMF.AiTerminal.HttpAttemptLine>[{index}] {label}  HTTP {statusCode}  success: {success}</RSMF.AiTerminal.HttpAttemptLine>
+  <RSMF.AiTerminal.FeaturedItemLine>{label} / {defName} x{count} {amount} silver</RSMF.AiTerminal.FeaturedItemLine>
+  <RSMF.AiTerminal.CopyPage>Copy page</RSMF.AiTerminal.CopyPage>
+  <RSMF.AiTerminal.CopiedPageMessage>Current page copied to clipboard.</RSMF.AiTerminal.CopiedPageMessage>
+  <RSMF.AiTerminal.CopyRecord>Copy record</RSMF.AiTerminal.CopyRecord>
+  <RSMF.AiTerminal.CopiedRecordMessage>Current AI debug record copied to clipboard.</RSMF.AiTerminal.CopiedRecordMessage>
+  <RSMF.AiTerminal.ExportCurrentJson>Export current JSON</RSMF.AiTerminal.ExportCurrentJson>
+  <RSMF.AiTerminal.ExportAllJson>Export all JSON</RSMF.AiTerminal.ExportAllJson>
+  <RSMF.AiTerminal.ClearLog>Clear this log</RSMF.AiTerminal.ClearLog>
+  <RSMF.AiTerminal.ClearLogConfirm>Clear this AI debug log? Generated customer reviews will not be deleted.</RSMF.AiTerminal.ClearLogConfirm>
+  <RSMF.AiTerminal.ExportSucceeded>AI debug JSON exported, path copied: {path}</RSMF.AiTerminal.ExportSucceeded>
+  <RSMF.AiTerminal.ExportFailed>AI debug JSON export failed: {message}</RSMF.AiTerminal.ExportFailed>
+  <RSMF.Business.Page.ShopManagement>Shop management</RSMF.Business.Page.ShopManagement>
+  <RSMF.Business.Page.Vending>Vending</RSMF.Business.Page.Vending>
+  <RSMF.Business.Page.Finance>Finance</RSMF.Business.Page.Finance>
+  <RSMF.Business.Page.Reviews>Customer reviews</RSMF.Business.Page.Reviews>
+  <RSMF.Business.Page.CollectibleExchange>Collectible exchange</RSMF.Business.Page.CollectibleExchange>
+  <RSMF.Business.Page.Customers>Customers</RSMF.Business.Page.Customers>
+  <RSMF.Business.Page.Staff>Staff</RSMF.Business.Page.Staff>
+  <RSMF.Business.Empty.NoVendingMachines>(No vending machine storage)</RSMF.Business.Empty.NoVendingMachines>
+  <RSMF.Business.Empty.NoManageableShops>(No manageable shop areas)</RSMF.Business.Empty.NoManageableShops>
+  <RSMF.Business.Empty.FinanceMissing>(Finance component is not initialized)</RSMF.Business.Empty.FinanceMissing>
+  <RSMF.Business.Empty.NoBills>(No bill logs)</RSMF.Business.Empty.NoBills>
+  <RSMF.Business.Empty.NoActiveCustomers>(No active customers)</RSMF.Business.Empty.NoActiveCustomers>
+  <RSMF.Business.Empty.NoStaffShops>(No shops with configurable staff)</RSMF.Business.Empty.NoStaffShops>
+  <RSMF.Business.Empty.NoReviews>(No customer reviews)</RSMF.Business.Empty.NoReviews>
+  <RSMF.Business.Empty.NoCollectibleExchangeLists>(No collectible exchange entries)</RSMF.Business.Empty.NoCollectibleExchangeLists>
+  <RSMF.Business.MapLine>Map: {map}</RSMF.Business.MapLine>
+  <RSMF.Business.MapPositionLine>Map: {map}   Position: {position}</RSMF.Business.MapPositionLine>
+  <RSMF.Business.Status.Open>Status: open</RSMF.Business.Status.Open>
+  <RSMF.Business.Status.Custom>Status: {status}</RSMF.Business.Status.Custom>
+  <RSMF.Business.Status.VendingUsable>Status: sellable</RSMF.Business.Status.VendingUsable>
+  <RSMF.Business.Status.VendingDisabled>Status: disabled, unpowered, switched off, or out of stock</RSMF.Business.Status.VendingDisabled>
+  <RSMF.Business.ShopInventoryLine>Storage: {storages}   Sale goods: {goodsKinds}   In stock: {inStockKinds}   Bundles: {comboCount}</RSMF.Business.ShopInventoryLine>
+  <RSMF.Business.ShopMetricsLine>Score {score}   Reputation {reputation}   Satisfaction {satisfaction}   Beauty {beauty}   Capacity {capacity}   Reviews {stars}★/{reviewCount}</RSMF.Business.ShopMetricsLine>
+  <RSMF.Business.ShopDemandLine>Traffic {spawn}x   Beauty {beauty}x   Scale {scale}x   Capacity scale {capacityScale}x   Effective scale {effectiveScale}</RSMF.Business.ShopDemandLine>
+  <RSMF.Business.ComboPreview>Bundle preview: {preview}</RSMF.Business.ComboPreview>
+  <RSMF.Business.VendingInventoryLine>Goods: {stockedKinds}/{sellableKinds} stocked   Capacity: {stored}/{capacity}   Customers: {customers}/{maxCustomers}</RSMF.Business.VendingInventoryLine>
+  <RSMF.Business.GoodsPreview>Goods preview: {preview}</RSMF.Business.GoodsPreview>
+  <RSMF.Business.UnconfiguredGoods>No configured goods</RSMF.Business.UnconfiguredGoods>
+  <RSMF.Business.CollectibleExchange.Header>Collectible exchange entries: {count}</RSMF.Business.CollectibleExchange.Header>
+  <RSMF.Business.CollectibleExchange.HeaderTip>This lists currently available exchange shops. Open one to view its shop intro, period progress, and exchange items.</RSMF.Business.CollectibleExchange.HeaderTip>
+  <RSMF.Business.CollectibleExchange.RowTitle>{shop} · {title}</RSMF.Business.CollectibleExchange.RowTitle>
+  <RSMF.Business.CollectibleExchange.Priority>Priority {priority}</RSMF.Business.CollectibleExchange.Priority>
+  <RSMF.Business.CollectibleExchange.DefaultShopName>Collectible exchange</RSMF.Business.CollectibleExchange.DefaultShopName>
+  <RSMF.Business.CollectibleExchange.NoIntro>No description.</RSMF.Business.CollectibleExchange.NoIntro>
+  <RSMF.Business.CollectibleExchange.Enter>Enter</RSMF.Business.CollectibleExchange.Enter>
+  <RSMF.Business.CollectibleExchange.Progress>Progress: {progress}</RSMF.Business.CollectibleExchange.Progress>
+  <RSMF.Business.CollectibleExchange.StockProgress>Exchange progress: purchased {purchased}/{total}, stock left {remaining}</RSMF.Business.CollectibleExchange.StockProgress>
+  <RSMF.CollectibleExchange.EmptyItems>This exchange shop has no configured items.</RSMF.CollectibleExchange.EmptyItems>
+  <RSMF.CollectibleExchange.Remaining>{count} left</RSMF.CollectibleExchange.Remaining>
+  <RSMF.CollectibleExchange.SoldOut>Sold out</RSMF.CollectibleExchange.SoldOut>
+  <RSMF.CollectibleExchange.Buy>Buy</RSMF.CollectibleExchange.Buy>
+  <RSMF.CollectibleExchange.PriceLine>{price} x {currency}</RSMF.CollectibleExchange.PriceLine>
+  <RSMF.CollectibleExchange.SinglePurchaseCount>{count} per purchase</RSMF.CollectibleExchange.SinglePurchaseCount>
+  <RSMF.CollectibleExchange.ItemWithCount>{item} x{count}</RSMF.CollectibleExchange.ItemWithCount>
+  <RSMF.CollectibleExchange.InvalidItem>Invalid item configuration.</RSMF.CollectibleExchange.InvalidItem>
+  <RSMF.CollectibleExchange.InvalidCurrency>Invalid currency configuration.</RSMF.CollectibleExchange.InvalidCurrency>
+  <RSMF.CollectibleExchange.ComponentMissing>Collectible exchange save component is not initialized.</RSMF.CollectibleExchange.ComponentMissing>
+  <RSMF.CollectibleExchange.NotEnoughCurrency>Not enough {currency}. Need {need}, available {have}.</RSMF.CollectibleExchange.NotEnoughCurrency>
+  <RSMF.CollectibleExchange.NoPlayerMap>No available player colony map.</RSMF.CollectibleExchange.NoPlayerMap>
+  <RSMF.CollectibleExchange.PurchaseSucceededMessage>Purchased {item}.</RSMF.CollectibleExchange.PurchaseSucceededMessage>
+  <RSMF.CollectibleExchange.LetterLabel>{shop} delivery</RSMF.CollectibleExchange.LetterLabel>
+  <RSMF.CollectibleExchange.LetterText>The {item} you bought from {shop} has arrived by drop pod.</RSMF.CollectibleExchange.LetterText>
+  <RSMF.CollectibleExchange.PortraitMissing>No portrait configured</RSMF.CollectibleExchange.PortraitMissing>
+  <RSMF.CollectibleExchange.PeriodFallback>Current period</RSMF.CollectibleExchange.PeriodFallback>
+  <RSMF.CollectibleExchange.ProgressFallback>No item rotation progress is available.</RSMF.CollectibleExchange.ProgressFallback>
+  <RSMF.CollectibleExchange.PortraitDebug.Title>Portrait debug (god mode)</RSMF.CollectibleExchange.PortraitDebug.Title>
+  <RSMF.CollectibleExchange.PortraitDebug.Scale>Scale</RSMF.CollectibleExchange.PortraitDebug.Scale>
+  <RSMF.CollectibleExchange.PortraitDebug.OffsetX>Offset X</RSMF.CollectibleExchange.PortraitDebug.OffsetX>
+  <RSMF.CollectibleExchange.PortraitDebug.OffsetY>Offset Y</RSMF.CollectibleExchange.PortraitDebug.OffsetY>
+  <RSMF.CollectibleExchange.PortraitDebug.Reset>Reset</RSMF.CollectibleExchange.PortraitDebug.Reset>
+  <RSMF.CollectibleExchange.PortraitDebug.CopyXml>Copy XML</RSMF.CollectibleExchange.PortraitDebug.CopyXml>
+  <RSMF.CollectibleExchange.PortraitDebug.Copied>Portrait XML snippet copied.</RSMF.CollectibleExchange.PortraitDebug.Copied>
+  <RSMF.CollectibleExchange.PortraitDebug.Values>scale {scale}  x {x}  y {y}</RSMF.CollectibleExchange.PortraitDebug.Values>
+  <RSMF.CollectibleExchange.Dialogue.DefaultWelcome>Welcome. Take your time.</RSMF.CollectibleExchange.Dialogue.DefaultWelcome>
+  <RSMF.CollectibleExchange.Dialogue.DefaultBrowse>{item} is worth a look if you need it.</RSMF.CollectibleExchange.Dialogue.DefaultBrowse>
+  <RSMF.CollectibleExchange.Dialogue.DefaultIdle>No rush. The stock is still here.</RSMF.CollectibleExchange.Dialogue.DefaultIdle>
+  <RSMF.CollectibleExchange.Dialogue.DefaultPurchase>Deal. The goods will be delivered.</RSMF.CollectibleExchange.Dialogue.DefaultPurchase>
+  <RSMF.CollectibleExchange.Dialogue.DefaultNotEnoughCurrency>Not enough currency for this exchange.</RSMF.CollectibleExchange.Dialogue.DefaultNotEnoughCurrency>
+  <RSMF.Business.PauseBusiness>Pause</RSMF.Business.PauseBusiness>
+  <RSMF.Business.StartBusiness>Open</RSMF.Business.StartBusiness>
+  <RSMF.Business.Finance.Tab.Overview>Overview</RSMF.Business.Finance.Tab.Overview>
+  <RSMF.Business.Finance.Tab.Bills>Bills</RSMF.Business.Finance.Tab.Bills>
+  <RSMF.Business.Finance.TotalIncome>Total income</RSMF.Business.Finance.TotalIncome>
+  <RSMF.Business.Finance.TotalBills>Total bills</RSMF.Business.Finance.TotalBills>
+  <RSMF.Business.Finance.TodayIncome>Today's income</RSMF.Business.Finance.TodayIncome>
+  <RSMF.Business.Finance.ProductSales>Item sales / income</RSMF.Business.Finance.ProductSales>
+  <RSMF.Business.Finance.ComboSales>Bundle sales / income</RSMF.Business.Finance.ComboSales>
+  <RSMF.Business.Finance.ShopProfit>Shop profit</RSMF.Business.Finance.ShopProfit>
+  <RSMF.Business.Finance.DailyProfit>Daily profit</RSMF.Business.Finance.DailyProfit>
+  <RSMF.Business.Finance.PageInfo>Page {page}/{pages}   {pageSize} per page   {total} total</RSMF.Business.Finance.PageInfo>
+  <RSMF.Business.Finance.BillLine>Day {day}  {shop}  Customer: {customer}  Paid: {paid} silver</RSMF.Business.Finance.BillLine>
+  <RSMF.Business.Finance.ProductRow>{label}: sold {count}, income ¥{revenue}</RSMF.Business.Finance.ProductRow>
+  <RSMF.Business.Finance.ShopRow>{label}: income ¥{revenue}, profit ¥{profit}</RSMF.Business.Finance.ShopRow>
+  <RSMF.Business.Finance.DailyRow>Day {day}: income ¥{revenue}, profit ¥{profit}</RSMF.Business.Finance.DailyRow>
+  <RSMF.Business.Finance.DetailsEmpty>Details: (none)</RSMF.Business.Finance.DetailsEmpty>
+  <RSMF.Business.Finance.Details>Details: {details}</RSMF.Business.Finance.Details>
+  <RSMF.Business.Finance.Chart.Title>Finance charts</RSMF.Business.Finance.Chart.Title>
+  <RSMF.Business.Finance.Chart.DailyTrend>Recent revenue / profit step trend</RSMF.Business.Finance.Chart.DailyTrend>
+  <RSMF.Business.Finance.Chart.ShopCompare>Shop revenue comparison</RSMF.Business.Finance.Chart.ShopCompare>
+  <RSMF.Business.Finance.Chart.RevenueMix>Revenue mix</RSMF.Business.Finance.Chart.RevenueMix>
+  <RSMF.Business.Finance.Chart.Revenue>Revenue</RSMF.Business.Finance.Chart.Revenue>
+  <RSMF.Business.Finance.Chart.Profit>Profit</RSMF.Business.Finance.Chart.Profit>
+  <RSMF.Business.Finance.Chart.Product>Products</RSMF.Business.Finance.Chart.Product>
+  <RSMF.Business.Finance.Chart.Combo>Bundles</RSMF.Business.Finance.Chart.Combo>
+  <RSMF.Business.Finance.Chart.Service>Services</RSMF.Business.Finance.Chart.Service>
+  <RSMF.Business.Finance.Chart.DayShort>Day {day}</RSMF.Business.Finance.Chart.DayShort>
+  <RSMF.Business.Finance.Chart.Value>¥{value}</RSMF.Business.Finance.Chart.Value>
+  <RSMF.Business.Finance.Chart.MixLine>{label}: {value}, {percent}%</RSMF.Business.Finance.Chart.MixLine>
+  <RSMF.Business.Customer.ActiveCount>Active customers: {count}</RSMF.Business.Customer.ActiveCount>
+  <RSMF.Business.Customer.AverageBudgetUse>Average budget use: {percent}%</RSMF.Business.Customer.AverageBudgetUse>
+  <RSMF.Business.Customer.ShopMapLine>Shop: {shop}   Map: {map}</RSMF.Business.Customer.ShopMapLine>
+  <RSMF.Business.Customer.JobPatienceLine>Current job: {job}   Checkout patience: {patience} ticks</RSMF.Business.Customer.JobPatienceLine>
+  <RSMF.Business.Customer.BudgetLine>Budget {budget}  Spent {spent}  Remaining {remaining}</RSMF.Business.Customer.BudgetLine>
+  <RSMF.Business.Customer.PreferenceLine>Preferences: {preferences}</RSMF.Business.Customer.PreferenceLine>
+  <RSMF.Business.Customer.ShopFallback>Shop #{id}</RSMF.Business.Customer.ShopFallback>
+  <RSMF.Business.Customer.NoCurrentJob>(none)</RSMF.Business.Customer.NoCurrentJob>
+  <RSMF.Business.Staff.Line>Roles: {roles}   Assigned staff: {assigned}   Open status: {status}</RSMF.Business.Staff.Line>
+  <RSMF.Business.Staff.OpenConfig>Open staff setup</RSMF.Business.Staff.OpenConfig>
+  <RSMF.Business.Storage.NotFoundMessage>No configurable storage found for this shop.</RSMF.Business.Storage.NotFoundMessage>
+  <RSMF.Business.Storage.OptionLabel>Storage #{index} - {label}</RSMF.Business.Storage.OptionLabel>
+  <RSMF.Business.Storage.CannotOpenMessage>This storage cannot open the management panel.</RSMF.Business.Storage.CannotOpenMessage>
+  <RSMF.Business.VendingMachineLabel>Vending machine: {label}</RSMF.Business.VendingMachineLabel>
+  <RSMF.Business.VendingMachineCustomer>Vending machine customer</RSMF.Business.VendingMachineCustomer>
+  <RSMF.Business.UnknownShop>Unknown shop</RSMF.Business.UnknownShop>
+  <RSMF.Business.ShopFallback>Shop #{id}</RSMF.Business.ShopFallback>
+  <RSMF.StaffManager.Title>{shop}'s staff setup</RSMF.StaffManager.Title>
+  <RSMF.StaffManager.OpenStatus>Open status: {status}</RSMF.StaffManager.OpenStatus>
+  <RSMF.StaffManager.RoleList>Role list</RSMF.StaffManager.RoleList>
+  <RSMF.StaffManager.RoleListTip>Roles are shown automatically based on buildings and role defs already present in the shop.</RSMF.StaffManager.RoleListTip>
+  <RSMF.StaffManager.AssignedCount>Assigned: {assigned}/{max}</RSMF.StaffManager.AssignedCount>
+  <RSMF.StaffManager.SelectRole>Select a role</RSMF.StaffManager.SelectRole>
+  <RSMF.StaffManager.CandidateTitle>{role} candidates</RSMF.StaffManager.CandidateTitle>
+  <RSMF.StaffManager.CurrentAssigned>Current assignment: {pawns}</RSMF.StaffManager.CurrentAssigned>
+  <RSMF.StaffManager.Idle>Idle</RSMF.StaffManager.Idle>
+  <RSMF.StaffManager.CurrentJob>Current job: {job}</RSMF.StaffManager.CurrentJob>
+  <RSMF.StaffManager.MapLine>Map: {map}</RSMF.StaffManager.MapLine>
+  <RSMF.StaffManager.Ineligible>Cannot assign: {reason}</RSMF.StaffManager.Ineligible>
+  <RSMF.StaffManager.RemoveRole>Remove</RSMF.StaffManager.RemoveRole>
+  <RSMF.StaffManager.AddRole>Add</RSMF.StaffManager.AddRole>
+  <RSMF.StaffManager.Unassigned>Unassigned</RSMF.StaffManager.Unassigned>
+  <RSMF.StaffManager.InvalidPawn>Invalid pawn</RSMF.StaffManager.InvalidPawn>
+  <RSMF.StaffManager.InvalidRole>Invalid role</RSMF.StaffManager.InvalidRole>
+  <RSMF.StaffManager.DeadOrUnavailable>Dead or unavailable</RSMF.StaffManager.DeadOrUnavailable>
+  <RSMF.StaffManager.NoWorkSettings>No work settings</RSMF.StaffManager.NoWorkSettings>
+  <RSMF.StaffManager.Eligible>Eligible</RSMF.StaffManager.Eligible>
+  <RSMF.StaffManager.DisabledWorkType>Disabled work type: {workType}</RSMF.StaffManager.DisabledWorkType>
+  <RSMF.StaffManager.InactiveWorkType>Inactive work type: {workType}</RSMF.StaffManager.InactiveWorkType>
+  <RSMF.StaffManager.MissingCapacity>Missing capacity: {capacity}</RSMF.StaffManager.MissingCapacity>
+  <RSMF.StaffManager.NoUsableRoleWork>No usable role work</RSMF.StaffManager.NoUsableRoleWork>
+  <RSMF.GoodsManager.AvailableCategories>Available categories</RSMF.GoodsManager.AvailableCategories>
+  <RSMF.GoodsManager.CategoryNav>Category navigation</RSMF.GoodsManager.CategoryNav>
+  <RSMF.GoodsManager.RestrictionTip>This storage only allows: {labels}</RSMF.GoodsManager.RestrictionTip>
+  <RSMF.GoodsManager.ClearSelection>-- Clear selection --</RSMF.GoodsManager.ClearSelection>
+  <RSMF.GoodsManager.SelectCategoryFirst>Select a goods category to manage on the left</RSMF.GoodsManager.SelectCategoryFirst>
+  <RSMF.GoodsManager.NoCategories>This storage has no available goods categories</RSMF.GoodsManager.NoCategories>
+  <RSMF.GoodsManager.SearchPlaceholder>Search items...</RSMF.GoodsManager.SearchPlaceholder>
+  <RSMF.GoodsManager.TargetTotal>Target total: {current}/{max}</RSMF.GoodsManager.TargetTotal>
+  <RSMF.GoodsManager.Header.Price>Price (silver)</RSMF.GoodsManager.Header.Price>
+  <RSMF.GoodsManager.Header.Target>Target</RSMF.GoodsManager.Header.Target>
+  <RSMF.GoodsManager.Header.Slider>Quick adjust</RSMF.GoodsManager.Header.Slider>
+  <RSMF.GoodsManager.Header.Stock>Stock</RSMF.GoodsManager.Header.Stock>
+  <RSMF.GoodsManager.Header.Name>Item name</RSMF.GoodsManager.Header.Name>
+  <RSMF.GoodsManager.PriceTip>Reference market value: {value} silver</RSMF.GoodsManager.PriceTip>
+  <RSMF.GoodsManager.PendingEvictWarning>⚠️ Warning: after saving, these items will be removed from storage: {names}</RSMF.GoodsManager.PendingEvictWarning>
+  <RSMF.GoodsManager.CapacityText>Capacity: {current}/{max}</RSMF.GoodsManager.CapacityText>
+  <RSMF.GoodsManager.SelectAllPage>Select all page</RSMF.GoodsManager.SelectAllPage>
+  <RSMF.GoodsManager.ClearAllPage>Clear page</RSMF.GoodsManager.ClearAllPage>
+  <RSMF.GoodsManager.Save>Save</RSMF.GoodsManager.Save>
+  <RSMF.GoodsManager.Cancel>Cancel</RSMF.GoodsManager.Cancel>
+  <RSMF.GoodsManager.AutoTrimNotice>Target amounts were trimmed to the storage capacity limit; {trimmed} excess items were removed.</RSMF.GoodsManager.AutoTrimNotice>
+  <RSMF.GoodsManager.StockOk>■ Enough</RSMF.GoodsManager.StockOk>
+  <RSMF.GoodsManager.StockLow>■ Low</RSMF.GoodsManager.StockLow>
+  <RSMF.GoodsManager.StockNo>■ Out</RSMF.GoodsManager.StockNo>
+  <RSMF.GoodsManager.InvalidCategory>This storage cannot sell that goods category.</RSMF.GoodsManager.InvalidCategory>
+  <RSMF.GoodsManager.AllGoodsCategories>All goods categories</RSMF.GoodsManager.AllGoodsCategories>
+  <RSMF.ShopManager.SaveTip>Tip: changes only take effect after clicking "Save"; "Cancel" will discard all changes.</RSMF.ShopManager.SaveTip>
+  <RSMF.ShopManager.Cancel>Cancel</RSMF.ShopManager.Cancel>
+  <RSMF.ShopManager.Save>✔  Save</RSMF.ShopManager.Save>
+  <RSMF.ShopManager.AutoTrimNotice>Target amounts were trimmed to the storage capacity limit: {storageCount} storages removed {trimmed} excess entries.</RSMF.ShopManager.AutoTrimNotice>
+  <RSMF.ShopManager.Header.Status>Status</RSMF.ShopManager.Header.Status>
+  <RSMF.ShopManager.Header.Stock>Current / Target</RSMF.ShopManager.Header.Stock>
+  <RSMF.ShopManager.Header.Price>Price</RSMF.ShopManager.Header.Price>
+  <RSMF.ShopManager.Header.Name>Item name</RSMF.ShopManager.Header.Name>
+  <RSMF.ShopManager.Status.OutOfStock>Out</RSMF.ShopManager.Status.OutOfStock>
+  <RSMF.ShopManager.Status.Low>Low</RSMF.ShopManager.Status.Low>
+  <RSMF.ShopManager.Status.Enough>Enough</RSMF.ShopManager.Status.Enough>
+  <RSMF.ShopManager.TargetPriceHeader>Price</RSMF.ShopManager.TargetPriceHeader>
+  <RSMF.ShopManager.TargetCountHeader>Target</RSMF.ShopManager.TargetCountHeader>
+  <RSMF.ShopManager.TargetSliderHeader>Quick adjust</RSMF.ShopManager.TargetSliderHeader>
+  <RSMF.ShopManager.TargetGoodsHeader>Item name  (check to stock)</RSMF.ShopManager.TargetGoodsHeader>
+  <RSMF.ShopManager.ComboItemCount>{kindCount} kinds · {totalItems} items</RSMF.ShopManager.ComboItemCount>
+  <RSMF.ShopManager.ComboName>Bundle name</RSMF.ShopManager.ComboName>
+  <RSMF.ShopManager.RandomName>🎲 Random name</RSMF.ShopManager.RandomName>
+  <RSMF.ShopManager.ComboPrice>Bundle price</RSMF.ShopManager.ComboPrice>
+  <RSMF.ShopManager.EstimateByItem>📊 Estimate by item</RSMF.ShopManager.EstimateByItem>
+  <RSMF.ShopManager.AutoEstimateTip>Estimate automatically as 90% of the sum of item base prices</RSMF.ShopManager.AutoEstimateTip>
+  <RSMF.ShopManager.DeleteCombo>Delete bundle</RSMF.ShopManager.DeleteCombo>
+  <RSMF.ShopManager.Quantity>Quantity</RSMF.ShopManager.Quantity>
+  <RSMF.ShopManager.Slider>Slider</RSMF.ShopManager.Slider>
+  <RSMF.ShopManager.ComboGoodsHeader>Goods on sale  (check to add to bundle)</RSMF.ShopManager.ComboGoodsHeader>
+  <RSMF.ShopManager.CurrentStatus>Current status: {status}</RSMF.ShopManager.CurrentStatus>
+  <RSMF.ShopManager.Schedule>Schedule: {schedule}</RSMF.ShopManager.Schedule>
+  <RSMF.ShopManager.ManualOpen>Store open</RSMF.ShopManager.ManualOpen>
+  <RSMF.ShopManager.ManualOpenTip>Turning this off stops customer refresh and shop worker tasks.</RSMF.ShopManager.ManualOpenTip>
+  <RSMF.ShopManager.ScheduledOpen>Open on schedule</RSMF.ShopManager.ScheduledOpen>
+  <RSMF.ShopManager.ScheduledOpenTip>When enabled, the shop only opens during the checked hours below.</RSMF.ShopManager.ScheduledOpenTip>
+  <RSMF.ShopManager.AlwaysOpen>All day</RSMF.ShopManager.AlwaysOpen>
+  <RSMF.ShopManager.AlwaysClosed>All off</RSMF.ShopManager.AlwaysClosed>
+  <RSMF.ShopManager.DefaultSchedule>Default 09-21</RSMF.ShopManager.DefaultSchedule>
+  <RSMF.ShopManager.BusinessHours>Business hours</RSMF.ShopManager.BusinessHours>
+  <RSMF.ShopManager.OpenShort>On</RSMF.ShopManager.OpenShort>
+  <RSMF.ShopManager.ClosedShort>Off</RSMF.ShopManager.ClosedShort>
+  <RSMF.ShopManager.ManuallyClosed>Manually closed</RSMF.ShopManager.ManuallyClosed>
+  <RSMF.ShopManager.OutsideSchedule>Closed hours</RSMF.ShopManager.OutsideSchedule>
+  <RSMF.ShopManager.OpenNow>Open now</RSMF.ShopManager.OpenNow>
+  <RSMF.ShopManager.Usage>Occupied</RSMF.ShopManager.Usage>
+  <RSMF.ShopManager.Capacity>Capacity</RSMF.ShopManager.Capacity>
+  <RSMF.ShopManager.OverridePrice>Override price</RSMF.ShopManager.OverridePrice>
+  <RSMF.ShopManager.Enabled>Enabled</RSMF.ShopManager.Enabled>
+  <RSMF.ShopManager.ServiceBuilding>Service building</RSMF.ShopManager.ServiceBuilding>
+  <RSMF.ShopManager.ServiceName>Service name</RSMF.ShopManager.ServiceName>
+  <RSMF.ShopManager.SearchPlaceholder>Search item name...</RSMF.ShopManager.SearchPlaceholder>
+  <RSMF.ShopManager.ClearSearch>Clear</RSMF.ShopManager.ClearSearch>
+  <RSMF.ShopManager.GoodsServiceCount>Goods {goods} / Services {services}</RSMF.ShopManager.GoodsServiceCount>
+  <RSMF.ShopManager.Sidebar.Overview>📊  Inventory overview</RSMF.ShopManager.Sidebar.Overview>
+  <RSMF.ShopManager.Sidebar.Schedule>🕘  Business settings</RSMF.ShopManager.Sidebar.Schedule>
+  <RSMF.ShopManager.Sidebar.Goods>📦  Stock goods</RSMF.ShopManager.Sidebar.Goods>
+  <RSMF.ShopManager.Sidebar.Services>💧  Service setup</RSMF.ShopManager.Sidebar.Services>
+  <RSMF.ShopManager.CombosHeader>Bundles  ({count})</RSMF.ShopManager.CombosHeader>
+  <RSMF.ShopManager.NewCombo>+ New bundle</RSMF.ShopManager.NewCombo>
+  <RSMF.ShopSchedule.ManuallyClosed>Manually closed</RSMF.ShopSchedule.ManuallyClosed>
+  <RSMF.ShopSchedule.OpenAllDay>Open all day</RSMF.ShopSchedule.OpenAllDay>
+  <RSMF.ShopSchedule.OpenAtHour>Open ({hour}:00)</RSMF.ShopSchedule.OpenAtHour>
+  <RSMF.ShopSchedule.ClosedAtHour>Closed hours ({hour}:00)</RSMF.ShopSchedule.ClosedAtHour>
+  <RSMF.ShopSchedule.NoBusinessHours>No business hours</RSMF.ShopSchedule.NoBusinessHours>
+  <RSMF.ShopService.Fail.MissingDef>Missing service definition</RSMF.ShopService.Fail.MissingDef>
+  <RSMF.ShopService.Fail.ProviderUnavailable>Service building unavailable</RSMF.ShopService.Fail.ProviderUnavailable>
+  <RSMF.ShopService.Fail.ProviderWrongMap>Service building is not on this map</RSMF.ShopService.Fail.ProviderWrongMap>
+  <RSMF.ShopService.Fail.UseCellNotStandable>Service position is not standable</RSMF.ShopService.Fail.UseCellNotStandable>
+  <RSMF.ShopService.Fail.CustomerCannotReach>Customer cannot reach service position</RSMF.ShopService.Fail.CustomerCannotReach>
+  <RSMF.ShopService.Fail.ToiletUnavailable>Toilet unavailable</RSMF.ShopService.Fail.ToiletUnavailable>
+  <RSMF.ShopService.Fail.ToiletWrongMap>Toilet is not on this map</RSMF.ShopService.Fail.ToiletWrongMap>
+  <RSMF.ShopService.Fail.ToiletCellInvalid>Toilet position is invalid</RSMF.ShopService.Fail.ToiletCellInvalid>
+  <RSMF.ShopService.Fail.ToiletCellNotStandable>Toilet cell is not standable</RSMF.ShopService.Fail.ToiletCellNotStandable>
+  <RSMF.ShopService.Fail.CustomerCannotReachToilet>Customer cannot reach the toilet</RSMF.ShopService.Fail.CustomerCannotReachToilet>
+  <RSMF.CustomerArrival.ForceFailNoShopOrVending>Force refresh failed: this map has no open shop areas or vending machines.</RSMF.CustomerArrival.ForceFailNoShopOrVending>
+  <RSMF.CustomerArrival.ForceFailNoKinds>Force refresh failed: no available customer kind definitions.</RSMF.CustomerArrival.ForceFailNoKinds>
+  <RSMF.CustomerArrival.ForceFailNoKindForConditions>Force refresh failed: no customer kinds can appear for the current time or weather.</RSMF.CustomerArrival.ForceFailNoKindForConditions>
+  <RSMF.CustomerArrival.ForceSpawnShopSuccess>Forced customer refresh: shop [{shop}], count {count}.</RSMF.CustomerArrival.ForceSpawnShopSuccess>
+  <RSMF.CustomerArrival.ForceSpawnVendingSuccess>Forced vending customer refresh: [{machine}], count {count}.</RSMF.CustomerArrival.ForceSpawnVendingSuccess>
+  <RSMF.CustomerArrival.ForceFailNoMatchingKind>Force refresh failed: no customer kind matches the current shop or vending machine.</RSMF.CustomerArrival.ForceFailNoMatchingKind>
+  <RSMF.CustomerArrival.ForceFailWithReason>Force refresh failed: {reason}</RSMF.CustomerArrival.ForceFailWithReason>
+  <RSMF.CustomerArrival.UnknownWeather>unknown weather</RSMF.CustomerArrival.UnknownWeather>
+  <RSMF.CustomerArrival.ShopArrivalMessage>A customer is heading to the shop. Current weather: {weather}</RSMF.CustomerArrival.ShopArrivalMessage>
+  <RSMF.CustomerArrival.VendingArrivalMessage>A customer is heading to vending machine: {machine}.</RSMF.CustomerArrival.VendingArrivalMessage>
+  <RSMF.ComboPoster.Header>★ Bundle · {count} items ★</RSMF.ComboPoster.Header>
+  <RSMF.ComboPoster.MoreKinds>+{count} kinds</RSMF.ComboPoster.MoreKinds>
+  <RSMF.ComboPoster.NoItems>No items</RSMF.ComboPoster.NoItems>
+  <RSMF.ComboName.Empty>Empty bundle</RSMF.ComboName.Empty>
+  <RSMF.ComboName.Single.01>{0} value pack</RSMF.ComboName.Single.01>
+  <RSMF.ComboName.Single.02>Bulk {0}</RSMF.ComboName.Single.02>
+  <RSMF.ComboName.Single.03>Premium {0} box</RSMF.ComboName.Single.03>
+  <RSMF.ComboName.Single.04>{0} satisfaction pack</RSMF.ComboName.Single.04>
+  <RSMF.ComboName.Single.05>{0} combo deal</RSMF.ComboName.Single.05>
+  <RSMF.ComboName.Single.06>Selected {0} set</RSMF.ComboName.Single.06>
+  <RSMF.ComboName.Single.07>{0} stock-up pack</RSMF.ComboName.Single.07>
+  <RSMF.ComboName.Single.08>Family {0} pack</RSMF.ComboName.Single.08>
+  <RSMF.ComboName.Single.09>{0} sampler</RSMF.ComboName.Single.09>
+  <RSMF.ComboName.Single.10>Limited {0} box</RSMF.ComboName.Single.10>
+  <RSMF.ComboName.Single.11>Classic {0} bundle</RSMF.ComboName.Single.11>
+  <RSMF.ComboName.Single.12>{0} enjoy pack</RSMF.ComboName.Single.12>
+  <RSMF.ComboName.Single.13>Deluxe {0} gift pack</RSMF.ComboName.Single.13>
+  <RSMF.ComboName.Single.14>{0} special edition</RSMF.ComboName.Single.14>
+  <RSMF.ComboName.Single.15>Choice {0} gift</RSMF.ComboName.Single.15>
+  <RSMF.ComboName.Single.16>Super {0} pack</RSMF.ComboName.Single.16>
+  <RSMF.ComboName.Single.17>Festival {0} box</RSMF.ComboName.Single.17>
+  <RSMF.ComboName.Single.18>Flagship {0} set</RSMF.ComboName.Single.18>
+  <RSMF.ComboName.Single.19>{0} celebration pack</RSMF.ComboName.Single.19>
+  <RSMF.ComboName.Single.20>Crafted {0} gift set</RSMF.ComboName.Single.20>
+  <RSMF.ComboName.Double.01>{0} and {1} bucket</RSMF.ComboName.Double.01>
+  <RSMF.ComboName.Double.02>Classic {0} pairing</RSMF.ComboName.Double.02>
+  <RSMF.ComboName.Double.03>{0} party bundle</RSMF.ComboName.Double.03>
+  <RSMF.ComboName.Double.04>Deluxe {0} companion</RSMF.ComboName.Double.04>
+  <RSMF.ComboName.Double.05>{0} meets {1}</RSMF.ComboName.Double.05>
+  <RSMF.ComboName.Double.06>{0} plus {1} value combo</RSMF.ComboName.Double.06>
+  <RSMF.ComboName.Double.07>{0} lead pack with {1}</RSMF.ComboName.Double.07>
+  <RSMF.ComboName.Double.08>Golden pair: {0} and {1}</RSMF.ComboName.Double.08>
+  <RSMF.ComboName.Double.09>{0} x {1} limited bundle</RSMF.ComboName.Double.09>
+  <RSMF.ComboName.Double.10>{0} with {1}, double value</RSMF.ComboName.Double.10>
+  <RSMF.ComboName.Double.11>Power combo: {0} and {1}</RSMF.ComboName.Double.11>
+  <RSMF.ComboName.Double.12>{0} travel pack with {1}</RSMF.ComboName.Double.12>
+  <RSMF.ComboName.Double.13>Perfect pick: {0} + {1}</RSMF.ComboName.Double.13>
+  <RSMF.ComboName.Double.14>Double value: {0} meets {1}</RSMF.ComboName.Double.14>
+  <RSMF.ComboName.Double.15>{0} and {1} value pack</RSMF.ComboName.Double.15>
+  <RSMF.ComboName.Double.16>Fine duo: {0} with {1}</RSMF.ComboName.Double.16>
+  <RSMF.ComboName.Double.17>{0} and {1} team-up</RSMF.ComboName.Double.17>
+  <RSMF.ComboName.Double.18>{0} and {1} limited bag</RSMF.ComboName.Double.18>
+  <RSMF.ComboName.Double.19>{0} with {1} partner pack</RSMF.ComboName.Double.19>
+  <RSMF.ComboName.Triple.01>{0}, {1}, and {2} trio</RSMF.ComboName.Triple.01>
+  <RSMF.ComboName.Triple.02>Three-in-one value pack led by {0}</RSMF.ComboName.Triple.02>
+  <RSMF.ComboName.Triple.03>{0}, {1}, {2} complete set</RSMF.ComboName.Triple.03>
+  <RSMF.ComboName.Triple.04>Golden triangle: {0}, {1}, {2}</RSMF.ComboName.Triple.04>
+  <RSMF.ComboName.Triple.05>{0} lead set with {1} and {2}</RSMF.ComboName.Triple.05>
+  <RSMF.ComboName.Triple.06>Triple choice gift led by {0}</RSMF.ComboName.Triple.06>
+  <RSMF.ComboName.Triple.07>{0} x {1} x {2} deluxe combo</RSMF.ComboName.Triple.07>
+  <RSMF.ComboName.Triple.08>Triangle bundle led by {0}</RSMF.ComboName.Triple.08>
+  <RSMF.ComboName.Triple.09>{0}, {1}, {2} all-in pack</RSMF.ComboName.Triple.09>
+  <RSMF.ComboName.Triple.10>Triple surprise: {0}, {1}, {2}</RSMF.ComboName.Triple.10>
+  <RSMF.ComboName.Triple.11>Value trio led by {0}</RSMF.ComboName.Triple.11>
+  <RSMF.ComboName.Triple.12>{0}+{1}+{2} easy set</RSMF.ComboName.Triple.12>
+  <RSMF.ComboName.Triple.13>Three-way alliance: {0}, {1}, {2}</RSMF.ComboName.Triple.13>
+  <RSMF.ComboName.Triple.14>{0}'s helpers: {1} and {2}</RSMF.ComboName.Triple.14>
+  <RSMF.ComboName.Triple.15>All-star trio led by {0}</RSMF.ComboName.Triple.15>
+  <RSMF.ComboName.Quad.01>{0} four-piece gift bundle</RSMF.ComboName.Quad.01>
+  <RSMF.ComboName.Quad.02>Four-in-one deluxe set led by {0}</RSMF.ComboName.Quad.02>
+  <RSMF.ComboName.Quad.03>{0}, {1}, {2}, and {3} ultimate combo</RSMF.ComboName.Quad.03>
+  <RSMF.ComboName.Quad.04>Champion four-pack led by {0}</RSMF.ComboName.Quad.04>
+  <RSMF.ComboName.Quad.05>{0} x {1} x {2} x {3} super box</RSMF.ComboName.Quad.05>
+  <RSMF.ComboName.Quad.06>Four-way gathering led by {0}</RSMF.ComboName.Quad.06>
+  <RSMF.ComboName.Quad.07>{0} family set</RSMF.ComboName.Quad.07>
+  <RSMF.ComboName.Quad.08>{0} lead four-item deluxe pack</RSMF.ComboName.Quad.08>
+  <RSMF.ComboName.Quad.09>{0}, {1}, and more deluxe combo</RSMF.ComboName.Quad.09>
+  <RSMF.ComboName.Quad.10>{0} seasonal choice set</RSMF.ComboName.Quad.10>
+  <RSMF.ComboName.Quad.11>{0}, {1}, and more family bucket</RSMF.ComboName.Quad.11>
+  <RSMF.ComboName.Quad.12>{0} four-treasure deluxe pack</RSMF.ComboName.Quad.12>
+  <RSMF.ComboName.Quad.13>{0} flagship four-set</RSMF.ComboName.Quad.13>
+  <RSMF.ComboName.Quad.14>{0} four-way limited box</RSMF.ComboName.Quad.14>
+  <RSMF.ComboName.Quad.15>{0} supreme four-pack</RSMF.ComboName.Quad.15>
+  <RSMF.ComboName.Mass.01>{0} mega gift bundle</RSMF.ComboName.Mass.01>
+  <RSMF.ComboName.Mass.02>Everything starts with {0}</RSMF.ComboName.Mass.02>
+  <RSMF.ComboName.Mass.03>{0} all-star bundle</RSMF.ComboName.Mass.03>
+  <RSMF.ComboName.Mass.04>{0} ultimate stock-up box</RSMF.ComboName.Mass.04>
+  <RSMF.ComboName.Mass.05>{0} everything set</RSMF.ComboName.Mass.05>
+  <RSMF.ComboName.Mass.06>{0} deluxe family bucket</RSMF.ComboName.Mass.06>
+  <RSMF.ComboName.Mass.07>{0} unbeatable combo gift</RSMF.ComboName.Mass.07>
+  <RSMF.ComboName.Mass.08>{0} epic starter set</RSMF.ComboName.Mass.08>
+  <RSMF.CustomCustomer.Title>Custom customer registry</RSMF.CustomCustomer.Title>
+  <RSMF.CustomCustomer.Description>CustomerKindDef is read-only. Local player JSON is loaded after Defs and participates in natural customer spawning as runtime customer kinds.</RSMF.CustomCustomer.Description>
+  <RSMF.CustomCustomer.SaveDirty>Save*</RSMF.CustomCustomer.SaveDirty>
+  <RSMF.CustomCustomer.Save>Save</RSMF.CustomCustomer.Save>
+  <RSMF.CustomCustomer.Reload>Reload</RSMF.CustomCustomer.Reload>
+  <RSMF.CustomCustomer.RefreshTypes>Refresh types</RSMF.CustomCustomer.RefreshTypes>
+  <RSMF.CustomCustomer.ExportBase64>Export B64</RSMF.CustomCustomer.ExportBase64>
+  <RSMF.CustomCustomer.ImportBase64>Import B64</RSMF.CustomCustomer.ImportBase64>
+  <RSMF.CustomCustomer.ExportTitle>Export customer Base64</RSMF.CustomCustomer.ExportTitle>
+  <RSMF.CustomCustomer.ExportInfo>This text contains player custom customer kinds.</RSMF.CustomCustomer.ExportInfo>
+  <RSMF.CustomCustomer.KindListTitle>Customer kinds</RSMF.CustomCustomer.KindListTitle>
+  <RSMF.CustomCustomer.NewRuntime>New runtime customer</RSMF.CustomCustomer.NewRuntime>
+  <RSMF.CustomCustomer.Create>Create</RSMF.CustomCustomer.Create>
+  <RSMF.CustomCustomer.NoKinds>No available customer kinds</RSMF.CustomCustomer.NoKinds>
+  <RSMF.CustomCustomer.Section.BasicInfo>Basic info</RSMF.CustomCustomer.Section.BasicInfo>
+  <RSMF.CustomCustomer.DisplayName>Display name</RSMF.CustomCustomer.DisplayName>
+  <RSMF.CustomCustomer.Rename>Rename</RSMF.CustomCustomer.Rename>
+  <RSMF.CustomCustomer.DeleteKind>Delete kind</RSMF.CustomCustomer.DeleteKind>
+  <RSMF.CustomCustomer.DefReadonly>Def read-only</RSMF.CustomCustomer.DefReadonly>
+  <RSMF.CustomCustomer.SourceCustom>Source: local player JSON. Saving merges it into the runtime customer directory.</RSMF.CustomCustomer.SourceCustom>
+  <RSMF.CustomCustomer.SourceDef>Source: CustomerKindDef. You can inspect data here, but you cannot edit the Def.</RSMF.CustomCustomer.SourceDef>
+  <RSMF.CustomCustomer.Section.RefreshBudget>Refresh and budget</RSMF.CustomCustomer.Section.RefreshBudget>
+  <RSMF.CustomCustomer.MtbDays>MTB days</RSMF.CustomCustomer.MtbDays>
+  <RSMF.CustomCustomer.BudgetMin>Budget min</RSMF.CustomCustomer.BudgetMin>
+  <RSMF.CustomCustomer.BudgetMax>Budget max</RSMF.CustomCustomer.BudgetMax>
+  <RSMF.CustomCustomer.PatienceMin>Patience min</RSMF.CustomCustomer.PatienceMin>
+  <RSMF.CustomCustomer.PatienceMax>Patience max</RSMF.CustomCustomer.PatienceMax>
+  <RSMF.CustomCustomer.MinReputation>Min reputation</RSMF.CustomCustomer.MinReputation>
+  <RSMF.CustomCustomer.StartHour>Start hour</RSMF.CustomCustomer.StartHour>
+  <RSMF.CustomCustomer.EndHour>End hour</RSMF.CustomCustomer.EndHour>
+  <RSMF.CustomCustomer.ReadOnlyBudget>MTB {mtb} days    budget {min}-{max}    queue patience {patienceMin}-{patienceMax}</RSMF.CustomCustomer.ReadOnlyBudget>
+  <RSMF.CustomCustomer.ReadOnlyTime>Active hours {start}-{end}    min reputation {minReputation}</RSMF.CustomCustomer.ReadOnlyTime>
+  <RSMF.CustomCustomer.Section.PawnKind>PawnKind</RSMF.CustomCustomer.Section.PawnKind>
+  <RSMF.CustomCustomer.SelectedPawnKinds>Selected PawnKinds, use the right side to append more.</RSMF.CustomCustomer.SelectedPawnKinds>
+  <RSMF.CustomCustomer.BuiltInPawnKinds>Configured PawnKinds in the Def.</RSMF.CustomCustomer.BuiltInPawnKinds>
+  <RSMF.CustomCustomer.CannotModifyPawnKind>Def customers cannot modify PawnKinds at runtime.</RSMF.CustomCustomer.CannotModifyPawnKind>
+  <RSMF.CustomCustomer.Section.TargetWeather>Interest types and weather</RSMF.CustomCustomer.Section.TargetWeather>
+  <RSMF.CustomCustomer.TargetGoodsType>Target goods types</RSMF.CustomCustomer.TargetGoodsType>
+  <RSMF.CustomCustomer.AllowedWeather>Allowed weather</RSMF.CustomCustomer.AllowedWeather>
+  <RSMF.CustomCustomer.EmptyMeansNoLimit>. Empty means no limit.</RSMF.CustomCustomer.EmptyMeansNoLimit>
+  <RSMF.CustomCustomer.Section.Preferences>Preferences</RSMF.CustomCustomer.Section.Preferences>
+  <RSMF.CustomCustomer.BuiltInPreferences>Configured preferences in the Def.</RSMF.CustomCustomer.BuiltInPreferences>
+  <RSMF.CustomCustomer.NoModifyDefPreferences>Runtime will not modify Def preferences.</RSMF.CustomCustomer.NoModifyDefPreferences>
+  <RSMF.CustomCustomer.AppendPreferences>Custom customers can append preferred items.</RSMF.CustomCustomer.AppendPreferences>
+  <RSMF.CustomCustomer.Section.Profiles>Customer profiles</RSMF.CustomCustomer.Section.Profiles>
+  <RSMF.CustomCustomer.DefaultProfileLabel>Customer profile</RSMF.CustomCustomer.DefaultProfileLabel>
+  <RSMF.CustomCustomer.BuiltInProfiles>Configured profiles in the Def. Empty uses the base configuration.</RSMF.CustomCustomer.BuiltInProfiles>
+  <RSMF.CustomCustomer.ProfilesTip>Profiles let one kind vary budget, patience, time, weather, target types, and preferences.</RSMF.CustomCustomer.ProfilesTip>
+  <RSMF.CustomCustomer.Add>Add</RSMF.CustomCustomer.Add>
+  <RSMF.CustomCustomer.Weight>Weight</RSMF.CustomCustomer.Weight>
+  <RSMF.CustomCustomer.BudgetLower>Budget lower</RSMF.CustomCustomer.BudgetLower>
+  <RSMF.CustomCustomer.BudgetUpper>Budget upper</RSMF.CustomCustomer.BudgetUpper>
+  <RSMF.CustomCustomer.PatienceLower>Patience lower</RSMF.CustomCustomer.PatienceLower>
+  <RSMF.CustomCustomer.PatienceUpper>Patience upper</RSMF.CustomCustomer.PatienceUpper>
+  <RSMF.CustomCustomer.Start>Start</RSMF.CustomCustomer.Start>
+  <RSMF.CustomCustomer.End>End</RSMF.CustomCustomer.End>
+  <RSMF.CustomCustomer.ProfileWeatherCount>Weather {weather}  types {types}  preferred items {items}</RSMF.CustomCustomer.ProfileWeatherCount>
+  <RSMF.CustomCustomer.SyncWeather>Sync weather</RSMF.CustomCustomer.SyncWeather>
+  <RSMF.CustomCustomer.SyncType>Sync types</RSMF.CustomCustomer.SyncType>
+  <RSMF.CustomCustomer.SyncPreference>Sync preferences</RSMF.CustomCustomer.SyncPreference>
+  <RSMF.CustomCustomer.Delete>Delete</RSMF.CustomCustomer.Delete>
+  <RSMF.CustomCustomer.None>None</RSMF.CustomCustomer.None>
+  <RSMF.CustomCustomer.Remove>Remove</RSMF.CustomCustomer.Remove>
+  <RSMF.CustomCustomer.Append>Add</RSMF.CustomCustomer.Append>
+  <RSMF.CustomCustomer.NoLimitHint>{title}. Empty means no limit.</RSMF.CustomCustomer.NoLimitHint>
+  <RSMF.CustomCustomer.PreferenceWeightTip>Preference items increase purchase weight and can be adjusted directly.</RSMF.CustomCustomer.PreferenceWeightTip>
+  <RSMF.CustomCustomer.Exists>Exists</RSMF.CustomCustomer.Exists>
+  <RSMF.CustomCustomer.TotalCount>Total {count}</RSMF.CustomCustomer.TotalCount>
+  <RSMF.CustomCustomer.PrevPage>Previous</RSMF.CustomCustomer.PrevPage>
+  <RSMF.CustomCustomer.NextPage>Next</RSMF.CustomCustomer.NextPage>
+  <RSMF.CustomCustomer.RefreshedTypes>Refreshed runtime goods types: {count}.</RSMF.CustomCustomer.RefreshedTypes>
+  <RSMF.CustomCustomer.NoPawnKind>No available PawnKindDef.</RSMF.CustomCustomer.NoPawnKind>
+  <RSMF.CustomCustomer.EmptyName>Customer name cannot be empty.</RSMF.CustomCustomer.EmptyName>
+  <RSMF.CustomCustomer.DeleteConfirm>Delete this custom customer kind?</RSMF.CustomCustomer.DeleteConfirm>
+  <RSMF.CustomCustomer.SaveSuccess>Custom customer registry saved, runtime customer directory rebuilt.</RSMF.CustomCustomer.SaveSuccess>
+  <RSMF.CustomCustomer.ReloadConfirm>Reloading will discard current unsaved custom customer changes. Continue?</RSMF.CustomCustomer.ReloadConfirm>
+  <RSMF.CustomCustomer.CopyClipboard>Copy to clipboard</RSMF.CustomCustomer.CopyClipboard>
+  <RSMF.CustomCustomer.Base64Copied>Base64 export copied to clipboard.</RSMF.CustomCustomer.Base64Copied>
+  <RSMF.CustomCustomer.ImportTitle>Import and overwrite</RSMF.CustomCustomer.ImportTitle>
+  <RSMF.CustomCustomer.ImportInfo>Importing will overwrite all local custom customer data, but it will not modify any CustomerKindDef.</RSMF.CustomCustomer.ImportInfo>
+  <RSMF.CustomCustomer.PasteClipboard>Paste from clipboard</RSMF.CustomCustomer.PasteClipboard>
+  <RSMF.CustomCustomer.ConfirmImport>Confirm import</RSMF.CustomCustomer.ConfirmImport>
+  <RSMF.CustomCustomer.ImportSuccess>Custom customer data imported and local content overwritten.</RSMF.CustomCustomer.ImportSuccess>
+  <RSMF.CustomGoods.Title>Custom goods registry</RSMF.CustomGoods.Title>
+  <RSMF.CustomGoods.Description>GoodsDef entries are read-only. Local player JSON is loaded after Defs and merged into the runtime goods directory.</RSMF.CustomGoods.Description>
+  <RSMF.CustomGoods.SaveDirty>Save*</RSMF.CustomGoods.SaveDirty>
+  <RSMF.CustomGoods.Save>Save</RSMF.CustomGoods.Save>
+  <RSMF.CustomGoods.Reload>Reload</RSMF.CustomGoods.Reload>
+  <RSMF.CustomGoods.ExportBase64>Export B64</RSMF.CustomGoods.ExportBase64>
+  <RSMF.CustomGoods.ImportBase64>Import B64</RSMF.CustomGoods.ImportBase64>
+  <RSMF.CustomGoods.CategoryListTitle>Goods categories</RSMF.CustomGoods.CategoryListTitle>
+  <RSMF.CustomGoods.NewCustomCategory>New custom category</RSMF.CustomGoods.NewCustomCategory>
+  <RSMF.CustomGoods.Create>Create</RSMF.CustomGoods.Create>
+  <RSMF.CustomGoods.ItemCount>{count} items</RSMF.CustomGoods.ItemCount>
+  <RSMF.CustomGoods.NoCategories>No available goods categories</RSMF.CustomGoods.NoCategories>
+  <RSMF.CustomGoods.SourceDef>Source: GoodsDef. You can append custom goods, but the original content remains locked.</RSMF.CustomGoods.SourceDef>
+  <RSMF.CustomGoods.SourceCustom>Source: player custom data. Name, goods list, and deletion are editable.</RSMF.CustomGoods.SourceCustom>
+  <RSMF.CustomGoods.DefCategory>Def type</RSMF.CustomGoods.DefCategory>
+  <RSMF.CustomGoods.Rename>Rename</RSMF.CustomGoods.Rename>
+  <RSMF.CustomGoods.DeleteCategory>Delete</RSMF.CustomGoods.DeleteCategory>
+  <RSMF.CustomGoods.CurrentItems>Goods in current category</RSMF.CustomGoods.CurrentItems>
+  <RSMF.CustomGoods.LockedTip>Locked means original Def goods. Custom means player-added and removable.</RSMF.CustomGoods.LockedTip>
+  <RSMF.CustomGoods.MarketValue>Market {value}</RSMF.CustomGoods.MarketValue>
+  <RSMF.CustomGoods.Remove>Remove</RSMF.CustomGoods.Remove>
+  <RSMF.CustomGoods.AvailableItems>Available goods</RSMF.CustomGoods.AvailableItems>
+  <RSMF.CustomGoods.SearchPlaceholder>Search name or DefName</RSMF.CustomGoods.SearchPlaceholder>
+  <RSMF.CustomGoods.TotalPaged>{count} total, paged</RSMF.CustomGoods.TotalPaged>
+  <RSMF.CustomGoods.PrevPage>Previous</RSMF.CustomGoods.PrevPage>
+  <RSMF.CustomGoods.NextPage>Next</RSMF.CustomGoods.NextPage>
+  <RSMF.CustomGoods.DefMarketValue>{defName}   market {value}</RSMF.CustomGoods.DefMarketValue>
+  <RSMF.CustomGoods.Exists>Exists</RSMF.CustomGoods.Exists>
+  <RSMF.CustomGoods.Append>Add</RSMF.CustomGoods.Append>
+  <RSMF.CustomGoods.ThingCategoryAll>Thing category: all</RSMF.CustomGoods.ThingCategoryAll>
+  <RSMF.CustomGoods.ThingCategory>Thing category: {label}</RSMF.CustomGoods.ThingCategory>
+  <RSMF.CustomGoods.AllThingCategories>All thing categories</RSMF.CustomGoods.AllThingCategories>
+  <RSMF.CustomGoods.DuplicateCategory>A goods category with that name already exists.</RSMF.CustomGoods.DuplicateCategory>
+  <RSMF.CustomGoods.EmptyCategoryName>Goods category name cannot be empty.</RSMF.CustomGoods.EmptyCategoryName>
+  <RSMF.CustomGoods.DeleteConfirm>Delete this custom category and all its custom goods links?</RSMF.CustomGoods.DeleteConfirm>
+  <RSMF.CustomGoods.ItemAlreadyExists>That item is already in the current category.</RSMF.CustomGoods.ItemAlreadyExists>
+  <RSMF.CustomGoods.SaveSuccess>Custom goods registry saved, runtime goods directory rebuilt.</RSMF.CustomGoods.SaveSuccess>
+  <RSMF.CustomGoods.ReloadConfirm>Reloading will discard current unsaved custom goods changes. Continue?</RSMF.CustomGoods.ReloadConfirm>
+  <RSMF.CustomGoods.ExportTitle>Export Base64</RSMF.CustomGoods.ExportTitle>
+  <RSMF.CustomGoods.ExportInfo>This text contains player custom goods categories and goods, ready to share with other players.</RSMF.CustomGoods.ExportInfo>
+  <RSMF.CustomGoods.CopyClipboard>Copy to clipboard</RSMF.CustomGoods.CopyClipboard>
+  <RSMF.CustomGoods.Base64Copied>Base64 export copied to clipboard.</RSMF.CustomGoods.Base64Copied>
+  <RSMF.CustomGoods.ImportTitle>Import Base64</RSMF.CustomGoods.ImportTitle>
+  <RSMF.CustomGoods.ImportReplaceInfo>Replace mode overwrites all local player custom goods data with the imported content, but does not modify any GoodsDef.</RSMF.CustomGoods.ImportReplaceInfo>
+  <RSMF.CustomGoods.ImportMergeInfo>Merge mode keeps local categories and links, then appends imported content by category ID.</RSMF.CustomGoods.ImportMergeInfo>
+  <RSMF.CustomGoods.PasteClipboard>Paste from clipboard</RSMF.CustomGoods.PasteClipboard>
+  <RSMF.CustomGoods.ConfirmImport>Confirm import</RSMF.CustomGoods.ConfirmImport>
+  <RSMF.CustomGoods.ImportReplaceSuccess>Custom goods data imported and local content overwritten.</RSMF.CustomGoods.ImportReplaceSuccess>
+  <RSMF.CustomGoods.ImportMergeSuccess>Custom goods data merged into local content.</RSMF.CustomGoods.ImportMergeSuccess>
+  <RSMF.CustomGoods.MergeMode>Merge</RSMF.CustomGoods.MergeMode>
+  <RSMF.CustomGoods.ReplaceMode>Replace</RSMF.CustomGoods.ReplaceMode>
+  <RSMF.CustomGoods.ReplaceModeTip>Replace local custom goods with imported content.</RSMF.CustomGoods.ReplaceModeTip>
+  <RSMF.CustomGoods.MergeModeTip>Keep local content and append imported content.</RSMF.CustomGoods.MergeModeTip>
+  <RSMF.CustomSign.EditorTitle>Custom sign editor</RSMF.CustomSign.EditorTitle>
+  <RSMF.CustomSign.EditorDescription>Changes are shown on the map sign in real time. Images are copied into the local gallery; saves only store references.</RSMF.CustomSign.EditorDescription>
+  <RSMF.CustomSign.DoneClose>Done</RSMF.CustomSign.DoneClose>
+  <RSMF.CustomSign.SaveSuccess>Sign pattern saved.</RSMF.CustomSign.SaveSuccess>
+  <RSMF.CustomSign.ImportPath>Import path</RSMF.CustomSign.ImportPath>
+  <RSMF.CustomSign.AddGalleryImage>Add gallery</RSMF.CustomSign.AddGalleryImage>
+  <RSMF.CustomSign.EditFace>Face</RSMF.CustomSign.EditFace>
+  <RSMF.CustomSign.Face.South>South</RSMF.CustomSign.Face.South>
+  <RSMF.CustomSign.Face.East>East</RSMF.CustomSign.Face.East>
+  <RSMF.CustomSign.Face.North>North</RSMF.CustomSign.Face.North>
+  <RSMF.CustomSign.Face.West>West</RSMF.CustomSign.Face.West>
+  <RSMF.CustomSign.SingleGraphicHelp>This sign Def has only one base texture, so the editor shows only the face actually used on the map.</RSMF.CustomSign.SingleGraphicHelp>
+  <RSMF.CustomSign.WestMirrorHelp>When the building faces west, it reuses east-face data and mirrors it on the map.</RSMF.CustomSign.WestMirrorHelp>
+  <RSMF.CustomSign.Preview>Preview</RSMF.CustomSign.Preview>
+  <RSMF.CustomSign.SelectLayerHint>Select a layer to edit position, scale, and angle</RSMF.CustomSign.SelectLayerHint>
+  <RSMF.CustomSign.LayerParams>Layer params</RSMF.CustomSign.LayerParams>
+  <RSMF.CustomSign.ScaleX>Scale X</RSMF.CustomSign.ScaleX>
+  <RSMF.CustomSign.ScaleY>Scale Y</RSMF.CustomSign.ScaleY>
+  <RSMF.CustomSign.Angle>Angle</RSMF.CustomSign.Angle>
+  <RSMF.CustomSign.Layers>Layers</RSMF.CustomSign.Layers>
+  <RSMF.CustomSign.AddGallery>Gallery</RSMF.CustomSign.AddGallery>
+  <RSMF.CustomSign.ImportPathShort>Import</RSMF.CustomSign.ImportPathShort>
+  <RSMF.CustomSign.Delete>Delete</RSMF.CustomSign.Delete>
+  <RSMF.CustomSign.Linked>Linked</RSMF.CustomSign.Linked>
+  <RSMF.CustomSign.ImageMissing>Missing</RSMF.CustomSign.ImageMissing>
+  <RSMF.CustomSign.LayerState>{state} / order {order}</RSMF.CustomSign.LayerState>
+  <RSMF.CustomSign.Up>Up</RSMF.CustomSign.Up>
+  <RSMF.CustomSign.Down>Down</RSMF.CustomSign.Down>
+  <RSMF.CustomSign.Enabled>On</RSMF.CustomSign.Enabled>
+  <RSMF.CustomSign.Disabled>Off</RSMF.CustomSign.Disabled>
+  <RSMF.CustomSign.MaxLayerReached>This face can only hold 10 images.</RSMF.CustomSign.MaxLayerReached>
+  <RSMF.CustomSign.ExportTitle>Export sign share text</RSMF.CustomSign.ExportTitle>
+  <RSMF.CustomSign.ExportInfo>This text contains the current sign face layers and image content. Other players importing it will save those images into their local gallery.</RSMF.CustomSign.ExportInfo>
+  <RSMF.CustomSign.CopyClipboard>Copy to clipboard</RSMF.CustomSign.CopyClipboard>
+  <RSMF.CustomSign.ShareTextCopied>Sign share text copied to clipboard.</RSMF.CustomSign.ShareTextCopied>
+  <RSMF.CustomSign.ImportTitle>Import sign share text</RSMF.CustomSign.ImportTitle>
+  <RSMF.CustomSign.ImportInfo>Importing replaces the current sign's south, east, and north faces, and saves images from the share text into the local gallery.</RSMF.CustomSign.ImportInfo>
+  <RSMF.CustomSign.PasteClipboard>Paste from clipboard</RSMF.CustomSign.PasteClipboard>
+  <RSMF.CustomSign.ConfirmImport>Confirm import</RSMF.CustomSign.ConfirmImport>
+  <RSMF.CustomSign.SelectGalleryImage>Select gallery image</RSMF.CustomSign.SelectGalleryImage>
+  <RSMF.CustomSign.SearchImagePlaceholder>Search name or image ID</RSMF.CustomSign.SearchImagePlaceholder>
+  <RSMF.CustomSign.RefreshGallery>Refresh</RSMF.CustomSign.RefreshGallery>
+  <RSMF.CustomSign.Select>Select</RSMF.CustomSign.Select>
+  <RSMF.CustomSign.ImportImageFromPathTitle>Import image from local path</RSMF.CustomSign.ImportImageFromPathTitle>
+  <RSMF.CustomSign.ImportImageFromPathInfo>Supports png, jpg, and jpeg. Imported images are resized proportionally to max side 256 pixels and saved as local gallery PNG files.</RSMF.CustomSign.ImportImageFromPathInfo>
+  <RSMF.CustomSign.ReadClipboard>Read clipboard</RSMF.CustomSign.ReadClipboard>
+  <RSMF.CustomSign.Import>Import</RSMF.CustomSign.Import>
+  <RSMF.CustomSign.ImageImported>Image imported into the sign gallery.</RSMF.CustomSign.ImageImported>
+  <RSMF.CustomSign.Gizmo.EditLabel>Edit sign</RSMF.CustomSign.Gizmo.EditLabel>
+  <RSMF.CustomSign.Gizmo.EditDesc>Open the sign editor and configure south, east, and north image layers.</RSMF.CustomSign.Gizmo.EditDesc>
+  <RSMF.CustomSign.Gizmo.ExportLabel>Export sign</RSMF.CustomSign.Gizmo.ExportLabel>
+  <RSMF.CustomSign.Gizmo.ExportDesc>Export the current three-face sign pattern. Share text includes used images.</RSMF.CustomSign.Gizmo.ExportDesc>
+  <RSMF.CustomSign.Gizmo.ImportLabel>Import sign</RSMF.CustomSign.Gizmo.ImportLabel>
+  <RSMF.CustomSign.Gizmo.ImportDesc>Import sign setup from another player's share text and sync images into the local gallery.</RSMF.CustomSign.Gizmo.ImportDesc>
+  <RSMF.CustomSign.Imported>Sign pattern imported.</RSMF.CustomSign.Imported>
+  <RSMF.CustomSign.Error.EmptyImagePath>Image path is empty.</RSMF.CustomSign.Error.EmptyImagePath>
+  <RSMF.CustomSign.Error.ImageFileNotFound>Image file not found.</RSMF.CustomSign.Error.ImageFileNotFound>
+  <RSMF.CustomSign.Error.UnsupportedImageFormat>Only png, jpg, and jpeg images are supported.</RSMF.CustomSign.Error.UnsupportedImageFormat>
+  <RSMF.CustomSign.Error.ImageDecodeFailed>Image decode failed.</RSMF.CustomSign.Error.ImageDecodeFailed>
+  <RSMF.CustomSign.Error.ImportImageFailed>Image import failed: {message}</RSMF.CustomSign.Error.ImportImageFailed>
+  <RSMF.CustomSign.Error.ExportImageMissing>Image is missing, cannot export: {imageId}</RSMF.CustomSign.Error.ExportImageMissing>
+  <RSMF.CustomSign.Error.ExportFailed>Sign export failed: {message}</RSMF.CustomSign.Error.ExportFailed>
+  <RSMF.CustomSign.Error.BadShareText>Sign share text format is invalid.</RSMF.CustomSign.Error.BadShareText>
+  <RSMF.CustomSign.Error.EmptySharePackage>Sign share package is empty.</RSMF.CustomSign.Error.EmptySharePackage>
+  <RSMF.CustomSign.Error.ImageValidationFailed>Image validation failed: {label}</RSMF.CustomSign.Error.ImageValidationFailed>
+  <RSMF.CustomSign.Error.ShareImageDecodeFailed>Share package contains an image that cannot be decoded: {label}</RSMF.CustomSign.Error.ShareImageDecodeFailed>
+  <RSMF.CustomSign.Error.ImportFailed>Sign import failed: {message}</RSMF.CustomSign.Error.ImportFailed>
+  <RSMF.Business.Reviews.ComponentMissing>(customer review component not initialized)</RSMF.Business.Reviews.ComponentMissing>
+  <RSMF.Business.Reviews.AverageStars>Average stars</RSMF.Business.Reviews.AverageStars>
+  <RSMF.Business.Reviews.RootPosts>Posts</RSMF.Business.Reviews.RootPosts>
+  <RSMF.Business.Reviews.Replies>Replies</RSMF.Business.Reviews.Replies>
+  <RSMF.Business.Reviews.TodayNew>Today</RSMF.Business.Reviews.TodayNew>
+  <RSMF.Business.Reviews.SortNewest>Newest</RSMF.Business.Reviews.SortNewest>
+  <RSMF.Business.Reviews.SortHighStars>High</RSMF.Business.Reviews.SortHighStars>
+  <RSMF.Business.Reviews.SortLowStars>Low</RSMF.Business.Reviews.SortLowStars>
+  <RSMF.Business.Reviews.PrevPage>Previous</RSMF.Business.Reviews.PrevPage>
+  <RSMF.Business.Reviews.NextPage>Next</RSMF.Business.Reviews.NextPage>
+  <RSMF.Business.Reviews.Empty>(no customer reviews)</RSMF.Business.Reviews.Empty>
+  <RSMF.Business.Reviews.CollapseReplies>Hide replies ({count})</RSMF.Business.Reviews.CollapseReplies>
+  <RSMF.Business.Reviews.ExpandReplies>Show replies ({count})</RSMF.Business.Reviews.ExpandReplies>
+  <RSMF.Business.Reviews.VoteLine>#{id}  up {upvotes}  down {downvotes}</RSMF.Business.Reviews.VoteLine>
+  <RSMF.Business.Reviews.BundleIcon>B</RSMF.Business.Reviews.BundleIcon>
+  <RSMF.Business.Reviews.ReplyPrevious>Replying to previous discussion</RSMF.Business.Reviews.ReplyPrevious>
+  <RSMF.Business.Reviews.ReplyTarget>Replying to {target}</RSMF.Business.Reviews.ReplyTarget>
+  <RSMF.Business.Reviews.MetaLine>Day {day} · {shop} · paid {spent} silver · {purchase} · {service}</RSMF.Business.Reviews.MetaLine>
+  <RSMF.Business.Reviews.NoPurchaseSummary>No purchase summary</RSMF.Business.Reviews.NoPurchaseSummary>
+  <RSMF.Business.Reviews.PurchaseItemLine>{label}{count}, {amount} silver</RSMF.Business.Reviews.PurchaseItemLine>
+  <RSMF.Business.Reviews.NoServiceSummary>No service summary</RSMF.Business.Reviews.NoServiceSummary>
+  <RSMF.Business.Reviews.AnonymousUser>Anonymous</RSMF.Business.Reviews.AnonymousUser>
+  <RSMF.Business.Reviews.Above>above</RSMF.Business.Reviews.Above>
+  <RSMF.Business.Reviews.ReplyStanceDefault>reply</RSMF.Business.Reviews.ReplyStanceDefault>
+  <RSMF.Business.Reviews.ReplyTitle>{author} replied to {target} · {stance}</RSMF.Business.Reviews.ReplyTitle>
+  <RSMF.Business.Reviews.AllShops>All shops</RSMF.Business.Reviews.AllShops>
+  <RSMF.Business.Reviews.ShopFallback>Shop #{id}</RSMF.Business.Reviews.ShopFallback>
+</LanguageData>

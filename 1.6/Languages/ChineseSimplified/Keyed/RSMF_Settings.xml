@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.Settings.Category>边缘模拟经营框架</RSMF.Settings.Category>
+  <RSMF.Settings.CustomerSystem>顾客系统</RSMF.Settings.CustomerSystem>
+  <RSMF.Settings.ShowCustomerArrivalMessage>显示顾客到访提醒</RSMF.Settings.ShowCustomerArrivalMessage>
+  <RSMF.Settings.ShowCustomerArrivalMessageTip>关闭后不再显示“有顾客正在前往商店”的提示。</RSMF.Settings.ShowCustomerArrivalMessageTip>
+  <RSMF.Settings.ShowCustomerInspectDetails>显示顾客检查详情</RSMF.Settings.ShowCustomerInspectDetails>
+  <RSMF.Settings.ShowCustomerInspectDetailsTip>关闭后不再在角色检查面板中附加顾客运行时参数。</RSMF.Settings.ShowCustomerInspectDetailsTip>
+  <RSMF.Settings.CustomerArrivalCheckInterval>顾客刷新检查间隔: {ticks} ticks</RSMF.Settings.CustomerArrivalCheckInterval>
+  <RSMF.Settings.FinanceAndLogs>财务与日志</RSMF.Settings.FinanceAndLogs>
+  <RSMF.Settings.MaxFinanceBillRecords>财务日志最大保留条数: {count}</RSMF.Settings.MaxFinanceBillRecords>
+  <RSMF.Settings.FinanceLogPageSize>统计面板每页条数: {count}</RSMF.Settings.FinanceLogPageSize>
+  <RSMF.Settings.CustomerReviews>顾客评价</RSMF.Settings.CustomerReviews>
+  <RSMF.Settings.EnableCustomerReviews>启用顾客评价</RSMF.Settings.EnableCustomerReviews>
+  <RSMF.Settings.EnableCustomerReviewsTip>只有配置有效接口后才会在顾客离店时按抽样率生成点评。</RSMF.Settings.EnableCustomerReviewsTip>
+  <RSMF.Settings.ReviewStateValid>配置有效</RSMF.Settings.ReviewStateValid>
+  <RSMF.Settings.ReviewStateInvalid>未配置或未启用</RSMF.Settings.ReviewStateInvalid>
+  <RSMF.Settings.ReviewStatusLine>当前状态: {state}   抽样率: {sampleRate}%   限速: {rpm}/分钟   超时: {timeout}秒   对话预算: {chars} 字符</RSMF.Settings.ReviewStatusLine>
+  <RSMF.Settings.OpenCustomerReviewSettings>打开顾客评价配置</RSMF.Settings.OpenCustomerReviewSettings>
+  <RSMF.Settings.OpenCustomGoodsRegistry>打开自定义商品注册面板</RSMF.Settings.OpenCustomGoodsRegistry>
+  <RSMF.Settings.OpenCustomCustomerRegistry>打开自定义顾客注册面板</RSMF.Settings.OpenCustomCustomerRegistry>
+  <RSMF.Settings.ResetDefaults>恢复默认设置</RSMF.Settings.ResetDefaults>
+  <RSMF.Settings.InvalidForcedCustomerKind>已失效: {kindId}</RSMF.Settings.InvalidForcedCustomerKind>
+  <RSMF.Settings.DebugForcedCustomerKind>Debug 强制顾客组: {label}</RSMF.Settings.DebugForcedCustomerKind>
+  <RSMF.Settings.DebugForcedCustomerKindTip>开启后自然刷客和强制刷新会优先使用该顾客组；为空时恢复正常权重随机。</RSMF.Settings.DebugForcedCustomerKindTip>
+</LanguageData>

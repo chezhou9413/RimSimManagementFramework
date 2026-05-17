@@ -83,7 +83,7 @@ namespace SimManagementLib.SimAI
                 if (!VendingMachineUtility.TryPurchaseBestItem(pawn, lordJob, machine, out ThingDef boughtDef, out int count, out float paid, out float cost))
                 {
                     CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.BrowseNoMatch);
-                    ShopBubbleUtility.ShowTextBubble(pawn, "自动售货机没有合适商品", new Color(0.88f, 0.88f, 0.88f));
+                    ShopBubbleUtility.ShowTextBubble(pawn, SimTranslation.T("RSMF.Bubble.VendingNoSuitableGoods"), new Color(0.88f, 0.88f, 0.88f));
                     return;
                 }
 
@@ -95,7 +95,9 @@ namespace SimManagementLib.SimAI
                 ShopBubbleUtility.ShowThingBubble(
                     pawn,
                     boughtDef,
-                    count > 1 ? $"自动购买 {boughtDef.label} x{count}" : $"自动购买 {boughtDef.label}",
+                    count > 1
+                        ? SimTranslation.T("RSMF.Bubble.VendingAutoBuyCount", boughtDef.label.Named("item"), count.Named("count"))
+                        : SimTranslation.T("RSMF.Bubble.VendingAutoBuy", boughtDef.label.Named("item")),
                     null,
                     Color.white);
                 ShopBubbleUtility.ShowSilverPayment(pawn, silver);

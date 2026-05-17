@@ -32,7 +32,7 @@ namespace SimManagementLib.SimAI
             useDrug.initAction = () =>
             {
                 CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.DrugUseStart);
-                ShopBubbleUtility.ShowTextBubble(pawn, "店内吸食", new Color(0.85f, 1f, 0.85f), 1.1f, false);
+                ShopBubbleUtility.ShowTextBubble(pawn, SimTranslation.T("RSMF.Bubble.DrugUseInShop"), new Color(0.85f, 1f, 0.85f), 1.1f, false);
             };
             useDrug.tickAction = () =>
             {

@@ -24,16 +24,16 @@ namespace SimManagementLib.SimDialog
             {
                 float cx = headerRect.xMax - RowPad;
                 cx -= statusW;
-                DrawHdrLabel(new Rect(cx, headerRect.y, statusW, headerRect.height), "状态", TextAnchor.MiddleCenter);
+                DrawHdrLabel(new Rect(cx, headerRect.y, statusW, headerRect.height), SimTranslation.T("RSMF.ShopManager.Header.Status"), TextAnchor.MiddleCenter);
                 cx -= ColGap;
                 cx -= StockW;
-                DrawHdrLabel(new Rect(cx, headerRect.y, StockW, headerRect.height), "当前 / 目标");
+                DrawHdrLabel(new Rect(cx, headerRect.y, StockW, headerRect.height), SimTranslation.T("RSMF.ShopManager.Header.Stock"));
                 cx -= ColGap;
                 cx -= FieldW;
-                DrawHdrLabel(new Rect(cx, headerRect.y, FieldW, headerRect.height), "单价");
+                DrawHdrLabel(new Rect(cx, headerRect.y, FieldW, headerRect.height), SimTranslation.T("RSMF.ShopManager.Header.Price"));
                 cx -= ColGap;
                 float lx = headerRect.x + RowPad + IconSz + ColGap;
-                DrawHdrLabel(new Rect(lx, headerRect.y, cx - lx - ColGap, headerRect.height), "商品名称");
+                DrawHdrLabel(new Rect(lx, headerRect.y, cx - lx - ColGap, headerRect.height), SimTranslation.T("RSMF.ShopManager.Header.Name"));
             });
 
             Rect outRect = new Rect(rect.x, headerRect.yMax, rect.width, rect.height - HeaderH);
@@ -62,19 +62,19 @@ namespace SimManagementLib.SimDialog
                 {
                     Widgets.DrawBoxSolid(statusRect, new Color(0.9f, 0.35f, 0.35f, 0.2f));
                     GUI.color = CStockNo;
-                    Widgets.Label(statusRect, "缺货");
+                    Widgets.Label(statusRect, SimTranslation.T("RSMF.ShopManager.Status.OutOfStock"));
                 }
                 else if (item.CurrentStock < item.Config.count)
                 {
                     Widgets.DrawBoxSolid(statusRect, new Color(0.95f, 0.72f, 0.25f, 0.15f));
                     GUI.color = CStockLow;
-                    Widgets.Label(statusRect, "不足");
+                    Widgets.Label(statusRect, SimTranslation.T("RSMF.ShopManager.Status.Low"));
                 }
                 else
                 {
                     Widgets.DrawBoxSolid(statusRect, new Color(0.35f, 0.80f, 0.45f, 0.15f));
                     GUI.color = CStockOk;
-                    Widgets.Label(statusRect, "充足");
+                    Widgets.Label(statusRect, SimTranslation.T("RSMF.ShopManager.Status.Enough"));
                 }
 
                 rx -= ColGap;
@@ -112,16 +112,16 @@ namespace SimManagementLib.SimDialog
             {
                 float cx = headerRect.xMax - RowPad;
                 cx -= FieldW;
-                DrawHdrLabel(new Rect(cx, headerRect.y, FieldW, headerRect.height), "单价");
+                DrawHdrLabel(new Rect(cx, headerRect.y, FieldW, headerRect.height), SimTranslation.T("RSMF.ShopManager.TargetPriceHeader"));
                 cx -= ColGap;
                 cx -= FieldW;
-                DrawHdrLabel(new Rect(cx, headerRect.y, FieldW, headerRect.height), "目标量");
+                DrawHdrLabel(new Rect(cx, headerRect.y, FieldW, headerRect.height), SimTranslation.T("RSMF.ShopManager.TargetCountHeader"));
                 cx -= ColGap;
                 cx -= SliderW;
-                DrawHdrLabel(new Rect(cx, headerRect.y, SliderW, headerRect.height), "快速调节");
+                DrawHdrLabel(new Rect(cx, headerRect.y, SliderW, headerRect.height), SimTranslation.T("RSMF.ShopManager.TargetSliderHeader"));
                 cx -= ColGap;
                 float lx = headerRect.x + RowPad + CheckSz + ColGap + IconSz + ColGap;
-                DrawHdrLabel(new Rect(lx, headerRect.y, cx - lx - ColGap, headerRect.height), "商品名称  （勾选即上架）");
+                DrawHdrLabel(new Rect(lx, headerRect.y, cx - lx - ColGap, headerRect.height), SimTranslation.T("RSMF.ShopManager.TargetGoodsHeader"));
             });
 
             Rect outRect = new Rect(rect.x, headerRect.yMax, rect.width, rect.height - HeaderH);
@@ -230,7 +230,9 @@ namespace SimManagementLib.SimDialog
                 GUI.color = CAccent;
                 Text.Font = GameFont.Tiny;
                 Text.Anchor = TextAnchor.MiddleCenter;
-                Widgets.Label(new Rect(posterRect.x, posterRect.yMax + 2f, posterRect.width, 16f), $"{kindCount} 种 · {totalItems} 件");
+                Widgets.Label(new Rect(posterRect.x, posterRect.yMax + 2f, posterRect.width, 16f), SimTranslation.T("RSMF.ShopManager.ComboItemCount",
+                    kindCount.Named("kindCount"),
+                    totalItems.Named("totalItems")));
                 ResetText();
             }
 
@@ -240,18 +242,18 @@ namespace SimManagementLib.SimDialog
             float labelH = 20f;
             float y = topRect.y + 14f;
 
-            DrawFieldLabel(new Rect(editX, y, editW, labelH), "套餐名称");
+            DrawFieldLabel(new Rect(editX, y, editW, labelH), SimTranslation.T("RSMF.ShopManager.ComboName"));
             y += labelH + 2f;
             curCombo.comboName = Widgets.TextField(new Rect(editX, y, editW, fieldH), curCombo.comboName);
             y += fieldH + 4f;
-            if (SimUiStyle.DrawSecondaryButton(new Rect(editX, y, 120f, 26f), "🎲 随机取名", true, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(editX, y, 120f, 26f), SimTranslation.T("RSMF.ShopManager.RandomName"), true, GameFont.Tiny))
                 curCombo.comboName = ComboNameGenerator.GenerateName(curCombo);
             y += 34f;
 
-            DrawFieldLabel(new Rect(editX, y, editW, labelH), "套餐售价");
+            DrawFieldLabel(new Rect(editX, y, editW, labelH), SimTranslation.T("RSMF.ShopManager.ComboPrice"));
             y += labelH + 2f;
 
-            if (SimUiStyle.DrawSecondaryButton(new Rect(editX + 108f, y, 120f, fieldH), "📊 按单品估算", true, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(editX + 108f, y, 120f, fieldH), SimTranslation.T("RSMF.ShopManager.EstimateByItem"), true, GameFont.Tiny))
             {
                 float cost = curCombo.items.Sum(ci => GetDraftItem(ci.def).price * ci.count);
                 curCombo.totalPrice = (float)System.Math.Round(cost * 0.9f, 1);
@@ -283,11 +285,11 @@ namespace SimManagementLib.SimDialog
             GUI.color = CTextDim;
             Text.Font = GameFont.Tiny;
             Text.Anchor = TextAnchor.MiddleLeft;
-            Widgets.Label(new Rect(editX, y, editW, 18f), "按单品原价总和 × 0.9 自动估算");
+            Widgets.Label(new Rect(editX, y, editW, 18f), SimTranslation.T("RSMF.ShopManager.AutoEstimateTip"));
             ResetText();
 
             Rect deleteRect = new Rect(topRect.xMax - 100f, topRect.y + 10f, 88f, 26f);
-            if (SimUiStyle.DrawDangerButton(deleteRect, "删除套餐", true, GameFont.Tiny))
+            if (SimUiStyle.DrawDangerButton(deleteRect, SimTranslation.T("RSMF.ShopManager.DeleteCombo"), true, GameFont.Tiny))
             {
                 zoneCombos.Remove(curCombo);
                 curCombo = null;
@@ -305,13 +307,13 @@ namespace SimManagementLib.SimDialog
             {
                 float cx = headerRect.xMax - RowPad;
                 cx -= FieldW;
-                DrawHdrLabel(new Rect(cx, headerRect.y, FieldW, headerRect.height), "数量");
+                DrawHdrLabel(new Rect(cx, headerRect.y, FieldW, headerRect.height), SimTranslation.T("RSMF.ShopManager.Quantity"));
                 cx -= ColGap;
                 cx -= SliderW;
-                DrawHdrLabel(new Rect(cx, headerRect.y, SliderW, headerRect.height), "调节滑块");
+                DrawHdrLabel(new Rect(cx, headerRect.y, SliderW, headerRect.height), SimTranslation.T("RSMF.ShopManager.Slider"));
                 cx -= ColGap;
                 float lx = headerRect.x + RowPad + CheckSz + ColGap + IconSz + ColGap;
-                DrawHdrLabel(new Rect(lx, headerRect.y, cx - lx - ColGap, headerRect.height), "在售货品  （勾选加入套餐）");
+                DrawHdrLabel(new Rect(lx, headerRect.y, cx - lx - ColGap, headerRect.height), SimTranslation.T("RSMF.ShopManager.ComboGoodsHeader"));
             });
 
             Rect outRect = new Rect(rect.x, headerRect.yMax, rect.width, rect.height - topH - HeaderH - 8f);

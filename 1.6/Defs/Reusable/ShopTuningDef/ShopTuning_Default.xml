@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Defs>
   <!-- 全局经营调参。建议从小幅度改动开始，便于观察客流和评分变化。 -->
   <SimManagementLib.SimDef.ShopTuningDef>
@@ -119,6 +119,16 @@
     <satisfactionBudgetBase>40</satisfactionBudgetBase>
     <satisfactionBudgetScale>60</satisfactionBudgetScale>
     <satisfactionBudgetTargetUsage>0.75</satisfactionBudgetTargetUsage>
+
+    <budgetSpendQualityRange>
+      <min>15</min>
+      <max>90</max>
+    </budgetSpendQualityRange>
+    <budgetSpendRatioRange>
+      <min>0.35</min>
+      <max>1.00</max>
+    </budgetSpendRatioRange>
+    <budgetSpendRandomJitter>0.08</budgetSpendRandomJitter>
 
     <satisfactionEmaOldWeight>0.80</satisfactionEmaOldWeight>
     <satisfactionEmaNewWeight>0.20</satisfactionEmaNewWeight>

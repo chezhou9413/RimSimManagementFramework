@@ -1,4 +1,5 @@
 using RimWorld;
+using SimManagementLib.Tool;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -44,10 +45,12 @@ namespace SimManagementLib.Pojo
         /// </summary>
         public string GetStatusText(Map map)
         {
-            if (!manualOpen) return "手动停业";
-            if (!useSchedule) return "全天营业";
+            if (!manualOpen) return SimTranslation.T("RSMF.ShopSchedule.ManuallyClosed");
+            if (!useSchedule) return SimTranslation.T("RSMF.ShopSchedule.OpenAllDay");
             int hour = map != null ? GenLocalDate.HourInteger(map) : 0;
-            return IsOpenNow(map) ? $"营业中（{hour:00}:00）" : $"非营业时间（{hour:00}:00）";
+            return IsOpenNow(map)
+                ? SimTranslation.T("RSMF.ShopSchedule.OpenAtHour", hour.ToString("00").Named("hour"))
+                : SimTranslation.T("RSMF.ShopSchedule.ClosedAtHour", hour.ToString("00").Named("hour"));
         }
 
         /// <summary>
@@ -56,7 +59,7 @@ namespace SimManagementLib.Pojo
         public string GetScheduleSummary()
         {
             EnsureValidHours();
-            if (!useSchedule) return "全天营业";
+            if (!useSchedule) return SimTranslation.T("RSMF.ShopSchedule.OpenAllDay");
 
             StringBuilder sb = new StringBuilder();
             int start = -1;
@@ -69,13 +72,13 @@ namespace SimManagementLib.Pojo
                 }
                 else if (!open && start >= 0)
                 {
-                    if (sb.Length > 0) sb.Append("，");
+                    if (sb.Length > 0) sb.Append(SimTranslation.T("RSMF.Common.ListSeparator"));
                     sb.Append(start.ToString("00")).Append(":00-").Append(i.ToString("00")).Append(":00");
                     start = -1;
                 }
             }
 
-            return sb.Length > 0 ? sb.ToString() : "无营业时段";
+            return sb.Length > 0 ? sb.ToString() : SimTranslation.T("RSMF.ShopSchedule.NoBusinessHours");
         }
 
         /// <summary>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.Common.None>无</RSMF.Common.None>
+  <RSMF.Common.Default>默认</RSMF.Common.Default>
+  <RSMF.Common.Off>关闭</RSMF.Common.Off>
+  <RSMF.Common.Unknown>未知</RSMF.Common.Unknown>
+  <RSMF.Common.Valid>有效</RSMF.Common.Valid>
+  <RSMF.Common.Copy>复制</RSMF.Common.Copy>
+  <RSMF.Common.CopyAll>复制全部</RSMF.Common.CopyAll>
+  <RSMF.Common.Delete>删除</RSMF.Common.Delete>
+  <RSMF.Common.Locate>定位</RSMF.Common.Locate>
+  <RSMF.Common.Select>选中</RSMF.Common.Select>
+  <RSMF.Common.PreviousPage>上一页</RSMF.Common.PreviousPage>
+  <RSMF.Common.NextPage>下一页</RSMF.Common.NextPage>
+  <RSMF.Common.NoData>暂无数据</RSMF.Common.NoData>
+  <RSMF.Common.NoDescription>无说明</RSMF.Common.NoDescription>
+  <RSMF.Common.Unspecified>未指定</RSMF.Common.Unspecified>
+  <RSMF.Common.Unlimited>无限</RSMF.Common.Unlimited>
+  <RSMF.Common.ListSeparator>、</RSMF.Common.ListSeparator>
+  <RSMF.Common.SemicolonSeparator>；</RSMF.Common.SemicolonSeparator>
+  <RSMF.Common.UnnamedCombo>未命名套餐</RSMF.Common.UnnamedCombo>
+  <RSMF.Common.UnnamedShop>未命名商店</RSMF.Common.UnnamedShop>
+  <RSMF.Common.SilverAmount>{amount} 银</RSMF.Common.SilverAmount>
+  <RSMF.CustomerFaction.Name>商店顾客</RSMF.CustomerFaction.Name>
+  <RSMF.CustomerFaction.MissingDef>缺少商店顾客中立派系 Def: {defName}</RSMF.CustomerFaction.MissingDef>
+  <RSMF.Common.Import.EmptyContent>导入内容为空。</RSMF.Common.Import.EmptyContent>
+  <RSMF.Common.Import.ParseFailed>Base64 或 JSON 解析失败: {message}</RSMF.Common.Import.ParseFailed>
+</LanguageData>

@@ -1,4 +1,5 @@
 using SimManagementLib.Pojo;
+using SimManagementLib.Tool;
 using UnityEngine;
 using Verse;
 
@@ -38,12 +39,12 @@ namespace SimManagementLib.SimDialog
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.MiddleLeft;
             GUI.color = draftSchedule.IsOpenNow(shopZone.Map) && shopZone.IsValidShop() ? CStockOk : CStockLow;
-            Widgets.Label(new Rect(rect.x + 12f, rect.y + 8f, rect.width - 24f, 26f), "当前状态: " + GetDraftOpenStatusText());
+            Widgets.Label(new Rect(rect.x + 12f, rect.y + 8f, rect.width - 24f, 26f), SimTranslation.T("RSMF.ShopManager.CurrentStatus", GetDraftOpenStatusText().Named("status")));
 
             Text.Font = GameFont.Tiny;
             Text.Anchor = TextAnchor.MiddleLeft;
             GUI.color = CTextMid;
-            Widgets.Label(new Rect(rect.x + 12f, rect.y + 40f, rect.width - 24f, 24f), "日程: " + draftSchedule.GetScheduleSummary());
+            Widgets.Label(new Rect(rect.x + 12f, rect.y + 40f, rect.width - 24f, 24f), SimTranslation.T("RSMF.ShopManager.Schedule", draftSchedule.GetScheduleSummary().Named("schedule")));
             ResetText();
         }
 
@@ -56,11 +57,11 @@ namespace SimManagementLib.SimDialog
             Rect scheduleRect = new Rect(openRect.xMax + 18f, rect.y, Mathf.Min(260f, rect.xMax - openRect.xMax - 18f), rect.height);
 
             bool manualOpen = draftSchedule.manualOpen;
-            DrawBooleanPill(openRect, "店铺营业", ref manualOpen, "关闭后不会刷新顾客，店员也不会执行本店工作。");
+            DrawBooleanPill(openRect, SimTranslation.T("RSMF.ShopManager.ManualOpen"), ref manualOpen, SimTranslation.T("RSMF.ShopManager.ManualOpenTip"));
             draftSchedule.manualOpen = manualOpen;
 
             bool useSchedule = draftSchedule.useSchedule;
-            DrawBooleanPill(scheduleRect, "按日程营业", ref useSchedule, "开启后只在下方勾选的小时内营业。");
+            DrawBooleanPill(scheduleRect, SimTranslation.T("RSMF.ShopManager.ScheduledOpen"), ref useSchedule, SimTranslation.T("RSMF.ShopManager.ScheduledOpenTip"));
             draftSchedule.useSchedule = useSchedule;
         }
 
@@ -70,21 +71,21 @@ namespace SimManagementLib.SimDialog
         private void DrawScheduleQuickButtons(Rect rect)
         {
             float x = rect.x;
-            if (SimUiStyle.DrawSecondaryButton(new Rect(x, rect.y, 86f, rect.height), "全天", true, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(x, rect.y, 86f, rect.height), SimTranslation.T("RSMF.ShopManager.AlwaysOpen"), true, GameFont.Tiny))
             {
                 draftSchedule.SetAllHours(true);
                 draftSchedule.useSchedule = false;
             }
             x += 94f;
 
-            if (SimUiStyle.DrawSecondaryButton(new Rect(x, rect.y, 86f, rect.height), "全关", true, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(x, rect.y, 86f, rect.height), SimTranslation.T("RSMF.ShopManager.AlwaysClosed"), true, GameFont.Tiny))
             {
                 draftSchedule.SetAllHours(false);
                 draftSchedule.useSchedule = true;
             }
             x += 94f;
 
-            if (SimUiStyle.DrawSecondaryButton(new Rect(x, rect.y, 118f, rect.height), "默认 09-21", true, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(x, rect.y, 118f, rect.height), SimTranslation.T("RSMF.ShopManager.DefaultSchedule"), true, GameFont.Tiny))
             {
                 draftSchedule.SetDefaultBusinessHours();
                 draftSchedule.useSchedule = true;
@@ -99,7 +100,7 @@ namespace SimManagementLib.SimDialog
             Text.Font = GameFont.Tiny;
             Text.Anchor = TextAnchor.MiddleLeft;
             GUI.color = CTextMid;
-            Widgets.Label(new Rect(rect.x, rect.y, rect.width, 24f), "营业小时");
+            Widgets.Label(new Rect(rect.x, rect.y, rect.width, 24f), SimTranslation.T("RSMF.ShopManager.BusinessHours"));
             ResetText();
 
             float top = rect.y + 30f;
@@ -160,7 +161,7 @@ namespace SimManagementLib.SimDialog
 
             Text.Anchor = TextAnchor.MiddleCenter;
             GUI.color = value ? CStockOk : CTextDim;
-            Widgets.Label(new Rect(rect.xMax - 38f, rect.y, 32f, rect.height), value ? "开" : "关");
+            Widgets.Label(new Rect(rect.xMax - 38f, rect.y, 32f, rect.height), value ? SimTranslation.T("RSMF.ShopManager.OpenShort") : SimTranslation.T("RSMF.ShopManager.ClosedShort"));
             ResetText();
 
             TooltipHandler.TipRegion(rect, tooltip);
@@ -176,10 +177,10 @@ namespace SimManagementLib.SimDialog
             if (!shopZone.IsValidShop())
                 return shopZone.GetValidationMessage();
             if (!draftSchedule.manualOpen)
-                return "手动停业";
+                return SimTranslation.T("RSMF.ShopManager.ManuallyClosed");
             if (draftSchedule.useSchedule && !draftSchedule.IsOpenNow(shopZone.Map))
-                return "非营业时间";
-            return "正在营业";
+                return SimTranslation.T("RSMF.ShopManager.OutsideSchedule");
+            return SimTranslation.T("RSMF.ShopManager.OpenNow");
         }
     }
 }

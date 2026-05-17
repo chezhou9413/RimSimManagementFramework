@@ -307,7 +307,7 @@ namespace SimManagementLib.SimAI
             lordJob.ClearCustomerCart(pawnId);
             lordJob.ClearCustomerServiceOrders(pawnId);
             CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.CheckoutTimeout);
-            ShopBubbleUtility.ShowTextBubble(pawn, "排队超时，已放回商品", new Color(1f, 0.72f, 0.4f));
+            ShopBubbleUtility.ShowTextBubble(pawn, SimTranslation.T("RSMF.Bubble.CheckoutQueueTimeout"), new Color(1f, 0.72f, 0.4f));
         }
 
         /// <summary>

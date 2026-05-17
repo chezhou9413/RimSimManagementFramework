@@ -22,6 +22,7 @@ namespace SimManagementLib.SimAI
             Scribe_Collections.Look(ref serviceOrders, "serviceOrders", LookMode.Value, LookMode.Deep, ref tmpServiceOrderKeys, ref tmpServiceOrderValues);
             Scribe_Collections.Look(ref consumptionActionCounts, "consumptionActionCounts", LookMode.Value, LookMode.Value);
             Scribe_Collections.Look(ref pawnSettings, "pawnSettings", LookMode.Value, LookMode.Deep, ref tmpSettingKeys, ref tmpSettingValues);
+            Scribe_Collections.Look(ref effectiveBudgetCaps, "effectiveBudgetCaps", LookMode.Value, LookMode.Value, ref tmpEffectiveBudgetCapKeys, ref tmpEffectiveBudgetCapValues);
             Scribe_Collections.Look(ref checkoutOrder, "checkoutOrder", LookMode.Value, LookMode.Value);
             Scribe_Values.Look(ref nextServiceOrderId, "nextServiceOrderId", 1);
             Scribe_Values.Look(ref nextCheckoutOrder, "nextCheckoutOrder", 1);
@@ -36,6 +37,7 @@ namespace SimManagementLib.SimAI
                 if (serviceOrders == null) serviceOrders = new Dictionary<int, List<CustomerServiceOrder>>();
                 if (consumptionActionCounts == null) consumptionActionCounts = new Dictionary<int, int>();
                 if (pawnSettings == null) pawnSettings = new Dictionary<int, CustomerRuntimeSettings>();
+                if (effectiveBudgetCaps == null) effectiveBudgetCaps = new Dictionary<int, int>();
                 if (checkoutOrder == null) checkoutOrder = new Dictionary<int, int>();
                 if (nextServiceOrderId <= 0) nextServiceOrderId = 1;
                 if (readyForCheckout == null) readyForCheckout = new List<int>();

@@ -44,7 +44,7 @@ namespace SimManagementLib.Tool
             Text.Font = GameFont.Tiny;
             Text.Anchor = TextAnchor.MiddleCenter;
             GUI.color = TextDark;
-            Widgets.Label(headerRect, $"★ 套餐 · 共{sorted.Sum(x => x.count)}件 ★");
+            Widgets.Label(headerRect, SimTranslation.T("RSMF.ComboPoster.Header", sorted.Sum(x => x.count).Named("count")));
             GUI.color = Color.white;
             Text.Anchor = TextAnchor.UpperLeft;
 
@@ -177,7 +177,7 @@ namespace SimManagementLib.Tool
                     Text.Font = GameFont.Tiny;
                     Text.Anchor = TextAnchor.MiddleCenter;
                     GUI.color = AccentGold;
-                    Widgets.Label(more, $"+{sorted.Count - 4}种");
+                    Widgets.Label(more, SimTranslation.T("RSMF.ComboPoster.MoreKinds", (sorted.Count - 4).Named("count")));
                     GUI.color = Color.white;
                     Text.Anchor = TextAnchor.UpperLeft;
                 }
@@ -217,7 +217,7 @@ namespace SimManagementLib.Tool
         {
             Text.Anchor = TextAnchor.MiddleCenter;
             GUI.color = new Color(0.6f, 0.55f, 0.4f, 1f);
-            Widgets.Label(rect, "暂无商品");
+            Widgets.Label(rect, SimTranslation.T("RSMF.ComboPoster.NoItems"));
             GUI.color = Color.white;
             Text.Anchor = TextAnchor.UpperLeft;
         }

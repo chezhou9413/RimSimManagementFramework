@@ -23,6 +23,7 @@ namespace SimManagementLib.SimAI
         public Dictionary<int, List<CustomerServiceOrder>> serviceOrders = new Dictionary<int, List<CustomerServiceOrder>>();
         public Dictionary<int, int> consumptionActionCounts = new Dictionary<int, int>();
         public Dictionary<int, CustomerRuntimeSettings> pawnSettings = new Dictionary<int, CustomerRuntimeSettings>();
+        public Dictionary<int, int> effectiveBudgetCaps = new Dictionary<int, int>();
         public Dictionary<int, int> checkoutOrder = new Dictionary<int, int>();
         public int nextServiceOrderId = 1;
         public int nextCheckoutOrder = 1;
@@ -39,6 +40,8 @@ namespace SimManagementLib.SimAI
         private List<List<CustomerServiceOrder>> tmpServiceOrderValues;
         private List<int> tmpSettingKeys;
         private List<CustomerRuntimeSettings> tmpSettingValues;
+        private List<int> tmpEffectiveBudgetCapKeys;
+        private List<int> tmpEffectiveBudgetCapValues;
 
         public LordJob_CustomerVisit()
         {

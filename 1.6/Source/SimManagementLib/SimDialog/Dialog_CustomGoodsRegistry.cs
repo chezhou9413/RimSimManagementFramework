@@ -126,33 +126,33 @@ namespace SimManagementLib.SimDialog
 
             Text.Font = GameFont.Medium;
             GUI.color = Color.white;
-            Widgets.Label(titleRect, "自定义商品注册");
+            Widgets.Label(titleRect, SimTranslation.T("RSMF.CustomGoods.Title"));
 
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
             Rect descRect = new Rect(rect.x + 20f, titleRect.yMax + 4f, textWidth, Text.LineHeightOf(GameFont.Tiny) * 2f + 4f);
             Widgets.Label(
                 descRect,
-                "原版 Def 商品只读。玩家本地 JSON 会在 Def 之后加载，并合并进运行时商品目录。"
+                SimTranslation.T("RSMF.CustomGoods.Description")
             );
 
             float buttonY = rect.y + 18f;
             float right = rect.xMax - 16f - CloseXReservedWidth;
 
             right -= 116f;
-            if (SimUiStyle.DrawPrimaryButton(new Rect(right, buttonY, 116f, 34f), dirty ? "保存*" : "保存"))
+            if (SimUiStyle.DrawPrimaryButton(new Rect(right, buttonY, 116f, 34f), dirty ? SimTranslation.T("RSMF.CustomGoods.SaveDirty") : SimTranslation.T("RSMF.CustomGoods.Save")))
                 SaveDraft();
 
             right -= 124f;
-            if (SimUiStyle.DrawSecondaryButton(new Rect(right, buttonY, 112f, 34f), "重载"))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(right, buttonY, 112f, 34f), SimTranslation.T("RSMF.CustomGoods.Reload")))
                 ConfirmReload();
 
             right -= 124f;
-            if (SimUiStyle.DrawSecondaryButton(new Rect(right, buttonY, 112f, 34f), "导出 B64"))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(right, buttonY, 112f, 34f), SimTranslation.T("RSMF.CustomGoods.ExportBase64")))
                 Find.WindowStack.Add(new Dialog_CustomGoodsTransfer(CustomGoodsDatabase.ExportBase64(draftData)));
 
             right -= 124f;
-            if (SimUiStyle.DrawSecondaryButton(new Rect(right, buttonY, 112f, 34f), "导入 B64"))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(right, buttonY, 112f, 34f), SimTranslation.T("RSMF.CustomGoods.ImportBase64")))
                 Find.WindowStack.Add(new Dialog_CustomGoodsImport(HandleImport));
 
             Text.Font = GameFont.Small;
@@ -171,7 +171,7 @@ namespace SimManagementLib.SimDialog
             Rect titleRect = new Rect(rect.x + 16f, rect.y + 12f, rect.width - 32f, titleHeight);
             Text.Font = GameFont.Small;
             GUI.color = Color.white;
-            Widgets.Label(titleRect, "商品类型");
+            Widgets.Label(titleRect, SimTranslation.T("RSMF.CustomGoods.CategoryListTitle"));
 
             Rect listRect = new Rect(rect.x + 12f, titleRect.yMax + 8f, rect.width - 24f, Mathf.Max(0f, rect.height - SidebarFooterHeight - titleRect.height - 26f));
             Rect footerRect = new Rect(rect.x + 12f, rect.yMax - SidebarFooterHeight, rect.width - 24f, SidebarFooterHeight - 12f);
@@ -194,9 +194,9 @@ namespace SimManagementLib.SimDialog
             SimUiStyle.DrawBorder(footerRect, new Color(1f, 1f, 1f, 0.06f));
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
-            Widgets.Label(new Rect(footerRect.x + 10f, footerRect.y + 8f, footerRect.width - 20f, Text.LineHeightOf(GameFont.Tiny) + 2f), "新建自定义类型");
+            Widgets.Label(new Rect(footerRect.x + 10f, footerRect.y + 8f, footerRect.width - 20f, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomGoods.NewCustomCategory"));
             newCategoryLabelBuffer = Widgets.TextField(new Rect(footerRect.x + 10f, footerRect.y + 30f, footerRect.width - 108f, 28f), newCategoryLabelBuffer);
-            if (SimUiStyle.DrawPrimaryButton(new Rect(footerRect.xMax - 90f, footerRect.y + 29f, 80f, 30f), "创建", !string.IsNullOrWhiteSpace(newCategoryLabelBuffer), GameFont.Tiny))
+            if (SimUiStyle.DrawPrimaryButton(new Rect(footerRect.xMax - 90f, footerRect.y + 29f, 80f, 30f), SimTranslation.T("RSMF.CustomGoods.Create"), !string.IsNullOrWhiteSpace(newCategoryLabelBuffer), GameFont.Tiny))
                 CreateCategory();
 
             GUI.color = Color.white;
@@ -228,7 +228,7 @@ namespace SimManagementLib.SimDialog
 
             GUI.color = MutedText;
             Text.Anchor = TextAnchor.MiddleRight;
-            Widgets.Label(new Rect(rect.xMax - 110f, rect.y + 44f, 98f, Text.LineHeightOf(GameFont.Tiny) + 2f), category.Items.Count + " 项");
+            Widgets.Label(new Rect(rect.xMax - 110f, rect.y + 44f, 98f, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomGoods.ItemCount", category.Items.Count.Named("count")));
             Text.Anchor = TextAnchor.UpperLeft;
 
             if (Widgets.ButtonInvisible(rect))
@@ -256,7 +256,7 @@ namespace SimManagementLib.SimDialog
                 Text.Font = GameFont.Medium;
                 Text.Anchor = TextAnchor.MiddleCenter;
                 GUI.color = MutedText;
-                Widgets.Label(new Rect(rect.x, rect.y, rect.width, Mathf.Max(rect.height, Text.LineHeightOf(GameFont.Medium) + 4f)), "没有可用的商品类型");
+                Widgets.Label(new Rect(rect.x, rect.y, rect.width, Mathf.Max(rect.height, Text.LineHeightOf(GameFont.Medium) + 4f)), SimTranslation.T("RSMF.CustomGoods.NoCategories"));
                 Text.Anchor = TextAnchor.UpperLeft;
                 GUI.color = Color.white;
                 return;
@@ -296,21 +296,21 @@ namespace SimManagementLib.SimDialog
             Widgets.Label(
                 new Rect(rect.x + 16f, rect.y + 60f, textWidth, Text.LineHeightOf(GameFont.Tiny) * 2f + 2f),
                 category.IsBuiltInCategory
-                    ? "来源：GoodsDef。你可以追加自定义商品，但原始内容保持锁定。"
-                    : "来源：玩家自定义数据。名称、商品列表和删除都可编辑。"
+                    ? SimTranslation.T("RSMF.CustomGoods.SourceDef")
+                    : SimTranslation.T("RSMF.CustomGoods.SourceCustom")
             );
 
             float right = rect.xMax - 16f;
             if (category.IsBuiltInCategory)
             {
-                DrawBadge(new Rect(right - 96f, rect.y + 12f, 96f, 20f), "Def 类型", BuiltInBadge);
+                DrawBadge(new Rect(right - 96f, rect.y + 12f, 96f, 20f), SimTranslation.T("RSMF.CustomGoods.DefCategory"), BuiltInBadge);
             }
             else
             {
                 selectedCategoryLabelBuffer = Widgets.TextField(new Rect(right - 226f, rect.y + 12f, 140f, 28f), selectedCategoryLabelBuffer ?? category.label);
-                if (SimUiStyle.DrawSecondaryButton(new Rect(right - 78f, rect.y + 11f, 68f, 30f), "改名", true, GameFont.Tiny))
+                if (SimUiStyle.DrawSecondaryButton(new Rect(right - 78f, rect.y + 11f, 68f, 30f), SimTranslation.T("RSMF.CustomGoods.Rename"), true, GameFont.Tiny))
                     RenameSelectedCategory();
-                if (SimUiStyle.DrawDangerButton(new Rect(right - 118f, rect.y + 46f, 108f, 28f), "删除类型", true, GameFont.Tiny))
+                if (SimUiStyle.DrawDangerButton(new Rect(right - 118f, rect.y + 46f, 108f, 28f), SimTranslation.T("RSMF.CustomGoods.DeleteCategory"), true, GameFont.Tiny))
                     ConfirmDeleteCategory();
             }
 
@@ -327,11 +327,11 @@ namespace SimManagementLib.SimDialog
 
             Text.Font = GameFont.Small;
             GUI.color = Color.white;
-            Widgets.Label(new Rect(rect.x + 16f, rect.y + 10f, 220f, Text.LineHeightOf(GameFont.Small) + 4f), "当前类型中的商品");
+            Widgets.Label(new Rect(rect.x + 16f, rect.y + 10f, 220f, Text.LineHeightOf(GameFont.Small) + 4f), SimTranslation.T("RSMF.CustomGoods.CurrentItems"));
 
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
-            Widgets.Label(new Rect(rect.x + 16f, rect.y + 36f, rect.width - 32f, Text.LineHeightOf(GameFont.Tiny) + 2f), "Locked 表示原始 Def 商品，Custom 表示玩家追加并可移除。");
+            Widgets.Label(new Rect(rect.x + 16f, rect.y + 36f, rect.width - 32f, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomGoods.LockedTip"));
 
             Rect listRect = new Rect(rect.x + 12f, rect.y + 62f, rect.width - 24f, Mathf.Max(0f, rect.height - 74f));
             int columns = Mathf.Max(1, Mathf.FloorToInt((listRect.width - ScrollbarWidth) / (ItemCardMinWidth + 10f)));
@@ -380,12 +380,12 @@ namespace SimManagementLib.SimDialog
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
             Widgets.Label(new Rect(iconRect.xMax + 10f, rect.y + 36f, textWidth, Text.LineHeightOf(GameFont.Tiny) + 2f), item.thingDefName.Truncate(textWidth));
-            Widgets.Label(new Rect(iconRect.xMax + 10f, rect.y + 56f, textWidth, Text.LineHeightOf(GameFont.Tiny) + 2f), "市价 " + item.baseMarketValue.ToString("F1"));
+            Widgets.Label(new Rect(iconRect.xMax + 10f, rect.y + 56f, textWidth, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomGoods.MarketValue", item.baseMarketValue.ToString("F1").Named("value")));
 
             if (playerDefinedItem)
             {
                 DrawBadge(new Rect(rect.xMax - 80f, rect.y + 10f, 68f, 18f), "Custom", CustomBadge);
-                if (SimUiStyle.DrawDangerButton(new Rect(rect.xMax - 80f, rect.y + 64f, 68f, 24f), "移除", true, GameFont.Tiny))
+                if (SimUiStyle.DrawDangerButton(new Rect(rect.xMax - 80f, rect.y + 64f, 68f, 24f), SimTranslation.T("RSMF.CustomGoods.Remove"), true, GameFont.Tiny))
                     RemoveItemFromSelectedCategory(item.thingDef);
             }
             else
@@ -407,7 +407,7 @@ namespace SimManagementLib.SimDialog
 
             Text.Font = GameFont.Small;
             GUI.color = Color.white;
-            Widgets.Label(new Rect(rect.x + 16f, rect.y + 10f, 220f, Text.LineHeightOf(GameFont.Small) + 4f), "可追加商品");
+            Widgets.Label(new Rect(rect.x + 16f, rect.y + 10f, 220f, Text.LineHeightOf(GameFont.Small) + 4f), SimTranslation.T("RSMF.CustomGoods.AvailableItems"));
 
             Rect categoryButtonRect = new Rect(rect.x + 144f, rect.y + 8f, 190f, 28f);
             if (SimUiStyle.DrawSecondaryButton(categoryButtonRect, GetSelectedThingCategoryLabel(), true, GameFont.Tiny))
@@ -426,7 +426,7 @@ namespace SimManagementLib.SimDialog
             {
                 Text.Font = GameFont.Tiny;
                 GUI.color = MutedText;
-                Widgets.Label(new Rect(rect.xMax - 252f, rect.y + 14f, 220f, Text.LineHeightOf(GameFont.Tiny) + 2f), "按名称或 DefName 搜索");
+                Widgets.Label(new Rect(rect.xMax - 252f, rect.y + 14f, 220f, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomGoods.SearchPlaceholder"));
             }
 
             List<ThingDef> filtered = GetFilteredBrowserItems();
@@ -461,10 +461,10 @@ namespace SimManagementLib.SimDialog
         {
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
-            Widgets.Label(new Rect(rect.x, rect.y + 6f, 220f, Text.LineHeightOf(GameFont.Tiny) + 2f), $"共 {totalItemCount} 项，分页显示");
+            Widgets.Label(new Rect(rect.x, rect.y + 6f, 220f, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomGoods.TotalPaged", totalItemCount.Named("count")));
 
             float centerX = rect.center.x;
-            if (SimUiStyle.DrawSecondaryButton(new Rect(centerX - 124f, rect.y, 84f, 28f), "上一页", browserPageIndex > 0, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(centerX - 124f, rect.y, 84f, 28f), SimTranslation.T("RSMF.CustomGoods.PrevPage"), browserPageIndex > 0, GameFont.Tiny))
             {
                 browserPageIndex--;
                 browserScroll = Vector2.zero;
@@ -474,7 +474,7 @@ namespace SimManagementLib.SimDialog
             Widgets.Label(new Rect(centerX - 34f, rect.y + 4f, 68f, 20f), $"{browserPageIndex + 1}/{pageCount}");
             Text.Anchor = TextAnchor.UpperLeft;
 
-            if (SimUiStyle.DrawSecondaryButton(new Rect(centerX + 40f, rect.y, 84f, 28f), "下一页", browserPageIndex < pageCount - 1, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(centerX + 40f, rect.y, 84f, 28f), SimTranslation.T("RSMF.CustomGoods.NextPage"), browserPageIndex < pageCount - 1, GameFont.Tiny))
             {
                 browserPageIndex++;
                 browserScroll = Vector2.zero;
@@ -503,13 +503,13 @@ namespace SimManagementLib.SimDialog
 
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
-            Widgets.Label(new Rect(iconRect.xMax + 10f, rect.y + 28f, textWidth, Text.LineHeightOf(GameFont.Tiny) + 2f), (thingDef.defName + "   市价 " + thingDef.BaseMarketValue.ToString("F1")).Truncate(textWidth));
+            Widgets.Label(new Rect(iconRect.xMax + 10f, rect.y + 28f, textWidth, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomGoods.DefMarketValue", thingDef.defName.Named("defName"), thingDef.BaseMarketValue.ToString("F1").Named("value")).Truncate(textWidth));
 
             if (exists)
             {
-                DrawBadge(new Rect(rect.xMax - 88f, rect.y + 15f, 76f, 18f), "已存在", BuiltInBadge);
+                DrawBadge(new Rect(rect.xMax - 88f, rect.y + 15f, 76f, 18f), SimTranslation.T("RSMF.CustomGoods.Exists"), BuiltInBadge);
             }
-            else if (SimUiStyle.DrawPrimaryButton(new Rect(rect.xMax - 88f, rect.y + 10f, 76f, 28f), "追加", true, GameFont.Tiny))
+            else if (SimUiStyle.DrawPrimaryButton(new Rect(rect.xMax - 88f, rect.y + 10f, 76f, 28f), SimTranslation.T("RSMF.CustomGoods.Append"), true, GameFont.Tiny))
             {
                 AddItemToSelectedCategory(thingDef);
             }
@@ -566,8 +566,8 @@ namespace SimManagementLib.SimDialog
         private string GetSelectedThingCategoryLabel()
         {
             return selectedThingCategory == null
-                ? "物品分类: 全部"
-                : ("物品分类: " + selectedThingCategory.LabelCap.RawText).Truncate(180f);
+                ? SimTranslation.T("RSMF.CustomGoods.ThingCategoryAll")
+                : SimTranslation.T("RSMF.CustomGoods.ThingCategory", selectedThingCategory.LabelCap.RawText.Named("label")).Truncate(180f);
         }
 
         /// <summary>
@@ -577,7 +577,7 @@ namespace SimManagementLib.SimDialog
         {
             List<FloatMenuOption> options = new List<FloatMenuOption>
             {
-                new FloatMenuOption("全部物品分类", delegate
+                new FloatMenuOption(SimTranslation.T("RSMF.CustomGoods.AllThingCategories"), delegate
                 {
                     selectedThingCategory = null;
                     browserPageIndex = 0;
@@ -725,7 +725,7 @@ namespace SimManagementLib.SimDialog
 
             if (previewCategories.Any(category => string.Equals(category.label, label, StringComparison.OrdinalIgnoreCase)))
             {
-                Messages.Message("已存在同名商品类型。", MessageTypeDefOf.RejectInput, false);
+                Messages.Message(SimTranslation.T("RSMF.CustomGoods.DuplicateCategory"), MessageTypeDefOf.RejectInput, false);
                 return;
             }
 
@@ -759,13 +759,13 @@ namespace SimManagementLib.SimDialog
             string newLabel = CustomGoodsDatabase.NormalizeLabel(selectedCategoryLabelBuffer);
             if (string.IsNullOrEmpty(newLabel))
             {
-                Messages.Message("商品类型名称不能为空。", MessageTypeDefOf.RejectInput, false);
+                Messages.Message(SimTranslation.T("RSMF.CustomGoods.EmptyCategoryName"), MessageTypeDefOf.RejectInput, false);
                 return;
             }
 
             if (previewCategories.Any(category => category.categoryId != selected.categoryId && string.Equals(category.label, newLabel, StringComparison.OrdinalIgnoreCase)))
             {
-                Messages.Message("已存在同名商品类型。", MessageTypeDefOf.RejectInput, false);
+                Messages.Message(SimTranslation.T("RSMF.CustomGoods.DuplicateCategory"), MessageTypeDefOf.RejectInput, false);
                 return;
             }
 
@@ -786,7 +786,7 @@ namespace SimManagementLib.SimDialog
                 return;
 
             Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
-                "删除这个自定义类型，以及其中全部自定义商品关联？",
+                SimTranslation.T("RSMF.CustomGoods.DeleteConfirm"),
                 DeleteSelectedCategory));
         }
 
@@ -814,7 +814,7 @@ namespace SimManagementLib.SimDialog
 
             if (selected.Contains(thingDef))
             {
-                Messages.Message("该商品已经在当前类型中。", MessageTypeDefOf.RejectInput, false);
+                Messages.Message(SimTranslation.T("RSMF.CustomGoods.ItemAlreadyExists"), MessageTypeDefOf.RejectInput, false);
                 return;
             }
 
@@ -857,7 +857,7 @@ namespace SimManagementLib.SimDialog
             CustomGoodsDatabase.Save(draftData);
             CustomGoodsDatabase.NotifyRuntimeChanged();
             dirty = false;
-            Messages.Message("自定义商品注册已保存，运行时商品目录已重建。", MessageTypeDefOf.PositiveEvent, false);
+            Messages.Message(SimTranslation.T("RSMF.CustomGoods.SaveSuccess"), MessageTypeDefOf.PositiveEvent, false);
         }
 
         /// <summary>
@@ -873,7 +873,7 @@ namespace SimManagementLib.SimDialog
             }
 
             Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
-                "重新加载会丢弃当前未保存的自定义商品改动，是否继续？",
+                SimTranslation.T("RSMF.CustomGoods.ReloadConfirm"),
                 reloadAction));
         }
 

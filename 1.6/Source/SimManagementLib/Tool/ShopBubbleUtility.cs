@@ -111,7 +111,7 @@ namespace SimManagementLib.Tool
             ShowThingBubble(
                 pawn,
                 ThingDefOf.Silver,
-                $"结账 {silverAmount}",
+                SimTranslation.T("RSMF.Bubble.CheckoutSilver", silverAmount.Named("amount")),
                 new Color(1f, 0.95f, 0.55f),
                 Color.white);
         }

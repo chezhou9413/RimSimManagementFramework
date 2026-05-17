@@ -1,0 +1,770 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.Zone.ShopArea>商店区域</RSMF.Zone.ShopArea>
+  <RSMF.Designator.ZoneAddShop.Label>划定商店区</RSMF.Designator.ZoneAddShop.Label>
+  <RSMF.Designator.ZoneAddShop.Desc>划定一个用于经营的商店区域。商店区域可以覆盖建筑，但必须在室内，且区域内至少放置货柜和收银台。</RSMF.Designator.ZoneAddShop.Desc>
+  <RSMF.Zone.OpenStatus.ManuallyClosed>商店已手动停业。</RSMF.Zone.OpenStatus.ManuallyClosed>
+  <RSMF.Zone.OpenStatus.OutOfSchedule>当前不在营业时间内：{schedule}。</RSMF.Zone.OpenStatus.OutOfSchedule>
+  <RSMF.Zone.OpenStatus.Open>商店正在营业中。</RSMF.Zone.OpenStatus.Open>
+  <RSMF.Zone.Validation.Empty>区域为空。</RSMF.Zone.Validation.Empty>
+  <RSMF.Zone.Validation.OutdoorCells>存在 {count} 个室外格，例如 {cell}。</RSMF.Zone.Validation.OutdoorCells>
+  <RSMF.Zone.Validation.MissingStorageServiceAndRegister>缺少货柜、服务建筑和收银台。</RSMF.Zone.Validation.MissingStorageServiceAndRegister>
+  <RSMF.Zone.Validation.MissingStorageOrService>缺少货柜或服务建筑。</RSMF.Zone.Validation.MissingStorageOrService>
+  <RSMF.Zone.Validation.MissingCashRegister>缺少收银台。</RSMF.Zone.Validation.MissingCashRegister>
+  <RSMF.Zone.Validation.Valid>商店设施有效。</RSMF.Zone.Validation.Valid>
+  <RSMF.Zone.Inspect.FacilityStatus>设施状态: {status}</RSMF.Zone.Inspect.FacilityStatus>
+  <RSMF.Zone.Inspect.OpenStatus>营业状态: {status}</RSMF.Zone.Inspect.OpenStatus>
+  <RSMF.Gizmo.ShopManagement.Label>商店管理</RSMF.Gizmo.ShopManagement.Label>
+  <RSMF.Gizmo.ShopManagement.Desc>查看并管理该商店区域内所有货柜的在售商品与库存状态。</RSMF.Gizmo.ShopManagement.Desc>
+  <RSMF.Gizmo.ShopStaff.Label>店员配置</RSMF.Gizmo.ShopStaff.Label>
+  <RSMF.Gizmo.ShopStaff.Desc>打开该商店的店员岗位配置面板。</RSMF.Gizmo.ShopStaff.Desc>
+  <RSMF.Gizmo.ToggleZoneVisibility.Label>隐藏区域显示</RSMF.Gizmo.ToggleZoneVisibility.Label>
+  <RSMF.Gizmo.ToggleZoneVisibility.Desc>隐藏或显示商店区域的地面颜色覆盖。只影响区域绘制，不影响商店营业、补货、收银和顾客访问。</RSMF.Gizmo.ToggleZoneVisibility.Desc>
+  <RSMF.CashStorage.WithdrawThreshold>取现阈值</RSMF.CashStorage.WithdrawThreshold>
+  <RSMF.CashStorage.BarLabel>{stored} / {max}  阈值 {threshold}</RSMF.CashStorage.BarLabel>
+  <RSMF.CashStorage.ThresholdTooltip>显示建筑内当前白银和自动取现阈值。拖动阈值点后，服务工作类型的小人会在可取白银达到阈值时自动取出并搬运入库。</RSMF.CashStorage.ThresholdTooltip>
+  <RSMF.CashStorage.StoredSilver>白银库存: {stored}</RSMF.CashStorage.StoredSilver>
+  <RSMF.CashStorage.PendingWithdraw>(待搬运 {pending})</RSMF.CashStorage.PendingWithdraw>
+  <RSMF.CashStorage.WithdrawThresholdInspect>取现阈值: {threshold}</RSMF.CashStorage.WithdrawThresholdInspect>
+  <RSMF.CashStorage.ForceWithdraw>强制取出白银</RSMF.CashStorage.ForceWithdraw>
+  <RSMF.CashStorage.ForceWithdrawNoSilver>{label}（没有可取白银）</RSMF.CashStorage.ForceWithdrawNoSilver>
+  <RSMF.CashStorage.ForceWithdrawUnreachable>{label}（无法到达）</RSMF.CashStorage.ForceWithdrawUnreachable>
+  <RSMF.CashStorage.ForceWithdrawAmount>{label}（{amount}）</RSMF.CashStorage.ForceWithdrawAmount>
+  <RSMF.Container.Inspect.Name>名称: {name}</RSMF.Container.Inspect.Name>
+  <RSMF.Container.Inspect.TotalCapacity>总容量: {stored}/{max}</RSMF.Container.Inspect.TotalCapacity>
+  <RSMF.Container.Inspect.VendingMachineType>类型: 自动售货机</RSMF.Container.Inspect.VendingMachineType>
+  <RSMF.Container.Inspect.PendingIn>(+{pending} 途中)</RSMF.Container.Inspect.PendingIn>
+  <RSMF.Container.Inspect.TargetTotal>目标总量: {target}</RSMF.Container.Inspect.TargetTotal>
+  <RSMF.Container.DefaultLabel>货柜</RSMF.Container.DefaultLabel>
+  <RSMF.Service.ProviderFallback>服务建筑</RSMF.Service.ProviderFallback>
+  <RSMF.Gizmo.RenameContainer.Label>重命名货柜</RSMF.Gizmo.RenameContainer.Label>
+  <RSMF.Gizmo.RenameContainer.Desc>为该货柜设置一个便于快速识别和定位的名称。</RSMF.Gizmo.RenameContainer.Desc>
+  <RSMF.Gizmo.ContainerManagement.Label>货柜管理</RSMF.Gizmo.ContainerManagement.Label>
+  <RSMF.Gizmo.ContainerManagement.Desc>打开货柜管理面板，配置上架商品、目标库存与价格。</RSMF.Gizmo.ContainerManagement.Desc>
+  <RSMF.ReviewSettings.Title>顾客评价配置</RSMF.ReviewSettings.Title>
+  <RSMF.ReviewSettings.Tab.Api>接口配置</RSMF.ReviewSettings.Tab.Api>
+  <RSMF.ReviewSettings.Tab.Prompt>提示词</RSMF.ReviewSettings.Tab.Prompt>
+  <RSMF.ReviewSettings.Tab.Injector>注入器</RSMF.ReviewSettings.Tab.Injector>
+  <RSMF.ReviewSettings.Tab.Lexicon>词库</RSMF.ReviewSettings.Tab.Lexicon>
+  <RSMF.ReviewSettings.EnableReviews>启用顾客评价</RSMF.ReviewSettings.EnableReviews>
+  <RSMF.ReviewSettings.EnableReviewsTip>未启用时不会记录点评快照。</RSMF.ReviewSettings.EnableReviewsTip>
+  <RSMF.ReviewSettings.ImportRimTalkConfig>导入 RimTalk 接口配置</RSMF.ReviewSettings.ImportRimTalkConfig>
+  <RSMF.ReviewSettings.RimTalkDetected>已检测到 RimTalk，可导入它当前正在使用的 API、模型和密钥。</RSMF.ReviewSettings.RimTalkDetected>
+  <RSMF.ReviewSettings.RimTalkNotDetected>未检测到 RimTalk，安装并启用 RimTalk 后才能导入。</RSMF.ReviewSettings.RimTalkNotDetected>
+  <RSMF.ReviewSettings.RimTalkImport.NotLoaded>未检测到 RimTalk。</RSMF.ReviewSettings.RimTalkImport.NotLoaded>
+  <RSMF.ReviewSettings.RimTalkImport.NoSettings>无法读取 RimTalk 设置。</RSMF.ReviewSettings.RimTalkImport.NoSettings>
+  <RSMF.ReviewSettings.RimTalkImport.NoActiveConfig>RimTalk 当前没有可用的 API 配置。</RSMF.ReviewSettings.RimTalkImport.NoActiveConfig>
+  <RSMF.ReviewSettings.RimTalkImport.UnsupportedProvider>RimTalk 当前供应商 {provider} 暂不支持导入。</RSMF.ReviewSettings.RimTalkImport.UnsupportedProvider>
+  <RSMF.ReviewSettings.RimTalkImport.NoModel>RimTalk 当前配置没有可用模型。</RSMF.ReviewSettings.RimTalkImport.NoModel>
+  <RSMF.ReviewSettings.RimTalkImport.Exception>读取 RimTalk 设置失败：{message}</RSMF.ReviewSettings.RimTalkImport.Exception>
+  <RSMF.ReviewSettings.RimTalkImport.Success>已导入 RimTalk 配置：{provider} / {model}。</RSMF.ReviewSettings.RimTalkImport.Success>
+  <RSMF.ReviewSettings.Provider>供应商: {provider}</RSMF.ReviewSettings.Provider>
+  <RSMF.ReviewSettings.Provider.OpenAICompatible>OpenAI 兼容接口</RSMF.ReviewSettings.Provider.OpenAICompatible>
+  <RSMF.ReviewSettings.OpenAIBaseUrl>OpenAI 兼容 Base URL</RSMF.ReviewSettings.OpenAIBaseUrl>
+  <RSMF.ReviewSettings.OpenAIApiKey>OpenAI 兼容 API Key</RSMF.ReviewSettings.OpenAIApiKey>
+  <RSMF.ReviewSettings.OpenAIModel>OpenAI 兼容 Model</RSMF.ReviewSettings.OpenAIModel>
+  <RSMF.ReviewSettings.SampleRate>抽样率: {percent}%</RSMF.ReviewSettings.SampleRate>
+  <RSMF.ReviewSettings.RequestsPerMinute>每分钟请求数: {count}</RSMF.ReviewSettings.RequestsPerMinute>
+  <RSMF.ReviewSettings.RequestTimeout>请求超时: {seconds} 秒</RSMF.ReviewSettings.RequestTimeout>
+  <RSMF.ReviewSettings.MaxReviewRecords>保存评价上限: {count} 条</RSMF.ReviewSettings.MaxReviewRecords>
+  <RSMF.ReviewSettings.MaxReviewRecordsTip>超过上限后自动覆盖最旧评价，不会停止生成新评价。</RSMF.ReviewSettings.MaxReviewRecordsTip>
+  <RSMF.ReviewSettings.Temperature>请求温度: {value}</RSMF.ReviewSettings.Temperature>
+  <RSMF.ReviewSettings.ReactionChance>点赞/点踩概率: {percent}%</RSMF.ReviewSettings.ReactionChance>
+  <RSMF.ReviewSettings.ReplyChance>回复概率: {percent}%</RSMF.ReviewSettings.ReplyChance>
+  <RSMF.ReviewSettings.ReplyChanceTip>回复概率控制模型生成回复后的保留率；极端好评、差评或反驳吐槽会额外更容易保留回复。</RSMF.ReviewSettings.ReplyChanceTip>
+  <RSMF.ReviewSettings.AbsurdNitpick>刁钻和胡言乱语</RSMF.ReviewSettings.AbsurdNitpick>
+  <RSMF.ReviewSettings.AbsurdNitpickTip>启用后只有部分评价会允许模型写荒谬、刁钻或没道理的好评/差评。</RSMF.ReviewSettings.AbsurdNitpickTip>
+  <RSMF.ReviewSettings.AbsurdNitpickChance>胡言乱语概率: {percent}%</RSMF.ReviewSettings.AbsurdNitpickChance>
+  <RSMF.ReviewSettings.AbsurdNitpickChanceTip>这个概率只是在提示词里放行风格，不会本地拼接模板；未命中的评价仍保持普通论坛口吻。</RSMF.ReviewSettings.AbsurdNitpickChanceTip>
+  <RSMF.ReviewSettings.ContextBudget>对话上下文预算: {chars} 字符</RSMF.ReviewSettings.ContextBudget>
+  <RSMF.ReviewSettings.ContextBudgetTip>固定提示词前缀会优先发送以提高服务端前缀缓存命中；动态顾客资料放在最后。数值大于 0 时仅保留少量反重复摘要，不再复用旧顾客资料。</RSMF.ReviewSettings.ContextBudgetTip>
+  <RSMF.ReviewSettings.SystemPrompt>系统提示词</RSMF.ReviewSettings.SystemPrompt>
+  <RSMF.ReviewSettings.UserPromptTemplate>用户提示词模板</RSMF.ReviewSettings.UserPromptTemplate>
+  <RSMF.ReviewSettings.NicknameStyleA>网名风格边界 A</RSMF.ReviewSettings.NicknameStyleA>
+  <RSMF.ReviewSettings.NicknameStyleB>网名风格边界 B</RSMF.ReviewSettings.NicknameStyleB>
+  <RSMF.ReviewSettings.ToneWords>评价语气词</RSMF.ReviewSettings.ToneWords>
+  <RSMF.ReviewSettings.PositiveWords>正面关键词</RSMF.ReviewSettings.PositiveWords>
+  <RSMF.ReviewSettings.NegativeWords>负面关键词</RSMF.ReviewSettings.NegativeWords>
+  <RSMF.ReviewSettings.BannedWords>禁用词</RSMF.ReviewSettings.BannedWords>
+  <RSMF.ReviewSettings.Probing>探测中...</RSMF.ReviewSettings.Probing>
+  <RSMF.ReviewSettings.TestBaseUrl>测试 BaseUrl</RSMF.ReviewSettings.TestBaseUrl>
+  <RSMF.ReviewSettings.Generating>生成中...</RSMF.ReviewSettings.Generating>
+  <RSMF.ReviewSettings.TestRequest>测试请求</RSMF.ReviewSettings.TestRequest>
+  <RSMF.ReviewSettings.ResetDefaultPrompt>恢复默认提示词</RSMF.ReviewSettings.ResetDefaultPrompt>
+  <RSMF.ReviewSettings.DebugTerminal>AI 调试终端</RSMF.ReviewSettings.DebugTerminal>
+  <RSMF.ReviewSettings.Status.TestingBaseUrl>正在测试 BaseUrl...</RSMF.ReviewSettings.Status.TestingBaseUrl>
+  <RSMF.ReviewSettings.Status.TestingApi>正在测试 API 生成...</RSMF.ReviewSettings.Status.TestingApi>
+  <RSMF.ReviewSettings.Result.BaseUrlFailed>BaseUrl 测试失败。</RSMF.ReviewSettings.Result.BaseUrlFailed>
+  <RSMF.ReviewSettings.Result.BaseUrlReachable>BaseUrl 可访问，HTTP {statusCode}。</RSMF.ReviewSettings.Result.BaseUrlReachable>
+  <RSMF.ReviewSettings.Result.RequestFailed>请求测试失败。</RSMF.ReviewSettings.Result.RequestFailed>
+  <RSMF.ReviewSettings.Result.RequestSucceeded>请求测试成功，已能生成并解析评价。</RSMF.ReviewSettings.Result.RequestSucceeded>
+  <RSMF.ReviewSettings.Result.GenerationFailed>BaseUrl 可访问，但生成失败，请检查模型、密钥或网关 JSON 支持。</RSMF.ReviewSettings.Result.GenerationFailed>
+  <RSMF.ReviewSettings.Injector.InputStructure>输入结构</RSMF.ReviewSettings.Injector.InputStructure>
+  <RSMF.ReviewSettings.Injector.XmlFormat>XML 风格</RSMF.ReviewSettings.Injector.XmlFormat>
+  <RSMF.ReviewSettings.Injector.PlainTextFormat>普通文本</RSMF.ReviewSettings.Injector.PlainTextFormat>
+  <RSMF.ReviewSettings.Injector.XmlHint>XML 标签只用于组织输入，最终仍要求模型只返回 JSON。</RSMF.ReviewSettings.Injector.XmlHint>
+  <RSMF.ReviewSettings.Injector.PlainHint>兼容旧版纯文本提示词节点组织。</RSMF.ReviewSettings.Injector.PlainHint>
+  <RSMF.ReviewSettings.Injector.RootPromptNode>根提示词节点</RSMF.ReviewSettings.Injector.RootPromptNode>
+  <RSMF.ReviewSettings.Injector.RootXmlInfo>当前会把根提示词放入 &lt;rootPrompt&gt;，其他节点按优先级追加为 XML 风格资料块；XML 是输入结构，不改变 JSON 输出要求。</RSMF.ReviewSettings.Injector.RootXmlInfo>
+  <RSMF.ReviewSettings.Injector.RootPlainInfo>当前使用普通文本结构：根提示词固定在所有节点最前方，下面的节点会按启用列表优先级依次追加。</RSMF.ReviewSettings.Injector.RootPlainInfo>
+  <RSMF.ReviewSettings.Injector.PreviewPrompt>预览最终提示词</RSMF.ReviewSettings.Injector.PreviewPrompt>
+  <RSMF.ReviewSettings.Injector.AvailableNodes>可用内置节点</RSMF.ReviewSettings.Injector.AvailableNodes>
+  <RSMF.ReviewSettings.Injector.ResetNodes>恢复节点默认</RSMF.ReviewSettings.Injector.ResetNodes>
+  <RSMF.ReviewSettings.Injector.EnabledNodeOrder>已启用节点优先级</RSMF.ReviewSettings.Injector.EnabledNodeOrder>
+  <RSMF.ReviewSettings.Injector.NoEnabledNodes>没有启用的注入节点</RSMF.ReviewSettings.Injector.NoEnabledNodes>
+  <RSMF.ReviewSettings.Injector.Drag>拖动</RSMF.ReviewSettings.Injector.Drag>
+  <RSMF.ReviewSettings.Injector.Disable>停用</RSMF.ReviewSettings.Injector.Disable>
+  <RSMF.ReviewSettings.Injector.NewCustomNode>新增自定义节点</RSMF.ReviewSettings.Injector.NewCustomNode>
+  <RSMF.ReviewSettings.Injector.NewNodeName>新节点名称</RSMF.ReviewSettings.Injector.NewNodeName>
+  <RSMF.ReviewSettings.Injector.NewNodeBody>新节点正文</RSMF.ReviewSettings.Injector.NewNodeBody>
+  <RSMF.ReviewSettings.Injector.AddNode>添加节点</RSMF.ReviewSettings.Injector.AddNode>
+  <RSMF.ReviewSettings.Injector.CustomNode>自定义节点</RSMF.ReviewSettings.Injector.CustomNode>
+  <RSMF.ReviewSettings.Injector.ExistingCustomNodes>已有自定义节点</RSMF.ReviewSettings.Injector.ExistingCustomNodes>
+  <RSMF.PromptPreview.Title>提示词预览</RSMF.PromptPreview.Title>
+  <RSMF.PromptPreview.Note>这里使用示例顾客快照预览节点结构；实际生成评价时会替换为真实顾客、商店、天气、事件、文化和购物数据。</RSMF.PromptPreview.Note>
+  <RSMF.PromptPreview.NoSettings>没有可用设置。</RSMF.PromptPreview.NoSettings>
+  <RSMF.PromptPreview.Section.SystemPrompt>=== 系统提示词 ===</RSMF.PromptPreview.Section.SystemPrompt>
+  <RSMF.PromptPreview.Section.StablePrefix>=== Message[0] 稳定用户前缀 ===</RSMF.PromptPreview.Section.StablePrefix>
+  <RSMF.PromptPreview.Section.DynamicInput>=== Message[1] 动态顾客资料 ===</RSMF.PromptPreview.Section.DynamicInput>
+  <RSMF.PromptPreview.Sample.Shop>示例商店</RSMF.PromptPreview.Sample.Shop>
+  <RSMF.PromptPreview.Sample.Customer>预览顾客</RSMF.PromptPreview.Sample.Customer>
+  <RSMF.PromptPreview.Sample.Kind>预览顾客类型</RSMF.PromptPreview.Sample.Kind>
+  <RSMF.PromptPreview.Sample.KindDescription>预算范围 100-400 银；排队耐心 900-3000 ticks；目标商品分类 Goods_Foods。</RSMF.PromptPreview.Sample.KindDescription>
+  <RSMF.PromptPreview.Sample.Race>示例种族</RSMF.PromptPreview.Sample.Race>
+  <RSMF.PromptPreview.Sample.RaceDescription>这里会显示真实种族说明文本。</RSMF.PromptPreview.Sample.RaceDescription>
+  <RSMF.PromptPreview.Sample.Age>生理年龄 42.0，历法年龄 42.0</RSMF.PromptPreview.Sample.Age>
+  <RSMF.PromptPreview.Sample.Backstory>示例童年 / 示例成年</RSMF.PromptPreview.Sample.Backstory>
+  <RSMF.PromptPreview.Sample.BackstoryDetails>这里会显示真实背景故事完整描述文本。</RSMF.PromptPreview.Sample.BackstoryDetails>
+  <RSMF.PromptPreview.Sample.Traits>善良，说明: 更容易克制表达；易怒，说明: 心情差时可能尖锐。</RSMF.PromptPreview.Sample.Traits>
+  <RSMF.PromptPreview.Sample.Xenotype>智人种: 自然进化的人类。</RSMF.PromptPreview.Sample.Xenotype>
+  <RSMF.PromptPreview.Sample.Genes>无显著基因</RSMF.PromptPreview.Sample.Genes>
+  <RSMF.PromptPreview.Sample.PersonalityBias>按实际体验自然评价。</RSMF.PromptPreview.Sample.PersonalityBias>
+  <RSMF.PromptPreview.Sample.Mood>心情 58%</RSMF.PromptPreview.Sample.Mood>
+  <RSMF.PromptPreview.Sample.Health>健康状况稳定</RSMF.PromptPreview.Sample.Health>
+  <RSMF.PromptPreview.Sample.Budget>预算 117 银，实际付款 96 银，结账结果：付款完成</RSMF.PromptPreview.Sample.Budget>
+  <RSMF.PromptPreview.Sample.Purchased>包装生存食物 x4，96 银，说明: 长途旅行的首选食物。</RSMF.PromptPreview.Sample.Purchased>
+  <RSMF.PromptPreview.Sample.Service>未使用服务，结账结果：付款完成</RSMF.PromptPreview.Sample.Service>
+  <RSMF.PromptPreview.Sample.Environment>环境参考数值: 综合 63.4，口碑 53.9，满意度 71.7，美观 6.6。</RSMF.PromptPreview.Sample.Environment>
+  <RSMF.PromptPreview.Sample.Cashier>示例收银员，社交 4，魅力/社交影响 0.93，工作速度 0.80。</RSMF.PromptPreview.Sample.Cashier>
+  <RSMF.PromptPreview.Sample.CheckoutJob>Customer_PayAtRegister，排队序号 1，结果 付款完成。</RSMF.PromptPreview.Sample.CheckoutJob>
+  <RSMF.PromptPreview.Sample.PostPurchase>无付款后行为。</RSMF.PromptPreview.Sample.PostPurchase>
+  <RSMF.PromptPreview.Sample.Room>房间类型 商店；大小 80 格；心理上属于室内；温度 21.0℃；美观 6.6；清洁 0.10。</RSMF.PromptPreview.Sample.Room>
+  <RSMF.PromptPreview.Sample.Relations>对 示例殖民者 好感 25。</RSMF.PromptPreview.Sample.Relations>
+  <RSMF.PromptPreview.Sample.Weather>当前天气 晴朗；持续 1200 ticks；雨量 0.00；雪量 0.00；移动倍率 1.00。</RSMF.PromptPreview.Sample.Weather>
+  <RSMF.PromptPreview.Sample.GameConditions>当前没有显著持续事件。</RSMF.PromptPreview.Sample.GameConditions>
+  <RSMF.PromptPreview.Sample.ColonyWealth>总财富 52000，物品 18000，建筑 24000，角色 10000，殖民者 6 人。</RSMF.PromptPreview.Sample.ColonyWealth>
+  <RSMF.PromptPreview.Sample.ColonyShops>商店区域 2 个，有效商店 2 个，当前开业 1 个，名称: 示例商店、药品小铺。</RSMF.PromptPreview.Sample.ColonyShops>
+  <RSMF.PromptPreview.Sample.ColonyLeader>派系领袖: 示例领袖，头衔 首领，社交 12，背景 示例背景，特性 善良。</RSMF.PromptPreview.Sample.ColonyLeader>
+  <RSMF.PromptPreview.Sample.ColonyCulture>主要信仰 示例信仰，文化 示例文化，成员称呼 成员，模因 集体主义、贸易偏好。</RSMF.PromptPreview.Sample.ColonyCulture>
+  <RSMF.PromptPreview.Sample.RecentReviews>同店近期 1 条，均分 4.0 星；可互动评论: reviewId=preview_review, 示例网友, 4星: 东西摆得明白，结账也快。</RSMF.PromptPreview.Sample.RecentReviews>
+  <RSMF.AiTerminal.Title>AI 调试终端</RSMF.AiTerminal.Title>
+  <RSMF.AiTerminal.RecordCount>本局内存记录 {count} 条，API Key 不会记录或导出</RSMF.AiTerminal.RecordCount>
+  <RSMF.AiTerminal.Filter.All>全部</RSMF.AiTerminal.Filter.All>
+  <RSMF.AiTerminal.Filter.Success>成功</RSMF.AiTerminal.Filter.Success>
+  <RSMF.AiTerminal.Filter.Failed>失败</RSMF.AiTerminal.Filter.Failed>
+  <RSMF.AiTerminal.Filter.Pending>请求中</RSMF.AiTerminal.Filter.Pending>
+  <RSMF.AiTerminal.NoRecords>暂无 AI 调用记录</RSMF.AiTerminal.NoRecords>
+  <RSMF.AiTerminal.UnknownShop>未知店铺</RSMF.AiTerminal.UnknownShop>
+  <RSMF.AiTerminal.StarsAtTime>{stars} 星 · {time}</RSMF.AiTerminal.StarsAtTime>
+  <RSMF.AiTerminal.PendingAtTime>请求处理中 · {time}</RSMF.AiTerminal.PendingAtTime>
+  <RSMF.AiTerminal.SelectRecord>选择左侧记录后查看详情</RSMF.AiTerminal.SelectRecord>
+  <RSMF.AiTerminal.Tab.Source>源数据</RSMF.AiTerminal.Tab.Source>
+  <RSMF.AiTerminal.Tab.Request>发送给 AI</RSMF.AiTerminal.Tab.Request>
+  <RSMF.AiTerminal.Tab.Output>AI 输出</RSMF.AiTerminal.Tab.Output>
+  <RSMF.AiTerminal.Tab.Parsed>解析结果</RSMF.AiTerminal.Tab.Parsed>
+  <RSMF.AiTerminal.HttpAttemptsHeader>HTTP 尝试:</RSMF.AiTerminal.HttpAttemptsHeader>
+  <RSMF.AiTerminal.Request.SystemPrompt>系统提示词:</RSMF.AiTerminal.Request.SystemPrompt>
+  <RSMF.AiTerminal.Request.UserPrompt>用户提示词合并预览:</RSMF.AiTerminal.Request.UserPrompt>
+  <RSMF.AiTerminal.Request.StablePrefix>稳定用户前缀:</RSMF.AiTerminal.Request.StablePrefix>
+  <RSMF.AiTerminal.Request.DynamicInput>动态顾客资料:</RSMF.AiTerminal.Request.DynamicInput>
+  <RSMF.AiTerminal.Request.Messages>Messages:</RSMF.AiTerminal.Request.Messages>
+  <RSMF.AiTerminal.AssistantTextHeader>最终抽取的助手文本:</RSMF.AiTerminal.AssistantTextHeader>
+  <RSMF.AiTerminal.HttpAttemptDetailsHeader>HTTP 尝试详情:</RSMF.AiTerminal.HttpAttemptDetailsHeader>
+  <RSMF.AiTerminal.FailureReasonHeader>失败原因:</RSMF.AiTerminal.FailureReasonHeader>
+  <RSMF.AiTerminal.StatusLine>状态: {value}</RSMF.AiTerminal.StatusLine>
+  <RSMF.AiTerminal.TimeLine>时间: {value}</RSMF.AiTerminal.TimeLine>
+  <RSMF.AiTerminal.GameDayTickLine>游戏天数: {day}  Tick: {tick}</RSMF.AiTerminal.GameDayTickLine>
+  <RSMF.AiTerminal.ProviderLine>供应商: {value}</RSMF.AiTerminal.ProviderLine>
+  <RSMF.AiTerminal.ProviderModelLine>供应商: {provider}  模型: {model}</RSMF.AiTerminal.ProviderModelLine>
+  <RSMF.AiTerminal.ModelLine>模型: {value}</RSMF.AiTerminal.ModelLine>
+  <RSMF.AiTerminal.CustomerShopLine>顾客: {customer}  店铺: {shop}  ReviewId: {reviewId}</RSMF.AiTerminal.CustomerShopLine>
+  <RSMF.AiTerminal.NewConversationLine>新对话: {value}</RSMF.AiTerminal.NewConversationLine>
+  <RSMF.AiTerminal.ConversationTurnsLine>对话轮数: {value}</RSMF.AiTerminal.ConversationTurnsLine>
+  <RSMF.AiTerminal.ConversationCharsLine>对话字符数: {value}</RSMF.AiTerminal.ConversationCharsLine>
+  <RSMF.AiTerminal.ParsedResultHeader>解析结果:</RSMF.AiTerminal.ParsedResultHeader>
+  <RSMF.AiTerminal.SourceSection>=== 源数据 ===</RSMF.AiTerminal.SourceSection>
+  <RSMF.AiTerminal.RequestSection>=== 发送给 AI ===</RSMF.AiTerminal.RequestSection>
+  <RSMF.AiTerminal.HttpSection>=== HTTP 尝试 ===</RSMF.AiTerminal.HttpSection>
+  <RSMF.AiTerminal.OutputSection>=== AI 输出 ===</RSMF.AiTerminal.OutputSection>
+  <RSMF.AiTerminal.ParsedSection>=== 解析结果 ===</RSMF.AiTerminal.ParsedSection>
+  <RSMF.AiTerminal.FailureSection>=== 失败原因 ===</RSMF.AiTerminal.FailureSection>
+  <RSMF.AiTerminal.NoHttpAttempts>暂无 HTTP 尝试记录。</RSMF.AiTerminal.NoHttpAttempts>
+  <RSMF.AiTerminal.HttpAttemptLine>[{index}] {label}  HTTP {statusCode}  成功: {success}</RSMF.AiTerminal.HttpAttemptLine>
+  <RSMF.AiTerminal.FeaturedItemLine>{label} / {defName} x{count} {amount}银</RSMF.AiTerminal.FeaturedItemLine>
+  <RSMF.AiTerminal.CopyPage>复制当前页</RSMF.AiTerminal.CopyPage>
+  <RSMF.AiTerminal.CopiedPageMessage>当前页内容已复制到剪贴板。</RSMF.AiTerminal.CopiedPageMessage>
+  <RSMF.AiTerminal.CopyRecord>复制当前记录</RSMF.AiTerminal.CopyRecord>
+  <RSMF.AiTerminal.CopiedRecordMessage>当前 AI 调试记录已复制到剪贴板。</RSMF.AiTerminal.CopiedRecordMessage>
+  <RSMF.AiTerminal.ExportCurrentJson>导出当前 JSON</RSMF.AiTerminal.ExportCurrentJson>
+  <RSMF.AiTerminal.ExportAllJson>导出全部 JSON</RSMF.AiTerminal.ExportAllJson>
+  <RSMF.AiTerminal.ClearLog>清空本次日志</RSMF.AiTerminal.ClearLog>
+  <RSMF.AiTerminal.ClearLogConfirm>清空本次 AI 调试日志？不会删除已经生成的顾客评价。</RSMF.AiTerminal.ClearLogConfirm>
+  <RSMF.AiTerminal.ExportSucceeded>AI 调试 JSON 已导出，路径已复制: {path}</RSMF.AiTerminal.ExportSucceeded>
+  <RSMF.AiTerminal.ExportFailed>AI 调试 JSON 导出失败: {message}</RSMF.AiTerminal.ExportFailed>
+  <RSMF.Business.Page.ShopManagement>商店管理</RSMF.Business.Page.ShopManagement>
+  <RSMF.Business.Page.Vending>自动售卖</RSMF.Business.Page.Vending>
+  <RSMF.Business.Page.Finance>财务</RSMF.Business.Page.Finance>
+  <RSMF.Business.Page.Reviews>顾客评价</RSMF.Business.Page.Reviews>
+  <RSMF.Business.Page.CollectibleExchange>收藏品兑换</RSMF.Business.Page.CollectibleExchange>
+  <RSMF.Business.Page.Customers>顾客</RSMF.Business.Page.Customers>
+  <RSMF.Business.Page.Staff>店员</RSMF.Business.Page.Staff>
+  <RSMF.Business.Empty.NoVendingMachines>(当前没有自动售货机货柜)</RSMF.Business.Empty.NoVendingMachines>
+  <RSMF.Business.Empty.NoManageableShops>(当前没有可管理的商店区域)</RSMF.Business.Empty.NoManageableShops>
+  <RSMF.Business.Empty.FinanceMissing>(财务组件未初始化)</RSMF.Business.Empty.FinanceMissing>
+  <RSMF.Business.Empty.NoBills>(暂无账单日志)</RSMF.Business.Empty.NoBills>
+  <RSMF.Business.Empty.NoActiveCustomers>(当前没有活跃顾客)</RSMF.Business.Empty.NoActiveCustomers>
+  <RSMF.Business.Empty.NoStaffShops>(当前没有可配置店员的商店)</RSMF.Business.Empty.NoStaffShops>
+  <RSMF.Business.Empty.NoReviews>(暂无顾客评价)</RSMF.Business.Empty.NoReviews>
+  <RSMF.Business.Empty.NoCollectibleExchangeLists>(暂无收藏品兑换入口)</RSMF.Business.Empty.NoCollectibleExchangeLists>
+  <RSMF.Business.MapLine>地图: {map}</RSMF.Business.MapLine>
+  <RSMF.Business.MapPositionLine>地图: {map}   位置: {position}</RSMF.Business.MapPositionLine>
+  <RSMF.Business.Status.Open>状态: 营业中</RSMF.Business.Status.Open>
+  <RSMF.Business.Status.Custom>状态: {status}</RSMF.Business.Status.Custom>
+  <RSMF.Business.Status.VendingUsable>状态: 可售卖</RSMF.Business.Status.VendingUsable>
+  <RSMF.Business.Status.VendingDisabled>状态: 停用、断电、关机或无库存</RSMF.Business.Status.VendingDisabled>
+  <RSMF.Business.ShopInventoryLine>货柜: {storages}   在售商品: {goodsKinds}   有库存: {inStockKinds}   套餐: {comboCount}</RSMF.Business.ShopInventoryLine>
+  <RSMF.Business.ShopMetricsLine>评分 {score}   口碑 {reputation}   满意度 {satisfaction}   美观 {beauty}   容量 {capacity}   点评 {stars}★/{reviewCount}</RSMF.Business.ShopMetricsLine>
+  <RSMF.Business.ShopDemandLine>客流 {spawn}x   美观 {beauty}x   规模 {scale}x   容量规模 {capacityScale}x   有效规模 {effectiveScale}</RSMF.Business.ShopDemandLine>
+  <RSMF.Business.ComboPreview>套餐预览: {preview}</RSMF.Business.ComboPreview>
+  <RSMF.Business.VendingInventoryLine>商品: {stockedKinds}/{sellableKinds} 有库存   容量: {stored}/{capacity}   顾客: {customers}/{maxCustomers}</RSMF.Business.VendingInventoryLine>
+  <RSMF.Business.GoodsPreview>商品预览: {preview}</RSMF.Business.GoodsPreview>
+  <RSMF.Business.UnconfiguredGoods>未配置商品</RSMF.Business.UnconfiguredGoods>
+  <RSMF.Business.CollectibleExchange.Header>收藏品兑换入口：{count} 个</RSMF.Business.CollectibleExchange.Header>
+  <RSMF.Business.CollectibleExchange.HeaderTip>这里会列出当前可用的兑换商店。点击入口后可查看店铺介绍、本期进度和可兑换物品。</RSMF.Business.CollectibleExchange.HeaderTip>
+  <RSMF.Business.CollectibleExchange.RowTitle>{shop} · {title}</RSMF.Business.CollectibleExchange.RowTitle>
+  <RSMF.Business.CollectibleExchange.Priority>优先级 {priority}</RSMF.Business.CollectibleExchange.Priority>
+  <RSMF.Business.CollectibleExchange.DefaultShopName>收藏品兑换</RSMF.Business.CollectibleExchange.DefaultShopName>
+  <RSMF.Business.CollectibleExchange.NoIntro>暂无介绍。</RSMF.Business.CollectibleExchange.NoIntro>
+  <RSMF.Business.CollectibleExchange.Enter>进入</RSMF.Business.CollectibleExchange.Enter>
+  <RSMF.Business.CollectibleExchange.Progress>切换进度：{progress}</RSMF.Business.CollectibleExchange.Progress>
+  <RSMF.Business.CollectibleExchange.StockProgress>兑换进度：已兑换 {purchased}/{total}，剩余货量 {remaining}</RSMF.Business.CollectibleExchange.StockProgress>
+  <RSMF.CollectibleExchange.EmptyItems>这个兑换商店暂未配置商品。</RSMF.CollectibleExchange.EmptyItems>
+  <RSMF.CollectibleExchange.Remaining>剩余 {count}</RSMF.CollectibleExchange.Remaining>
+  <RSMF.CollectibleExchange.SoldOut>已售罄</RSMF.CollectibleExchange.SoldOut>
+  <RSMF.CollectibleExchange.Buy>购买</RSMF.CollectibleExchange.Buy>
+  <RSMF.CollectibleExchange.PriceLine>{price} x {currency}</RSMF.CollectibleExchange.PriceLine>
+  <RSMF.CollectibleExchange.SinglePurchaseCount>单次 {count} 个</RSMF.CollectibleExchange.SinglePurchaseCount>
+  <RSMF.CollectibleExchange.ItemWithCount>{item} x{count}</RSMF.CollectibleExchange.ItemWithCount>
+  <RSMF.CollectibleExchange.InvalidItem>商品配置无效。</RSMF.CollectibleExchange.InvalidItem>
+  <RSMF.CollectibleExchange.InvalidCurrency>货币配置无效。</RSMF.CollectibleExchange.InvalidCurrency>
+  <RSMF.CollectibleExchange.ComponentMissing>收藏品兑换存档组件未初始化。</RSMF.CollectibleExchange.ComponentMissing>
+  <RSMF.CollectibleExchange.NotEnoughCurrency>{currency}不足，需要 {need}，当前 {have}。</RSMF.CollectibleExchange.NotEnoughCurrency>
+  <RSMF.CollectibleExchange.NoPlayerMap>没有可用的玩家殖民地地图。</RSMF.CollectibleExchange.NoPlayerMap>
+  <RSMF.CollectibleExchange.PurchaseSucceededMessage>已购买 {item}。</RSMF.CollectibleExchange.PurchaseSucceededMessage>
+  <RSMF.CollectibleExchange.LetterLabel>{shop}送达</RSMF.CollectibleExchange.LetterLabel>
+  <RSMF.CollectibleExchange.LetterText>你从{shop}购买的{item}已经通过空投送达。</RSMF.CollectibleExchange.LetterText>
+  <RSMF.CollectibleExchange.PortraitMissing>未配置立绘</RSMF.CollectibleExchange.PortraitMissing>
+  <RSMF.CollectibleExchange.PeriodFallback>当前期</RSMF.CollectibleExchange.PeriodFallback>
+  <RSMF.CollectibleExchange.ProgressFallback>当前暂无物品切换进度。</RSMF.CollectibleExchange.ProgressFallback>
+  <RSMF.CollectibleExchange.PortraitDebug.Title>立绘调试（上帝模式）</RSMF.CollectibleExchange.PortraitDebug.Title>
+  <RSMF.CollectibleExchange.PortraitDebug.Scale>缩放</RSMF.CollectibleExchange.PortraitDebug.Scale>
+  <RSMF.CollectibleExchange.PortraitDebug.OffsetX>横移</RSMF.CollectibleExchange.PortraitDebug.OffsetX>
+  <RSMF.CollectibleExchange.PortraitDebug.OffsetY>纵移</RSMF.CollectibleExchange.PortraitDebug.OffsetY>
+  <RSMF.CollectibleExchange.PortraitDebug.Reset>重置</RSMF.CollectibleExchange.PortraitDebug.Reset>
+  <RSMF.CollectibleExchange.PortraitDebug.CopyXml>复制 XML</RSMF.CollectibleExchange.PortraitDebug.CopyXml>
+  <RSMF.CollectibleExchange.PortraitDebug.Copied>立绘参数 XML 片段已复制。</RSMF.CollectibleExchange.PortraitDebug.Copied>
+  <RSMF.CollectibleExchange.PortraitDebug.Values>scale {scale}  x {x}  y {y}</RSMF.CollectibleExchange.PortraitDebug.Values>
+  <RSMF.CollectibleExchange.Dialogue.DefaultWelcome>欢迎光临，随便看看。</RSMF.CollectibleExchange.Dialogue.DefaultWelcome>
+  <RSMF.CollectibleExchange.Dialogue.DefaultBrowse>{item}这件可以看看，合适再换。</RSMF.CollectibleExchange.Dialogue.DefaultBrowse>
+  <RSMF.CollectibleExchange.Dialogue.DefaultIdle>慢慢看，货还在这儿。</RSMF.CollectibleExchange.Dialogue.DefaultIdle>
+  <RSMF.CollectibleExchange.Dialogue.DefaultPurchase>成交，东西会送过去。</RSMF.CollectibleExchange.Dialogue.DefaultPurchase>
+  <RSMF.CollectibleExchange.Dialogue.DefaultNotEnoughCurrency>货币不够，这单现在结不了。</RSMF.CollectibleExchange.Dialogue.DefaultNotEnoughCurrency>
+  <RSMF.Business.PauseBusiness>暂停营业</RSMF.Business.PauseBusiness>
+  <RSMF.Business.StartBusiness>开始营业</RSMF.Business.StartBusiness>
+  <RSMF.Business.Finance.Tab.Overview>统计总览</RSMF.Business.Finance.Tab.Overview>
+  <RSMF.Business.Finance.Tab.Bills>账单日志</RSMF.Business.Finance.Tab.Bills>
+  <RSMF.Business.Finance.TotalIncome>总收入</RSMF.Business.Finance.TotalIncome>
+  <RSMF.Business.Finance.TotalBills>总账单数</RSMF.Business.Finance.TotalBills>
+  <RSMF.Business.Finance.TodayIncome>今日收入</RSMF.Business.Finance.TodayIncome>
+  <RSMF.Business.Finance.ProductSales>单品销量 / 收入</RSMF.Business.Finance.ProductSales>
+  <RSMF.Business.Finance.ComboSales>套餐销量 / 收入</RSMF.Business.Finance.ComboSales>
+  <RSMF.Business.Finance.ShopProfit>商店盈利</RSMF.Business.Finance.ShopProfit>
+  <RSMF.Business.Finance.DailyProfit>每日盈利</RSMF.Business.Finance.DailyProfit>
+  <RSMF.Business.Finance.PageInfo>第 {page}/{pages} 页  每页 {pageSize} 条  共 {total} 条</RSMF.Business.Finance.PageInfo>
+  <RSMF.Business.Finance.BillLine>第 {day} 天  {shop}  顾客:{customer}  支付:{paid} 银</RSMF.Business.Finance.BillLine>
+  <RSMF.Business.Finance.ProductRow>{label}: 售出 {count}，收入 ¥{revenue}</RSMF.Business.Finance.ProductRow>
+  <RSMF.Business.Finance.ShopRow>{label}: 收入 ¥{revenue}，利润 ¥{profit}</RSMF.Business.Finance.ShopRow>
+  <RSMF.Business.Finance.DailyRow>第 {day} 天: 收入 ¥{revenue}，利润 ¥{profit}</RSMF.Business.Finance.DailyRow>
+  <RSMF.Business.Finance.DetailsEmpty>明细: (无)</RSMF.Business.Finance.DetailsEmpty>
+  <RSMF.Business.Finance.Details>明细: {details}</RSMF.Business.Finance.Details>
+  <RSMF.Business.Finance.Chart.Title>账目图形总览</RSMF.Business.Finance.Chart.Title>
+  <RSMF.Business.Finance.Chart.DailyTrend>最近收入 / 利润阶梯趋势</RSMF.Business.Finance.Chart.DailyTrend>
+  <RSMF.Business.Finance.Chart.ShopCompare>商店收入对比</RSMF.Business.Finance.Chart.ShopCompare>
+  <RSMF.Business.Finance.Chart.RevenueMix>收入构成</RSMF.Business.Finance.Chart.RevenueMix>
+  <RSMF.Business.Finance.Chart.Revenue>收入</RSMF.Business.Finance.Chart.Revenue>
+  <RSMF.Business.Finance.Chart.Profit>利润</RSMF.Business.Finance.Chart.Profit>
+  <RSMF.Business.Finance.Chart.Product>商品</RSMF.Business.Finance.Chart.Product>
+  <RSMF.Business.Finance.Chart.Combo>套餐</RSMF.Business.Finance.Chart.Combo>
+  <RSMF.Business.Finance.Chart.Service>服务</RSMF.Business.Finance.Chart.Service>
+  <RSMF.Business.Finance.Chart.DayShort>第 {day} 天</RSMF.Business.Finance.Chart.DayShort>
+  <RSMF.Business.Finance.Chart.Value>¥{value}</RSMF.Business.Finance.Chart.Value>
+  <RSMF.Business.Finance.Chart.MixLine>{label}: {value}，占比 {percent}%</RSMF.Business.Finance.Chart.MixLine>
+  <RSMF.Business.Customer.ActiveCount>活跃顾客: {count}</RSMF.Business.Customer.ActiveCount>
+  <RSMF.Business.Customer.AverageBudgetUse>平均预算使用率: {percent}%</RSMF.Business.Customer.AverageBudgetUse>
+  <RSMF.Business.Customer.ShopMapLine>商店: {shop}   地图: {map}</RSMF.Business.Customer.ShopMapLine>
+  <RSMF.Business.Customer.JobPatienceLine>当前行为: {job}   结账耐心: {patience} ticks</RSMF.Business.Customer.JobPatienceLine>
+  <RSMF.Business.Customer.BudgetLine>预算 {budget}  已花 {spent}  剩余 {remaining}</RSMF.Business.Customer.BudgetLine>
+  <RSMF.Business.Customer.PreferenceLine>偏好: {preferences}</RSMF.Business.Customer.PreferenceLine>
+  <RSMF.Business.Customer.ShopFallback>商店#{id}</RSMF.Business.Customer.ShopFallback>
+  <RSMF.Business.Customer.NoCurrentJob>(无)</RSMF.Business.Customer.NoCurrentJob>
+  <RSMF.Business.Staff.Line>岗位数: {roles}   已分配店员: {assigned}   营业状态: {status}</RSMF.Business.Staff.Line>
+  <RSMF.Business.Staff.OpenConfig>打开店员配置</RSMF.Business.Staff.OpenConfig>
+  <RSMF.Business.Storage.NotFoundMessage>该商店未找到可配置货柜。</RSMF.Business.Storage.NotFoundMessage>
+  <RSMF.Business.Storage.OptionLabel>货柜 #{index} - {label}</RSMF.Business.Storage.OptionLabel>
+  <RSMF.Business.Storage.CannotOpenMessage>该货柜无法打开管理面板。</RSMF.Business.Storage.CannotOpenMessage>
+  <RSMF.Business.VendingMachineLabel>自动售货机: {label}</RSMF.Business.VendingMachineLabel>
+  <RSMF.Business.VendingMachineCustomer>自动售货机顾客</RSMF.Business.VendingMachineCustomer>
+  <RSMF.Business.UnknownShop>未知商店</RSMF.Business.UnknownShop>
+  <RSMF.Business.ShopFallback>商店 #{id}</RSMF.Business.ShopFallback>
+  <RSMF.StaffManager.Title>{shop} 的店员配置</RSMF.StaffManager.Title>
+  <RSMF.StaffManager.OpenStatus>营业状态: {status}</RSMF.StaffManager.OpenStatus>
+  <RSMF.StaffManager.RoleList>岗位列表</RSMF.StaffManager.RoleList>
+  <RSMF.StaffManager.RoleListTip>岗位会根据店铺内已有建筑和岗位 Def 自动显示。</RSMF.StaffManager.RoleListTip>
+  <RSMF.StaffManager.AssignedCount>已分配: {assigned}/{max}</RSMF.StaffManager.AssignedCount>
+  <RSMF.StaffManager.SelectRole>请选择一个岗位</RSMF.StaffManager.SelectRole>
+  <RSMF.StaffManager.CandidateTitle>{role} 候选店员</RSMF.StaffManager.CandidateTitle>
+  <RSMF.StaffManager.CurrentAssigned>当前分配: {pawns}</RSMF.StaffManager.CurrentAssigned>
+  <RSMF.StaffManager.Idle>空闲</RSMF.StaffManager.Idle>
+  <RSMF.StaffManager.CurrentJob>当前工作: {job}</RSMF.StaffManager.CurrentJob>
+  <RSMF.StaffManager.MapLine>地图: {map}</RSMF.StaffManager.MapLine>
+  <RSMF.StaffManager.Ineligible>不可指派: {reason}</RSMF.StaffManager.Ineligible>
+  <RSMF.StaffManager.RemoveRole>移出岗位</RSMF.StaffManager.RemoveRole>
+  <RSMF.StaffManager.AddRole>加入岗位</RSMF.StaffManager.AddRole>
+  <RSMF.StaffManager.Unassigned>未指定</RSMF.StaffManager.Unassigned>
+  <RSMF.StaffManager.InvalidPawn>无效 pawn</RSMF.StaffManager.InvalidPawn>
+  <RSMF.StaffManager.InvalidRole>无效岗位</RSMF.StaffManager.InvalidRole>
+  <RSMF.StaffManager.DeadOrUnavailable>已死亡或不可用</RSMF.StaffManager.DeadOrUnavailable>
+  <RSMF.StaffManager.NoWorkSettings>没有工作设置</RSMF.StaffManager.NoWorkSettings>
+  <RSMF.StaffManager.Eligible>可上岗</RSMF.StaffManager.Eligible>
+  <RSMF.StaffManager.DisabledWorkType>禁用工作类型: {workType}</RSMF.StaffManager.DisabledWorkType>
+  <RSMF.StaffManager.InactiveWorkType>未开启工作类型: {workType}</RSMF.StaffManager.InactiveWorkType>
+  <RSMF.StaffManager.MissingCapacity>缺少能力: {capacity}</RSMF.StaffManager.MissingCapacity>
+  <RSMF.StaffManager.NoUsableRoleWork>没有可用岗位工作</RSMF.StaffManager.NoUsableRoleWork>
+  <RSMF.GoodsManager.AvailableCategories>可售分类</RSMF.GoodsManager.AvailableCategories>
+  <RSMF.GoodsManager.CategoryNav>分类导航</RSMF.GoodsManager.CategoryNav>
+  <RSMF.GoodsManager.RestrictionTip>该货柜只允许选择：{labels}</RSMF.GoodsManager.RestrictionTip>
+  <RSMF.GoodsManager.ClearSelection>— 清除选择 —</RSMF.GoodsManager.ClearSelection>
+  <RSMF.GoodsManager.SelectCategoryFirst>请在左侧选择需要管理的货品分类</RSMF.GoodsManager.SelectCategoryFirst>
+  <RSMF.GoodsManager.NoCategories>该货柜没有可用的货品分类</RSMF.GoodsManager.NoCategories>
+  <RSMF.GoodsManager.SearchPlaceholder>搜索物品...</RSMF.GoodsManager.SearchPlaceholder>
+  <RSMF.GoodsManager.TargetTotal>目标总量: {current}/{max}</RSMF.GoodsManager.TargetTotal>
+  <RSMF.GoodsManager.Header.Price>单价(银)</RSMF.GoodsManager.Header.Price>
+  <RSMF.GoodsManager.Header.Target>目标量</RSMF.GoodsManager.Header.Target>
+  <RSMF.GoodsManager.Header.Slider>快速调节</RSMF.GoodsManager.Header.Slider>
+  <RSMF.GoodsManager.Header.Stock>当前库存</RSMF.GoodsManager.Header.Stock>
+  <RSMF.GoodsManager.Header.Name>货品名称</RSMF.GoodsManager.Header.Name>
+  <RSMF.GoodsManager.PriceTip>参考市价: {value} 银</RSMF.GoodsManager.PriceTip>
+  <RSMF.GoodsManager.PendingEvictWarning>⚠️ 注意：保存后以下物品将被移出仓库：{names}</RSMF.GoodsManager.PendingEvictWarning>
+  <RSMF.GoodsManager.CapacityText>容量: {current}/{max}</RSMF.GoodsManager.CapacityText>
+  <RSMF.GoodsManager.SelectAllPage>全选当前页</RSMF.GoodsManager.SelectAllPage>
+  <RSMF.GoodsManager.ClearAllPage>清空当前页</RSMF.GoodsManager.ClearAllPage>
+  <RSMF.GoodsManager.Save>确认保存</RSMF.GoodsManager.Save>
+  <RSMF.GoodsManager.Cancel>取消</RSMF.GoodsManager.Cancel>
+  <RSMF.GoodsManager.AutoTrimNotice>已按货柜容量上限自动调整目标量，超出部分 {trimmed} 件已移除。</RSMF.GoodsManager.AutoTrimNotice>
+  <RSMF.GoodsManager.StockOk>■ 充足</RSMF.GoodsManager.StockOk>
+  <RSMF.GoodsManager.StockLow>■ 不足</RSMF.GoodsManager.StockLow>
+  <RSMF.GoodsManager.StockNo>■ 缺货</RSMF.GoodsManager.StockNo>
+  <RSMF.GoodsManager.InvalidCategory>该货柜不能售卖这个商品分类。</RSMF.GoodsManager.InvalidCategory>
+  <RSMF.GoodsManager.AllGoodsCategories>全部商品分类</RSMF.GoodsManager.AllGoodsCategories>
+  <RSMF.ShopManager.SaveTip>提示：修改后点击“确认保存”才会生效，“取消”将放弃所有更改。</RSMF.ShopManager.SaveTip>
+  <RSMF.ShopManager.Cancel>取消</RSMF.ShopManager.Cancel>
+  <RSMF.ShopManager.Save>✔  确认保存</RSMF.ShopManager.Save>
+  <RSMF.ShopManager.AutoTrimNotice>已按货柜容量上限自动调整目标量：{storageCount} 个货柜共裁剪 {trimmed} 件超额配置。</RSMF.ShopManager.AutoTrimNotice>
+  <RSMF.ShopManager.Header.Status>状态</RSMF.ShopManager.Header.Status>
+  <RSMF.ShopManager.Header.Stock>当前 / 目标</RSMF.ShopManager.Header.Stock>
+  <RSMF.ShopManager.Header.Price>单价</RSMF.ShopManager.Header.Price>
+  <RSMF.ShopManager.Header.Name>商品名称</RSMF.ShopManager.Header.Name>
+  <RSMF.ShopManager.Status.OutOfStock>缺货</RSMF.ShopManager.Status.OutOfStock>
+  <RSMF.ShopManager.Status.Low>不足</RSMF.ShopManager.Status.Low>
+  <RSMF.ShopManager.Status.Enough>充足</RSMF.ShopManager.Status.Enough>
+  <RSMF.ShopManager.TargetPriceHeader>单价</RSMF.ShopManager.TargetPriceHeader>
+  <RSMF.ShopManager.TargetCountHeader>目标量</RSMF.ShopManager.TargetCountHeader>
+  <RSMF.ShopManager.TargetSliderHeader>快速调节</RSMF.ShopManager.TargetSliderHeader>
+  <RSMF.ShopManager.TargetGoodsHeader>商品名称  （勾选即上架）</RSMF.ShopManager.TargetGoodsHeader>
+  <RSMF.ShopManager.ComboItemCount>{kindCount} 种 · {totalItems} 件</RSMF.ShopManager.ComboItemCount>
+  <RSMF.ShopManager.ComboName>套餐名称</RSMF.ShopManager.ComboName>
+  <RSMF.ShopManager.RandomName>🎲 随机取名</RSMF.ShopManager.RandomName>
+  <RSMF.ShopManager.ComboPrice>套餐售价</RSMF.ShopManager.ComboPrice>
+  <RSMF.ShopManager.EstimateByItem>📊 按单品估算</RSMF.ShopManager.EstimateByItem>
+  <RSMF.ShopManager.AutoEstimateTip>按单品原价总和 × 0.9 自动估算</RSMF.ShopManager.AutoEstimateTip>
+  <RSMF.ShopManager.DeleteCombo>删除套餐</RSMF.ShopManager.DeleteCombo>
+  <RSMF.ShopManager.Quantity>数量</RSMF.ShopManager.Quantity>
+  <RSMF.ShopManager.Slider>调节滑块</RSMF.ShopManager.Slider>
+  <RSMF.ShopManager.ComboGoodsHeader>在售货品  （勾选加入套餐）</RSMF.ShopManager.ComboGoodsHeader>
+  <RSMF.ShopManager.CurrentStatus>当前状态: {status}</RSMF.ShopManager.CurrentStatus>
+  <RSMF.ShopManager.Schedule>日程: {schedule}</RSMF.ShopManager.Schedule>
+  <RSMF.ShopManager.ManualOpen>店铺营业</RSMF.ShopManager.ManualOpen>
+  <RSMF.ShopManager.ManualOpenTip>关闭后不会刷新顾客，店员也不会执行本店工作。</RSMF.ShopManager.ManualOpenTip>
+  <RSMF.ShopManager.ScheduledOpen>按日程营业</RSMF.ShopManager.ScheduledOpen>
+  <RSMF.ShopManager.ScheduledOpenTip>开启后只在下方勾选的小时内营业。</RSMF.ShopManager.ScheduledOpenTip>
+  <RSMF.ShopManager.AlwaysOpen>全天</RSMF.ShopManager.AlwaysOpen>
+  <RSMF.ShopManager.AlwaysClosed>全关</RSMF.ShopManager.AlwaysClosed>
+  <RSMF.ShopManager.DefaultSchedule>默认 09-21</RSMF.ShopManager.DefaultSchedule>
+  <RSMF.ShopManager.BusinessHours>营业小时</RSMF.ShopManager.BusinessHours>
+  <RSMF.ShopManager.OpenShort>开</RSMF.ShopManager.OpenShort>
+  <RSMF.ShopManager.ClosedShort>关</RSMF.ShopManager.ClosedShort>
+  <RSMF.ShopManager.ManuallyClosed>手动停业</RSMF.ShopManager.ManuallyClosed>
+  <RSMF.ShopManager.OutsideSchedule>非营业时间</RSMF.ShopManager.OutsideSchedule>
+  <RSMF.ShopManager.OpenNow>正在营业</RSMF.ShopManager.OpenNow>
+  <RSMF.ShopManager.Usage>占用</RSMF.ShopManager.Usage>
+  <RSMF.ShopManager.Capacity>并发</RSMF.ShopManager.Capacity>
+  <RSMF.ShopManager.OverridePrice>覆盖价</RSMF.ShopManager.OverridePrice>
+  <RSMF.ShopManager.Enabled>启用</RSMF.ShopManager.Enabled>
+  <RSMF.ShopManager.ServiceBuilding>服务建筑</RSMF.ShopManager.ServiceBuilding>
+  <RSMF.ShopManager.ServiceName>服务名称</RSMF.ShopManager.ServiceName>
+  <RSMF.ShopManager.SearchPlaceholder>搜索物品名称...</RSMF.ShopManager.SearchPlaceholder>
+  <RSMF.ShopManager.ClearSearch>清空</RSMF.ShopManager.ClearSearch>
+  <RSMF.ShopManager.GoodsServiceCount>商品 {goods} / 服务 {services}</RSMF.ShopManager.GoodsServiceCount>
+  <RSMF.ShopManager.Sidebar.Overview>📊  库存概览</RSMF.ShopManager.Sidebar.Overview>
+  <RSMF.ShopManager.Sidebar.Schedule>🕘  营业设置</RSMF.ShopManager.Sidebar.Schedule>
+  <RSMF.ShopManager.Sidebar.Goods>📦  货品上架</RSMF.ShopManager.Sidebar.Goods>
+  <RSMF.ShopManager.Sidebar.Services>💧  服务配置</RSMF.ShopManager.Sidebar.Services>
+  <RSMF.ShopManager.CombosHeader>套  餐  ({count})</RSMF.ShopManager.CombosHeader>
+  <RSMF.ShopManager.NewCombo>+ 新建套餐</RSMF.ShopManager.NewCombo>
+  <RSMF.ShopSchedule.ManuallyClosed>手动停业</RSMF.ShopSchedule.ManuallyClosed>
+  <RSMF.ShopSchedule.OpenAllDay>全天营业</RSMF.ShopSchedule.OpenAllDay>
+  <RSMF.ShopSchedule.OpenAtHour>营业中（{hour}:00）</RSMF.ShopSchedule.OpenAtHour>
+  <RSMF.ShopSchedule.ClosedAtHour>非营业时间（{hour}:00）</RSMF.ShopSchedule.ClosedAtHour>
+  <RSMF.ShopSchedule.NoBusinessHours>无营业时段</RSMF.ShopSchedule.NoBusinessHours>
+  <RSMF.ShopService.Fail.MissingDef>缺少服务定义</RSMF.ShopService.Fail.MissingDef>
+  <RSMF.ShopService.Fail.ProviderUnavailable>服务建筑不可用</RSMF.ShopService.Fail.ProviderUnavailable>
+  <RSMF.ShopService.Fail.ProviderWrongMap>服务建筑不在当前地图</RSMF.ShopService.Fail.ProviderWrongMap>
+  <RSMF.ShopService.Fail.UseCellNotStandable>服务位置不可站立</RSMF.ShopService.Fail.UseCellNotStandable>
+  <RSMF.ShopService.Fail.CustomerCannotReach>顾客无法到达服务位置</RSMF.ShopService.Fail.CustomerCannotReach>
+  <RSMF.ShopService.Fail.ToiletUnavailable>马桶不可用</RSMF.ShopService.Fail.ToiletUnavailable>
+  <RSMF.ShopService.Fail.ToiletWrongMap>马桶不在当前地图</RSMF.ShopService.Fail.ToiletWrongMap>
+  <RSMF.ShopService.Fail.ToiletCellInvalid>马桶位置无效</RSMF.ShopService.Fail.ToiletCellInvalid>
+  <RSMF.ShopService.Fail.ToiletCellNotStandable>马桶格不可站立</RSMF.ShopService.Fail.ToiletCellNotStandable>
+  <RSMF.ShopService.Fail.CustomerCannotReachToilet>顾客无法到达马桶</RSMF.ShopService.Fail.CustomerCannotReachToilet>
+  <RSMF.CustomerArrival.ForceFailNoShopOrVending>强制刷新失败：当前地图没有可营业的商店区域或自动售货机。</RSMF.CustomerArrival.ForceFailNoShopOrVending>
+  <RSMF.CustomerArrival.ForceFailNoKinds>强制刷新失败：没有可用的顾客类型定义。</RSMF.CustomerArrival.ForceFailNoKinds>
+  <RSMF.CustomerArrival.ForceFailNoKindForConditions>强制刷新失败：当前时段或天气下没有可出现的顾客类型。</RSMF.CustomerArrival.ForceFailNoKindForConditions>
+  <RSMF.CustomerArrival.ForceSpawnShopSuccess>已强制刷新顾客：商店[{shop}]，人数 {count}。</RSMF.CustomerArrival.ForceSpawnShopSuccess>
+  <RSMF.CustomerArrival.ForceSpawnVendingSuccess>已强制刷新自动售货机顾客：[{machine}]，人数 {count}。</RSMF.CustomerArrival.ForceSpawnVendingSuccess>
+  <RSMF.CustomerArrival.ForceFailNoMatchingKind>强制刷新失败：没有顾客类型匹配当前商店或自动售货机。</RSMF.CustomerArrival.ForceFailNoMatchingKind>
+  <RSMF.CustomerArrival.ForceFailWithReason>强制刷新失败：{reason}</RSMF.CustomerArrival.ForceFailWithReason>
+  <RSMF.CustomerArrival.UnknownWeather>未知天气</RSMF.CustomerArrival.UnknownWeather>
+  <RSMF.CustomerArrival.ShopArrivalMessage>有一位顾客正在前往商店。当前天气：{weather}</RSMF.CustomerArrival.ShopArrivalMessage>
+  <RSMF.CustomerArrival.VendingArrivalMessage>有一位顾客正在前往自动售货机：{machine}。</RSMF.CustomerArrival.VendingArrivalMessage>
+  <RSMF.ComboPoster.Header>★ 套餐 · 共{count}件 ★</RSMF.ComboPoster.Header>
+  <RSMF.ComboPoster.MoreKinds>+{count}种</RSMF.ComboPoster.MoreKinds>
+  <RSMF.ComboPoster.NoItems>暂无商品</RSMF.ComboPoster.NoItems>
+  <RSMF.ComboName.Empty>空套餐</RSMF.ComboName.Empty>
+  <RSMF.ComboName.Single.01>特惠{0}装</RSMF.ComboName.Single.01>
+  <RSMF.ComboName.Single.02>量贩{0}</RSMF.ComboName.Single.02>
+  <RSMF.ComboName.Single.03>至尊{0}礼盒</RSMF.ComboName.Single.03>
+  <RSMF.ComboName.Single.04>{0}大满足</RSMF.ComboName.Single.04>
+  <RSMF.ComboName.Single.05>超值{0}组合</RSMF.ComboName.Single.05>
+  <RSMF.ComboName.Single.06>精选{0}套装</RSMF.ComboName.Single.06>
+  <RSMF.ComboName.Single.07>{0}囤货装</RSMF.ComboName.Single.07>
+  <RSMF.ComboName.Single.08>家庭装{0}</RSMF.ComboName.Single.08>
+  <RSMF.ComboName.Single.09>{0}尝鲜包</RSMF.ComboName.Single.09>
+  <RSMF.ComboName.Single.10>限量{0}礼盒</RSMF.ComboName.Single.10>
+  <RSMF.ComboName.Single.11>经典{0}套餐</RSMF.ComboName.Single.11>
+  <RSMF.ComboName.Single.12>{0}畅享装</RSMF.ComboName.Single.12>
+  <RSMF.ComboName.Single.13>豪华{0}礼包</RSMF.ComboName.Single.13>
+  <RSMF.ComboName.Single.14>{0}特供版</RSMF.ComboName.Single.14>
+  <RSMF.ComboName.Single.15>甄选{0}大礼</RSMF.ComboName.Single.15>
+  <RSMF.ComboName.Single.16>{0}超级装</RSMF.ComboName.Single.16>
+  <RSMF.ComboName.Single.17>节庆{0}礼盒</RSMF.ComboName.Single.17>
+  <RSMF.ComboName.Single.18>旗舰{0}套组</RSMF.ComboName.Single.18>
+  <RSMF.ComboName.Single.19>{0}狂欢装</RSMF.ComboName.Single.19>
+  <RSMF.ComboName.Single.20>匠心{0}礼装</RSMF.ComboName.Single.20>
+  <RSMF.ComboName.Double.01>{0}与{1}全家桶</RSMF.ComboName.Double.01>
+  <RSMF.ComboName.Double.02>经典{0}搭配套餐</RSMF.ComboName.Double.02>
+  <RSMF.ComboName.Double.03>{0}狂欢大礼包</RSMF.ComboName.Double.03>
+  <RSMF.ComboName.Double.04>豪华{0}伴侣</RSMF.ComboName.Double.04>
+  <RSMF.ComboName.Double.05>{0}与{1}的完美邂逅</RSMF.ComboName.Double.05>
+  <RSMF.ComboName.Double.06>{0}加{1}超值组合</RSMF.ComboName.Double.06>
+  <RSMF.ComboName.Double.07>{0}领衔·{1}助阵礼包</RSMF.ComboName.Double.07>
+  <RSMF.ComboName.Double.08>黄金搭档：{0}与{1}</RSMF.ComboName.Double.08>
+  <RSMF.ComboName.Double.09>{0}×{1}限定套餐</RSMF.ComboName.Double.09>
+  <RSMF.ComboName.Double.10>{0}搭{1}，实惠加倍</RSMF.ComboName.Double.10>
+  <RSMF.ComboName.Double.11>王炸组合·{0}配{1}</RSMF.ComboName.Double.11>
+  <RSMF.ComboName.Double.12>{0}带{1}同行礼盒</RSMF.ComboName.Double.12>
+  <RSMF.ComboName.Double.13>绝配之选：{0}＋{1}</RSMF.ComboName.Double.13>
+  <RSMF.ComboName.Double.14>双料实惠·{0}遇{1}</RSMF.ComboName.Double.14>
+  <RSMF.ComboName.Double.15>{0}挚友{1}超值包</RSMF.ComboName.Double.15>
+  <RSMF.ComboName.Double.16>精品双拼·{0}配{1}</RSMF.ComboName.Double.16>
+  <RSMF.ComboName.Double.17>强强联手·{0}与{1}</RSMF.ComboName.Double.17>
+  <RSMF.ComboName.Double.18>{0}与{1}限时福袋</RSMF.ComboName.Double.18>
+  <RSMF.ComboName.Double.19>无敌搭档·{0}携{1}</RSMF.ComboName.Double.19>
+  <RSMF.ComboName.Triple.01>{0}、{1}与{2}三重奏</RSMF.ComboName.Triple.01>
+  <RSMF.ComboName.Triple.02>三合一超值礼包·{0}领衔</RSMF.ComboName.Triple.02>
+  <RSMF.ComboName.Triple.03>{0}、{1}、{2}全齐套装</RSMF.ComboName.Triple.03>
+  <RSMF.ComboName.Triple.04>黄金三角·{0}配{1}配{2}</RSMF.ComboName.Triple.04>
+  <RSMF.ComboName.Triple.05>{0}为主·{1}与{2}随行礼盒</RSMF.ComboName.Triple.05>
+  <RSMF.ComboName.Triple.06>三拼臻选·{0}系列大礼</RSMF.ComboName.Triple.06>
+  <RSMF.ComboName.Triple.07>{0}×{1}×{2}豪华组合</RSMF.ComboName.Triple.07>
+  <RSMF.ComboName.Triple.08>铁三角套餐·{0}领衔出击</RSMF.ComboName.Triple.08>
+  <RSMF.ComboName.Triple.09>{0}、{1}、{2}一网打尽</RSMF.ComboName.Triple.09>
+  <RSMF.ComboName.Triple.10>三重惊喜·{0}携{1}带{2}</RSMF.ComboName.Triple.10>
+  <RSMF.ComboName.Triple.11>超值三件套·{0}打头阵</RSMF.ComboName.Triple.11>
+  <RSMF.ComboName.Triple.12>{0}+{1}+{2}省心套装</RSMF.ComboName.Triple.12>
+  <RSMF.ComboName.Triple.13>三强联盟·{0}与{1}及{2}</RSMF.ComboName.Triple.13>
+  <RSMF.ComboName.Triple.14>{0}的左膀右臂：{1}与{2}</RSMF.ComboName.Triple.14>
+  <RSMF.ComboName.Triple.15>全明星三拼·{0}坐镇</RSMF.ComboName.Triple.15>
+  <RSMF.ComboName.Quad.01>{0}领衔四重奏大礼包</RSMF.ComboName.Quad.01>
+  <RSMF.ComboName.Quad.02>四合一豪华套餐·{0}打头阵</RSMF.ComboName.Quad.02>
+  <RSMF.ComboName.Quad.03>{0}、{1}、{2}与{3}终极组合</RSMF.ComboName.Quad.03>
+  <RSMF.ComboName.Quad.04>王者四件套·{0}坐镇</RSMF.ComboName.Quad.04>
+  <RSMF.ComboName.Quad.05>{0}×{1}×{2}×{3}超级礼盒</RSMF.ComboName.Quad.05>
+  <RSMF.ComboName.Quad.06>四方会聚·{0}领衔出击</RSMF.ComboName.Quad.06>
+  <RSMF.ComboName.Quad.07>全家福套装·{0}系列</RSMF.ComboName.Quad.07>
+  <RSMF.ComboName.Quad.08>{0}领头羊·四品尊享礼包</RSMF.ComboName.Quad.08>
+  <RSMF.ComboName.Quad.09>无敌四拼·{0}与{1}等豪华组合</RSMF.ComboName.Quad.09>
+  <RSMF.ComboName.Quad.10>四季礼盒·{0}为首臻选套装</RSMF.ComboName.Quad.10>
+  <RSMF.ComboName.Quad.11>超级四件套·{0}配{1}等全家桶</RSMF.ComboName.Quad.11>
+  <RSMF.ComboName.Quad.12>{0}统领四宝豪华礼包</RSMF.ComboName.Quad.12>
+  <RSMF.ComboName.Quad.13>旗舰四合套·{0}坐庄</RSMF.ComboName.Quad.13>
+  <RSMF.ComboName.Quad.14>四强联手·{0}领衔限定礼盒</RSMF.ComboName.Quad.14>
+  <RSMF.ComboName.Quad.15>至尊四拼·{0}与三大伙伴</RSMF.ComboName.Quad.15>
+  <RSMF.ComboName.Mass.01>{0}领衔超级大礼包</RSMF.ComboName.Mass.01>
+  <RSMF.ComboName.Mass.02>万物皆有·{0}打头阵</RSMF.ComboName.Mass.02>
+  <RSMF.ComboName.Mass.03>{0}统领全明星套餐</RSMF.ComboName.Mass.03>
+  <RSMF.ComboName.Mass.04>终极囤货礼盒·{0}领衔</RSMF.ComboName.Mass.04>
+  <RSMF.ComboName.Mass.05>{0}坐镇·应有尽有套装</RSMF.ComboName.Mass.05>
+  <RSMF.ComboName.Mass.06>豪华全家桶·{0}系列</RSMF.ComboName.Mass.06>
+  <RSMF.ComboName.Mass.07>{0}领衔无敌组合大礼</RSMF.ComboName.Mass.07>
+  <RSMF.ComboName.Mass.08>史诗级套装·{0}打头阵</RSMF.ComboName.Mass.08>
+  <RSMF.CustomCustomer.Title>自定义顾客注册</RSMF.CustomCustomer.Title>
+  <RSMF.CustomCustomer.Description>CustomerKindDef 只读。玩家本地 JSON 会在 Def 之后加载，作为运行时顾客 Kind 参与自然刷客。</RSMF.CustomCustomer.Description>
+  <RSMF.CustomCustomer.SaveDirty>保存*</RSMF.CustomCustomer.SaveDirty>
+  <RSMF.CustomCustomer.Save>保存</RSMF.CustomCustomer.Save>
+  <RSMF.CustomCustomer.Reload>重载</RSMF.CustomCustomer.Reload>
+  <RSMF.CustomCustomer.RefreshTypes>刷新类型</RSMF.CustomCustomer.RefreshTypes>
+  <RSMF.CustomCustomer.ExportBase64>导出 B64</RSMF.CustomCustomer.ExportBase64>
+  <RSMF.CustomCustomer.ImportBase64>导入 B64</RSMF.CustomCustomer.ImportBase64>
+  <RSMF.CustomCustomer.ExportTitle>导出顾客 Base64</RSMF.CustomCustomer.ExportTitle>
+  <RSMF.CustomCustomer.ExportInfo>下面这串内容包含玩家自定义顾客 Kind。</RSMF.CustomCustomer.ExportInfo>
+  <RSMF.CustomCustomer.KindListTitle>顾客 Kind</RSMF.CustomCustomer.KindListTitle>
+  <RSMF.CustomCustomer.NewRuntime>新建运行时顾客</RSMF.CustomCustomer.NewRuntime>
+  <RSMF.CustomCustomer.Create>创建</RSMF.CustomCustomer.Create>
+  <RSMF.CustomCustomer.NoKinds>没有可用的顾客 Kind</RSMF.CustomCustomer.NoKinds>
+  <RSMF.CustomCustomer.Section.BasicInfo>基础信息</RSMF.CustomCustomer.Section.BasicInfo>
+  <RSMF.CustomCustomer.DisplayName>显示名称</RSMF.CustomCustomer.DisplayName>
+  <RSMF.CustomCustomer.Rename>改名</RSMF.CustomCustomer.Rename>
+  <RSMF.CustomCustomer.DeleteKind>删除 Kind</RSMF.CustomCustomer.DeleteKind>
+  <RSMF.CustomCustomer.DefReadonly>Def 只读</RSMF.CustomCustomer.DefReadonly>
+  <RSMF.CustomCustomer.SourceCustom>来源：玩家本地 JSON。保存后会合并进运行时顾客目录。</RSMF.CustomCustomer.SourceCustom>
+  <RSMF.CustomCustomer.SourceDef>来源：CustomerKindDef。这里可以查看数据，但不能编辑 Def。</RSMF.CustomCustomer.SourceDef>
+  <RSMF.CustomCustomer.Section.RefreshBudget>刷新与预算</RSMF.CustomCustomer.Section.RefreshBudget>
+  <RSMF.CustomCustomer.MtbDays>MTB 天</RSMF.CustomCustomer.MtbDays>
+  <RSMF.CustomCustomer.BudgetMin>预算下限</RSMF.CustomCustomer.BudgetMin>
+  <RSMF.CustomCustomer.BudgetMax>预算上限</RSMF.CustomCustomer.BudgetMax>
+  <RSMF.CustomCustomer.PatienceMin>耐心下限</RSMF.CustomCustomer.PatienceMin>
+  <RSMF.CustomCustomer.PatienceMax>耐心上限</RSMF.CustomCustomer.PatienceMax>
+  <RSMF.CustomCustomer.MinReputation>最低口碑</RSMF.CustomCustomer.MinReputation>
+  <RSMF.CustomCustomer.StartHour>开始小时</RSMF.CustomCustomer.StartHour>
+  <RSMF.CustomCustomer.EndHour>结束小时</RSMF.CustomCustomer.EndHour>
+  <RSMF.CustomCustomer.ReadOnlyBudget>MTB {mtb} 天    预算 {min}-{max}    排队耐心 {patienceMin}-{patienceMax}</RSMF.CustomCustomer.ReadOnlyBudget>
+  <RSMF.CustomCustomer.ReadOnlyTime>活跃时段 {start}-{end}    最低口碑 {minReputation}</RSMF.CustomCustomer.ReadOnlyTime>
+  <RSMF.CustomCustomer.Section.PawnKind>PawnKind</RSMF.CustomCustomer.Section.PawnKind>
+  <RSMF.CustomCustomer.SelectedPawnKinds>已选 PawnKind，可用右侧追加。</RSMF.CustomCustomer.SelectedPawnKinds>
+  <RSMF.CustomCustomer.BuiltInPawnKinds>Def 中配置的 PawnKind。</RSMF.CustomCustomer.BuiltInPawnKinds>
+  <RSMF.CustomCustomer.CannotModifyPawnKind>Def 顾客不能在运行时修改 PawnKind。</RSMF.CustomCustomer.CannotModifyPawnKind>
+  <RSMF.CustomCustomer.Section.TargetWeather>兴趣类型与天气</RSMF.CustomCustomer.Section.TargetWeather>
+  <RSMF.CustomCustomer.TargetGoodsType>目标商品类型</RSMF.CustomCustomer.TargetGoodsType>
+  <RSMF.CustomCustomer.AllowedWeather>允许天气</RSMF.CustomCustomer.AllowedWeather>
+  <RSMF.CustomCustomer.EmptyMeansNoLimit>。为空表示不限制。</RSMF.CustomCustomer.EmptyMeansNoLimit>
+  <RSMF.CustomCustomer.Section.Preferences>偏好</RSMF.CustomCustomer.Section.Preferences>
+  <RSMF.CustomCustomer.BuiltInPreferences>Def 中配置的偏好。</RSMF.CustomCustomer.BuiltInPreferences>
+  <RSMF.CustomCustomer.NoModifyDefPreferences>运行时不会修改 Def 偏好。</RSMF.CustomCustomer.NoModifyDefPreferences>
+  <RSMF.CustomCustomer.AppendPreferences>自定义顾客可以追加偏好商品。</RSMF.CustomCustomer.AppendPreferences>
+  <RSMF.CustomCustomer.Section.Profiles>顾客档案</RSMF.CustomCustomer.Section.Profiles>
+  <RSMF.CustomCustomer.DefaultProfileLabel>顾客档案</RSMF.CustomCustomer.DefaultProfileLabel>
+  <RSMF.CustomCustomer.BuiltInProfiles>Def 中配置的档案。为空则使用基础配置。</RSMF.CustomCustomer.BuiltInProfiles>
+  <RSMF.CustomCustomer.ProfilesTip>档案用于给同一 Kind 增加不同预算、耐心、时间、天气、目标类型和偏好。</RSMF.CustomCustomer.ProfilesTip>
+  <RSMF.CustomCustomer.Add>添加</RSMF.CustomCustomer.Add>
+  <RSMF.CustomCustomer.Weight>权重</RSMF.CustomCustomer.Weight>
+  <RSMF.CustomCustomer.BudgetLower>预算下</RSMF.CustomCustomer.BudgetLower>
+  <RSMF.CustomCustomer.BudgetUpper>预算上</RSMF.CustomCustomer.BudgetUpper>
+  <RSMF.CustomCustomer.PatienceLower>耐心下</RSMF.CustomCustomer.PatienceLower>
+  <RSMF.CustomCustomer.PatienceUpper>耐心上</RSMF.CustomCustomer.PatienceUpper>
+  <RSMF.CustomCustomer.Start>开始</RSMF.CustomCustomer.Start>
+  <RSMF.CustomCustomer.End>结束</RSMF.CustomCustomer.End>
+  <RSMF.CustomCustomer.ProfileWeatherCount>天气 {weather}  类型 {types}  偏好物品 {items}</RSMF.CustomCustomer.ProfileWeatherCount>
+  <RSMF.CustomCustomer.SyncWeather>同步天气</RSMF.CustomCustomer.SyncWeather>
+  <RSMF.CustomCustomer.SyncType>同步类型</RSMF.CustomCustomer.SyncType>
+  <RSMF.CustomCustomer.SyncPreference>同步偏好</RSMF.CustomCustomer.SyncPreference>
+  <RSMF.CustomCustomer.Delete>删除</RSMF.CustomCustomer.Delete>
+  <RSMF.CustomCustomer.None>无</RSMF.CustomCustomer.None>
+  <RSMF.CustomCustomer.Remove>移除</RSMF.CustomCustomer.Remove>
+  <RSMF.CustomCustomer.Append>追加</RSMF.CustomCustomer.Append>
+  <RSMF.CustomCustomer.NoLimitHint>{title}，为空表示不限制</RSMF.CustomCustomer.NoLimitHint>
+  <RSMF.CustomCustomer.PreferenceWeightTip>偏好项会提高购买权重，可直接调整倍率。</RSMF.CustomCustomer.PreferenceWeightTip>
+  <RSMF.CustomCustomer.Exists>已存在</RSMF.CustomCustomer.Exists>
+  <RSMF.CustomCustomer.TotalCount>共 {count} 项</RSMF.CustomCustomer.TotalCount>
+  <RSMF.CustomCustomer.PrevPage>上一页</RSMF.CustomCustomer.PrevPage>
+  <RSMF.CustomCustomer.NextPage>下一页</RSMF.CustomCustomer.NextPage>
+  <RSMF.CustomCustomer.RefreshedTypes>已刷新运行时商品类型：{count} 个。</RSMF.CustomCustomer.RefreshedTypes>
+  <RSMF.CustomCustomer.NoPawnKind>没有可用的 PawnKindDef。</RSMF.CustomCustomer.NoPawnKind>
+  <RSMF.CustomCustomer.EmptyName>顾客名称不能为空。</RSMF.CustomCustomer.EmptyName>
+  <RSMF.CustomCustomer.DeleteConfirm>删除这个自定义顾客 Kind？</RSMF.CustomCustomer.DeleteConfirm>
+  <RSMF.CustomCustomer.SaveSuccess>自定义顾客注册已保存，运行时顾客目录已重建。</RSMF.CustomCustomer.SaveSuccess>
+  <RSMF.CustomCustomer.ReloadConfirm>重新加载会丢弃当前未保存的自定义顾客改动，是否继续？</RSMF.CustomCustomer.ReloadConfirm>
+  <RSMF.CustomCustomer.CopyClipboard>复制到剪贴板</RSMF.CustomCustomer.CopyClipboard>
+  <RSMF.CustomCustomer.Base64Copied>Base64 导出内容已复制到剪贴板。</RSMF.CustomCustomer.Base64Copied>
+  <RSMF.CustomCustomer.ImportTitle>导入并覆盖</RSMF.CustomCustomer.ImportTitle>
+  <RSMF.CustomCustomer.ImportInfo>导入后会覆盖玩家本地所有自定义顾客数据，但不会改动任何 CustomerKindDef。</RSMF.CustomCustomer.ImportInfo>
+  <RSMF.CustomCustomer.PasteClipboard>从剪贴板粘贴</RSMF.CustomCustomer.PasteClipboard>
+  <RSMF.CustomCustomer.ConfirmImport>确认导入</RSMF.CustomCustomer.ConfirmImport>
+  <RSMF.CustomCustomer.ImportSuccess>自定义顾客数据已导入并覆盖本地内容。</RSMF.CustomCustomer.ImportSuccess>
+  <RSMF.CustomGoods.Title>自定义商品注册</RSMF.CustomGoods.Title>
+  <RSMF.CustomGoods.Description>原版 Def 商品只读。玩家本地 JSON 会在 Def 之后加载，并合并进运行时商品目录。</RSMF.CustomGoods.Description>
+  <RSMF.CustomGoods.SaveDirty>保存*</RSMF.CustomGoods.SaveDirty>
+  <RSMF.CustomGoods.Save>保存</RSMF.CustomGoods.Save>
+  <RSMF.CustomGoods.Reload>重载</RSMF.CustomGoods.Reload>
+  <RSMF.CustomGoods.ExportBase64>导出 B64</RSMF.CustomGoods.ExportBase64>
+  <RSMF.CustomGoods.ImportBase64>导入 B64</RSMF.CustomGoods.ImportBase64>
+  <RSMF.CustomGoods.CategoryListTitle>商品类型</RSMF.CustomGoods.CategoryListTitle>
+  <RSMF.CustomGoods.NewCustomCategory>新建自定义类型</RSMF.CustomGoods.NewCustomCategory>
+  <RSMF.CustomGoods.Create>创建</RSMF.CustomGoods.Create>
+  <RSMF.CustomGoods.ItemCount>{count} 项</RSMF.CustomGoods.ItemCount>
+  <RSMF.CustomGoods.NoCategories>没有可用的商品类型</RSMF.CustomGoods.NoCategories>
+  <RSMF.CustomGoods.SourceDef>来源：GoodsDef。你可以追加自定义商品，但原始内容保持锁定。</RSMF.CustomGoods.SourceDef>
+  <RSMF.CustomGoods.SourceCustom>来源：玩家自定义数据。名称、商品列表和删除都可编辑。</RSMF.CustomGoods.SourceCustom>
+  <RSMF.CustomGoods.DefCategory>Def 类型</RSMF.CustomGoods.DefCategory>
+  <RSMF.CustomGoods.Rename>改名</RSMF.CustomGoods.Rename>
+  <RSMF.CustomGoods.DeleteCategory>删除类型</RSMF.CustomGoods.DeleteCategory>
+  <RSMF.CustomGoods.CurrentItems>当前类型中的商品</RSMF.CustomGoods.CurrentItems>
+  <RSMF.CustomGoods.LockedTip>Locked 表示原始 Def 商品，Custom 表示玩家追加并可移除。</RSMF.CustomGoods.LockedTip>
+  <RSMF.CustomGoods.MarketValue>市价 {value}</RSMF.CustomGoods.MarketValue>
+  <RSMF.CustomGoods.Remove>移除</RSMF.CustomGoods.Remove>
+  <RSMF.CustomGoods.AvailableItems>可追加商品</RSMF.CustomGoods.AvailableItems>
+  <RSMF.CustomGoods.SearchPlaceholder>按名称或 DefName 搜索</RSMF.CustomGoods.SearchPlaceholder>
+  <RSMF.CustomGoods.TotalPaged>共 {count} 项，分页显示</RSMF.CustomGoods.TotalPaged>
+  <RSMF.CustomGoods.PrevPage>上一页</RSMF.CustomGoods.PrevPage>
+  <RSMF.CustomGoods.NextPage>下一页</RSMF.CustomGoods.NextPage>
+  <RSMF.CustomGoods.DefMarketValue>{defName}   市价 {value}</RSMF.CustomGoods.DefMarketValue>
+  <RSMF.CustomGoods.Exists>已存在</RSMF.CustomGoods.Exists>
+  <RSMF.CustomGoods.Append>追加</RSMF.CustomGoods.Append>
+  <RSMF.CustomGoods.ThingCategoryAll>物品分类: 全部</RSMF.CustomGoods.ThingCategoryAll>
+  <RSMF.CustomGoods.ThingCategory>物品分类: {label}</RSMF.CustomGoods.ThingCategory>
+  <RSMF.CustomGoods.AllThingCategories>全部物品分类</RSMF.CustomGoods.AllThingCategories>
+  <RSMF.CustomGoods.DuplicateCategory>已存在同名商品类型。</RSMF.CustomGoods.DuplicateCategory>
+  <RSMF.CustomGoods.EmptyCategoryName>商品类型名称不能为空。</RSMF.CustomGoods.EmptyCategoryName>
+  <RSMF.CustomGoods.DeleteConfirm>删除这个自定义类型，以及其中全部自定义商品关联？</RSMF.CustomGoods.DeleteConfirm>
+  <RSMF.CustomGoods.ItemAlreadyExists>该商品已经在当前类型中。</RSMF.CustomGoods.ItemAlreadyExists>
+  <RSMF.CustomGoods.SaveSuccess>自定义商品注册已保存，运行时商品目录已重建。</RSMF.CustomGoods.SaveSuccess>
+  <RSMF.CustomGoods.ReloadConfirm>重新加载会丢弃当前未保存的自定义商品改动，是否继续？</RSMF.CustomGoods.ReloadConfirm>
+  <RSMF.CustomGoods.ExportTitle>导出 Base64</RSMF.CustomGoods.ExportTitle>
+  <RSMF.CustomGoods.ExportInfo>下面这串内容已经包含玩家自定义商品类型和商品，可以直接分享给其他玩家。</RSMF.CustomGoods.ExportInfo>
+  <RSMF.CustomGoods.CopyClipboard>复制到剪贴板</RSMF.CustomGoods.CopyClipboard>
+  <RSMF.CustomGoods.Base64Copied>Base64 导出内容已复制到剪贴板。</RSMF.CustomGoods.Base64Copied>
+  <RSMF.CustomGoods.ImportTitle>导入 Base64</RSMF.CustomGoods.ImportTitle>
+  <RSMF.CustomGoods.ImportReplaceInfo>覆盖替换会用导入内容替换玩家本地所有自定义商品数据，但不会改动任何 GoodsDef 配置。</RSMF.CustomGoods.ImportReplaceInfo>
+  <RSMF.CustomGoods.ImportMergeInfo>增量合并会保留本地现有商品类型和关联，并把导入内容按类型 ID 追加合并。</RSMF.CustomGoods.ImportMergeInfo>
+  <RSMF.CustomGoods.PasteClipboard>从剪贴板粘贴</RSMF.CustomGoods.PasteClipboard>
+  <RSMF.CustomGoods.ConfirmImport>确认导入</RSMF.CustomGoods.ConfirmImport>
+  <RSMF.CustomGoods.ImportReplaceSuccess>自定义商品数据已导入并覆盖本地内容。</RSMF.CustomGoods.ImportReplaceSuccess>
+  <RSMF.CustomGoods.ImportMergeSuccess>自定义商品数据已增量合并到本地内容。</RSMF.CustomGoods.ImportMergeSuccess>
+  <RSMF.CustomGoods.MergeMode>增量合并</RSMF.CustomGoods.MergeMode>
+  <RSMF.CustomGoods.ReplaceMode>覆盖替换</RSMF.CustomGoods.ReplaceMode>
+  <RSMF.CustomGoods.ReplaceModeTip>用导入内容替换本地自定义商品。</RSMF.CustomGoods.ReplaceModeTip>
+  <RSMF.CustomGoods.MergeModeTip>保留本地内容，只追加导入内容。</RSMF.CustomGoods.MergeModeTip>
+  <RSMF.CustomSign.EditorTitle>自定义招牌编辑器</RSMF.CustomSign.EditorTitle>
+  <RSMF.CustomSign.EditorDescription>改动会实时显示在地图上的招牌建筑。图片会复制进本地图库，存档只保存引用。</RSMF.CustomSign.EditorDescription>
+  <RSMF.CustomSign.DoneClose>完成关闭</RSMF.CustomSign.DoneClose>
+  <RSMF.CustomSign.SaveSuccess>招牌图案已保存。</RSMF.CustomSign.SaveSuccess>
+  <RSMF.CustomSign.ImportPath>从路径导入</RSMF.CustomSign.ImportPath>
+  <RSMF.CustomSign.AddGalleryImage>添加图库图</RSMF.CustomSign.AddGalleryImage>
+  <RSMF.CustomSign.EditFace>编辑面</RSMF.CustomSign.EditFace>
+  <RSMF.CustomSign.Face.South>南面</RSMF.CustomSign.Face.South>
+  <RSMF.CustomSign.Face.East>东面</RSMF.CustomSign.Face.East>
+  <RSMF.CustomSign.Face.North>北面</RSMF.CustomSign.Face.North>
+  <RSMF.CustomSign.Face.West>西面</RSMF.CustomSign.Face.West>
+  <RSMF.CustomSign.SingleGraphicHelp>该招牌 Def 只有一张底图，编辑器只显示实际会被地图使用的招牌面。</RSMF.CustomSign.SingleGraphicHelp>
+  <RSMF.CustomSign.WestMirrorHelp>建筑朝西时会复用东面数据，并在地图绘制时镜像显示。</RSMF.CustomSign.WestMirrorHelp>
+  <RSMF.CustomSign.Preview>预览</RSMF.CustomSign.Preview>
+  <RSMF.CustomSign.SelectLayerHint>选择一个图层后可编辑位置、缩放和角度</RSMF.CustomSign.SelectLayerHint>
+  <RSMF.CustomSign.LayerParams>图层参数</RSMF.CustomSign.LayerParams>
+  <RSMF.CustomSign.ScaleX>缩放X</RSMF.CustomSign.ScaleX>
+  <RSMF.CustomSign.ScaleY>缩放Y</RSMF.CustomSign.ScaleY>
+  <RSMF.CustomSign.Angle>角度</RSMF.CustomSign.Angle>
+  <RSMF.CustomSign.Layers>图层</RSMF.CustomSign.Layers>
+  <RSMF.CustomSign.AddGallery>添加图库</RSMF.CustomSign.AddGallery>
+  <RSMF.CustomSign.ImportPathShort>导入路径</RSMF.CustomSign.ImportPathShort>
+  <RSMF.CustomSign.Delete>删除</RSMF.CustomSign.Delete>
+  <RSMF.CustomSign.Linked>已链接</RSMF.CustomSign.Linked>
+  <RSMF.CustomSign.ImageMissing>图片缺失</RSMF.CustomSign.ImageMissing>
+  <RSMF.CustomSign.LayerState>{state} / 顺序 {order}</RSMF.CustomSign.LayerState>
+  <RSMF.CustomSign.Up>上</RSMF.CustomSign.Up>
+  <RSMF.CustomSign.Down>下</RSMF.CustomSign.Down>
+  <RSMF.CustomSign.Enabled>启用</RSMF.CustomSign.Enabled>
+  <RSMF.CustomSign.Disabled>禁用</RSMF.CustomSign.Disabled>
+  <RSMF.CustomSign.MaxLayerReached>当前面最多只能放 10 张图。</RSMF.CustomSign.MaxLayerReached>
+  <RSMF.CustomSign.ExportTitle>导出招牌分享文本</RSMF.CustomSign.ExportTitle>
+  <RSMF.CustomSign.ExportInfo>这段文本包含当前招牌三面图层和图片内容。其他玩家导入后会自动写入本地图案库。</RSMF.CustomSign.ExportInfo>
+  <RSMF.CustomSign.CopyClipboard>复制到剪贴板</RSMF.CustomSign.CopyClipboard>
+  <RSMF.CustomSign.ShareTextCopied>招牌分享文本已复制到剪贴板。</RSMF.CustomSign.ShareTextCopied>
+  <RSMF.CustomSign.ImportTitle>导入招牌分享文本</RSMF.CustomSign.ImportTitle>
+  <RSMF.CustomSign.ImportInfo>导入会替换当前招牌的南面、东面和北面配置，并把分享文本里的图片同步保存到本地图案库。</RSMF.CustomSign.ImportInfo>
+  <RSMF.CustomSign.PasteClipboard>从剪贴板粘贴</RSMF.CustomSign.PasteClipboard>
+  <RSMF.CustomSign.ConfirmImport>确认导入</RSMF.CustomSign.ConfirmImport>
+  <RSMF.CustomSign.SelectGalleryImage>选择图库图片</RSMF.CustomSign.SelectGalleryImage>
+  <RSMF.CustomSign.SearchImagePlaceholder>按名称或图片 ID 搜索</RSMF.CustomSign.SearchImagePlaceholder>
+  <RSMF.CustomSign.RefreshGallery>刷新图库</RSMF.CustomSign.RefreshGallery>
+  <RSMF.CustomSign.Select>选择</RSMF.CustomSign.Select>
+  <RSMF.CustomSign.ImportImageFromPathTitle>从本地路径导入图片</RSMF.CustomSign.ImportImageFromPathTitle>
+  <RSMF.CustomSign.ImportImageFromPathInfo>支持 png、jpg、jpeg。导入后会自动等比例压缩到最长边 256 像素，并保存为本地图案库 PNG。</RSMF.CustomSign.ImportImageFromPathInfo>
+  <RSMF.CustomSign.ReadClipboard>从剪贴板读取</RSMF.CustomSign.ReadClipboard>
+  <RSMF.CustomSign.Import>导入</RSMF.CustomSign.Import>
+  <RSMF.CustomSign.ImageImported>图片已导入招牌图库。</RSMF.CustomSign.ImageImported>
+  <RSMF.CustomSign.Gizmo.EditLabel>编辑招牌</RSMF.CustomSign.Gizmo.EditLabel>
+  <RSMF.CustomSign.Gizmo.EditDesc>打开招牌编辑器，配置南面、东面和北面的图案图层。</RSMF.CustomSign.Gizmo.EditDesc>
+  <RSMF.CustomSign.Gizmo.ExportLabel>导出招牌</RSMF.CustomSign.Gizmo.ExportLabel>
+  <RSMF.CustomSign.Gizmo.ExportDesc>导出当前招牌三面图案配置，分享文本会包含用到的图片。</RSMF.CustomSign.Gizmo.ExportDesc>
+  <RSMF.CustomSign.Gizmo.ImportLabel>导入招牌</RSMF.CustomSign.Gizmo.ImportLabel>
+  <RSMF.CustomSign.Gizmo.ImportDesc>从其他玩家分享的文本导入招牌配置，并自动同步图片到本地图库。</RSMF.CustomSign.Gizmo.ImportDesc>
+  <RSMF.CustomSign.Imported>招牌图案已导入。</RSMF.CustomSign.Imported>
+  <RSMF.CustomSign.Error.EmptyImagePath>图片路径为空。</RSMF.CustomSign.Error.EmptyImagePath>
+  <RSMF.CustomSign.Error.ImageFileNotFound>找不到图片文件。</RSMF.CustomSign.Error.ImageFileNotFound>
+  <RSMF.CustomSign.Error.UnsupportedImageFormat>只支持 png、jpg、jpeg 图片。</RSMF.CustomSign.Error.UnsupportedImageFormat>
+  <RSMF.CustomSign.Error.ImageDecodeFailed>图片解码失败。</RSMF.CustomSign.Error.ImageDecodeFailed>
+  <RSMF.CustomSign.Error.ImportImageFailed>导入图片失败：{message}</RSMF.CustomSign.Error.ImportImageFailed>
+  <RSMF.CustomSign.Error.ExportImageMissing>图片缺失，无法导出：{imageId}</RSMF.CustomSign.Error.ExportImageMissing>
+  <RSMF.CustomSign.Error.ExportFailed>导出招牌失败：{message}</RSMF.CustomSign.Error.ExportFailed>
+  <RSMF.CustomSign.Error.BadShareText>招牌分享文本格式不正确。</RSMF.CustomSign.Error.BadShareText>
+  <RSMF.CustomSign.Error.EmptySharePackage>招牌分享包为空。</RSMF.CustomSign.Error.EmptySharePackage>
+  <RSMF.CustomSign.Error.ImageValidationFailed>图片校验失败：{label}</RSMF.CustomSign.Error.ImageValidationFailed>
+  <RSMF.CustomSign.Error.ShareImageDecodeFailed>分享包中包含无法解码的图片：{label}</RSMF.CustomSign.Error.ShareImageDecodeFailed>
+  <RSMF.CustomSign.Error.ImportFailed>导入招牌失败：{message}</RSMF.CustomSign.Error.ImportFailed>
+  <RSMF.Business.Reviews.ComponentMissing>(顾客评价组件未初始化)</RSMF.Business.Reviews.ComponentMissing>
+  <RSMF.Business.Reviews.AverageStars>平均星级</RSMF.Business.Reviews.AverageStars>
+  <RSMF.Business.Reviews.RootPosts>主帖</RSMF.Business.Reviews.RootPosts>
+  <RSMF.Business.Reviews.Replies>回复</RSMF.Business.Reviews.Replies>
+  <RSMF.Business.Reviews.TodayNew>今日新增</RSMF.Business.Reviews.TodayNew>
+  <RSMF.Business.Reviews.SortNewest>最新</RSMF.Business.Reviews.SortNewest>
+  <RSMF.Business.Reviews.SortHighStars>高星</RSMF.Business.Reviews.SortHighStars>
+  <RSMF.Business.Reviews.SortLowStars>低星</RSMF.Business.Reviews.SortLowStars>
+  <RSMF.Business.Reviews.PrevPage>上一页</RSMF.Business.Reviews.PrevPage>
+  <RSMF.Business.Reviews.NextPage>下一页</RSMF.Business.Reviews.NextPage>
+  <RSMF.Business.Reviews.Empty>(暂无顾客评价)</RSMF.Business.Reviews.Empty>
+  <RSMF.Business.Reviews.CollapseReplies>收起回复({count})</RSMF.Business.Reviews.CollapseReplies>
+  <RSMF.Business.Reviews.ExpandReplies>展开回复({count})</RSMF.Business.Reviews.ExpandReplies>
+  <RSMF.Business.Reviews.VoteLine>#{id}  赞 {upvotes}  踩 {downvotes}</RSMF.Business.Reviews.VoteLine>
+  <RSMF.Business.Reviews.BundleIcon>套</RSMF.Business.Reviews.BundleIcon>
+  <RSMF.Business.Reviews.ReplyPrevious>回复上一条讨论</RSMF.Business.Reviews.ReplyPrevious>
+  <RSMF.Business.Reviews.ReplyTarget>回复 {target}</RSMF.Business.Reviews.ReplyTarget>
+  <RSMF.Business.Reviews.MetaLine>第 {day} 天 · {shop} · 实际付款 {spent} 银 · {purchase} · {service}</RSMF.Business.Reviews.MetaLine>
+  <RSMF.Business.Reviews.NoPurchaseSummary>无购买摘要</RSMF.Business.Reviews.NoPurchaseSummary>
+  <RSMF.Business.Reviews.PurchaseItemLine>{label}{count}，{amount} 银</RSMF.Business.Reviews.PurchaseItemLine>
+  <RSMF.Business.Reviews.NoServiceSummary>无服务摘要</RSMF.Business.Reviews.NoServiceSummary>
+  <RSMF.Business.Reviews.AnonymousUser>匿名用户</RSMF.Business.Reviews.AnonymousUser>
+  <RSMF.Business.Reviews.Above>上文</RSMF.Business.Reviews.Above>
+  <RSMF.Business.Reviews.ReplyStanceDefault>回复</RSMF.Business.Reviews.ReplyStanceDefault>
+  <RSMF.Business.Reviews.ReplyTitle>{author} 回复 {target} · {stance}</RSMF.Business.Reviews.ReplyTitle>
+  <RSMF.Business.Reviews.AllShops>全部店铺</RSMF.Business.Reviews.AllShops>
+  <RSMF.Business.Reviews.ShopFallback>店铺 #{id}</RSMF.Business.Reviews.ShopFallback>
+</LanguageData>

@@ -1,6 +1,7 @@
 using RimWorld;
 using SimManagementLib.SimDialog;
 using SimManagementLib.SimThingComp;
+using SimManagementLib.Tool;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -41,15 +42,15 @@ namespace SimManagementLib.SimThingClass
             StringBuilder sb = new StringBuilder();
 
             if (!string.IsNullOrWhiteSpace(customName))
-                sb.Append("名称: ").Append(customName).Append("\n");
+                sb.Append(SimTranslation.T("RSMF.Container.Inspect.Name", customName.Named("name"))).Append("\n");
 
-            sb.Append($"总容量: {CountTotalStored()}/{MaxTotalCapacity}");
+            sb.Append(SimTranslation.T("RSMF.Container.Inspect.TotalCapacity", CountTotalStored().Named("stored"), MaxTotalCapacity.Named("max")));
             if (Tool.VendingMachineUtility.IsVendingMachine(this))
-                sb.Append("\n类型: 自动售货机");
+                sb.Append("\n").Append(SimTranslation.T("RSMF.Container.Inspect.VendingMachineType"));
             int pending = CountTotalPendingIn();
             if (pending > 0)
-                sb.Append($" (+{pending} 途中)");
-            sb.Append($"\n目标总量: {CountConfiguredTargets()}");
+                sb.Append(" ").Append(SimTranslation.T("RSMF.Container.Inspect.PendingIn", pending.Named("pending")));
+            sb.Append("\n").Append(SimTranslation.T("RSMF.Container.Inspect.TargetTotal", CountConfiguredTargets().Named("target")));
 
             foreach (ThingDef thingDef in ActiveDefs)
             {
@@ -58,7 +59,7 @@ namespace SimManagementLib.SimThingClass
                 sb.Append("\n");
                 sb.Append($"{thingDef.LabelCap}: {CountStored(thingDef)}/{target}");
                 int reserved = CountPending(thingDef);
-                if (reserved > 0) sb.Append($" (+{reserved}途中)");
+                if (reserved > 0) sb.Append(" ").Append(SimTranslation.T("RSMF.Container.Inspect.PendingIn", reserved.Named("pending")));
             }
 
             if (string.IsNullOrEmpty(baseStr)) return sb.ToString();
@@ -74,8 +75,8 @@ namespace SimManagementLib.SimThingClass
 
             yield return new Command_Action
             {
-                defaultLabel = "重命名货柜",
-                defaultDesc = "为该货柜设置一个便于快速识别和定位的名称。",
+                defaultLabel = SimTranslation.T("RSMF.Gizmo.RenameContainer.Label"),
+                defaultDesc = SimTranslation.T("RSMF.Gizmo.RenameContainer.Desc"),
                 icon = TexButton.Rename,
                 action = delegate
                 {
@@ -85,8 +86,8 @@ namespace SimManagementLib.SimThingClass
 
             yield return new Command_Action
             {
-                defaultLabel = "货柜管理",
-                defaultDesc = "打开货柜管理面板，配置上架商品、目标库存与价格。",
+                defaultLabel = SimTranslation.T("RSMF.Gizmo.ContainerManagement.Label"),
+                defaultDesc = SimTranslation.T("RSMF.Gizmo.ContainerManagement.Desc"),
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/Copy", true),
                 action = delegate
                 {

@@ -21,16 +21,16 @@ namespace SimManagementLib.SimDialog
             Text.Font = GameFont.Tiny;
             Text.Anchor = TextAnchor.MiddleLeft;
             GUI.color = CTextDim;
-            Widgets.Label(new Rect(rect.x + 12f, btnY, 420f, 30f), "提示：修改后点击“确认保存”才会生效，“取消”将放弃所有更改。");
+            Widgets.Label(new Rect(rect.x + 12f, btnY, 420f, 30f), SimTranslation.T("RSMF.ShopManager.SaveTip"));
             ResetText();
 
-            if (SimUiStyle.DrawSecondaryButton(new Rect(rect.xMax - 230f, btnY, 100f, 30f), "取消", true, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(rect.xMax - 230f, btnY, 100f, 30f), SimTranslation.T("RSMF.ShopManager.Cancel"), true, GameFont.Tiny))
             {
                 Close();
             }
 
             Rect saveRect = new Rect(rect.xMax - 120f, btnY, 108f, 30f);
-            if (SimUiStyle.DrawPrimaryButton(saveRect, "✔  确认保存", true, GameFont.Tiny))
+            if (SimUiStyle.DrawPrimaryButton(saveRect, SimTranslation.T("RSMF.ShopManager.Save"), true, GameFont.Tiny))
             {
                 HashSet<Building_SimContainer> storages = ShopDataUtility.GetStoragesInZone(shopZone);
                 int totalTrimmed = 0;
@@ -84,7 +84,9 @@ namespace SimManagementLib.SimDialog
 
                 if (totalTrimmed > 0)
                 {
-                    Messages.Message($"已按货柜容量上限自动调整目标量：{trimmedStorageCount} 个货柜共裁剪 {totalTrimmed} 件超额配置。", MessageTypeDefOf.NeutralEvent, false);
+                    Messages.Message(SimTranslation.T("RSMF.ShopManager.AutoTrimNotice",
+                        trimmedStorageCount.Named("storageCount"),
+                        totalTrimmed.Named("trimmed")), MessageTypeDefOf.NeutralEvent, false);
                 }
 
                 Close();

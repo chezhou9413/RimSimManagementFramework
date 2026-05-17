@@ -1,5 +1,6 @@
 using SimManagementLib.Pojo;
 using SimManagementLib.SimThingComp;
+using SimManagementLib.Tool;
 using System.Collections.Generic;
 using UnityEngine;
 using Verse;
@@ -27,13 +28,13 @@ namespace SimManagementLib.SimDialog
             {
                 GUI.color = CTextDim;
                 Text.Font = GameFont.Tiny;
-                Widgets.Label(new Rect(inputRect.x + 4f, inputRect.y + 2f, inputRect.width, inputRect.height), "搜索物品名称...");
+                Widgets.Label(new Rect(inputRect.x + 4f, inputRect.y + 2f, inputRect.width, inputRect.height), SimTranslation.T("RSMF.ShopManager.SearchPlaceholder"));
                 GUI.color = Color.white;
             }
 
             if (!string.IsNullOrEmpty(searchQuery))
             {
-                if (SimUiStyle.DrawSecondaryButton(new Rect(inputRect.xMax + 6f, fieldY, 48f, fieldH), "清空", true, GameFont.Tiny))
+                if (SimUiStyle.DrawSecondaryButton(new Rect(inputRect.xMax + 6f, fieldY, 48f, fieldH), SimTranslation.T("RSMF.ShopManager.ClearSearch"), true, GameFont.Tiny))
                     searchQuery = "";
             }
 
@@ -71,7 +72,9 @@ namespace SimManagementLib.SimDialog
                     if (slots[i] != null && slots[i].enabled) enabledServiceCount++;
                 }
             }
-            Widgets.Label(new Rect(rect.x + 10f, nameplate.y + 28f, rect.width - 14f, 20f), $"商品 {enabledCount} / 服务 {enabledServiceCount}");
+            Widgets.Label(new Rect(rect.x + 10f, nameplate.y + 28f, rect.width - 14f, 20f), SimTranslation.T("RSMF.ShopManager.GoodsServiceCount",
+                enabledCount.Named("goods"),
+                enabledServiceCount.Named("services")));
             GUI.color = Color.white;
             Widgets.DrawLineHorizontal(rect.x, nameplate.yMax, rect.width);
 
@@ -82,16 +85,16 @@ namespace SimManagementLib.SimDialog
             Widgets.BeginScrollView(outRect, ref sideScroll, viewRect);
             float y = 4f;
 
-            DrawSidebarItem(new Rect(0f, y, viewRect.width, itemH), "📊  库存概览", curMenu == MenuType.Overview, delegate { SwitchMenu(MenuType.Overview); });
+            DrawSidebarItem(new Rect(0f, y, viewRect.width, itemH), SimTranslation.T("RSMF.ShopManager.Sidebar.Overview"), curMenu == MenuType.Overview, delegate { SwitchMenu(MenuType.Overview); });
             y += itemH;
 
-            DrawSidebarItem(new Rect(0f, y, viewRect.width, itemH), "🕘  营业设置", curMenu == MenuType.BusinessHours, delegate { SwitchMenu(MenuType.BusinessHours); });
+            DrawSidebarItem(new Rect(0f, y, viewRect.width, itemH), SimTranslation.T("RSMF.ShopManager.Sidebar.Schedule"), curMenu == MenuType.BusinessHours, delegate { SwitchMenu(MenuType.BusinessHours); });
             y += itemH;
 
-            DrawSidebarItem(new Rect(0f, y, viewRect.width, itemH), "📦  货品上架", curMenu == MenuType.ManageGoods, delegate { SwitchMenu(MenuType.ManageGoods); });
+            DrawSidebarItem(new Rect(0f, y, viewRect.width, itemH), SimTranslation.T("RSMF.ShopManager.Sidebar.Goods"), curMenu == MenuType.ManageGoods, delegate { SwitchMenu(MenuType.ManageGoods); });
             y += itemH;
 
-            DrawSidebarItem(new Rect(0f, y, viewRect.width, itemH), "💧  服务配置", curMenu == MenuType.ManageServices, delegate { SwitchMenu(MenuType.ManageServices); });
+            DrawSidebarItem(new Rect(0f, y, viewRect.width, itemH), SimTranslation.T("RSMF.ShopManager.Sidebar.Services"), curMenu == MenuType.ManageServices, delegate { SwitchMenu(MenuType.ManageServices); });
             y += itemH + 6f;
 
             Widgets.DrawBoxSolid(new Rect(0f, y, viewRect.width, 1f), CDivider);
@@ -99,7 +102,7 @@ namespace SimManagementLib.SimDialog
             Text.Font = GameFont.Tiny;
             Text.Anchor = TextAnchor.MiddleLeft;
             GUI.color = CTextDim;
-            Widgets.Label(new Rect(10f, y, viewRect.width - 10f, 18f), $"套  餐  ({zoneCombos.Count})");
+            Widgets.Label(new Rect(10f, y, viewRect.width - 10f, 18f), SimTranslation.T("RSMF.ShopManager.CombosHeader", zoneCombos.Count.Named("count")));
             y += 20f;
 
             foreach (ComboData combo in zoneCombos)
@@ -118,7 +121,7 @@ namespace SimManagementLib.SimDialog
 
             y += 4f;
             Rect newRect = new Rect(8f, y, viewRect.width - 16f, itemH - 4f);
-            if (SimUiStyle.DrawPrimaryButton(newRect, "+ 新建套餐"))
+            if (SimUiStyle.DrawPrimaryButton(newRect, SimTranslation.T("RSMF.ShopManager.NewCombo"), true, GameFont.Tiny))
             {
                 ComboData newCombo = new ComboData();
                 zoneCombos.Add(newCombo);

@@ -79,7 +79,7 @@ namespace SimManagementLib.SimAI
                 order.completedTick = Find.TickManager.TicksGame;
                 order.state = ServiceOrderState.Completed;
                 serviceDef.Worker.NotifyServiceCompleted(pawn, Provider, order);
-                ShopBubbleUtility.ShowTextBubble(pawn, $"完成服务: {serviceDef.DisplayLabel}", new Color(0.55f, 0.85f, 1f));
+                ShopBubbleUtility.ShowTextBubble(pawn, SimTranslation.T("RSMF.Bubble.ServiceCompleted", serviceDef.DisplayLabel.Named("service")), new Color(0.55f, 0.85f, 1f));
 
                 LordJob_CustomerVisit lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
                 lordJob?.CheckAllCheckoutsDone();

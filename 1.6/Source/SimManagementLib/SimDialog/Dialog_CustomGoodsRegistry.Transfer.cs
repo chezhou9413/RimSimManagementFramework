@@ -48,11 +48,12 @@ namespace SimManagementLib.SimDialog
                     GUI.color = Color.white;
 
                     Text.Font = GameFont.Medium;
-                    Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width - CloseXReservedWidth, Text.LineHeightOf(GameFont.Medium) + 4f), "导出 Base64");
+                    Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width - CloseXReservedWidth, Text.LineHeightOf(GameFont.Medium) + 4f), SimTranslation.T("RSMF.CustomGoods.ExportTitle"));
 
                     Text.Font = GameFont.Tiny;
-                    float infoHeight = Mathf.Ceil(Text.CalcHeight("下面这串内容已经包含玩家自定义商品类型和商品，可以直接分享给其他玩家。", inRect.width)) + 4f;
-                    Widgets.Label(new Rect(inRect.x, inRect.y + 34f, inRect.width, infoHeight), "下面这串内容已经包含玩家自定义商品类型和商品，可以直接分享给其他玩家。");
+                    string info = SimTranslation.T("RSMF.CustomGoods.ExportInfo");
+                    float infoHeight = Mathf.Ceil(Text.CalcHeight(info, inRect.width)) + 4f;
+                    Widgets.Label(new Rect(inRect.x, inRect.y + 34f, inRect.width, infoHeight), info);
 
                     Rect textRect = new Rect(inRect.x, inRect.y + 42f + infoHeight, inRect.width, Mathf.Max(80f, inRect.height - infoHeight - 94f));
                     Widgets.DrawBoxSolid(textRect, new Color(0f, 0f, 0f, 0.22f));
@@ -64,10 +65,10 @@ namespace SimManagementLib.SimDialog
                     exportText = Widgets.TextArea(viewRect, exportText);
                     Widgets.EndScrollView();
 
-                    if (SimUiStyle.DrawPrimaryButton(new Rect(inRect.xMax - 130f, inRect.yMax - 38f, 130f, 32f), "复制到剪贴板"))
+                    if (SimUiStyle.DrawPrimaryButton(new Rect(inRect.xMax - 130f, inRect.yMax - 38f, 130f, 32f), SimTranslation.T("RSMF.CustomGoods.CopyClipboard")))
                     {
                         GUIUtility.systemCopyBuffer = exportText;
-                        Messages.Message("Base64 导出内容已复制到剪贴板。", MessageTypeDefOf.PositiveEvent, false);
+                        Messages.Message(SimTranslation.T("RSMF.CustomGoods.Base64Copied"), MessageTypeDefOf.PositiveEvent, false);
                     }
                 }
                 finally
@@ -121,12 +122,12 @@ namespace SimManagementLib.SimDialog
                     GUI.color = Color.white;
 
                     Text.Font = GameFont.Medium;
-                    Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width - CloseXReservedWidth, Text.LineHeightOf(GameFont.Medium) + 4f), "导入 Base64");
+                    Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width - CloseXReservedWidth, Text.LineHeightOf(GameFont.Medium) + 4f), SimTranslation.T("RSMF.CustomGoods.ImportTitle"));
 
                     Text.Font = GameFont.Tiny;
                     string infoText = replaceExisting
-                        ? "覆盖替换会用导入内容替换玩家本地所有自定义商品数据，但不会改动任何 GoodsDef 配置。"
-                        : "增量合并会保留本地现有商品类型和关联，并把导入内容按类型 ID 追加合并。";
+                        ? SimTranslation.T("RSMF.CustomGoods.ImportReplaceInfo")
+                        : SimTranslation.T("RSMF.CustomGoods.ImportMergeInfo");
                     float infoHeight = Mathf.Ceil(Text.CalcHeight(infoText, inRect.width)) + 4f;
                     Widgets.Label(new Rect(inRect.x, inRect.y + 34f, inRect.width, infoHeight), infoText);
 
@@ -143,10 +144,10 @@ namespace SimManagementLib.SimDialog
                     importText = Widgets.TextArea(viewRect, importText);
                     Widgets.EndScrollView();
 
-                    if (SimUiStyle.DrawSecondaryButton(new Rect(inRect.x, inRect.yMax - 38f, 130f, 32f), "从剪贴板粘贴"))
+                    if (SimUiStyle.DrawSecondaryButton(new Rect(inRect.x, inRect.yMax - 38f, 130f, 32f), SimTranslation.T("RSMF.CustomGoods.PasteClipboard")))
                         importText = GUIUtility.systemCopyBuffer ?? string.Empty;
 
-                    if (SimUiStyle.DrawPrimaryButton(new Rect(inRect.xMax - 130f, inRect.yMax - 38f, 130f, 32f), "确认导入"))
+                    if (SimUiStyle.DrawPrimaryButton(new Rect(inRect.xMax - 130f, inRect.yMax - 38f, 130f, 32f), SimTranslation.T("RSMF.CustomGoods.ConfirmImport")))
                     {
                         if (!CustomGoodsDatabase.TryImportBase64(importText, out CustomGoodsDatabaseData data, out string error))
                         {
@@ -156,7 +157,7 @@ namespace SimManagementLib.SimDialog
 
                         importAction?.Invoke(data, replaceExisting);
                         Close();
-                        Messages.Message(replaceExisting ? "自定义商品数据已导入并覆盖本地内容。" : "自定义商品数据已增量合并到本地内容。", MessageTypeDefOf.PositiveEvent, false);
+                        Messages.Message(replaceExisting ? SimTranslation.T("RSMF.CustomGoods.ImportReplaceSuccess") : SimTranslation.T("RSMF.CustomGoods.ImportMergeSuccess"), MessageTypeDefOf.PositiveEvent, false);
                     }
                 }
                 finally
@@ -178,15 +179,17 @@ namespace SimManagementLib.SimDialog
                 Rect replaceRect = new Rect(mergeRect.xMax + 8f, rect.y, buttonWidth, 30f);
 
                 bool mergeSelected = !replaceExisting;
-                if ((mergeSelected ? SimUiStyle.DrawPrimaryButton(mergeRect, "增量合并", true, GameFont.Tiny) : SimUiStyle.DrawSecondaryButton(mergeRect, "增量合并", true, GameFont.Tiny)))
+                string mergeLabel = SimTranslation.T("RSMF.CustomGoods.MergeMode");
+                string replaceLabel = SimTranslation.T("RSMF.CustomGoods.ReplaceMode");
+                if ((mergeSelected ? SimUiStyle.DrawPrimaryButton(mergeRect, mergeLabel, true, GameFont.Tiny) : SimUiStyle.DrawSecondaryButton(mergeRect, mergeLabel, true, GameFont.Tiny)))
                     replaceExisting = false;
 
-                if ((replaceExisting ? SimUiStyle.DrawPrimaryButton(replaceRect, "覆盖替换", true, GameFont.Tiny) : SimUiStyle.DrawSecondaryButton(replaceRect, "覆盖替换", true, GameFont.Tiny)))
+                if ((replaceExisting ? SimUiStyle.DrawPrimaryButton(replaceRect, replaceLabel, true, GameFont.Tiny) : SimUiStyle.DrawSecondaryButton(replaceRect, replaceLabel, true, GameFont.Tiny)))
                     replaceExisting = true;
 
                 Text.Font = GameFont.Tiny;
                 GUI.color = new Color(0.73f, 0.77f, 0.82f, 1f);
-                Widgets.Label(new Rect(replaceRect.xMax + 12f, rect.y + 6f, rect.width - replaceRect.width - mergeRect.width - 28f, 20f), replaceExisting ? "用导入内容替换本地自定义商品。" : "保留本地内容，只追加导入内容。");
+                Widgets.Label(new Rect(replaceRect.xMax + 12f, rect.y + 6f, rect.width - replaceRect.width - mergeRect.width - 28f, 20f), replaceExisting ? SimTranslation.T("RSMF.CustomGoods.ReplaceModeTip") : SimTranslation.T("RSMF.CustomGoods.MergeModeTip"));
                 GUI.color = Color.white;
             }
         }

@@ -2,6 +2,7 @@ using RimWorld;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimZone;
+using SimManagementLib.Tool;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -127,7 +128,7 @@ namespace SimManagementLib.GameComp
         public void QueueComboSale(Pawn customer, Zone_Shop zone, string comboName, float amount, float cost = 0f)
         {
             if (customer == null || amount <= 0f) return;
-            string finalName = string.IsNullOrEmpty(comboName) ? "未命名套餐" : comboName;
+            string finalName = string.IsNullOrEmpty(comboName) ? SimTranslation.T("RSMF.Common.UnnamedCombo") : comboName;
 
             PendingFinanceBill pending = GetOrCreatePending(customer, zone);
             pending.AddOrMergeLine(new FinanceLineItem
@@ -188,8 +189,8 @@ namespace SimManagementLib.GameComp
                 tickAbs = Find.TickManager.TicksAbs,
                 gameDay = gameDay,
                 zoneId = machineId,
-                zoneLabel = "自动售货机: " + machineLabel,
-                customerName = customer?.LabelShortCap ?? "自动售货机顾客",
+                zoneLabel = SimTranslation.T("RSMF.Business.VendingMachineLabel", machineLabel.Named("label")),
+                customerName = customer?.LabelShortCap ?? SimTranslation.T("RSMF.Business.VendingMachineCustomer"),
                 paidSilver = paidSilver,
                 lines = new List<FinanceLineItem> { line }
             });
@@ -201,7 +202,7 @@ namespace SimManagementLib.GameComp
             AddInt(productSoldCounts, productDef.defName, count);
             AddFloat(productRevenues, productDef.defName, paidSilver);
 
-            ShopFinanceState state = GetOrCreateShopState(machineId, "自动售货机: " + machineLabel);
+            ShopFinanceState state = GetOrCreateShopState(machineId, SimTranslation.T("RSMF.Business.VendingMachineLabel", machineLabel.Named("label")));
             state.revenue += paidSilver;
             state.profit += Mathf.Max(0f, paidSilver - Mathf.Max(0f, cost));
         }
@@ -244,7 +245,7 @@ namespace SimManagementLib.GameComp
             }
 
             int gameDay = GenDate.DaysPassed;
-            string zoneLabel = string.IsNullOrEmpty(pending.zoneLabel) ? "未命名商店" : pending.zoneLabel;
+            string zoneLabel = string.IsNullOrEmpty(pending.zoneLabel) ? SimTranslation.T("RSMF.Common.UnnamedShop") : pending.zoneLabel;
             int zoneId = pending.zoneId;
 
             FinanceBillRecord bill = new FinanceBillRecord
@@ -279,7 +280,7 @@ namespace SimManagementLib.GameComp
                 string lineType = line.EffectiveLineType;
                 if (lineType == FinanceLineTypes.Combo)
                 {
-                    string comboKey = string.IsNullOrEmpty(line.label) ? "未命名套餐" : line.label;
+                    string comboKey = string.IsNullOrEmpty(line.label) ? SimTranslation.T("RSMF.Common.UnnamedCombo") : line.label;
                     AddInt(comboSoldCounts, comboKey, line.count);
                     AddFloat(comboRevenues, comboKey, line.amount);
                 }
@@ -311,8 +312,8 @@ namespace SimManagementLib.GameComp
         {
             if (shopStates.TryGetValue(zoneId, out ShopFinanceState state) && state != null && !string.IsNullOrEmpty(state.label))
                 return state.label;
-            if (zoneId < 0) return "未知商店";
-            return "商店 #" + zoneId;
+            if (zoneId < 0) return SimTranslation.T("RSMF.Business.UnknownShop");
+            return SimTranslation.T("RSMF.Business.ShopFallback", zoneId.Named("id"));
         }
 
         private PendingFinanceBill GetOrCreatePending(Pawn customer, Zone_Shop zone)
@@ -348,7 +349,7 @@ namespace SimManagementLib.GameComp
 
             if (string.IsNullOrEmpty(state.label))
             {
-                state.label = "商店 #" + zoneId;
+                state.label = SimTranslation.T("RSMF.Business.ShopFallback", zoneId.Named("id"));
             }
 
             return state;

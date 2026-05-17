@@ -9,7 +9,7 @@ namespace SimManagementLib.SimZone
     /// </summary>
     public class Designator_ZoneAdd_Shop : Designator_ZoneAdd
     {
-        protected override string NewZoneLabel => "商店区域";
+        protected override string NewZoneLabel => SimManagementLib.Tool.SimTranslation.T("RSMF.Zone.ShopArea");
 
         /// <summary>
         /// 初始化商店区域划定工具的显示文本、图标和目标区划类型。
@@ -17,8 +17,8 @@ namespace SimManagementLib.SimZone
         public Designator_ZoneAdd_Shop()
         {
             this.zoneTypeToPlace = typeof(Zone_Shop);
-            this.defaultLabel = "划定商店区";
-            this.defaultDesc = "划定一个用于经营的商店区域。商店区域可以覆盖建筑，但必须在室内，且区域内至少放置货柜和收银台。";
+            this.defaultLabel = SimManagementLib.Tool.SimTranslation.T("RSMF.Designator.ZoneAddShop.Label");
+            this.defaultDesc = SimManagementLib.Tool.SimTranslation.T("RSMF.Designator.ZoneAddShop.Desc");
             this.icon = ContentFinder<Texture2D>.Get("Things/Icon/Mod_Icon", true);
             this.hotKey = KeyBindingDefOf.Misc1;
         }

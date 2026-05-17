@@ -29,21 +29,21 @@ namespace SimManagementLib.SimDialog
             {
                 float cx = headerRect.xMax - RowPad;
                 cx -= usersW;
-                DrawHdrLabel(new Rect(cx, headerRect.y, usersW, headerRect.height), "占用", TextAnchor.MiddleCenter);
+                DrawHdrLabel(new Rect(cx, headerRect.y, usersW, headerRect.height), SimTranslation.T("RSMF.ShopManager.Usage"), TextAnchor.MiddleCenter);
                 cx -= ColGap;
                 cx -= capacityW;
-                DrawHdrLabel(new Rect(cx, headerRect.y, capacityW, headerRect.height), "并发");
+                DrawHdrLabel(new Rect(cx, headerRect.y, capacityW, headerRect.height), SimTranslation.T("RSMF.ShopManager.Capacity"));
                 cx -= ColGap;
                 cx -= FieldW;
-                DrawHdrLabel(new Rect(cx, headerRect.y, FieldW, headerRect.height), "覆盖价");
+                DrawHdrLabel(new Rect(cx, headerRect.y, FieldW, headerRect.height), SimTranslation.T("RSMF.ShopManager.OverridePrice"));
                 cx -= ColGap;
                 cx -= enabledW;
-                DrawHdrLabel(new Rect(cx, headerRect.y, enabledW, headerRect.height), "启用", TextAnchor.MiddleCenter);
+                DrawHdrLabel(new Rect(cx, headerRect.y, enabledW, headerRect.height), SimTranslation.T("RSMF.ShopManager.Enabled"), TextAnchor.MiddleCenter);
                 cx -= ColGap;
                 cx -= providerW;
-                DrawHdrLabel(new Rect(cx, headerRect.y, providerW, headerRect.height), "服务建筑");
+                DrawHdrLabel(new Rect(cx, headerRect.y, providerW, headerRect.height), SimTranslation.T("RSMF.ShopManager.ServiceBuilding"));
                 cx -= ColGap;
-                DrawHdrLabel(new Rect(headerRect.x + RowPad, headerRect.y, cx - headerRect.x - RowPad, headerRect.height), "服务名称");
+                DrawHdrLabel(new Rect(headerRect.x + RowPad, headerRect.y, cx - headerRect.x - RowPad, headerRect.height), SimTranslation.T("RSMF.ShopManager.ServiceName"));
             });
 
             Rect outRect = new Rect(rect.x, headerRect.yMax, rect.width, rect.height - HeaderH);

@@ -36,6 +36,7 @@ namespace SimManagementLib
         public float reviewTemperature = 1.05f;
         public float reviewForumReactionChance = 0.95f;
         public float reviewForumReplyChance = 0.75f;
+        public int reviewRequestTimeoutSeconds = 90;
         public bool reviewAbsurdNitpickEnabled;
         public float reviewAbsurdNitpickChance = 0.12f;
         public string reviewSystemPrompt = CustomerReviewPromptDefaults.SystemPrompt;
@@ -47,6 +48,10 @@ namespace SimManagementLib
         public string reviewNegativeWords = CustomerReviewPromptDefaults.NegativeWords;
         public string reviewBannedWords = CustomerReviewPromptDefaults.BannedWords;
         public int reviewConversationContextMaxChars = 48000;
+        public string reviewPromptInputFormat = CustomerReviewPromptInjector.PromptInputFormatXml;
+        public string reviewPromptEnabledNodeIds = "";
+        public string reviewPromptNodeOrder = "";
+        public string reviewPromptCustomNodes = "";
 
         /// <summary>
         /// 读写模组设置数据，负责兼容旧配置并限制数值范围。
@@ -73,17 +78,22 @@ namespace SimManagementLib
             Scribe_Values.Look(ref reviewTemperature, "reviewTemperature", 1.05f);
             Scribe_Values.Look(ref reviewForumReactionChance, "reviewForumReactionChance", 0.95f);
             Scribe_Values.Look(ref reviewForumReplyChance, "reviewForumReplyChance", 0.75f);
+            Scribe_Values.Look(ref reviewRequestTimeoutSeconds, "reviewRequestTimeoutSeconds", 90);
             Scribe_Values.Look(ref reviewAbsurdNitpickEnabled, "reviewAbsurdNitpickEnabled", false);
             Scribe_Values.Look(ref reviewAbsurdNitpickChance, "reviewAbsurdNitpickChance", 0.12f);
-            Scribe_Values.Look(ref reviewSystemPrompt, "reviewSystemPrompt", CustomerReviewPromptDefaults.SystemPrompt);
-            Scribe_Values.Look(ref reviewUserPrompt, "reviewUserPrompt", CustomerReviewPromptDefaults.UserPrompt);
-            Scribe_Values.Look(ref reviewNicknamePrefixes, "reviewNicknamePrefixes", CustomerReviewPromptDefaults.NicknamePrefixes);
-            Scribe_Values.Look(ref reviewNicknameSuffixes, "reviewNicknameSuffixes", CustomerReviewPromptDefaults.NicknameSuffixes);
-            Scribe_Values.Look(ref reviewToneWords, "reviewToneWords", CustomerReviewPromptDefaults.ToneWords);
-            Scribe_Values.Look(ref reviewPositiveWords, "reviewPositiveWords", CustomerReviewPromptDefaults.PositiveWords);
-            Scribe_Values.Look(ref reviewNegativeWords, "reviewNegativeWords", CustomerReviewPromptDefaults.NegativeWords);
-            Scribe_Values.Look(ref reviewBannedWords, "reviewBannedWords", CustomerReviewPromptDefaults.BannedWords);
+            Scribe_Values.Look(ref reviewSystemPrompt, "reviewSystemPrompt", CustomerReviewPromptDefaults.DefaultSystemPrompt);
+            Scribe_Values.Look(ref reviewUserPrompt, "reviewUserPrompt", CustomerReviewPromptDefaults.DefaultUserPrompt);
+            Scribe_Values.Look(ref reviewNicknamePrefixes, "reviewNicknamePrefixes", CustomerReviewPromptDefaults.DefaultNicknamePrefixes);
+            Scribe_Values.Look(ref reviewNicknameSuffixes, "reviewNicknameSuffixes", CustomerReviewPromptDefaults.DefaultNicknameSuffixes);
+            Scribe_Values.Look(ref reviewToneWords, "reviewToneWords", CustomerReviewPromptDefaults.DefaultToneWords);
+            Scribe_Values.Look(ref reviewPositiveWords, "reviewPositiveWords", CustomerReviewPromptDefaults.DefaultPositiveWords);
+            Scribe_Values.Look(ref reviewNegativeWords, "reviewNegativeWords", CustomerReviewPromptDefaults.DefaultNegativeWords);
+            Scribe_Values.Look(ref reviewBannedWords, "reviewBannedWords", CustomerReviewPromptDefaults.DefaultBannedWords);
             Scribe_Values.Look(ref reviewConversationContextMaxChars, "reviewConversationContextMaxChars", 48000);
+            Scribe_Values.Look(ref reviewPromptInputFormat, "reviewPromptInputFormat", CustomerReviewPromptInjector.PromptInputFormatXml);
+            Scribe_Values.Look(ref reviewPromptEnabledNodeIds, "reviewPromptEnabledNodeIds", "");
+            Scribe_Values.Look(ref reviewPromptNodeOrder, "reviewPromptNodeOrder", "");
+            Scribe_Values.Look(ref reviewPromptCustomNodes, "reviewPromptCustomNodes", "");
 
             customerArrivalCheckIntervalTicks = Mathf.Clamp(customerArrivalCheckIntervalTicks, 120, 5000);
             maxFinanceBillRecords = Mathf.Clamp(maxFinanceBillRecords, 200, 50000);
@@ -94,6 +104,7 @@ namespace SimManagementLib
             reviewTemperature = Mathf.Clamp(reviewTemperature, 0.1f, 2f);
             reviewForumReactionChance = Mathf.Clamp01(reviewForumReactionChance);
             reviewForumReplyChance = Mathf.Clamp01(reviewForumReplyChance);
+            reviewRequestTimeoutSeconds = Mathf.Clamp(reviewRequestTimeoutSeconds, 20, 180);
             reviewAbsurdNitpickChance = Mathf.Clamp01(reviewAbsurdNitpickChance);
             reviewConversationContextMaxChars = Mathf.Clamp(reviewConversationContextMaxChars, 0, 64000);
             if (debugForcedCustomerKindId == null)
@@ -111,14 +122,18 @@ namespace SimManagementLib
             if (openAiModel == null) openAiModel = "gpt-4o-mini";
             if (anthropicApiKey == null) anthropicApiKey = "";
             if (anthropicModel == null) anthropicModel = "claude-3-5-haiku-latest";
-            if (string.IsNullOrEmpty(reviewSystemPrompt)) reviewSystemPrompt = CustomerReviewPromptDefaults.SystemPrompt;
-            if (string.IsNullOrEmpty(reviewUserPrompt)) reviewUserPrompt = CustomerReviewPromptDefaults.UserPrompt;
-            if (reviewNicknamePrefixes == null) reviewNicknamePrefixes = CustomerReviewPromptDefaults.NicknamePrefixes;
-            if (reviewNicknameSuffixes == null) reviewNicknameSuffixes = CustomerReviewPromptDefaults.NicknameSuffixes;
-            if (reviewToneWords == null) reviewToneWords = CustomerReviewPromptDefaults.ToneWords;
-            if (reviewPositiveWords == null) reviewPositiveWords = CustomerReviewPromptDefaults.PositiveWords;
-            if (reviewNegativeWords == null) reviewNegativeWords = CustomerReviewPromptDefaults.NegativeWords;
-            if (reviewBannedWords == null) reviewBannedWords = CustomerReviewPromptDefaults.BannedWords;
+            if (string.IsNullOrEmpty(reviewSystemPrompt)) reviewSystemPrompt = CustomerReviewPromptDefaults.DefaultSystemPrompt;
+            if (string.IsNullOrEmpty(reviewUserPrompt)) reviewUserPrompt = CustomerReviewPromptDefaults.DefaultUserPrompt;
+            if (reviewNicknamePrefixes == null) reviewNicknamePrefixes = CustomerReviewPromptDefaults.DefaultNicknamePrefixes;
+            if (reviewNicknameSuffixes == null) reviewNicknameSuffixes = CustomerReviewPromptDefaults.DefaultNicknameSuffixes;
+            if (reviewToneWords == null) reviewToneWords = CustomerReviewPromptDefaults.DefaultToneWords;
+            if (reviewPositiveWords == null) reviewPositiveWords = CustomerReviewPromptDefaults.DefaultPositiveWords;
+            if (reviewNegativeWords == null) reviewNegativeWords = CustomerReviewPromptDefaults.DefaultNegativeWords;
+            if (reviewBannedWords == null) reviewBannedWords = CustomerReviewPromptDefaults.DefaultBannedWords;
+            if (reviewPromptInputFormat != CustomerReviewPromptInjector.PromptInputFormatPlain && reviewPromptInputFormat != CustomerReviewPromptInjector.PromptInputFormatXml) reviewPromptInputFormat = CustomerReviewPromptInjector.PromptInputFormatXml;
+            if (reviewPromptEnabledNodeIds == null) reviewPromptEnabledNodeIds = "";
+            if (reviewPromptNodeOrder == null) reviewPromptNodeOrder = "";
+            if (reviewPromptCustomNodes == null) reviewPromptCustomNodes = "";
             UpgradeLegacyReviewForumDefaults();
             UpgradeLegacyReviewPromptDefaults();
         }
@@ -137,19 +152,23 @@ namespace SimManagementLib
         /// </summary>
         private void UpgradeLegacyReviewPromptDefaults()
         {
-            if (reviewSystemPrompt == CustomerReviewPromptDefaults.LegacySystemPrompt) reviewSystemPrompt = CustomerReviewPromptDefaults.SystemPrompt;
-            if (reviewUserPrompt == CustomerReviewPromptDefaults.LegacyUserPrompt) reviewUserPrompt = CustomerReviewPromptDefaults.UserPrompt;
-            if (reviewUserPrompt == CustomerReviewPromptDefaults.LegacyAggressiveUserPrompt) reviewUserPrompt = CustomerReviewPromptDefaults.UserPrompt;
-            if (reviewUserPrompt == CustomerReviewPromptDefaults.LegacyAggressiveUserPromptWithBackstory) reviewUserPrompt = CustomerReviewPromptDefaults.UserPrompt;
-            if (reviewUserPrompt == CustomerReviewPromptDefaults.LegacyReviewCoupledNicknamePrompt) reviewUserPrompt = CustomerReviewPromptDefaults.UserPrompt;
-            if (reviewNicknamePrefixes == CustomerReviewPromptDefaults.LegacyNicknamePrefixes) reviewNicknamePrefixes = CustomerReviewPromptDefaults.NicknamePrefixes;
-            if (reviewNicknameSuffixes == CustomerReviewPromptDefaults.LegacyNicknameSuffixes) reviewNicknameSuffixes = CustomerReviewPromptDefaults.NicknameSuffixes;
-            if (reviewNicknamePrefixes == CustomerReviewPromptDefaults.LegacyTemplateNicknamePrefixes) reviewNicknamePrefixes = CustomerReviewPromptDefaults.NicknamePrefixes;
-            if (reviewNicknameSuffixes == CustomerReviewPromptDefaults.LegacyTemplateNicknameSuffixes) reviewNicknameSuffixes = CustomerReviewPromptDefaults.NicknameSuffixes;
-            if (reviewToneWords == CustomerReviewPromptDefaults.LegacyToneWords) reviewToneWords = CustomerReviewPromptDefaults.ToneWords;
-            if (reviewPositiveWords == CustomerReviewPromptDefaults.LegacyPositiveWords) reviewPositiveWords = CustomerReviewPromptDefaults.PositiveWords;
-            if (reviewNegativeWords == CustomerReviewPromptDefaults.LegacyNegativeWords) reviewNegativeWords = CustomerReviewPromptDefaults.NegativeWords;
-            if (reviewBannedWords == CustomerReviewPromptDefaults.LegacyBannedWords) reviewBannedWords = CustomerReviewPromptDefaults.BannedWords;
+            if (reviewSystemPrompt == CustomerReviewPromptDefaults.LegacySystemPrompt) reviewSystemPrompt = CustomerReviewPromptDefaults.DefaultSystemPrompt;
+            if (reviewUserPrompt == CustomerReviewPromptDefaults.LegacyUserPrompt) reviewUserPrompt = CustomerReviewPromptDefaults.DefaultUserPrompt;
+            if (reviewUserPrompt == CustomerReviewPromptDefaults.LegacyAggressiveUserPrompt) reviewUserPrompt = CustomerReviewPromptDefaults.DefaultUserPrompt;
+            if (reviewUserPrompt == CustomerReviewPromptDefaults.LegacyAggressiveUserPromptWithBackstory) reviewUserPrompt = CustomerReviewPromptDefaults.DefaultUserPrompt;
+            if (reviewUserPrompt == CustomerReviewPromptDefaults.LegacyReviewCoupledNicknamePrompt) reviewUserPrompt = CustomerReviewPromptDefaults.DefaultUserPrompt;
+            if (reviewUserPrompt == CustomerReviewPromptDefaults.LegacyReceiptLikeUserPrompt) reviewUserPrompt = CustomerReviewPromptDefaults.DefaultUserPrompt;
+            if (reviewUserPrompt == CustomerReviewPromptDefaults.LegacyNaturalVoiceUserPrompt) reviewUserPrompt = CustomerReviewPromptDefaults.DefaultUserPrompt;
+            if (reviewSystemPrompt == CustomerReviewPromptDefaults.LegacyVerboseSystemPrompt) reviewSystemPrompt = CustomerReviewPromptDefaults.DefaultSystemPrompt;
+            if (reviewUserPrompt == CustomerReviewPromptDefaults.LegacyVerboseUserPrompt) reviewUserPrompt = CustomerReviewPromptDefaults.DefaultUserPrompt;
+            if (reviewNicknamePrefixes == CustomerReviewPromptDefaults.LegacyNicknamePrefixes) reviewNicknamePrefixes = CustomerReviewPromptDefaults.DefaultNicknamePrefixes;
+            if (reviewNicknameSuffixes == CustomerReviewPromptDefaults.LegacyNicknameSuffixes) reviewNicknameSuffixes = CustomerReviewPromptDefaults.DefaultNicknameSuffixes;
+            if (reviewNicknamePrefixes == CustomerReviewPromptDefaults.LegacyTemplateNicknamePrefixes) reviewNicknamePrefixes = CustomerReviewPromptDefaults.DefaultNicknamePrefixes;
+            if (reviewNicknameSuffixes == CustomerReviewPromptDefaults.LegacyTemplateNicknameSuffixes) reviewNicknameSuffixes = CustomerReviewPromptDefaults.DefaultNicknameSuffixes;
+            if (reviewToneWords == CustomerReviewPromptDefaults.LegacyToneWords) reviewToneWords = CustomerReviewPromptDefaults.DefaultToneWords;
+            if (reviewPositiveWords == CustomerReviewPromptDefaults.LegacyPositiveWords) reviewPositiveWords = CustomerReviewPromptDefaults.DefaultPositiveWords;
+            if (reviewNegativeWords == CustomerReviewPromptDefaults.LegacyNegativeWords) reviewNegativeWords = CustomerReviewPromptDefaults.DefaultNegativeWords;
+            if (reviewBannedWords == CustomerReviewPromptDefaults.LegacyBannedWords) reviewBannedWords = CustomerReviewPromptDefaults.DefaultBannedWords;
         }
 
         /// <summary>
@@ -191,7 +210,7 @@ namespace SimManagementLib
 
         public override string SettingsCategory()
         {
-            return "边缘模拟经营框架";
+            return SimTranslation.T("RSMF.Settings.Category");
         }
 
         public override void DoSettingsWindowContents(Rect inRect)
@@ -199,40 +218,46 @@ namespace SimManagementLib
             Listing_Standard list = new Listing_Standard();
             list.Begin(inRect);
 
-            list.Label("顾客系统");
-            list.CheckboxLabeled("显示顾客到访提醒", ref Settings.showCustomerArrivalMessage, "关闭后不再显示“有顾客正在前往商店”的提示。");
-            list.CheckboxLabeled("显示顾客检查详情", ref Settings.showCustomerInspectDetails, "关闭后不再在角色检查面板中附加顾客运行时参数。");
-            list.Label($"顾客刷新检查间隔: {Settings.customerArrivalCheckIntervalTicks} ticks");
+            list.Label(SimTranslation.T("RSMF.Settings.CustomerSystem"));
+            list.CheckboxLabeled(SimTranslation.T("RSMF.Settings.ShowCustomerArrivalMessage"), ref Settings.showCustomerArrivalMessage, SimTranslation.T("RSMF.Settings.ShowCustomerArrivalMessageTip"));
+            list.CheckboxLabeled(SimTranslation.T("RSMF.Settings.ShowCustomerInspectDetails"), ref Settings.showCustomerInspectDetails, SimTranslation.T("RSMF.Settings.ShowCustomerInspectDetailsTip"));
+            list.Label(SimTranslation.T("RSMF.Settings.CustomerArrivalCheckInterval", Settings.customerArrivalCheckIntervalTicks.Named("ticks")));
             Settings.customerArrivalCheckIntervalTicks = (int)list.Slider(Settings.customerArrivalCheckIntervalTicks, 120f, 5000f);
             DrawDebugForcedCustomerKindSelector(list);
 
             list.GapLine();
-            list.Label("财务与日志");
-            list.Label($"财务日志最大保留条数: {Settings.maxFinanceBillRecords}");
+            list.Label(SimTranslation.T("RSMF.Settings.FinanceAndLogs"));
+            list.Label(SimTranslation.T("RSMF.Settings.MaxFinanceBillRecords", Settings.maxFinanceBillRecords.Named("count")));
             Settings.maxFinanceBillRecords = (int)list.Slider(Settings.maxFinanceBillRecords, 200f, 50000f);
-            list.Label($"统计面板每页条数: {Settings.financeLogPageSize}");
+            list.Label(SimTranslation.T("RSMF.Settings.FinanceLogPageSize", Settings.financeLogPageSize.Named("count")));
             Settings.financeLogPageSize = (int)list.Slider(Settings.financeLogPageSize, 10f, 200f);
 
             list.GapLine();
-            list.Label("顾客评价");
-            list.CheckboxLabeled("启用顾客评价", ref Settings.reviewAiEnabled, "只有配置有效接口后才会在顾客离店时按抽样率生成点评。");
-            string reviewState = Settings.HasValidReviewAiConfig() ? "配置有效" : "未配置或未启用";
-            list.Label($"当前状态: {reviewState}   抽样率: {(Settings.reviewSampleRate * 100f):F0}%   限速: {Settings.reviewRequestsPerMinute}/分钟   对话预算: {Settings.reviewConversationContextMaxChars} 字符");
+            list.Label(SimTranslation.T("RSMF.Settings.CustomerReviews"));
+            list.CheckboxLabeled(SimTranslation.T("RSMF.Settings.EnableCustomerReviews"), ref Settings.reviewAiEnabled, SimTranslation.T("RSMF.Settings.EnableCustomerReviewsTip"));
+            string reviewState = Settings.HasValidReviewAiConfig() ? SimTranslation.T("RSMF.Settings.ReviewStateValid") : SimTranslation.T("RSMF.Settings.ReviewStateInvalid");
+            list.Label(SimTranslation.T(
+                "RSMF.Settings.ReviewStatusLine",
+                reviewState.Named("state"),
+                (Settings.reviewSampleRate * 100f).ToString("F0").Named("sampleRate"),
+                Settings.reviewRequestsPerMinute.Named("rpm"),
+                Settings.reviewRequestTimeoutSeconds.Named("timeout"),
+                Settings.reviewConversationContextMaxChars.Named("chars")));
             Rect reviewSettingsRect = list.GetRect(40f);
-            if (Widgets.ButtonText(reviewSettingsRect, "打开顾客评价配置"))
+            if (Widgets.ButtonText(reviewSettingsRect, SimTranslation.T("RSMF.Settings.OpenCustomerReviewSettings")))
                 Find.WindowStack.Add(new Dialog_CustomerReviewAiSettings());
 
             list.GapLine();
             Rect customGoodsButtonRect = list.GetRect(40f);
-            if (Widgets.ButtonText(customGoodsButtonRect, "打开自定义商品注册面板"))
+            if (Widgets.ButtonText(customGoodsButtonRect, SimTranslation.T("RSMF.Settings.OpenCustomGoodsRegistry")))
                 Find.WindowStack.Add(new Dialog_CustomGoodsRegistry());
 
             Rect customCustomerButtonRect = list.GetRect(40f);
-            if (Widgets.ButtonText(customCustomerButtonRect, "打开自定义顾客注册面板"))
+            if (Widgets.ButtonText(customCustomerButtonRect, SimTranslation.T("RSMF.Settings.OpenCustomCustomerRegistry")))
                 Find.WindowStack.Add(new Dialog_CustomCustomerRegistry());
 
             Rect resetRect = list.GetRect(36f);
-            if (Widgets.ButtonText(resetRect, "恢复默认设置"))
+            if (Widgets.ButtonText(resetRect, SimTranslation.T("RSMF.Settings.ResetDefaults")))
             {
                 Settings.showCustomerArrivalMessage = true;
                 Settings.showCustomerInspectDetails = true;
@@ -255,14 +280,16 @@ namespace SimManagementLib
             RuntimeCustomerKind selected = CustomerCatalog.GetKind(Settings.debugForcedCustomerKindId);
             string label = selected != null
                 ? $"{selected.label} / {selected.kindId}"
-                : (string.IsNullOrEmpty(Settings.debugForcedCustomerKindId) ? "关闭" : "已失效: " + Settings.debugForcedCustomerKindId);
+                : (string.IsNullOrEmpty(Settings.debugForcedCustomerKindId)
+                    ? SimTranslation.T("RSMF.Common.Off")
+                    : SimTranslation.T("RSMF.Settings.InvalidForcedCustomerKind", Settings.debugForcedCustomerKindId.Named("kindId")));
 
             Rect rect = list.GetRect(34f);
-            if (Widgets.ButtonText(rect, "Debug 强制顾客组: " + label.Truncate(rect.width - 170f)))
+            if (Widgets.ButtonText(rect, SimTranslation.T("RSMF.Settings.DebugForcedCustomerKind", label.Truncate(rect.width - 170f).Named("label"))))
             {
                 List<FloatMenuOption> options = new List<FloatMenuOption>
                 {
-                    new FloatMenuOption("关闭", () => Settings.debugForcedCustomerKindId = "")
+                    new FloatMenuOption(SimTranslation.T("RSMF.Common.Off"), () => Settings.debugForcedCustomerKindId = "")
                 };
 
                 foreach (RuntimeCustomerKind kind in CustomerCatalog.Kinds
@@ -279,7 +306,7 @@ namespace SimManagementLib
 
             Text.Font = GameFont.Tiny;
             GUI.color = new Color(0.72f, 0.76f, 0.82f, 1f);
-            list.Label("开启后自然刷客和强制刷新会优先使用该顾客组；为空时恢复正常权重随机。");
+            list.Label(SimTranslation.T("RSMF.Settings.DebugForcedCustomerKindTip"));
             GUI.color = Color.white;
             Text.Font = GameFont.Small;
         }

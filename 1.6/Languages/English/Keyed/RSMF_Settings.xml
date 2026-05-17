@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.Settings.Category>RimSim Management Framework</RSMF.Settings.Category>
+  <RSMF.Settings.CustomerSystem>Customer system</RSMF.Settings.CustomerSystem>
+  <RSMF.Settings.ShowCustomerArrivalMessage>Show customer arrival messages</RSMF.Settings.ShowCustomerArrivalMessage>
+  <RSMF.Settings.ShowCustomerArrivalMessageTip>When disabled, the message that customers are heading to a shop will no longer be shown.</RSMF.Settings.ShowCustomerArrivalMessageTip>
+  <RSMF.Settings.ShowCustomerInspectDetails>Show customer inspect details</RSMF.Settings.ShowCustomerInspectDetails>
+  <RSMF.Settings.ShowCustomerInspectDetailsTip>When disabled, customer runtime parameters will not be appended to the pawn inspect panel.</RSMF.Settings.ShowCustomerInspectDetailsTip>
+  <RSMF.Settings.CustomerArrivalCheckInterval>Customer arrival check interval: {ticks} ticks</RSMF.Settings.CustomerArrivalCheckInterval>
+  <RSMF.Settings.FinanceAndLogs>Finance and logs</RSMF.Settings.FinanceAndLogs>
+  <RSMF.Settings.MaxFinanceBillRecords>Max finance log records: {count}</RSMF.Settings.MaxFinanceBillRecords>
+  <RSMF.Settings.FinanceLogPageSize>Records per statistics page: {count}</RSMF.Settings.FinanceLogPageSize>
+  <RSMF.Settings.CustomerReviews>Customer reviews</RSMF.Settings.CustomerReviews>
+  <RSMF.Settings.EnableCustomerReviews>Enable customer reviews</RSMF.Settings.EnableCustomerReviews>
+  <RSMF.Settings.EnableCustomerReviewsTip>Reviews are generated on customer departure by sample rate only after a valid API connection is configured.</RSMF.Settings.EnableCustomerReviewsTip>
+  <RSMF.Settings.ReviewStateValid>Valid</RSMF.Settings.ReviewStateValid>
+  <RSMF.Settings.ReviewStateInvalid>Not configured or disabled</RSMF.Settings.ReviewStateInvalid>
+  <RSMF.Settings.ReviewStatusLine>Status: {state}   Sample: {sampleRate}%   Rate limit: {rpm}/min   Timeout: {timeout}s   Context budget: {chars} chars</RSMF.Settings.ReviewStatusLine>
+  <RSMF.Settings.OpenCustomerReviewSettings>Open customer review settings</RSMF.Settings.OpenCustomerReviewSettings>
+  <RSMF.Settings.OpenCustomGoodsRegistry>Open custom goods registry</RSMF.Settings.OpenCustomGoodsRegistry>
+  <RSMF.Settings.OpenCustomCustomerRegistry>Open custom customer registry</RSMF.Settings.OpenCustomCustomerRegistry>
+  <RSMF.Settings.ResetDefaults>Reset defaults</RSMF.Settings.ResetDefaults>
+  <RSMF.Settings.InvalidForcedCustomerKind>Invalid: {kindId}</RSMF.Settings.InvalidForcedCustomerKind>
+  <RSMF.Settings.DebugForcedCustomerKind>Debug forced customer kind: {label}</RSMF.Settings.DebugForcedCustomerKind>
+  <RSMF.Settings.DebugForcedCustomerKindTip>When enabled, natural and forced customer spawns prefer this customer kind. Empty restores normal weighted random selection.</RSMF.Settings.DebugForcedCustomerKindTip>
+</LanguageData>

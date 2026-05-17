@@ -31,8 +31,8 @@ namespace SimManagementLib.Patch
             int patience = customerLord.GetQueuePatienceForPawn(pawnId);
             float spentRatio = budget > 0 ? spent / Mathf.Max(1f, budget) : 0f;
             int spentPct = Mathf.Clamp(Mathf.RoundToInt(spentRatio * 100f), 0, 100);
-            string jobLabel = __instance.CurJobDef?.LabelCap.RawText ?? "无";
-            string queueState = customerLord.readyForCheckout.Contains(pawnId) ? "已准备结账" : "浏览中";
+            string jobLabel = __instance.CurJobDef?.LabelCap.RawText ?? SimTranslation.T("RSMF.Common.None");
+            string queueState = customerLord.readyForCheckout.Contains(pawnId) ? SimTranslation.T("RSMF.CustomerInspect.ReadyForCheckout") : SimTranslation.T("RSMF.CustomerInspect.Browsing");
 
             var sb = new StringBuilder();
             if (!string.IsNullOrEmpty(__result))
@@ -40,25 +40,28 @@ namespace SimManagementLib.Patch
                 sb.Append(__result).AppendLine();
             }
 
-            sb.AppendLine("=== 顾客面板 ===");
-            sb.Append("档案: ").AppendLine(settings?.profileLabel ?? customerLord.RuntimeCustomerKind?.label ?? customerLord.customerKind?.LabelCap ?? "默认");
-            sb.Append("状态: ").Append(queueState).Append(" / 当前行为: ").AppendLine(jobLabel);
-            sb.Append("预算: ").Append(budget)
-                .Append(" | 已花: ").Append(spent.ToString("F0"))
-                .Append(" | 剩余: ").Append(remaining.ToString("F0"))
-                .Append(" | 使用率: ").Append(spentPct).AppendLine("%");
-            sb.Append("结账耐心: ").AppendLine(patience + " ticks");
+            sb.AppendLine(SimTranslation.T("RSMF.CustomerInspect.Header"));
+            sb.Append(SimTranslation.T("RSMF.CustomerInspect.ProfilePrefix")).AppendLine(settings?.profileLabel ?? customerLord.RuntimeCustomerKind?.label ?? customerLord.customerKind?.LabelCap ?? SimTranslation.T("RSMF.Common.Default"));
+            sb.Append(SimTranslation.T("RSMF.CustomerInspect.StatePrefix")).Append(queueState).Append(SimTranslation.T("RSMF.CustomerInspect.CurrentJobPrefix")).AppendLine(jobLabel);
+            sb.Append(SimTranslation.T(
+                    "RSMF.CustomerInspect.BudgetLine",
+                    budget.Named("budget"),
+                    spent.ToString("F0").Named("spent"),
+                    remaining.ToString("F0").Named("remaining"),
+                    spentPct.Named("spentPct")))
+                .AppendLine();
+            sb.Append(SimTranslation.T("RSMF.CustomerInspect.QueuePatience", patience.Named("ticks"))).AppendLine();
 
             if (settings != null)
             {
                 if (!settings.preferredThings.NullOrEmpty())
                 {
-                    sb.Append("偏好物品: ").AppendLine(string.Join("、", settings.preferredThings.Where(t => t != null).Take(6).Select(t => t.LabelCap.RawText)));
+                    sb.Append(SimTranslation.T("RSMF.CustomerInspect.PreferredThingsPrefix")).AppendLine(string.Join(SimTranslation.T("RSMF.Common.ListSeparator"), settings.preferredThings.Where(t => t != null).Take(6).Select(t => t.LabelCap.RawText)));
                 }
 
                 if (!settings.preferredGoodsCategoryIds.NullOrEmpty())
                 {
-                    sb.Append("偏好品类: ").AppendLine(string.Join("、", settings.preferredGoodsCategoryIds
+                    sb.Append(SimTranslation.T("RSMF.CustomerInspect.PreferredCategoriesPrefix")).AppendLine(string.Join(SimTranslation.T("RSMF.Common.ListSeparator"), settings.preferredGoodsCategoryIds
                         .Select(id => GoodsCatalog.GetCategory(id)?.label)
                         .Where(label => !string.IsNullOrEmpty(label))
                         .Take(4)));
@@ -66,10 +69,10 @@ namespace SimManagementLib.Patch
 
                 if (!settings.allowedWeathers.NullOrEmpty())
                 {
-                    sb.Append("出没天气: ").AppendLine(string.Join("、", settings.allowedWeathers.Where(w => w != null).Select(w => w.LabelCap.RawText)));
+                    sb.Append(SimTranslation.T("RSMF.CustomerInspect.AllowedWeathersPrefix")).AppendLine(string.Join(SimTranslation.T("RSMF.Common.ListSeparator"), settings.allowedWeathers.Where(w => w != null).Select(w => w.LabelCap.RawText)));
                 }
 
-                sb.Append("出没时间: ").Append(settings.activeHourRange.TrueMin.ToString("F1"))
+                sb.Append(SimTranslation.T("RSMF.CustomerInspect.ActiveHoursPrefix")).Append(settings.activeHourRange.TrueMin.ToString("F1"))
                     .Append(" ~ ").AppendLine(settings.activeHourRange.TrueMax.ToString("F1"));
             }
 

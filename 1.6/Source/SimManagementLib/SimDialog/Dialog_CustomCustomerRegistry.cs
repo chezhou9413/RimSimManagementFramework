@@ -127,12 +127,12 @@ namespace SimManagementLib.SimDialog
 
             Text.Font = GameFont.Medium;
             GUI.color = Color.white;
-            Widgets.Label(titleRect, "自定义顾客注册");
+            Widgets.Label(titleRect, SimTranslation.T("RSMF.CustomCustomer.Title"));
 
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
             Rect descRect = new Rect(rect.x + 20f, titleRect.yMax + 4f, textWidth, Text.LineHeightOf(GameFont.Tiny) * 2f + 6f);
-            Widgets.Label(descRect, "CustomerKindDef 只读。玩家本地 JSON 会在 Def 之后加载，作为运行时顾客 Kind 参与自然刷客。");
+            Widgets.Label(descRect, SimTranslation.T("RSMF.CustomCustomer.Description"));
 
             float buttonY = rect.y + 18f;
             float right = rect.xMax - 16f - CloseXReservedWidth;
@@ -141,23 +141,23 @@ namespace SimManagementLib.SimDialog
             const float actionButtonGap = 10f;
 
             right -= actionButtonWidth;
-            if (SimUiStyle.DrawPrimaryButton(new Rect(right, buttonY, actionButtonWidth, 34f), dirty ? "保存*" : "保存"))
+            if (SimUiStyle.DrawPrimaryButton(new Rect(right, buttonY, actionButtonWidth, 34f), dirty ? SimTranslation.T("RSMF.CustomCustomer.SaveDirty") : SimTranslation.T("RSMF.CustomCustomer.Save")))
                 SaveDraft();
 
             right -= actionButtonWidth + actionButtonGap;
-            if (SimUiStyle.DrawSecondaryButton(new Rect(right, buttonY, actionButtonWidth, 34f), "重载"))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(right, buttonY, actionButtonWidth, 34f), SimTranslation.T("RSMF.CustomCustomer.Reload")))
                 ConfirmReload();
 
             right -= actionButtonWidth + actionButtonGap;
-            if (SimUiStyle.DrawSecondaryButton(new Rect(right, buttonY, actionButtonWidth, 34f), "刷新类型"))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(right, buttonY, actionButtonWidth, 34f), SimTranslation.T("RSMF.CustomCustomer.RefreshTypes")))
                 RefreshGoodsCategories(true);
 
             right -= actionButtonWidth + actionButtonGap;
-            if (SimUiStyle.DrawSecondaryButton(new Rect(right, buttonY, actionButtonWidth, 34f), "导出 B64"))
-                Find.WindowStack.Add(new Dialog_TextTransfer("导出顾客 Base64", "下面这串内容包含玩家自定义顾客 Kind。", CustomCustomerDatabase.ExportBase64(draftData)));
+            if (SimUiStyle.DrawSecondaryButton(new Rect(right, buttonY, actionButtonWidth, 34f), SimTranslation.T("RSMF.CustomCustomer.ExportBase64")))
+                Find.WindowStack.Add(new Dialog_TextTransfer(SimTranslation.T("RSMF.CustomCustomer.ExportTitle"), SimTranslation.T("RSMF.CustomCustomer.ExportInfo"), CustomCustomerDatabase.ExportBase64(draftData)));
 
             right -= actionButtonWidth + actionButtonGap;
-            if (SimUiStyle.DrawSecondaryButton(new Rect(right, buttonY, actionButtonWidth, 34f), "导入 B64"))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(right, buttonY, actionButtonWidth, 34f), SimTranslation.T("RSMF.CustomCustomer.ImportBase64")))
                 Find.WindowStack.Add(new Dialog_TextImport(HandleImportReplace));
 
             Text.Font = GameFont.Small;
@@ -175,7 +175,7 @@ namespace SimManagementLib.SimDialog
             Rect titleRect = new Rect(rect.x + 16f, rect.y + 12f, rect.width - 32f, Text.LineHeightOf(GameFont.Small) + 6f);
             Text.Font = GameFont.Small;
             GUI.color = Color.white;
-            Widgets.Label(titleRect, "顾客 Kind");
+            Widgets.Label(titleRect, SimTranslation.T("RSMF.CustomCustomer.KindListTitle"));
 
             Rect listRect = new Rect(rect.x + 12f, titleRect.yMax + 8f, rect.width - 24f, Mathf.Max(0f, rect.height - SidebarFooterHeight - titleRect.height - 26f));
             Rect footerRect = new Rect(rect.x + 12f, rect.yMax - SidebarFooterHeight, rect.width - 24f, SidebarFooterHeight - 12f);
@@ -197,9 +197,9 @@ namespace SimManagementLib.SimDialog
             SimUiStyle.DrawBorder(footerRect, new Color(1f, 1f, 1f, 0.06f));
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
-            Widgets.Label(new Rect(footerRect.x + 10f, footerRect.y + 8f, footerRect.width - 20f, Text.LineHeightOf(GameFont.Tiny) + 2f), "新建运行时顾客");
+            Widgets.Label(new Rect(footerRect.x + 10f, footerRect.y + 8f, footerRect.width - 20f, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomCustomer.NewRuntime"));
             newKindLabelBuffer = Widgets.TextField(new Rect(footerRect.x + 10f, footerRect.y + 30f, footerRect.width - 108f, 28f), newKindLabelBuffer);
-            if (SimUiStyle.DrawPrimaryButton(new Rect(footerRect.xMax - 90f, footerRect.y + 29f, 80f, 30f), "创建", !string.IsNullOrWhiteSpace(newKindLabelBuffer), GameFont.Tiny))
+            if (SimUiStyle.DrawPrimaryButton(new Rect(footerRect.xMax - 90f, footerRect.y + 29f, 80f, 30f), SimTranslation.T("RSMF.CustomCustomer.Create"), !string.IsNullOrWhiteSpace(newKindLabelBuffer), GameFont.Tiny))
                 CreateKind();
 
             GUI.color = Color.white;
@@ -227,7 +227,7 @@ namespace SimManagementLib.SimDialog
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
             Widgets.Label(new Rect(rect.x + 12f, rect.y + 36f, titleWidth, Text.LineHeightOf(GameFont.Tiny) + 2f), kind.kindId.Truncate(titleWidth));
-            Widgets.Label(new Rect(rect.x + 12f, rect.y + 58f, titleWidth - 92f, Text.LineHeightOf(GameFont.Tiny) + 2f), $"PawnKind {kind.pawnKindDefs.Count}  预算 {kind.budgetRange.min}-{kind.budgetRange.max}");
+            Widgets.Label(new Rect(rect.x + 12f, rect.y + 58f, titleWidth - 92f, Text.LineHeightOf(GameFont.Tiny) + 2f), $"PawnKind {kind.pawnKindDefs.Count}  {SimTranslation.T("RSMF.CustomCustomer.BudgetMin")} {kind.budgetRange.min}-{kind.budgetRange.max}");
 
             DrawBadge(new Rect(rect.xMax - 82f, rect.y + 58f, 70f, 18f), kind.sourceDef != null ? "Def" : "Custom", kind.sourceDef != null ? BuiltInBadge : CustomBadge);
 
@@ -262,7 +262,7 @@ namespace SimManagementLib.SimDialog
                 Text.Font = GameFont.Medium;
                 Text.Anchor = TextAnchor.MiddleCenter;
                 GUI.color = MutedText;
-                Widgets.Label(rect, "没有可用的顾客 Kind");
+                Widgets.Label(rect, SimTranslation.T("RSMF.CustomCustomer.NoKinds"));
                 Text.Anchor = TextAnchor.UpperLeft;
                 GUI.color = Color.white;
                 return;
@@ -313,31 +313,31 @@ namespace SimManagementLib.SimDialog
         /// </summary>
         private float DrawKindInfo(Rect rect, RuntimeCustomerKind kind)
         {
-            DrawSection(rect, "基础信息");
+            DrawSection(rect, SimTranslation.T("RSMF.CustomCustomer.Section.BasicInfo"));
             bool editable = kind.sourceDef == null;
             float right = rect.xMax - 14f;
 
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
-            Widgets.Label(new Rect(rect.x + 14f, rect.y + 42f, 110f, Text.LineHeightOf(GameFont.Tiny) + 2f), "显示名称");
+            Widgets.Label(new Rect(rect.x + 14f, rect.y + 42f, 110f, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomCustomer.DisplayName"));
             if (editable)
             {
                 selectedLabelBuffer = Widgets.TextField(new Rect(rect.x + 126f, rect.y + 36f, 220f, 28f), selectedLabelBuffer ?? kind.label);
-                if (SimUiStyle.DrawSecondaryButton(new Rect(rect.x + 356f, rect.y + 35f, 70f, 30f), "改名", true, GameFont.Tiny))
+                if (SimUiStyle.DrawSecondaryButton(new Rect(rect.x + 356f, rect.y + 35f, 70f, 30f), SimTranslation.T("RSMF.CustomCustomer.Rename"), true, GameFont.Tiny))
                     RenameSelectedKind();
-                if (SimUiStyle.DrawDangerButton(new Rect(right - 100f, rect.y + 35f, 100f, 30f), "删除 Kind", true, GameFont.Tiny))
+                if (SimUiStyle.DrawDangerButton(new Rect(right - 100f, rect.y + 35f, 100f, 30f), SimTranslation.T("RSMF.CustomCustomer.DeleteKind"), true, GameFont.Tiny))
                     ConfirmDeleteKind();
             }
             else
             {
                 GUI.color = Color.white;
                 Widgets.Label(new Rect(rect.x + 126f, rect.y + 40f, rect.width - 260f, Text.LineHeightOf(GameFont.Tiny) + 2f), kind.label);
-                DrawBadge(new Rect(right - 96f, rect.y + 38f, 96f, 20f), "Def 只读", LockedBadge);
+                DrawBadge(new Rect(right - 96f, rect.y + 38f, 96f, 20f), SimTranslation.T("RSMF.CustomCustomer.DefReadonly"), LockedBadge);
             }
 
             GUI.color = MutedText;
             Widgets.Label(new Rect(rect.x + 14f, rect.y + 74f, rect.width - 28f, Text.LineHeightOf(GameFont.Tiny) + 2f), "ID: " + kind.kindId);
-            Widgets.Label(new Rect(rect.x + 14f, rect.y + 94f, rect.width - 28f, Text.LineHeightOf(GameFont.Tiny) + 2f), editable ? "来源：玩家本地 JSON。保存后会合并进运行时顾客目录。" : "来源：CustomerKindDef。这里可以查看数据，但不能编辑 Def。");
+            Widgets.Label(new Rect(rect.x + 14f, rect.y + 94f, rect.width - 28f, Text.LineHeightOf(GameFont.Tiny) + 2f), editable ? SimTranslation.T("RSMF.CustomCustomer.SourceCustom") : SimTranslation.T("RSMF.CustomCustomer.SourceDef"));
 
             GUI.color = Color.white;
             return rect.yMax;
@@ -348,25 +348,33 @@ namespace SimManagementLib.SimDialog
         /// </summary>
         private float DrawNumericSettings(Rect rect, RuntimeCustomerKind kind)
         {
-            DrawSection(rect, "刷新与预算");
+            DrawSection(rect, SimTranslation.T("RSMF.CustomCustomer.Section.RefreshBudget"));
             CustomCustomerKindRecord record = GetDraftRecord(kind.kindId);
             bool editable = record != null;
 
             if (editable)
             {
-                DrawFloatField(new Rect(rect.x + 14f, rect.y + 42f, 190f, 30f), "MTB 天", ref record.baseMtbDays, 0.01f, 20f);
-                DrawIntField(new Rect(rect.x + 218f, rect.y + 42f, 190f, 30f), "预算下限", ref record.budgetMin, 1, 1000000);
-                DrawIntField(new Rect(rect.x + 422f, rect.y + 42f, 190f, 30f), "预算上限", ref record.budgetMax, 1, 1000000);
-                DrawIntField(new Rect(rect.x + 14f, rect.y + 82f, 190f, 30f), "耐心下限", ref record.queuePatienceMin, 60, 120000);
-                DrawIntField(new Rect(rect.x + 218f, rect.y + 82f, 190f, 30f), "耐心上限", ref record.queuePatienceMax, 60, 120000);
-                DrawFloatField(new Rect(rect.x + 422f, rect.y + 82f, 190f, 30f), "最低口碑", ref record.minShopReputation, 0f, 100f);
-                DrawFloatField(new Rect(rect.x + 626f, rect.y + 42f, 170f, 30f), "开始小时", ref record.activeHourMin, 0f, 24f);
-                DrawFloatField(new Rect(rect.x + 626f, rect.y + 82f, 170f, 30f), "结束小时", ref record.activeHourMax, 0f, 24f);
+                DrawFloatField(new Rect(rect.x + 14f, rect.y + 42f, 190f, 30f), SimTranslation.T("RSMF.CustomCustomer.MtbDays"), ref record.baseMtbDays, 0.01f, 20f);
+                DrawIntField(new Rect(rect.x + 218f, rect.y + 42f, 190f, 30f), SimTranslation.T("RSMF.CustomCustomer.BudgetMin"), ref record.budgetMin, 1, 1000000);
+                DrawIntField(new Rect(rect.x + 422f, rect.y + 42f, 190f, 30f), SimTranslation.T("RSMF.CustomCustomer.BudgetMax"), ref record.budgetMax, 1, 1000000);
+                DrawIntField(new Rect(rect.x + 14f, rect.y + 82f, 190f, 30f), SimTranslation.T("RSMF.CustomCustomer.PatienceMin"), ref record.queuePatienceMin, 60, 120000);
+                DrawIntField(new Rect(rect.x + 218f, rect.y + 82f, 190f, 30f), SimTranslation.T("RSMF.CustomCustomer.PatienceMax"), ref record.queuePatienceMax, 60, 120000);
+                DrawFloatField(new Rect(rect.x + 422f, rect.y + 82f, 190f, 30f), SimTranslation.T("RSMF.CustomCustomer.MinReputation"), ref record.minShopReputation, 0f, 100f);
+                DrawFloatField(new Rect(rect.x + 626f, rect.y + 42f, 170f, 30f), SimTranslation.T("RSMF.CustomCustomer.StartHour"), ref record.activeHourMin, 0f, 24f);
+                DrawFloatField(new Rect(rect.x + 626f, rect.y + 82f, 170f, 30f), SimTranslation.T("RSMF.CustomCustomer.EndHour"), ref record.activeHourMax, 0f, 24f);
             }
             else
             {
-                DrawReadOnlyLine(new Rect(rect.x + 14f, rect.y + 42f, rect.width - 28f, Text.LineHeightOf(GameFont.Tiny) + 2f), $"MTB {kind.baseMtbDays:F2} 天    预算 {kind.budgetRange.min}-{kind.budgetRange.max}    排队耐心 {kind.queuePatienceRange.min}-{kind.queuePatienceRange.max}");
-                DrawReadOnlyLine(new Rect(rect.x + 14f, rect.y + 72f, rect.width - 28f, Text.LineHeightOf(GameFont.Tiny) + 2f), $"活跃时段 {kind.activeHourRange.TrueMin:F1}-{kind.activeHourRange.TrueMax:F1}    最低口碑 {kind.minShopReputation:F0}");
+                DrawReadOnlyLine(new Rect(rect.x + 14f, rect.y + 42f, rect.width - 28f, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomCustomer.ReadOnlyBudget",
+                    kind.baseMtbDays.ToString("F2").Named("mtb"),
+                    kind.budgetRange.min.Named("min"),
+                    kind.budgetRange.max.Named("max"),
+                    kind.queuePatienceRange.min.Named("patienceMin"),
+                    kind.queuePatienceRange.max.Named("patienceMax")));
+                DrawReadOnlyLine(new Rect(rect.x + 14f, rect.y + 72f, rect.width - 28f, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomCustomer.ReadOnlyTime",
+                    kind.activeHourRange.TrueMin.ToString("F1").Named("start"),
+                    kind.activeHourRange.TrueMax.ToString("F1").Named("end"),
+                    kind.minShopReputation.ToString("F0").Named("minReputation")));
             }
 
             return rect.yMax;
@@ -377,18 +385,18 @@ namespace SimManagementLib.SimDialog
         /// </summary>
         private float DrawPawnKinds(Rect rect, RuntimeCustomerKind kind)
         {
-            DrawSection(rect, "PawnKind");
+            DrawSection(rect, SimTranslation.T("RSMF.CustomCustomer.Section.PawnKind"));
             CustomCustomerKindRecord record = GetDraftRecord(kind.kindId);
             bool editable = record != null;
 
             Rect listRect = new Rect(rect.x + 14f, rect.y + 38f, rect.width * 0.36f, rect.height - 52f);
             Rect browserRect = new Rect(listRect.xMax + 14f, listRect.y, rect.width - listRect.width - 42f, listRect.height);
 
-            DrawStringChipList(listRect, kind.pawnKindDefs.Select(p => p.LabelCap.RawText + " / " + p.defName).ToList(), editable ? "已选 PawnKind，可用右侧追加。" : "Def 中配置的 PawnKind。");
+            DrawStringChipList(listRect, kind.pawnKindDefs.Select(p => p.LabelCap.RawText + " / " + p.defName).ToList(), editable ? SimTranslation.T("RSMF.CustomCustomer.SelectedPawnKinds") : SimTranslation.T("RSMF.CustomCustomer.BuiltInPawnKinds"));
             if (editable)
                 DrawPawnKindBrowser(browserRect, record);
             else
-                DrawReadOnlyPanel(browserRect, "Def 顾客不能在运行时修改 PawnKind。");
+                DrawReadOnlyPanel(browserRect, SimTranslation.T("RSMF.CustomCustomer.CannotModifyPawnKind"));
 
             return rect.yMax;
         }
@@ -398,7 +406,7 @@ namespace SimManagementLib.SimDialog
         /// </summary>
         private float DrawTargetsAndWeather(Rect rect, RuntimeCustomerKind kind)
         {
-            DrawSection(rect, "兴趣类型与天气");
+            DrawSection(rect, SimTranslation.T("RSMF.CustomCustomer.Section.TargetWeather"));
             CustomCustomerKindRecord record = GetDraftRecord(kind.kindId);
             bool editable = record != null;
 
@@ -407,13 +415,13 @@ namespace SimManagementLib.SimDialog
 
             if (editable)
             {
-                DrawGoodsCategoryToggles(goodsRect, record.targetGoodsCategoryIds, "目标商品类型");
-                DrawWeatherToggles(weatherRect, record.allowedWeatherDefNames, "允许天气");
+                DrawGoodsCategoryToggles(goodsRect, record.targetGoodsCategoryIds, SimTranslation.T("RSMF.CustomCustomer.TargetGoodsType"));
+                DrawWeatherToggles(weatherRect, record.allowedWeatherDefNames, SimTranslation.T("RSMF.CustomCustomer.AllowedWeather"));
             }
             else
             {
-                DrawStringChipList(goodsRect, kind.targetGoodsCategoryIds, "目标商品类型。为空表示不限制。");
-                DrawStringChipList(weatherRect, kind.allowedWeathers.Select(w => w.LabelCap.RawText + " / " + w.defName).ToList(), "允许天气。为空表示不限制。");
+                DrawStringChipList(goodsRect, kind.targetGoodsCategoryIds, SimTranslation.T("RSMF.CustomCustomer.TargetGoodsType") + SimTranslation.T("RSMF.CustomCustomer.EmptyMeansNoLimit"));
+                DrawStringChipList(weatherRect, kind.allowedWeathers.Select(w => w.LabelCap.RawText + " / " + w.defName).ToList(), SimTranslation.T("RSMF.CustomCustomer.AllowedWeather") + SimTranslation.T("RSMF.CustomCustomer.EmptyMeansNoLimit"));
             }
 
             return rect.yMax;
@@ -424,7 +432,7 @@ namespace SimManagementLib.SimDialog
         /// </summary>
         private float DrawPreferences(Rect rect, RuntimeCustomerKind kind)
         {
-            DrawSection(rect, "偏好");
+            DrawSection(rect, SimTranslation.T("RSMF.CustomCustomer.Section.Preferences"));
             CustomCustomerKindRecord record = GetDraftRecord(kind.kindId);
             bool editable = record != null;
             float columnWidth = (rect.width - 56f) / 3f;
@@ -440,9 +448,9 @@ namespace SimManagementLib.SimDialog
             }
             else
             {
-                DrawStringChipList(leftRect, kind.itemPreferences.Select(FormatPreference).ToList(), "Def 中配置的偏好。");
-                DrawReadOnlyPanel(middleRect, "运行时不会修改 Def 偏好。");
-                DrawReadOnlyPanel(rightRect, "自定义顾客可以追加偏好商品。");
+                DrawStringChipList(leftRect, kind.itemPreferences.Select(FormatPreference).ToList(), SimTranslation.T("RSMF.CustomCustomer.BuiltInPreferences"));
+                DrawReadOnlyPanel(middleRect, SimTranslation.T("RSMF.CustomCustomer.NoModifyDefPreferences"));
+                DrawReadOnlyPanel(rightRect, SimTranslation.T("RSMF.CustomCustomer.AppendPreferences"));
             }
 
             return rect.yMax;
@@ -453,14 +461,14 @@ namespace SimManagementLib.SimDialog
         /// </summary>
         private void DrawProfiles(Rect rect, RuntimeCustomerKind kind)
         {
-            DrawSection(rect, "顾客档案");
+            DrawSection(rect, SimTranslation.T("RSMF.CustomCustomer.Section.Profiles"));
             CustomCustomerKindRecord record = GetDraftRecord(kind.kindId);
             bool editable = record != null;
             Rect listRect = new Rect(rect.x + 14f, rect.y + 38f, rect.width - 28f, rect.height - 52f);
 
             if (!editable)
             {
-                DrawStringChipList(listRect, kind.spawnProfiles.Select(p => $"{p.label}  权重 {p.weight:F1}  预算 {p.budgetRange.min}-{p.budgetRange.max}").ToList(), "Def 中配置的档案。为空则使用基础配置。");
+                DrawStringChipList(listRect, kind.spawnProfiles.Select(p => $"{p.label}  {SimTranslation.T("RSMF.CustomCustomer.Weight")} {p.weight:F1}  {SimTranslation.T("RSMF.CustomCustomer.BudgetMin")} {p.budgetRange.min}-{p.budgetRange.max}").ToList(), SimTranslation.T("RSMF.CustomCustomer.BuiltInProfiles"));
                 return;
             }
 
@@ -469,7 +477,7 @@ namespace SimManagementLib.SimDialog
 
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
-            Widgets.Label(new Rect(listRect.x + 10f, listRect.y + 8f, listRect.width - 20f, Text.LineHeightOf(GameFont.Tiny) + 2f), "档案用于给同一 Kind 增加不同预算、耐心、时间、天气、目标类型和偏好。");
+            Widgets.Label(new Rect(listRect.x + 10f, listRect.y + 8f, listRect.width - 20f, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomCustomer.ProfilesTip"));
 
             float y = listRect.y + 34f;
             for (int i = 0; i < record.spawnProfiles.Count; i++)
@@ -482,7 +490,7 @@ namespace SimManagementLib.SimDialog
 
             Rect inputRect = new Rect(listRect.x + 10f, listRect.yMax - 36f, listRect.width - 100f, 28f);
             profileLabelBuffer = Widgets.TextField(inputRect, profileLabelBuffer);
-            if (SimUiStyle.DrawPrimaryButton(new Rect(listRect.xMax - 82f, listRect.yMax - 37f, 72f, 30f), "添加", !string.IsNullOrWhiteSpace(profileLabelBuffer), GameFont.Tiny))
+            if (SimUiStyle.DrawPrimaryButton(new Rect(listRect.xMax - 82f, listRect.yMax - 37f, 72f, 30f), SimTranslation.T("RSMF.CustomCustomer.Add"), !string.IsNullOrWhiteSpace(profileLabelBuffer), GameFont.Tiny))
                 AddProfile(record);
 
             GUI.color = Color.white;
@@ -500,32 +508,35 @@ namespace SimManagementLib.SimDialog
             profile.label = Widgets.TextField(new Rect(rowRect.x + 8f, rowRect.y + 8f, 150f, 28f), oldLabel);
             if (!string.Equals(oldLabel, profile.label, StringComparison.Ordinal))
                 dirty = true;
-            DrawFloatField(new Rect(rowRect.x + 168f, rowRect.y + 8f, 136f, 28f), "权重", ref profile.weight, 0.01f, 100f);
-            DrawIntField(new Rect(rowRect.x + 314f, rowRect.y + 8f, 150f, 28f), "预算下", ref profile.budgetMin, 1, 1000000);
-            DrawIntField(new Rect(rowRect.x + 474f, rowRect.y + 8f, 150f, 28f), "预算上", ref profile.budgetMax, 1, 1000000);
+            DrawFloatField(new Rect(rowRect.x + 168f, rowRect.y + 8f, 136f, 28f), SimTranslation.T("RSMF.CustomCustomer.Weight"), ref profile.weight, 0.01f, 100f);
+            DrawIntField(new Rect(rowRect.x + 314f, rowRect.y + 8f, 150f, 28f), SimTranslation.T("RSMF.CustomCustomer.BudgetLower"), ref profile.budgetMin, 1, 1000000);
+            DrawIntField(new Rect(rowRect.x + 474f, rowRect.y + 8f, 150f, 28f), SimTranslation.T("RSMF.CustomCustomer.BudgetUpper"), ref profile.budgetMax, 1, 1000000);
 
-            DrawIntField(new Rect(rowRect.x + 8f, rowRect.y + 44f, 150f, 28f), "耐心下", ref profile.queuePatienceMin, 60, 120000);
-            DrawIntField(new Rect(rowRect.x + 168f, rowRect.y + 44f, 150f, 28f), "耐心上", ref profile.queuePatienceMax, 60, 120000);
-            DrawFloatField(new Rect(rowRect.x + 328f, rowRect.y + 44f, 136f, 28f), "开始", ref profile.activeHourMin, 0f, 24f);
-            DrawFloatField(new Rect(rowRect.x + 474f, rowRect.y + 44f, 136f, 28f), "结束", ref profile.activeHourMax, 0f, 24f);
+            DrawIntField(new Rect(rowRect.x + 8f, rowRect.y + 44f, 150f, 28f), SimTranslation.T("RSMF.CustomCustomer.PatienceLower"), ref profile.queuePatienceMin, 60, 120000);
+            DrawIntField(new Rect(rowRect.x + 168f, rowRect.y + 44f, 150f, 28f), SimTranslation.T("RSMF.CustomCustomer.PatienceUpper"), ref profile.queuePatienceMax, 60, 120000);
+            DrawFloatField(new Rect(rowRect.x + 328f, rowRect.y + 44f, 136f, 28f), SimTranslation.T("RSMF.CustomCustomer.Start"), ref profile.activeHourMin, 0f, 24f);
+            DrawFloatField(new Rect(rowRect.x + 474f, rowRect.y + 44f, 136f, 28f), SimTranslation.T("RSMF.CustomCustomer.End"), ref profile.activeHourMax, 0f, 24f);
 
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
             Widgets.Label(new Rect(rowRect.x + 8f, rowRect.y + 84f, rowRect.width - 330f, Text.LineHeightOf(GameFont.Tiny) + 2f),
-                $"天气 {profile.allowedWeatherDefNames.Count}  类型 {profile.preferredGoodsCategoryIds.Count}  偏好物品 {profile.preferredThingDefNames.Count}");
+                SimTranslation.T("RSMF.CustomCustomer.ProfileWeatherCount",
+                    profile.allowedWeatherDefNames.Count.Named("weather"),
+                    profile.preferredGoodsCategoryIds.Count.Named("types"),
+                    profile.preferredThingDefNames.Count.Named("items")));
 
             float actionY = rowRect.y + 80f;
-            if (SimUiStyle.DrawSecondaryButton(new Rect(rowRect.xMax - 318f, actionY, 76f, 28f), "同步天气", true, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(rowRect.xMax - 318f, actionY, 76f, 28f), SimTranslation.T("RSMF.CustomCustomer.SyncWeather"), true, GameFont.Tiny))
             {
                 profile.allowedWeatherDefNames = parentRecord.allowedWeatherDefNames.ToList();
                 dirty = true;
             }
-            if (SimUiStyle.DrawSecondaryButton(new Rect(rowRect.xMax - 236f, actionY, 76f, 28f), "同步类型", true, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(rowRect.xMax - 236f, actionY, 76f, 28f), SimTranslation.T("RSMF.CustomCustomer.SyncType"), true, GameFont.Tiny))
             {
                 profile.preferredGoodsCategoryIds = parentRecord.targetGoodsCategoryIds.ToList();
                 dirty = true;
             }
-            if (SimUiStyle.DrawSecondaryButton(new Rect(rowRect.xMax - 154f, actionY, 76f, 28f), "同步偏好", true, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(rowRect.xMax - 154f, actionY, 76f, 28f), SimTranslation.T("RSMF.CustomCustomer.SyncPreference"), true, GameFont.Tiny))
             {
                 profile.preferredThingDefNames = parentRecord.itemPreferences
                     .Where(pref => !string.IsNullOrEmpty(pref.preferredThingDefName))
@@ -534,7 +545,7 @@ namespace SimManagementLib.SimDialog
                     .ToList();
                 dirty = true;
             }
-            if (SimUiStyle.DrawDangerButton(new Rect(rowRect.xMax - 72f, actionY, 64f, 28f), "删除", true, GameFont.Tiny))
+            if (SimUiStyle.DrawDangerButton(new Rect(rowRect.xMax - 72f, actionY, 64f, 28f), SimTranslation.T("RSMF.CustomCustomer.Delete"), true, GameFont.Tiny))
             {
                 parentRecord.spawnProfiles.RemoveAt(profileIndex);
                 MarkDirtyAndRebuild();
@@ -594,7 +605,7 @@ namespace SimManagementLib.SimDialog
             float y = rect.y + 32f;
             if (rows.NullOrEmpty())
             {
-                Widgets.Label(new Rect(rect.x + 10f, y, rect.width - 20f, Text.LineHeightOf(GameFont.Tiny) + 2f), "无");
+                Widgets.Label(new Rect(rect.x + 10f, y, rect.width - 20f, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomCustomer.None"));
             }
             else
             {
@@ -696,10 +707,10 @@ namespace SimManagementLib.SimDialog
 
             if (exists)
             {
-                if (removeAction != null && SimUiStyle.DrawDangerButton(new Rect(row.xMax - 74f, row.y + 8f, 66f, 26f), "移除", true, GameFont.Tiny))
+                if (removeAction != null && SimUiStyle.DrawDangerButton(new Rect(row.xMax - 74f, row.y + 8f, 66f, 26f), SimTranslation.T("RSMF.CustomCustomer.Remove"), true, GameFont.Tiny))
                     removeAction();
             }
-            else if (SimUiStyle.DrawPrimaryButton(new Rect(row.xMax - 74f, row.y + 8f, 66f, 26f), "追加", true, GameFont.Tiny))
+            else if (SimUiStyle.DrawPrimaryButton(new Rect(row.xMax - 74f, row.y + 8f, 66f, 26f), SimTranslation.T("RSMF.CustomCustomer.Append"), true, GameFont.Tiny))
             {
                 addAction?.Invoke();
             }
@@ -715,7 +726,7 @@ namespace SimManagementLib.SimDialog
             SimUiStyle.DrawBorder(rect, new Color(1f, 1f, 1f, 0.06f));
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
-            Widgets.Label(new Rect(rect.x + 10f, rect.y + 8f, rect.width - 20f, Text.LineHeightOf(GameFont.Tiny) + 2f), title + "，为空表示不限制");
+            Widgets.Label(new Rect(rect.x + 10f, rect.y + 8f, rect.width - 20f, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomCustomer.NoLimitHint", title.Named("title")));
             Rect listRect = new Rect(rect.x + 8f, rect.y + 32f, rect.width - 16f, Mathf.Max(24f, rect.height - 40f));
             Rect viewRect = new Rect(0f, 0f, Mathf.Max(0f, listRect.width - ScrollbarWidth), Mathf.Max(listRect.height, allGoodsCategories.Count * 28f));
             Widgets.BeginScrollView(listRect, ref targetGoodsScroll, viewRect);
@@ -749,7 +760,7 @@ namespace SimManagementLib.SimDialog
             SimUiStyle.DrawBorder(rect, new Color(1f, 1f, 1f, 0.06f));
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
-            Widgets.Label(new Rect(rect.x + 10f, rect.y + 8f, rect.width - 20f, Text.LineHeightOf(GameFont.Tiny) + 2f), title + "，为空表示不限制");
+            Widgets.Label(new Rect(rect.x + 10f, rect.y + 8f, rect.width - 20f, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomCustomer.NoLimitHint", title.Named("title")));
             Rect listRect = new Rect(rect.x + 8f, rect.y + 32f, rect.width - 16f, Mathf.Max(24f, rect.height - 40f));
             Rect viewRect = new Rect(0f, 0f, Mathf.Max(0f, listRect.width - ScrollbarWidth), Mathf.Max(listRect.height, allWeatherDefs.Count * 28f));
             Widgets.BeginScrollView(listRect, ref weatherScroll, viewRect);
@@ -783,7 +794,7 @@ namespace SimManagementLib.SimDialog
             SimUiStyle.DrawBorder(rect, new Color(1f, 1f, 1f, 0.06f));
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
-            Widgets.Label(new Rect(rect.x + 10f, rect.y + 8f, rect.width - 20f, Text.LineHeightOf(GameFont.Tiny) + 2f), "偏好项会提高购买权重，可直接调整倍率。");
+            Widgets.Label(new Rect(rect.x + 10f, rect.y + 8f, rect.width - 20f, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomCustomer.PreferenceWeightTip"));
             Rect listRect = new Rect(rect.x + 8f, rect.y + 32f, rect.width - 16f, Mathf.Max(32f, rect.height - 40f));
             Rect viewRect = new Rect(0f, 0f, Mathf.Max(0f, listRect.width - ScrollbarWidth), Mathf.Max(listRect.height, record.itemPreferences.Count * 48f));
             Widgets.BeginScrollView(listRect, ref preferenceListScroll, viewRect);
@@ -795,8 +806,8 @@ namespace SimManagementLib.SimDialog
                 Widgets.DrawBoxSolid(row, new Color(1f, 1f, 1f, 0.03f));
                 GUI.color = Color.white;
                 Widgets.Label(new Rect(row.x + 8f, row.y + 5f, row.width - 212f, Text.LineHeightOf(GameFont.Tiny) + 2f), FormatPreference(pref).Truncate(row.width - 212f));
-                DrawFloatField(new Rect(row.xMax - 198f, row.y + 7f, 126f, 28f), "倍率", ref pref.weight, 1f, 20f);
-                if (SimUiStyle.DrawDangerButton(new Rect(row.xMax - 66f, row.y + 7f, 58f, 28f), "删除", true, GameFont.Tiny))
+                DrawFloatField(new Rect(row.xMax - 198f, row.y + 7f, 126f, 28f), SimTranslation.T("RSMF.CustomCustomer.Weight"), ref pref.weight, 1f, 20f);
+                if (SimUiStyle.DrawDangerButton(new Rect(row.xMax - 66f, row.y + 7f, 58f, 28f), SimTranslation.T("RSMF.CustomCustomer.Delete"), true, GameFont.Tiny))
                 {
                     record.itemPreferences.RemoveAt(i);
                     MarkDirtyAndRebuild();
@@ -818,7 +829,7 @@ namespace SimManagementLib.SimDialog
             SimUiStyle.DrawBorder(rect, new Color(1f, 1f, 1f, 0.06f));
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
-            Widgets.Label(new Rect(rect.x + 10f, rect.y + 8f, rect.width - 20f, Text.LineHeightOf(GameFont.Tiny) + 2f), "偏好商品类型，会参与购买偏好判断。");
+            Widgets.Label(new Rect(rect.x + 10f, rect.y + 8f, rect.width - 20f, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomCustomer.PreferenceWeightTip"));
             Rect listRect = new Rect(rect.x + 8f, rect.y + 32f, rect.width - 16f, Mathf.Max(32f, rect.height - 40f));
             Rect viewRect = new Rect(0f, 0f, Mathf.Max(0f, listRect.width - ScrollbarWidth), Mathf.Max(listRect.height, allGoodsCategories.Count * 32f));
             Widgets.BeginScrollView(listRect, ref preferenceCategoryScroll, viewRect);
@@ -851,7 +862,7 @@ namespace SimManagementLib.SimDialog
                 }
 
                 if (existing != null)
-                    DrawFloatField(new Rect(viewRect.xMax - 116f, y - 2f, 108f, 28f), "倍率", ref existing.weight, 1f, 20f);
+                    DrawFloatField(new Rect(viewRect.xMax - 116f, y - 2f, 108f, 28f), SimTranslation.T("RSMF.CustomCustomer.Weight"), ref existing.weight, 1f, 20f);
                 y += 32f;
             }
             Widgets.EndScrollView();
@@ -899,12 +910,12 @@ namespace SimManagementLib.SimDialog
             Widgets.Label(new Rect(row.x + 8f, row.y + 17f, row.width - 92f, Text.LineHeightOf(GameFont.Tiny) + 2f), defName.Truncate(row.width - 92f));
             if (exists)
             {
-                if (removeAction != null && SimUiStyle.DrawDangerButton(new Rect(row.xMax - 74f, row.y + 3f, 66f, 24f), "移除", true, GameFont.Tiny))
+                if (removeAction != null && SimUiStyle.DrawDangerButton(new Rect(row.xMax - 74f, row.y + 3f, 66f, 24f), SimTranslation.T("RSMF.CustomCustomer.Remove"), true, GameFont.Tiny))
                     removeAction();
                 else if (removeAction == null)
-                    DrawBadge(new Rect(row.xMax - 74f, row.y + 6f, 66f, 18f), "已存在", BuiltInBadge);
+                    DrawBadge(new Rect(row.xMax - 74f, row.y + 6f, 66f, 18f), SimTranslation.T("RSMF.CustomCustomer.Exists"), BuiltInBadge);
             }
-            else if (SimUiStyle.DrawPrimaryButton(new Rect(row.xMax - 74f, row.y + 3f, 66f, 24f), "追加", true, GameFont.Tiny))
+            else if (SimUiStyle.DrawPrimaryButton(new Rect(row.xMax - 74f, row.y + 3f, 66f, 24f), SimTranslation.T("RSMF.CustomCustomer.Append"), true, GameFont.Tiny))
             {
                 addAction?.Invoke();
             }
@@ -920,13 +931,13 @@ namespace SimManagementLib.SimDialog
             pageIndex = Mathf.Clamp(pageIndex, 0, pageCount - 1);
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
-            Widgets.Label(new Rect(rect.x, rect.y + 6f, 96f, Text.LineHeightOf(GameFont.Tiny) + 2f), $"共 {totalCount} 项");
-            if (SimUiStyle.DrawSecondaryButton(new Rect(rect.xMax - 188f, rect.y, 72f, 26f), "上一页", pageIndex > 0, GameFont.Tiny))
+            Widgets.Label(new Rect(rect.x, rect.y + 6f, 96f, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomCustomer.TotalCount", totalCount.Named("count")));
+            if (SimUiStyle.DrawSecondaryButton(new Rect(rect.xMax - 188f, rect.y, 72f, 26f), SimTranslation.T("RSMF.CustomCustomer.PrevPage"), pageIndex > 0, GameFont.Tiny))
                 pageIndex--;
             Text.Anchor = TextAnchor.MiddleCenter;
             Widgets.Label(new Rect(rect.xMax - 110f, rect.y + 3f, 48f, 20f), $"{pageIndex + 1}/{pageCount}");
             Text.Anchor = TextAnchor.UpperLeft;
-            if (SimUiStyle.DrawSecondaryButton(new Rect(rect.xMax - 58f, rect.y, 58f, 26f), "下一页", pageIndex < pageCount - 1, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(rect.xMax - 58f, rect.y, 58f, 26f), SimTranslation.T("RSMF.CustomCustomer.NextPage"), pageIndex < pageCount - 1, GameFont.Tiny))
                 pageIndex++;
             GUI.color = Color.white;
         }
@@ -959,7 +970,7 @@ namespace SimManagementLib.SimDialog
                 .ToList() ?? new List<RuntimeGoodsCategory>();
 
             if (showMessage)
-                Messages.Message($"已刷新运行时商品类型：{allGoodsCategories.Count} 个。", MessageTypeDefOf.PositiveEvent, false);
+                Messages.Message(SimTranslation.T("RSMF.CustomCustomer.RefreshedTypes", allGoodsCategories.Count.Named("count")), MessageTypeDefOf.PositiveEvent, false);
         }
 
         /// <summary>
@@ -1018,7 +1029,7 @@ namespace SimManagementLib.SimDialog
             if (string.IsNullOrEmpty(label)) return;
             if (allPawnKinds.Count == 0)
             {
-                Messages.Message("没有可用的 PawnKindDef。", MessageTypeDefOf.RejectInput, false);
+                Messages.Message(SimTranslation.T("RSMF.CustomCustomer.NoPawnKind"), MessageTypeDefOf.RejectInput, false);
                 return;
             }
 
@@ -1046,7 +1057,7 @@ namespace SimManagementLib.SimDialog
             string label = CustomCustomerDatabase.NormalizeLabel(selectedLabelBuffer);
             if (string.IsNullOrEmpty(label))
             {
-                Messages.Message("顾客名称不能为空。", MessageTypeDefOf.RejectInput, false);
+                Messages.Message(SimTranslation.T("RSMF.CustomCustomer.EmptyName"), MessageTypeDefOf.RejectInput, false);
                 return;
             }
 
@@ -1060,7 +1071,7 @@ namespace SimManagementLib.SimDialog
         private void ConfirmDeleteKind()
         {
             if (GetDraftRecord(selectedKindId) == null) return;
-            Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("删除这个自定义顾客 Kind？", DeleteSelectedKind));
+            Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(SimTranslation.T("RSMF.CustomCustomer.DeleteConfirm"), DeleteSelectedKind));
         }
 
         /// <summary>
@@ -1103,7 +1114,7 @@ namespace SimManagementLib.SimDialog
             CustomCustomerDatabase.NotifyRuntimeChanged();
             LoadDraft();
             dirty = false;
-            Messages.Message("自定义顾客注册已保存，运行时顾客目录已重建。", MessageTypeDefOf.PositiveEvent, false);
+            Messages.Message(SimTranslation.T("RSMF.CustomCustomer.SaveSuccess"), MessageTypeDefOf.PositiveEvent, false);
         }
 
         /// <summary>
@@ -1117,7 +1128,7 @@ namespace SimManagementLib.SimDialog
                 return;
             }
 
-            Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("重新加载会丢弃当前未保存的自定义顾客改动，是否继续？", LoadDraft));
+            Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(SimTranslation.T("RSMF.CustomCustomer.ReloadConfirm"), LoadDraft));
         }
 
         /// <summary>
@@ -1231,10 +1242,10 @@ namespace SimManagementLib.SimDialog
                 Widgets.BeginScrollView(textRect.ContractedBy(4f), ref scroll, viewRect);
                 text = Widgets.TextArea(viewRect, text);
                 Widgets.EndScrollView();
-                if (SimUiStyle.DrawPrimaryButton(new Rect(inRect.xMax - 130f, inRect.yMax - 38f, 130f, 32f), "复制到剪贴板"))
+                if (SimUiStyle.DrawPrimaryButton(new Rect(inRect.xMax - 130f, inRect.yMax - 38f, 130f, 32f), SimTranslation.T("RSMF.CustomCustomer.CopyClipboard")))
                 {
                     GUIUtility.systemCopyBuffer = text;
-                    Messages.Message("Base64 导出内容已复制到剪贴板。", MessageTypeDefOf.PositiveEvent, false);
+                    Messages.Message(SimTranslation.T("RSMF.CustomCustomer.Base64Copied"), MessageTypeDefOf.PositiveEvent, false);
                 }
                 GUI.color = Color.white;
             }
@@ -1270,10 +1281,10 @@ namespace SimManagementLib.SimDialog
             {
                 Text.Font = GameFont.Medium;
                 GUI.color = Color.white;
-                Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width - CloseXReservedWidth, Text.LineHeightOf(GameFont.Medium) + 4f), "导入并覆盖");
+                Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width - CloseXReservedWidth, Text.LineHeightOf(GameFont.Medium) + 4f), SimTranslation.T("RSMF.CustomCustomer.ImportTitle"));
                 Text.Font = GameFont.Tiny;
                 GUI.color = MutedText;
-                Widgets.Label(new Rect(inRect.x, inRect.y + 34f, inRect.width, Text.LineHeightOf(GameFont.Tiny) * 2f + 4f), "导入后会覆盖玩家本地所有自定义顾客数据，但不会改动任何 CustomerKindDef。");
+                Widgets.Label(new Rect(inRect.x, inRect.y + 34f, inRect.width, Text.LineHeightOf(GameFont.Tiny) * 2f + 4f), SimTranslation.T("RSMF.CustomCustomer.ImportInfo"));
                 Rect textRect = new Rect(inRect.x, inRect.y + 74f, inRect.width, Mathf.Max(90f, inRect.height - 122f));
                 Widgets.DrawBoxSolid(textRect, new Color(0f, 0f, 0f, 0.22f));
                 SimUiStyle.DrawBorder(textRect, new Color(1f, 1f, 1f, 0.10f));
@@ -1281,9 +1292,9 @@ namespace SimManagementLib.SimDialog
                 Widgets.BeginScrollView(textRect.ContractedBy(4f), ref scroll, viewRect);
                 text = Widgets.TextArea(viewRect, text);
                 Widgets.EndScrollView();
-                if (SimUiStyle.DrawSecondaryButton(new Rect(inRect.x, inRect.yMax - 38f, 130f, 32f), "从剪贴板粘贴"))
+                if (SimUiStyle.DrawSecondaryButton(new Rect(inRect.x, inRect.yMax - 38f, 130f, 32f), SimTranslation.T("RSMF.CustomCustomer.PasteClipboard")))
                     text = GUIUtility.systemCopyBuffer ?? string.Empty;
-                if (SimUiStyle.DrawPrimaryButton(new Rect(inRect.xMax - 130f, inRect.yMax - 38f, 130f, 32f), "确认导入"))
+                if (SimUiStyle.DrawPrimaryButton(new Rect(inRect.xMax - 130f, inRect.yMax - 38f, 130f, 32f), SimTranslation.T("RSMF.CustomCustomer.ConfirmImport")))
                 {
                     if (!CustomCustomerDatabase.TryImportBase64(text, out CustomCustomerDatabaseData data, out string error))
                     {
@@ -1292,7 +1303,7 @@ namespace SimManagementLib.SimDialog
                     }
                     importAction?.Invoke(data);
                     Close();
-                    Messages.Message("自定义顾客数据已导入并覆盖本地内容。", MessageTypeDefOf.PositiveEvent, false);
+                    Messages.Message(SimTranslation.T("RSMF.CustomCustomer.ImportSuccess"), MessageTypeDefOf.PositiveEvent, false);
                 }
                 GUI.color = Color.white;
             }

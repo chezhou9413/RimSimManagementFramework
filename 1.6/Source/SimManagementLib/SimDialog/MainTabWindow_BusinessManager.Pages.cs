@@ -23,7 +23,7 @@ namespace SimManagementLib.SimDialog
             List<ShopViewData> shops = CollectAllShops();
             if (shops.NullOrEmpty())
             {
-                Widgets.NoneLabel(rect.center.y, rect.width, "(当前没有可管理的商店区域)");
+                Widgets.NoneLabel(rect.center.y, rect.width, SimTranslation.T("RSMF.Business.Empty.NoManageableShops"));
                 return;
             }
 
@@ -62,28 +62,45 @@ namespace SimManagementLib.SimDialog
 
                 Text.Font = GameFont.Tiny;
                 GUI.color = CDim;
-                Widgets.Label(new Rect(row.x + 10f, row.y + 30f, 500f, 20f), $"地图: {entry.Map.info?.parent?.LabelCap ?? entry.Map.ToString()}");
+                Widgets.Label(new Rect(row.x + 10f, row.y + 30f, 500f, 20f), SimTranslation.T("RSMF.Business.MapLine",
+                    (entry.Map.info?.parent?.LabelCap ?? entry.Map.ToString()).Named("map")));
 
                 GUI.color = open ? COk : CWarn;
-                Widgets.Label(new Rect(row.x + 10f, row.y + 50f, 220f, 20f), open ? "状态: 营业中" : "状态: " + zone.GetOpenStatusMessage().Truncate(90f));
+                Widgets.Label(new Rect(row.x + 10f, row.y + 50f, 220f, 20f), open ? SimTranslation.T("RSMF.Business.Status.Open") : SimTranslation.T("RSMF.Business.Status.Custom", zone.GetOpenStatusMessage().Truncate(90f).Named("status")));
 
                 GUI.color = Color.white;
-                Widgets.Label(new Rect(row.x + 240f, row.y + 50f, 420f, 20f), $"货柜: {storages.Count}   在售商品: {goodsKinds}   有库存: {inStockKinds}   套餐: {comboCount}");
+                Widgets.Label(new Rect(row.x + 240f, row.y + 50f, 420f, 20f), SimTranslation.T("RSMF.Business.ShopInventoryLine",
+                    storages.Count.Named("storages"),
+                    goodsKinds.Named("goodsKinds"),
+                    inStockKinds.Named("inStockKinds"),
+                    comboCount.Named("comboCount")));
 
                 GUI.color = COk;
                 if (metrics != null)
                 {
                     Widgets.Label(
                         new Rect(row.x + 10f, row.y + 72f, row.width - 220f, 18f),
-                        $"评分 {metrics.score:F1}   口碑 {metrics.reputation:F1}   满意度 {metrics.satisfaction:F1}   美观 {metrics.beautyAverage:F1}   容量 {metrics.dynamicCapacity}   点评 {avgStars:F1}★/{reviewCount}");
+                        SimTranslation.T("RSMF.Business.ShopMetricsLine",
+                            metrics.score.ToString("F1").Named("score"),
+                            metrics.reputation.ToString("F1").Named("reputation"),
+                            metrics.satisfaction.ToString("F1").Named("satisfaction"),
+                            metrics.beautyAverage.ToString("F1").Named("beauty"),
+                            metrics.dynamicCapacity.Named("capacity"),
+                            avgStars.ToString("F1").Named("stars"),
+                            reviewCount.Named("reviewCount")));
                     Widgets.Label(
                         new Rect(row.x + 10f, row.y + 90f, row.width - 220f, 18f),
-                        $"客流 {metrics.spawnDemandFactor:F2}x   美观 {metrics.beautyDemandMultiplier:F2}x   规模 {metrics.scaleDemandMultiplier:F2}x   容量规模 {metrics.scaleCapacityMultiplier:F2}x   有效规模 {metrics.effectiveScale:F1}");
+                        SimTranslation.T("RSMF.Business.ShopDemandLine",
+                            metrics.spawnDemandFactor.ToString("F2").Named("spawn"),
+                            metrics.beautyDemandMultiplier.ToString("F2").Named("beauty"),
+                            metrics.scaleDemandMultiplier.ToString("F2").Named("scale"),
+                            metrics.scaleCapacityMultiplier.ToString("F2").Named("capacityScale"),
+                            metrics.effectiveScale.ToString("F1").Named("effectiveScale")));
                 }
 
                 string comboPreview = BuildComboPreview(comboManager?.GetCombosForZone(zone));
                 GUI.color = CDim;
-                Widgets.Label(new Rect(row.x + 10f, row.y + 112f, row.width - 220f, 26f), "套餐预览: " + comboPreview);
+                Widgets.Label(new Rect(row.x + 10f, row.y + 112f, row.width - 220f, 26f), SimTranslation.T("RSMF.Business.ComboPreview", comboPreview.Named("preview")));
                 ResetText();
 
                 float btnW = 92f;
@@ -91,19 +108,19 @@ namespace SimManagementLib.SimDialog
                 float bx = row.xMax - btnW - 10f;
                 float by = row.y + 10f;
 
-                if (SimUiStyle.DrawPrimaryButton(new Rect(bx, by, btnW, btnH), "商店管理", true, GameFont.Tiny))
+                if (SimUiStyle.DrawPrimaryButton(new Rect(bx, by, btnW, btnH), SimTranslation.T("RSMF.Gizmo.ShopManagement.Label"), true, GameFont.Tiny))
                 {
                     Find.WindowStack.Add(new Dialog_ShopManager(zone));
                 }
 
                 by += btnH + 6f;
-                if (SimUiStyle.DrawSecondaryButton(new Rect(bx, by, btnW, btnH), "货柜管理", true, GameFont.Tiny))
+                if (SimUiStyle.DrawSecondaryButton(new Rect(bx, by, btnW, btnH), SimTranslation.T("RSMF.Gizmo.ContainerManagement.Label"), true, GameFont.Tiny))
                 {
                     OpenStorageManagerMenu(storages);
                 }
 
                 by += btnH + 6f;
-                if (SimUiStyle.DrawSecondaryButton(new Rect(bx, by, btnW, btnH), "定位", true, GameFont.Tiny))
+                if (SimUiStyle.DrawSecondaryButton(new Rect(bx, by, btnW, btnH), SimTranslation.T("RSMF.Common.Locate"), true, GameFont.Tiny))
                 {
                     IntVec3 focusCell = zone.Cells.Count > 0 ? zone.Cells.First() : zone.Map.Center;
                     CameraJumper.TryJump(focusCell, zone.Map);
@@ -118,7 +135,7 @@ namespace SimManagementLib.SimDialog
             GameComponent_ShopFinanceManager finance = Current.Game?.GetComponent<GameComponent_ShopFinanceManager>();
             if (finance == null)
             {
-                Widgets.NoneLabel(rect.center.y, rect.width, "(财务组件未初始化)");
+                Widgets.NoneLabel(rect.center.y, rect.width, SimTranslation.T("RSMF.Business.Empty.FinanceMissing"));
                 return;
             }
 
@@ -146,13 +163,13 @@ namespace SimManagementLib.SimDialog
             Rect left = new Rect(rect.x + 8f, rect.y + 4f, 110f, rect.height - 8f);
             Rect right = new Rect(left.xMax + 8f, left.y, 110f, left.height);
 
-            if (SimUiStyle.DrawTabButton(left, "统计总览", financeSubPageIndex == 0, CDim))
+            if (SimUiStyle.DrawTabButton(left, SimTranslation.T("RSMF.Business.Finance.Tab.Overview"), financeSubPageIndex == 0, CDim))
             {
                 financeSubPageIndex = 0;
                 financeScrollPos = Vector2.zero;
             }
 
-            if (SimUiStyle.DrawTabButton(right, "账单日志", financeSubPageIndex == 1, CDim))
+            if (SimUiStyle.DrawTabButton(right, SimTranslation.T("RSMF.Business.Finance.Tab.Bills"), financeSubPageIndex == 1, CDim))
             {
                 financeSubPageIndex = 1;
                 financeLogScrollPos = Vector2.zero;
@@ -167,10 +184,11 @@ namespace SimManagementLib.SimDialog
             Widgets.BeginScrollView(rect, ref financeScrollPos, viewRect);
 
             float y = 0f;
-            y = DrawFinanceSection(viewRect.width, y, "单品销量 / 收入", BuildProductRows(finance));
-            y = DrawFinanceSection(viewRect.width, y, "套餐销量 / 收入", BuildComboRows(finance));
-            y = DrawFinanceSection(viewRect.width, y, "商店盈利", BuildShopRows(finance));
-            DrawFinanceSection(viewRect.width, y, "每日盈利", BuildDailyRows(finance));
+            y = DrawFinanceCharts(viewRect.width, y, finance);
+            y = DrawFinanceSection(viewRect.width, y, SimTranslation.T("RSMF.Business.Finance.ProductSales"), BuildProductRows(finance));
+            y = DrawFinanceSection(viewRect.width, y, SimTranslation.T("RSMF.Business.Finance.ComboSales"), BuildComboRows(finance));
+            y = DrawFinanceSection(viewRect.width, y, SimTranslation.T("RSMF.Business.Finance.ShopProfit"), BuildShopRows(finance));
+            DrawFinanceSection(viewRect.width, y, SimTranslation.T("RSMF.Business.Finance.DailyProfit"), BuildDailyRows(finance));
 
             Widgets.EndScrollView();
         }
@@ -189,12 +207,12 @@ namespace SimManagementLib.SimDialog
 
             Rect prevRect = new Rect(navRect.x + 8f, navRect.y + 4f, 72f, navRect.height - 8f);
             Rect nextRect = new Rect(prevRect.xMax + 8f, prevRect.y, 72f, prevRect.height);
-            if (SimUiStyle.DrawSecondaryButton(prevRect, "上一页", financeLogPageIndex > 0, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(prevRect, SimTranslation.T("RSMF.Common.PreviousPage"), financeLogPageIndex > 0, GameFont.Tiny))
             {
                 financeLogPageIndex--;
                 financeLogScrollPos = Vector2.zero;
             }
-            if (SimUiStyle.DrawSecondaryButton(nextRect, "下一页", financeLogPageIndex < totalPages - 1, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(nextRect, SimTranslation.T("RSMF.Common.NextPage"), financeLogPageIndex < totalPages - 1, GameFont.Tiny))
             {
                 financeLogPageIndex++;
                 financeLogScrollPos = Vector2.zero;
@@ -203,7 +221,11 @@ namespace SimManagementLib.SimDialog
             Text.Font = GameFont.Tiny;
             Text.Anchor = TextAnchor.MiddleRight;
             GUI.color = CDim;
-            Widgets.Label(new Rect(navRect.x + 170f, navRect.y, navRect.width - 180f, navRect.height), $"第 {financeLogPageIndex + 1}/{totalPages} 页  每页 {pageSize} 条  共 {total} 条");
+            Widgets.Label(new Rect(navRect.x + 170f, navRect.y, navRect.width - 180f, navRect.height), SimTranslation.T("RSMF.Business.Finance.PageInfo",
+                (financeLogPageIndex + 1).Named("page"),
+                totalPages.Named("pages"),
+                pageSize.Named("pageSize"),
+                total.Named("total")));
             ResetText();
 
             Rect listRect = new Rect(rect.x, navRect.yMax + 6f, rect.width, rect.height - navRect.height - 6f);
@@ -219,7 +241,7 @@ namespace SimManagementLib.SimDialog
 
             if (total <= 0)
             {
-                Widgets.NoneLabel(viewRect.center.y, viewRect.width, "(暂无账单日志)");
+                Widgets.NoneLabel(viewRect.center.y, viewRect.width, SimTranslation.T("RSMF.Business.Empty.NoBills"));
                 Widgets.EndScrollView();
                 return;
             }
@@ -238,7 +260,11 @@ namespace SimManagementLib.SimDialog
                 GUI.color = Color.white;
                 Text.Font = GameFont.Tiny;
                 Text.Anchor = TextAnchor.MiddleLeft;
-                Widgets.Label(new Rect(row.x + 6f, row.y + 2f, row.width - 12f, 20f), $"第 {record.gameDay} 天  {record.zoneLabel}  顾客:{record.customerName}  支付:{record.paidSilver} 银");
+                Widgets.Label(new Rect(row.x + 6f, row.y + 2f, row.width - 12f, 20f), SimTranslation.T("RSMF.Business.Finance.BillLine",
+                    record.gameDay.Named("day"),
+                    record.zoneLabel.Named("shop"),
+                    record.customerName.Named("customer"),
+                    record.paidSilver.Named("paid")));
 
                 GUI.color = CDim;
                 Widgets.Label(new Rect(row.x + 6f, row.y + 22f, row.width - 12f, 30f), BuildBillLineSummary(record.lines));
@@ -256,7 +282,7 @@ namespace SimManagementLib.SimDialog
             List<CustomerViewData> customers = CollectActiveCustomers();
             if (customers.NullOrEmpty())
             {
-                Widgets.NoneLabel(rect.center.y, rect.width, "(当前没有活跃顾客)");
+                Widgets.NoneLabel(rect.center.y, rect.width, SimTranslation.T("RSMF.Business.Empty.NoActiveCustomers"));
                 return;
             }
 
@@ -277,9 +303,9 @@ namespace SimManagementLib.SimDialog
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.MiddleLeft;
             GUI.color = Color.white;
-            Widgets.Label(new Rect(summaryRect.x + 10f, summaryRect.y, 320f, summaryRect.height), $"活跃顾客: {customers.Count}");
+            Widgets.Label(new Rect(summaryRect.x + 10f, summaryRect.y, 320f, summaryRect.height), SimTranslation.T("RSMF.Business.Customer.ActiveCount", customers.Count.Named("count")));
             GUI.color = CAccent;
-            Widgets.Label(new Rect(summaryRect.x + 180f, summaryRect.y, 320f, summaryRect.height), $"平均预算使用率: {(avgBudgetUse * 100f):F0}%");
+            Widgets.Label(new Rect(summaryRect.x + 180f, summaryRect.y, 320f, summaryRect.height), SimTranslation.T("RSMF.Business.Customer.AverageBudgetUse", (avgBudgetUse * 100f).ToString("F0").Named("percent")));
             ResetText();
 
             Rect listRect = new Rect(rect.x, summaryRect.yMax + 8f, rect.width, rect.height - summaryRect.height - 8f);
@@ -303,39 +329,46 @@ namespace SimManagementLib.SimDialog
                 float spent = visit.cartValues.TryGetValue(pawnId, out float val) ? val : 0f;
                 float budgetUse = Mathf.Clamp01(spent / Mathf.Max(1f, budget));
                 int patience = visit.GetQueuePatienceForPawn(pawnId);
-                string shopLabel = item.ShopZone?.label ?? ("商店#" + visit.targetShopZoneId);
-                string curJob = pawn.CurJobDef?.LabelCap ?? "(无)";
+                string shopLabel = item.ShopZone?.label ?? SimTranslation.T("RSMF.Business.Customer.ShopFallback", visit.targetShopZoneId.Named("id"));
+                string curJob = pawn.CurJobDef?.LabelCap ?? SimTranslation.T("RSMF.Business.Customer.NoCurrentJob");
 
                 Text.Font = GameFont.Small;
                 Text.Anchor = TextAnchor.MiddleLeft;
                 GUI.color = Color.white;
-                Widgets.Label(new Rect(row.x + 10f, row.y + 4f, 300f, 24f), pawn.LabelShortCap + $"  ({settings?.profileLabel ?? "默认档案"})");
+                Widgets.Label(new Rect(row.x + 10f, row.y + 4f, 300f, 24f), pawn.LabelShortCap + $"  ({settings?.profileLabel ?? SimTranslation.T("RSMF.Common.Default")})");
 
                 Text.Font = GameFont.Tiny;
                 GUI.color = CDim;
-                Widgets.Label(new Rect(row.x + 10f, row.y + 24f, 440f, 18f), $"商店: {shopLabel}   地图: {item.Map.info?.parent?.LabelCap ?? item.Map.ToString()}");
-                Widgets.Label(new Rect(row.x + 10f, row.y + 40f, 440f, 18f), $"当前行为: {curJob}   结账耐心: {patience} ticks");
+                Widgets.Label(new Rect(row.x + 10f, row.y + 24f, 440f, 18f), SimTranslation.T("RSMF.Business.Customer.ShopMapLine",
+                    shopLabel.Named("shop"),
+                    (item.Map.info?.parent?.LabelCap ?? item.Map.ToString()).Named("map")));
+                Widgets.Label(new Rect(row.x + 10f, row.y + 40f, 440f, 18f), SimTranslation.T("RSMF.Business.Customer.JobPatienceLine",
+                    curJob.Named("job"),
+                    patience.Named("patience")));
 
                 Rect budgetBarRect = new Rect(row.x + 10f, row.y + 62f, 360f, 18f);
                 Widgets.FillableBar(budgetBarRect, budgetUse, SolidColorMaterials.NewSolidColorTexture(CAccent), BaseContent.BlackTex, doBorder: false);
                 DrawBorder(budgetBarRect, new Color(1f, 1f, 1f, 0.18f));
                 GUI.color = Color.white;
-                Widgets.Label(new Rect(budgetBarRect.x + 4f, budgetBarRect.y - 1f, budgetBarRect.width - 8f, budgetBarRect.height), $"预算 {budget}  已花 {spent:F0}  剩余 {(budget - spent):F0}");
+                Widgets.Label(new Rect(budgetBarRect.x + 4f, budgetBarRect.y - 1f, budgetBarRect.width - 8f, budgetBarRect.height), SimTranslation.T("RSMF.Business.Customer.BudgetLine",
+                    budget.Named("budget"),
+                    spent.ToString("F0").Named("spent"),
+                    (budget - spent).ToString("F0").Named("remaining")));
 
                 GUI.color = CDim;
-                Widgets.Label(new Rect(row.x + 380f, row.y + 62f, row.width - 500f, 18f), "偏好: " + BuildPreferenceText(settings));
+                Widgets.Label(new Rect(row.x + 380f, row.y + 62f, row.width - 500f, 18f), SimTranslation.T("RSMF.Business.Customer.PreferenceLine", BuildPreferenceText(settings).Named("preferences")));
 
                 float btnW = 84f;
                 float btnH = 28f;
                 float bx = row.xMax - btnW - 10f;
                 float by = row.y + 10f;
-                if (SimUiStyle.DrawSecondaryButton(new Rect(bx, by, btnW, btnH), "定位", true, GameFont.Tiny))
+                if (SimUiStyle.DrawSecondaryButton(new Rect(bx, by, btnW, btnH), SimTranslation.T("RSMF.Common.Locate"), true, GameFont.Tiny))
                 {
                     CameraJumper.TryJump(pawn);
                 }
 
                 by += btnH + 8f;
-                if (SimUiStyle.DrawSecondaryButton(new Rect(bx, by, btnW, btnH), "选中", true, GameFont.Tiny))
+                if (SimUiStyle.DrawSecondaryButton(new Rect(bx, by, btnW, btnH), SimTranslation.T("RSMF.Common.Select"), true, GameFont.Tiny))
                 {
                     Find.Selector.Select(pawn, playSound: false, forceDesignatorDeselect: false);
                 }
@@ -351,7 +384,7 @@ namespace SimManagementLib.SimDialog
             List<ShopViewData> shops = CollectAllShops();
             if (shops.NullOrEmpty())
             {
-                Widgets.NoneLabel(rect.center.y, rect.width, "(当前没有可配置店员的商店)");
+                Widgets.NoneLabel(rect.center.y, rect.width, SimTranslation.T("RSMF.Business.Empty.NoStaffShops"));
                 return;
             }
 
@@ -377,11 +410,15 @@ namespace SimManagementLib.SimDialog
                 GUI.color = CDim;
                 List<ShopStaffRoleDef> roles = ShopStaffUtility.GetVisibleRoles(zone);
                 int assignedCount = roles.Sum(r => zone.GetAssignedPawns(r.defName).Count);
-                Widgets.Label(new Rect(row.x + 10f, row.y + 32f, 520f, 18f), $"地图: {entry.Map.info?.parent?.LabelCap ?? entry.Map.ToString()}");
-                Widgets.Label(new Rect(row.x + 10f, row.y + 50f, 600f, 18f), $"岗位数: {roles.Count}   已分配店员: {assignedCount}   营业状态: {zone.GetOpenStatusMessage()}");
+                Widgets.Label(new Rect(row.x + 10f, row.y + 32f, 520f, 18f), SimTranslation.T("RSMF.Business.MapLine",
+                    (entry.Map.info?.parent?.LabelCap ?? entry.Map.ToString()).Named("map")));
+                Widgets.Label(new Rect(row.x + 10f, row.y + 50f, 600f, 18f), SimTranslation.T("RSMF.Business.Staff.Line",
+                    roles.Count.Named("roles"),
+                    assignedCount.Named("assigned"),
+                    zone.GetOpenStatusMessage().Named("status")));
 
                 Rect openRect = new Rect(row.xMax - 150f, row.y + 26f, 128f, 34f);
-                if (SimUiStyle.DrawPrimaryButton(openRect, "打开店员配置", true, GameFont.Tiny))
+                if (SimUiStyle.DrawPrimaryButton(openRect, SimTranslation.T("RSMF.Business.Staff.OpenConfig"), true, GameFont.Tiny))
                 {
                     Find.WindowStack.Add(new Dialog_ShopStaffManager(zone));
                 }

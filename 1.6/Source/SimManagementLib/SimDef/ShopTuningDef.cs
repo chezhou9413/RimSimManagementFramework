@@ -100,6 +100,11 @@ namespace SimManagementLib.SimDef
         public float satisfactionBudgetScale = 60f;
         public float satisfactionBudgetTargetUsage = 0.75f;
 
+        // 顾客消费意愿参数，商店评分越高，顾客越愿意把原始预算花完。
+        public FloatRange budgetSpendQualityRange = new FloatRange(15f, 90f);
+        public FloatRange budgetSpendRatioRange = new FloatRange(0.35f, 1.00f);
+        public float budgetSpendRandomJitter = 0.08f;
+
         // 指数移动平均更新参数。
         public float satisfactionEmaOldWeight = 0.80f;
         public float satisfactionEmaNewWeight = 0.20f;

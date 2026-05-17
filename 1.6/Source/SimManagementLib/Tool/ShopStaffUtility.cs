@@ -116,12 +116,12 @@ namespace SimManagementLib.Tool
 
         public static string GetAssignmentLabel(Zone_Shop zone, ShopStaffRoleDef role)
         {
-            if (zone == null || role == null) return "未指定";
+            if (zone == null || role == null) return SimTranslation.T("RSMF.Common.Unspecified");
 
             List<Pawn> pawns = zone.GetAssignedPawns(role.defName);
-            if (pawns.Count <= 0) return "未指定";
+            if (pawns.Count <= 0) return SimTranslation.T("RSMF.Common.Unspecified");
 
-            string joined = string.Join("、", pawns.Take(3).Select(p => p.LabelShortCap));
+            string joined = string.Join(SimTranslation.T("RSMF.Common.ListSeparator"), pawns.Take(3).Select(p => p.LabelShortCap));
             if (pawns.Count > 3) joined += "…";
             return $"{joined} ({pawns.Count}/{role.MaxAssignedPawns})";
         }
@@ -136,13 +136,13 @@ namespace SimManagementLib.Tool
 
         public static StaffEligibility EvaluateEligibility(Pawn pawn, ShopStaffRoleDef role)
         {
-            if (pawn == null) return new StaffEligibility { Eligible = false, Reason = "无效 pawn" };
-            if (role == null) return new StaffEligibility { Eligible = false, Reason = "无效岗位" };
-            if (pawn.Destroyed || pawn.Dead) return new StaffEligibility { Eligible = false, Reason = "已死亡或不可用" };
-            if (pawn.workSettings == null || !pawn.workSettings.EverWork) return new StaffEligibility { Eligible = false, Reason = "没有工作设置" };
+            if (pawn == null) return new StaffEligibility { Eligible = false, Reason = SimTranslation.T("RSMF.StaffManager.InvalidPawn") };
+            if (role == null) return new StaffEligibility { Eligible = false, Reason = SimTranslation.T("RSMF.StaffManager.InvalidRole") };
+            if (pawn.Destroyed || pawn.Dead) return new StaffEligibility { Eligible = false, Reason = SimTranslation.T("RSMF.StaffManager.DeadOrUnavailable") };
+            if (pawn.workSettings == null || !pawn.workSettings.EverWork) return new StaffEligibility { Eligible = false, Reason = SimTranslation.T("RSMF.StaffManager.NoWorkSettings") };
 
             if (role.workGivers.NullOrEmpty())
-                return new StaffEligibility { Eligible = true, Reason = "可上岗" };
+                return new StaffEligibility { Eligible = true, Reason = SimTranslation.T("RSMF.StaffManager.Eligible") };
 
             List<string> reasons = new List<string>();
             bool anyWorkGiverUsable = false;
@@ -161,12 +161,12 @@ namespace SimManagementLib.Tool
                     if (pawn.WorkTypeIsDisabled(wg.workType))
                     {
                         usable = false;
-                        localReasons.Add($"禁用工作类型: {workTypeLabel}");
+                        localReasons.Add(SimTranslation.T("RSMF.StaffManager.DisabledWorkType", workTypeLabel.Named("workType")));
                     }
                     else if (!pawn.workSettings.WorkIsActive(wg.workType))
                     {
                         usable = false;
-                        localReasons.Add($"未开启工作类型: {workTypeLabel}");
+                        localReasons.Add(SimTranslation.T("RSMF.StaffManager.InactiveWorkType", workTypeLabel.Named("workType")));
                     }
                 }
 
@@ -178,7 +178,7 @@ namespace SimManagementLib.Tool
                         if (capacity != null && !pawn.health.capacities.CapableOf(capacity))
                         {
                             usable = false;
-                            localReasons.Add($"缺少能力: {capacity.LabelCap.RawText}");
+                            localReasons.Add(SimTranslation.T("RSMF.StaffManager.MissingCapacity", capacity.LabelCap.RawText.Named("capacity")));
                         }
                     }
                 }
@@ -190,20 +190,20 @@ namespace SimManagementLib.Tool
                 else if (localReasons.Count > 0)
                 {
                     string prefix = wg.label.NullOrEmpty() ? wg.defName : wg.LabelCap.RawText;
-                    reasons.Add(prefix + " - " + string.Join("，", localReasons.Distinct()));
+                    reasons.Add(prefix + " - " + string.Join(SimTranslation.T("RSMF.Common.ListSeparator"), localReasons.Distinct()));
                 }
             }
 
             if (anyWorkGiverUsable)
-                return new StaffEligibility { Eligible = true, Reason = "可上岗" };
+                return new StaffEligibility { Eligible = true, Reason = SimTranslation.T("RSMF.StaffManager.Eligible") };
 
             if (reasons.Count <= 0)
-                return new StaffEligibility { Eligible = false, Reason = "没有可用岗位工作" };
+                return new StaffEligibility { Eligible = false, Reason = SimTranslation.T("RSMF.StaffManager.NoUsableRoleWork") };
 
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < reasons.Count; i++)
             {
-                if (i > 0) sb.Append("；");
+                if (i > 0) sb.Append(SimTranslation.T("RSMF.Common.SemicolonSeparator"));
                 sb.Append(reasons[i]);
             }
 

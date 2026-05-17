@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Verse;
 
 namespace SimManagementLib.Tool
 {
@@ -12,7 +13,7 @@ namespace SimManagementLib.Tool
     /// </summary>
     public static class CustomerReviewAiClient
     {
-        private const int TimeoutSeconds = 20;
+        private const int DefaultTimeoutSeconds = 90;
 
         /// <summary>
         /// 根据当前设置异步请求大模型，并返回解析后的点评结果。
@@ -21,30 +22,49 @@ namespace SimManagementLib.Tool
         {
             if (snapshot == null || settings == null || !settings.HasValidReviewAiConfig()) return null;
 
-            string userPrompt = CustomerReviewJsonUtility.BuildSnapshotPrompt(snapshot, settings);
-            CustomerReviewDialogueRequest request = CustomerReviewDialogueStrategy.Prepare(snapshot, settings, userPrompt);
+            string stablePromptPrefix = CustomerReviewPromptInjector.BuildStablePromptPrefix(settings);
+            string antiRepeatContext = CustomerReviewDialogueStrategy.BuildAntiRepeatContext(settings);
+            string dynamicPrompt = CustomerReviewPromptInjector.BuildDynamicPrompt(snapshot, settings, antiRepeatContext);
+            CustomerReviewDialogueRequest request = CustomerReviewDialogueStrategy.Prepare(snapshot, settings, stablePromptPrefix, dynamicPrompt);
+            int debugId = CustomerReviewAiDebugLog.AddStarted(snapshot, settings, request);
 
-            string raw = await CallProviderAsync(settings, request, token);
-            if (!CustomerReviewJsonUtility.TryParseReviewResult(raw, settings, out CustomerReviewAiResult result))
+            try
             {
-                raw = await CallProviderAsync(settings, request, token);
-                if (!CustomerReviewJsonUtility.TryParseReviewResult(raw, settings, out result))
-                    return null;
-            }
+                string raw = await CallProviderAsync(settings, request, token, debugId);
+                if (!CustomerReviewJsonUtility.TryParseReviewResult(raw, settings, out CustomerReviewAiResult result))
+                {
+                    CustomerReviewAiDebugLog.MarkFailed(debugId, SimTranslation.T("RSMF.CustomerReview.AiError.FirstParseFailedRetrying"));
+                    CustomerReviewDialogueRequest retryRequest = CustomerReviewDialogueStrategy.BuildRetryRequest(request, raw);
+                    raw = await CallProviderAsync(settings, retryRequest, token, debugId);
+                    if (!CustomerReviewJsonUtility.TryParseReviewResult(raw, settings, out result))
+                    {
+                        CustomerReviewAiDebugLog.MarkFailed(debugId, SimTranslation.T("RSMF.CustomerReview.AiError.ParseFailedFinal"));
+                        return null;
+                    }
+                }
 
-            CustomerReviewDialogueStrategy.StoreSuccessfulResult(request, snapshot, result, settings);
-            return result;
+                CustomerReviewDialogueStrategy.StoreSuccessfulResult(request, snapshot, result, settings);
+                CustomerReviewAiDebugLog.MarkParsed(debugId, result, raw);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                CustomerReviewAiDebugLog.MarkFailed(debugId, SimTranslation.T("RSMF.CustomerReview.AiError.RequestException", ex.Message.Named("message")));
+                if (ex is OperationCanceledException)
+                    return null;
+                return null;
+            }
         }
 
         /// <summary>
         /// 按当前供应商发送请求，负责让首次生成和修正重试复用同一条调用路径。
         /// </summary>
-        private static async Task<string> CallProviderAsync(SimManagementLibSettings settings, CustomerReviewDialogueRequest request, CancellationToken token)
+        private static async Task<string> CallProviderAsync(SimManagementLibSettings settings, CustomerReviewDialogueRequest request, CancellationToken token, int debugId)
         {
             if (settings.reviewProvider == CustomerReviewProvider.Anthropic)
-                return await CallAnthropicAsync(settings, request, token);
+                return await CallAnthropicAsync(settings, request, token, debugId);
 
-            return await CallOpenAiCompatibleAsync(settings, request, token);
+            return await CallOpenAiCompatibleAsync(settings, request, token, debugId);
         }
 
         /// <summary>
@@ -64,30 +84,30 @@ namespace SimManagementLib.Tool
             CustomerReviewSnapshot snapshot = new CustomerReviewSnapshot
             {
                 reviewId = "test",
-                customerDisplayName = "测试顾客",
+                customerDisplayName = SimTranslation.T("RSMF.CustomerReview.Test.Customer"),
                 kindId = "TestKind",
-                kindLabel = "测试顾客",
-                raceLabel = "人类",
-                ageSummary = "成年",
-                backstorySummary = "路过殖民地的普通旅人",
-                traitSummary = "谨慎",
-                moodSummary = "平静",
-                healthSummary = "健康",
-                zoneLabel = "测试商店",
-                budgetSummary = "预算 100 银",
+                kindLabel = SimTranslation.T("RSMF.CustomerReview.Test.Customer"),
+                raceLabel = SimTranslation.T("RSMF.CustomerReview.Test.Race"),
+                ageSummary = SimTranslation.T("RSMF.CustomerReview.Test.Age"),
+                backstorySummary = SimTranslation.T("RSMF.CustomerReview.Test.Backstory"),
+                traitSummary = SimTranslation.T("RSMF.CustomerReview.Test.Trait"),
+                moodSummary = SimTranslation.T("RSMF.CustomerReview.Test.Mood"),
+                healthSummary = SimTranslation.T("RSMF.CustomerReview.Test.Health"),
+                zoneLabel = SimTranslation.T("RSMF.CustomerReview.Test.Shop"),
+                budgetSummary = SimTranslation.T("RSMF.CustomerReview.Test.Budget"),
                 spentSilver = 25f,
-                purchasedSummary = "购买了简单商品",
-                serviceSummary = "未使用服务",
-                shopEnvironmentSummary = "环境普通"
+                purchasedSummary = SimTranslation.T("RSMF.CustomerReview.Test.Purchased"),
+                serviceSummary = SimTranslation.T("RSMF.CustomerReview.Test.Service"),
+                shopEnvironmentSummary = SimTranslation.T("RSMF.CustomerReview.Test.Environment")
             };
 
             CustomerReviewConnectionTestResult testResult = await ProbeBaseUrlAsync(settings, token);
             CustomerReviewAiResult result = await GenerateReviewAsync(snapshot, settings, token);
             testResult.apiReachable = result != null;
             if (testResult.apiReachable)
-                testResult.message = "BaseUrl 可访问，模型测试生成成功。";
+                testResult.message = SimTranslation.T("RSMF.CustomerReview.Connection.GenerationSucceeded");
             else if (string.IsNullOrEmpty(testResult.message))
-                testResult.message = "BaseUrl 可访问，但模型测试生成失败，请检查模型名、API Key 或响应格式。";
+                testResult.message = SimTranslation.T("RSMF.CustomerReview.Connection.GenerationFailed");
             return testResult;
         }
 
@@ -102,30 +122,36 @@ namespace SimManagementLib.Tool
         /// <summary>
         /// 调用 OpenAI 兼容接口，负责在 JSON 输出约束不被网关支持时退化为普通 JSON 提示。
         /// </summary>
-        private static async Task<string> CallOpenAiCompatibleAsync(SimManagementLibSettings settings, CustomerReviewDialogueRequest request, CancellationToken token)
+        private static async Task<string> CallOpenAiCompatibleAsync(SimManagementLibSettings settings, CustomerReviewDialogueRequest request, CancellationToken token, int debugId)
         {
-            using (HttpClient client = CreateClient())
+            using (HttpClient client = CreateClient(settings))
             {
                 client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", settings.openAiApiKey);
                 string endpoint = NormalizeOpenAiUrl(settings.openAiBaseUrl);
-                HttpResponseMessage response = await client.PostAsync(endpoint, new StringContent(BuildOpenAiBody(settings, request, true), Encoding.UTF8, "application/json"), token);
+                string body = BuildOpenAiBody(settings, request, true);
+                HttpResponseMessage response = await client.PostAsync(endpoint, new StringContent(body, Encoding.UTF8, "application/json"), token);
                 string responseText = await response.Content.ReadAsStringAsync();
+                string extracted = CustomerReviewJsonUtility.ExtractOpenAiMessageContent(responseText);
+                CustomerReviewAiDebugLog.UpdateHttpAttempt(debugId, SimTranslation.T("RSMF.CustomerReview.HttpAttempt.OpenAiJsonObject"), endpoint, body, (int)response.StatusCode, response.IsSuccessStatusCode, responseText, extracted);
                 if (!response.IsSuccessStatusCode && ShouldRetryWithoutResponseFormat(responseText))
                 {
-                    response = await client.PostAsync(endpoint, new StringContent(BuildOpenAiBody(settings, request, false), Encoding.UTF8, "application/json"), token);
+                    body = BuildOpenAiBody(settings, request, false);
+                    response = await client.PostAsync(endpoint, new StringContent(body, Encoding.UTF8, "application/json"), token);
                     responseText = await response.Content.ReadAsStringAsync();
+                    extracted = CustomerReviewJsonUtility.ExtractOpenAiMessageContent(responseText);
+                    CustomerReviewAiDebugLog.UpdateHttpAttempt(debugId, SimTranslation.T("RSMF.CustomerReview.HttpAttempt.OpenAiNoResponseFormat"), endpoint, body, (int)response.StatusCode, response.IsSuccessStatusCode, responseText, extracted);
                 }
                 if (!response.IsSuccessStatusCode) return "";
-                return CustomerReviewJsonUtility.ExtractOpenAiMessageContent(responseText);
+                return extracted;
             }
         }
 
         /// <summary>
         /// 调用 Anthropic Messages 接口，负责把系统提示词和用户提示词发送给模型。
         /// </summary>
-        private static async Task<string> CallAnthropicAsync(SimManagementLibSettings settings, CustomerReviewDialogueRequest request, CancellationToken token)
+        private static async Task<string> CallAnthropicAsync(SimManagementLibSettings settings, CustomerReviewDialogueRequest request, CancellationToken token, int debugId)
         {
-            using (HttpClient client = CreateClient())
+            using (HttpClient client = CreateClient(settings))
             {
                 client.DefaultRequestHeaders.Add("x-api-key", settings.anthropicApiKey);
                 client.DefaultRequestHeaders.Add("anthropic-version", "2023-06-01");
@@ -140,9 +166,11 @@ namespace SimManagementLib.Tool
 
                 HttpResponseMessage response = await client.PostAsync("https://api.anthropic.com/v1/messages", new StringContent(body, Encoding.UTF8, "application/json"), token);
                 string responseText = await response.Content.ReadAsStringAsync();
+                string extracted = CustomerReviewJsonUtility.ExtractAnthropicMessageContent(responseText);
+                CustomerReviewAiDebugLog.UpdateHttpAttempt(debugId, SimTranslation.T("RSMF.CustomerReview.HttpAttempt.AnthropicMessages"), "https://api.anthropic.com/v1/messages", body, (int)response.StatusCode, response.IsSuccessStatusCode, responseText, extracted);
                 if (!response.IsSuccessStatusCode)
                     return "";
-                return CustomerReviewJsonUtility.ExtractAnthropicMessageContent(responseText);
+                return extracted;
             }
         }
 
@@ -154,7 +182,7 @@ namespace SimManagementLib.Tool
             CustomerReviewConnectionTestResult result = new CustomerReviewConnectionTestResult();
             if (settings == null)
             {
-                result.message = "设置为空。";
+                result.message = SimTranslation.T("RSMF.CustomerReview.Connection.SettingsNull");
                 return result;
             }
 
@@ -165,29 +193,29 @@ namespace SimManagementLib.Tool
 
             try
             {
-                using (HttpClient client = CreateClient())
+                using (HttpClient client = CreateClient(settings))
                 using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Options, endpoint))
                 {
                     HttpResponseMessage response = await client.SendAsync(request, token);
                     result.statusCode = (int)response.StatusCode;
                     result.baseUrlReachable = true;
-                    result.message = "BaseUrl 可访问，HTTP 状态 " + result.statusCode + "。";
+                    result.message = SimTranslation.T("RSMF.CustomerReview.Connection.BaseUrlReachable", result.statusCode.Named("statusCode"));
                 }
             }
             catch (HttpRequestException ex)
             {
                 result.baseUrlReachable = false;
-                result.message = "BaseUrl 连接失败: " + ex.Message;
+                result.message = SimTranslation.T("RSMF.CustomerReview.Connection.BaseUrlFailed", ex.Message.Named("message"));
             }
             catch (TaskCanceledException)
             {
                 result.baseUrlReachable = false;
-                result.message = "BaseUrl 连接超时。";
+                result.message = SimTranslation.T("RSMF.CustomerReview.Connection.BaseUrlTimeout");
             }
             catch (Exception ex)
             {
                 result.baseUrlReachable = false;
-                result.message = "BaseUrl 测试异常: " + ex.Message;
+                result.message = SimTranslation.T("RSMF.CustomerReview.Connection.BaseUrlException", ex.Message.Named("message"));
             }
 
             return result;
@@ -261,11 +289,13 @@ namespace SimManagementLib.Tool
         /// <summary>
         /// 创建带超时的 HTTP 客户端，负责避免后台请求长期阻塞。
         /// </summary>
-        private static HttpClient CreateClient()
+        private static HttpClient CreateClient(SimManagementLibSettings settings)
         {
+            int timeoutSeconds = settings != null ? settings.reviewRequestTimeoutSeconds : DefaultTimeoutSeconds;
+            timeoutSeconds = Math.Max(20, Math.Min(180, timeoutSeconds));
             return new HttpClient
             {
-                Timeout = TimeSpan.FromSeconds(TimeoutSeconds)
+                Timeout = TimeSpan.FromSeconds(timeoutSeconds)
             };
         }
 

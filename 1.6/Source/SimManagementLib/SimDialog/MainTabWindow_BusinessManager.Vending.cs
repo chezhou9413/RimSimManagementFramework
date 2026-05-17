@@ -19,7 +19,7 @@ namespace SimManagementLib.SimDialog
             List<Building_SimContainer> machines = CollectAllVendingMachines();
             if (machines.NullOrEmpty())
             {
-                Widgets.NoneLabel(rect.center.y, rect.width, "(当前没有自动售货机货柜)");
+                Widgets.NoneLabel(rect.center.y, rect.width, SimTranslation.T("RSMF.Business.Empty.NoVendingMachines"));
                 return;
             }
 
@@ -58,17 +58,24 @@ namespace SimManagementLib.SimDialog
 
             Text.Font = GameFont.Tiny;
             GUI.color = CDim;
-            Widgets.Label(new Rect(row.x + 10f, row.y + 30f, 560f, 20f), $"地图: {machine.Map.info?.parent?.LabelCap ?? machine.Map.ToString()}   位置: {machine.Position}");
+            Widgets.Label(new Rect(row.x + 10f, row.y + 30f, 560f, 20f), SimTranslation.T("RSMF.Business.MapPositionLine",
+                (machine.Map.info?.parent?.LabelCap ?? machine.Map.ToString()).Named("map"),
+                machine.Position.ToString().Named("position")));
 
             GUI.color = usable ? COk : CWarn;
-            string status = usable ? "状态: 可售卖" : "状态: 停用、断电、关机或无库存";
-            Widgets.Label(new Rect(row.x + 10f, row.y + 50f, 360f, 20f), status);
+            Widgets.Label(new Rect(row.x + 10f, row.y + 50f, 360f, 20f), usable ? SimTranslation.T("RSMF.Business.Status.VendingUsable") : SimTranslation.T("RSMF.Business.Status.VendingDisabled"));
 
             GUI.color = Color.white;
-            Widgets.Label(new Rect(row.x + 260f, row.y + 50f, 500f, 20f), $"商品: {stockedKinds}/{sellableKinds} 有库存   容量: {machine.CountTotalStored()}/{machine.MaxTotalCapacity}   顾客: {activeCustomers}/{comp?.MaxSimultaneousCustomers ?? 1}");
+            Widgets.Label(new Rect(row.x + 260f, row.y + 50f, 500f, 20f), SimTranslation.T("RSMF.Business.VendingInventoryLine",
+                stockedKinds.Named("stockedKinds"),
+                sellableKinds.Named("sellableKinds"),
+                machine.CountTotalStored().Named("stored"),
+                machine.MaxTotalCapacity.Named("capacity"),
+                activeCustomers.Named("customers"),
+                (comp?.MaxSimultaneousCustomers ?? 1).Named("maxCustomers")));
 
             GUI.color = CDim;
-            Widgets.Label(new Rect(row.x + 10f, row.y + 72f, row.width - 220f, 38f), "商品预览: " + BuildVendingGoodsPreview(machine));
+            Widgets.Label(new Rect(row.x + 10f, row.y + 72f, row.width - 220f, 38f), SimTranslation.T("RSMF.Business.GoodsPreview", BuildVendingGoodsPreview(machine).Named("preview")));
             ResetText();
 
             float btnW = 92f;
@@ -76,19 +83,19 @@ namespace SimManagementLib.SimDialog
             float bx = row.xMax - btnW - 10f;
             float by = row.y + 10f;
 
-            if (SimUiStyle.DrawPrimaryButton(new Rect(bx, by, btnW, btnH), comp != null && comp.enabled ? "暂停营业" : "开始营业", comp != null, GameFont.Tiny))
+            if (SimUiStyle.DrawPrimaryButton(new Rect(bx, by, btnW, btnH), comp != null && comp.enabled ? SimTranslation.T("RSMF.Business.PauseBusiness") : SimTranslation.T("RSMF.Business.StartBusiness"), comp != null, GameFont.Tiny))
             {
                 comp.enabled = !comp.enabled;
             }
 
             by += btnH + 6f;
-            if (SimUiStyle.DrawSecondaryButton(new Rect(bx, by, btnW, btnH), "货柜管理", true, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(bx, by, btnW, btnH), SimTranslation.T("RSMF.Gizmo.ContainerManagement.Label"), true, GameFont.Tiny))
             {
                 OpenStorageManager(machine);
             }
 
             by += btnH + 6f;
-            if (SimUiStyle.DrawSecondaryButton(new Rect(bx, by, btnW, btnH), "定位", true, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(bx, by, btnW, btnH), SimTranslation.T("RSMF.Common.Locate"), true, GameFont.Tiny))
             {
                 CameraJumper.TryJump(machine);
             }
@@ -127,7 +134,7 @@ namespace SimManagementLib.SimDialog
                 if (parts.Count >= 4) break;
             }
 
-            if (parts.Count <= 0) return "未配置商品";
+            if (parts.Count <= 0) return SimTranslation.T("RSMF.Business.UnconfiguredGoods");
             if (machine.ActiveDefs.Count(def => def != null && machine.GetTargetCount(def) > 0) > parts.Count)
                 parts.Add("...");
             return string.Join("、", parts);

@@ -57,7 +57,11 @@ namespace SimManagementLib.SimAI
                     lordJob.cartValues[pId] = 0f;
 
                 float alreadySpent = lordJob.cartValues[pId];
-                float remainingBudget = lordJob.GetBudgetForPawn(pId) - alreadySpent;
+                Zone_Shop shopZone = ShopDataUtility.FindAssignedShopZone(
+                    pawn.Map,
+                    lordJob.targetShopZoneId,
+                    lordJob.targetShopCell);
+                float remainingBudget = lordJob.GetEffectiveBudgetForPawn(pawn, shopZone) - alreadySpent;
 
                 if (remainingBudget <= 0f)
                 {
@@ -65,10 +69,6 @@ namespace SimManagementLib.SimAI
                     return;
                 }
 
-                Zone_Shop shopZone = ShopDataUtility.FindAssignedShopZone(
-                    pawn.Map,
-                    lordJob.targetShopZoneId,
-                    lordJob.targetShopCell);
                 if (shopZone != null)
                 {
                     List<ComboData> combos = ShopDataUtility.GetAffordableInStockCombos(shopZone, remainingBudget);
@@ -92,7 +92,7 @@ namespace SimManagementLib.SimAI
 
                             lordJob.cartValues[pId] += comboPrice;
                             lordJob.AddCartItemsFromCombo(pId, targetCombo.items);
-                            string comboName = string.IsNullOrEmpty(targetCombo.comboName) ? "未命名套餐" : targetCombo.comboName;
+                            string comboName = string.IsNullOrEmpty(targetCombo.comboName) ? SimTranslation.T("RSMF.Common.UnnamedCombo") : targetCombo.comboName;
                             finance?.QueueComboSale(pawn, shopZone, comboName, comboPrice, comboCost);
                             CustomerExpressionUtility.TryShowExpression(
                                 pawn,
@@ -101,7 +101,7 @@ namespace SimManagementLib.SimAI
                             ShopBubbleUtility.ShowThingBubble(
                                 pawn,
                                 targetCombo.items.FirstOrDefault(item => item?.def != null)?.def,
-                                $"选购套餐: {comboName}",
+                                SimTranslation.T("RSMF.Bubble.PickCombo", comboName.Named("comboName")),
                                 new Color(0.95f, 0.8f, 0.35f),
                                 Color.white);
                             if (lordJob.RegisterConsumptionActionAndShouldCheckout(pId))
@@ -136,7 +136,7 @@ namespace SimManagementLib.SimAI
                     if (!blockedOnlyByMass)
                     {
                         CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.BrowseNoMatch);
-                        ShopBubbleUtility.ShowTextBubble(pawn, "没有合适的商品", new Color(0.88f, 0.88f, 0.88f));
+                        ShopBubbleUtility.ShowTextBubble(pawn, SimTranslation.T("RSMF.Bubble.NoSuitableGoods"), new Color(0.88f, 0.88f, 0.88f));
                     }
                     lordJob.MarkPawnReadyForCheckout(pId);
                     return;
@@ -176,7 +176,9 @@ namespace SimManagementLib.SimAI
                     ShopBubbleUtility.ShowThingBubble(
                         pawn,
                         itemToBuy,
-                        actualCount > 1 ? $"拿取 {itemToBuy.label} x{actualCount}" : $"拿取 {itemToBuy.label}",
+                        actualCount > 1
+                            ? SimTranslation.T("RSMF.Bubble.TakeItemCount", itemToBuy.label.Named("item"), actualCount.Named("count"))
+                            : SimTranslation.T("RSMF.Bubble.TakeItem", itemToBuy.label.Named("item")),
                         null,
                         Color.white);
                 }

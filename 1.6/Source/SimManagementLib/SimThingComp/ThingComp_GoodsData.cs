@@ -121,7 +121,7 @@ namespace SimManagementLib.SimThingComp
         public string GetAllowedGoodsCategoryLabelSummary()
         {
             List<string> allowed = GetAllowedGoodsCategoryIds();
-            if (allowed.Count <= 0) return "全部商品分类";
+            if (allowed.Count <= 0) return SimTranslation.T("RSMF.GoodsManager.AllGoodsCategories");
 
             List<string> labels = new List<string>();
             for (int i = 0; i < allowed.Count; i++)
@@ -131,7 +131,7 @@ namespace SimManagementLib.SimThingComp
                 labels.Add(string.IsNullOrEmpty(label) ? id : label);
             }
 
-            return string.Join("、", labels);
+            return string.Join(SimTranslation.T("RSMF.Common.ListSeparator"), labels);
         }
 
         /// <summary>

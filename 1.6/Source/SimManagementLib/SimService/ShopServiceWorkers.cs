@@ -1,4 +1,5 @@
 using SimManagementLib.Pojo;
+using SimManagementLib.Tool;
 using Verse;
 using Verse.AI;
 
@@ -17,29 +18,29 @@ namespace SimManagementLib.SimService
             failReason = "";
             if (customer == null || provider == null || provider.Destroyed || provider.Map == null)
             {
-                failReason = "马桶不可用";
+                failReason = SimTranslation.T("RSMF.ShopService.Fail.ToiletUnavailable");
                 return false;
             }
             if (!provider.Spawned || customer.Map != provider.Map)
             {
-                failReason = "马桶不在当前地图";
+                failReason = SimTranslation.T("RSMF.ShopService.Fail.ToiletWrongMap");
                 return false;
             }
 
             IntVec3 cell = GetUseCell(provider);
             if (!cell.IsValid || !cell.InBounds(provider.Map))
             {
-                failReason = "马桶位置无效";
+                failReason = SimTranslation.T("RSMF.ShopService.Fail.ToiletCellInvalid");
                 return false;
             }
             if (!cell.Standable(provider.Map))
             {
-                failReason = "马桶格不可站立";
+                failReason = SimTranslation.T("RSMF.ShopService.Fail.ToiletCellNotStandable");
                 return false;
             }
             if (!customer.CanReach(cell, PathEndMode.OnCell, Danger.Deadly))
             {
-                failReason = "顾客无法到达马桶";
+                failReason = SimTranslation.T("RSMF.ShopService.Fail.CustomerCannotReachToilet");
                 return false;
             }
 

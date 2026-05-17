@@ -60,12 +60,12 @@ namespace SimManagementLib.SimDialog
             Text.Font = GameFont.Medium;
             Text.Anchor = TextAnchor.MiddleLeft;
             GUI.color = Color.white;
-            Widgets.Label(new Rect(rect.x + 12f, rect.y, rect.width - 220f, rect.height), $"{zone.label.CapitalizeFirst()} 的店员配置");
+            Widgets.Label(new Rect(rect.x + 12f, rect.y, rect.width - 220f, rect.height), SimTranslation.T("RSMF.StaffManager.Title", zone.label.CapitalizeFirst().Named("shop")));
 
             Text.Font = GameFont.Tiny;
             Text.Anchor = TextAnchor.MiddleRight;
             GUI.color = zone.IsOpenNow() ? Ok : Warn;
-            Widgets.Label(new Rect(rect.x + 240f, rect.y + 2f, rect.width - 252f, rect.height), "营业状态: " + zone.GetOpenStatusMessage());
+            Widgets.Label(new Rect(rect.x + 240f, rect.y + 2f, rect.width - 252f, rect.height), SimTranslation.T("RSMF.StaffManager.OpenStatus", zone.GetOpenStatusMessage().Named("status")));
 
             ResetText();
         }
@@ -79,12 +79,12 @@ namespace SimManagementLib.SimDialog
             Rect titleRect = new Rect(rect.x + 10f, rect.y + 8f, rect.width - 20f, 24f);
             Text.Font = GameFont.Small;
             GUI.color = Color.white;
-            Widgets.Label(titleRect, "岗位列表");
+            Widgets.Label(titleRect, SimTranslation.T("RSMF.StaffManager.RoleList"));
 
             Rect infoRect = new Rect(rect.x + 10f, titleRect.yMax + 2f, rect.width - 20f, 20f);
             Text.Font = GameFont.Tiny;
             GUI.color = Dim;
-            Widgets.Label(infoRect, "岗位会根据店铺内已有建筑和岗位 Def 自动显示。");
+            Widgets.Label(infoRect, SimTranslation.T("RSMF.StaffManager.RoleListTip"));
 
             Rect outRect = new Rect(rect.x + 8f, infoRect.yMax + 6f, rect.width - 16f, rect.height - 70f);
             Rect viewRect = new Rect(0f, 0f, outRect.width - 16f, Mathf.Max(outRect.height, roles.Count * 84f));
@@ -107,10 +107,12 @@ namespace SimManagementLib.SimDialog
 
                 Text.Font = GameFont.Tiny;
                 GUI.color = Dim;
-                Widgets.Label(new Rect(row.x + 10f, row.y + 28f, row.width - 20f, 20f), role.description.NullOrEmpty() ? "无描述" : role.description);
+                Widgets.Label(new Rect(row.x + 10f, row.y + 28f, row.width - 20f, 20f), role.description.NullOrEmpty() ? SimTranslation.T("RSMF.Common.NoDescription") : role.description);
 
                 GUI.color = assigned.Count > 0 ? Ok : Warn;
-                Widgets.Label(new Rect(row.x + 10f, row.y + 48f, row.width - 20f, 20f), $"已分配: {assigned.Count}/{(role.MaxAssignedPawns <= 0 ? "无限" : role.MaxAssignedPawns.ToString())}");
+                Widgets.Label(new Rect(row.x + 10f, row.y + 48f, row.width - 20f, 20f), SimTranslation.T("RSMF.StaffManager.AssignedCount",
+                    assigned.Count.Named("assigned"),
+                    (role.MaxAssignedPawns <= 0 ? SimTranslation.T("RSMF.Common.Unlimited") : role.MaxAssignedPawns.ToString()).Named("max")));
 
                 if (Widgets.ButtonInvisible(row))
                     selectedRoleDefName = role.defName;
@@ -131,7 +133,7 @@ namespace SimManagementLib.SimDialog
                 Text.Font = GameFont.Small;
                 Text.Anchor = TextAnchor.MiddleCenter;
                 GUI.color = Dim;
-                Widgets.Label(rect, "请选择一个岗位");
+                Widgets.Label(rect, SimTranslation.T("RSMF.StaffManager.SelectRole"));
                 ResetText();
                 return;
             }
@@ -139,7 +141,7 @@ namespace SimManagementLib.SimDialog
             Rect titleRect = new Rect(rect.x + 12f, rect.y + 8f, rect.width - 24f, 24f);
             Text.Font = GameFont.Small;
             GUI.color = Color.white;
-            Widgets.Label(titleRect, $"{role.LabelCap} 候选店员");
+            Widgets.Label(titleRect, SimTranslation.T("RSMF.StaffManager.CandidateTitle", role.LabelCap.Named("role")));
 
             Rect searchRect = new Rect(rect.x + 12f, titleRect.yMax + 6f, 220f, 28f);
             searchText = Widgets.TextField(searchRect, searchText);
@@ -149,7 +151,8 @@ namespace SimManagementLib.SimDialog
             Text.Font = GameFont.Tiny;
             Text.Anchor = TextAnchor.MiddleLeft;
             GUI.color = assigned.Count > 0 ? Ok : Warn;
-            Widgets.Label(summaryRect, $"当前分配: {string.Join("、", assigned.Select(p => p.LabelShortCap).DefaultIfEmpty("未指定"))}");
+            Widgets.Label(summaryRect, SimTranslation.T("RSMF.StaffManager.CurrentAssigned",
+                string.Join(SimTranslation.T("RSMF.Common.ListSeparator"), assigned.Select(p => p.LabelShortCap).DefaultIfEmpty(SimTranslation.T("RSMF.StaffManager.Unassigned"))).Named("pawns")));
 
             IEnumerable<Pawn> pawns = ShopStaffUtility.GetAssignablePawns(zone.Map);
             if (!string.IsNullOrEmpty(searchText))
@@ -187,17 +190,19 @@ namespace SimManagementLib.SimDialog
 
                 Text.Font = GameFont.Tiny;
                 GUI.color = Dim;
-                string curJob = pawn.CurJobDef?.LabelCap.RawText ?? "空闲";
-                Widgets.Label(new Rect(infoRect.x, infoRect.y + 22f, infoRect.width, 18f), $"当前工作: {curJob}");
+                string curJob = pawn.CurJobDef?.LabelCap.RawText ?? SimTranslation.T("RSMF.StaffManager.Idle");
+                Widgets.Label(new Rect(infoRect.x, infoRect.y + 22f, infoRect.width, 18f), SimTranslation.T("RSMF.StaffManager.CurrentJob", curJob.Named("job")));
                 GUI.color = eligibility.Eligible ? Dim : Warn;
-                Widgets.Label(new Rect(infoRect.x, infoRect.y + 40f, infoRect.width, 18f), eligibility.Eligible ? $"地图: {pawn.Map?.info?.parent?.LabelCap ?? pawn.Map?.ToString() ?? "未知"}" : $"不可指派: {eligibility.Reason.Truncate(infoRect.width)}");
+                Widgets.Label(new Rect(infoRect.x, infoRect.y + 40f, infoRect.width, 18f), eligibility.Eligible
+                    ? SimTranslation.T("RSMF.StaffManager.MapLine", (pawn.Map?.info?.parent?.LabelCap ?? pawn.Map?.ToString() ?? SimTranslation.T("RSMF.Common.Unknown")).Named("map"))
+                    : SimTranslation.T("RSMF.StaffManager.Ineligible", eligibility.Reason.Truncate(infoRect.width).Named("reason")));
                 if (!eligibility.Eligible && !eligibility.Reason.NullOrEmpty())
                     TooltipHandler.TipRegion(new Rect(infoRect.x, infoRect.y + 40f, infoRect.width, 18f), eligibility.Reason);
 
                 Rect selectRect = new Rect(row.xMax - 174f, row.y + 22f, 54f, 30f);
                 Rect actionRect = new Rect(row.xMax - 112f, row.y + 22f, 104f, 30f);
 
-                if (SimUiStyle.DrawSecondaryButton(selectRect, "定位", pawn.Spawned, GameFont.Tiny))
+                if (SimUiStyle.DrawSecondaryButton(selectRect, SimTranslation.T("RSMF.Common.Locate"), pawn.Spawned, GameFont.Tiny))
                 {
                     Find.Selector.Select(pawn, playSound: false, forceDesignatorDeselect: false);
                     CameraJumper.TryJump(pawn.Position, pawn.Map);
@@ -205,12 +210,12 @@ namespace SimManagementLib.SimDialog
 
                 if (isAssigned)
                 {
-                    if (SimUiStyle.DrawDangerButton(actionRect, "移出岗位", true, GameFont.Tiny))
+                    if (SimUiStyle.DrawDangerButton(actionRect, SimTranslation.T("RSMF.StaffManager.RemoveRole"), true, GameFont.Tiny))
                         zone.RemoveAssignedPawn(role.defName, pawn);
                 }
                 else
                 {
-                    if (SimUiStyle.DrawPrimaryButton(actionRect, "加入岗位", canAssign, GameFont.Tiny))
+                    if (SimUiStyle.DrawPrimaryButton(actionRect, SimTranslation.T("RSMF.StaffManager.AddRole"), canAssign, GameFont.Tiny))
                         zone.AddAssignedPawn(role.defName, pawn, role.MaxAssignedPawns);
                 }
             }

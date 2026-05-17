@@ -10,7 +10,15 @@ namespace SimManagementLib.Tool
     /// </summary>
     public static class CustomerNeutralFactionUtility
     {
-        private const string CustomerFactionDefName = "SimShop_NeutralCustomerFaction";
+        internal const string CustomerFactionDefName = "SimShop_NeutralCustomerFaction";
+
+        /// <summary>
+        /// 判断指定派系是否为商店顾客专用中立派系，供生成、战斗和兼容补丁统一识别顾客身份。
+        /// </summary>
+        public static bool IsCustomerFaction(Faction faction)
+        {
+            return faction?.def != null && faction.def.defName == CustomerFactionDefName;
+        }
 
         /// <summary>
         /// 获取或创建商店顾客中立派系，并确保它与当前世界全部派系保持非敌对关系。
@@ -20,7 +28,7 @@ namespace SimManagementLib.Tool
             FactionDef factionDef = DefDatabase<FactionDef>.GetNamedSilentFail(CustomerFactionDefName);
             if (factionDef == null)
             {
-                Log.Error("[SimShop] 缺少商店顾客中立派系 Def: " + CustomerFactionDefName);
+                Log.Error("[SimShop] " + SimTranslation.T("RSMF.CustomerFaction.MissingDef", CustomerFactionDefName.Named("defName")));
                 return null;
             }
 
@@ -29,7 +37,7 @@ namespace SimManagementLib.Tool
             if (faction == null)
             {
                 faction = FactionGenerator.NewGeneratedFaction(new FactionGeneratorParms(factionDef, default, true));
-                faction.Name = "商店顾客";
+                faction.Name = SimTranslation.T("RSMF.CustomerFaction.Name");
                 faction.hidden = true;
                 faction.temporary = true;
                 Find.FactionManager.Add(faction);

@@ -110,9 +110,9 @@ namespace SimManagementLib.SimDialog
 
             Rect titleRect = new Rect(rect.x, rect.y, rect.width, 36f);
             Text.Font = GameFont.Small; Text.Anchor = TextAnchor.MiddleCenter; GUI.color = Color.white;
-            Widgets.Label(titleRect, comp.HasGoodsCategoryRestriction ? "可售分类" : "分类导航");
+            Widgets.Label(titleRect, comp.HasGoodsCategoryRestriction ? SimTranslation.T("RSMF.GoodsManager.AvailableCategories") : SimTranslation.T("RSMF.GoodsManager.CategoryNav"));
             if (comp.HasGoodsCategoryRestriction)
-                TooltipHandler.TipRegion(titleRect, "该货柜只允许选择：" + comp.GetAllowedGoodsCategoryLabelSummary());
+                TooltipHandler.TipRegion(titleRect, SimTranslation.T("RSMF.GoodsManager.RestrictionTip", comp.GetAllowedGoodsCategoryLabelSummary().Named("labels")));
             Widgets.DrawLineHorizontal(rect.x + 10f, titleRect.yMax, rect.width - 20f);
 
             Rect outR = new Rect(rect.x, titleRect.yMax + 4f, rect.width, rect.height - 40f);
@@ -143,7 +143,7 @@ namespace SimManagementLib.SimDialog
             if (Mouse.IsOver(clearR) && !string.IsNullOrEmpty(draftActiveDefName))
                 Widgets.DrawBoxSolid(clearR, CSideHov);
             Text.Font = GameFont.Tiny; Text.Anchor = TextAnchor.MiddleCenter; GUI.color = new Color(0.6f, 0.6f, 0.6f);
-            Widgets.Label(clearR, "— 清除选择 —");
+            Widgets.Label(clearR, SimTranslation.T("RSMF.GoodsManager.ClearSelection"));
             if (Widgets.ButtonInvisible(clearR) && !string.IsNullOrEmpty(draftActiveDefName))
                 TrySwitchDef("");
 
@@ -157,7 +157,7 @@ namespace SimManagementLib.SimDialog
             if (def == null)
             {
                 Text.Anchor = TextAnchor.MiddleCenter; GUI.color = new Color(0.5f, 0.5f, 0.5f);
-                string text = allDefs.Count > 0 ? "请在左侧选择需要管理的货品分类" : "该货柜没有可用的货品分类";
+                string text = allDefs.Count > 0 ? SimTranslation.T("RSMF.GoodsManager.SelectCategoryFirst") : SimTranslation.T("RSMF.GoodsManager.NoCategories");
                 Widgets.Label(rect, text);
                 Text.Anchor = TextAnchor.UpperLeft; GUI.color = Color.white;
                 return;
@@ -168,7 +168,7 @@ namespace SimManagementLib.SimDialog
             if (string.IsNullOrEmpty(searchQuery))
             {
                 GUI.color = new Color(0.5f, 0.5f, 0.5f);
-                Widgets.Label(new Rect(searchR.x + 6f, searchR.y + 2f, 190f, 24f), "搜索物品...");
+                Widgets.Label(new Rect(searchR.x + 6f, searchR.y + 2f, 190f, 24f), SimTranslation.T("RSMF.GoodsManager.SearchPlaceholder"));
                 GUI.color = Color.white;
             }
 
@@ -179,7 +179,9 @@ namespace SimManagementLib.SimDialog
             if (storage != null)
             {
                 int targetTotal = GetDraftTargetTotal(def);
-                string capText = $"目标总量: {targetTotal}/{storage.MaxTotalCapacity}";
+                string capText = SimTranslation.T("RSMF.GoodsManager.TargetTotal",
+                    targetTotal.Named("current"),
+                    storage.MaxTotalCapacity.Named("max"));
                 Text.Anchor = TextAnchor.MiddleRight;
                 Text.Font = GameFont.Tiny;
                 GUI.color = targetTotal <= storage.MaxTotalCapacity ? CStockOk : CStockNo;
@@ -211,13 +213,13 @@ namespace SimManagementLib.SimDialog
 
             float curX = rect.xMax - RowPad;
 
-            curX -= FieldW; Widgets.Label(new Rect(curX, rect.y, FieldW, rect.height), "单价(银)"); curX -= ColGap;
-            curX -= FieldW; Widgets.Label(new Rect(curX, rect.y, FieldW, rect.height), "目标量"); curX -= ColGap;
-            curX -= SliderW; Widgets.Label(new Rect(curX, rect.y, SliderW, rect.height), "快速调节"); curX -= ColGap;
-            curX -= StockW; Widgets.Label(new Rect(curX, rect.y, StockW, rect.height), "当前库存"); curX -= ColGap;
+            curX -= FieldW; Widgets.Label(new Rect(curX, rect.y, FieldW, rect.height), SimTranslation.T("RSMF.GoodsManager.Header.Price")); curX -= ColGap;
+            curX -= FieldW; Widgets.Label(new Rect(curX, rect.y, FieldW, rect.height), SimTranslation.T("RSMF.GoodsManager.Header.Target")); curX -= ColGap;
+            curX -= SliderW; Widgets.Label(new Rect(curX, rect.y, SliderW, rect.height), SimTranslation.T("RSMF.GoodsManager.Header.Slider")); curX -= ColGap;
+            curX -= StockW; Widgets.Label(new Rect(curX, rect.y, StockW, rect.height), SimTranslation.T("RSMF.GoodsManager.Header.Stock")); curX -= ColGap;
 
             float leftStart = rect.x + RowPad + CheckSz + ColGap + IconSz + ColGap;
-            Widgets.Label(new Rect(leftStart, rect.y, curX - leftStart, rect.height), "货品名称");
+            Widgets.Label(new Rect(leftStart, rect.y, curX - leftStart, rect.height), SimTranslation.T("RSMF.GoodsManager.Header.Name"));
 
             Widgets.DrawLineHorizontal(rect.x, rect.yMax - 1f, rect.width);
             Text.Font = GameFont.Small; Text.Anchor = TextAnchor.UpperLeft; GUI.color = Color.white;
@@ -278,7 +280,7 @@ namespace SimManagementLib.SimDialog
                     d.priceBuffer = d.price.ToString("F0");
                 }
                 Widgets.TextFieldNumeric(new Rect(rightX, ctrlY, FieldW, 24f), ref d.price, ref d.priceBuffer, 0f, 99999f);
-                TooltipHandler.TipRegion(new Rect(rightX, ctrlY, FieldW, 24f), "参考市价: " + td.BaseMarketValue.ToString("F1") + " 银");
+                TooltipHandler.TipRegion(new Rect(rightX, ctrlY, FieldW, 24f), SimTranslation.T("RSMF.GoodsManager.PriceTip", td.BaseMarketValue.ToString("F1").Named("value")));
             }
             else { DrawDisabledDash(new Rect(rightX, row.y, FieldW, RowH)); }
             rightX -= ColGap;
@@ -345,7 +347,7 @@ namespace SimManagementLib.SimDialog
             Text.Font = GameFont.Tiny; Text.Anchor = TextAnchor.MiddleCenter;
             GUI.color = new Color(1f, 0.8f, 0.4f);
             string names = string.Join(", ", pendingEvict.Select(t => t.LabelCap));
-            Widgets.Label(rect, $"⚠️ 注意：保存后以下物品将被移出仓库：{names.Truncate(rect.width - 100f)}");
+            Widgets.Label(rect, SimTranslation.T("RSMF.GoodsManager.PendingEvictWarning", names.Truncate(rect.width - 100f).Named("names")));
             GUI.color = Color.white; Text.Font = GameFont.Small; Text.Anchor = TextAnchor.UpperLeft;
         }
 
@@ -362,7 +364,9 @@ namespace SimManagementLib.SimDialog
             if (storage != null && activeDef != null)
             {
                 int total = GetDraftTargetTotal(activeDef);
-                string text = $"容量: {total}/{storage.MaxTotalCapacity}";
+                string text = SimTranslation.T("RSMF.GoodsManager.CapacityText",
+                    total.Named("current"),
+                    storage.MaxTotalCapacity.Named("max"));
                 Text.Font = GameFont.Tiny;
                 Text.Anchor = TextAnchor.MiddleRight;
                 GUI.color = total <= storage.MaxTotalCapacity ? CStockOk : CStockNo;
@@ -374,23 +378,23 @@ namespace SimManagementLib.SimDialog
 
             if (!string.IsNullOrEmpty(draftActiveDefName))
             {
-                if (SimUiStyle.DrawSecondaryButton(new Rect(rect.x + 10f, btnY, 100f, 30f), "全选当前页", true, GameFont.Tiny))
+                if (SimUiStyle.DrawSecondaryButton(new Rect(rect.x + 10f, btnY, 100f, 30f), SimTranslation.T("RSMF.GoodsManager.SelectAllPage"), true, GameFont.Tiny))
                     ToggleAllCurrentDef(true);
-                if (SimUiStyle.DrawSecondaryButton(new Rect(rect.x + 118f, btnY, 100f, 30f), "清空当前页", true, GameFont.Tiny))
+                if (SimUiStyle.DrawSecondaryButton(new Rect(rect.x + 118f, btnY, 100f, 30f), SimTranslation.T("RSMF.GoodsManager.ClearAllPage"), true, GameFont.Tiny))
                     ToggleAllCurrentDef(false);
             }
 
-            if (SimUiStyle.DrawPrimaryButton(new Rect(rect.xMax - 110f, btnY, 100f, 30f), "确认保存", true, GameFont.Tiny))
+            if (SimUiStyle.DrawPrimaryButton(new Rect(rect.xMax - 110f, btnY, 100f, 30f), SimTranslation.T("RSMF.GoodsManager.Save"), true, GameFont.Tiny))
             {
                 int trimmed = ClampDraftCapacity(activeDef);
                 if (trimmed > 0)
                 {
-                    Messages.Message($"已按货柜容量上限自动调整目标量，超出部分 {trimmed} 件已移除。", MessageTypeDefOf.NeutralEvent, false);
+                    Messages.Message(SimTranslation.T("RSMF.GoodsManager.AutoTrimNotice", trimmed.Named("trimmed")), MessageTypeDefOf.NeutralEvent, false);
                 }
                 comp.ApplySettings(draftActiveDefName, draftItemData);
                 Close();
             }
-            if (SimUiStyle.DrawSecondaryButton(new Rect(rect.xMax - 220f, btnY, 100f, 30f), "取消", true, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(rect.xMax - 220f, btnY, 100f, 30f), SimTranslation.T("RSMF.GoodsManager.Cancel"), true, GameFont.Tiny))
                 Close();
         }
 
@@ -403,13 +407,13 @@ namespace SimManagementLib.SimDialog
             Text.Anchor = TextAnchor.MiddleLeft;
             float lx = rect.x;
             GUI.color = CStockOk;
-            Widgets.Label(new Rect(lx, rect.y, 48f, rect.height), "■ 充足");
+            Widgets.Label(new Rect(lx, rect.y, 48f, rect.height), SimTranslation.T("RSMF.GoodsManager.StockOk"));
             lx += 50f;
             GUI.color = CStockLow;
-            Widgets.Label(new Rect(lx, rect.y, 48f, rect.height), "■ 不足");
+            Widgets.Label(new Rect(lx, rect.y, 48f, rect.height), SimTranslation.T("RSMF.GoodsManager.StockLow"));
             lx += 50f;
             GUI.color = CStockNo;
-            Widgets.Label(new Rect(lx, rect.y, 48f, rect.height), "■ 缺货");
+            Widgets.Label(new Rect(lx, rect.y, 48f, rect.height), SimTranslation.T("RSMF.GoodsManager.StockNo"));
             GUI.color = Color.white;
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.UpperLeft;
@@ -437,7 +441,7 @@ namespace SimManagementLib.SimDialog
             int trimmed = ClampDraftCapacity(def);
             if (trimmed > 0)
             {
-                Messages.Message($"已按货柜容量上限自动调整目标量，超出部分 {trimmed} 件已移除。", MessageTypeDefOf.NeutralEvent, false);
+                Messages.Message(SimTranslation.T("RSMF.GoodsManager.AutoTrimNotice", trimmed.Named("trimmed")), MessageTypeDefOf.NeutralEvent, false);
             }
         }
 
@@ -507,7 +511,7 @@ namespace SimManagementLib.SimDialog
         {
             if (!string.IsNullOrEmpty(newDefName) && !comp.AllowsGoodsCategory(newDefName))
             {
-                Messages.Message("该货柜不能售卖这个商品分类。", MessageTypeDefOf.RejectInput, false);
+                Messages.Message(SimTranslation.T("RSMF.GoodsManager.InvalidCategory"), MessageTypeDefOf.RejectInput, false);
                 return;
             }
 

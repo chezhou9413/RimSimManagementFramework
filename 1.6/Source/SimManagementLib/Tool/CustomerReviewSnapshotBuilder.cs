@@ -59,13 +59,13 @@ namespace SimManagementLib.Tool
                 tickAbs = Find.TickManager.TicksAbs,
                 gameDay = GenDate.DaysPassed,
                 zoneId = shopZone?.ID ?? lordJob.targetShopZoneId,
-                zoneLabel = shopZone?.label ?? ("商店 #" + lordJob.targetShopZoneId),
+                zoneLabel = shopZone?.label ?? SimTranslation.T("RSMF.CustomerReview.Snapshot.ShopNumber", lordJob.targetShopZoneId.Named("id")),
                 customerDisplayName = pawn.LabelShortCap,
                 spentSilver = spent,
                 kindId = lordJob.customerKindId ?? "",
-                kindLabel = lordJob.RuntimeCustomerKind?.label ?? lordJob.customerKind?.label ?? lordJob.customerKindId ?? "未知顾客",
+                kindLabel = lordJob.RuntimeCustomerKind?.label ?? lordJob.customerKind?.label ?? lordJob.customerKindId ?? SimTranslation.T("RSMF.CustomerReview.Snapshot.UnknownCustomer"),
                 kindDescription = BuildKindDescription(lordJob),
-                raceLabel = pawn.def?.label ?? "未知种族",
+                raceLabel = pawn.def?.label ?? SimTranslation.T("RSMF.CustomerReview.Snapshot.UnknownRace"),
                 raceDescription = BuildRaceDescription(pawn),
                 ageSummary = BuildAgeSummary(pawn),
                 backstorySummary = BuildBackstorySummary(pawn),
@@ -82,7 +82,15 @@ namespace SimManagementLib.Tool
                 shopEnvironmentSummary = BuildEnvironmentSummary(shopZone),
                 cashierSummary = BuildCashierSummary(pawn),
                 checkoutJobSummary = BuildCheckoutJobSummary(pawn, lordJob, publicCheckoutResult),
-                postPurchaseSummary = paid ? BuildPostPurchaseSummary(lordJob, pawnId) : "没有完成付款，没有进入购后流程。",
+                postPurchaseSummary = paid ? BuildPostPurchaseSummary(lordJob, pawnId) : SimTranslation.T("RSMF.CustomerReview.Snapshot.NoPostPurchaseUnpaid"),
+                roomSummary = BuildRoomSummary(pawn, shopZone),
+                relationSummary = BuildRelationSummary(pawn),
+                weatherSummary = BuildWeatherSummary(pawn.Map),
+                gameConditionSummary = BuildGameConditionSummary(pawn.Map),
+                colonyWealthSummary = BuildColonyWealthSummary(pawn.Map),
+                colonyShopSummary = BuildColonyShopSummary(pawn.Map),
+                colonyLeaderSummary = BuildColonyLeaderSummary(pawn.Map),
+                colonyCultureSummary = BuildColonyCultureSummary(),
                 featuredItems = featuredItems,
                 avatarImageId = avatarId
             };
@@ -115,12 +123,14 @@ namespace SimManagementLib.Tool
             if (!paid)
             {
                 return cartValue > 0f
-                    ? $"原本选了约 {cartValue:F0} 银的商品，但没有付款成功，商品已放回店里。"
-                    : "没有购买商品，也没有付款。";
+                    ? SimTranslation.T("RSMF.CustomerReview.Snapshot.CartReturnedUnpaid", cartValue.ToString("F0").Named("cartValue"))
+                    : SimTranslation.T("RSMF.CustomerReview.Snapshot.NoPurchaseNoPayment");
             }
 
             if (billLines.NullOrEmpty())
-                return spent > 0f ? $"支付了 {spent:F0} 银，但没有记录到具体商品。" : "没有购买商品。";
+                return spent > 0f
+                    ? SimTranslation.T("RSMF.CustomerReview.Snapshot.PaidNoLineItems", spent.ToString("F0").Named("spent"))
+                    : SimTranslation.T("RSMF.CustomerReview.Snapshot.NoPurchase");
 
             List<string> parts = new List<string>();
             for (int i = 0; i < billLines.Count && i < 6; i++)
@@ -128,14 +138,14 @@ namespace SimManagementLib.Tool
                 FinanceLineItem line = billLines[i];
                 if (line == null) continue;
                 string name = string.IsNullOrEmpty(line.label) ? line.defName : line.label;
-                parts.Add($"{name} x{line.count}，{line.amount:F0} 银，说明: {BuildLineDescription(line)}");
+                parts.Add(SimTranslation.T("RSMF.CustomerReview.Snapshot.PurchaseLine", name.Named("name"), line.count.Named("count"), line.amount.ToString("F0").Named("amount"), BuildLineDescription(line).Named("description")));
             }
-            return string.Join("；", parts);
+            return string.Join(SimTranslation.T("RSMF.Common.SemicolonSeparator"), parts);
         }
 
         private static string BuildServiceSummary(List<CustomerServiceOrder> orders, string checkoutResult)
         {
-            if (orders.NullOrEmpty()) return "未使用服务，结账结果：" + checkoutResult;
+            if (orders.NullOrEmpty()) return SimTranslation.T("RSMF.CustomerReview.Snapshot.NoServiceWithCheckout", checkoutResult.Named("checkoutResult"));
             List<string> parts = new List<string>();
             for (int i = 0; i < orders.Count && i < 6; i++)
             {
@@ -143,9 +153,15 @@ namespace SimManagementLib.Tool
                 if (order == null) continue;
                 string label = string.IsNullOrEmpty(order.providerLabel) ? order.serviceDefName : order.providerLabel;
                 int wait = order.startedTick > 0 && order.reservedTick > 0 ? Math.Max(0, order.startedTick - order.reservedTick) : 0;
-                parts.Add($"{label} {BuildServiceStateText(order.state)}，等待 {FormatTicks(wait)}，费用 {order.totalPrice:F0} 银，说明: {BuildServiceDescription(order)}");
+                parts.Add(SimTranslation.T(
+                    "RSMF.CustomerReview.Snapshot.ServiceLine",
+                    label.Named("label"),
+                    BuildServiceStateText(order.state).Named("state"),
+                    FormatTicks(wait).Named("wait"),
+                    order.totalPrice.ToString("F0").Named("price"),
+                    BuildServiceDescription(order).Named("description")));
             }
-            return string.Join("；", parts);
+            return string.Join(SimTranslation.T("RSMF.Common.SemicolonSeparator"), parts);
         }
 
         /// <summary>
@@ -154,35 +170,35 @@ namespace SimManagementLib.Tool
         private static string BuildKindDescription(LordJob_CustomerVisit lordJob)
         {
             if (lordJob == null)
-                return "无顾客类型说明";
+                return SimTranslation.T("RSMF.CustomerReview.Snapshot.NoCustomerKindDescription");
 
             List<string> parts = new List<string>();
             if (lordJob.RuntimeCustomerKind != null)
             {
                 var kind = lordJob.RuntimeCustomerKind;
-                parts.Add("顾客类型 " + (kind.label ?? kind.kindId ?? "未知"));
-                parts.Add($"预算范围 {kind.budgetRange.min}-{kind.budgetRange.max} 银");
-                parts.Add($"排队耐心 {kind.queuePatienceRange.min}-{kind.queuePatienceRange.max} ticks");
+                parts.Add(SimTranslation.T("RSMF.CustomerReview.Snapshot.CustomerKind", (kind.label ?? kind.kindId ?? SimTranslation.T("RSMF.Common.Unknown")).Named("label")));
+                parts.Add(SimTranslation.T("RSMF.CustomerReview.Snapshot.BudgetRange", kind.budgetRange.min.Named("min"), kind.budgetRange.max.Named("max")));
+                parts.Add(SimTranslation.T("RSMF.CustomerReview.Snapshot.QueuePatienceRange", kind.queuePatienceRange.min.Named("min"), kind.queuePatienceRange.max.Named("max")));
                 if (!kind.targetGoodsCategoryIds.NullOrEmpty())
-                    parts.Add("目标商品分类 " + string.Join("、", kind.targetGoodsCategoryIds.Take(8)));
+                    parts.Add(SimTranslation.T("RSMF.CustomerReview.Snapshot.TargetGoodsCategories", string.Join(SimTranslation.T("RSMF.Common.ListSeparator"), kind.targetGoodsCategoryIds.Take(8)).Named("value")));
                 if (!kind.targetServiceCategoryIds.NullOrEmpty())
-                    parts.Add("目标服务分类 " + string.Join("、", kind.targetServiceCategoryIds.Take(8)));
+                    parts.Add(SimTranslation.T("RSMF.CustomerReview.Snapshot.TargetServiceCategories", string.Join(SimTranslation.T("RSMF.Common.ListSeparator"), kind.targetServiceCategoryIds.Take(8)).Named("value")));
                 if (!kind.itemPreferences.NullOrEmpty())
-                    parts.Add("物品偏好 " + string.Join("、", kind.itemPreferences.Select(p => p?.preferredThing?.label ?? p?.preferredGoodsCategoryId).Where(s => !string.IsNullOrEmpty(s)).Take(8)));
+                    parts.Add(SimTranslation.T("RSMF.CustomerReview.Snapshot.ItemPreferences", string.Join(SimTranslation.T("RSMF.Common.ListSeparator"), kind.itemPreferences.Select(p => p?.preferredThing?.label ?? p?.preferredGoodsCategoryId).Where(s => !string.IsNullOrEmpty(s)).Take(8)).Named("value")));
             }
             else if (lordJob.customerKind != null)
             {
                 var kind = lordJob.customerKind;
-                parts.Add("顾客类型 " + kind.LabelCap.RawText);
-                parts.Add($"预算范围 {kind.budgetRange.min}-{kind.budgetRange.max} 银");
-                parts.Add($"排队耐心 {kind.queuePatienceRange.min}-{kind.queuePatienceRange.max} ticks");
+                parts.Add(SimTranslation.T("RSMF.CustomerReview.Snapshot.CustomerKind", kind.LabelCap.RawText.Named("label")));
+                parts.Add(SimTranslation.T("RSMF.CustomerReview.Snapshot.BudgetRange", kind.budgetRange.min.Named("min"), kind.budgetRange.max.Named("max")));
+                parts.Add(SimTranslation.T("RSMF.CustomerReview.Snapshot.QueuePatienceRange", kind.queuePatienceRange.min.Named("min"), kind.queuePatienceRange.max.Named("max")));
                 if (!kind.GetTargetGoodsCategoryIds().NullOrEmpty())
-                    parts.Add("目标商品分类 " + string.Join("、", kind.GetTargetGoodsCategoryIds().Take(8)));
+                    parts.Add(SimTranslation.T("RSMF.CustomerReview.Snapshot.TargetGoodsCategories", string.Join(SimTranslation.T("RSMF.Common.ListSeparator"), kind.GetTargetGoodsCategoryIds().Take(8)).Named("value")));
                 if (!kind.GetTargetServiceCategoryIds().NullOrEmpty())
-                    parts.Add("目标服务分类 " + string.Join("、", kind.GetTargetServiceCategoryIds().Take(8)));
+                    parts.Add(SimTranslation.T("RSMF.CustomerReview.Snapshot.TargetServiceCategories", string.Join(SimTranslation.T("RSMF.Common.ListSeparator"), kind.GetTargetServiceCategoryIds().Take(8)).Named("value")));
             }
 
-            return parts.Count > 0 ? string.Join("；", parts) : "无顾客类型说明";
+            return parts.Count > 0 ? string.Join(SimTranslation.T("RSMF.Common.SemicolonSeparator"), parts) : SimTranslation.T("RSMF.CustomerReview.Snapshot.NoCustomerKindDescription");
         }
 
         /// <summary>
@@ -191,23 +207,23 @@ namespace SimManagementLib.Tool
         private static string BuildLineDescription(FinanceLineItem line)
         {
             if (line == null)
-                return "无说明";
+                return SimTranslation.T("RSMF.Common.NoDescription");
 
             if (line.EffectiveLineType == FinanceLineTypes.Product && !string.IsNullOrEmpty(line.defName))
             {
                 ThingDef def = DefDatabase<ThingDef>.GetNamedSilentFail(line.defName);
                 if (def != null)
-                    return TrimForPrompt(def.description ?? def.DescriptionDetailed ?? "", 180, "无商品说明");
+                    return TrimForPrompt(def.description ?? def.DescriptionDetailed ?? "", 180, SimTranslation.T("RSMF.CustomerReview.Snapshot.NoProductDescription"));
             }
 
             if (line.EffectiveLineType == FinanceLineTypes.Service && !string.IsNullOrEmpty(line.defName))
             {
                 ShopServiceDef service = DefDatabase<ShopServiceDef>.GetNamedSilentFail(line.defName);
                 if (service != null)
-                    return TrimForPrompt(service.description, 180, "无服务说明");
+                    return TrimForPrompt(service.description, 180, SimTranslation.T("RSMF.CustomerReview.Snapshot.NoServiceDescription"));
             }
 
-            return line.EffectiveLineType == FinanceLineTypes.Combo ? "套餐项目，具体内容由店铺组合定义。" : "无说明";
+            return line.EffectiveLineType == FinanceLineTypes.Combo ? SimTranslation.T("RSMF.CustomerReview.Snapshot.ComboLineDescription") : SimTranslation.T("RSMF.Common.NoDescription");
         }
 
         /// <summary>
@@ -557,6 +573,242 @@ namespace SimManagementLib.Tool
             ShopMetricsSnapshot metrics = analytics?.GetOrEvaluateShopMetrics(shopZone);
             if (metrics == null) return shopZone.GetValidationMessage();
             return $"环境参考数值: 综合 {metrics.score:F1}，口碑 {metrics.reputation:F1}，满意度 {metrics.satisfaction:F1}，美观 {metrics.beautyAverage:F1}。这些只是背景数值，不要求每条评价都提环境。";
+        }
+
+        /// <summary>
+        /// 构造原版天气摘要，负责提供当前天气、雨雪风和移动/命中影响。
+        /// </summary>
+        private static string BuildWeatherSummary(Map map)
+        {
+            WeatherManager weather = map?.weatherManager;
+            if (weather == null)
+                return "没有可用天气数据。";
+
+            WeatherDef perceived = weather.CurWeatherPerceived ?? weather.curWeather;
+            string label = perceived?.LabelCap.Resolve() ?? perceived?.label ?? "未知天气";
+            List<string> parts = new List<string>
+            {
+                "当前天气 " + label,
+                "持续 " + FormatTicks(weather.curWeatherAge),
+                "雨量 " + weather.RainRate.ToString("F2"),
+                "雪量 " + weather.SnowRate.ToString("F2"),
+                "风速系数 " + weather.CurWindSpeedFactor.ToString("F2"),
+                "移动倍率 " + weather.CurMoveSpeedMultiplier.ToString("F2"),
+                "命中倍率 " + weather.CurWeatherAccuracyMultiplier.ToString("F2")
+            };
+            if (!string.IsNullOrWhiteSpace(perceived?.description))
+                parts.Add("说明: " + TrimForPrompt(perceived.description, 160, ""));
+            return string.Join("；", parts);
+        }
+
+        /// <summary>
+        /// 构造当前原版事件摘要，负责提供正在影响地图的 GameCondition。
+        /// </summary>
+        private static string BuildGameConditionSummary(Map map)
+        {
+            List<GameCondition> conditions = map?.gameConditionManager?.ActiveConditions;
+            if (conditions.NullOrEmpty())
+                return "当前没有显著持续事件。";
+
+            List<string> parts = new List<string>();
+            for (int i = 0; i < conditions.Count && parts.Count < 6; i++)
+            {
+                GameCondition condition = conditions[i];
+                if (condition?.def == null)
+                    continue;
+
+                string duration = condition.Permanent ? "永久" : "剩余 " + FormatTicks(Math.Max(0, condition.TicksLeft));
+                string desc = TrimForPrompt(condition.Description, 120, "");
+                parts.Add(string.IsNullOrWhiteSpace(desc)
+                    ? condition.LabelCap + "，" + duration
+                    : condition.LabelCap + "，" + duration + "，说明: " + desc);
+            }
+            return parts.Count > 0 ? string.Join("；", parts) : "当前没有显著持续事件。";
+        }
+
+        /// <summary>
+        /// 构造殖民地财富摘要，负责提供讲述者财富拆分和人口规模背景。
+        /// </summary>
+        private static string BuildColonyWealthSummary(Map map)
+        {
+            WealthWatcher wealth = map?.wealthWatcher;
+            if (wealth == null)
+                return "没有可用财富数据。";
+
+            int freeColonists = map.mapPawns?.FreeColonistsSpawnedCount ?? 0;
+            return $"总财富 {wealth.WealthTotal:F0}，物品 {wealth.WealthItems:F0}，建筑 {wealth.WealthBuildings:F0}，角色 {wealth.WealthPawns:F0}，殖民者 {freeColonists} 人。财富只是背景，不要求评价主动提。";
+        }
+
+        /// <summary>
+        /// 构造殖民地商店数量摘要，负责让模型知道当前商业规模。
+        /// </summary>
+        private static string BuildColonyShopSummary(Map map)
+        {
+            if (map?.zoneManager?.AllZones == null)
+                return "没有可用商店数量数据。";
+
+            List<Zone_Shop> shops = map.zoneManager.AllZones.OfType<Zone_Shop>().ToList();
+            int valid = shops.Count(z => z != null && z.IsValidShop());
+            int open = shops.Count(z => z != null && z.IsValidShop() && z.IsOpenNow());
+            string labels = string.Join("、", shops.Where(z => z != null).Select(z => z.label).Where(s => !string.IsNullOrWhiteSpace(s)).Take(6));
+            return $"商店区域 {shops.Count} 个，有效商店 {valid} 个，当前开业 {open} 个" + (string.IsNullOrWhiteSpace(labels) ? "。" : "，名称: " + labels + "。");
+        }
+
+        /// <summary>
+        /// 构造殖民地领袖摘要，负责提供派系领袖或实际社交代表。
+        /// </summary>
+        private static string BuildColonyLeaderSummary(Map map)
+        {
+            Pawn leader = Faction.OfPlayerSilentFail?.leader;
+            string source = "派系领袖";
+            if (leader == null || leader.Destroyed)
+            {
+                leader = map?.mapPawns?.FreeColonistsSpawned
+                    .Where(p => p != null)
+                    .OrderByDescending(p => p.skills?.GetSkill(SkillDefOf.Social)?.Level ?? 0)
+                    .FirstOrDefault();
+                source = "本地图社交代表";
+            }
+
+            if (leader == null)
+                return "没有可用殖民地领袖数据。";
+
+            int social = leader.skills?.GetSkill(SkillDefOf.Social)?.Level ?? 0;
+            string title = Faction.OfPlayerSilentFail?.LeaderTitle ?? "无头衔";
+            return $"{source}: {leader.LabelShortCap}，头衔 {title}，社交 {social}，背景 {BuildBackstorySummary(leader)}，特性 {BuildTraitSummary(leader)}。";
+        }
+
+        /// <summary>
+        /// 构造殖民地文化摘要，负责提供 Ideology 文化、信仰和主要模因。
+        /// </summary>
+        private static string BuildColonyCultureSummary()
+        {
+            if (!ModsConfig.IdeologyActive)
+                return "未启用文化/信仰资料。";
+
+            Ideo ideo = Faction.OfPlayerSilentFail?.ideos?.PrimaryIdeo;
+            if (ideo == null)
+                return "没有可用殖民地文化数据。";
+
+            string culture = ideo.culture?.LabelCap.Resolve() ?? ideo.culture?.label ?? "未知文化";
+            string memes = ideo.memes.NullOrEmpty()
+                ? "无显著模因"
+                : string.Join("、", ideo.memes.Where(m => m != null).Select(m => m.LabelCap.Resolve()).Take(6));
+            return $"主要信仰 {ideo.name}，文化 {culture}，成员称呼 {ideo.memberName}，模因 {memes}。这些只作为殖民地氛围背景。";
+        }
+
+        /// <summary>
+        /// 构造原版房间摘要，负责把顾客所在房间或商店区域的类型、室内外和房间属性喂给模型。
+        /// </summary>
+        private static string BuildRoomSummary(Pawn pawn, Zone_Shop shopZone)
+        {
+            Room room = pawn?.GetRoom();
+            if (room == null && shopZone != null && shopZone.Cells.Count > 0)
+                room = shopZone.Cells.First().GetRoom(shopZone.Map);
+            if (room == null)
+                return "没有可用房间数据。";
+
+            List<string> parts = new List<string>();
+            parts.Add("房间类型 " + SafeRoomRoleLabel(room));
+            parts.Add("大小 " + room.CellCount + " 格");
+            parts.Add(room.PsychologicallyOutdoors ? "心理上属于室外" : "心理上属于室内");
+            parts.Add(room.TouchesMapEdge ? "连接地图边缘" : "不连接地图边缘");
+            parts.Add("温度 " + room.Temperature.ToString("F1") + "℃");
+            parts.Add("美观 " + SafeRoomStat(room, RoomStatDefOf.Beauty).ToString("F1"));
+            parts.Add("财富 " + SafeRoomStat(room, RoomStatDefOf.Wealth).ToString("F0"));
+            parts.Add("空间 " + SafeRoomStat(room, RoomStatDefOf.Space).ToString("F1"));
+            parts.Add("清洁 " + SafeRoomStat(room, RoomStatDefOf.Cleanliness).ToString("F2"));
+            parts.Add("印象 " + SafeRoomStat(room, RoomStatDefOf.Impressiveness).ToString("F1"));
+            return string.Join("；", parts);
+        }
+
+        /// <summary>
+        /// 构造房间类型文本，负责避免房间角色 API 异常影响快照生成。
+        /// </summary>
+        private static string SafeRoomRoleLabel(Room room)
+        {
+            try
+            {
+                return room?.GetRoomRoleLabel() ?? "未知";
+            }
+            catch
+            {
+                return room?.Role?.label ?? "未知";
+            }
+        }
+
+        /// <summary>
+        /// 安全读取房间属性，负责避免部分房间或属性缺失导致快照生成失败。
+        /// </summary>
+        private static float SafeRoomStat(Room room, RoomStatDef stat)
+        {
+            if (room == null || stat == null)
+                return 0f;
+            try
+            {
+                return room.GetStat(stat);
+            }
+            catch
+            {
+                return 0f;
+            }
+        }
+
+        /// <summary>
+        /// 构造原版关系摘要，负责把顾客和地图上其他角色的关系与好感作为可选判断背景。
+        /// </summary>
+        private static string BuildRelationSummary(Pawn pawn)
+        {
+            if (pawn?.relations == null)
+                return "没有可用关系数据。";
+
+            List<string> parts = new List<string>();
+            if (!pawn.relations.DirectRelations.NullOrEmpty())
+            {
+                for (int i = 0; i < pawn.relations.DirectRelations.Count && parts.Count < 6; i++)
+                {
+                    DirectPawnRelation relation = pawn.relations.DirectRelations[i];
+                    if (relation?.def == null || relation.otherPawn == null)
+                        continue;
+
+                    string other = relation.otherPawn.LabelShortCap;
+                    int opinion = 0;
+                    try
+                    {
+                        opinion = pawn.relations.OpinionOf(relation.otherPawn);
+                    }
+                    catch
+                    {
+                        opinion = 0;
+                    }
+                    parts.Add($"{relation.def.GetGenderSpecificLabelCap(relation.otherPawn)} {other}，好感 {opinion}");
+                }
+            }
+
+            if (parts.Count == 0 && pawn.Map != null)
+            {
+                List<Pawn> nearby = pawn.Map.mapPawns.AllPawnsSpawned
+                    .Where(p => p != null && p != pawn && p.RaceProps?.Humanlike == true)
+                    .OrderBy(p => p.Position.DistanceToSquared(pawn.Position))
+                    .Take(5)
+                    .ToList();
+                for (int i = 0; i < nearby.Count; i++)
+                {
+                    int opinion = 0;
+                    try
+                    {
+                        opinion = pawn.relations.OpinionOf(nearby[i]);
+                    }
+                    catch
+                    {
+                        opinion = 0;
+                    }
+                    if (Math.Abs(opinion) >= 20)
+                        parts.Add($"对 {nearby[i].LabelShortCap} 好感 {opinion}");
+                }
+            }
+
+            return parts.Count > 0 ? string.Join("；", parts) : "没有显著关系或强烈好感记录。";
         }
 
         /// <summary>

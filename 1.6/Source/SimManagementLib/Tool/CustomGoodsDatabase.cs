@@ -57,7 +57,7 @@ namespace SimManagementLib.Tool
 
             if (string.IsNullOrWhiteSpace(base64))
             {
-                error = "导入内容为空。";
+                error = SimTranslation.T("RSMF.Common.Import.EmptyContent");
                 return false;
             }
 
@@ -72,7 +72,7 @@ namespace SimManagementLib.Tool
             }
             catch (Exception ex)
             {
-                error = "Base64 或 JSON 解析失败: " + ex.Message;
+                error = SimTranslation.T("RSMF.Common.Import.ParseFailed", ex.Message.Named("message"));
                 return false;
             }
         }

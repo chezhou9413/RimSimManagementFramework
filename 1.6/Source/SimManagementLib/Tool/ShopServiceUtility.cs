@@ -176,7 +176,7 @@ namespace SimManagementLib.Tool
                 orderId = orderId,
                 serviceDefName = serviceDef?.defName ?? "",
                 providerThingId = provider?.thingIDNumber ?? -1,
-                providerLabel = provider?.LabelCap ?? "服务建筑",
+                providerLabel = provider?.LabelCap ?? SimTranslation.T("RSMF.Service.ProviderFallback"),
                 count = 1,
                 unitPrice = Mathf.Max(1f, price),
                 totalPrice = Mathf.Max(1f, price),

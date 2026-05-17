@@ -27,7 +27,7 @@ namespace SimManagementLib.SimZone
         {
         }
 
-        public Zone_Shop(ZoneManager zoneManager) : base("商店区域", zoneManager)
+        public Zone_Shop(ZoneManager zoneManager) : base(SimTranslation.T("RSMF.Zone.ShopArea"), zoneManager)
         {
         }
 
@@ -60,11 +60,11 @@ namespace SimManagementLib.SimZone
 
             ShopScheduleData data = GetSchedule();
             if (!data.manualOpen)
-                return "商店已手动停业。";
+                return SimTranslation.T("RSMF.Zone.OpenStatus.ManuallyClosed");
             if (data.useSchedule && !data.IsOpenNow(Map))
-                return $"当前不在营业时间内：{data.GetScheduleSummary()}。";
+                return SimTranslation.T("RSMF.Zone.OpenStatus.OutOfSchedule", data.GetScheduleSummary().Named("schedule"));
 
-            return "商店正在营业中。";
+            return SimTranslation.T("RSMF.Zone.OpenStatus.Open");
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace SimManagementLib.SimZone
         {
             if (Map == null || Cells == null || Cells.Count == 0)
             {
-                message = "区域为空。";
+                message = SimTranslation.T("RSMF.Zone.Validation.Empty");
                 return false;
             }
 
@@ -135,29 +135,29 @@ namespace SimManagementLib.SimZone
 
             if (outdoorCount > 0)
             {
-                message = $"存在 {outdoorCount} 个室外格，例如 {firstOutdoorCell}。";
+                message = SimTranslation.T("RSMF.Zone.Validation.OutdoorCells", outdoorCount.Named("count"), firstOutdoorCell.Named("cell"));
                 return false;
             }
 
             if (!hasStorage && !hasServiceProvider && !hasCashRegister)
             {
-                message = "缺少货柜、服务建筑和收银台。";
+                message = SimTranslation.T("RSMF.Zone.Validation.MissingStorageServiceAndRegister");
                 return false;
             }
 
             if (!hasStorage && !hasServiceProvider)
             {
-                message = "缺少货柜或服务建筑。";
+                message = SimTranslation.T("RSMF.Zone.Validation.MissingStorageOrService");
                 return false;
             }
 
             if (!hasCashRegister)
             {
-                message = "缺少收银台。";
+                message = SimTranslation.T("RSMF.Zone.Validation.MissingCashRegister");
                 return false;
             }
 
-            message = "商店设施有效。";
+            message = SimTranslation.T("RSMF.Zone.Validation.Valid");
             return true;
         }
 
@@ -360,8 +360,8 @@ namespace SimManagementLib.SimZone
         public override string GetInspectString()
         {
             string text = base.GetInspectString();
-            text += "\n设施状态: " + (IsValidShop() ? "有效" : GetValidationMessage());
-            text += "\n营业状态: " + GetOpenStatusMessage();
+            text += "\n" + SimTranslation.T("RSMF.Zone.Inspect.FacilityStatus", (IsValidShop() ? SimTranslation.T("RSMF.Common.Valid") : GetValidationMessage()).Named("status"));
+            text += "\n" + SimTranslation.T("RSMF.Zone.Inspect.OpenStatus", GetOpenStatusMessage().Named("status"));
             return text;
         }
 
@@ -437,8 +437,8 @@ namespace SimManagementLib.SimZone
 
             yield return new Command_Action
             {
-                defaultLabel = "商店管理",
-                defaultDesc = "查看并管理该商店区域内所有货柜的在售商品与库存状态。",
+                defaultLabel = SimTranslation.T("RSMF.Gizmo.ShopManagement.Label"),
+                defaultDesc = SimTranslation.T("RSMF.Gizmo.ShopManagement.Desc"),
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/Copy", true),
                 action = delegate
                 {
@@ -448,8 +448,8 @@ namespace SimManagementLib.SimZone
 
             yield return new Command_Action
             {
-                defaultLabel = "店员配置",
-                defaultDesc = "打开该商店的店员岗位配置面板。",
+                defaultLabel = SimTranslation.T("RSMF.Gizmo.ShopStaff.Label"),
+                defaultDesc = SimTranslation.T("RSMF.Gizmo.ShopStaff.Desc"),
                 icon = TexButton.Rename,
                 action = delegate
                 {
@@ -459,8 +459,8 @@ namespace SimManagementLib.SimZone
 
             yield return new Command_Toggle
             {
-                defaultLabel = "隐藏区域显示",
-                defaultDesc = "隐藏或显示商店区域的地面颜色覆盖。只影响区域绘制，不影响商店营业、补货、收银和顾客访问。",
+                defaultLabel = SimTranslation.T("RSMF.Gizmo.ToggleZoneVisibility.Label"),
+                defaultDesc = SimTranslation.T("RSMF.Gizmo.ToggleZoneVisibility.Desc"),
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/ShowZones", false) ?? TexButton.Rename,
                 isActive = () => Hidden,
                 toggleAction = delegate

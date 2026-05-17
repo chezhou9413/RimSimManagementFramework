@@ -1,6 +1,7 @@
 using RimWorld;
 using SimManagementLib.SimAI;
 using SimManagementLib.SimZone;
+using SimManagementLib.Tool;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -38,6 +39,7 @@ namespace SimManagementLib.SimDialog
         private Vector2 financeLogScrollPos;
         private Vector2 customerScrollPos;
         private Vector2 reviewScrollPos;
+        private Vector2 collectibleExchangeScrollPos;
         private int reviewPageIndex;
         private Vector2 staffScrollPos;
         private Vector2 vendingScrollPos;
@@ -104,13 +106,14 @@ namespace SimManagementLib.SimDialog
 
             pages.Clear();
             pagesBuiltWithReviews = shouldShowReviews;
-            pages.Add(new PageDef { Label = "商店管理", DrawAction = DrawShopManagementPage });
-            pages.Add(new PageDef { Label = "自动售卖", DrawAction = DrawVendingMachinePage });
-            pages.Add(new PageDef { Label = "财务", DrawAction = DrawFinancePage });
+            pages.Add(new PageDef { Label = SimTranslation.T("RSMF.Business.Page.ShopManagement"), DrawAction = DrawShopManagementPage });
+            pages.Add(new PageDef { Label = SimTranslation.T("RSMF.Business.Page.Vending"), DrawAction = DrawVendingMachinePage });
+            pages.Add(new PageDef { Label = SimTranslation.T("RSMF.Business.Page.Finance"), DrawAction = DrawFinancePage });
             if (shouldShowReviews)
-                pages.Add(new PageDef { Label = "顾客评价", DrawAction = DrawCustomerReviewsPage });
-            pages.Add(new PageDef { Label = "顾客", DrawAction = DrawCustomerPage });
-            pages.Add(new PageDef { Label = "店员", DrawAction = DrawStaffPage });
+                pages.Add(new PageDef { Label = SimTranslation.T("RSMF.Business.Page.Reviews"), DrawAction = DrawCustomerReviewsPage });
+            pages.Add(new PageDef { Label = SimTranslation.T("RSMF.Business.Page.CollectibleExchange"), DrawAction = DrawCollectibleExchangePage });
+            pages.Add(new PageDef { Label = SimTranslation.T("RSMF.Business.Page.Customers"), DrawAction = DrawCustomerPage });
+            pages.Add(new PageDef { Label = SimTranslation.T("RSMF.Business.Page.Staff"), DrawAction = DrawStaffPage });
             if (curPageIndex >= pages.Count)
                 curPageIndex = Mathf.Max(0, pages.Count - 1);
         }
@@ -137,6 +140,7 @@ namespace SimManagementLib.SimDialog
                     financeLogScrollPos = Vector2.zero;
                     customerScrollPos = Vector2.zero;
                     reviewScrollPos = Vector2.zero;
+                    collectibleExchangeScrollPos = Vector2.zero;
                     reviewPageIndex = 0;
                     staffScrollPos = Vector2.zero;
                     vendingScrollPos = Vector2.zero;

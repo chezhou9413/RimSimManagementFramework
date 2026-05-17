@@ -220,6 +220,14 @@ namespace SimManagementLib.GameComp
                 cashierSummary = snapshot.cashierSummary,
                 checkoutJobSummary = snapshot.checkoutJobSummary,
                 postPurchaseSummary = snapshot.postPurchaseSummary,
+                roomSummary = snapshot.roomSummary,
+                relationSummary = snapshot.relationSummary,
+                weatherSummary = snapshot.weatherSummary,
+                gameConditionSummary = snapshot.gameConditionSummary,
+                colonyWealthSummary = snapshot.colonyWealthSummary,
+                colonyShopSummary = snapshot.colonyShopSummary,
+                colonyLeaderSummary = snapshot.colonyLeaderSummary,
+                colonyCultureSummary = snapshot.colonyCultureSummary,
                 recentReviewContextSummary = snapshot.recentReviewContextSummary,
                 featuredItems = CloneItems(snapshot.featuredItems),
                 avatarImageId = snapshot.avatarImageId,
@@ -578,6 +586,7 @@ namespace SimManagementLib.GameComp
             copy.anthropicApiKey = source.anthropicApiKey;
             copy.anthropicModel = source.anthropicModel;
             copy.reviewRequestsPerMinute = source.reviewRequestsPerMinute;
+            copy.reviewRequestTimeoutSeconds = source.reviewRequestTimeoutSeconds;
             copy.reviewTemperature = source.reviewTemperature;
             copy.reviewForumReactionChance = source.reviewForumReactionChance;
             copy.reviewForumReplyChance = source.reviewForumReplyChance;
@@ -591,6 +600,10 @@ namespace SimManagementLib.GameComp
             copy.reviewPositiveWords = source.reviewPositiveWords;
             copy.reviewNegativeWords = source.reviewNegativeWords;
             copy.reviewBannedWords = source.reviewBannedWords;
+            copy.reviewPromptInputFormat = source.reviewPromptInputFormat;
+            copy.reviewPromptEnabledNodeIds = source.reviewPromptEnabledNodeIds;
+            copy.reviewPromptNodeOrder = source.reviewPromptNodeOrder;
+            copy.reviewPromptCustomNodes = source.reviewPromptCustomNodes;
             return copy;
         }
 

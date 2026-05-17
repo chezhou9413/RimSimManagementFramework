@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.Bubble.PickCombo>选购套餐: {comboName}</RSMF.Bubble.PickCombo>
+  <RSMF.Bubble.NoSuitableGoods>没有合适的商品</RSMF.Bubble.NoSuitableGoods>
+  <RSMF.Bubble.TakeItem>拿取 {item}</RSMF.Bubble.TakeItem>
+  <RSMF.Bubble.TakeItemCount>拿取 {item} x{count}</RSMF.Bubble.TakeItemCount>
+  <RSMF.Bubble.SelectService>选择服务: {service}</RSMF.Bubble.SelectService>
+  <RSMF.Bubble.ServiceCompleted>完成服务: {service}</RSMF.Bubble.ServiceCompleted>
+  <RSMF.Bubble.VendingNoSuitableGoods>自动售货机没有合适商品</RSMF.Bubble.VendingNoSuitableGoods>
+  <RSMF.Bubble.VendingAutoBuy>自动购买 {item}</RSMF.Bubble.VendingAutoBuy>
+  <RSMF.Bubble.VendingAutoBuyCount>自动购买 {item} x{count}</RSMF.Bubble.VendingAutoBuyCount>
+  <RSMF.Bubble.DrugUseInShop>店内吸食</RSMF.Bubble.DrugUseInShop>
+  <RSMF.Bubble.CheckoutQueueTimeout>排队超时，已放回商品</RSMF.Bubble.CheckoutQueueTimeout>
+  <RSMF.Bubble.CheckoutSilver>结账 {amount}</RSMF.Bubble.CheckoutSilver>
+</LanguageData>

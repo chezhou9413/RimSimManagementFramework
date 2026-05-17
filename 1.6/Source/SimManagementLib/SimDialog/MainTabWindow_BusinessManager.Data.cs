@@ -84,7 +84,7 @@ namespace SimManagementLib.SimDialog
 
         private static string BuildPreferenceText(CustomerRuntimeSettings settings)
         {
-            if (settings == null) return "无";
+            if (settings == null) return SimTranslation.T("RSMF.Common.None");
 
             List<string> parts = new List<string>();
             if (!settings.preferredGoodsCategoryIds.NullOrEmpty())
@@ -95,20 +95,20 @@ namespace SimManagementLib.SimDialog
             if (!settings.preferredThings.NullOrEmpty())
                 parts.AddRange(settings.preferredThings.Where(t => t != null).Select(t => t.LabelCap.RawText).Take(2));
 
-            if (parts.Count <= 0) return "无";
+            if (parts.Count <= 0) return SimTranslation.T("RSMF.Common.None");
             return string.Join("、", parts.Distinct().Take(3));
         }
 
         private static string BuildComboPreview(List<ComboData> combos)
         {
-            if (combos.NullOrEmpty()) return "无";
+            if (combos.NullOrEmpty()) return SimTranslation.T("RSMF.Common.None");
 
             List<string> preview = combos
                 .Where(c => c != null)
                 .Take(3)
                 .Select(c =>
                 {
-                    string name = string.IsNullOrEmpty(c.comboName) ? "未命名套餐" : c.comboName;
+                    string name = string.IsNullOrEmpty(c.comboName) ? SimTranslation.T("RSMF.Common.UnnamedCombo") : c.comboName;
                     return $"{name}(¥{c.totalPrice:F0})";
                 })
                 .ToList();
@@ -124,9 +124,9 @@ namespace SimManagementLib.SimDialog
             const float gap = 8f;
             float cardWidth = (rect.width - gap * 2f) / 3f;
 
-            DrawSummaryCard(new Rect(rect.x, rect.y, cardWidth, rect.height), "总收入", $"¥{totalIncome:F0}");
-            DrawSummaryCard(new Rect(rect.x + cardWidth + gap, rect.y, cardWidth, rect.height), "总账单数", billCount.ToString());
-            DrawSummaryCard(new Rect(rect.x + (cardWidth + gap) * 2f, rect.y, cardWidth, rect.height), "今日收入", $"¥{todayIncome:F0}");
+            DrawSummaryCard(new Rect(rect.x, rect.y, cardWidth, rect.height), SimTranslation.T("RSMF.Business.Finance.TotalIncome"), $"¥{totalIncome:F0}");
+            DrawSummaryCard(new Rect(rect.x + cardWidth + gap, rect.y, cardWidth, rect.height), SimTranslation.T("RSMF.Business.Finance.TotalBills"), billCount.ToString());
+            DrawSummaryCard(new Rect(rect.x + (cardWidth + gap) * 2f, rect.y, cardWidth, rect.height), SimTranslation.T("RSMF.Business.Finance.TodayIncome"), $"¥{todayIncome:F0}");
         }
 
         private void DrawSummaryCard(Rect rect, string title, string value)
@@ -165,7 +165,7 @@ namespace SimManagementLib.SimDialog
             {
                 Text.Font = GameFont.Tiny;
                 GUI.color = CDim;
-                Widgets.Label(new Rect(secRect.x + 8f, secRect.y + headerH, secRect.width - 16f, rowH), "暂无数据");
+                Widgets.Label(new Rect(secRect.x + 8f, secRect.y + headerH, secRect.width - 16f, rowH), SimTranslation.T("RSMF.Common.NoData"));
             }
             else
             {
@@ -189,7 +189,7 @@ namespace SimManagementLib.SimDialog
             lineCount += Mathf.Max(1, finance.ShopRevenue.Count);
             lineCount += Mathf.Max(1, finance.DailyRevenue.Count);
             lineCount += Mathf.Max(1, finance.BillRecords.Count * 3);
-            return 460f + lineCount * 22f;
+            return 820f + lineCount * 22f;
         }
 
         private List<string> BuildProductRows(GameComponent_ShopFinanceManager finance)
@@ -202,7 +202,10 @@ namespace SimManagementLib.SimDialog
                     ThingDef def = DefDatabase<ThingDef>.GetNamedSilentFail(kv.Key);
                     string label = def != null ? def.LabelCap.RawText : kv.Key;
                     float revenue = finance.ProductRevenues.TryGetValue(kv.Key, out float r) ? r : 0f;
-                    return $"{label}: 售出 {kv.Value}，收入 ¥{revenue:F0}";
+                    return SimTranslation.T("RSMF.Business.Finance.ProductRow",
+                        label.Named("label"),
+                        kv.Value.Named("count"),
+                        revenue.ToString("F0").Named("revenue"));
                 })
                 .ToList();
         }
@@ -215,7 +218,10 @@ namespace SimManagementLib.SimDialog
                 .Select(kv =>
                 {
                     float revenue = finance.ComboRevenues.TryGetValue(kv.Key, out float r) ? r : 0f;
-                    return $"{kv.Key}: 售出 {kv.Value}，收入 ¥{revenue:F0}";
+                    return SimTranslation.T("RSMF.Business.Finance.ProductRow",
+                        kv.Key.Named("label"),
+                        kv.Value.Named("count"),
+                        revenue.ToString("F0").Named("revenue"));
                 })
                 .ToList();
         }
@@ -229,7 +235,10 @@ namespace SimManagementLib.SimDialog
                 {
                     float profit = finance.ShopProfit.TryGetValue(kv.Key, out float p) ? p : 0f;
                     string label = finance.GetShopLabel(kv.Key);
-                    return $"{label}: 收入 ¥{kv.Value:F0}，利润 ¥{profit:F0}";
+                    return SimTranslation.T("RSMF.Business.Finance.ShopRow",
+                        label.Named("label"),
+                        kv.Value.ToString("F0").Named("revenue"),
+                        profit.ToString("F0").Named("profit"));
                 })
                 .ToList();
         }
@@ -242,21 +251,24 @@ namespace SimManagementLib.SimDialog
                 .Select(kv =>
                 {
                     float profit = finance.DailyProfit.TryGetValue(kv.Key, out float p) ? p : 0f;
-                    return $"第 {kv.Key} 天: 收入 ¥{kv.Value:F0}，利润 ¥{profit:F0}";
+                    return SimTranslation.T("RSMF.Business.Finance.DailyRow",
+                        kv.Key.Named("day"),
+                        kv.Value.ToString("F0").Named("revenue"),
+                        profit.ToString("F0").Named("profit"));
                 })
                 .ToList();
         }
 
         private static string BuildBillLineSummary(List<FinanceLineItem> lines)
         {
-            if (lines.NullOrEmpty()) return "明细: (无)";
+            if (lines.NullOrEmpty()) return SimTranslation.T("RSMF.Business.Finance.DetailsEmpty");
 
             List<string> parts = new List<string>();
             for (int i = 0; i < lines.Count; i++)
             {
                 FinanceLineItem line = lines[i];
                 if (line == null) continue;
-                string name = string.IsNullOrEmpty(line.label) ? (line.isCombo ? "未命名套餐" : line.defName) : line.label;
+                string name = string.IsNullOrEmpty(line.label) ? (line.isCombo ? SimTranslation.T("RSMF.Common.UnnamedCombo") : line.defName) : line.label;
                 parts.Add($"{name} x{line.count} (¥{line.amount:F0})");
                 if (parts.Count >= 4)
                 {
@@ -265,14 +277,14 @@ namespace SimManagementLib.SimDialog
                 }
             }
 
-            return "明细: " + string.Join("、", parts);
+            return SimTranslation.T("RSMF.Business.Finance.Details", string.Join(SimTranslation.T("RSMF.Common.ListSeparator"), parts).Named("details"));
         }
 
         private static void OpenStorageManagerMenu(HashSet<Building_SimContainer> storages)
         {
             if (storages.NullOrEmpty())
             {
-                Messages.Message("该商店未找到可配置货柜。", MessageTypeDefOf.RejectInput, false);
+                Messages.Message(SimTranslation.T("RSMF.Business.Storage.NotFoundMessage"), MessageTypeDefOf.RejectInput, false);
                 return;
             }
 
@@ -282,7 +294,7 @@ namespace SimManagementLib.SimDialog
                 .ToList();
             if (ordered.NullOrEmpty())
             {
-                Messages.Message("该商店未找到可配置货柜。", MessageTypeDefOf.RejectInput, false);
+                Messages.Message(SimTranslation.T("RSMF.Business.Storage.NotFoundMessage"), MessageTypeDefOf.RejectInput, false);
                 return;
             }
 
@@ -297,7 +309,9 @@ namespace SimManagementLib.SimDialog
             {
                 Building_SimContainer storage = ordered[i];
                 Building_SimContainer local = storage;
-                string label = $"货柜 #{i + 1} - {local.StorageDisplayLabel}";
+                string label = SimTranslation.T("RSMF.Business.Storage.OptionLabel",
+                    (i + 1).Named("index"),
+                    local.StorageDisplayLabel.Named("label"));
                 options.Add(new FloatMenuOption(label, () => OpenStorageManager(local)));
             }
 
@@ -309,7 +323,7 @@ namespace SimManagementLib.SimDialog
             ThingComp_GoodsData comp = storage?.GetComp<ThingComp_GoodsData>();
             if (comp == null)
             {
-                Messages.Message("该货柜无法打开管理面板。", MessageTypeDefOf.RejectInput, false);
+                Messages.Message(SimTranslation.T("RSMF.Business.Storage.CannotOpenMessage"), MessageTypeDefOf.RejectInput, false);
                 return;
             }
 

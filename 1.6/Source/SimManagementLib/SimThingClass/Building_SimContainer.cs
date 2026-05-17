@@ -1,5 +1,6 @@
 using RimWorld;
 using SimManagementLib.SimThingComp;
+using SimManagementLib.Tool;
 using System.Collections.Generic;
 using UnityEngine;
 using Verse;
@@ -27,7 +28,7 @@ namespace SimManagementLib.SimThingClass
             set => customName = value?.Trim() ?? "";
         }
 
-        public string BaseLabel => def?.label?.CapitalizeFirst() ?? "货柜";
+        public string BaseLabel => def?.label?.CapitalizeFirst() ?? SimTranslation.T("RSMF.Container.DefaultLabel");
         public string InspectLabel => StorageDisplayLabel;
 
         public string StorageDisplayLabel

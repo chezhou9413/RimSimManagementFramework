@@ -111,29 +111,29 @@ namespace SimManagementLib.SimDialog
             float textWidth = Mathf.Max(220f, rect.width - actionWidth - CloseXReservedWidth - 44f);
             Text.Font = GameFont.Medium;
             GUI.color = Color.white;
-            Widgets.Label(new Rect(rect.x + 20f, rect.y + 8f, textWidth, Text.LineHeightOf(GameFont.Medium) + 4f), "自定义招牌编辑器");
+            Widgets.Label(new Rect(rect.x + 20f, rect.y + 8f, textWidth, Text.LineHeightOf(GameFont.Medium) + 4f), SimTranslation.T("RSMF.CustomSign.EditorTitle"));
 
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
-            Widgets.Label(new Rect(rect.x + 20f, rect.y + 42f, textWidth, Text.LineHeightOf(GameFont.Tiny) * 2f + 4f), "改动会实时显示在地图上的招牌建筑。图片会复制进本地图库，存档只保存引用。");
+            Widgets.Label(new Rect(rect.x + 20f, rect.y + 42f, textWidth, Text.LineHeightOf(GameFont.Tiny) * 2f + 4f), SimTranslation.T("RSMF.CustomSign.EditorDescription"));
 
             float right = rect.xMax - 16f - CloseXReservedWidth;
             float y = rect.y + 18f;
 
             right -= 116f;
-            if (SimUiStyle.DrawPrimaryButton(new Rect(right, y, 116f, 34f), "完成关闭"))
+            if (SimUiStyle.DrawPrimaryButton(new Rect(right, y, 116f, 34f), SimTranslation.T("RSMF.CustomSign.DoneClose")))
             {
                 ApplyDraftToBuilding();
-                Messages.Message("招牌图案已保存。", MessageTypeDefOf.PositiveEvent, false);
+                Messages.Message(SimTranslation.T("RSMF.CustomSign.SaveSuccess"), MessageTypeDefOf.PositiveEvent, false);
                 Close();
             }
 
             right -= 128f;
-            if (SimUiStyle.DrawSecondaryButton(new Rect(right, y, 116f, 34f), "从路径导入"))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(right, y, 116f, 34f), SimTranslation.T("RSMF.CustomSign.ImportPath")))
                 Find.WindowStack.Add(new Dialog_SignImagePathImport(AddImportedImageLayer));
 
             right -= 128f;
-            if (SimUiStyle.DrawSecondaryButton(new Rect(right, y, 116f, 34f), "添加图库图"))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(right, y, 116f, 34f), SimTranslation.T("RSMF.CustomSign.AddGalleryImage")))
                 Find.WindowStack.Add(new Dialog_SignImageBrowser(AddImageLayer));
 
             GUI.color = Color.white;
@@ -147,7 +147,7 @@ namespace SimManagementLib.SimDialog
 
             Text.Font = GameFont.Small;
             GUI.color = Color.white;
-            Widgets.Label(new Rect(rect.x + 12f, rect.y + 12f, rect.width - 24f, Text.LineHeightOf(GameFont.Small) + 4f), "编辑面");
+            Widgets.Label(new Rect(rect.x + 12f, rect.y + 12f, rect.width - 24f, Text.LineHeightOf(GameFont.Small) + 4f), SimTranslation.T("RSMF.CustomSign.EditFace"));
 
             float y = rect.y + 50f;
             if (IsSingleFixedGraphic)
@@ -157,18 +157,18 @@ namespace SimManagementLib.SimDialog
             }
             else
             {
-                DrawFaceTab(new Rect(rect.x + 12f, y, rect.width - 24f, 38f), SignFaceKind.South, "南面");
+                DrawFaceTab(new Rect(rect.x + 12f, y, rect.width - 24f, 38f), SignFaceKind.South, SimTranslation.T("RSMF.CustomSign.Face.South"));
                 y += 46f;
-                DrawFaceTab(new Rect(rect.x + 12f, y, rect.width - 24f, 38f), SignFaceKind.East, "东面");
+                DrawFaceTab(new Rect(rect.x + 12f, y, rect.width - 24f, 38f), SignFaceKind.East, SimTranslation.T("RSMF.CustomSign.Face.East"));
                 y += 46f;
-                DrawFaceTab(new Rect(rect.x + 12f, y, rect.width - 24f, 38f), SignFaceKind.North, "北面");
+                DrawFaceTab(new Rect(rect.x + 12f, y, rect.width - 24f, 38f), SignFaceKind.North, SimTranslation.T("RSMF.CustomSign.Face.North"));
             }
 
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
             string help = IsSingleFixedGraphic
-                ? "该招牌 Def 只有一张底图，编辑器只显示实际会被地图使用的招牌面。"
-                : "建筑朝西时会复用东面数据，并在地图绘制时镜像显示。";
+                ? SimTranslation.T("RSMF.CustomSign.SingleGraphicHelp")
+                : SimTranslation.T("RSMF.CustomSign.WestMirrorHelp");
             Widgets.Label(new Rect(rect.x + 12f, rect.yMax - 86f, rect.width - 24f, 72f), help);
             GUI.color = Color.white;
         }
@@ -196,7 +196,7 @@ namespace SimManagementLib.SimDialog
 
             Text.Font = GameFont.Small;
             GUI.color = Color.white;
-            Widgets.Label(new Rect(rect.x + 16f, rect.y + 12f, rect.width - 32f, Text.LineHeightOf(GameFont.Small) + 4f), "预览");
+            Widgets.Label(new Rect(rect.x + 16f, rect.y + 12f, rect.width - 32f, Text.LineHeightOf(GameFont.Small) + 4f), SimTranslation.T("RSMF.CustomSign.Preview"));
 
             Rect previewArea = new Rect(rect.x + 22f, rect.y + 54f, rect.width - 44f, Mathf.Max(260f, rect.height * 0.58f));
             Widgets.DrawBoxSolid(previewArea, new Color(1f, 1f, 1f, 0.03f));
@@ -261,7 +261,7 @@ namespace SimManagementLib.SimDialog
                 Text.Font = GameFont.Small;
                 Text.Anchor = TextAnchor.MiddleCenter;
                 GUI.color = MutedText;
-                Widgets.Label(rect, "选择一个图层后可编辑位置、缩放和角度");
+                Widgets.Label(rect, SimTranslation.T("RSMF.CustomSign.SelectLayerHint"));
                 Text.Anchor = TextAnchor.UpperLeft;
                 GUI.color = Color.white;
                 return;
@@ -270,7 +270,7 @@ namespace SimManagementLib.SimDialog
 
             Text.Font = GameFont.Small;
             GUI.color = Color.white;
-            Widgets.Label(new Rect(rect.x + 12f, rect.y + 10f, rect.width - 24f, Text.LineHeightOf(GameFont.Small) + 4f), "图层参数");
+            Widgets.Label(new Rect(rect.x + 12f, rect.y + 10f, rect.width - 24f, Text.LineHeightOf(GameFont.Small) + 4f), SimTranslation.T("RSMF.CustomSign.LayerParams"));
 
             float y = rect.y + 42f;
             float rowHeight = 34f;
@@ -278,11 +278,11 @@ namespace SimManagementLib.SimDialog
             y += rowHeight + 4f;
             DrawFloatControl(new Rect(rect.x + 12f, y, rect.width - 24f, rowHeight), "y", "Y", ref layer.y, -1f, 1f);
             y += rowHeight + 4f;
-            DrawFloatControl(new Rect(rect.x + 12f, y, rect.width - 24f, rowHeight), "scaleX", "缩放X", ref layer.scaleX, 0.05f, 4f);
+            DrawFloatControl(new Rect(rect.x + 12f, y, rect.width - 24f, rowHeight), "scaleX", SimTranslation.T("RSMF.CustomSign.ScaleX"), ref layer.scaleX, 0.05f, 4f);
             y += rowHeight + 4f;
-            DrawFloatControl(new Rect(rect.x + 12f, y, rect.width - 24f, rowHeight), "scaleY", "缩放Y", ref layer.scaleY, 0.05f, 4f);
+            DrawFloatControl(new Rect(rect.x + 12f, y, rect.width - 24f, rowHeight), "scaleY", SimTranslation.T("RSMF.CustomSign.ScaleY"), ref layer.scaleY, 0.05f, 4f);
             y += rowHeight + 4f;
-            DrawFloatControl(new Rect(rect.x + 12f, y, rect.width - 24f, rowHeight), "angle", "角度", ref layer.angle, -360f, 360f);
+            DrawFloatControl(new Rect(rect.x + 12f, y, rect.width - 24f, rowHeight), "angle", SimTranslation.T("RSMF.CustomSign.Angle"), ref layer.angle, -360f, 360f);
         }
 
         private void DrawFloatControl(Rect rect, string key, string label, ref float value, float min, float max)
@@ -321,14 +321,14 @@ namespace SimManagementLib.SimDialog
 
             Text.Font = GameFont.Small;
             GUI.color = Color.white;
-            Widgets.Label(new Rect(rect.x + 16f, rect.y + 12f, rect.width - 32f, Text.LineHeightOf(GameFont.Small) + 4f), "图层");
+            Widgets.Label(new Rect(rect.x + 16f, rect.y + 12f, rect.width - 32f, Text.LineHeightOf(GameFont.Small) + 4f), SimTranslation.T("RSMF.CustomSign.Layers"));
 
             Rect buttonsRect = new Rect(rect.x + 12f, rect.y + 44f, rect.width - 24f, 32f);
-            if (SimUiStyle.DrawSecondaryButton(new Rect(buttonsRect.x, buttonsRect.y, 96f, 30f), "添加图库"))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(buttonsRect.x, buttonsRect.y, 96f, 30f), SimTranslation.T("RSMF.CustomSign.AddGallery")))
                 Find.WindowStack.Add(new Dialog_SignImageBrowser(AddImageLayer));
-            if (SimUiStyle.DrawSecondaryButton(new Rect(buttonsRect.x + 104f, buttonsRect.y, 96f, 30f), "导入路径"))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(buttonsRect.x + 104f, buttonsRect.y, 96f, 30f), SimTranslation.T("RSMF.CustomSign.ImportPathShort")))
                 Find.WindowStack.Add(new Dialog_SignImagePathImport(AddImportedImageLayer));
-            if (SimUiStyle.DrawDangerButton(new Rect(buttonsRect.xMax - 82f, buttonsRect.y, 82f, 30f), "删除", SelectedLayer != null))
+            if (SimUiStyle.DrawDangerButton(new Rect(buttonsRect.xMax - 82f, buttonsRect.y, 82f, 30f), SimTranslation.T("RSMF.CustomSign.Delete"), SelectedLayer != null))
                 DeleteSelectedLayer();
 
             Rect listRect = new Rect(rect.x + 12f, buttonsRect.yMax + 10f, rect.width - 24f, rect.height - 100f);
@@ -362,14 +362,14 @@ namespace SimManagementLib.SimDialog
 
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
-            string state = SignImageLibrary.ImageExists(layer.imageId) ? "已链接" : "图片缺失";
-            Widgets.Label(new Rect(iconRect.xMax + 8f, rect.y + 34f, rect.width - 176f, Text.LineHeightOf(GameFont.Tiny) + 2f), state + " / 顺序 " + layer.drawOrder);
+            string state = SignImageLibrary.ImageExists(layer.imageId) ? SimTranslation.T("RSMF.CustomSign.Linked") : SimTranslation.T("RSMF.CustomSign.ImageMissing");
+            Widgets.Label(new Rect(iconRect.xMax + 8f, rect.y + 34f, rect.width - 176f, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomSign.LayerState", state.Named("state"), layer.drawOrder.Named("order")));
 
-            if (SimUiStyle.DrawSecondaryButton(new Rect(rect.xMax - 108f, rect.y + 7f, 46f, 24f), "上", index > 0, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(rect.xMax - 108f, rect.y + 7f, 46f, 24f), SimTranslation.T("RSMF.CustomSign.Up"), index > 0, GameFont.Tiny))
                 MoveLayer(index, -1);
-            if (SimUiStyle.DrawSecondaryButton(new Rect(rect.xMax - 56f, rect.y + 7f, 46f, 24f), "下", index < CurrentFace.layers.Count - 1, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(rect.xMax - 56f, rect.y + 7f, 46f, 24f), SimTranslation.T("RSMF.CustomSign.Down"), index < CurrentFace.layers.Count - 1, GameFont.Tiny))
                 MoveLayer(index, 1);
-            if (SimUiStyle.DrawSecondaryButton(new Rect(rect.xMax - 108f, rect.y + 34f, 98f, 22f), layer.enabled ? "启用" : "禁用", true, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(new Rect(rect.xMax - 108f, rect.y + 34f, 98f, 22f), layer.enabled ? SimTranslation.T("RSMF.CustomSign.Enabled") : SimTranslation.T("RSMF.CustomSign.Disabled"), true, GameFont.Tiny))
             {
                 layer.enabled = !layer.enabled;
                 ApplyDraftToBuilding();
@@ -397,7 +397,7 @@ namespace SimManagementLib.SimDialog
 
             if (CurrentFace.layers.Count >= SignImageLibrary.MaxFaceLayerCount)
             {
-                Messages.Message("当前面最多只能放 10 张图。", MessageTypeDefOf.RejectInput, false);
+                Messages.Message(SimTranslation.T("RSMF.CustomSign.MaxLayerReached"), MessageTypeDefOf.RejectInput, false);
                 return;
             }
 
@@ -529,12 +529,12 @@ namespace SimManagementLib.SimDialog
         {
             Rot4 defaultRot = SignThing?.def?.defaultPlacingRot ?? Rot4.South;
             if (defaultRot == Rot4.West)
-                return "西面";
+                return SimTranslation.T("RSMF.CustomSign.Face.West");
             if (face == SignFaceKind.North)
-                return "北面";
+                return SimTranslation.T("RSMF.CustomSign.Face.North");
             if (face == SignFaceKind.East)
-                return "东面";
-            return "南面";
+                return SimTranslation.T("RSMF.CustomSign.Face.East");
+            return SimTranslation.T("RSMF.CustomSign.Face.South");
         }
 
         /// <summary>

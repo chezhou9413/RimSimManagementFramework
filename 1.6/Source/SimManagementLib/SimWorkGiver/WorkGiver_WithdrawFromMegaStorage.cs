@@ -4,7 +4,6 @@ using SimManagementLib.SimThingClass;
 using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
 using System.Collections.Generic;
-using System.Linq;
 using Verse;
 using Verse.AI;
 
@@ -16,15 +15,40 @@ namespace SimManagementLib.SimWorkGiver
     /// </summary>
     public class WorkGiver_WithdrawFromMegaStorage : WorkGiver_Scanner
     {
+        private static WorkGiverDef cachedWorkGiverDef;
+
+        /// <summary>
+        /// 获取当前清理库存 WorkGiverDef，避免每次扫描都查询 DefDatabase。
+        /// </summary>
+        private static WorkGiverDef CurrentWorkGiverDef
+        {
+            get
+            {
+                if (cachedWorkGiverDef == null)
+                    cachedWorkGiverDef = DefDatabase<WorkGiverDef>.GetNamedSilentFail("WithdrawFromMegaStorage");
+                return cachedWorkGiverDef;
+            }
+        }
+
+        /// <summary>
+        /// 返回地图上的货柜候选。这里只做轻量营业状态过滤，避免候选枚举阶段反复扫描虚拟库存。
+        /// </summary>
         public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn)
         {
-            foreach (Thing t in pawn.Map.listerBuildings.allBuildingsColonist.OfType<Building_SimContainer>())
+            if (pawn?.Map?.listerBuildings == null) yield break;
+
+            List<Building> buildings = pawn.Map.listerBuildings.allBuildingsColonist;
+            for (int i = 0; i < buildings.Count; i++)
             {
-                if (t is Building_SimContainer storage && IsAllowedByBusinessState(storage) && HasExcess(storage, pawn))
+                Building_SimContainer storage = buildings[i] as Building_SimContainer;
+                if (storage != null && IsAllowedByBusinessState(storage))
                     yield return storage;
             }
         }
 
+        /// <summary>
+        /// 判断指定货柜是否存在需要移出的多余商品。
+        /// </summary>
         public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
             if (!(t is Building_SimContainer storage)) return false;
@@ -33,6 +57,9 @@ namespace SimManagementLib.SimWorkGiver
             return true;
         }
 
+        /// <summary>
+        /// 为指定货柜生成移出多余商品的任务。
+        /// </summary>
         public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
             if (!(t is Building_SimContainer storage)) return null;
@@ -55,13 +82,15 @@ namespace SimManagementLib.SimWorkGiver
             return null;
         }
 
+        /// <summary>
+        /// 判断货柜是否有超过目标量或已移出配置的库存。
+        /// </summary>
         private static bool HasExcess(Building_SimContainer storage, Pawn pawn)
         {
             if (storage.Destroyed || !storage.Spawned) return false;
             Zone_Shop shop = ShopStaffUtility.FindShopFor(storage);
             if (!VendingMachineUtility.IsVendingMachine(storage) && !ShopStaffUtility.IsShopOpenForWork(shop)) return false;
-            WorkGiverDef currentDef = DefDatabase<WorkGiverDef>.GetNamedSilentFail("WithdrawFromMegaStorage");
-            if (!VendingMachineUtility.IsVendingMachine(storage) && !ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, currentDef))
+            if (!VendingMachineUtility.IsVendingMachine(storage) && !ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, CurrentWorkGiverDef))
                 return false;
 
             foreach ((ThingDef _, int excess) in storage.GetExcessItems())

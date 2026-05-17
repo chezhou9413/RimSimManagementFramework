@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SimManagementLib.Tool;
 using Verse;
 
 namespace SimManagementLib.Pojo
@@ -15,7 +16,7 @@ namespace SimManagementLib.Pojo
 
         public void ExposeData()
         {
-            Scribe_Values.Look(ref comboName, "comboName", "未命名套餐");
+            Scribe_Values.Look(ref comboName, "comboName", SimTranslation.TOrFallback("RSMF.Common.UnnamedCombo", "未命名套餐"));
             Scribe_Values.Look(ref totalPrice, "totalPrice", 0f);
             Scribe_Collections.Look(ref items, "items", LookMode.Deep);
         }

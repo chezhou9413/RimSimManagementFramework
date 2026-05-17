@@ -54,7 +54,7 @@ namespace SimManagementLib.SimMapComp
 
             if (contexts.NullOrEmpty() && vendingMachines.NullOrEmpty())
             {
-                resultMessage = "强制刷新失败：当前地图没有可营业的商店区域或自动售货机。";
+                resultMessage = SimTranslation.T("RSMF.CustomerArrival.ForceFailNoShopOrVending");
                 return false;
             }
 
@@ -70,8 +70,8 @@ namespace SimManagementLib.SimMapComp
             if (kinds.NullOrEmpty())
             {
                 resultMessage = ignoreConditions
-                    ? "强制刷新失败：没有可用的顾客类型定义。"
-                    : "强制刷新失败：当前时段或天气下没有可出现的顾客类型。";
+                    ? SimTranslation.T("RSMF.CustomerArrival.ForceFailNoKinds")
+                    : SimTranslation.T("RSMF.CustomerArrival.ForceFailNoKindForConditions");
                 return false;
             }
 
@@ -96,7 +96,7 @@ namespace SimManagementLib.SimMapComp
 
                     if (TrySpawnCustomerWave(context.Shop, kind, false, out int spawnedCount, out string failReason))
                     {
-                        resultMessage = $"已强制刷新顾客：商店[{context.Shop.label}]，人数 {spawnedCount}。";
+                        resultMessage = SimTranslation.T("RSMF.CustomerArrival.ForceSpawnShopSuccess", context.Shop.label.Named("shop"), spawnedCount.Named("count"));
                         return true;
                     }
 
@@ -113,7 +113,7 @@ namespace SimManagementLib.SimMapComp
                     if (!ignoreConditions && !kind.CanAppearNow(map)) continue;
                     if (TrySpawnVendingMachineCustomer(machine, kind, true, out int spawnedCount, out string failReason))
                     {
-                        resultMessage = $"已强制刷新自动售货机顾客：[{machine.StorageDisplayLabel}]，人数 {spawnedCount}。";
+                        resultMessage = SimTranslation.T("RSMF.CustomerArrival.ForceSpawnVendingSuccess", machine.StorageDisplayLabel.Named("machine"), spawnedCount.Named("count"));
                         return true;
                     }
 
@@ -123,8 +123,8 @@ namespace SimManagementLib.SimMapComp
             }
 
             resultMessage = string.IsNullOrEmpty(lastFailReason)
-                ? "强制刷新失败：没有顾客类型匹配当前商店或自动售货机。"
-                : "强制刷新失败：" + lastFailReason;
+                ? SimTranslation.T("RSMF.CustomerArrival.ForceFailNoMatchingKind")
+                : SimTranslation.T("RSMF.CustomerArrival.ForceFailWithReason", lastFailReason.Named("reason"));
             return false;
         }
 
@@ -378,11 +378,11 @@ namespace SimManagementLib.SimMapComp
             if (showArrivalMessage)
             {
                 WeatherDef weather = map.weatherManager?.curWeather;
-                string weatherLabel = weather != null ? weather.LabelCap.RawText : "未知天气";
+                string weatherLabel = weather != null ? weather.LabelCap.RawText : SimTranslation.T("RSMF.CustomerArrival.UnknownWeather");
                 if (SimManagementLibMod.Settings?.showCustomerArrivalMessage ?? true)
                 {
                     Messages.Message(
-                        $"有一位顾客正在前往商店。当前天气：{weatherLabel}",
+                        SimTranslation.T("RSMF.CustomerArrival.ShopArrivalMessage", weatherLabel.Named("weather")),
                         pawn,
                         MessageTypeDefOf.NeutralEvent,
                         historical: true);
@@ -454,7 +454,7 @@ namespace SimManagementLib.SimMapComp
             if (showArrivalMessage && (SimManagementLibMod.Settings?.showCustomerArrivalMessage ?? true))
             {
                 Messages.Message(
-                    $"有一位顾客正在前往自动售货机：{machine.StorageDisplayLabel}。",
+                    SimTranslation.T("RSMF.CustomerArrival.VendingArrivalMessage", machine.StorageDisplayLabel.Named("machine")),
                     pawn,
                     MessageTypeDefOf.NeutralEvent,
                     historical: true);

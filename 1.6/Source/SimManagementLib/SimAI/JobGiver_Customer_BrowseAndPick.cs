@@ -22,7 +22,7 @@ namespace SimManagementLib.SimAI
             var lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
             if (lordJob == null) return null;
 
-            // 计算该 pawn 的剩余预算
+            // 计算该 pawn 在当前商店品质下愿意消费的剩余预算。
             int pId = pawn.thingIDNumber;
             if (lordJob.HasReachedConsumptionLimit(pId))
             {
@@ -31,21 +31,20 @@ namespace SimManagementLib.SimAI
             }
 
             float alreadySpent = lordJob.cartValues.TryGetValue(pId, out float v) ? v : 0f;
-            float remainingBudget = lordJob.GetBudgetForPawn(pId) - alreadySpent;
-
-            // 预算耗尽，直接去结账
-            if (remainingBudget <= 0f)
-            {
-                lordJob.MarkPawnReadyForCheckout(pId);
-                return null;
-            }
-
-            // 找商店区域
             Zone_Shop shopZone = ShopDataUtility.FindAssignedShopZone(
                 pawn.Map,
                 lordJob.targetShopZoneId,
                 lordJob.targetShopCell);
             if (shopZone == null)
+            {
+                lordJob.MarkPawnReadyForCheckout(pId);
+                return null;
+            }
+
+            float remainingBudget = lordJob.GetEffectiveBudgetForPawn(pawn, shopZone) - alreadySpent;
+
+            // 愿意消费的预算耗尽，直接去结账，保留未花完的原始预算。
+            if (remainingBudget <= 0f)
             {
                 lordJob.MarkPawnReadyForCheckout(pId);
                 return null;

@@ -54,11 +54,11 @@ namespace SimManagementLib.SimDialog
 
                 Widgets.DrawBoxSolid(inRect, new Color(0.10f, 0.11f, 0.13f, 1f));
                 Text.Font = GameFont.Medium;
-                Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width - CloseXReservedWidth, Text.LineHeightOf(GameFont.Medium) + 4f), "导出招牌分享文本");
+                Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width - CloseXReservedWidth, Text.LineHeightOf(GameFont.Medium) + 4f), SimTranslation.T("RSMF.CustomSign.ExportTitle"));
 
                 Text.Font = GameFont.Tiny;
                 GUI.color = MutedText;
-                string info = "这段文本包含当前招牌三面图层和图片内容。其他玩家导入后会自动写入本地图案库。";
+                string info = SimTranslation.T("RSMF.CustomSign.ExportInfo");
                 float infoHeight = Mathf.Ceil(Text.CalcHeight(info, inRect.width - CloseXReservedWidth)) + 4f;
                 Widgets.Label(new Rect(inRect.x, inRect.y + 36f, inRect.width - CloseXReservedWidth, infoHeight), info);
 
@@ -72,10 +72,10 @@ namespace SimManagementLib.SimDialog
                 exportText = Widgets.TextArea(viewRect, exportText);
                 Widgets.EndScrollView();
 
-                if (SimUiStyle.DrawPrimaryButton(new Rect(inRect.xMax - 140f, inRect.yMax - 38f, 140f, 32f), "复制到剪贴板"))
+                if (SimUiStyle.DrawPrimaryButton(new Rect(inRect.xMax - 140f, inRect.yMax - 38f, 140f, 32f), SimTranslation.T("RSMF.CustomSign.CopyClipboard")))
                 {
                     GUIUtility.systemCopyBuffer = exportText;
-                    Messages.Message("招牌分享文本已复制到剪贴板。", MessageTypeDefOf.PositiveEvent, false);
+                    Messages.Message(SimTranslation.T("RSMF.CustomSign.ShareTextCopied"), MessageTypeDefOf.PositiveEvent, false);
                 }
             }
             finally
@@ -134,11 +134,11 @@ namespace SimManagementLib.SimDialog
 
                 Widgets.DrawBoxSolid(inRect, new Color(0.10f, 0.11f, 0.13f, 1f));
                 Text.Font = GameFont.Medium;
-                Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width - CloseXReservedWidth, Text.LineHeightOf(GameFont.Medium) + 4f), "导入招牌分享文本");
+                Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width - CloseXReservedWidth, Text.LineHeightOf(GameFont.Medium) + 4f), SimTranslation.T("RSMF.CustomSign.ImportTitle"));
 
                 Text.Font = GameFont.Tiny;
                 GUI.color = MutedText;
-                string info = "导入会替换当前招牌的南面、东面和北面配置，并把分享文本里的图片同步保存到本地图案库。";
+                string info = SimTranslation.T("RSMF.CustomSign.ImportInfo");
                 float infoHeight = Mathf.Ceil(Text.CalcHeight(info, inRect.width - CloseXReservedWidth)) + 4f;
                 Widgets.Label(new Rect(inRect.x, inRect.y + 36f, inRect.width - CloseXReservedWidth, infoHeight), info);
 
@@ -152,10 +152,10 @@ namespace SimManagementLib.SimDialog
                 importText = Widgets.TextArea(viewRect, importText);
                 Widgets.EndScrollView();
 
-                if (SimUiStyle.DrawSecondaryButton(new Rect(inRect.x, inRect.yMax - 38f, 140f, 32f), "从剪贴板粘贴"))
+                if (SimUiStyle.DrawSecondaryButton(new Rect(inRect.x, inRect.yMax - 38f, 140f, 32f), SimTranslation.T("RSMF.CustomSign.PasteClipboard")))
                     importText = GUIUtility.systemCopyBuffer ?? string.Empty;
 
-                if (SimUiStyle.DrawPrimaryButton(new Rect(inRect.xMax - 140f, inRect.yMax - 38f, 140f, 32f), "确认导入"))
+                if (SimUiStyle.DrawPrimaryButton(new Rect(inRect.xMax - 140f, inRect.yMax - 38f, 140f, 32f), SimTranslation.T("RSMF.CustomSign.ConfirmImport")))
                 {
                     if (!SignImageLibrary.TryImportShareText(importText, out SignFaceData south, out SignFaceData east, out SignFaceData north, out string error))
                     {
@@ -224,7 +224,7 @@ namespace SimManagementLib.SimDialog
 
                 Widgets.DrawBoxSolid(inRect, new Color(0.10f, 0.11f, 0.13f, 1f));
                 Text.Font = GameFont.Medium;
-                Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width, Text.LineHeightOf(GameFont.Medium) + 4f), "选择图库图片");
+                Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width, Text.LineHeightOf(GameFont.Medium) + 4f), SimTranslation.T("RSMF.CustomSign.SelectGalleryImage"));
 
                 Rect searchRect = new Rect(inRect.x, inRect.y + 42f, inRect.width - 250f, 30f);
                 searchText = Widgets.TextField(searchRect, searchText);
@@ -232,13 +232,13 @@ namespace SimManagementLib.SimDialog
                 {
                     Text.Font = GameFont.Tiny;
                     GUI.color = MutedText;
-                    Widgets.Label(new Rect(searchRect.x + 8f, searchRect.y + 7f, searchRect.width - 16f, Text.LineHeightOf(GameFont.Tiny) + 2f), "按名称或图片 ID 搜索");
+                    Widgets.Label(new Rect(searchRect.x + 8f, searchRect.y + 7f, searchRect.width - 16f, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomSign.SearchImagePlaceholder"));
                     GUI.color = Color.white;
                 }
 
-                if (SimUiStyle.DrawSecondaryButton(new Rect(inRect.xMax - 236f, inRect.y + 41f, 108f, 32f), "刷新图库"))
+                if (SimUiStyle.DrawSecondaryButton(new Rect(inRect.xMax - 236f, inRect.y + 41f, 108f, 32f), SimTranslation.T("RSMF.CustomSign.RefreshGallery")))
                     ReloadImages();
-                if (SimUiStyle.DrawPrimaryButton(new Rect(inRect.xMax - 120f, inRect.y + 41f, 120f, 32f), "从路径导入"))
+                if (SimUiStyle.DrawPrimaryButton(new Rect(inRect.xMax - 120f, inRect.y + 41f, 120f, 32f), SimTranslation.T("RSMF.CustomSign.ImportPath")))
                     Find.WindowStack.Add(new Dialog_SignImagePathImport(delegate(SignImageRecord record)
                     {
                         ReloadImages();
@@ -288,7 +288,7 @@ namespace SimManagementLib.SimDialog
             string meta = record.width + "x" + record.height + " / " + record.imageId;
             Widgets.Label(new Rect(iconRect.xMax + 10f, rect.y + 34f, rect.width - 190f, Text.LineHeightOf(GameFont.Tiny) + 2f), meta.Truncate(rect.width - 200f));
 
-            if (SimUiStyle.DrawPrimaryButton(new Rect(rect.xMax - 86f, rect.y + 15f, 76f, 30f), "选择", true, GameFont.Tiny))
+            if (SimUiStyle.DrawPrimaryButton(new Rect(rect.xMax - 86f, rect.y + 15f, 76f, 30f), SimTranslation.T("RSMF.CustomSign.Select"), true, GameFont.Tiny))
             {
                 selectAction?.Invoke(record.imageId);
                 Close();
@@ -354,20 +354,20 @@ namespace SimManagementLib.SimDialog
 
                 Widgets.DrawBoxSolid(inRect, new Color(0.10f, 0.11f, 0.13f, 1f));
                 Text.Font = GameFont.Medium;
-                Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width, Text.LineHeightOf(GameFont.Medium) + 4f), "从本地路径导入图片");
+                Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width, Text.LineHeightOf(GameFont.Medium) + 4f), SimTranslation.T("RSMF.CustomSign.ImportImageFromPathTitle"));
 
                 Text.Font = GameFont.Tiny;
                 GUI.color = MutedText;
-                string info = "支持 png、jpg、jpeg。导入后会自动等比例压缩到最长边 256 像素，并保存为本地图案库 PNG。";
+                string info = SimTranslation.T("RSMF.CustomSign.ImportImageFromPathInfo");
                 Widgets.Label(new Rect(inRect.x, inRect.y + 38f, inRect.width, Text.CalcHeight(info, inRect.width) + 4f), info);
 
                 Rect fieldRect = new Rect(inRect.x, inRect.y + 94f, inRect.width, 32f);
                 pathText = Widgets.TextField(fieldRect, pathText);
 
-                if (SimUiStyle.DrawSecondaryButton(new Rect(inRect.x, inRect.yMax - 38f, 140f, 32f), "从剪贴板读取"))
+                if (SimUiStyle.DrawSecondaryButton(new Rect(inRect.x, inRect.yMax - 38f, 140f, 32f), SimTranslation.T("RSMF.CustomSign.ReadClipboard")))
                     pathText = GUIUtility.systemCopyBuffer ?? string.Empty;
 
-                if (SimUiStyle.DrawPrimaryButton(new Rect(inRect.xMax - 120f, inRect.yMax - 38f, 120f, 32f), "导入"))
+                if (SimUiStyle.DrawPrimaryButton(new Rect(inRect.xMax - 120f, inRect.yMax - 38f, 120f, 32f), SimTranslation.T("RSMF.CustomSign.Import")))
                 {
                     if (!SignImageLibrary.TryImportFromPath(pathText, out SignImageRecord record, out string error))
                     {
@@ -376,7 +376,7 @@ namespace SimManagementLib.SimDialog
                     }
 
                     importAction?.Invoke(record);
-                    Messages.Message("图片已导入招牌图库。", MessageTypeDefOf.PositiveEvent, false);
+                    Messages.Message(SimTranslation.T("RSMF.CustomSign.ImageImported"), MessageTypeDefOf.PositiveEvent, false);
                     Close();
                 }
             }

@@ -37,7 +37,7 @@ namespace SimManagementLib.SimDialog
             GameComponent_CustomerReviewManager manager = Current.Game?.GetComponent<GameComponent_CustomerReviewManager>();
             if (manager == null)
             {
-                Widgets.NoneLabel(rect.center.y, rect.width, "(顾客评价组件未初始化)");
+                Widgets.NoneLabel(rect.center.y, rect.width, SimTranslation.T("RSMF.Business.Reviews.ComponentMissing"));
                 return;
             }
 
@@ -85,7 +85,13 @@ namespace SimManagementLib.SimDialog
             int rootCount = CountRootReviews(allRecords);
             int replyCount = CountForumReplies(allRecords);
             int todayCount = CountRootReviews(allRecords.Where(r => r.gameDay == today));
-            string[] titles = { "平均星级", "主帖", "回复", "今日新增" };
+            string[] titles =
+            {
+                SimTranslation.T("RSMF.Business.Reviews.AverageStars"),
+                SimTranslation.T("RSMF.Business.Reviews.RootPosts"),
+                SimTranslation.T("RSMF.Business.Reviews.Replies"),
+                SimTranslation.T("RSMF.Business.Reviews.TodayNew")
+            };
             string[] values =
             {
                 $"{manager.GetOverallAverageStars():F1} ★",
@@ -184,7 +190,12 @@ namespace SimManagementLib.SimDialog
             if (SimUiStyle.DrawSecondaryButton(shopRect, BuildReviewFilterLabel(), true, GameFont.Tiny))
                 OpenReviewShopFilterMenu();
 
-            string[] sortLabels = { "最新", "高星", "低星" };
+            string[] sortLabels =
+            {
+                SimTranslation.T("RSMF.Business.Reviews.SortNewest"),
+                SimTranslation.T("RSMF.Business.Reviews.SortHighStars"),
+                SimTranslation.T("RSMF.Business.Reviews.SortLowStars")
+            };
             float x = shopRect.xMax + 10f;
             for (int i = 0; i < sortLabels.Length; i++)
             {
@@ -203,7 +214,7 @@ namespace SimManagementLib.SimDialog
             Rect nextRect = new Rect(rect.xMax - 78f, rect.y + 4f, 66f, rect.height - 8f);
             Rect pageRect = new Rect(nextRect.x - 104f, rect.y + 4f, 96f, rect.height - 8f);
             Rect prevRect = new Rect(pageRect.x - 74f, rect.y + 4f, 66f, rect.height - 8f);
-            if (SimUiStyle.DrawSecondaryButton(prevRect, "上一页", reviewPageIndex > 0, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(prevRect, SimTranslation.T("RSMF.Business.Reviews.PrevPage"), reviewPageIndex > 0, GameFont.Tiny))
             {
                 reviewPageIndex--;
                 reviewScrollPos = Vector2.zero;
@@ -213,7 +224,7 @@ namespace SimManagementLib.SimDialog
             GUI.color = CDim;
             Widgets.Label(pageRect, $"{reviewPageIndex + 1}/{pageCount}");
             ResetText();
-            if (SimUiStyle.DrawSecondaryButton(nextRect, "下一页", reviewPageIndex < pageCount - 1, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(nextRect, SimTranslation.T("RSMF.Business.Reviews.NextPage"), reviewPageIndex < pageCount - 1, GameFont.Tiny))
             {
                 reviewPageIndex++;
                 reviewScrollPos = Vector2.zero;
@@ -227,7 +238,7 @@ namespace SimManagementLib.SimDialog
             {
                 Rect viewRect = new Rect(0f, 0f, viewWidth, rect.height + 1f);
                 Widgets.BeginScrollView(rect, ref reviewScrollPos, viewRect);
-                Widgets.NoneLabel(viewRect.center.y, viewRect.width, "(暂无顾客评价)");
+                Widgets.NoneLabel(viewRect.center.y, viewRect.width, SimTranslation.T("RSMF.Business.Reviews.Empty"));
                 Widgets.EndScrollView();
                 return;
             }
@@ -308,7 +319,7 @@ namespace SimManagementLib.SimDialog
             float y = rect.y + rootH;
             Rect toggleRect = new Rect(rect.x + 68f, y, 150f, Mathf.Max(26f, Text.LineHeightOf(GameFont.Tiny) + 8f));
             bool expanded = IsReviewRepliesExpanded(thread.Root.reviewId);
-            if (SimUiStyle.DrawSecondaryButton(toggleRect, expanded ? $"收起回复({thread.Replies.Count})" : $"展开回复({thread.Replies.Count})", true, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(toggleRect, expanded ? SimTranslation.T("RSMF.Business.Reviews.CollapseReplies", thread.Replies.Count.Named("count")) : SimTranslation.T("RSMF.Business.Reviews.ExpandReplies", thread.Replies.Count.Named("count")), true, GameFont.Tiny))
             {
                 ToggleReviewReplies(thread.Root.reviewId);
             }
@@ -354,7 +365,7 @@ namespace SimManagementLib.SimDialog
             Text.Anchor = TextAnchor.MiddleRight;
             Rect voteRect = new Rect(row.x + ReviewTextLeftPadding + 372f, row.y + 10f, row.width - ReviewTextLeftPadding - 386f, Mathf.Max(22f, Text.LineHeightOf(GameFont.Tiny) + 2f));
             if (voteRect.width >= 96f)
-                Widgets.Label(voteRect, $"#{record.reviewId.Truncate(8)}  赞 {record.upvotes}  踩 {record.downvotes}");
+                Widgets.Label(voteRect, SimTranslation.T("RSMF.Business.Reviews.VoteLine", record.reviewId.Truncate(8).Named("id"), record.upvotes.Named("upvotes"), record.downvotes.Named("downvotes")));
             Text.Anchor = TextAnchor.UpperLeft;
 
             GUI.color = Color.white;
@@ -468,7 +479,7 @@ namespace SimManagementLib.SimDialog
                 if (def != null)
                     Widgets.ThingIcon(iconRect.ContractedBy(3f), def);
                 else
-                    Widgets.Label(iconRect, "套");
+                    Widgets.Label(iconRect, SimTranslation.T("RSMF.Business.Reviews.BundleIcon"));
                 TooltipHandler.TipRegion(iconRect, item.label);
                 x += size + 6f;
                 if (x + size > rect.xMax) break;
@@ -489,8 +500,8 @@ namespace SimManagementLib.SimDialog
             Text.WordWrap = true;
             GUI.color = CDim;
             string title = string.IsNullOrWhiteSpace(record.replyToNickname)
-                ? "回复上一条讨论"
-                : $"回复 {record.replyToNickname}";
+                ? SimTranslation.T("RSMF.Business.Reviews.ReplyPrevious")
+                : SimTranslation.T("RSMF.Business.Reviews.ReplyTarget", record.replyToNickname.Named("target"));
             if (!string.IsNullOrWhiteSpace(record.replyStance))
                 title += " · " + record.replyStance;
 
@@ -508,7 +519,7 @@ namespace SimManagementLib.SimDialog
         {
             string purchase = BuildPublicPurchaseSummary(record);
             string service = BuildPublicServiceSummary(record);
-            return $"第 {record.gameDay} 天 · {record.zoneLabel} · 实际付款 {record.spentSilver:F0} 银 · {purchase} · {service}";
+            return SimTranslation.T("RSMF.Business.Reviews.MetaLine", record.gameDay.Named("day"), record.zoneLabel.Named("shop"), record.spentSilver.ToString("F0").Named("spent"), purchase.Named("purchase"), service.Named("service"));
         }
 
         /// <summary>
@@ -517,7 +528,7 @@ namespace SimManagementLib.SimDialog
         private static string BuildPublicPurchaseSummary(CustomerReviewRecord record)
         {
             if (record == null)
-                return "无购买摘要";
+                return SimTranslation.T("RSMF.Business.Reviews.NoPurchaseSummary");
 
             if (!record.featuredItems.NullOrEmpty())
             {
@@ -529,13 +540,13 @@ namespace SimManagementLib.SimDialog
                     string label = string.IsNullOrWhiteSpace(item.label) ? item.defName : item.label;
                     if (string.IsNullOrWhiteSpace(label)) continue;
                     string count = item.count > 0 ? "x" + item.count : "";
-                    parts.Add($"{label}{count}，{item.amount:F0} 银");
+                    parts.Add(SimTranslation.T("RSMF.Business.Reviews.PurchaseItemLine", label.Named("label"), count.Named("count"), item.amount.ToString("F0").Named("amount")));
                 }
                 if (parts.Count > 0)
                     return string.Join("；", parts);
             }
 
-            return StripModelOnlyDescriptions(record.purchasedSummary, "无购买摘要");
+            return StripModelOnlyDescriptions(record.purchasedSummary, SimTranslation.T("RSMF.Business.Reviews.NoPurchaseSummary"));
         }
 
         /// <summary>
@@ -544,9 +555,9 @@ namespace SimManagementLib.SimDialog
         private static string BuildPublicServiceSummary(CustomerReviewRecord record)
         {
             if (record == null)
-                return "无服务摘要";
+                return SimTranslation.T("RSMF.Business.Reviews.NoServiceSummary");
 
-            return StripModelOnlyDescriptions(record.serviceSummary, "无服务摘要");
+            return StripModelOnlyDescriptions(record.serviceSummary, SimTranslation.T("RSMF.Business.Reviews.NoServiceSummary"));
         }
 
         /// <summary>
@@ -660,10 +671,10 @@ namespace SimManagementLib.SimDialog
         /// </summary>
         private static string BuildReplyTitle(CustomerReviewRecord reply)
         {
-            string author = string.IsNullOrWhiteSpace(reply?.aiNickname) ? "匿名用户" : reply.aiNickname;
-            string target = string.IsNullOrWhiteSpace(reply?.replyToNickname) ? "上文" : reply.replyToNickname;
-            string stance = string.IsNullOrWhiteSpace(reply?.replyStance) ? "回复" : reply.replyStance;
-            return $"{author} 回复 {target} · {stance}";
+            string author = string.IsNullOrWhiteSpace(reply?.aiNickname) ? SimTranslation.T("RSMF.Business.Reviews.AnonymousUser") : reply.aiNickname;
+            string target = string.IsNullOrWhiteSpace(reply?.replyToNickname) ? SimTranslation.T("RSMF.Business.Reviews.Above") : reply.replyToNickname;
+            string stance = string.IsNullOrWhiteSpace(reply?.replyStance) ? SimTranslation.T("RSMF.Business.Reviews.ReplyStanceDefault") : reply.replyStance;
+            return SimTranslation.T("RSMF.Business.Reviews.ReplyTitle", author.Named("author"), target.Named("target"), stance.Named("stance"));
         }
 
         /// <summary>
@@ -694,16 +705,16 @@ namespace SimManagementLib.SimDialog
 
         private string BuildReviewFilterLabel()
         {
-            if (reviewFilterZoneId == int.MinValue) return "全部店铺";
+            if (reviewFilterZoneId == int.MinValue) return SimTranslation.T("RSMF.Business.Reviews.AllShops");
             Zone_Shop zone = CollectAllShops().Select(s => s.Zone).FirstOrDefault(z => z.ID == reviewFilterZoneId);
-            return zone != null ? zone.label.Truncate(150f) : "店铺 #" + reviewFilterZoneId;
+            return zone != null ? zone.label.Truncate(150f) : SimTranslation.T("RSMF.Business.Reviews.ShopFallback", reviewFilterZoneId.Named("id"));
         }
 
         private void OpenReviewShopFilterMenu()
         {
             List<FloatMenuOption> options = new List<FloatMenuOption>
             {
-                new FloatMenuOption("全部店铺", () => reviewFilterZoneId = int.MinValue)
+                new FloatMenuOption(SimTranslation.T("RSMF.Business.Reviews.AllShops"), () => reviewFilterZoneId = int.MinValue)
             };
             foreach (ShopViewData shop in CollectAllShops())
             {

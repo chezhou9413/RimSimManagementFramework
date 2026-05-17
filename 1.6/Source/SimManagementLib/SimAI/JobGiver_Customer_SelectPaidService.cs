@@ -25,19 +25,19 @@ namespace SimManagementLib.SimAI
                 return null;
             }
 
-            float alreadySpent = lordJob.cartValues.TryGetValue(pawnId, out float value) ? value : 0f;
-            float remainingBudget = lordJob.GetBudgetForPawn(pawnId) - alreadySpent;
-            if (remainingBudget <= 0f)
-            {
-                lordJob.MarkPawnReadyForCheckout(pawnId);
-                return null;
-            }
-
             Zone_Shop shopZone = ShopDataUtility.FindAssignedShopZone(
                 pawn.Map,
                 lordJob.targetShopZoneId,
                 lordJob.targetShopCell);
             if (shopZone == null) return null;
+
+            float alreadySpent = lordJob.cartValues.TryGetValue(pawnId, out float value) ? value : 0f;
+            float remainingBudget = lordJob.GetEffectiveBudgetForPawn(pawn, shopZone) - alreadySpent;
+            if (remainingBudget <= 0f)
+            {
+                lordJob.MarkPawnReadyForCheckout(pawnId);
+                return null;
+            }
 
             // 服务和商品共享浏览阶段，随机让出一部分机会给商品货柜，避免纯优先级导致顾客只选服务。
             if (ShopDataUtility.GetInStockGoods(shopZone).Count > 0 && Rand.Value > 0.45f)

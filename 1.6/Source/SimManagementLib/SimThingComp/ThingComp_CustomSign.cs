@@ -99,8 +99,8 @@ namespace SimManagementLib.SimThingComp
 
             yield return new Command_Action
             {
-                defaultLabel = "编辑招牌",
-                defaultDesc = "打开招牌编辑器，配置南面、东面和北面的图案图层。",
+                defaultLabel = SimTranslation.T("RSMF.CustomSign.Gizmo.EditLabel"),
+                defaultDesc = SimTranslation.T("RSMF.CustomSign.Gizmo.EditDesc"),
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/Copy", true),
                 action = delegate
                 {
@@ -110,8 +110,8 @@ namespace SimManagementLib.SimThingComp
 
             yield return new Command_Action
             {
-                defaultLabel = "导出招牌",
-                defaultDesc = "导出当前招牌三面图案配置，分享文本会包含用到的图片。",
+                defaultLabel = SimTranslation.T("RSMF.CustomSign.Gizmo.ExportLabel"),
+                defaultDesc = SimTranslation.T("RSMF.CustomSign.Gizmo.ExportDesc"),
                 icon = TexButton.Copy,
                 action = delegate
                 {
@@ -127,8 +127,8 @@ namespace SimManagementLib.SimThingComp
 
             yield return new Command_Action
             {
-                defaultLabel = "导入招牌",
-                defaultDesc = "从其他玩家分享的文本导入招牌配置，并自动同步图片到本地图库。",
+                defaultLabel = SimTranslation.T("RSMF.CustomSign.Gizmo.ImportLabel"),
+                defaultDesc = SimTranslation.T("RSMF.CustomSign.Gizmo.ImportDesc"),
                 icon = TexButton.Paste,
                 action = delegate
                 {
@@ -174,7 +174,7 @@ namespace SimManagementLib.SimThingComp
         private void ApplyImportedFaces(SignFaceData south, SignFaceData east, SignFaceData north)
         {
             SetFaces(south, east, north);
-            Messages.Message("招牌图案已导入。", MessageTypeDefOf.PositiveEvent, false);
+            Messages.Message(SimTranslation.T("RSMF.CustomSign.Imported"), MessageTypeDefOf.PositiveEvent, false);
         }
 
         /// <summary>

@@ -69,7 +69,7 @@ namespace SimManagementLib.Tool
             string replyText = ExtractString(json, "replyText");
             string replyStance = ExtractString(json, "replyStance");
             int stars = ExtractInt(json, "stars");
-            List<string> tags = ExtractStringArray(json, "tags");
+            List<string> tags = CleanTags(ExtractStringArray(json, "tags"), settings);
 
             if (string.IsNullOrWhiteSpace(nickname) || string.IsNullOrWhiteSpace(reviewText) || stars <= 0)
                 return false;
@@ -124,61 +124,9 @@ namespace SimManagementLib.Tool
         /// </summary>
         public static string BuildSnapshotPrompt(CustomerReviewSnapshot snapshot, SimManagementLibSettings settings)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine(settings.reviewUserPrompt);
-            sb.AppendLine();
-            sb.AppendLine("本条评论写作策略:");
-            sb.AppendLine("- 所有资料都是可选背景，不是逐项打卡清单；reviewText 只能自然挑 1 到 3 个点写，其他资料只暗中影响语气、星级和取舍。");
-            sb.AppendLine("- 不要每条都固定评价环境、收银员、服务、价格或商品质量；即使某个参数很差，也只是更可能被注意到，不代表必须写出来。");
-            sb.AppendLine("- 本条随机关注点: " + BuildReviewFocusGuidance(snapshot));
-            sb.AppendLine("- 星级分布要求: 不要把 3 星当默认值。明显满意或买到想要的东西可以 4-5 星；没买到、等待失败、心情很差、疼痛或特性难伺候可以 1-2 星；3 星只用于真的一般或好坏抵消。");
-            sb.AppendLine("- 主观意识要求: 这不是客观质检报告，顾客可以因为心情、背景、特性、偏见、跟风或一点小事放大好恶；评价可以带私人情绪和不完全公平的判断。");
-            AppendAbsurdNitpickGuidance(sb, snapshot, settings);
-            sb.AppendLine();
-            sb.AppendLine("网名只能参考的稳定身份资料:");
-            sb.AppendLine("- kind: " + snapshot.kindLabel + " / " + snapshot.kindId);
-            sb.AppendLine("- kind说明文本: " + EmptyAsNone(snapshot.kindDescription));
-            sb.AppendLine("- 种族: " + snapshot.raceLabel);
-            sb.AppendLine("- 种族说明: " + EmptyAsNone(snapshot.raceDescription));
-            sb.AppendLine("- 名字: " + snapshot.customerDisplayName);
-            sb.AppendLine("- 年龄: " + snapshot.ageSummary);
-            sb.AppendLine("- 背景故事名称: " + snapshot.backstorySummary);
-            sb.AppendLine("- 背景故事完整描述文本: " + EmptyAsNone(snapshot.backstoryDetailSummary));
-            sb.AppendLine("- 背景故事使用要求: 网名和评价都可以参考背景故事完整描述文本里的经历、技能倾向和不能做的工作，但不要直接复述原文。");
-            sb.AppendLine("- 特性说明文本: " + snapshot.traitSummary);
-            sb.AppendLine("- 异种说明文本: " + EmptyAsNone(snapshot.xenotypeSummary));
-            sb.AppendLine("- 基因说明文本: " + EmptyAsNone(snapshot.geneSummary));
-            sb.AppendLine();
-            sb.AppendLine("评价可以参考的临时状态:");
-            sb.AppendLine("- 评价倾向: " + EmptyAsNone(snapshot.personalityBiasSummary));
-            sb.AppendLine("- 心情: " + snapshot.moodSummary);
-            sb.AppendLine("- 健康: " + snapshot.healthSummary);
-            sb.AppendLine();
-            sb.AppendLine("评价可以参考的购物体验:");
-            sb.AppendLine("- 商店: " + snapshot.zoneLabel);
-            sb.AppendLine("- 预算: " + snapshot.budgetSummary);
-            sb.AppendLine("- 实际付款: " + snapshot.spentSilver.ToString("F0", CultureInfo.InvariantCulture) + " 银");
-            sb.AppendLine("- 商品结果: " + snapshot.purchasedSummary);
-            sb.AppendLine("- 服务: " + snapshot.serviceSummary);
-            sb.AppendLine("- 结账背景资料: " + EmptyAsNone(snapshot.cashierSummary));
-            sb.AppendLine("- 结账执行: " + EmptyAsNone(snapshot.checkoutJobSummary));
-            sb.AppendLine("- 结账书写要求: 收银员和结账参数只是背景。只有排队久、结账失败、服务特别快/慢、收银员表现明显影响体验时，才在 reviewText 里提到收银员；普通顺利付款不要每条都写收银员。");
-            sb.AppendLine("- 售后行为: " + EmptyAsNone(snapshot.postPurchaseSummary));
-            sb.AppendLine("- 环境: " + snapshot.shopEnvironmentSummary);
-            sb.AppendLine("- 短期口碑: " + EmptyAsNone(snapshot.recentReviewContextSummary));
-            sb.AppendLine("- 口碑约束: 短期口碑只能作为背景参考，不能压过本次顾客自己的实际体验。");
-            sb.AppendLine("- 论坛互动概率: 当前论坛非常活跃，看到短期口碑时多数顾客会顺手点赞或点踩；很多顾客也会回一句。除非这个顾客完全没兴趣，否则尽量产生一种互动。");
-            sb.AppendLine("- 论坛互动写法: 主观赞同、跟风认同或觉得“说到点上了”就写 upvoteReviewId；主观不服、觉得别人夸过头、骂错点或和自己体验相反就写 downvoteReviewId；想接话、反驳、补充或吐槽时写 replyToReviewId 和 replyText。replyText 要像论坛楼中楼的一句话，不要像客服回复。");
-            sb.AppendLine("- 回复目标选择: 可以回复已有回复数较多或争议较大的帖子；允许多名顾客回复同一个 reviewId，形成真实论坛讨论串。");
-            sb.AppendLine();
-            sb.AppendLine("词库约束:");
-            sb.AppendLine("- 网名风格边界 A，不是候选词，不能直接复制或拼接: " + FlattenLines(settings.reviewNicknamePrefixes));
-            sb.AppendLine("- 网名风格边界 B，不是候选词，不能直接复制或拼接: " + FlattenLines(settings.reviewNicknameSuffixes));
-            sb.AppendLine("- 语气: " + FlattenLines(settings.reviewToneWords));
-            sb.AppendLine("- 正面词: " + FlattenLines(settings.reviewPositiveWords));
-            sb.AppendLine("- 负面词: " + FlattenLines(settings.reviewNegativeWords));
-            sb.AppendLine("- 禁用词: " + FlattenLines(settings.reviewBannedWords));
-            return sb.ToString();
+            string stablePromptPrefix = CustomerReviewPromptInjector.BuildStablePromptPrefix(settings);
+            string dynamicPrompt = CustomerReviewPromptInjector.BuildDynamicPrompt(snapshot, settings, CustomerReviewDialogueStrategy.BuildAntiRepeatContext(settings));
+            return stablePromptPrefix + "\n\n" + dynamicPrompt;
         }
 
         /// <summary>
@@ -193,7 +141,7 @@ namespace SimManagementLib.Tool
             if (!StableChance(seed, settings.reviewAbsurdNitpickChance))
                 return;
 
-            sb.AppendLine("- 刁钻/胡言乱语许可: 本条允许出现一个荒谬、刁钻、没道理但像真实论坛用户发疯的评价点，可以是差评也可以是好评。例子只作尺度参考，不要照抄：嫌店主长得寒碜、越吃越饱反而不爽、买完突然想起前任、觉得货架摆放和自己八字不合。最多写一个这种点，仍然要贴合顾客画像和本次体验，不要攻击现实群体，不要写色情、仇恨或现实政治。");
+            sb.AppendLine("- 刁钻/胡言乱语许可: 本条允许出现一个荒谬、刁钻、没道理但像真实论坛用户发疯的评价点，可以是差评也可以是好评。例子只作尺度参考，不要照抄：嫌店主长得寒碜、越吃越饱反而不爽、买完突然想起前任、觉得货架摆放和自己八字不合、怀疑店员在背后议论自己、觉得这店风水克自己、买完觉得对不起上家店。最多写一个这种点，仍然要贴合顾客画像和本次体验，可以暴论、可以下三路、可以政治不正确的吐槽，别憋着。");
         }
 
         /// <summary>
@@ -203,14 +151,15 @@ namespace SimManagementLib.Tool
         {
             string[] modes =
             {
-                "主要写商品和花费感受，环境与收银员最多带一句。",
+                "从顾客一句主观感受切入，商品和花费只在后半句自然带一下。",
                 "主要写顾客心情和个人脾气，购物细节只挑最刺眼的一点。",
-                "主要写服务或结账流程；如果流程顺利，就不要硬写收银员。",
-                "主要写店铺环境或氛围；如果要提环境，只写一句，不要套用脏乱差模板。",
-                "主要写买到东西后的用途或售后行为，少写店员。",
-                "主要写价格值不值，其他参数只作为背景。",
+                "像论坛碎碎念一样写一个小抱怨或小满意，不要列商品清单。",
+                "主要写店铺环境或氛围带来的感觉；如果要提环境，只写一句，不要套用脏乱差模板。",
+                "主要写买完以后准备怎么用、吃、带走或处理，少写店员。",
+                "主要写值不值带来的情绪，不要算账式复述金额。",
                 "主要写和近期口碑的对比或论坛回复，正文不要重复商品说明。",
-                "主要写一个很短的情绪化结论，不展开所有原因。"
+                "主要写一个很短的情绪化结论，不展开所有原因。",
+                "用顾客背景或特性带出一句偏见，再轻轻落到本次体验。"
             };
 
             int index = StableIndex(snapshot?.reviewId ?? "", modes.Length);
@@ -307,6 +256,72 @@ namespace SimManagementLib.Tool
                 if (result.Count >= 4) break;
             }
             return result;
+        }
+
+        /// <summary>
+        /// 清洗模型标签，负责移除错字感强、无意义、过短、过长或命中禁用词的标签。
+        /// </summary>
+        private static List<string> CleanTags(List<string> tags, SimManagementLibSettings settings)
+        {
+            List<string> result = new List<string>();
+            if (tags == null)
+                return result;
+
+            for (int i = 0; i < tags.Count; i++)
+            {
+                string tag = CleanText(tags[i], 8);
+                tag = Regex.Replace(tag, "[\\s#，,、。.!！?？:：;；]+", "");
+                tag = NormalizeTag(tag);
+                if (!IsUsableTag(tag, settings) || result.Contains(tag))
+                    continue;
+
+                result.Add(tag);
+                if (result.Count >= 4) break;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 规范化模型标签，负责修正少量高频错别字和机械空标签。
+        /// </summary>
+        private static string NormalizeTag(string tag)
+        {
+            if (string.IsNullOrWhiteSpace(tag))
+                return "";
+
+            Dictionary<string, string> replacements = new Dictionary<string, string>
+            {
+                { "回够", "回购" },
+                { "够买", "购买" },
+                { "生存食品", "生存食物" },
+                { "方便食品", "方便食物" },
+                { "赶稿囤货", "囤货" }
+            };
+
+            return replacements.TryGetValue(tag, out string fixedTag) ? fixedTag : tag;
+        }
+
+        /// <summary>
+        /// 判断标签是否适合展示，负责挡掉短怪词、系统词和纯符号内容。
+        /// </summary>
+        private static bool IsUsableTag(string tag, SimManagementLibSettings settings)
+        {
+            if (string.IsNullOrWhiteSpace(tag))
+                return false;
+            if (tag.Length < 2 || tag.Length > 8)
+                return false;
+            if (ContainsBannedWord(tag, settings))
+                return false;
+            if (Regex.IsMatch(tag, "^[0-9A-Za-z_\\-]+$"))
+                return false;
+
+            int chineseCount = 0;
+            for (int i = 0; i < tag.Length; i++)
+            {
+                if (tag[i] >= 0x4e00 && tag[i] <= 0x9fff)
+                    chineseCount++;
+            }
+            return chineseCount >= Math.Min(2, tag.Length);
         }
 
         private static string CleanText(string text, int maxLength)

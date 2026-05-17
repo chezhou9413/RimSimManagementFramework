@@ -87,21 +87,21 @@ namespace SimManagementLib.Tool
 
             if (string.IsNullOrWhiteSpace(sourcePath))
             {
-                error = "图片路径为空。";
+                error = SimTranslation.T("RSMF.CustomSign.Error.EmptyImagePath");
                 return false;
             }
 
             string path = sourcePath.Trim().Trim('"');
             if (!File.Exists(path))
             {
-                error = "找不到图片文件。";
+                error = SimTranslation.T("RSMF.CustomSign.Error.ImageFileNotFound");
                 return false;
             }
 
             string extension = Path.GetExtension(path).ToLowerInvariant();
             if (extension != ".png" && extension != ".jpg" && extension != ".jpeg")
             {
-                error = "只支持 png、jpg、jpeg 图片。";
+                error = SimTranslation.T("RSMF.CustomSign.Error.UnsupportedImageFormat");
                 return false;
             }
 
@@ -111,7 +111,7 @@ namespace SimManagementLib.Tool
                 Texture2D sourceTexture = new Texture2D(2, 2, TextureFormat.ARGB32, false);
                 if (!sourceTexture.LoadImage(sourceBytes))
                 {
-                    error = "图片解码失败。";
+                    error = SimTranslation.T("RSMF.CustomSign.Error.ImageDecodeFailed");
                     return false;
                 }
 
@@ -125,7 +125,7 @@ namespace SimManagementLib.Tool
             }
             catch (Exception ex)
             {
-                error = "导入图片失败：" + ex.Message;
+                error = SimTranslation.T("RSMF.CustomSign.Error.ImportImageFailed", ex.Message.Named("message"));
                 return false;
             }
         }
@@ -189,7 +189,7 @@ namespace SimManagementLib.Tool
                     string path = GetImagePath(imageId);
                     if (!File.Exists(path))
                     {
-                        error = "图片缺失，无法导出：" + imageId;
+                        error = SimTranslation.T("RSMF.CustomSign.Error.ExportImageMissing", imageId.Named("imageId"));
                         return false;
                     }
 
@@ -214,7 +214,7 @@ namespace SimManagementLib.Tool
             }
             catch (Exception ex)
             {
-                error = "导出招牌失败：" + ex.Message;
+                error = SimTranslation.T("RSMF.CustomSign.Error.ExportFailed", ex.Message.Named("message"));
                 return false;
             }
         }
@@ -231,7 +231,7 @@ namespace SimManagementLib.Tool
 
             if (string.IsNullOrWhiteSpace(shareText) || !shareText.Trim().StartsWith(SharePrefix))
             {
-                error = "招牌分享文本格式不正确。";
+                error = SimTranslation.T("RSMF.CustomSign.Error.BadShareText");
                 return false;
             }
 
@@ -247,7 +247,7 @@ namespace SimManagementLib.Tool
 
                 if (package == null)
                 {
-                    error = "招牌分享包为空。";
+                    error = SimTranslation.T("RSMF.CustomSign.Error.EmptySharePackage");
                     return false;
                 }
 
@@ -262,14 +262,14 @@ namespace SimManagementLib.Tool
                     string expectedId = NormalizeId(image.imageId);
                     if (!string.IsNullOrEmpty(expectedId) && !string.Equals(actualId, expectedId, StringComparison.OrdinalIgnoreCase))
                     {
-                        error = "图片校验失败：" + image.label;
+                        error = SimTranslation.T("RSMF.CustomSign.Error.ImageValidationFailed", image.label.Named("label"));
                         return false;
                     }
 
                     Texture2D probe = new Texture2D(2, 2, TextureFormat.ARGB32, false);
                     if (!probe.LoadImage(pngBytes))
                     {
-                        error = "分享包中包含无法解码的图片：" + image.label;
+                        error = SimTranslation.T("RSMF.CustomSign.Error.ShareImageDecodeFailed", image.label.Named("label"));
                         return false;
                     }
 
@@ -283,7 +283,7 @@ namespace SimManagementLib.Tool
             }
             catch (Exception ex)
             {
-                error = "导入招牌失败：" + ex.Message;
+                error = SimTranslation.T("RSMF.CustomSign.Error.ImportFailed", ex.Message.Named("message"));
                 return false;
             }
         }

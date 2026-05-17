@@ -1,4 +1,5 @@
 using RimWorld;
+using SimManagementLib.Tool;
 using System;
 using UnityEngine;
 using Verse;
@@ -101,29 +102,29 @@ namespace SimManagementLib.SimService
             failReason = "";
             if (def == null)
             {
-                failReason = "缺少服务定义";
+                failReason = SimTranslation.T("RSMF.ShopService.Fail.MissingDef");
                 return false;
             }
             if (customer == null || provider == null || provider.Destroyed || provider.Map == null)
             {
-                failReason = "服务建筑不可用";
+                failReason = SimTranslation.T("RSMF.ShopService.Fail.ProviderUnavailable");
                 return false;
             }
             if (!provider.Spawned || customer.Map != provider.Map)
             {
-                failReason = "服务建筑不在当前地图";
+                failReason = SimTranslation.T("RSMF.ShopService.Fail.ProviderWrongMap");
                 return false;
             }
 
             IntVec3 cell = GetUseCell(provider);
             if (!cell.IsValid || !cell.InBounds(provider.Map) || !cell.Standable(provider.Map))
             {
-                failReason = "服务位置不可站立";
+                failReason = SimTranslation.T("RSMF.ShopService.Fail.UseCellNotStandable");
                 return false;
             }
             if (!customer.CanReach(cell, PathEndMode.OnCell, Danger.Deadly))
             {
-                failReason = "顾客无法到达服务位置";
+                failReason = SimTranslation.T("RSMF.ShopService.Fail.CustomerCannotReach");
                 return false;
             }
 

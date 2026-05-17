@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using RimWorld;
+using SimManagementLib.Tool;
 using UnityEngine;
 using Verse;
 
@@ -30,12 +31,16 @@ namespace SimManagementLib.SimThingComp
         /// <summary>
         /// 返回滑条标题。
         /// </summary>
-        protected override string Title => "取现阈值";
+        protected override string Title => SimTranslation.T("RSMF.CashStorage.WithdrawThreshold");
 
         /// <summary>
         /// 返回当前资金和阈值的条内文字。
         /// </summary>
-        protected override string BarLabel => $"{cashStorage.StoredSilver} / {cashStorage.MaxWithdrawThreshold}  阈值 {cashStorage.WithdrawThreshold}";
+        protected override string BarLabel => SimTranslation.T(
+            "RSMF.CashStorage.BarLabel",
+            cashStorage.StoredSilver.Named("stored"),
+            cashStorage.MaxWithdrawThreshold.Named("max"),
+            cashStorage.WithdrawThreshold.Named("threshold"));
 
         /// <summary>
         /// 返回滑条是否可拖动。
@@ -82,7 +87,7 @@ namespace SimManagementLib.SimThingComp
         /// </summary>
         protected override string GetTooltip()
         {
-            return "显示建筑内当前白银和自动取现阈值。拖动阈值点后，服务工作类型的小人会在可取白银达到阈值时自动取出并搬运入库。";
+            return SimTranslation.T("RSMF.CashStorage.ThresholdTooltip");
         }
     }
 }

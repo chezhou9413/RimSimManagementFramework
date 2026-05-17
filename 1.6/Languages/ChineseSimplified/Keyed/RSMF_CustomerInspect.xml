@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.CustomerInspect.Header>=== 顾客面板 ===</RSMF.CustomerInspect.Header>
+  <RSMF.CustomerInspect.ProfilePrefix>档案: </RSMF.CustomerInspect.ProfilePrefix>
+  <RSMF.CustomerInspect.StatePrefix>状态: </RSMF.CustomerInspect.StatePrefix>
+  <RSMF.CustomerInspect.CurrentJobPrefix> / 当前行为: </RSMF.CustomerInspect.CurrentJobPrefix>
+  <RSMF.CustomerInspect.BudgetLine>预算: {budget} | 已花: {spent} | 剩余: {remaining} | 使用率: {spentPct}%</RSMF.CustomerInspect.BudgetLine>
+  <RSMF.CustomerInspect.QueuePatience>结账耐心: {ticks} ticks</RSMF.CustomerInspect.QueuePatience>
+  <RSMF.CustomerInspect.PreferredThingsPrefix>偏好物品: </RSMF.CustomerInspect.PreferredThingsPrefix>
+  <RSMF.CustomerInspect.PreferredCategoriesPrefix>偏好品类: </RSMF.CustomerInspect.PreferredCategoriesPrefix>
+  <RSMF.CustomerInspect.AllowedWeathersPrefix>出没天气: </RSMF.CustomerInspect.AllowedWeathersPrefix>
+  <RSMF.CustomerInspect.ActiveHoursPrefix>出没时间: </RSMF.CustomerInspect.ActiveHoursPrefix>
+  <RSMF.CustomerInspect.ReadyForCheckout>已准备结账</RSMF.CustomerInspect.ReadyForCheckout>
+  <RSMF.CustomerInspect.Browsing>浏览中</RSMF.CustomerInspect.Browsing>
+</LanguageData>

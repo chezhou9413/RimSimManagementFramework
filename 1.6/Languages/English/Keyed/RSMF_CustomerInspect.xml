@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.CustomerInspect.Header>=== Customer panel ===</RSMF.CustomerInspect.Header>
+  <RSMF.CustomerInspect.ProfilePrefix>Profile: </RSMF.CustomerInspect.ProfilePrefix>
+  <RSMF.CustomerInspect.StatePrefix>State: </RSMF.CustomerInspect.StatePrefix>
+  <RSMF.CustomerInspect.CurrentJobPrefix> / Current job: </RSMF.CustomerInspect.CurrentJobPrefix>
+  <RSMF.CustomerInspect.BudgetLine>Budget: {budget} | Spent: {spent} | Remaining: {remaining} | Use: {spentPct}%</RSMF.CustomerInspect.BudgetLine>
+  <RSMF.CustomerInspect.QueuePatience>Checkout patience: {ticks} ticks</RSMF.CustomerInspect.QueuePatience>
+  <RSMF.CustomerInspect.PreferredThingsPrefix>Preferred items: </RSMF.CustomerInspect.PreferredThingsPrefix>
+  <RSMF.CustomerInspect.PreferredCategoriesPrefix>Preferred categories: </RSMF.CustomerInspect.PreferredCategoriesPrefix>
+  <RSMF.CustomerInspect.AllowedWeathersPrefix>Allowed weather: </RSMF.CustomerInspect.AllowedWeathersPrefix>
+  <RSMF.CustomerInspect.ActiveHoursPrefix>Active hours: </RSMF.CustomerInspect.ActiveHoursPrefix>
+  <RSMF.CustomerInspect.ReadyForCheckout>Ready for checkout</RSMF.CustomerInspect.ReadyForCheckout>
+  <RSMF.CustomerInspect.Browsing>Browsing</RSMF.CustomerInspect.Browsing>
+</LanguageData>

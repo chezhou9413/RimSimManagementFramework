@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 按对应种类将商品添加即可 -->
+<Patch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/SimManagementLib.SimDef.GoodsDef[defName="Goods_Foods"]/GoodsList</xpath>
+    <value>
+      <li>Milira_TravellerFood</li>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/SimManagementLib.SimDef.GoodsDef[defName="Goods_Meals"]/GoodsList</xpath>
+    <value>
+      <li>Milira_TravellerFood</li>
+    </value>
+  </Operation>
+</Patch>

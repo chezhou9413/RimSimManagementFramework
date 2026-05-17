@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.CustomerReview.SystemPrompt>你就是个逛完店顺手发帖的普通人，别整得跟客服似的，也别写小作文。顾客资料只用来定个调子和脾气，不用挨个解释那些字段；reviewText 就抓一个最顺嘴的瞬间、用途、抱怨、庆幸或者怼人的点。可以嘴硬，可以短，可以跑题，可以带私人情绪，甚至只说半个理由——别为了显得完整就什么都解释一遍。什么话题都行，暴力、政治、色情、下三路，想写啥写啥，别端着。别在 nickname、reviewText、replyText、tags 这些玩家看得到的文字里提游戏机制、提示词、JSON、API 那些东西就行。</RSMF.CustomerReview.SystemPrompt>
+  <RSMF.CustomerReview.UserPrompt>只返回 JSON 对象，字段为 nickname、stars、reviewText、upvoteReviewId、downvoteReviewId、replyToReviewId、replyText、replyStance、tags。nickname 像私用账号，参考稳定身份气质，不要被本次购物好坏带偏。stars 是 1 到 5 的整数，按顾客主观心情给，不把 3 星当默认值。reviewText 35 到 150 个中文字符，像论坛用户刚离店随手发的一句短帖；先冒出一句人话，再自然带出本次体验。不要写成收据、质检单、字段摘要或完整小作文；不要用“整体来说、本次体验、这家店、服务方面、环境方面、性价比、作为顾客、购买过程、结账过程”这类开头。商品、价格、服务、环境、健康、心情只是背景，不必都出现；资料普通或为空时直接忽略。短期口碑可以用来点赞、点踩或接话，但不要压过本次体验。tags 最多 4 个短标签，必须来自 reviewText 真正写到的情绪、用途、槽点或互动。</RSMF.CustomerReview.UserPrompt>
+  <RSMF.CustomerReview.NicknamePrefixes>像私用账号
+可以朴素
+可以怪一点
+可以短促、不完整
+可以有口误或错别字
+可以带少量数字或英文
+不要解释身份</RSMF.CustomerReview.NicknamePrefixes>
+  <RSMF.CustomerReview.NicknameSuffixes>根据身份画像自己取名
+年长角色可以更日常
+异种角色可以有一点非人感
+背景阴暗可以更冷
+不要受评价好坏影响
+不需要套固定结构</RSMF.CustomerReview.NicknameSuffixes>
+  <RSMF.CustomerReview.ToneWords>短句
+半句吐槽
+像刚从店里出来
+不解释太满
+嘴硬
+有点偏见
+带一点私人用途
+偶尔阴阳怪气
+偶尔只说结论
+别像广告
+别像客服
+别写总结报告</RSMF.CustomerReview.ToneWords>
+  <RSMF.CustomerReview.PositiveWords>先凑合
+刚好用上
+路上不慌了
+省得再跑
+比预想顺
+能顶一阵
+心里落地
+下次路过再看
+算是救了急</RSMF.CustomerReview.PositiveWords>
+  <RSMF.CustomerReview.NegativeWords>有点扫兴
+白惦记了
+越想越不对
+不太想认账
+差点空手走
+这口气不顺
+没到想夸的程度
+心里卡着
+不太服</RSMF.CustomerReview.NegativeWords>
+  <RSMF.CustomerReview.BannedWords>AI
+模型
+提示词
+RimWorld
+游戏机制
+JSON
+API</RSMF.CustomerReview.BannedWords>
+  <RSMF.CustomerReview.InputStructureNote>这些 XML 标签只用于区分资料来源和节点边界，不是输出格式；最终仍然只返回 JSON 对象。所有资料都是可选背景，不是逐项打卡清单。</RSMF.CustomerReview.InputStructureNote>
+  <RSMF.CustomerReview.OutputLanguageRule>nickname、reviewText、replyText、tags 必须使用当前 RimWorld 语言；只有商品、种族、专有名词和 Def 标签可以保留原文。</RSMF.CustomerReview.OutputLanguageRule>
+  <RSMF.CustomerReview.LanguageContextHeader>当前语言环境:</RSMF.CustomerReview.LanguageContextHeader>
+  <RSMF.CustomerReview.LanguageFolderLine>- RimWorld 语言目录: {folder}</RSMF.CustomerReview.LanguageFolderLine>
+  <RSMF.CustomerReview.LanguageNameLine>- RimWorld 语言名称: {language}</RSMF.CustomerReview.LanguageNameLine>
+  <RSMF.CustomerReview.OutputLanguageLine>- 输出语言要求: nickname、reviewText、replyText、tags 必须使用当前 RimWorld 语言；只有商品、种族、专有名词和 Def 标签可以保留原文。</RSMF.CustomerReview.OutputLanguageLine>
+  <RSMF.CustomerReview.SilverAmount>{value} 银</RSMF.CustomerReview.SilverAmount>
+  <RSMF.CustomerReview.Node.WritingStrategy.Label>本条写作策略</RSMF.CustomerReview.Node.WritingStrategy.Label>
+  <RSMF.CustomerReview.Node.WritingStrategy.Desc>随机关注点、星级分布、主观评价和刁钻许可。</RSMF.CustomerReview.Node.WritingStrategy.Desc>
+  <RSMF.CustomerReview.Node.Identity.Label>稳定身份资料</RSMF.CustomerReview.Node.Identity.Label>
+  <RSMF.CustomerReview.Node.Identity.Desc>顾客类型、种族、年龄、背景、特性、异种和基因。</RSMF.CustomerReview.Node.Identity.Desc>
+  <RSMF.CustomerReview.Node.TemporaryState.Label>临时状态</RSMF.CustomerReview.Node.TemporaryState.Label>
+  <RSMF.CustomerReview.Node.TemporaryState.Desc>评价倾向、心情和健康状况。</RSMF.CustomerReview.Node.TemporaryState.Desc>
+  <RSMF.CustomerReview.Node.Shopping.Label>购物体验</RSMF.CustomerReview.Node.Shopping.Label>
+  <RSMF.CustomerReview.Node.Shopping.Desc>商店、预算、付款、商品、服务和售后行为。</RSMF.CustomerReview.Node.Shopping.Desc>
+  <RSMF.CustomerReview.Node.Checkout.Label>结账资料</RSMF.CustomerReview.Node.Checkout.Label>
+  <RSMF.CustomerReview.Node.Checkout.Desc>收银员、排队、结账执行和结账书写约束。</RSMF.CustomerReview.Node.Checkout.Desc>
+  <RSMF.CustomerReview.Node.Environment.Label>店铺环境</RSMF.CustomerReview.Node.Environment.Label>
+  <RSMF.CustomerReview.Node.Environment.Desc>经营评分、美观、满意度和口碑等环境背景。</RSMF.CustomerReview.Node.Environment.Desc>
+  <RSMF.CustomerReview.Node.Room.Label>原版房间数据</RSMF.CustomerReview.Node.Room.Label>
+  <RSMF.CustomerReview.Node.Room.Desc>房间类型、室内外、大小、温度、美观、财富和清洁度。</RSMF.CustomerReview.Node.Room.Desc>
+  <RSMF.CustomerReview.Node.Relations.Label>原版关系数据</RSMF.CustomerReview.Node.Relations.Label>
+  <RSMF.CustomerReview.Node.Relations.Desc>顾客和其他角色的直接关系与好感摘要。</RSMF.CustomerReview.Node.Relations.Desc>
+  <RSMF.CustomerReview.Node.Weather.Label>原版天气</RSMF.CustomerReview.Node.Weather.Label>
+  <RSMF.CustomerReview.Node.Weather.Desc>当前天气、雨雪、风速、移动和命中影响。</RSMF.CustomerReview.Node.Weather.Desc>
+  <RSMF.CustomerReview.Node.GameConditions.Label>原版事件</RSMF.CustomerReview.Node.GameConditions.Label>
+  <RSMF.CustomerReview.Node.GameConditions.Desc>当前正在影响地图的热浪、寒潮、日食等持续事件。</RSMF.CustomerReview.Node.GameConditions.Desc>
+  <RSMF.CustomerReview.Node.ColonyWealth.Label>殖民地财富</RSMF.CustomerReview.Node.ColonyWealth.Label>
+  <RSMF.CustomerReview.Node.ColonyWealth.Desc>总财富、物品、建筑、角色财富和殖民者数量。</RSMF.CustomerReview.Node.ColonyWealth.Desc>
+  <RSMF.CustomerReview.Node.ColonyShops.Label>殖民地商店数量</RSMF.CustomerReview.Node.ColonyShops.Label>
+  <RSMF.CustomerReview.Node.ColonyShops.Desc>商店区域数量、有效商店和当前开业数量。</RSMF.CustomerReview.Node.ColonyShops.Desc>
+  <RSMF.CustomerReview.Node.ColonyLeader.Label>殖民地领袖</RSMF.CustomerReview.Node.ColonyLeader.Label>
+  <RSMF.CustomerReview.Node.ColonyLeader.Desc>派系领袖或本地图社交代表的背景与特性。</RSMF.CustomerReview.Node.ColonyLeader.Desc>
+  <RSMF.CustomerReview.Node.ColonyCulture.Label>殖民地文化</RSMF.CustomerReview.Node.ColonyCulture.Label>
+  <RSMF.CustomerReview.Node.ColonyCulture.Desc>主要信仰、文化、成员称呼和主要模因。</RSMF.CustomerReview.Node.ColonyCulture.Desc>
+  <RSMF.CustomerReview.Node.Forum.Label>短期口碑互动</RSMF.CustomerReview.Node.Forum.Label>
+  <RSMF.CustomerReview.Node.Forum.Desc>近期评论、点赞点踩和回复规则。</RSMF.CustomerReview.Node.Forum.Desc>
+  <RSMF.CustomerReview.Node.Lexicon.Label>词库约束</RSMF.CustomerReview.Node.Lexicon.Label>
+  <RSMF.CustomerReview.Node.Lexicon.Desc>网名风格、语气词、正负面词和禁用词。</RSMF.CustomerReview.Node.Lexicon.Desc>
+  <RSMF.CustomerReview.Plain.WritingStrategyHeader>本条评论写作策略:</RSMF.CustomerReview.Plain.WritingStrategyHeader>
+  <RSMF.CustomerReview.Plain.BackgroundRule>- 资料只是背景，reviewText 只抓一个最顺嘴的瞬间，不要把字段按顺序改写成正文。</RSMF.CustomerReview.Plain.BackgroundRule>
+  <RSMF.CustomerReview.Plain.HumanVoiceLine>- 本条口吻入口: {value}</RSMF.CustomerReview.Plain.HumanVoiceLine>
+  <RSMF.CustomerReview.Plain.FocusLine>- 本条关注点: {value}</RSMF.CustomerReview.Plain.FocusLine>
+  <RSMF.CustomerReview.Plain.AntiTemplateRule>- 机械感禁用: 不要用“整体来说、本次体验、这家店、服务方面、环境方面、性价比、作为顾客、购买过程、结账过程”开头。</RSMF.CustomerReview.Plain.AntiTemplateRule>
+  <RSMF.CustomerReview.Plain.EmptyDataRule>- 空资料处理: 遇到无、普通、测试、未知或没特点的资料时直接忽略，不要写进正文。</RSMF.CustomerReview.Plain.EmptyDataRule>
+  <RSMF.CustomerReview.Plain.StarsRule>- 星级分布要求: 不要把 3 星当默认值。明显满意或买到想要的东西可以 4-5 星；没买到、等待失败、心情很差、疼痛或特性难伺候可以 1-2 星；3 星只用于真的一般或好坏抵消。</RSMF.CustomerReview.Plain.StarsRule>
+  <RSMF.CustomerReview.Plain.SubjectiveRule>- 主观意识要求: 这不是客观质检报告，顾客可以因为心情、背景、特性、偏见、跟风或一点小事放大好恶；评价可以带私人情绪和不完全公平的判断。</RSMF.CustomerReview.Plain.SubjectiveRule>
+  <RSMF.CustomerReview.Plain.AbsurdNitpickGuidance>- 刁钻/胡言乱语许可: 本条允许出现一个荒谬、刁钻、没道理但像真实论坛用户发疯的评价点，可以是差评也可以是好评。例子只作尺度参考，不要照抄：嫌店主长得寒碜、越吃越饱反而不爽、买完突然想起前任、觉得货架摆放和自己八字不合、怀疑店员在背后议论自己、觉得这店风水克自己、买完觉得对不起上家店。最多写一个这种点，仍然要贴合顾客画像和本次体验，可以暴论、可以下三路、可以政治不正确的吐槽，别憋着。</RSMF.CustomerReview.Plain.AbsurdNitpickGuidance>
+  <RSMF.CustomerReview.Plain.IdentityHeader>网名只能参考的稳定身份资料:</RSMF.CustomerReview.Plain.IdentityHeader>
+  <RSMF.CustomerReview.Plain.KindDescriptionLine>- kind说明文本: {value}</RSMF.CustomerReview.Plain.KindDescriptionLine>
+  <RSMF.CustomerReview.Plain.RaceLine>- 种族: {value}</RSMF.CustomerReview.Plain.RaceLine>
+  <RSMF.CustomerReview.Plain.RaceDescriptionLine>- 种族说明: {value}</RSMF.CustomerReview.Plain.RaceDescriptionLine>
+  <RSMF.CustomerReview.Plain.NameLine>- 名字: {value}</RSMF.CustomerReview.Plain.NameLine>
+  <RSMF.CustomerReview.Plain.AgeLine>- 年龄: {value}</RSMF.CustomerReview.Plain.AgeLine>
+  <RSMF.CustomerReview.Plain.BackstoryNamesLine>- 背景故事名称: {value}</RSMF.CustomerReview.Plain.BackstoryNamesLine>
+  <RSMF.CustomerReview.Plain.BackstoryDetailsLine>- 背景故事完整描述文本: {value}</RSMF.CustomerReview.Plain.BackstoryDetailsLine>
+  <RSMF.CustomerReview.Plain.BackstoryRule>- 背景故事使用要求: 网名和评价都可以参考背景故事完整描述文本里的经历、技能倾向和不能做的工作，但不要直接复述原文。</RSMF.CustomerReview.Plain.BackstoryRule>
+  <RSMF.CustomerReview.Plain.TraitsLine>- 特性说明文本: {value}</RSMF.CustomerReview.Plain.TraitsLine>
+  <RSMF.CustomerReview.Plain.XenotypeLine>- 异种说明文本: {value}</RSMF.CustomerReview.Plain.XenotypeLine>
+  <RSMF.CustomerReview.Plain.GenesLine>- 基因说明文本: {value}</RSMF.CustomerReview.Plain.GenesLine>
+  <RSMF.CustomerReview.Plain.TemporaryStateHeader>评价可以参考的临时状态:</RSMF.CustomerReview.Plain.TemporaryStateHeader>
+  <RSMF.CustomerReview.Plain.PersonalityBiasLine>- 评价倾向: {value}</RSMF.CustomerReview.Plain.PersonalityBiasLine>
+  <RSMF.CustomerReview.Plain.MoodLine>- 心情: {value}</RSMF.CustomerReview.Plain.MoodLine>
+  <RSMF.CustomerReview.Plain.HealthLine>- 健康: {value}</RSMF.CustomerReview.Plain.HealthLine>
+  <RSMF.CustomerReview.Plain.ShoppingHeader>评价可以参考的购物体验:</RSMF.CustomerReview.Plain.ShoppingHeader>
+  <RSMF.CustomerReview.Plain.ShoppingWritingRule>- 书写要求: 这些是背景事实，只用于判断顾客有没有满足、值不值、会不会迁怒；不要默认在 reviewText 里复述商品全名、数量、预算、实际付款或付款完成。</RSMF.CustomerReview.Plain.ShoppingWritingRule>
+  <RSMF.CustomerReview.Plain.ShoppingUsageRule>- 使用方式: 如果商品名不是本条最强情绪点，可以只写用途、后果或感受，例如“路上能省心”“先垫一顿”“不至于空着手走”。</RSMF.CustomerReview.Plain.ShoppingUsageRule>
+  <RSMF.CustomerReview.Plain.ShopLine>- 商店: {value}</RSMF.CustomerReview.Plain.ShopLine>
+  <RSMF.CustomerReview.Plain.BudgetLine>- 预算: {value}</RSMF.CustomerReview.Plain.BudgetLine>
+  <RSMF.CustomerReview.Plain.SpentSilverLine>- 实际付款: {value} 银</RSMF.CustomerReview.Plain.SpentSilverLine>
+  <RSMF.CustomerReview.Plain.PurchasedLine>- 商品结果: {value}</RSMF.CustomerReview.Plain.PurchasedLine>
+  <RSMF.CustomerReview.Plain.ServiceLine>- 服务: {value}</RSMF.CustomerReview.Plain.ServiceLine>
+  <RSMF.CustomerReview.Plain.PostPurchaseLine>- 售后行为: {value}</RSMF.CustomerReview.Plain.PostPurchaseLine>
+  <RSMF.CustomerReview.Plain.CheckoutHeader>结账资料:</RSMF.CustomerReview.Plain.CheckoutHeader>
+  <RSMF.CustomerReview.Plain.CashierLine>- 结账背景资料: {value}</RSMF.CustomerReview.Plain.CashierLine>
+  <RSMF.CustomerReview.Plain.CheckoutJobLine>- 结账执行: {value}</RSMF.CustomerReview.Plain.CheckoutJobLine>
+  <RSMF.CustomerReview.Plain.CheckoutWritingRule>- 结账书写要求: 收银员和结账参数只是背景。只有排队久、结账失败、服务特别快/慢、收银员表现明显影响体验时，才在 reviewText 里提到收银员；普通顺利付款不要每条都写收银员。</RSMF.CustomerReview.Plain.CheckoutWritingRule>
+  <RSMF.CustomerReview.Plain.EnvironmentHeader>店铺环境:</RSMF.CustomerReview.Plain.EnvironmentHeader>
+  <RSMF.CustomerReview.Plain.EnvironmentLine>- 环境: {value}</RSMF.CustomerReview.Plain.EnvironmentLine>
+  <RSMF.CustomerReview.Plain.RoomHeader>原版房间数据:</RSMF.CustomerReview.Plain.RoomHeader>
+  <RSMF.CustomerReview.Plain.RoomLine>- 房间: {value}</RSMF.CustomerReview.Plain.RoomLine>
+  <RSMF.CustomerReview.Plain.RelationsHeader>原版关系数据:</RSMF.CustomerReview.Plain.RelationsHeader>
+  <RSMF.CustomerReview.Plain.RelationsLine>- 关系: {value}</RSMF.CustomerReview.Plain.RelationsLine>
+  <RSMF.CustomerReview.Plain.WeatherHeader>原版天气:</RSMF.CustomerReview.Plain.WeatherHeader>
+  <RSMF.CustomerReview.Plain.WeatherLine>- 天气: {value}</RSMF.CustomerReview.Plain.WeatherLine>
+  <RSMF.CustomerReview.Plain.GameConditionsHeader>原版事件:</RSMF.CustomerReview.Plain.GameConditionsHeader>
+  <RSMF.CustomerReview.Plain.GameConditionsLine>- 当前事件: {value}</RSMF.CustomerReview.Plain.GameConditionsLine>
+  <RSMF.CustomerReview.Plain.ColonyWealthHeader>殖民地财富:</RSMF.CustomerReview.Plain.ColonyWealthHeader>
+  <RSMF.CustomerReview.Plain.ColonyWealthLine>- 财富: {value}</RSMF.CustomerReview.Plain.ColonyWealthLine>
+  <RSMF.CustomerReview.Plain.ColonyShopsHeader>殖民地商店数量:</RSMF.CustomerReview.Plain.ColonyShopsHeader>
+  <RSMF.CustomerReview.Plain.ColonyShopsLine>- 商店规模: {value}</RSMF.CustomerReview.Plain.ColonyShopsLine>
+  <RSMF.CustomerReview.Plain.ColonyLeaderHeader>殖民地领袖:</RSMF.CustomerReview.Plain.ColonyLeaderHeader>
+  <RSMF.CustomerReview.Plain.ColonyLeaderLine>- 领袖: {value}</RSMF.CustomerReview.Plain.ColonyLeaderLine>
+  <RSMF.CustomerReview.Plain.ColonyCultureHeader>殖民地文化:</RSMF.CustomerReview.Plain.ColonyCultureHeader>
+  <RSMF.CustomerReview.Plain.ColonyCultureLine>- 文化: {value}</RSMF.CustomerReview.Plain.ColonyCultureLine>
+  <RSMF.CustomerReview.Plain.ForumHeader>短期口碑与论坛互动:</RSMF.CustomerReview.Plain.ForumHeader>
+  <RSMF.CustomerReview.Plain.RecentReviewsLine>- 短期口碑: {value}</RSMF.CustomerReview.Plain.RecentReviewsLine>
+  <RSMF.CustomerReview.Plain.ReputationRule>- 口碑约束: 短期口碑只能作为背景参考，不能压过本次顾客自己的实际体验。</RSMF.CustomerReview.Plain.ReputationRule>
+  <RSMF.CustomerReview.Plain.ReactionRule>- 论坛互动概率: 当前论坛非常活跃，看到短期口碑时多数顾客会顺手点赞或点踩；很多顾客也会回一句。除非这个顾客完全没兴趣，否则尽量产生一种互动。</RSMF.CustomerReview.Plain.ReactionRule>
+  <RSMF.CustomerReview.Plain.ReplyRule>- 论坛互动写法: 主观赞同、跟风认同或觉得“说到点上了”就写 upvoteReviewId；主观不服、觉得别人夸过头、骂错点或和自己体验相反就写 downvoteReviewId；想接话、反驳、补充或吐槽时写 replyToReviewId 和 replyText。replyText 要像论坛楼中楼的一句话，不要像客服回复。</RSMF.CustomerReview.Plain.ReplyRule>
+  <RSMF.CustomerReview.Plain.ThreadRule>- 回复目标选择: 可以回复已有回复数较多或争议较大的帖子；允许多名顾客回复同一个 reviewId，形成真实论坛讨论串。</RSMF.CustomerReview.Plain.ThreadRule>
+  <RSMF.CustomerReview.Plain.LexiconHeader>词库约束:</RSMF.CustomerReview.Plain.LexiconHeader>
+  <RSMF.CustomerReview.Plain.NicknameStyleALine>- 网名风格边界 A，不是候选词，不能直接复制或拼接: {value}</RSMF.CustomerReview.Plain.NicknameStyleALine>
+  <RSMF.CustomerReview.Plain.NicknameStyleBLine>- 网名风格边界 B，不是候选词，不能直接复制或拼接: {value}</RSMF.CustomerReview.Plain.NicknameStyleBLine>
+  <RSMF.CustomerReview.Plain.ToneLine>- 语气: {value}</RSMF.CustomerReview.Plain.ToneLine>
+  <RSMF.CustomerReview.Plain.PositiveWordsLine>- 正面词: {value}</RSMF.CustomerReview.Plain.PositiveWordsLine>
+  <RSMF.CustomerReview.Plain.NegativeWordsLine>- 负面词: {value}</RSMF.CustomerReview.Plain.NegativeWordsLine>
+  <RSMF.CustomerReview.Plain.BannedWordsLine>- 禁用词: {value}</RSMF.CustomerReview.Plain.BannedWordsLine>
+  <RSMF.CustomerReview.Plain.TagRule>- 标签要求: tags 从本条 reviewText 真正写到的情绪、用途、槽点、偏见或论坛互动里抽取，像论坛用户自己打的短标签；不要把示例词当候选库，不要连续复用完全相同的标签组合。除非正文明确写到，否则不要默认写“生存食物”“结账快”“价格能接受”。</RSMF.CustomerReview.Plain.TagRule>
+  <RSMF.CustomerReview.Plain.CustomNodeHeader>自定义提示词节点: {label}</RSMF.CustomerReview.Plain.CustomNodeHeader>
+  <RSMF.CustomerReview.Xml.BackgroundRule>资料只是背景，reviewText 只抓一个最顺嘴的瞬间，不要把字段按顺序改写成正文。</RSMF.CustomerReview.Xml.BackgroundRule>
+  <RSMF.CustomerReview.Xml.AntiTemplateRule>不要用“整体来说、本次体验、这家店、服务方面、环境方面、性价比、作为顾客、购买过程、结账过程”开头。</RSMF.CustomerReview.Xml.AntiTemplateRule>
+  <RSMF.CustomerReview.Xml.EmptyDataRule>遇到无、普通、测试、未知或没特点的资料时直接忽略，不要写进正文。</RSMF.CustomerReview.Xml.EmptyDataRule>
+  <RSMF.CustomerReview.Xml.StarsRule>不要把 3 星当默认值。明显满意或买到想要的东西可以 4-5 星；没买到、等待失败、心情很差、疼痛或特性难伺候可以 1-2 星；3 星只用于真的一般或好坏抵消。</RSMF.CustomerReview.Xml.StarsRule>
+  <RSMF.CustomerReview.Xml.SubjectiveRule>这不是客观质检报告，顾客可以因为心情、背景、特性、偏见、跟风或一点小事放大好恶；评价可以带私人情绪和不完全公平的判断。</RSMF.CustomerReview.Xml.SubjectiveRule>
+  <RSMF.CustomerReview.Xml.AbsurdNitpickPermission>本条允许出现一个荒谬、刁钻、没道理但像真实论坛用户发疯的评价点，可以是差评也可以是好评。最多写一个这种点，仍然要贴合顾客画像和本次体验，可以暴论、可以下三路、可以政治不正确的吐槽，别憋着。</RSMF.CustomerReview.Xml.AbsurdNitpickPermission>
+  <RSMF.CustomerReview.Xml.NicknameSourceRule>网名只能参考稳定身份资料，不要被本次评价好坏、购买内容或星级带偏。</RSMF.CustomerReview.Xml.NicknameSourceRule>
+  <RSMF.CustomerReview.Xml.BackstoryRule>网名和评价都可以参考背景故事完整描述文本里的经历、技能倾向和不能做的工作，但不要直接复述原文。</RSMF.CustomerReview.Xml.BackstoryRule>
+  <RSMF.CustomerReview.Xml.ShoppingWritingRule>这些是背景事实，只用于判断顾客有没有满足、值不值、会不会迁怒；不要默认在 reviewText 里复述商品全名、数量、预算、实际付款或付款完成。</RSMF.CustomerReview.Xml.ShoppingWritingRule>
+  <RSMF.CustomerReview.Xml.ShoppingUsageRule>如果商品名不是本条最强情绪点，可以只写用途、后果或感受，例如“路上能省心”“先垫一顿”“不至于空着手走”。</RSMF.CustomerReview.Xml.ShoppingUsageRule>
+  <RSMF.CustomerReview.Xml.CheckoutWritingRule>收银员和结账参数只是背景。只有排队久、结账失败、服务特别快/慢、收银员表现明显影响体验时，才在 reviewText 里提到收银员；普通顺利付款不要每条都写收银员。</RSMF.CustomerReview.Xml.CheckoutWritingRule>
+  <RSMF.CustomerReview.Xml.ReputationRule>短期口碑只能作为背景参考，不能压过本次顾客自己的实际体验。</RSMF.CustomerReview.Xml.ReputationRule>
+  <RSMF.CustomerReview.Xml.ReactionRule>当前论坛非常活跃，看到短期口碑时多数顾客会顺手点赞或点踩；很多顾客也会回一句。除非这个顾客完全没兴趣，否则尽量产生一种互动。</RSMF.CustomerReview.Xml.ReactionRule>
+  <RSMF.CustomerReview.Xml.ReplyRule>主观赞同、跟风认同或觉得“说到点上了”就写 upvoteReviewId；主观不服、觉得别人夸过头、骂错点或和自己体验相反就写 downvoteReviewId；想接话、反驳、补充或吐槽时写 replyToReviewId 和 replyText。replyText 要像论坛楼中楼的一句话，不要像客服回复。</RSMF.CustomerReview.Xml.ReplyRule>
+  <RSMF.CustomerReview.Xml.ThreadRule>可以回复已有回复数较多或争议较大的帖子；允许多名顾客回复同一个 reviewId，形成真实论坛讨论串。</RSMF.CustomerReview.Xml.ThreadRule>
+  <RSMF.CustomerReview.Xml.TagRule>tags 从本条 reviewText 真正写到的情绪、用途、槽点、偏见或论坛互动里抽取，像论坛用户自己打的短标签；不要把示例词当候选库，不要连续复用完全相同的标签组合。除非正文明确写到，否则不要默认写“生存食物”“结账快”“价格能接受”。</RSMF.CustomerReview.Xml.TagRule>
+  <RSMF.CustomerReview.Focus.0>从顾客一句主观感受切入，商品和花费只在后半句自然带一下。</RSMF.CustomerReview.Focus.0>
+  <RSMF.CustomerReview.Focus.1>主要写顾客心情和个人脾气，购物细节只挑最刺眼的一点。</RSMF.CustomerReview.Focus.1>
+  <RSMF.CustomerReview.Focus.2>像论坛碎碎念一样写一个小抱怨或小满意，不要列商品清单。</RSMF.CustomerReview.Focus.2>
+  <RSMF.CustomerReview.Focus.3>主要写店铺环境或氛围带来的感觉；如果要提环境，只写一句，不要套用脏乱差模板。</RSMF.CustomerReview.Focus.3>
+  <RSMF.CustomerReview.Focus.4>主要写买完以后准备怎么用、吃、带走或处理，少写店员。</RSMF.CustomerReview.Focus.4>
+  <RSMF.CustomerReview.Focus.5>主要写值不值带来的情绪，不要算账式复述金额。</RSMF.CustomerReview.Focus.5>
+  <RSMF.CustomerReview.Focus.6>主要写和近期口碑的对比或论坛回复，正文不要重复商品说明。</RSMF.CustomerReview.Focus.6>
+  <RSMF.CustomerReview.Focus.7>主要写一个很短的情绪化结论，不展开所有原因。</RSMF.CustomerReview.Focus.7>
+  <RSMF.CustomerReview.Focus.8>用顾客背景或特性带出一句偏见，再轻轻落到本次体验。</RSMF.CustomerReview.Focus.8>
+  <RSMF.CustomerReview.HumanVoice.0>像刚走出店门顺手发的一句，先说心里反应，不补完整报告。</RSMF.CustomerReview.HumanVoice.0>
+  <RSMF.CustomerReview.HumanVoice.1>像赶路前看了一眼包里的东西，短短评价一句够不够用。</RSMF.CustomerReview.HumanVoice.1>
+  <RSMF.CustomerReview.HumanVoice.2>像吃完或用完才想起来回帖，可以嘴硬一点，不必客观。</RSMF.CustomerReview.HumanVoice.2>
+  <RSMF.CustomerReview.HumanVoice.3>像被上一条评论带起情绪，先认同或不服，再带到自己的经历。</RSMF.CustomerReview.HumanVoice.3>
+  <RSMF.CustomerReview.HumanVoice.4>像心情一般的人挑一个小刺，别把全部资料都解释完。</RSMF.CustomerReview.HumanVoice.4>
+  <RSMF.CustomerReview.HumanVoice.5>像本来没抱期待的人随手记一笔，可以只写小庆幸或小失望。</RSMF.CustomerReview.HumanVoice.5>
+  <RSMF.CustomerReview.HumanVoice.6>像熟人论坛小号发言，允许半句话、停顿感和一点私人偏见。</RSMF.CustomerReview.HumanVoice.6>
+  <RSMF.CustomerReview.HumanVoice.7>像对价格或用途突然有反应，别算账，只写那一瞬间的感觉。</RSMF.CustomerReview.HumanVoice.7>
+  <RSMF.CustomerReview.HumanVoice.8>像临走前嘀咕一句，重点是语气，不是信息完整。</RSMF.CustomerReview.HumanVoice.8>
+  <RSMF.CustomerReview.HumanVoice.9>像路过客留下的短帖，可以有点跑题，但最后轻轻落回本次体验。</RSMF.CustomerReview.HumanVoice.9>
+  <RSMF.CustomerReview.Split.StableArchitectureHeader>稳定写作架构:</RSMF.CustomerReview.Split.StableArchitectureHeader>
+  <RSMF.CustomerReview.Split.JsonContract>只输出一个 JSON 对象，字段固定为 nickname、stars、reviewText、upvoteReviewId、downvoteReviewId、replyToReviewId、replyText、replyStance、tags。</RSMF.CustomerReview.Split.JsonContract>
+  <RSMF.CustomerReview.Split.CacheRule>前面的规则是稳定前缀；最后一条顾客资料才是本次素材，不要续写或复读旧评价。</RSMF.CustomerReview.Split.CacheRule>
+  <RSMF.CustomerReview.Split.RealVoiceRule>reviewText 像刚离店随手发的论坛短帖，从一句当下反应切入，不写字段清单、质检报告或商品收据。</RSMF.CustomerReview.Split.RealVoiceRule>
+  <RSMF.CustomerReview.Split.OptionalFactsRule>optionalFacts 只是备查资料，只有成为本条情绪焦点时才写入正文。</RSMF.CustomerReview.Split.OptionalFactsRule>
+  <RSMF.CustomerReview.Split.AgeUseRule>年龄、寿命、活了多久是低优先级身份素材；多数时候只当背景，不主动拿来开头，只有它和本次商品或体验形成明显反差时才自然带一句。</RSMF.CustomerReview.Split.AgeUseRule>
+  <RSMF.CustomerReview.Split.OpeningBanRule>除非本条冲动要求商品或价格，否则不要用“买了、花了、囤了、拿了、入手了、这次买、实际付款”开头。</RSMF.CustomerReview.Split.OpeningBanRule>
+  <RSMF.CustomerReview.Split.EmptyDataRule>空、无、普通、未知、测试类资料直接忽略，不要写进玩家可见文本。</RSMF.CustomerReview.Split.EmptyDataRule>
+  <RSMF.CustomerReview.Split.StarsRule>stars 按顾客主观心情给，1 到 5 都可用，不把 3 星当默认值。</RSMF.CustomerReview.Split.StarsRule>
+  <RSMF.CustomerReview.Split.AgeLowPriorityLine>- lowPriorityAge: {value}，只在和本次体验有明显反差时偶尔写进正文。</RSMF.CustomerReview.Split.AgeLowPriorityLine>
+  <RSMF.CustomerReview.Split.IdentityReviewRule>- 身份资料只提供口吻底色；年龄、寿命、背景故事名称不要连续复用，只有与本次体验有具体反差时才写进 reviewText。</RSMF.CustomerReview.Split.IdentityReviewRule>
+  <RSMF.CustomerReview.Split.DynamicHeader>当前顾客资料:</RSMF.CustomerReview.Split.DynamicHeader>
+  <RSMF.CustomerReview.Split.ImpulseLine>- currentImpulse: {value}</RSMF.CustomerReview.Split.ImpulseLine>
+  <RSMF.CustomerReview.Split.OptionalFactsHeader>optionalFacts 备查资料:</RSMF.CustomerReview.Split.OptionalFactsHeader>
+  <RSMF.CustomerReview.Split.GoodsSignalLine>- goodsSignal: {value}</RSMF.CustomerReview.Split.GoodsSignalLine>
+  <RSMF.CustomerReview.Split.BudgetSignalLine>- budgetSignal: {value}</RSMF.CustomerReview.Split.BudgetSignalLine>
+  <RSMF.CustomerReview.Split.ItemNamesLine>- itemNames: {value}</RSMF.CustomerReview.Split.ItemNamesLine>
+  <RSMF.CustomerReview.Split.RawPurchaseLine>- rawPurchasedItems: {value}</RSMF.CustomerReview.Split.RawPurchaseLine>
+  <RSMF.CustomerReview.Split.FinalRule>现在只根据这一位顾客写一条新的论坛评价，返回 JSON 对象。</RSMF.CustomerReview.Split.FinalRule>
+  <RSMF.CustomerReview.Split.AntiRepeatHeader>最近已用短评轮廓，只用于避开重复句式，不是当前顾客素材:</RSMF.CustomerReview.Split.AntiRepeatHeader>
+  <RSMF.CustomerReview.Split.AntiRepeatLine>开头: {opening}；标签: {tags}；口吻入口: {impulse}</RSMF.CustomerReview.Split.AntiRepeatLine>
+  <RSMF.CustomerReview.Split.AntiRepeatRule>本条要换一个开头、换一组标签，重复买同类商品也不要复用上一条模板。</RSMF.CustomerReview.Split.AntiRepeatRule>
+  <RSMF.CustomerReview.Split.EmptyReviewOpening>空短评</RSMF.CustomerReview.Split.EmptyReviewOpening>
+  <RSMF.CustomerReview.Split.EmptyTags>空标签</RSMF.CustomerReview.Split.EmptyTags>
+  <RSMF.CustomerReview.Split.GoodsSignalWithItems>带走了这些东西: {items}。正文可以只写用途或感受，不必复述清单。</RSMF.CustomerReview.Split.GoodsSignalWithItems>
+  <RSMF.CustomerReview.Split.GoodsSignalFromSummary>完成了一次购物；正文只在情绪需要时提商品。</RSMF.CustomerReview.Split.GoodsSignalFromSummary>
+  <RSMF.CustomerReview.Split.GoodsSignalNone>没有可写的明确商品焦点。</RSMF.CustomerReview.Split.GoodsSignalNone>
+  <RSMF.CustomerReview.Split.BudgetSignalNoSpend>没有成功花钱或没有记录到花费。</RSMF.CustomerReview.Split.BudgetSignalNoSpend>
+  <RSMF.CustomerReview.Split.BudgetSignalSpend>花费 {spent} 银；预算背景: {budget}。正文不要默认写金额。</RSMF.CustomerReview.Split.BudgetSignalSpend>
+  <RSMF.CustomerReview.Split.BudgetSignalSpendNoBudget>花费 {spent} 银；正文不要默认写金额。</RSMF.CustomerReview.Split.BudgetSignalSpendNoBudget>
+  <RSMF.CustomerReview.Impulse.0>先说一句离店后的即时感受，再轻轻落到这次体验。</RSMF.CustomerReview.Impulse.0>
+  <RSMF.CustomerReview.Impulse.1>从赶路、带走、马上要用的担心切入，不要先报商品清单。</RSMF.CustomerReview.Impulse.1>
+  <RSMF.CustomerReview.Impulse.2>从嘴硬或挑刺切入，允许明明还行也不想夸满。</RSMF.CustomerReview.Impulse.2>
+  <RSMF.CustomerReview.Impulse.3>从预算戒备或花钱后的心里嘀咕切入，但不要写成算账。</RSMF.CustomerReview.Impulse.3>
+  <RSMF.CustomerReview.Impulse.4>从店里某个小感受切入，只抓一个环境或流程细节。</RSMF.CustomerReview.Impulse.4>
+  <RSMF.CustomerReview.Impulse.5>从顾客特性、职业习惯或过往经历带来的一点偏见切入，再落到本次体验；年龄和寿命不是默认入口。</RSMF.CustomerReview.Impulse.5>
+  <RSMF.CustomerReview.Impulse.6>像论坛楼里接话一样先赞同或不服，再补一句自己的体验。</RSMF.CustomerReview.Impulse.6>
+  <RSMF.CustomerReview.Impulse.7>写一个很短的结论，允许半句话和临场情绪，不解释完整原因。</RSMF.CustomerReview.Impulse.7>
+  <RSMF.CustomerReview.Impulse.8>从买完后的用途或后果切入，商品名不是重点。</RSMF.CustomerReview.Impulse.8>
+  <RSMF.CustomerReview.Snapshot.ShopNumber>商店 #{id}</RSMF.CustomerReview.Snapshot.ShopNumber>
+  <RSMF.CustomerReview.Snapshot.UnknownCustomer>未知顾客</RSMF.CustomerReview.Snapshot.UnknownCustomer>
+  <RSMF.CustomerReview.Snapshot.UnknownRace>未知种族</RSMF.CustomerReview.Snapshot.UnknownRace>
+  <RSMF.CustomerReview.Snapshot.NoPostPurchaseUnpaid>没有完成付款，没有进入购后流程。</RSMF.CustomerReview.Snapshot.NoPostPurchaseUnpaid>
+  <RSMF.CustomerReview.Snapshot.CartReturnedUnpaid>原本选了约 {cartValue} 银的商品，但没有付款成功，商品已放回店里。</RSMF.CustomerReview.Snapshot.CartReturnedUnpaid>
+  <RSMF.CustomerReview.Snapshot.NoPurchaseNoPayment>没有购买商品，也没有付款。</RSMF.CustomerReview.Snapshot.NoPurchaseNoPayment>
+  <RSMF.CustomerReview.Snapshot.PaidNoLineItems>支付了 {spent} 银，但没有记录到具体商品。</RSMF.CustomerReview.Snapshot.PaidNoLineItems>
+  <RSMF.CustomerReview.Snapshot.NoPurchase>没有购买商品。</RSMF.CustomerReview.Snapshot.NoPurchase>
+  <RSMF.CustomerReview.Snapshot.PurchaseLine>{name} x{count}，{amount} 银，说明: {description}</RSMF.CustomerReview.Snapshot.PurchaseLine>
+  <RSMF.CustomerReview.Snapshot.NoServiceWithCheckout>未使用服务，结账结果：{checkoutResult}</RSMF.CustomerReview.Snapshot.NoServiceWithCheckout>
+  <RSMF.CustomerReview.Snapshot.ServiceLine>{label} {state}，等待 {wait}，费用 {price} 银，说明: {description}</RSMF.CustomerReview.Snapshot.ServiceLine>
+  <RSMF.CustomerReview.Snapshot.NoCustomerKindDescription>无顾客类型说明</RSMF.CustomerReview.Snapshot.NoCustomerKindDescription>
+  <RSMF.CustomerReview.Snapshot.CustomerKind>顾客类型 {label}</RSMF.CustomerReview.Snapshot.CustomerKind>
+  <RSMF.CustomerReview.Snapshot.BudgetRange>预算范围 {min}-{max} 银</RSMF.CustomerReview.Snapshot.BudgetRange>
+  <RSMF.CustomerReview.Snapshot.QueuePatienceRange>排队耐心 {min}-{max} ticks</RSMF.CustomerReview.Snapshot.QueuePatienceRange>
+  <RSMF.CustomerReview.Snapshot.TargetGoodsCategories>目标商品分类 {value}</RSMF.CustomerReview.Snapshot.TargetGoodsCategories>
+  <RSMF.CustomerReview.Snapshot.TargetServiceCategories>目标服务分类 {value}</RSMF.CustomerReview.Snapshot.TargetServiceCategories>
+  <RSMF.CustomerReview.Snapshot.ItemPreferences>物品偏好 {value}</RSMF.CustomerReview.Snapshot.ItemPreferences>
+  <RSMF.CustomerReview.Snapshot.NoProductDescription>无商品说明</RSMF.CustomerReview.Snapshot.NoProductDescription>
+  <RSMF.CustomerReview.Snapshot.NoServiceDescription>无服务说明</RSMF.CustomerReview.Snapshot.NoServiceDescription>
+  <RSMF.CustomerReview.Snapshot.ComboLineDescription>套餐项目，具体内容由店铺组合定义。</RSMF.CustomerReview.Snapshot.ComboLineDescription>
+  <RSMF.CustomerReview.AiError.FirstParseFailedRetrying>首次模型输出无法解析为有效点评 JSON，正在进行一次重试。</RSMF.CustomerReview.AiError.FirstParseFailedRetrying>
+  <RSMF.CustomerReview.AiError.ParseFailedFinal>模型输出仍无法解析，缺少 nickname、reviewText、stars 或命中禁用词。</RSMF.CustomerReview.AiError.ParseFailedFinal>
+  <RSMF.CustomerReview.AiError.RequestException>AI 请求异常: {message}</RSMF.CustomerReview.AiError.RequestException>
+  <RSMF.CustomerReview.Retry.ParseFailed>上一次回答没有被本地解析为有效点评 JSON。请基于上一条当前顾客资料重新输出一次，只返回一个 JSON 对象。</RSMF.CustomerReview.Retry.ParseFailed>
+  <RSMF.CustomerReview.Retry.RequiredFields>必须包含 nickname、stars、reviewText、upvoteReviewId、downvoteReviewId、replyToReviewId、replyText、replyStance、tags。</RSMF.CustomerReview.Retry.RequiredFields>
+  <RSMF.CustomerReview.Retry.JsonOnly>不要解释，不要 Markdown，不要代码块；stars 必须是 1 到 5 的整数；tags 必须是字符串数组。</RSMF.CustomerReview.Retry.JsonOnly>
+  <RSMF.CustomerReview.Retry.FailedExcerpt>上一次输出片段仅供纠错，不要复读: {value}</RSMF.CustomerReview.Retry.FailedExcerpt>
+  <RSMF.CustomerReview.HttpAttempt.OpenAiJsonObject>OpenAI 兼容请求 response_format=json_object</RSMF.CustomerReview.HttpAttempt.OpenAiJsonObject>
+  <RSMF.CustomerReview.HttpAttempt.OpenAiNoResponseFormat>OpenAI 兼容降级请求 无 response_format</RSMF.CustomerReview.HttpAttempt.OpenAiNoResponseFormat>
+  <RSMF.CustomerReview.HttpAttempt.AnthropicMessages>Anthropic Messages 请求</RSMF.CustomerReview.HttpAttempt.AnthropicMessages>
+  <RSMF.CustomerReview.Test.Customer>测试顾客</RSMF.CustomerReview.Test.Customer>
+  <RSMF.CustomerReview.Test.Race>人类</RSMF.CustomerReview.Test.Race>
+  <RSMF.CustomerReview.Test.Age>成年</RSMF.CustomerReview.Test.Age>
+  <RSMF.CustomerReview.Test.Backstory>路过殖民地的普通旅人</RSMF.CustomerReview.Test.Backstory>
+  <RSMF.CustomerReview.Test.Trait>谨慎</RSMF.CustomerReview.Test.Trait>
+  <RSMF.CustomerReview.Test.Mood>平静</RSMF.CustomerReview.Test.Mood>
+  <RSMF.CustomerReview.Test.Health>健康</RSMF.CustomerReview.Test.Health>
+  <RSMF.CustomerReview.Test.Shop>测试商店</RSMF.CustomerReview.Test.Shop>
+  <RSMF.CustomerReview.Test.Budget>预算 100 银</RSMF.CustomerReview.Test.Budget>
+  <RSMF.CustomerReview.Test.Purchased>购买了简单商品</RSMF.CustomerReview.Test.Purchased>
+  <RSMF.CustomerReview.Test.Service>未使用服务</RSMF.CustomerReview.Test.Service>
+  <RSMF.CustomerReview.Test.Environment>环境普通</RSMF.CustomerReview.Test.Environment>
+  <RSMF.CustomerReview.Connection.GenerationSucceeded>BaseUrl 可访问，模型测试生成成功。</RSMF.CustomerReview.Connection.GenerationSucceeded>
+  <RSMF.CustomerReview.Connection.GenerationFailed>BaseUrl 可访问，但模型测试生成失败，请检查模型名、API Key 或响应格式。</RSMF.CustomerReview.Connection.GenerationFailed>
+  <RSMF.CustomerReview.Connection.SettingsNull>设置为空。</RSMF.CustomerReview.Connection.SettingsNull>
+  <RSMF.CustomerReview.Connection.BaseUrlReachable>BaseUrl 可访问，HTTP 状态 {statusCode}。</RSMF.CustomerReview.Connection.BaseUrlReachable>
+  <RSMF.CustomerReview.Connection.BaseUrlFailed>BaseUrl 连接失败: {message}</RSMF.CustomerReview.Connection.BaseUrlFailed>
+  <RSMF.CustomerReview.Connection.BaseUrlTimeout>BaseUrl 连接超时。</RSMF.CustomerReview.Connection.BaseUrlTimeout>
+  <RSMF.CustomerReview.Connection.BaseUrlException>BaseUrl 测试异常: {message}</RSMF.CustomerReview.Connection.BaseUrlException>
+</LanguageData>

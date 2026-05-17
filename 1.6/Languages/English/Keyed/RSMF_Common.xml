@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.Common.None>None</RSMF.Common.None>
+  <RSMF.Common.Default>Default</RSMF.Common.Default>
+  <RSMF.Common.Off>Off</RSMF.Common.Off>
+  <RSMF.Common.Unknown>Unknown</RSMF.Common.Unknown>
+  <RSMF.Common.Valid>Valid</RSMF.Common.Valid>
+  <RSMF.Common.Copy>Copy</RSMF.Common.Copy>
+  <RSMF.Common.CopyAll>Copy all</RSMF.Common.CopyAll>
+  <RSMF.Common.Delete>Delete</RSMF.Common.Delete>
+  <RSMF.Common.Locate>Locate</RSMF.Common.Locate>
+  <RSMF.Common.Select>Select</RSMF.Common.Select>
+  <RSMF.Common.PreviousPage>Previous</RSMF.Common.PreviousPage>
+  <RSMF.Common.NextPage>Next</RSMF.Common.NextPage>
+  <RSMF.Common.NoData>No data</RSMF.Common.NoData>
+  <RSMF.Common.NoDescription>No description</RSMF.Common.NoDescription>
+  <RSMF.Common.Unspecified>Unspecified</RSMF.Common.Unspecified>
+  <RSMF.Common.Unlimited>Unlimited</RSMF.Common.Unlimited>
+  <RSMF.Common.ListSeparator>, </RSMF.Common.ListSeparator>
+  <RSMF.Common.SemicolonSeparator>; </RSMF.Common.SemicolonSeparator>
+  <RSMF.Common.UnnamedCombo>Unnamed bundle</RSMF.Common.UnnamedCombo>
+  <RSMF.Common.UnnamedShop>Unnamed shop</RSMF.Common.UnnamedShop>
+  <RSMF.Common.SilverAmount>{amount} silver</RSMF.Common.SilverAmount>
+  <RSMF.CustomerFaction.Name>Shop customers</RSMF.CustomerFaction.Name>
+  <RSMF.CustomerFaction.MissingDef>Missing neutral customer faction Def: {defName}</RSMF.CustomerFaction.MissingDef>
+  <RSMF.Common.Import.EmptyContent>Import content is empty.</RSMF.Common.Import.EmptyContent>
+  <RSMF.Common.Import.ParseFailed>Base64 or JSON parse failed: {message}</RSMF.Common.Import.ParseFailed>
+</LanguageData>

@@ -24,6 +24,8 @@ namespace SimManagementLib.Tool
     public class CustomerReviewDialogueRequest
     {
         public string userPrompt = "";
+        public string stablePromptPrefix = "";
+        public string dynamicPrompt = "";
         public bool startedNewConversation;
         public List<CustomerReviewChatMessage> messages = new List<CustomerReviewChatMessage>();
         public int conversationCharCount;
@@ -44,8 +46,9 @@ namespace SimManagementLib.Tool
     /// </summary>
     public static class CustomerReviewDialogueStrategy
     {
+        private const int MaxRecentMemos = 8;
         private static readonly object Gate = new object();
-        private static readonly List<CustomerReviewChatMessage> RollingMessages = new List<CustomerReviewChatMessage>();
+        private static readonly List<CustomerReviewAntiRepeatMemo> RecentMemos = new List<CustomerReviewAntiRepeatMemo>();
         private static string rollingConversationSignature = "";
 
         /// <summary>
@@ -53,12 +56,22 @@ namespace SimManagementLib.Tool
         /// </summary>
         public static CustomerReviewDialogueRequest Prepare(CustomerReviewSnapshot snapshot, SimManagementLibSettings settings, string userPrompt)
         {
+            return Prepare(snapshot, settings, "", userPrompt);
+        }
+
+        /// <summary>
+        /// 根据稳定前缀和动态资料生成对话请求，负责让服务端前缀缓存命中且避免旧顾客资料污染当前评价。
+        /// </summary>
+        public static CustomerReviewDialogueRequest Prepare(CustomerReviewSnapshot snapshot, SimManagementLibSettings settings, string stablePromptPrefix, string dynamicPrompt)
+        {
             CustomerReviewDialogueRequest request = new CustomerReviewDialogueRequest
             {
-                userPrompt = userPrompt ?? ""
+                stablePromptPrefix = stablePromptPrefix ?? "",
+                dynamicPrompt = dynamicPrompt ?? "",
+                userPrompt = BuildDebugPrompt(stablePromptPrefix, dynamicPrompt)
             };
 
-            PrepareRollingMessages(request, settings);
+            PrepareCacheableMessages(request, settings);
             return request;
         }
 
@@ -77,59 +90,115 @@ namespace SimManagementLib.Tool
         }
 
         /// <summary>
-        /// 准备滚动对话消息，负责让 DeepSeek 一类服务端前缀缓存可以命中历史输入。
+        /// 构造解析失败后的修正请求，负责复用同一前缀并追加简短修正要求。
         /// </summary>
-        private static void PrepareRollingMessages(CustomerReviewDialogueRequest request, SimManagementLibSettings settings)
+        public static CustomerReviewDialogueRequest BuildRetryRequest(CustomerReviewDialogueRequest source, string failedOutput)
+        {
+            CustomerReviewDialogueRequest retry = CloneRequestForRetry(source);
+            retry.messages.Add(new CustomerReviewChatMessage
+            {
+                role = "user",
+                content = BuildRetryInstruction(failedOutput)
+            });
+            retry.conversationCharCount = CountMessageChars(retry.messages);
+            return retry;
+        }
+
+        /// <summary>
+        /// 构造当前可用的反重复备忘，负责只把最近句式和标签作为末尾动态提示的一部分。
+        /// </summary>
+        public static string BuildAntiRepeatContext(SimManagementLibSettings settings)
+        {
+            int limit = GetConversationCharLimit(settings);
+            if (limit <= 0)
+                return "";
+
+            lock (Gate)
+            {
+                if (RecentMemos.Count == 0)
+                    return "";
+
+                int maxCount = Math.Max(1, Math.Min(MaxRecentMemos, limit / 240));
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine(SimTranslation.TOrFallback("RSMF.CustomerReview.Split.AntiRepeatHeader", "最近已用短评轮廓，只用于避开重复句式，不是当前顾客素材:"));
+                int start = Math.Max(0, RecentMemos.Count - maxCount);
+                for (int i = start; i < RecentMemos.Count; i++)
+                {
+                    CustomerReviewAntiRepeatMemo memo = RecentMemos[i];
+                    if (memo == null)
+                        continue;
+
+                    sb.AppendLine("- " + SimTranslation.TOrFallback("RSMF.CustomerReview.Split.AntiRepeatLine", "开头: {opening}；标签: {tags}；口吻入口: {impulse}")
+                        .Replace("{opening}", memo.opening ?? "")
+                        .Replace("{tags}", memo.tags ?? "")
+                        .Replace("{impulse}", memo.impulse ?? ""));
+                }
+                sb.AppendLine(SimTranslation.TOrFallback("RSMF.CustomerReview.Split.AntiRepeatRule", "本条要换一个开头、换一组标签，重复买同类商品也不要复用上一条模板。"));
+                return sb.ToString();
+            }
+        }
+
+        /// <summary>
+        /// 准备可缓存对话消息，负责固定前缀顺序并把所有易变资料放到最后。
+        /// </summary>
+        private static void PrepareCacheableMessages(CustomerReviewDialogueRequest request, SimManagementLibSettings settings)
         {
             if (request == null)
                 return;
 
             string signature = BuildConversationSignature(settings);
-            int limit = GetConversationCharLimit(settings);
 
             lock (Gate)
             {
-                if (limit <= 0)
-                {
-                    RollingMessages.Clear();
-                    request.messages.Add(new CustomerReviewChatMessage
-                    {
-                        role = "user",
-                        content = request.userPrompt ?? ""
-                    });
-                    request.startedNewConversation = true;
-                    request.conversationCharCount = CountMessageChars(request.messages);
-                    request.conversationTurnCount = 0;
-                    return;
-                }
-
                 if (rollingConversationSignature != signature)
                 {
-                    RollingMessages.Clear();
+                    RecentMemos.Clear();
                     rollingConversationSignature = signature;
                     request.startedNewConversation = true;
                 }
 
-                int projectedChars = CountMessageChars(RollingMessages) + (request.userPrompt?.Length ?? 0);
-                if (projectedChars > limit)
+                if (!string.IsNullOrWhiteSpace(request.stablePromptPrefix))
                 {
-                    RollingMessages.Clear();
-                    request.startedNewConversation = true;
-                }
-
-                for (int i = 0; i < RollingMessages.Count; i++)
-                {
-                    request.messages.Add(CloneMessage(RollingMessages[i]));
+                    request.messages.Add(new CustomerReviewChatMessage
+                    {
+                        role = "user",
+                        content = request.stablePromptPrefix
+                    });
                 }
 
                 request.messages.Add(new CustomerReviewChatMessage
                 {
                     role = "user",
-                    content = request.userPrompt ?? ""
+                    content = string.IsNullOrWhiteSpace(request.dynamicPrompt) ? request.userPrompt ?? "" : request.dynamicPrompt
                 });
                 request.conversationCharCount = CountMessageChars(request.messages);
-                request.conversationTurnCount = RollingMessages.Count / 2;
+                request.conversationTurnCount = RecentMemos.Count;
             }
+        }
+
+        /// <summary>
+        /// 复制请求消息，负责让不同重试类型共享滚动前缀和当前顾客资料。
+        /// </summary>
+        private static CustomerReviewDialogueRequest CloneRequestForRetry(CustomerReviewDialogueRequest source)
+        {
+            CustomerReviewDialogueRequest retry = new CustomerReviewDialogueRequest
+            {
+                userPrompt = source?.userPrompt ?? "",
+                stablePromptPrefix = source?.stablePromptPrefix ?? "",
+                dynamicPrompt = source?.dynamicPrompt ?? "",
+                startedNewConversation = source?.startedNewConversation ?? true,
+                conversationTurnCount = source?.conversationTurnCount ?? 0
+            };
+
+            if (source?.messages != null)
+            {
+                for (int i = 0; i < source.messages.Count; i++)
+                {
+                    retry.messages.Add(CloneMessage(source.messages[i]));
+                }
+            }
+
+            return retry;
         }
 
         /// <summary>
@@ -141,45 +210,17 @@ namespace SimManagementLib.Tool
                 return;
 
             int limit = GetConversationCharLimit(settings);
-            string userPrompt = BuildHistoryUserSummary(snapshot);
-            string assistantJson = BuildAssistantJson(result);
             if (limit <= 0)
                 return;
 
-            int projectedChars = CountMessageChars(RollingMessages) + userPrompt.Length + assistantJson.Length;
-            if (projectedChars > limit)
+            RecentMemos.Add(new CustomerReviewAntiRepeatMemo
             {
-                RollingMessages.Clear();
-            }
-
-            RollingMessages.Add(new CustomerReviewChatMessage
-            {
-                role = "user",
-                content = userPrompt
+                opening = BuildReviewOpeningMemo(result.reviewText),
+                tags = BuildTagMemo(result.tags),
+                impulse = Shorten(ExtractImpulseFromDynamicPrompt(request.dynamicPrompt), 36)
             });
-            RollingMessages.Add(new CustomerReviewChatMessage
-            {
-                role = "assistant",
-                content = assistantJson
-            });
-        }
-
-        /// <summary>
-        /// 构造历史顾客摘要，负责保留对话缓存需要的上下文，同时避免旧购买清单和旧评价正文诱导模型复读句式。
-        /// </summary>
-        private static string BuildHistoryUserSummary(CustomerReviewSnapshot snapshot)
-        {
-            if (snapshot == null)
-                return "上一位顾客已处理。下一位顾客必须重新生成独立网名和不同句式。";
-
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("上一位顾客已处理，只作为轻量上下文参考，不要求当前评价模仿或反向避开。");
-            sb.AppendLine("稳定身份: " + Shorten(snapshot.kindLabel, 24) + " / " + Shorten(snapshot.raceLabel, 24) + " / " + Shorten(snapshot.ageSummary, 24));
-            sb.AppendLine("性格背景: " + Shorten(snapshot.backstorySummary, 60) + " / " + Shorten(snapshot.traitSummary, 60));
-            sb.AppendLine("背景故事完整描述摘要: " + Shorten(snapshot.backstoryDetailSummary, 220));
-            sb.AppendLine("体验轮廓: " + Shorten(snapshot.serviceSummary, 70) + " / 实际付款 " + snapshot.spentSilver.ToString("F0") + " 银");
-            sb.AppendLine("提示: 当前顾客应按自己的画像自然说话，切入点可以和上一条不同，也可以偶尔相似。");
-            return sb.ToString();
+            while (RecentMemos.Count > MaxRecentMemos)
+                RecentMemos.RemoveAt(0);
         }
 
         /// <summary>
@@ -197,7 +238,13 @@ namespace SimManagementLib.Tool
             sb.Append(settings?.reviewToneWords ?? "").Append('|');
             sb.Append(settings?.reviewPositiveWords ?? "").Append('|');
             sb.Append(settings?.reviewNegativeWords ?? "").Append('|');
-            sb.Append(settings?.reviewBannedWords ?? "");
+            sb.Append(settings?.reviewBannedWords ?? "").Append('|');
+            sb.Append(settings?.reviewPromptInputFormat ?? "").Append('|');
+            sb.Append(settings?.reviewPromptEnabledNodeIds ?? "").Append('|');
+            sb.Append(settings?.reviewPromptNodeOrder ?? "").Append('|');
+            sb.Append(settings?.reviewPromptCustomNodes ?? "").Append('|');
+            sb.Append(settings?.reviewAbsurdNitpickEnabled == true ? "absurd-on" : "absurd-off").Append('|');
+            sb.Append(settings?.reviewAbsurdNitpickChance.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture) ?? "");
             return Sha256Hex(sb.ToString());
         }
 
@@ -241,65 +288,88 @@ namespace SimManagementLib.Tool
         }
 
         /// <summary>
-        /// 构造助手 JSON 历史，负责让下一轮请求的前缀完全复用上一轮输入输出。
+        /// 构造重试修正提示，负责让模型只输出合法 JSON 而不是重新解释规则。
         /// </summary>
-        private static string BuildAssistantJson(CustomerReviewAiResult result)
+        private static string BuildRetryInstruction(string failedOutput)
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append("{\"nickname\":\"").Append(EscapeJson(BuildNicknameShape(result.nickname))).Append("\",");
-            sb.Append("\"stars\":").Append(Math.Max(1, Math.Min(5, result.stars))).Append(",");
-            sb.Append("\"reviewText\":\"").Append(EscapeJson(BuildReviewShape(result.reviewText))).Append("\",");
-            sb.Append("\"upvoteReviewId\":\"").Append(EscapeJson(SummarizeInteraction(result.upvoteReviewId))).Append("\",");
-            sb.Append("\"downvoteReviewId\":\"").Append(EscapeJson(SummarizeInteraction(result.downvoteReviewId))).Append("\",");
-            sb.Append("\"replyToReviewId\":\"").Append(EscapeJson(SummarizeInteraction(result.replyToReviewId))).Append("\",");
-            sb.Append("\"replyText\":\"").Append(EscapeJson(BuildReviewShape(result.replyText))).Append("\",");
-            sb.Append("\"replyStance\":\"").Append(EscapeJson(result.replyStance)).Append("\",");
-            sb.Append("\"tags\":[");
-            if (result.tags != null)
-            {
-                for (int i = 0; i < result.tags.Count && i < 4; i++)
-                {
-                    if (i > 0) sb.Append(",");
-                    sb.Append("\"").Append(EscapeJson(result.tags[i])).Append("\"");
-                }
-            }
-            sb.Append("]}");
+            sb.AppendLine(SimTranslation.TOrFallback("RSMF.CustomerReview.Retry.ParseFailed", "上一次回答没有被本地解析为有效点评 JSON。请基于上一条当前顾客资料重新输出一次，只返回一个 JSON 对象。"));
+            sb.AppendLine(SimTranslation.TOrFallback("RSMF.CustomerReview.Retry.RequiredFields", "必须包含 nickname、stars、reviewText、upvoteReviewId、downvoteReviewId、replyToReviewId、replyText、replyStance、tags。"));
+            sb.AppendLine(SimTranslation.TOrFallback("RSMF.CustomerReview.Retry.JsonOnly", "不要解释，不要 Markdown，不要代码块；stars 必须是 1 到 5 的整数；tags 必须是字符串数组。"));
+            string excerpt = Shorten(failedOutput, 240);
+            if (!string.IsNullOrWhiteSpace(excerpt) && excerpt != SimTranslation.TOrFallback("RSMF.Common.None", "无"))
+                sb.AppendLine(SimTranslation.TOrFallback("RSMF.CustomerReview.Retry.FailedExcerpt", "上一次输出片段仅供纠错，不要复读: {value}").Replace("{value}", excerpt));
             return sb.ToString();
         }
 
         /// <summary>
-        /// 归纳历史互动字段，负责保留论坛行为轮廓但不暴露旧评论正文。
+        /// 构造历史短评开头备忘，负责只提供去重目标而不是可复读正文。
         /// </summary>
-        private static string SummarizeInteraction(string reviewId)
-        {
-            return string.IsNullOrWhiteSpace(reviewId) ? "" : "曾互动一条历史评论";
-        }
-
-        /// <summary>
-        /// 归纳历史网名形态，负责避免把真实上一条网名作为下一轮可模仿样本。
-        /// </summary>
-        private static string BuildNicknameShape(string nickname)
-        {
-            if (string.IsNullOrWhiteSpace(nickname))
-                return "已生成独立网名";
-
-            int len = nickname.Trim().Length;
-            return "已生成" + Math.Max(1, Math.Min(12, len)) + "字独立网名";
-        }
-
-        /// <summary>
-        /// 归纳历史评价形态，负责让对话缓存保留去重信号但不保留可复读的正文。
-        /// </summary>
-        private static string BuildReviewShape(string reviewText)
+        private static string BuildReviewOpeningMemo(string reviewText)
         {
             if (string.IsNullOrWhiteSpace(reviewText))
-                return "已生成一条独立短评，下一条需换切入方式";
+                return SimTranslation.TOrFallback("RSMF.CustomerReview.Split.EmptyReviewOpening", "空短评");
 
             string start = reviewText.Trim();
-            if (start.Length > 6)
-                start = start.Substring(0, 6);
+            if (start.Length > 8)
+                start = start.Substring(0, 8);
 
-            return "上一条大致从「" + EscapeJson(start) + "」开头，当前评价按新顾客自然发挥";
+            return "“" + start + "”这类开头";
+        }
+
+        /// <summary>
+        /// 构造历史标签备忘，负责降低连续评论复用同一标签组合的概率。
+        /// </summary>
+        private static string BuildTagMemo(List<string> tags)
+        {
+            if (tags == null || tags.Count == 0)
+                return SimTranslation.TOrFallback("RSMF.CustomerReview.Split.EmptyTags", "空标签");
+
+            List<string> safe = new List<string>();
+            for (int i = 0; i < tags.Count && i < 4; i++)
+            {
+                if (!string.IsNullOrWhiteSpace(tags[i]))
+                    safe.Add(tags[i].Trim());
+            }
+            return safe.Count == 0 ? SimTranslation.TOrFallback("RSMF.CustomerReview.Split.EmptyTags", "空标签") : string.Join(SimTranslation.TOrFallback("RSMF.Common.ListSeparator", "、"), safe.ToArray());
+        }
+
+        /// <summary>
+        /// 构造调试提示词文本，负责让终端仍能完整查看稳定前缀和动态资料。
+        /// </summary>
+        private static string BuildDebugPrompt(string stablePromptPrefix, string dynamicPrompt)
+        {
+            if (string.IsNullOrWhiteSpace(stablePromptPrefix))
+                return dynamicPrompt ?? "";
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(stablePromptPrefix ?? "");
+            sb.AppendLine();
+            sb.AppendLine(dynamicPrompt ?? "");
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// 从动态提示词提取本条口吻入口，负责给后续反重复备忘提供短标签。
+        /// </summary>
+        private static string ExtractImpulseFromDynamicPrompt(string prompt)
+        {
+            if (string.IsNullOrWhiteSpace(prompt))
+                return SimTranslation.TOrFallback("RSMF.Common.None", "无");
+
+            string marker = "currentImpulse";
+            int index = prompt.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+            if (index < 0)
+                return SimTranslation.TOrFallback("RSMF.Common.None", "无");
+
+            int start = prompt.IndexOf('>', index);
+            int end = start >= 0 ? prompt.IndexOf('<', start + 1) : -1;
+            if (start >= 0 && end > start)
+                return prompt.Substring(start + 1, end - start - 1).Trim();
+
+            int lineEnd = prompt.IndexOf('\n', index);
+            string line = lineEnd >= 0 ? prompt.Substring(index, lineEnd - index) : prompt.Substring(index);
+            return line.Trim();
         }
 
         /// <summary>
@@ -308,21 +378,10 @@ namespace SimManagementLib.Tool
         private static string Shorten(string value, int maxLength)
         {
             if (string.IsNullOrWhiteSpace(value))
-                return "无";
+                return SimTranslation.TOrFallback("RSMF.Common.None", "无");
 
             value = value.Trim();
             return value.Length <= maxLength ? value : value.Substring(0, maxLength);
-        }
-
-        /// <summary>
-        /// 转义 JSON 字符串内容，负责稳定保存助手历史输出。
-        /// </summary>
-        private static string EscapeJson(string value)
-        {
-            if (string.IsNullOrEmpty(value))
-                return "";
-
-            return value.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\r", "\\r").Replace("\n", "\\n");
         }
 
         /// <summary>
@@ -353,6 +412,16 @@ namespace SimManagementLib.Tool
                 }
                 return sb.ToString();
             }
+        }
+
+        /// <summary>
+        /// 保存最近成功评价的短去重信息，负责避免完整历史进入缓存前缀。
+        /// </summary>
+        private class CustomerReviewAntiRepeatMemo
+        {
+            public string opening = "";
+            public string tags = "";
+            public string impulse = "";
         }
     }
 }
