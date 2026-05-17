@@ -3,7 +3,7 @@
   <!-- 收藏品兑换首页入口和二级商店配置。运行时只保存购买次数，展示和商品数据都来自 Def。 -->
 
   <SimManagementLib.SimDef.CollectibleExchangeListDef>
-    <defName>RSMF_CollectibleExchange_MiguaShop</defName>
+    <defName>RSMF_CollectibleExchange_MiguaShopOne</defName>
     <label>蜜瓜的小店</label>
     <shopName>蜜瓜的小店</shopName>
     <title>第一期</title>
@@ -18,32 +18,32 @@
     <progressLabel>当前物品切换进度：第一期商品已全部解锁</progressLabel>
     <idleTextIntervalSeconds>10</idleTextIntervalSeconds>
     <welcomeTexts>
-      <li>欢迎光临蜜瓜的小店，本期东西不多，但都挑过一遍。</li>
+      <li>欢迎光临蜜瓜的小店，本期东西不多，但都是精挑细选过的哦。</li>
       <li>你来得正好，第一期货架刚整理完，可以慢慢看。</li>
-      <li>先进来吧，别站门口吹风，想换什么直接看右边。</li>
+      <li>先进来吧，别站门口吹风，想换什么直接看右边就是。</li>
     </welcomeTexts>
     <browseTexts>
-      <li>这个挺实用的，不花哨，但拿回去马上能派上用场。</li>
-      <li>你看中的这件库存有限，真需要的话别拖太久。</li>
-      <li>这批货我没乱标价，能换就算合适。</li>
-      <li>右边这些都是本期清单里的东西，下一期可能就换了。</li>
+      <li>这个买回去，马上就能派上用场。</li>
+      <li>你看中的这件库存有限，真需要的话别拖太久哦。</li>
+      <li>这批货我可没乱标价。</li>
+      <li>右边这些都是本期清单里的东西，下一期可能就不是这些了。</li>
     </browseTexts>
     <idleTexts>
       <li>慢慢看，不急，反正货架现在还没被搬空。</li>
       <li>有些东西看着普通，真缺的时候才知道麻烦。</li>
-      <li>如果只是路过，也可以看看本期还有多少库存。</li>
-      <li>我会定期换货，不过这一期先这样。</li>
+      <li>如果只是路过的话，也可以看看本期还有多少库存。</li>
+      <li>我可是会定期更换货品的，不过这一期，先这样。</li>
     </idleTexts>
     <purchaseTexts>
-      <li>成交，东西会送到你那边，记得留意空投。</li>
-      <li>好，已经记账了，这批货少一份。</li>
-      <li>买得挺干脆，我喜欢这种不磨叽的客人。</li>
+      <li>成交，东西会送到你那边，记得留意空投哦。</li>
+      <li>好，已经记账了，这批货又卖出去一份。</li>
+      <li>感谢购买！</li>
       <li>收到了，货会很快送过去。</li>
     </purchaseTexts>
     <notEnoughCurrencyTexts>
-      <li>这单现在结不了，手头的货币不够。</li>
-      <li>差一点货币，回去翻翻库存再来吧。</li>
-      <li>钱不够就先别硬换，货会在这儿等一会儿。</li>
+      <li>不行，钱不够啊。</li>
+      <li>差一点钱，回去翻翻小金库再来吧。</li>
+      <li>钱不够就先别硬换，货是不会自己长腿跑掉的。</li>
     </notEnoughCurrencyTexts>
     <items>
       <li>
@@ -54,7 +54,7 @@
         <maxPurchases>5</maxPurchases>
         <count>2</count>
         <labelOverride>旅行简餐</labelOverride>
-        <descriptionOverride>适合临时补给的简单餐食，便宜、直接、不挑场合。</descriptionOverride>
+        <descriptionOverride>适合临时补给的简单餐食。</descriptionOverride>
       </li>
       <li>
         <id>medicine_industrial_01</id>
@@ -95,6 +95,191 @@
         <count>25</count>
         <labelOverride>金券钢材</labelOverride>
         <descriptionOverride>用黄金兑换的小批钢材，用于测试每个商品可以独立配置货币。</descriptionOverride>
+      </li>
+    </items>
+  </SimManagementLib.SimDef.CollectibleExchangeListDef>
+
+  <SimManagementLib.SimDef.CollectibleExchangeListDef>
+    <defName>RSMF_CollectibleExchange_MiguaShopTwo</defName>
+    <label>蜜瓜的小店</label>
+    <shopName>蜜瓜的小店</shopName>
+    <title>第二期</title>
+    <intro>可以查看当前物品切换进度，并进入本期收藏品兑换商店。</intro>
+    <priority>1000</priority>
+    <visible>true</visible>
+    <portraitTexPath>UI/CollectibleExchange/Migua</portraitTexPath>
+    <portraitScale>2</portraitScale>
+    <portraitOffsetX>0</portraitOffsetX>
+    <portraitOffsetY>0.5</portraitOffsetY>
+    <periodLabel>第二期</periodLabel>
+    <progressLabel>当前物品切换进度：第二期商品已全部解锁</progressLabel>
+    <idleTextIntervalSeconds>10</idleTextIntervalSeconds>
+    <welcomeTexts>
+      <li>欢迎光临蜜瓜的小店，本期东西不多，但都是精挑细选过的哦。</li>
+      <li>你来得正好，第二期货架刚整理完，可以慢慢看。</li>
+      <li>先进来吧，别站门口吹风，想换什么直接看右边就是。</li>
+    </welcomeTexts>
+    <browseTexts>
+      <li>这个买回去，马上就能派上用场。</li>
+      <li>你看中的这件库存有限，真需要的话别拖太久哦。</li>
+      <li>这批货我可没乱标价。</li>
+      <li>右边这些都是本期清单里的东西，下一期可能就不是这些了。</li>
+    </browseTexts>
+    <idleTexts>
+      <li>慢慢看，不急，反正货架现在还没被搬空。</li>
+      <li>有些东西看着普通，真缺的时候才知道麻烦。</li>
+      <li>如果只是路过的话，也可以看看本期还有多少库存。</li>
+      <li>我可是会定期更换货品的，不过这一期，先这样。</li>
+    </idleTexts>
+    <purchaseTexts>
+      <li>成交，东西会送到你那边，记得留意空投哦。</li>
+      <li>好，已经记账了，这批货又卖出去一份。</li>
+      <li>感谢购买！</li>
+      <li>收到了，货会很快送过去。</li>
+    </purchaseTexts>
+    <notEnoughCurrencyTexts>
+      <li>不行，钱不够啊。</li>
+      <li>差一点钱，回去翻翻小金库再来吧。</li>
+      <li>钱不够就先别硬换，货是不会自己长腿跑掉的。</li>
+    </notEnoughCurrencyTexts>
+    <items>
+      <li>
+        <id>meal_simple_02</id>
+        <thingDef>MealSimple</thingDef>
+        <price>25</price>
+        <currencyDef>Silver</currencyDef>
+        <maxPurchases>5</maxPurchases>
+        <count>2</count>
+        <labelOverride>旅行简餐</labelOverride>
+        <descriptionOverride>适合临时补给的简单餐食。</descriptionOverride>
+      </li>
+    </items>
+  </SimManagementLib.SimDef.CollectibleExchangeListDef>
+
+  <SimManagementLib.SimDef.CollectibleExchangeListDef>
+    <defName>RSMF_CollectibleExchange_MiguaShopCollection</defName>
+    <label>蜜瓜的小店</label>
+    <shopName>蜜瓜的小店</shopName>
+    <title>收藏品</title>
+    <intro>可以查看当前物品切换进度，并进入本期收藏品兑换商店。</intro>
+    <priority>100</priority>
+    <visible>true</visible>
+    <portraitTexPath>UI/CollectibleExchange/Migua</portraitTexPath>
+    <portraitScale>2</portraitScale>
+    <portraitOffsetX>0</portraitOffsetX>
+    <portraitOffsetY>0.5</portraitOffsetY>
+    <periodLabel>收藏品</periodLabel>
+    <progressLabel>当前物品切换进度：收藏品已全部解锁</progressLabel>
+    <idleTextIntervalSeconds>10</idleTextIntervalSeconds>
+    <welcomeTexts>
+      <li>欢迎光临蜜瓜的小店，这次都是稀世珍宝哦！</li>
+      <li>你来得正好，想不想给殖民地来点亮闪闪的东西？</li>
+      <li>这次的是……超级收藏品！</li>
+      <li>看我干什么，我是非卖品！</li>
+    </welcomeTexts>
+    <browseTexts>
+      <li>这个买回去，马上能派上用场！……我的意思是，这东西真的很值！</li>
+      <li>你看中的这件库存有限，这可都是价值连城的宝贝，真需要的话别拖太久哦。</li>
+      <li>这批货我可没乱标价，你嫌贵我还嫌贵呢.jpg</li>
+      <li>右边这些都是好东西，下一期……大概是没有下一期了！</li>
+    </browseTexts>
+    <idleTexts>
+      <li>慢慢看，不急，有这笔钱买这些东西的客户在边缘世界几乎是找不到的。</li>
+      <li>有些东西看着不普通，真缺的时候……收藏品应该是不会遇到这种问题的吧。</li>
+      <li>如果只是路过看看的话也是没问题的。</li>
+      <li>我可是会定期更换货品的，不过这一期，先这样。实际上很难有能更换掉这些收藏品的下一期了吧！</li>
+    </idleTexts>
+    <purchaseTexts>
+      <li>成交，东西会送到你那边，记得留意空投哦。</li>
+      <li>好，已经记账了咯~</li>
+      <li>感谢购买！</li>
+      <li>收到了，货会很快送过去。</li>
+    </purchaseTexts>
+    <notEnoughCurrencyTexts>
+      <li>你的白银储量不足。</li>
+      <li>差一点钱，回去翻翻小金库再来吧。</li>
+      <li>钱不够就先别硬换，收藏品是不会自己长腿跑掉的。</li>
+    </notEnoughCurrencyTexts>
+    <items>
+      <li>
+        <id>The_Piano</id>
+        <thingDef>RSMF_Collections_Piano</thingDef>
+        <price>1800000</price>
+        <currencyDef>Silver</currencyDef>
+        <maxPurchases>1</maxPurchases>
+        <count>1</count>
+        <labelOverride>斯坦福钢琴</labelOverride>
+        <descriptionOverride>非常，非常，非常昂贵的钢琴，真的非常昂贵，但用其演奏出来的效果绝对值得她的价钱</descriptionOverride>
+      </li>
+      <li>
+        <id>The_EngineeringDrawing</id>
+        <thingDef>RSMF_Collections_EngineeringDrawing</thingDef>
+        <price>5275</price>
+        <currencyDef>Silver</currencyDef>
+        <maxPurchases>1</maxPurchases>
+        <count>1</count>
+        <labelOverride>工程图纸</labelOverride>
+        <descriptionOverride>一份城市建设相关的，详实的工程图纸。</descriptionOverride>
+      </li>
+      <li>
+        <id>The_TrackerSwarmerSpecimen</id>
+        <thingDef>RSMF_Collections_TrackerSwarmerSpecimen</thingDef>
+        <price>114514</price>
+        <currencyDef>Silver</currencyDef>
+        <maxPurchases>1</maxPurchases>
+        <count>1</count>
+        <labelOverride>追踪虫标本</labelOverride>
+        <descriptionOverride>一份追踪虫标本，活灵活现，用于研究和展示。</descriptionOverride>
+      </li>
+      <li>
+        <id>The_HoneydrewMelon</id>
+        <thingDef>RSMF_Collections_HoneydrewMelon</thingDef>
+        <price>30</price>
+        <currencyDef>Gold</currencyDef>
+        <maxPurchases>1</maxPurchases>
+        <count>1</count>
+        <labelOverride>蜜瓜</labelOverride>
+        <descriptionOverride>一大颗绿色的蜜瓜，有十五斤重。</descriptionOverride>
+      </li>
+      <li>
+        <id>The_LazyFish</id>
+        <thingDef>RSMF_Collections_LazyFish</thingDef>
+        <price>2500</price>
+        <currencyDef>Silver</currencyDef>
+        <maxPurchases>1</maxPurchases>
+        <count>1</count>
+        <labelOverride>懒懒鱼</labelOverride>
+        <descriptionOverride>一条懒洋洋的鱼，随身携带着一只画笔。</descriptionOverride>
+      </li>
+      <li>
+        <id>The_TynanSHeart</id>
+        <thingDef>RSMF_Collections_TynanSHeart</thingDef>
+        <price>14000000</price>
+        <currencyDef>Silver</currencyDef>
+        <maxPurchases>1</maxPurchases>
+        <count>1</count>
+        <labelOverride>“泰南之心”</labelOverride>
+        <descriptionOverride>一颗足有心脏大小，外形也酷似心脏的钻石，散发着璀璨的光芒，被不知名的发掘者命名为泰南之心。传说拥有这颗钻石可以让你的边缘世界自此永远不会受到“红字”的困扰</descriptionOverride>
+      </li>
+      <li>
+        <id>The_RandySTear</id>
+        <thingDef>RSMF_Collections_RandySTear</thingDef>
+        <price>30000000</price>
+        <currencyDef>Silver</currencyDef>
+        <maxPurchases>1</maxPurchases>
+        <count>1</count>
+        <labelOverride>“兰迪之泪”</labelOverride>
+        <descriptionOverride>一颗奇异的珍珠，据说是从一位对随机的狂热追求者的眼中凝结而成，毫无疑问的，它价值连城。</descriptionOverride>
+      </li>
+      <li>
+        <id>The_GoldCube</id>
+        <thingDef>RSMF_Collections_GoldCube</thingDef>
+        <price>5000000</price>
+        <currencyDef>Silver</currencyDef>
+        <maxPurchases>1</maxPurchases>
+        <count>1</count>
+        <labelOverride>金色魔方</labelOverride>
+        <descriptionOverride>一个由纯金打造的魔方，像是拥有魔力一样会不由自主的引人注目，但据说是仿制品，与正版的效果相去甚远。</descriptionOverride>
       </li>
     </items>
   </SimManagementLib.SimDef.CollectibleExchangeListDef>
