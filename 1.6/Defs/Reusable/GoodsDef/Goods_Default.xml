@@ -445,14 +445,12 @@
       <li>BionicStomach</li>
       <li>BionicSpine</li>
       <li>BionicLeg</li>
-      <li>BionicBladder</li>
       <li>BionicArm</li>
       <li>BionicTongue</li>
       <li>CircadianHalfCycler</li>
       <li>Immunoenhancer</li>
       <li>Coagulator</li>
       <li>LearningAssistant</li>
-      <li>HygieneEnhancer</li>
       <li MayRequire="Ludeon.RimWorld.Anomaly">RevenantVertebrae</li>
       <li>LoveEnhancer</li>
       <li>HealingEnhancer</li>
