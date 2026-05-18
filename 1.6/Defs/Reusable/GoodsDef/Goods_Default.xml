@@ -16,6 +16,104 @@
       <li>MealSimple</li>
       <li>MealFine</li>
       <li>MealLavish</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Salmon</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Guppy</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Toxfish</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Flounder</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Tilapia</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Dogfish</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Tuna</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Frostfish</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Bluefish</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Piranha</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Marlin</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Bass</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Catfish</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Cod</li>
+      <li>Meat_Chicken</li>
+      <li>Meat_Human</li>
+      <li>Meat_Megaspider</li>
+      <li>Meat_Pig</li>
+      <li>Meat_Tortoise</li>
+      <li>Meat_Mastodon</li>
+      <li>Meat_Dromedary</li>
+      <li>Meat_Husky</li>
+      <li>Meat_PrairieDog</li>
+      <li>Meat_Megasloth</li>
+      <li>Meat_Panda</li>
+      <li>Meat_Gorilla</li>
+      <li>Meat_Elephant</li>
+      <li>Meat_HermitCrab</li>
+      <li>Meat_Goat</li>
+      <li>Meat_Wolf_Great</li>
+      <li>Meat_MonitorLizard</li>
+      <li>Meat_ColossusToad</li>
+      <li>Meat_Megavole</li>
+      <li>Meat_Warg</li>
+      <li>Meat_Twisted</li>
+      <li>Meat_LabradorRetriever</li>
+      <li>Meat_Thrumbo</li>
+      <li>Meat_Squirrel</li>
+      <li>Meat_Chinchilla</li>
+      <li>Meat_Toxalope</li>
+      <li>Meat_Otter</li>
+      <li>Meat_Capybara</li>
+      <li>Meat_Mink</li>
+      <li>Meat_WasteRat</li>
+      <li>Meat_Hippo</li>
+      <li>Meat_BogHound</li>
+      <li>Meat_Raccoon</li>
+      <li>Meat_SeaLion</li>
+      <li>Meat_Walrus</li>
+      <li>Meat_Seal</li>
+      <li>Meat_SeaTurtle</li>
+      <li>Meat_Turkey</li>
+      <li>Meat_Bear_Grizzly</li>
+      <li>Meat_LavaSnail</li>
+      <li>Meat_Boomalope</li>
+      <li>Meat_Boomrat</li>
+      <li>Meat_Cow</li>
+      <li>Meat_Bullfrog</li>
+      <li>Meat_Yak</li>
+      <li>Meat_Rhinoceros</li>
+      <li>Meat_Armadillo</li>
+      <li>Meat_Fox_Fennec</li>
+      <li>Meat_Wolverine</li>
+      <li>Meat_Wolf_Timber</li>
+      <li>Meat_Lynx</li>
+      <li>Meat_Cat</li>
+      <li>Meat_Monkey</li>
+      <li>Meat_Badger</li>
+      <li>Meat_Gazelle</li>
+      <li>Meat_Alligator</li>
+      <li>Meat_StoneCrab</li>
+      <li>Meat_YorkshireTerrier</li>
+      <li>Meat_Sheep</li>
+      <li>Meat_Alpaca</li>
+      <li>Meat_Cougar</li>
+      <li>Meat_Tiger</li>
+      <li>Meat_Cobra</li>
+      <li>Meat_Porcupine</li>
+      <li>Meat_Hare</li>
+      <li>Meat_Ibex</li>
+      <li>Meat_Bison</li>
+      <li>Meat_Cat_Scimitar</li>
+      <li>Meat_AlphaThrumbo</li>
+      <li>Meat_Alphabeaver</li>
+      <li>Meat_Muffalo</li>
+      <li>Meat_Horse</li>
+      <li>Meat_Elk</li>
+      <li>Meat_Caribou</li>
+      <li>Meat_Donkey</li>
+      <li>Meat_Moose</li>
+      <li>Meat_Iguana</li>
+      <li>Meat_Cassowary</li>
+      <li>Meat_Chicken</li>
+      <li>Meat_Duck</li>
+      <li>Meat_Deer</li>
+      <li>Meat_Muskox</li>
+      <li>Meat_Panther</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">Meat_Twisted</li>
     </GoodsList>
   </SimManagementLib.SimDef.GoodsDef>
 
@@ -38,6 +136,11 @@
       <li>MedicineIndustrial</li>
       <li>MedicineUltratech</li>
       <li>Penoxycyline</li>
+      <li>MechSerumResurrector</li>
+      <li>MechSerumHealer</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">MindNumbSerum</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">JuggernautSerum</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">SentienceCatalyst</li>
     </GoodsList>
   </SimManagementLib.SimDef.GoodsDef>
 
@@ -53,6 +156,8 @@
       <li>GoJuice</li>
       <li>Yayo</li>
       <li>Flake</li>
+      <li>MechSerumResurrector</li>
+      <li>MechSerumHealer</li>
     </GoodsList>
   </SimManagementLib.SimDef.GoodsDef>
 
@@ -86,6 +191,57 @@
       <li>ComponentSpacer</li>
       <li>BlocksGranite</li>
       <li>BlocksLimestone</li>
+      <li>BlocksMarble</li>
+      <li>BlocksSlate</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">BlocksVacstone</li>
+      <li>BlocksSandstone</li>
+      <li>RawHops</li>
+      <li>SmokeleafLeaves</li>
+      <li>Dye</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">Bioferrite</li>
+      <li>PsychoidLeaves</li>
+      <li>Jade</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">GravlitePanel</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Obsidian</li>
+      <li>WoolSheep</li>
+      <li>WoolMastodon</li>
+      <li>WoolMegasloth</li>
+      <li>WoolAlpaca</li>
+      <li>WoolBison</li>
+      <li>WoolMuffalo</li>
+      <li>WoolMuskox</li>
+      <li>Leather_Mastodon</li>
+      <li>Leather_Human</li>
+      <li>Leather_Heavy</li>
+      <li>Leather_Thrumbo</li>
+      <li>Leather_Plain</li>
+      <li>Leather_Patch</li>
+      <li>Leather_Chinchilla</li>
+      <li>Leather_Mink</li>
+      <li>Leather_Hippo</li>
+      <li>Leather_Sealskin</li>
+      <li>Leather_Bear</li>
+      <li>Leather_Rhinoceros</li>
+      <li>Leather_Armadillo</li>
+      <li>Leather_Fox</li>
+      <li>Leather_Dog</li>
+      <li>Leather_Wolf</li>
+      <li>Leather_Pig</li>
+      <li>Leather_Bluefur</li>
+      <li>Leather_Lizard</li>
+      <li>Leather_GuineaPig</li>
+      <li>Leather_Elephant</li>
+      <li>Leather_Panthera</li>
+      <li>Leather_Light</li>
+      <li>Leather_AlphaThrumbo</li>
+      <li>Leather_Camel</li>
+      <li>Leather_Dread</li>
+      <li>Leather_Bird</li>
+      <li>Synthread</li>
+      <li>Cloth</li>
+      <li>Hyperweave</li>
+      <li>DevilstrandCloth</li>
+      <li>Leather_Light</li>
     </GoodsList>
   </SimManagementLib.SimDef.GoodsDef>
 
@@ -93,14 +249,114 @@
     <defName>Goods_ApparelBasic</defName>
     <label>基础服饰</label>
     <GoodsList>
+      <li>Apparel_AdvancedHelmet</li>
+      <li>Apparel_AirwireHeadset</li>
+      <li>Apparel_ArmorCataphract</li>
+      <li>Apparel_ArmorCataphractPhoenix</li>
+      <li>Apparel_ArmorCataphractPrestige</li>
+      <li>Apparel_ArmorHelmetCataphract</li>
+      <li>Apparel_ArmorHelmetCataphractPrestige</li>
+      <li>Apparel_ArmorHelmetMechCommander</li>
+      <li>Apparel_ArmorHelmetMechlordHelmet</li>
+      <li>Apparel_ArmorHelmetRecon</li>
+      <li>Apparel_ArmorHelmetReconPrestige</li>
+      <li>Apparel_ArmorLocust</li>
+      <li>Apparel_ArmorMarineGrenadier</li>
+      <li>Apparel_ArmorMarineHelmetPrestige</li>
+      <li>Apparel_ArmorMarinePrestige</li>
+      <li>Apparel_ArmorRecon</li>
+      <li>Apparel_ArmorReconPrestige</li>
+      <li>Apparel_ArrayHeadset</li>
+      <li>Apparel_AuthorityCap</li>
+      <li>Apparel_Bandolier</li>
       <li>Apparel_BasicShirt</li>
-      <li>Apparel_Pants</li>
-      <li>Apparel_Jacket</li>
-      <li>Apparel_Duster</li>
-      <li>Apparel_Parka</li>
-      <li>Apparel_Tuque</li>
+      <li>Apparel_Beret</li>
+      <li>Apparel_BiomutationLance</li>
+      <li>Apparel_Blindfold</li>
+      <li>Apparel_BodyStrap</li>
+      <li>Apparel_BowlerHat</li>
+      <li>Apparel_Broadwrap</li>
+      <li>Apparel_Burka</li>
+      <li>Apparel_Cape</li>
+      <li>Apparel_CerebrexNode</li>
+      <li>Apparel_CeremonialCultistMask</li>
+      <li>Apparel_ClothMask</li>
+      <li>Apparel_Collar</li>
+      <li>Apparel_CollarShirt</li>
+      <li>Apparel_Coronet</li>
+      <li>Apparel_Corset</li>
       <li>Apparel_CowboyHat</li>
+      <li>Apparel_Crown</li>
+      <li>Apparel_CrownStellic</li>
+      <li>Apparel_CultistMask</li>
+      <li>Apparel_DeadlifePack</li>
+      <li>Apparel_DisruptorFlarePack</li>
+      <li>Apparel_Duster</li>
+      <li>Apparel_EltexSkullcap</li>
+      <li>Apparel_FirefoampopPack</li>
+      <li>Apparel_FlakJacket</li>
+      <li>Apparel_FlakPants</li>
       <li>Apparel_FlakVest</li>
+      <li>Apparel_Flophat</li>
+      <li>Apparel_GasMask</li>
+      <li>Apparel_Gunlink</li>
+      <li>Apparel_HatHood</li>
+      <li>Apparel_HatLadies</li>
+      <li>Apparel_HatTop</li>
+      <li>Apparel_Headwrap</li>
+      <li>Apparel_HeavyShield</li>
+      <li>Apparel_IntegratorHeadset</li>
+      <li>Apparel_Jacket</li>
+      <li>Apparel_KidHelmet</li>
+      <li>Apparel_KidPants</li>
+      <li>Apparel_KidParka</li>
+      <li>Apparel_KidRomper</li>
+      <li>Apparel_KidShirt</li>
+      <li>Apparel_KidTribal</li>
+      <li>Apparel_LabCoat</li>
+      <li>Apparel_MechlordSuit</li>
+      <li>Apparel_PackBandwidth</li>
+      <li>Apparel_PackBroadshield</li>
+      <li>Apparel_PackControl</li>
+      <li>Apparel_PackHunter</li>
+      <li>Apparel_PackJump</li>
+      <li>Apparel_PackTox</li>
+      <li>Apparel_PackTurret</li>
+      <li>Apparel_Pants</li>
+      <li>Apparel_Parka</li>
+      <li>Apparel_PlateArmor</li>
+      <li>Apparel_PowerArmor</li>
+      <li>Apparel_PowerArmorHelmet</li>
+      <li>Apparel_PsychicFoilHelmet</li>
+      <li>Apparel_PsychicInsanityLance</li>
+      <li>Apparel_PsychicShockLance</li>
+      <li>Apparel_PsyfocusHelmet</li>
+      <li>Apparel_PsyfocusRobe</li>
+      <li>Apparel_PsyfocusShirt</li>
+      <li>Apparel_PsyfocusVest</li>
+      <li>Apparel_Robe</li>
+      <li>Apparel_RobeRoyal</li>
+      <li>Apparel_Sash</li>
+      <li>Apparel_Shadecone</li>
+      <li>Apparel_ShardPsychicInsanityLance</li>
+      <li>Apparel_ShardPsychicShockLance</li>
+      <li>Apparel_ShieldBelt</li>
+      <li>Apparel_ShirtRuffle</li>
+      <li>Apparel_SimpleHelmet</li>
+      <li>Apparel_Slicecap</li>
+      <li>Apparel_SmokepopBelt</li>
+      <li>Apparel_Tailcap</li>
+      <li>Apparel_TortureCrown</li>
+      <li>Apparel_TribalA</li>
+      <li>Apparel_TribalHeaddress</li>
+      <li>Apparel_Tuque</li>
+      <li>Apparel_Vacsuit</li>
+      <li>Apparel_VacsuitChildren</li>
+      <li>Apparel_VacsuitHelmet</li>
+      <li>Apparel_VestRoyal</li>
+      <li>Apparel_VisageMask</li>
+      <li>Apparel_WarMask</li>
+      <li>Apparel_WarVeil</li>
     </GoodsList>
   </SimManagementLib.SimDef.GoodsDef>
 
@@ -133,6 +389,138 @@
       <li>Gun_HeavySMG</li>
       <li>Gun_ChainShotgun</li>
       <li>Gun_ChargeRifle</li>
+      <li>Gun_ChargeLance</li>
+      <li>Gun_EmpLauncher</li>
+      <li>Gun_SmokeLauncher</li>
+      <li>Gun_TripleRocket</li>
+      <li>Gun_MachinePistol</li>
+      <li>Gun_Minigun</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">Gun_HellcatRifle</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Gun_BeamGraser</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Gun_BeamRepeater</li>
+      <li>Gun_DoomsdayRocket</li>
+      <li>Gun_ToxbombLauncher</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">Gun_Incinerator</li>
+      <li>Gun_IncendiaryLauncher</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly,Ludeon.RimWorld.Odyssey">Gun_HellcatRifle_Unique</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Gun_Revolver_Unique</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Gun_BoltActionRifle_Unique</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Gun_SniperRifle_Unique</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Gun_ChargeRifle_Unique</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Gun_ChargeLance_Unique</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Gun_AssaultRifle_Unique</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey,Ludeon.RimWorld.Biotech">Gun_BeamRepeater_Unique</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Gun_LMG_Unique</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Gun_Minigun_Unique</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Gun_HeavySMG_Unique</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Gun_ChainShotgun_Unique</li>
+    </GoodsList>
+  </SimManagementLib.SimDef.GoodsDef>
+
+  <SimManagementLib.SimDef.GoodsDef>
+    <defName>Goods_Ammo</defName>
+    <label>弹药</label>
+    <GoodsList>
+      <li>Shell_EMP</li>
+      <li>Weapon_GrenadeEMP</li>
+      <li>Shell_AntigrainWarhead</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">Shell_Deadlife</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Shell_Toxic</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Weapon_GrenadeTox</li>
+      <li>Shell_Firefoam</li>
+      <li>Shell_Smoke</li>
+      <li>Shell_Incendiary</li>
+      <li>Weapon_GrenadeFrag</li>
+      <li>Shell_HighExplosive</li>
+    </GoodsList>
+  </SimManagementLib.SimDef.GoodsDef>
+
+  <SimManagementLib.SimDef.GoodsDef MayRequire="Ludeon.RimWorld.Biotech">
+    <defName>Goods_BodyParts</defName>
+    <label>身体部件</label>
+    <GoodsList>
+      <li>BionicHeart</li>
+      <li>BionicEye</li>
+      <li>BionicEar</li>
+      <li>BionicStomach</li>
+      <li>BionicSpine</li>
+      <li>BionicLeg</li>
+      <li>BionicBladder</li>
+      <li>BionicArm</li>
+      <li>BionicTongue</li>
+      <li>CircadianHalfCycler</li>
+      <li>Immunoenhancer</li>
+      <li>Coagulator</li>
+      <li>LearningAssistant</li>
+      <li>HygieneEnhancer</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">RevenantVertebrae</li>
+      <li>LoveEnhancer</li>
+      <li>HealingEnhancer</li>
+      <li>DetoxifierLung</li>
+      <li>DetoxifierKidney</li>
+      <li>DetoxifierStomach</li>
+      <li>NuclearStomach</li>
+      <li>CircadianAssistant</li>
+      <li>ArmorskinGland</li>
+      <li>StoneskinGland</li>
+      <li>Neurocalculator</li>
+      <li>AestheticShaper</li>
+      <li>AestheticNose</li>
+      <li>GastroAnalyzer</li>
+      <li>VacskinGland</li>
+      <li>DeathAcidifier</li>
+      <li>ToughskinGland</li>
+      <li>ReprocessorStomach</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">PilotAssistant</li>
+      <li>Joywire</li>
+      <li>SimpleProstheticHeart</li>
+      <li>SimpleProstheticLeg</li>
+      <li>SimpleProstheticArm</li>
+      <li>FieldHand</li>
+      <li>PowerClaw</li>
+      <li>CochlearImplant</li>
+      <li>PsychicAmplifier</li>
+      <li>PsychicHarmonizer</li>
+      <li>PsychicSensitizer</li>
+      <li>Heart</li>
+      <li>Lung</li>
+      <li>Liver</li>
+      <li>Kidney</li>
+      <li>HandTalon</li>
+      <li>DrillArm</li>
+      <li>ControlSublink</li>
+      <li>ControlSublinkHigh</li>
+      <li>Mechlink</li>
+      <li>MechFormfeeder</li>
+      <li>Painstopper</li>
+      <li>VenomTalon</li>
+      <li>VenomFangs</li>
+      <li>AdrenalHeart</li>
+      <li>RepairProbe</li>
+      <li>ElbowBlade</li>
+      <li>KneeSpike</li>
+      <li>ArchotechEye</li>
+      <li>ArchotechArm</li>
+      <li>ArchotechLeg</li>
+      <li>RemoteShielder</li>
+      <li>RemoteRepairer</li>
+      <li>CorrosiveHeart</li>
+      <li>MetalbloodHeart</li>
+      <li>Mindscrew</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">GhoulPlating</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">GhoulBarbs</li>
+    </GoodsList>
+  </SimManagementLib.SimDef.GoodsDef>
+
+  <SimManagementLib.SimDef.GoodsDef>
+    <defName>Goods_Books</defName>
+    <label>书籍</label>
+    <GoodsList>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Map</li>
+      <li>Novel</li>
+      <li>Schematic</li>
+      <li>TextBook</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">Tome</li>
     </GoodsList>
   </SimManagementLib.SimDef.GoodsDef>
 
