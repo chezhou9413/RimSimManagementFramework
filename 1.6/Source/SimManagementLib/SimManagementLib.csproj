@@ -272,6 +272,7 @@
     <Compile Include="Tool\BlueprintNetworkApiClient.cs" />
     <Compile Include="Tool\BlueprintNetworkImportService.cs" />
     <Compile Include="Tool\RimTalkConfigBridge.cs" />
+    <Compile Include="Tool\ShopBlueprintPreviewCaptureUtility.cs" />
     <Compile Include="Tool\ShopBubbleUtility.cs" />
     <Compile Include="Tool\ShopBlueprintLibrary.cs" />
     <Compile Include="Tool\ShopBlueprintPlacementUtility.cs" />

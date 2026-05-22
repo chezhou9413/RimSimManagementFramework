@@ -90,7 +90,7 @@ namespace SimManagementLib.Tool
                 }
 
                 string previewPath = Path.Combine(directory, PreviewFileName);
-                SavePreviewPng(data, previewPath);
+                SavePreviewPng(map, bounds, data, previewPath);
 
                 record = new ShopBlueprintLocalRecord
                 {
@@ -163,7 +163,8 @@ namespace SimManagementLib.Tool
                 string previewPath = string.IsNullOrEmpty(record.PreviewPath)
                     ? Path.Combine(directoryPath, PreviewFileName)
                     : record.PreviewPath;
-                SavePreviewPng(data, previewPath);
+                if (!File.Exists(previewPath))
+                    SavePreviewPng(data, previewPath);
 
                 record.Data = data;
                 record.DirectoryPath = directoryPath;
@@ -594,6 +595,16 @@ namespace SimManagementLib.Tool
         {
             if (!Directory.Exists(LibraryDirectory))
                 Directory.CreateDirectory(LibraryDirectory);
+        }
+
+        /// <summary>
+        /// 真实地图截图优先生成封面，失败时回退到结构示意预览图。
+        /// </summary>
+        private static void SavePreviewPng(Map map, CellRect bounds, ShopBlueprintData data, string path)
+        {
+            EnsureDataDefaults(data);
+            SavePreviewPng(data, path);
+            ShopBlueprintPreviewCaptureUtility.TryQueueRealPreviewFromMap(map, bounds, path);
         }
 
         /// <summary>
