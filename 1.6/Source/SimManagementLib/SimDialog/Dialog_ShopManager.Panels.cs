@@ -105,26 +105,74 @@ namespace SimManagementLib.SimDialog
 
         private void DrawManagePanel(Rect rect)
         {
-            List<ThingDef> list = availableGoodsDefs.Where(t => MatchSearch(t.label)).ToList();
+            Building_SimContainer storage = GetSelectedStorage();
+            ThingComp_GoodsData comp = storage?.GetComp<ThingComp_GoodsData>();
+            if (storage == null || comp == null)
+            {
+                Text.Anchor = TextAnchor.MiddleCenter;
+                GUI.color = CTextDim;
+                Widgets.Label(rect, SimTranslation.TOrFallback("RSMF.ShopManager.NoStorageSelected", "请选择一个货柜进行独立管理。"));
+                ResetText();
+                return;
+            }
 
-            Rect headerRect = new Rect(rect.x, rect.y, rect.width, HeaderH);
+            string activeCategoryId = !string.IsNullOrEmpty(comp.ActiveGoodsDefName) && comp.AllowsGoodsCategory(comp.ActiveGoodsDefName)
+                ? comp.ActiveGoodsDefName
+                : GetManageableCategoryIds(comp).FirstOrDefault();
+            RuntimeGoodsCategory activeCategory = GoodsCatalog.GetCategory(activeCategoryId);
+            List<ThingDef> list = (activeCategory?.Items ?? Enumerable.Empty<RuntimeGoodsItem>())
+                .Select(item => item?.thingDef)
+                .Where(def => def != null && MatchSearch(def.label))
+                .ToList();
+
+            Rect infoRect = new Rect(rect.x, rect.y, rect.width, 64f);
+            Widgets.DrawBoxSolid(infoRect, new Color(0f, 0f, 0f, 0.14f));
+            DrawBorderRect(infoRect, CDivider, 1f);
+
+            Text.Font = GameFont.Small;
+            Text.Anchor = TextAnchor.MiddleLeft;
+            GUI.color = Color.white;
+            Widgets.Label(new Rect(infoRect.x + 10f, infoRect.y + 4f, infoRect.width - 160f, 24f), storage.StorageDisplayLabel);
+
+            Text.Font = GameFont.Tiny;
+            GUI.color = CTextDim;
+            string categoryText = activeCategory != null
+                ? activeCategory.label
+                : SimTranslation.TOrFallback("RSMF.Common.None", "无");
+            Widgets.Label(
+                new Rect(infoRect.x + 10f, infoRect.y + 28f, infoRect.width - 160f, 18f),
+                SimTranslation.TOrFallback("RSMF.ShopManager.StorageSummaryLine", "分类: {category}  库存: {stored}/{capacity}")
+                    .Replace("{category}", categoryText)
+                    .Replace("{stored}", storage.CountTotalStored().ToString())
+                    .Replace("{capacity}", storage.MaxTotalCapacity.ToString()));
+            Widgets.Label(
+                new Rect(infoRect.x + 10f, infoRect.y + 44f, infoRect.width - 160f, 18f),
+                SimTranslation.TOrFallback("RSMF.ShopManager.StorageHintLine", "此页面只展示当前货柜的真实配置，编辑请使用右侧“打开货柜管理”。"));
+
+            Rect openButtonRect = new Rect(infoRect.xMax - 132f, infoRect.y + 17f, 120f, 30f);
+            if (SimUiStyle.DrawPrimaryButton(openButtonRect, SimTranslation.T("RSMF.Gizmo.ContainerManagement.Label"), true, GameFont.Tiny))
+                Find.WindowStack.Add(new Dialog_GoodsManager(comp));
+
+            ResetText();
+
+            Rect headerRect = new Rect(rect.x, infoRect.yMax + 6f, rect.width, HeaderH);
             DrawTableHeader(headerRect, delegate
             {
                 float cx = headerRect.xMax - RowPad;
+                cx -= StockW;
+                DrawHdrLabel(new Rect(cx, headerRect.y, StockW, headerRect.height), SimTranslation.T("RSMF.ShopManager.Header.Stock"));
+                cx -= ColGap;
                 cx -= FieldW;
                 DrawHdrLabel(new Rect(cx, headerRect.y, FieldW, headerRect.height), SimTranslation.T("RSMF.ShopManager.TargetPriceHeader"));
                 cx -= ColGap;
                 cx -= FieldW;
                 DrawHdrLabel(new Rect(cx, headerRect.y, FieldW, headerRect.height), SimTranslation.T("RSMF.ShopManager.TargetCountHeader"));
                 cx -= ColGap;
-                cx -= SliderW;
-                DrawHdrLabel(new Rect(cx, headerRect.y, SliderW, headerRect.height), SimTranslation.T("RSMF.ShopManager.TargetSliderHeader"));
-                cx -= ColGap;
-                float lx = headerRect.x + RowPad + CheckSz + ColGap + IconSz + ColGap;
+                float lx = headerRect.x + RowPad + IconSz + ColGap;
                 DrawHdrLabel(new Rect(lx, headerRect.y, cx - lx - ColGap, headerRect.height), SimTranslation.T("RSMF.ShopManager.TargetGoodsHeader"));
             });
 
-            Rect outRect = new Rect(rect.x, headerRect.yMax, rect.width, rect.height - HeaderH);
+            Rect outRect = new Rect(rect.x, headerRect.yMax, rect.width, rect.height - infoRect.height - 6f - HeaderH);
             float viewWidth = outRect.width - ScrW;
             Widgets.BeginScrollView(outRect, ref listScroll, new Rect(0f, 0f, viewWidth, list.Count * RowH));
 
@@ -132,72 +180,44 @@ namespace SimManagementLib.SimDialog
             {
                 ThingDef thingDef = list[i];
                 Rect row = new Rect(0f, i * RowH, viewWidth, RowH);
-                GoodsItemData draft = GetDraftItem(thingDef);
-                bool enabled = draft.enabled;
+                GoodsItemData config = comp.FindItemData(thingDef);
+                if (config == null && comp.itemData.TryGetValue(thingDef.defName, out GoodsItemData rawData))
+                    config = rawData;
+                bool enabled = config != null && config.enabled;
 
                 DrawRowBg(row, i, enabled);
                 Widgets.DrawHighlightIfMouseover(row);
+                TooltipHandler.TipRegion(row, thingDef.description);
 
                 float midY = row.y + (RowH - IconSz) / 2f;
-                float ctrlY = row.y + (RowH - 24f) / 2f;
                 float x = row.x + RowPad;
-
-                Widgets.Checkbox(x, row.y + (RowH - CheckSz) / 2f, ref enabled, CheckSz, paintable: true);
-                if (enabled != draft.enabled)
-                {
-                    draft.enabled = enabled;
-                    if (draft.enabled && draft.count <= 0) draft.count = 1;
-                }
-                x += CheckSz + ColGap;
 
                 Widgets.ThingIcon(new Rect(x, midY, IconSz, IconSz), thingDef);
                 x += IconSz + ColGap;
 
                 float rx = row.xMax - RowPad;
-                rx -= FieldW;
-                if (enabled)
-                {
-                    if (!priceBuffers.ContainsKey(thingDef.defName)) priceBuffers[thingDef.defName] = draft.price.ToString("F0");
-                    string priceBuffer = priceBuffers[thingDef.defName];
-                    Widgets.TextFieldNumeric(new Rect(rx, ctrlY, FieldW, 24f), ref draft.price, ref priceBuffer, 0f, 99999f);
-                    priceBuffers[thingDef.defName] = priceBuffer;
-                }
-                else
-                {
-                    DrawDash(new Rect(rx, row.y, FieldW, RowH));
-                }
+                rx -= StockW;
+                int currentStock = storage.CountStored(thingDef);
+                int targetCount = enabled ? Mathf.Max(0, config?.count ?? 0) : 0;
+                Color stockColor = currentStock <= 0 ? CStockNo : currentStock < targetCount ? CStockLow : CStockOk;
+                Text.Anchor = TextAnchor.MiddleLeft;
+                Text.Font = GameFont.Small;
+                GUI.color = stockColor;
+                Widgets.Label(new Rect(rx, row.y, 35f, RowH), currentStock.ToString());
+                GUI.color = CTextDim;
+                Widgets.Label(new Rect(rx + 35f, row.y, 10f, RowH), "/");
+                GUI.color = Color.white;
+                Widgets.Label(new Rect(rx + 45f, row.y, StockW - 45f, RowH), targetCount.ToString());
 
                 rx -= ColGap;
                 rx -= FieldW;
-                if (enabled)
-                {
-                    if (!countBuffers.ContainsKey(thingDef.defName)) countBuffers[thingDef.defName] = draft.count.ToString();
-                    string countBuffer = countBuffers[thingDef.defName];
-                    int previous = draft.count;
-                    Widgets.TextFieldNumeric(new Rect(rx, ctrlY, FieldW, 24f), ref draft.count, ref countBuffer, 0, 999999);
-                    if (draft.count != previous) countBuffer = draft.count.ToString();
-                    countBuffers[thingDef.defName] = countBuffer;
-                }
-                else
-                {
-                    DrawDash(new Rect(rx, row.y, FieldW, RowH));
-                }
+                GUI.color = enabled ? CGold : CTextDim;
+                Widgets.Label(new Rect(rx, row.y, FieldW, RowH), enabled ? $"¥{Mathf.Max(0f, config?.price ?? 0f):F0}" : "—");
 
                 rx -= ColGap;
-                rx -= SliderW;
-                if (enabled)
-                {
-                    int newValue = (int)Widgets.HorizontalSlider(new Rect(rx, row.y + (RowH - 16f) / 2f, SliderW, 16f), draft.count, 0f, 999f, true);
-                    if (newValue != draft.count)
-                    {
-                        draft.count = newValue;
-                        countBuffers[thingDef.defName] = newValue.ToString();
-                    }
-                }
-                else
-                {
-                    DrawDash(new Rect(rx, row.y, SliderW, RowH));
-                }
+                rx -= FieldW;
+                GUI.color = enabled ? Color.white : CTextDim;
+                Widgets.Label(new Rect(rx, row.y, FieldW, RowH), enabled ? targetCount.ToString() : "—");
 
                 rx -= ColGap;
                 Text.Anchor = TextAnchor.MiddleLeft;
@@ -255,7 +275,7 @@ namespace SimManagementLib.SimDialog
 
             if (SimUiStyle.DrawSecondaryButton(new Rect(editX + 108f, y, 120f, fieldH), SimTranslation.T("RSMF.ShopManager.EstimateByItem"), true, GameFont.Tiny))
             {
-                float cost = curCombo.items.Sum(ci => GetDraftItem(ci.def).price * ci.count);
+                float cost = curCombo.items.Sum(ci => GetReferencePriceForCombo(ci.def) * ci.count);
                 curCombo.totalPrice = (float)System.Math.Round(cost * 0.9f, 1);
                 comboPriceBuf = curCombo.totalPrice.ToString("F0");
                 priceJustCalculated = true;
@@ -299,7 +319,7 @@ namespace SimManagementLib.SimDialog
             }
 
             List<ThingDef> sellable = availableGoodsDefs
-                .Where(t => GetDraftItem(t).enabled && MatchSearch(t.label))
+                .Where(t => HasAnyStorageSellingThing(t) && MatchSearch(t.label))
                 .ToList();
 
             Rect headerRect = new Rect(rect.x, topRect.yMax + 8f, rect.width, HeaderH);

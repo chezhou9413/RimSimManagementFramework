@@ -402,4 +402,48 @@
             </li>
         </comps>
     </ThingDef>
+
+    <ThingDef ParentName="MegaStorageBox">
+        <defName>ProgressStorageRackA</defName>
+        <label>阶段货柜A</label>
+        <description>会根据当前补货进度自动切换贴图的长货柜。可用于展示空、半满、满载等不同陈列状态。</description>
+        <graphicData>
+            <texPath>Things/Building/MegaStorageBox/ProgressStorageRackA_0</texPath>
+            <drawSize>(4, 4)</drawSize>
+            <drawOffsetSouth>(0, 0.1, 0.42)</drawOffsetSouth>
+            <drawOffsetNorth>(0, 0.1, 0.42)</drawOffsetNorth>
+            <drawOffsetEast>(0, 0.1, 0.42)</drawOffsetEast>
+            <drawOffsetWest>(0, 0.1, 0.42)</drawOffsetWest>
+        </graphicData>
+        <size>(3, 1)</size>
+        <costList>
+            <Steel>18</Steel>
+        </costList>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
+            <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
+            <maxTotalCapacity>90</maxTotalCapacity>
+            <!-- 可售商品分类。留空表示通用货柜；配置后只能在货柜管理中选择这些 GoodsDef 分类。 -->
+            <allowedGoodsCategoryIds>
+            </allowedGoodsCategoryIds>
+            </li>
+            <li Class="SimManagementLib.SimThingComp.CompProperties_ProgressStageGraphic">
+                <!-- 可无限追加阶段。系统会选择不超过当前补货比例的最高阈值贴图。 -->
+                <stages>
+                    <li>
+                        <minFillPercent>0</minFillPercent>
+                        <texPath>Things/Building/MegaStorageBox/ProgressStorageRackA_0</texPath>
+                    </li>
+                    <li>
+                        <minFillPercent>0.25</minFillPercent>
+                        <texPath>Things/Building/MegaStorageBox/ProgressStorageRackA_50</texPath>
+                    </li>
+                    <li>
+                        <minFillPercent>0.75</minFillPercent>
+                        <texPath>Things/Building/MegaStorageBox/ProgressStorageRackA_100</texPath>
+                    </li>
+                </stages>
+            </li>
+        </comps>
+    </ThingDef>
 </Defs>

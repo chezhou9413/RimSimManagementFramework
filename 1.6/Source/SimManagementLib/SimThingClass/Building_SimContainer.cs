@@ -21,6 +21,7 @@ namespace SimManagementLib.SimThingClass
         private bool contentsDropped;
 
         private ThingComp_GoodsData GoodsComp => GetComp<ThingComp_GoodsData>();
+        private ThingComp_ProgressStageGraphic ProgressStageGraphicComp => GetComp<ThingComp_ProgressStageGraphic>();
 
         public string RenamableLabel
         {
@@ -49,6 +50,39 @@ namespace SimManagementLib.SimThingClass
             {
                 int fromComp = GoodsComp?.MaxTotalCapacity ?? DefaultMaxTotalCapacity;
                 return Mathf.Max(1, fromComp);
+            }
+        }
+
+        /// <summary>
+        /// 返回当前货柜用于视觉切换的库存占比。
+        /// 这里固定按总容量计算，避免受到当前商品配置目标数量影响。
+        /// </summary>
+        public float GetVisualFillPercent()
+        {
+            return Mathf.Clamp01(CountTotalStored() / (float)Mathf.Max(1, MaxTotalCapacity));
+        }
+
+        /// <summary>
+        /// 优先返回进度阶段组件提供的贴图，未配置时回退到默认建筑贴图。
+        /// </summary>
+        public override Graphic Graphic => ProgressStageGraphicComp?.GetCurrentGraphic() ?? base.Graphic;
+
+        /// <summary>
+        /// 在库存数量变化后刷新货柜占用格的网格，让阶段贴图立即切换。
+        /// </summary>
+        public void RefreshProgressStageGraphic()
+        {
+            if (!Spawned || Map == null)
+                return;
+
+            CellRect occupiedRect = GenAdj.OccupiedRect(Position, Rotation, def.Size);
+            for (int z = occupiedRect.minZ; z <= occupiedRect.maxZ; z++)
+            {
+                for (int x = occupiedRect.minX; x <= occupiedRect.maxX; x++)
+                {
+                    IntVec3 cell = new IntVec3(x, 0, z);
+                    Map.mapDrawer.MapMeshDirty(cell, (ulong)MapMeshFlagDefOf.Buildings | (ulong)MapMeshFlagDefOf.Things);
+                }
             }
         }
 

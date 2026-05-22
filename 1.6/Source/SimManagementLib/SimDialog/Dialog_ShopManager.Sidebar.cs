@@ -1,4 +1,5 @@
 using SimManagementLib.Pojo;
+using SimManagementLib.SimThingClass;
 using SimManagementLib.SimThingComp;
 using SimManagementLib.Tool;
 using System.Collections.Generic;
@@ -55,11 +56,7 @@ namespace SimManagementLib.SimDialog
             GUI.color = Color.white;
             Widgets.Label(new Rect(rect.x + 10f, nameplate.y + 2f, rect.width - 14f, 26f), shopZone.label.Truncate(rect.width - 14f));
 
-            int enabledCount = 0;
-            foreach (KeyValuePair<string, GoodsItemData> kvp in draftItemData)
-            {
-                if (kvp.Value.enabled) enabledCount++;
-            }
+            int enabledCount = ShopDataUtility.GetAllSellableGoods(shopZone).Count;
 
             Text.Font = GameFont.Tiny;
             GUI.color = CAccent;
@@ -80,7 +77,7 @@ namespace SimManagementLib.SimDialog
 
             Rect outRect = new Rect(rect.x, nameplate.yMax + 4f, rect.width, rect.height - nameplate.height - 4f);
             float itemH = 36f;
-            Rect viewRect = new Rect(0f, 0f, rect.width - ScrW, (5 + zoneCombos.Count) * itemH + 30f);
+            Rect viewRect = new Rect(0f, 0f, rect.width - ScrW, (6 + storages.Count + zoneCombos.Count) * itemH + 30f);
 
             Widgets.BeginScrollView(outRect, ref sideScroll, viewRect);
             float y = 4f;
@@ -96,6 +93,34 @@ namespace SimManagementLib.SimDialog
 
             DrawSidebarItem(new Rect(0f, y, viewRect.width, itemH), SimTranslation.T("RSMF.ShopManager.Sidebar.Services"), curMenu == MenuType.ManageServices, delegate { SwitchMenu(MenuType.ManageServices); });
             y += itemH + 6f;
+
+            Widgets.DrawBoxSolid(new Rect(0f, y, viewRect.width, 1f), CDivider);
+            y += 4f;
+            Text.Font = GameFont.Tiny;
+            Text.Anchor = TextAnchor.MiddleLeft;
+            GUI.color = CTextDim;
+            Widgets.Label(new Rect(10f, y, viewRect.width - 10f, 18f), SimTranslation.TOrFallback("RSMF.ShopManager.StorageHeader", $"货柜 ({storages.Count})"));
+            y += 20f;
+
+            for (int i = 0; i < storages.Count; i++)
+            {
+                Building_SimContainer storage = storages[i];
+                if (storage == null) continue;
+
+                bool isSelected = storage.thingIDNumber == selectedStorageThingId;
+                string label = storage.StorageDisplayLabel;
+                DrawSidebarItem(new Rect(0f, y, viewRect.width, itemH), "📦  " + label, isSelected, delegate
+                {
+                    selectedStorageThingId = storage.thingIDNumber;
+                    if (curMenu != MenuType.ManageGoods)
+                    {
+                        curMenu = MenuType.ManageGoods;
+                        curCombo = null;
+                    }
+                    listScroll = Vector2.zero;
+                });
+                y += itemH;
+            }
 
             Widgets.DrawBoxSolid(new Rect(0f, y, viewRect.width, 1f), CDivider);
             y += 4f;

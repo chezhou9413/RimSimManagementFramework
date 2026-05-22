@@ -127,7 +127,9 @@
     <Compile Include="Pojo\CustomerServiceOrder.cs" />
     <Compile Include="Pojo\SignImageData.cs" />
     <Compile Include="Pojo\ShopAnalyticsState.cs" />
+    <Compile Include="Pojo\BlueprintNetworkModels.cs" />
     <Compile Include="Pojo\ShopScheduleData.cs" />
+    <Compile Include="Pojo\ShopBlueprintData.cs" />
     <Compile Include="Pojo\ShopFinanceState.cs" />
     <Compile Include="Pojo\ShopMetricsSnapshot.cs" />
     <Compile Include="Pojo\ShopFinanceModels.cs" />
@@ -178,7 +180,15 @@
     <Compile Include="SimDialog\Dialog_ShopManager.Services.cs" />
     <Compile Include="SimDialog\Dialog_ShopManager.Sidebar.cs" />
     <Compile Include="SimDialog\Dialog_ShopStaffManager.cs" />
+    <Compile Include="SimDialog\Dialog_EditShopBlueprint.cs" />
+    <Compile Include="SimDialog\Dialog_EditShopBlueprint.Canvas.cs" />
+    <Compile Include="SimDialog\Dialog_EditShopBlueprint.Elements.cs" />
+    <Compile Include="SimDialog\Dialog_EditShopBlueprint.Icons.cs" />
+    <Compile Include="SimDialog\Designator_PlaceShopBlueprint.cs" />
+    <Compile Include="SimDialog\Designator_SaveShopBlueprintRect.cs" />
     <Compile Include="SimDialog\MainTabWindow_BusinessManager.cs" />
+    <Compile Include="SimDialog\MainTabWindow_BusinessManager.Blueprints.cs" />
+    <Compile Include="SimDialog\MainTabWindow_BusinessManager.Blueprints.Network.cs" />
     <Compile Include="SimDialog\MainTabWindow_BusinessManager.Data.cs" />
     <Compile Include="SimDialog\MainTabWindow_BusinessManager.FinanceCharts.cs" />
     <Compile Include="SimDialog\MainTabWindow_BusinessManager.Pages.cs" />
@@ -190,6 +200,7 @@
     <Compile Include="Patch\Patch_CustomerCombatSafety.cs" />
     <Compile Include="Patch\Patch_CustomerFactionRelationInit.cs" />
     <Compile Include="Patch\Patch_Gravship_ShopZoneTransport.cs" />
+    <Compile Include="Patch\Patch_Frame_ShopBlueprintPlacement.cs" />
     <Compile Include="Patch\Patch_Pawn_GetInspectString_Customer.cs" />
     <Compile Include="Patch\Patch_ThingDef_CanOverlapZones.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -210,6 +221,7 @@
     <Compile Include="SimMapComp\CustomerArrivalShopContext.cs" />
     <Compile Include="SimMapComp\CustomerArrivalManager.cs" />
     <Compile Include="SimMapComp\MapComponent_ShopProgressOverlay.cs" />
+    <Compile Include="SimMapComp\MapComponent_ShopBlueprintPlacement.cs" />
     <Compile Include="SimThingClass\Building_CashRegister.cs" />
     <Compile Include="SimThingClass\Building_CustomSign.cs" />
     <Compile Include="SimThingClass\Building_SimContainer.cs" />
@@ -220,6 +232,7 @@
     <Compile Include="SimThingComp\ThingComp_CustomSign.cs" />
     <Compile Include="SimThingComp\ThingComp_CashStorage.cs" />
     <Compile Include="SimThingComp\ThingComp_GoodsData.cs" />
+    <Compile Include="SimThingComp\ThingComp_ProgressStageGraphic.cs" />
     <Compile Include="SimThingComp\ThingComp_ServiceProvider.cs" />
     <Compile Include="SimThingComp\ThingComp_VendingMachine.cs" />
     <Compile Include="SimWorkGiver\WorkGiver_CollectCashRegisterSilver.cs" />
@@ -252,8 +265,15 @@
     <Compile Include="Tool\GoodsCatalog.cs" />
     <Compile Include="Tool\Mote_ShopPopup.cs" />
     <Compile Include="Tool\PurchaseOutcomeCatalog.cs" />
+    <Compile Include="Tool\BlueprintDependencyCollector.cs" />
+    <Compile Include="Tool\BlueprintEndpointCodec.cs" />
+    <Compile Include="Tool\BlueprintModCompatibilityChecker.cs" />
+    <Compile Include="Tool\BlueprintNetworkApiClient.cs" />
+    <Compile Include="Tool\BlueprintNetworkImportService.cs" />
     <Compile Include="Tool\RimTalkConfigBridge.cs" />
     <Compile Include="Tool\ShopBubbleUtility.cs" />
+    <Compile Include="Tool\ShopBlueprintLibrary.cs" />
+    <Compile Include="Tool\ShopBlueprintPlacementUtility.cs" />
     <Compile Include="Tool\ShopDataUtility.cs" />
     <Compile Include="Tool\ShopDemandCurveUtility.cs" />
     <Compile Include="Tool\ShopPricingUtility.cs" />
@@ -264,6 +284,7 @@
     <Compile Include="Tool\SimTranslation.cs" />
     <Compile Include="Tool\SignImageLibrary.cs" />
     <Compile Include="Tool\SignTextureCache.cs" />
+    <Compile Include="Tool\SteamSessionResolver.cs" />
     <Compile Include="Tool\VendingMachineUtility.cs" />
   </ItemGroup>
   <ItemGroup />

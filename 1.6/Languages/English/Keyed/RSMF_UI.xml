@@ -733,6 +733,150 @@
   <RSMF.CustomSign.Gizmo.ImportLabel>Import sign</RSMF.CustomSign.Gizmo.ImportLabel>
   <RSMF.CustomSign.Gizmo.ImportDesc>Import sign setup from another player's share text and sync images into the local gallery.</RSMF.CustomSign.Gizmo.ImportDesc>
   <RSMF.CustomSign.Imported>Sign pattern imported.</RSMF.CustomSign.Imported>
+  <RSMF.Business.Page.Blueprints>Blueprints</RSMF.Business.Page.Blueprints>
+  <RSMF.Blueprint.Title>Local shop blueprints</RSMF.Blueprint.Title>
+  <RSMF.Blueprint.Description>Select a rectangle on the current map to save every building, floor, roof, shop-zone cell, storage goods setup, sign layers, service setup, and business component setting inside it. Real stock and stored register silver are not written into the blueprint.</RSMF.Blueprint.Description>
+  <RSMF.Blueprint.MaxSize>Max size</RSMF.Blueprint.MaxSize>
+  <RSMF.Blueprint.MaxSizeValue>{max}x{max}</RSMF.Blueprint.MaxSizeValue>
+  <RSMF.Blueprint.MaxSizeTip>Limits the selected rectangle width and height. This limit is controlled by a code constant for later adjustment.</RSMF.Blueprint.MaxSizeTip>
+  <RSMF.Blueprint.SaveSelection>Select and save</RSMF.Blueprint.SaveSelection>
+  <RSMF.Blueprint.Refresh>Refresh</RSMF.Blueprint.Refresh>
+  <RSMF.Blueprint.OpenFolder>Open folder</RSMF.Blueprint.OpenFolder>
+  <RSMF.Blueprint.Count>{count} local blueprints</RSMF.Blueprint.Count>
+  <RSMF.Blueprint.Empty>No local shop blueprints yet. Click "Select and save", then drag a rectangle on the map.</RSMF.Blueprint.Empty>
+  <RSMF.Blueprint.MetaLine>{width}x{height} cells · {buildings} buildings · {cells} shop cells</RSMF.Blueprint.MetaLine>
+  <RSMF.Blueprint.SourceLine>Source map: {map}</RSMF.Blueprint.SourceLine>
+  <RSMF.Blueprint.CreatedLine>Saved: {time}</RSMF.Blueprint.CreatedLine>
+  <RSMF.Blueprint.FeatureLine>Storage {goods} · signs {signs} · services {services} · vending {vending} · terrain {floors}</RSMF.Blueprint.FeatureLine>
+  <RSMF.Blueprint.NoPreview>No preview</RSMF.Blueprint.NoPreview>
+  <RSMF.Blueprint.Open>Folder</RSMF.Blueprint.Open>
+  <RSMF.Blueprint.Place>Place</RSMF.Blueprint.Place>
+  <RSMF.Blueprint.Edit>Edit</RSMF.Blueprint.Edit>
+  <RSMF.Blueprint.DeleteConfirm>Delete this local shop blueprint? Its JSON and preview image will be removed from this machine.</RSMF.Blueprint.DeleteConfirm>
+  <RSMF.Blueprint.DeleteSuccess>Local shop blueprint deleted.</RSMF.Blueprint.DeleteSuccess>
+  <RSMF.Blueprint.SaveSuccess>Shop blueprint saved locally.</RSMF.Blueprint.SaveSuccess>
+  <RSMF.Blueprint.SelectRectHint>Drag a rectangle on the map to save the shop blueprint. Current max is {max}x{max}.</RSMF.Blueprint.SelectRectHint>
+  <RSMF.Blueprint.DefaultLabel>Local shop blueprint {time}</RSMF.Blueprint.DefaultLabel>
+  <RSMF.Blueprint.Designator.Label>Save shop blueprint</RSMF.Blueprint.Designator.Label>
+  <RSMF.Blueprint.Designator.Desc>Select a rectangle and save it as a local shop blueprint. Current max width and height is {max} cells.</RSMF.Blueprint.Designator.Desc>
+  <RSMF.Blueprint.Designator.MouseAttachment>Drag to select blueprint area</RSMF.Blueprint.Designator.MouseAttachment>
+  <RSMF.Blueprint.Place.Hint>Choose the lower-left placement cell for the shop blueprint. The business manager UI will reopen after placement or cancel.</RSMF.Blueprint.Place.Hint>
+  <RSMF.Blueprint.Place.Success>Shop blueprint plans created: {count} items.</RSMF.Blueprint.Place.Success>
+  <RSMF.Blueprint.Tab.Local>Local blueprints</RSMF.Blueprint.Tab.Local>
+  <RSMF.Blueprint.Tab.Network>Network blueprints</RSMF.Blueprint.Tab.Network>
+  <RSMF.Blueprint.Network.Title>Network blueprints</RSMF.Blueprint.Network.Title>
+  <RSMF.Blueprint.Network.Loading>Loading network blueprints...</RSMF.Blueprint.Network.Loading>
+  <RSMF.Blueprint.Network.LoadingDetail>Loading blueprint details...</RSMF.Blueprint.Network.LoadingDetail>
+  <RSMF.Blueprint.Network.Empty>No network blueprints match the current filters.</RSMF.Blueprint.Network.Empty>
+  <RSMF.Blueprint.Network.DetailHint>Select a blueprint on the left to view details, then download, like, or copy its code.</RSMF.Blueprint.Network.DetailHint>
+  <RSMF.Blueprint.Network.PageStatus>Page {page}/{pages} · {count} total</RSMF.Blueprint.Network.PageStatus>
+  <RSMF.Blueprint.Network.ListAuthor>Author: {author}</RSMF.Blueprint.Network.ListAuthor>
+  <RSMF.Blueprint.Network.ListStats>{likes} likes · {downloads} downloads · {mods} mods · {time}</RSMF.Blueprint.Network.ListStats>
+  <RSMF.Blueprint.Network.ViewDetail>Details</RSMF.Blueprint.Network.ViewDetail>
+  <RSMF.Blueprint.Network.DetailMeta>By {author} · {likes} likes · {downloads} downloads · {time}</RSMF.Blueprint.Network.DetailMeta>
+  <RSMF.Blueprint.Network.CodeLine>Blueprint code: {code}</RSMF.Blueprint.Network.CodeLine>
+  <RSMF.Blueprint.Network.Compatible>Compatibility: downloadable with current mods</RSMF.Blueprint.Network.Compatible>
+  <RSMF.Blueprint.Network.MissingCount>Compatibility: missing {count} mods</RSMF.Blueprint.Network.MissingCount>
+  <RSMF.Blueprint.Network.RequiredMods>Required mods</RSMF.Blueprint.Network.RequiredMods>
+  <RSMF.Blueprint.Network.NoRequiredMods>This blueprint has no extra mod requirements.</RSMF.Blueprint.Network.NoRequiredMods>
+  <RSMF.Blueprint.Network.MissingTag>Missing</RSMF.Blueprint.Network.MissingTag>
+  <RSMF.Blueprint.Network.InstalledTag>Installed</RSMF.Blueprint.Network.InstalledTag>
+  <RSMF.Blueprint.Network.OpenWorkshop>Workshop</RSMF.Blueprint.Network.OpenWorkshop>
+  <RSMF.Blueprint.Network.DownloadImport>Download import</RSMF.Blueprint.Network.DownloadImport>
+  <RSMF.Blueprint.Network.Like>Like</RSMF.Blueprint.Network.Like>
+  <RSMF.Blueprint.Network.CopyCode>Copy code</RSMF.Blueprint.Network.CopyCode>
+  <RSMF.Blueprint.Network.DeleteMine>Delete mine</RSMF.Blueprint.Network.DeleteMine>
+  <RSMF.Blueprint.Network.Sort.Latest>Latest</RSMF.Blueprint.Network.Sort.Latest>
+  <RSMF.Blueprint.Network.Sort.Hot>Hot</RSMF.Blueprint.Network.Sort.Hot>
+  <RSMF.Blueprint.Network.Sort.Downloads>Most downloaded</RSMF.Blueprint.Network.Sort.Downloads>
+  <RSMF.Blueprint.Network.Sort.Mine>My uploads</RSMF.Blueprint.Network.Sort.Mine>
+  <RSMF.Blueprint.Network.Sort.Compatible>Downloadable now</RSMF.Blueprint.Network.Sort.Compatible>
+  <RSMF.Blueprint.Network.SteamStatusOffline>Steam: not logged in or unreadable</RSMF.Blueprint.Network.SteamStatusOffline>
+  <RSMF.Blueprint.Network.SteamStatusOnline>Steam: signed in as {name} ({id})</RSMF.Blueprint.Network.SteamStatusOnline>
+  <RSMF.Blueprint.Network.ServiceStatusOffline>Service: offline</RSMF.Blueprint.Network.ServiceStatusOffline>
+  <RSMF.Blueprint.Network.ServiceStatusOnline>Service: online ({version})</RSMF.Blueprint.Network.ServiceStatusOnline>
+  <RSMF.Blueprint.Network.ServiceAvailable>Blueprint service is available.</RSMF.Blueprint.Network.ServiceAvailable>
+  <RSMF.Blueprint.Network.CodeInputLabel>Code</RSMF.Blueprint.Network.CodeInputLabel>
+  <RSMF.Blueprint.Network.OpenByCode>Open</RSMF.Blueprint.Network.OpenByCode>
+  <RSMF.Blueprint.Network.DirectDownload>Quick import</RSMF.Blueprint.Network.DirectDownload>
+  <RSMF.Blueprint.Network.UnknownAuthor>Unknown author</RSMF.Blueprint.Network.UnknownAuthor>
+  <RSMF.Blueprint.Network.Me>Me</RSMF.Blueprint.Network.Me>
+  <RSMF.Blueprint.Network.Upload>Upload online</RSMF.Blueprint.Network.Upload>
+  <RSMF.Blueprint.Network.Update>Update online</RSMF.Blueprint.Network.Update>
+  <RSMF.Blueprint.Network.UploadTip>Upload this local blueprint to the online blueprint service with preview and required mod list.</RSMF.Blueprint.Network.UploadTip>
+  <RSMF.Blueprint.Network.UpdateTip>Overwrite the same network blueprint code with this local blueprint while keeping existing likes and download stats.</RSMF.Blueprint.Network.UpdateTip>
+  <RSMF.Blueprint.Network.UploadAlreadyUploaded>This local blueprint is already linked to a network blueprint code. Duplicate upload is disabled unless you intentionally republish it.</RSMF.Blueprint.Network.UploadAlreadyUploaded>
+  <RSMF.Blueprint.Network.UploadNeedSteam>You must be logged into local Steam before uploading a network blueprint.</RSMF.Blueprint.Network.UploadNeedSteam>
+  <RSMF.Blueprint.Network.UpdateNeedSteam>You must be logged into local Steam before updating a network blueprint.</RSMF.Blueprint.Network.UpdateNeedSteam>
+  <RSMF.Blueprint.Network.Uploading>Uploading blueprint...</RSMF.Blueprint.Network.Uploading>
+  <RSMF.Blueprint.Network.UploadSuccess>Blueprint uploaded to the online service.</RSMF.Blueprint.Network.UploadSuccess>
+  <RSMF.Blueprint.Network.Updating>Updating network blueprint...</RSMF.Blueprint.Network.Updating>
+  <RSMF.Blueprint.Network.UpdateSuccess>Network blueprint updated.</RSMF.Blueprint.Network.UpdateSuccess>
+  <RSMF.Blueprint.Network.Downloading>Downloading blueprint...</RSMF.Blueprint.Network.Downloading>
+  <RSMF.Blueprint.Network.DownloadSuccess>Network blueprint imported into the local library.</RSMF.Blueprint.Network.DownloadSuccess>
+  <RSMF.Blueprint.Network.LikeSuccess>Blueprint liked successfully.</RSMF.Blueprint.Network.LikeSuccess>
+  <RSMF.Blueprint.Network.DeleteSuccess>Network blueprint deleted.</RSMF.Blueprint.Network.DeleteSuccess>
+  <RSMF.Blueprint.Network.CodeCopied>Blueprint code copied to clipboard.</RSMF.Blueprint.Network.CodeCopied>
+  <RSMF.Blueprint.Network.ListLoaded>Network blueprint list refreshed.</RSMF.Blueprint.Network.ListLoaded>
+  <RSMF.Blueprint.Network.DetailLoaded>Blueprint details loaded.</RSMF.Blueprint.Network.DetailLoaded>
+  <RSMF.Blueprint.Network.DeleteConfirm>Delete this blueprint you uploaded? Other players will no longer be able to download it.</RSMF.Blueprint.Network.DeleteConfirm>
+  <RSMF.Blueprint.Network.ReuploadConfirm>This local blueprint already has a network blueprint code. Continue and publish another network version?</RSMF.Blueprint.Network.ReuploadConfirm>
+  <RSMF.Blueprint.Network.UpdateConfirm>Overwrite this network blueprint with the current local blueprint? The blueprint code will stay the same.</RSMF.Blueprint.Network.UpdateConfirm>
+  <RSMF.Blueprint.Network.LocalOnly>Local only</RSMF.Blueprint.Network.LocalOnly>
+  <RSMF.Blueprint.Network.ImportedTag>Imported</RSMF.Blueprint.Network.ImportedTag>
+  <RSMF.Blueprint.Network.UploadedTag>Uploaded</RSMF.Blueprint.Network.UploadedTag>
+  <RSMF.Blueprint.Network.Error.SteamNotLoggedIn>No local Steam login was detected.</RSMF.Blueprint.Network.Error.SteamNotLoggedIn>
+  <RSMF.Blueprint.Network.Error.SteamIdUnavailable>Could not read the current SteamId.</RSMF.Blueprint.Network.Error.SteamIdUnavailable>
+  <RSMF.Blueprint.Network.Error.SteamSessionFailed>Failed to read Steam session: {message}</RSMF.Blueprint.Network.Error.SteamSessionFailed>
+  <RSMF.Blueprint.Network.Error.ServiceUnavailable>The network blueprint service is unavailable.</RSMF.Blueprint.Network.Error.ServiceUnavailable>
+  <RSMF.Blueprint.Network.Error.CodeEmpty>Please enter a valid blueprint code.</RSMF.Blueprint.Network.Error.CodeEmpty>
+  <RSMF.Blueprint.Network.Error.ListFailed>Failed to load the network blueprint list.</RSMF.Blueprint.Network.Error.ListFailed>
+  <RSMF.Blueprint.Network.Error.DetailFailed>Failed to load blueprint details.</RSMF.Blueprint.Network.Error.DetailFailed>
+  <RSMF.Blueprint.Network.Error.UploadFailedWithMessage>Failed to upload blueprint: {message}</RSMF.Blueprint.Network.Error.UploadFailedWithMessage>
+  <RSMF.Blueprint.Network.Error.DownloadFailedWithMessage>Failed to download blueprint: {message}</RSMF.Blueprint.Network.Error.DownloadFailedWithMessage>
+  <RSMF.Blueprint.Network.Error.DownloadByCodeFailedWithMessage>Failed to import by blueprint code: {message}</RSMF.Blueprint.Network.Error.DownloadByCodeFailedWithMessage>
+  <RSMF.Blueprint.Network.Error.ImportFailed>Failed to import network blueprint.</RSMF.Blueprint.Network.Error.ImportFailed>
+  <RSMF.Blueprint.Network.Error.ImportFailedWithMessage>Failed to import network blueprint: {message}</RSMF.Blueprint.Network.Error.ImportFailedWithMessage>
+  <RSMF.Blueprint.Network.Error.ImportMissingMods>Required mods are missing, so this blueprint cannot be imported.</RSMF.Blueprint.Network.Error.ImportMissingMods>
+  <RSMF.Blueprint.Network.Error.ImportMissingModsWithList>This blueprint cannot be imported because these mods are missing: {mods}</RSMF.Blueprint.Network.Error.ImportMissingModsWithList>
+  <RSMF.Blueprint.Network.Error.DeleteFailed>Failed to delete network blueprint.</RSMF.Blueprint.Network.Error.DeleteFailed>
+  <RSMF.Blueprint.Network.Error.DeleteFailedWithMessage>Failed to delete network blueprint: {message}</RSMF.Blueprint.Network.Error.DeleteFailedWithMessage>
+  <RSMF.Blueprint.Network.Error.LikeFailed>Failed to like blueprint.</RSMF.Blueprint.Network.Error.LikeFailed>
+  <RSMF.Blueprint.Network.Error.LikeFailedWithMessage>Failed to like blueprint: {message}</RSMF.Blueprint.Network.Error.LikeFailedWithMessage>
+  <RSMF.Blueprint.Place.Designator.Label>Place shop blueprint</RSMF.Blueprint.Place.Designator.Label>
+  <RSMF.Blueprint.Place.Designator.Desc>Choose the lower-left anchor and recreate the saved floors, buildings, shop zone, storage, and sign setup.</RSMF.Blueprint.Place.Designator.Desc>
+  <RSMF.Blueprint.Place.Designator.MouseAttachment>Place shop blueprint {width}x{height}</RSMF.Blueprint.Place.Designator.MouseAttachment>
+  <RSMF.Blueprint.Error.NoMap>No usable map is active.</RSMF.Blueprint.Error.NoMap>
+  <RSMF.Blueprint.Error.NoZone>No shop area is available to save.</RSMF.Blueprint.Error.NoZone>
+  <RSMF.Blueprint.Error.EmptyRect>The selected area is empty.</RSMF.Blueprint.Error.EmptyRect>
+  <RSMF.Blueprint.Error.TooLarge>The selected area is {width}x{height}, above the current {max}x{max} limit.</RSMF.Blueprint.Error.TooLarge>
+  <RSMF.Blueprint.Error.SaveFailed>Blueprint save failed: {message}</RSMF.Blueprint.Error.SaveFailed>
+  <RSMF.Blueprint.Error.SaveFailedUnknown>Blueprint save failed.</RSMF.Blueprint.Error.SaveFailedUnknown>
+  <RSMF.Blueprint.Error.RecordMissing>Blueprint record is missing.</RSMF.Blueprint.Error.RecordMissing>
+  <RSMF.Blueprint.Error.DeleteFailed>Blueprint delete failed: {message}</RSMF.Blueprint.Error.DeleteFailed>
+  <RSMF.Blueprint.Error.DeleteFailedUnknown>Blueprint delete failed.</RSMF.Blueprint.Error.DeleteFailedUnknown>
+  <RSMF.Blueprint.Place.Error.OutOfBounds>The shop blueprint would exceed the map bounds.</RSMF.Blueprint.Place.Error.OutOfBounds>
+  <RSMF.Blueprint.Place.Error.Unknown>Shop blueprint placement failed.</RSMF.Blueprint.Place.Error.Unknown>
+  <RSMF.Blueprint.Edit.Title>Edit shop blueprint</RSMF.Blueprint.Edit.Title>
+  <RSMF.Blueprint.Edit.Name>Blueprint name</RSMF.Blueprint.Edit.Name>
+  <RSMF.Blueprint.Edit.Description>Description</RSMF.Blueprint.Edit.Description>
+  <RSMF.Blueprint.Edit.Save>Save blueprint</RSMF.Blueprint.Edit.Save>
+  <RSMF.Blueprint.Edit.SaveSuccess>Shop blueprint saved.</RSMF.Blueprint.Edit.SaveSuccess>
+  <RSMF.Blueprint.Edit.Canvas>Virtual layout editor</RSMF.Blueprint.Edit.Canvas>
+  <RSMF.Blueprint.Edit.CanvasTip>Click a building in the virtual space to select it, then drag it to move its blueprint position. Floors and shop-zone cells can still be deleted from the lists below.</RSMF.Blueprint.Edit.CanvasTip>
+  <RSMF.Blueprint.Edit.SelectedBuilding>Selected: {label} · ({x},{z})</RSMF.Blueprint.Edit.SelectedBuilding>
+  <RSMF.Blueprint.Edit.NoSelection>Click a building in the virtual space, then drag it to adjust its position inside the blueprint.</RSMF.Blueprint.Edit.NoSelection>
+  <RSMF.Blueprint.Edit.Buildings>{count} building elements</RSMF.Blueprint.Edit.Buildings>
+  <RSMF.Blueprint.Edit.BuildingsTip>Deleting a building element prevents this blueprint from placing that building plan or applying its storage and sign setup.</RSMF.Blueprint.Edit.BuildingsTip>
+  <RSMF.Blueprint.Edit.Terrains>{count} floor elements</RSMF.Blueprint.Edit.Terrains>
+  <RSMF.Blueprint.Edit.TerrainsTip>Deleting a floor element prevents this blueprint from placing that floor plan.</RSMF.Blueprint.Edit.TerrainsTip>
+  <RSMF.Blueprint.Edit.ZoneCells>{count} shop-zone cells</RSMF.Blueprint.Edit.ZoneCells>
+  <RSMF.Blueprint.Edit.ZoneCellsTip>Deleting shop-zone cells removes them from the shop area created by this blueprint.</RSMF.Blueprint.Edit.ZoneCellsTip>
+  <RSMF.Blueprint.Edit.BuildingRow>{label} / {def} · ({x},{z})</RSMF.Blueprint.Edit.BuildingRow>
+  <RSMF.Blueprint.Edit.TerrainRow>{def} · ({x},{z})</RSMF.Blueprint.Edit.TerrainRow>
+  <RSMF.Blueprint.Edit.ZoneCellRow>Shop cell · ({x},{z})</RSMF.Blueprint.Edit.ZoneCellRow>
+  <RSMF.Blueprint.Edit.DeleteElement>Delete</RSMF.Blueprint.Edit.DeleteElement>
+  <RSMF.Blueprint.Edit.EmptySection>No elements in this group.</RSMF.Blueprint.Edit.EmptySection>
   <RSMF.CustomSign.Error.EmptyImagePath>Image path is empty.</RSMF.CustomSign.Error.EmptyImagePath>
   <RSMF.CustomSign.Error.ImageFileNotFound>Image file not found.</RSMF.CustomSign.Error.ImageFileNotFound>
   <RSMF.CustomSign.Error.UnsupportedImageFormat>Only png, jpg, and jpeg images are supported.</RSMF.CustomSign.Error.UnsupportedImageFormat>

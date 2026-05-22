@@ -39,6 +39,7 @@ namespace SimManagementLib.SimThingClass
             if (canStore >= carried.stackCount)
             {
                 virtualStorage.TryAddOrTransfer(carried, carried.stackCount);
+                RefreshProgressStageGraphic();
                 return canStore;
             }
 
@@ -50,6 +51,7 @@ namespace SimManagementLib.SimThingClass
                 pawn.carryTracker.TryDropCarriedThing(pawn.PositionHeld, ThingPlaceMode.Near, out _);
             }
 
+            RefreshProgressStageGraphic();
             return canStore;
         }
 
@@ -64,11 +66,13 @@ namespace SimManagementLib.SimThingClass
             {
                 int all = thing.stackCount;
                 virtualStorage.TryAddOrTransfer(thing, thing.stackCount);
+                RefreshProgressStageGraphic();
                 return all;
             }
 
             Thing part = thing.SplitOff(canStore);
             virtualStorage.TryAddOrTransfer(part, part.stackCount);
+            RefreshProgressStageGraphic();
             return canStore;
         }
 
@@ -157,6 +161,8 @@ namespace SimManagementLib.SimThingClass
 
             int actual = System.Math.Min(count, stored.stackCount);
             virtualStorage.TryDrop(stored, dropLoc, Map, ThingPlaceMode.Near, actual, out Thing result);
+            if (result != null)
+                RefreshProgressStageGraphic();
             return result;
         }
 
@@ -204,6 +210,8 @@ namespace SimManagementLib.SimThingClass
                 if (remaining <= 0) break;
             }
 
+            if (result != null)
+                RefreshProgressStageGraphic();
             return result;
         }
     }

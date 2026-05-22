@@ -50,16 +50,14 @@ namespace SimManagementLib.SimDialog
         private Zone_Shop shopZone;
         private ComboData curCombo;
         private List<ComboData> zoneCombos;
+        private List<Building_SimContainer> storages = new List<Building_SimContainer>();
         private Vector2 sideScroll;
         private Vector2 listScroll;
         private string searchQuery = "";
-        private Dictionary<string, GoodsItemData> draftItemData = new Dictionary<string, GoodsItemData>();
         private Dictionary<int, List<ServiceSlotData>> draftServiceData = new Dictionary<int, List<ServiceSlotData>>();
         private List<ThingDef> availableGoodsDefs = new List<ThingDef>();
         private List<Thing> serviceProviders = new List<Thing>();
-        private HashSet<string> manageableGoodsCategoryIds = new HashSet<string>();
-        private Dictionary<string, string> countBuffers = new Dictionary<string, string>();
-        private Dictionary<string, string> priceBuffers = new Dictionary<string, string>();
+        private int selectedStorageThingId = -1;
         private ShopScheduleData draftSchedule;
         private string comboPriceBuf = "";
         private bool priceJustCalculated;
@@ -81,36 +79,24 @@ namespace SimManagementLib.SimDialog
             draftSchedule = zone.GetSchedule().Clone();
             GoodsCatalog.EnsureInitialized();
 
-            HashSet<Building_SimContainer> storages = ShopDataUtility.GetStoragesInZone(shopZone);
+            storages = ShopDataUtility.GetStoragesInZone(shopZone)
+                .Where(storage => storage != null && !storage.Destroyed)
+                .OrderBy(storage => storage.StorageDisplayLabel)
+                .ThenBy(storage => storage.thingIDNumber)
+                .ToList();
             HashSet<string> addedDefNames = new HashSet<string>();
 
             foreach (Building_SimContainer storage in storages)
             {
                 ThingComp_GoodsData comp = storage.GetComp<ThingComp_GoodsData>();
                 if (comp == null) continue;
-                RegisterManageableGoodsCategories(comp);
-
-                foreach (KeyValuePair<string, GoodsItemData> kvp in comp.CloneItemData())
-                {
-                    if (!draftItemData.ContainsKey(kvp.Key))
-                        draftItemData[kvp.Key] = kvp.Value;
-                }
-            }
-
-            foreach (string categoryId in manageableGoodsCategoryIds)
-            {
-                IReadOnlyList<RuntimeGoodsItem> items = GoodsCatalog.GetItems(categoryId);
-                for (int i = 0; i < items.Count; i++)
-                {
-                    ThingDef def = items[i]?.thingDef;
-                    if (def != null && addedDefNames.Add(def.defName))
-                        availableGoodsDefs.Add(def);
-                }
+                RegisterStorageAvailableGoods(comp, addedDefNames);
             }
 
             availableGoodsDefs = availableGoodsDefs
                 .OrderBy(def => def.label)
                 .ToList();
+            selectedStorageThingId = storages.FirstOrDefault()?.thingIDNumber ?? -1;
 
             foreach (Thing provider in ShopServiceUtility.GetServiceProvidersInZone(shopZone))
             {
@@ -132,38 +118,79 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// 记录商店级货品上架面板可管理的分类，负责让空货柜和受限货柜也能通过快速设置写入配置。
+        /// 为商店总管收集指定货柜可管理的商品定义，负责给套餐页和货柜列表提供稳定的商品全集。
         /// </summary>
-        private void RegisterManageableGoodsCategories(ThingComp_GoodsData comp)
+        private void RegisterStorageAvailableGoods(ThingComp_GoodsData comp, HashSet<string> addedDefNames)
         {
-            if (comp == null) return;
+            if (comp == null || addedDefNames == null) return;
 
-            if (!string.IsNullOrEmpty(comp.ActiveGoodsDefName) && comp.AllowsGoodsCategory(comp.ActiveGoodsDefName))
+            foreach (string categoryId in GetManageableCategoryIds(comp))
             {
-                manageableGoodsCategoryIds.Add(comp.ActiveGoodsDefName);
-                return;
+                IReadOnlyList<RuntimeGoodsItem> items = GoodsCatalog.GetItems(categoryId);
+                for (int i = 0; i < items.Count; i++)
+                {
+                    ThingDef def = items[i]?.thingDef;
+                    if (def != null && addedDefNames.Add(def.defName))
+                        availableGoodsDefs.Add(def);
+                }
             }
+        }
+
+        /// <summary>
+        /// 返回指定货柜当前可管理的分类列表，负责兼容已配置分类、受限分类和通用货柜三种情况。
+        /// </summary>
+        private IEnumerable<string> GetManageableCategoryIds(ThingComp_GoodsData comp)
+        {
+            if (comp == null)
+                yield break;
+
+            HashSet<string> yielded = new HashSet<string>();
+            if (!string.IsNullOrEmpty(comp.ActiveGoodsDefName) && comp.AllowsGoodsCategory(comp.ActiveGoodsDefName) && yielded.Add(comp.ActiveGoodsDefName))
+                yield return comp.ActiveGoodsDefName;
 
             List<string> allowedCategoryIds = comp.GetAllowedGoodsCategoryIds();
             if (!allowedCategoryIds.NullOrEmpty())
             {
                 for (int i = 0; i < allowedCategoryIds.Count; i++)
-                    manageableGoodsCategoryIds.Add(allowedCategoryIds[i]);
-                return;
+                {
+                    string categoryId = allowedCategoryIds[i];
+                    if (!string.IsNullOrEmpty(categoryId) && yielded.Add(categoryId))
+                        yield return categoryId;
+                }
+                yield break;
             }
 
             foreach (RuntimeGoodsCategory category in GoodsCatalog.Categories ?? Enumerable.Empty<RuntimeGoodsCategory>())
             {
-                if (category != null && !string.IsNullOrEmpty(category.categoryId))
-                    manageableGoodsCategoryIds.Add(category.categoryId);
+                if (category != null && !string.IsNullOrEmpty(category.categoryId) && yielded.Add(category.categoryId))
+                    yield return category.categoryId;
             }
         }
 
-        private GoodsItemData GetDraftItem(ThingDef td)
+        /// <summary>
+        /// 校正当前选中的货柜编号，负责在货柜被拆除或列表变化后让货柜管理页仍然指向有效目标。
+        /// </summary>
+        private void EnsureSelectedStorageValid()
         {
-            if (!draftItemData.TryGetValue(td.defName, out GoodsItemData draft))
-                draftItemData[td.defName] = draft = new GoodsItemData();
-            return draft;
+            storages = storages
+                .Where(storage => storage != null && !storage.Destroyed)
+                .OrderBy(storage => storage.StorageDisplayLabel)
+                .ThenBy(storage => storage.thingIDNumber)
+                .ToList();
+
+            if (storages.Any(storage => storage.thingIDNumber == selectedStorageThingId))
+                return;
+
+            selectedStorageThingId = storages.FirstOrDefault()?.thingIDNumber ?? -1;
+        }
+
+        /// <summary>
+        /// 返回当前在商店总管中选中的货柜，负责让货柜页、套餐页和定位操作复用同一目标。
+        /// </summary>
+        private Building_SimContainer GetSelectedStorage()
+        {
+            if (selectedStorageThingId < 0) return null;
+            return storages.FirstOrDefault(storage => storage.thingIDNumber == selectedStorageThingId);
         }
 
         public override void DoWindowContents(Rect inRect)
@@ -173,6 +200,8 @@ namespace SimManagementLib.SimDialog
                 Close();
                 return;
             }
+
+            EnsureSelectedStorageValid();
 
             Rect contentRect = new Rect(inRect.x, inRect.y, inRect.width, inRect.height - BottomH);
             Rect sideRect = new Rect(contentRect.x, contentRect.y, SidebarW, contentRect.height);

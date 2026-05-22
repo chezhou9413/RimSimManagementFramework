@@ -1,9 +1,12 @@
 using RimWorld;
 using SimManagementLib.SimAI;
 using SimManagementLib.SimZone;
+using SimManagementLib.Pojo;
 using SimManagementLib.Tool;
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 using Verse;
 
@@ -43,10 +46,34 @@ namespace SimManagementLib.SimDialog
         private int reviewPageIndex;
         private Vector2 staffScrollPos;
         private Vector2 vendingScrollPos;
+        private Vector2 blueprintScrollPos;
+        private Vector2 blueprintNetworkScrollPos;
+        private Vector2 blueprintNetworkDetailScrollPos;
         private int financeSubPageIndex;
         private int financeLogPageIndex;
         private int reviewSortMode;
         private int reviewFilterZoneId = int.MinValue;
+        private const int BlueprintMaxSize = 50;
+        private bool blueprintSelectionActive;
+        private List<ShopBlueprintLocalRecord> blueprintRecords;
+        private bool blueprintShowNetworkTab;
+        private BlueprintNetworkSortMode blueprintNetworkSortMode;
+        private int blueprintNetworkPage = 1;
+        private const int BlueprintNetworkPageSize = 12;
+        private SteamSessionInfo blueprintSteamSession;
+        private BlueprintNetworkStatusData blueprintNetworkStatus;
+        private BlueprintNetworkPagedListData blueprintNetworkPagedList;
+        private BlueprintNetworkDetailData blueprintNetworkDetail;
+        private Task<BlueprintNetworkStatusData> blueprintNetworkStatusTask;
+        private Task<BlueprintNetworkPagedListData> blueprintNetworkListTask;
+        private Task<BlueprintNetworkDetailData> blueprintNetworkDetailTask;
+        private Dictionary<string, Texture2D> blueprintRemotePreviewCache = new Dictionary<string, Texture2D>();
+        private Dictionary<string, Task<byte[]>> blueprintRemotePreviewTasks = new Dictionary<string, Task<byte[]>>();
+        private Vector2 blueprintNetworkModScrollPos;
+        private string blueprintNetworkCodeBuffer = "";
+        private string blueprintNetworkMessage = "";
+        private string blueprintNetworkError = "";
+        private CancellationTokenSource blueprintNetworkCts;
         private readonly HashSet<string> expandedReviewReplyIds = new HashSet<string>();
 
         private static readonly Color CAccent = new Color(0.25f, 0.65f, 0.85f, 1f);
@@ -64,6 +91,15 @@ namespace SimManagementLib.SimDialog
             EnsurePages();
         }
 
+        /// <summary>
+        /// 关闭经营管理窗口前清理网络蓝图异步任务，负责避免后台请求继续占用资源。
+        /// </summary>
+        public override void PreClose()
+        {
+            base.PreClose();
+            CancelBlueprintNetworkRequests();
+        }
+
         public override void DoWindowContents(Rect inRect)
         {
             GameFont oldFont = Text.Font;
@@ -73,6 +109,9 @@ namespace SimManagementLib.SimDialog
 
             try
             {
+                if (blueprintSelectionActive)
+                    return;
+
                 EnsurePages();
 
                 Rect tabRect = new Rect(inRect.x, inRect.y, inRect.width, 42f);
@@ -112,6 +151,7 @@ namespace SimManagementLib.SimDialog
             if (shouldShowReviews)
                 pages.Add(new PageDef { Label = SimTranslation.T("RSMF.Business.Page.Reviews"), DrawAction = DrawCustomerReviewsPage });
             pages.Add(new PageDef { Label = SimTranslation.T("RSMF.Business.Page.CollectibleExchange"), DrawAction = DrawCollectibleExchangePage });
+            pages.Add(new PageDef { Label = SimTranslation.T("RSMF.Business.Page.Blueprints"), DrawAction = DrawBlueprintPage });
             pages.Add(new PageDef { Label = SimTranslation.T("RSMF.Business.Page.Customers"), DrawAction = DrawCustomerPage });
             pages.Add(new PageDef { Label = SimTranslation.T("RSMF.Business.Page.Staff"), DrawAction = DrawStaffPage });
             if (curPageIndex >= pages.Count)
@@ -144,6 +184,7 @@ namespace SimManagementLib.SimDialog
                     reviewPageIndex = 0;
                     staffScrollPos = Vector2.zero;
                     vendingScrollPos = Vector2.zero;
+                    blueprintScrollPos = Vector2.zero;
                 }
 
                 x += w + 8f;

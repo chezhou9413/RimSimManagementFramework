@@ -733,6 +733,150 @@
   <RSMF.CustomSign.Gizmo.ImportLabel>导入招牌</RSMF.CustomSign.Gizmo.ImportLabel>
   <RSMF.CustomSign.Gizmo.ImportDesc>从其他玩家分享的文本导入招牌配置，并自动同步图片到本地图库。</RSMF.CustomSign.Gizmo.ImportDesc>
   <RSMF.CustomSign.Imported>招牌图案已导入。</RSMF.CustomSign.Imported>
+  <RSMF.Business.Page.Blueprints>蓝图管理</RSMF.Business.Page.Blueprints>
+  <RSMF.Blueprint.Title>本地店铺蓝图</RSMF.Blueprint.Title>
+  <RSMF.Blueprint.Description>从当前地图框选一个矩形范围，保存其中所有建筑、地板、屋顶、商店区格子、货柜商品配置、招牌图层、服务配置和经营组件参数。真实库存和收银现金不会写入蓝图。</RSMF.Blueprint.Description>
+  <RSMF.Blueprint.MaxSize>最大范围</RSMF.Blueprint.MaxSize>
+  <RSMF.Blueprint.MaxSizeValue>{max}x{max}</RSMF.Blueprint.MaxSizeValue>
+  <RSMF.Blueprint.MaxSizeTip>限制单次框选的宽度和高度。这个上限由代码常量控制，方便后续统一调整。</RSMF.Blueprint.MaxSizeTip>
+  <RSMF.Blueprint.SaveSelection>框选保存蓝图</RSMF.Blueprint.SaveSelection>
+  <RSMF.Blueprint.Refresh>刷新</RSMF.Blueprint.Refresh>
+  <RSMF.Blueprint.OpenFolder>打开目录</RSMF.Blueprint.OpenFolder>
+  <RSMF.Blueprint.Count>本地蓝图 {count} 个</RSMF.Blueprint.Count>
+  <RSMF.Blueprint.Empty>暂无本地店铺蓝图。点击“框选保存蓝图”，然后在地图上拖出要保存的范围。</RSMF.Blueprint.Empty>
+  <RSMF.Blueprint.MetaLine>{width}x{height} 格 · 建筑 {buildings} 个 · 商店格 {cells} 个</RSMF.Blueprint.MetaLine>
+  <RSMF.Blueprint.SourceLine>来源地图：{map}</RSMF.Blueprint.SourceLine>
+  <RSMF.Blueprint.CreatedLine>保存时间：{time}</RSMF.Blueprint.CreatedLine>
+  <RSMF.Blueprint.FeatureLine>货柜 {goods} · 招牌 {signs} · 服务 {services} · 售货机 {vending} · 地形 {floors}</RSMF.Blueprint.FeatureLine>
+  <RSMF.Blueprint.NoPreview>无预览</RSMF.Blueprint.NoPreview>
+  <RSMF.Blueprint.Open>目录</RSMF.Blueprint.Open>
+  <RSMF.Blueprint.Place>放置</RSMF.Blueprint.Place>
+  <RSMF.Blueprint.Edit>编辑</RSMF.Blueprint.Edit>
+  <RSMF.Blueprint.DeleteConfirm>删除这个本地店铺蓝图？对应的 JSON 和预览图都会从本机删除。</RSMF.Blueprint.DeleteConfirm>
+  <RSMF.Blueprint.DeleteSuccess>本地店铺蓝图已删除。</RSMF.Blueprint.DeleteSuccess>
+  <RSMF.Blueprint.SaveSuccess>店铺蓝图已保存到本地。</RSMF.Blueprint.SaveSuccess>
+  <RSMF.Blueprint.SelectRectHint>请在地图上拖拽框选要保存的店铺范围，当前最大 {max}x{max}。</RSMF.Blueprint.SelectRectHint>
+  <RSMF.Blueprint.DefaultLabel>本地店铺蓝图 {time}</RSMF.Blueprint.DefaultLabel>
+  <RSMF.Blueprint.Designator.Label>保存店铺蓝图</RSMF.Blueprint.Designator.Label>
+  <RSMF.Blueprint.Designator.Desc>框选一个矩形范围并保存为本地店铺蓝图。当前最大宽高为 {max} 格。</RSMF.Blueprint.Designator.Desc>
+  <RSMF.Blueprint.Designator.MouseAttachment>拖拽框选店铺蓝图范围</RSMF.Blueprint.Designator.MouseAttachment>
+  <RSMF.Blueprint.Place.Hint>请选择店铺蓝图的左下角放置位置。经营管理界面会在放置完成或取消后恢复。</RSMF.Blueprint.Place.Hint>
+  <RSMF.Blueprint.Place.Success>已创建店铺蓝图施工计划，共 {count} 项。</RSMF.Blueprint.Place.Success>
+  <RSMF.Blueprint.Tab.Local>本地蓝图</RSMF.Blueprint.Tab.Local>
+  <RSMF.Blueprint.Tab.Network>网络蓝图</RSMF.Blueprint.Tab.Network>
+  <RSMF.Blueprint.Network.Title>网络蓝图</RSMF.Blueprint.Network.Title>
+  <RSMF.Blueprint.Network.Loading>正在加载网络蓝图...</RSMF.Blueprint.Network.Loading>
+  <RSMF.Blueprint.Network.LoadingDetail>正在加载蓝图详情...</RSMF.Blueprint.Network.LoadingDetail>
+  <RSMF.Blueprint.Network.Empty>当前条件下暂无可浏览的网络蓝图。</RSMF.Blueprint.Network.Empty>
+  <RSMF.Blueprint.Network.DetailHint>点击左侧蓝图查看详情后，再执行下载、点赞或复制蓝图码。</RSMF.Blueprint.Network.DetailHint>
+  <RSMF.Blueprint.Network.PageStatus>第 {page}/{pages} 页 · 共 {count} 个</RSMF.Blueprint.Network.PageStatus>
+  <RSMF.Blueprint.Network.ListAuthor>作者：{author}</RSMF.Blueprint.Network.ListAuthor>
+  <RSMF.Blueprint.Network.ListStats>赞 {likes} · 下载 {downloads} · 依赖 {mods} · {time}</RSMF.Blueprint.Network.ListStats>
+  <RSMF.Blueprint.Network.ViewDetail>查看详情</RSMF.Blueprint.Network.ViewDetail>
+  <RSMF.Blueprint.Network.DetailMeta>作者 {author} · 赞 {likes} · 下载 {downloads} · {time}</RSMF.Blueprint.Network.DetailMeta>
+  <RSMF.Blueprint.Network.CodeLine>蓝图码：{code}</RSMF.Blueprint.Network.CodeLine>
+  <RSMF.Blueprint.Network.Compatible>兼容状态：当前 Mod 列表可下载</RSMF.Blueprint.Network.Compatible>
+  <RSMF.Blueprint.Network.MissingCount>兼容状态：缺少 {count} 个 Mod</RSMF.Blueprint.Network.MissingCount>
+  <RSMF.Blueprint.Network.RequiredMods>依赖 Mod 列表</RSMF.Blueprint.Network.RequiredMods>
+  <RSMF.Blueprint.Network.NoRequiredMods>这个蓝图没有额外依赖 Mod。</RSMF.Blueprint.Network.NoRequiredMods>
+  <RSMF.Blueprint.Network.MissingTag>缺失</RSMF.Blueprint.Network.MissingTag>
+  <RSMF.Blueprint.Network.InstalledTag>已拥有</RSMF.Blueprint.Network.InstalledTag>
+  <RSMF.Blueprint.Network.OpenWorkshop>创意工坊</RSMF.Blueprint.Network.OpenWorkshop>
+  <RSMF.Blueprint.Network.DownloadImport>下载导入</RSMF.Blueprint.Network.DownloadImport>
+  <RSMF.Blueprint.Network.Like>点赞</RSMF.Blueprint.Network.Like>
+  <RSMF.Blueprint.Network.CopyCode>复制蓝图码</RSMF.Blueprint.Network.CopyCode>
+  <RSMF.Blueprint.Network.DeleteMine>删除我的上传</RSMF.Blueprint.Network.DeleteMine>
+  <RSMF.Blueprint.Network.Sort.Latest>最新</RSMF.Blueprint.Network.Sort.Latest>
+  <RSMF.Blueprint.Network.Sort.Hot>最热门</RSMF.Blueprint.Network.Sort.Hot>
+  <RSMF.Blueprint.Network.Sort.Downloads>下载最多</RSMF.Blueprint.Network.Sort.Downloads>
+  <RSMF.Blueprint.Network.Sort.Mine>我的上传</RSMF.Blueprint.Network.Sort.Mine>
+  <RSMF.Blueprint.Network.Sort.Compatible>当前 Mod 可下载</RSMF.Blueprint.Network.Sort.Compatible>
+  <RSMF.Blueprint.Network.SteamStatusOffline>Steam 状态：未登录或无法读取账号</RSMF.Blueprint.Network.SteamStatusOffline>
+  <RSMF.Blueprint.Network.SteamStatusOnline>Steam 状态：已登录 {name}（{id}）</RSMF.Blueprint.Network.SteamStatusOnline>
+  <RSMF.Blueprint.Network.ServiceStatusOffline>服务状态：不可用</RSMF.Blueprint.Network.ServiceStatusOffline>
+  <RSMF.Blueprint.Network.ServiceStatusOnline>服务状态：在线（{version}）</RSMF.Blueprint.Network.ServiceStatusOnline>
+  <RSMF.Blueprint.Network.ServiceAvailable>网络蓝图服务可用。</RSMF.Blueprint.Network.ServiceAvailable>
+  <RSMF.Blueprint.Network.CodeInputLabel>蓝图码</RSMF.Blueprint.Network.CodeInputLabel>
+  <RSMF.Blueprint.Network.OpenByCode>查看</RSMF.Blueprint.Network.OpenByCode>
+  <RSMF.Blueprint.Network.DirectDownload>直下导入</RSMF.Blueprint.Network.DirectDownload>
+  <RSMF.Blueprint.Network.UnknownAuthor>未知作者</RSMF.Blueprint.Network.UnknownAuthor>
+  <RSMF.Blueprint.Network.Me>我</RSMF.Blueprint.Network.Me>
+  <RSMF.Blueprint.Network.Upload>上传到网络</RSMF.Blueprint.Network.Upload>
+  <RSMF.Blueprint.Network.Update>更新网络蓝图</RSMF.Blueprint.Network.Update>
+  <RSMF.Blueprint.Network.UploadTip>把本地蓝图上传到网络蓝图平台，并同步依赖 Mod 列表与预览图。</RSMF.Blueprint.Network.UploadTip>
+  <RSMF.Blueprint.Network.UpdateTip>使用当前本地蓝图内容覆盖更新同一个网络蓝图码，并保留原有点赞与下载统计。</RSMF.Blueprint.Network.UpdateTip>
+  <RSMF.Blueprint.Network.UploadAlreadyUploaded>这个本地蓝图已经绑定过网络蓝图码。如需再次上传，请先复制蓝图另存，或确认是否真的需要重新发布。</RSMF.Blueprint.Network.UploadAlreadyUploaded>
+  <RSMF.Blueprint.Network.UploadNeedSteam>需要本地 Steam 已登录后才能上传网络蓝图。</RSMF.Blueprint.Network.UploadNeedSteam>
+  <RSMF.Blueprint.Network.UpdateNeedSteam>需要本地 Steam 已登录后才能更新网络蓝图。</RSMF.Blueprint.Network.UpdateNeedSteam>
+  <RSMF.Blueprint.Network.Uploading>正在上传蓝图...</RSMF.Blueprint.Network.Uploading>
+  <RSMF.Blueprint.Network.UploadSuccess>蓝图已上传到网络平台。</RSMF.Blueprint.Network.UploadSuccess>
+  <RSMF.Blueprint.Network.Updating>正在更新网络蓝图...</RSMF.Blueprint.Network.Updating>
+  <RSMF.Blueprint.Network.UpdateSuccess>网络蓝图已更新。</RSMF.Blueprint.Network.UpdateSuccess>
+  <RSMF.Blueprint.Network.Downloading>正在下载蓝图...</RSMF.Blueprint.Network.Downloading>
+  <RSMF.Blueprint.Network.DownloadSuccess>网络蓝图已导入到本地蓝图库。</RSMF.Blueprint.Network.DownloadSuccess>
+  <RSMF.Blueprint.Network.LikeSuccess>蓝图点赞成功。</RSMF.Blueprint.Network.LikeSuccess>
+  <RSMF.Blueprint.Network.DeleteSuccess>网络蓝图已删除。</RSMF.Blueprint.Network.DeleteSuccess>
+  <RSMF.Blueprint.Network.CodeCopied>蓝图码已复制到剪贴板。</RSMF.Blueprint.Network.CodeCopied>
+  <RSMF.Blueprint.Network.ListLoaded>网络蓝图列表已刷新。</RSMF.Blueprint.Network.ListLoaded>
+  <RSMF.Blueprint.Network.DetailLoaded>网络蓝图详情已加载。</RSMF.Blueprint.Network.DetailLoaded>
+  <RSMF.Blueprint.Network.DeleteConfirm>确认删除这条你上传的网络蓝图？删除后其他玩家将无法再下载它。</RSMF.Blueprint.Network.DeleteConfirm>
+  <RSMF.Blueprint.Network.ReuploadConfirm>这个本地蓝图已经存在网络蓝图码。继续上传可能会生成新的网络版本，是否继续？</RSMF.Blueprint.Network.ReuploadConfirm>
+  <RSMF.Blueprint.Network.UpdateConfirm>确认使用当前本地蓝图覆盖更新这个网络蓝图吗？原蓝图码会保持不变。</RSMF.Blueprint.Network.UpdateConfirm>
+  <RSMF.Blueprint.Network.LocalOnly>仅本地</RSMF.Blueprint.Network.LocalOnly>
+  <RSMF.Blueprint.Network.ImportedTag>网络导入</RSMF.Blueprint.Network.ImportedTag>
+  <RSMF.Blueprint.Network.UploadedTag>已上传</RSMF.Blueprint.Network.UploadedTag>
+  <RSMF.Blueprint.Network.Error.SteamNotLoggedIn>未检测到本地 Steam 登录状态。</RSMF.Blueprint.Network.Error.SteamNotLoggedIn>
+  <RSMF.Blueprint.Network.Error.SteamIdUnavailable>无法读取当前 SteamId。</RSMF.Blueprint.Network.Error.SteamIdUnavailable>
+  <RSMF.Blueprint.Network.Error.SteamSessionFailed>读取 Steam 会话失败：{message}</RSMF.Blueprint.Network.Error.SteamSessionFailed>
+  <RSMF.Blueprint.Network.Error.ServiceUnavailable>网络蓝图服务当前不可用。</RSMF.Blueprint.Network.Error.ServiceUnavailable>
+  <RSMF.Blueprint.Network.Error.CodeEmpty>请输入有效的蓝图码。</RSMF.Blueprint.Network.Error.CodeEmpty>
+  <RSMF.Blueprint.Network.Error.ListFailed>加载网络蓝图列表失败。</RSMF.Blueprint.Network.Error.ListFailed>
+  <RSMF.Blueprint.Network.Error.DetailFailed>加载网络蓝图详情失败。</RSMF.Blueprint.Network.Error.DetailFailed>
+  <RSMF.Blueprint.Network.Error.UploadFailedWithMessage>上传蓝图失败：{message}</RSMF.Blueprint.Network.Error.UploadFailedWithMessage>
+  <RSMF.Blueprint.Network.Error.DownloadFailedWithMessage>下载蓝图失败：{message}</RSMF.Blueprint.Network.Error.DownloadFailedWithMessage>
+  <RSMF.Blueprint.Network.Error.DownloadByCodeFailedWithMessage>通过蓝图码下载失败：{message}</RSMF.Blueprint.Network.Error.DownloadByCodeFailedWithMessage>
+  <RSMF.Blueprint.Network.Error.ImportFailed>导入网络蓝图失败。</RSMF.Blueprint.Network.Error.ImportFailed>
+  <RSMF.Blueprint.Network.Error.ImportFailedWithMessage>导入网络蓝图失败：{message}</RSMF.Blueprint.Network.Error.ImportFailedWithMessage>
+  <RSMF.Blueprint.Network.Error.ImportMissingMods>当前缺少必要 Mod，无法导入该蓝图。</RSMF.Blueprint.Network.Error.ImportMissingMods>
+  <RSMF.Blueprint.Network.Error.ImportMissingModsWithList>当前缺少以下 Mod，无法导入：{mods}</RSMF.Blueprint.Network.Error.ImportMissingModsWithList>
+  <RSMF.Blueprint.Network.Error.DeleteFailed>删除网络蓝图失败。</RSMF.Blueprint.Network.Error.DeleteFailed>
+  <RSMF.Blueprint.Network.Error.DeleteFailedWithMessage>删除网络蓝图失败：{message}</RSMF.Blueprint.Network.Error.DeleteFailedWithMessage>
+  <RSMF.Blueprint.Network.Error.LikeFailed>蓝图点赞失败。</RSMF.Blueprint.Network.Error.LikeFailed>
+  <RSMF.Blueprint.Network.Error.LikeFailedWithMessage>蓝图点赞失败：{message}</RSMF.Blueprint.Network.Error.LikeFailedWithMessage>
+  <RSMF.Blueprint.Place.Designator.Label>放置店铺蓝图</RSMF.Blueprint.Place.Designator.Label>
+  <RSMF.Blueprint.Place.Designator.Desc>选择左下角锚点，按蓝图复刻地板、建筑、商店区、货柜和招牌配置。</RSMF.Blueprint.Place.Designator.Desc>
+  <RSMF.Blueprint.Place.Designator.MouseAttachment>放置店铺蓝图 {width}x{height}</RSMF.Blueprint.Place.Designator.MouseAttachment>
+  <RSMF.Blueprint.Error.NoMap>当前没有可用地图。</RSMF.Blueprint.Error.NoMap>
+  <RSMF.Blueprint.Error.NoZone>没有可保存的商店区域。</RSMF.Blueprint.Error.NoZone>
+  <RSMF.Blueprint.Error.EmptyRect>框选范围为空。</RSMF.Blueprint.Error.EmptyRect>
+  <RSMF.Blueprint.Error.TooLarge>框选范围为 {width}x{height}，超过当前上限 {max}x{max}。</RSMF.Blueprint.Error.TooLarge>
+  <RSMF.Blueprint.Error.SaveFailed>保存蓝图失败：{message}</RSMF.Blueprint.Error.SaveFailed>
+  <RSMF.Blueprint.Error.SaveFailedUnknown>保存蓝图失败。</RSMF.Blueprint.Error.SaveFailedUnknown>
+  <RSMF.Blueprint.Error.RecordMissing>蓝图记录不存在。</RSMF.Blueprint.Error.RecordMissing>
+  <RSMF.Blueprint.Error.DeleteFailed>删除蓝图失败：{message}</RSMF.Blueprint.Error.DeleteFailed>
+  <RSMF.Blueprint.Error.DeleteFailedUnknown>删除蓝图失败。</RSMF.Blueprint.Error.DeleteFailedUnknown>
+  <RSMF.Blueprint.Place.Error.OutOfBounds>店铺蓝图超出地图边界。</RSMF.Blueprint.Place.Error.OutOfBounds>
+  <RSMF.Blueprint.Place.Error.Unknown>放置店铺蓝图失败。</RSMF.Blueprint.Place.Error.Unknown>
+  <RSMF.Blueprint.Edit.Title>编辑店铺蓝图</RSMF.Blueprint.Edit.Title>
+  <RSMF.Blueprint.Edit.Name>蓝图名称</RSMF.Blueprint.Edit.Name>
+  <RSMF.Blueprint.Edit.Description>介绍</RSMF.Blueprint.Edit.Description>
+  <RSMF.Blueprint.Edit.Save>保存蓝图</RSMF.Blueprint.Edit.Save>
+  <RSMF.Blueprint.Edit.SaveSuccess>店铺蓝图已保存。</RSMF.Blueprint.Edit.SaveSuccess>
+  <RSMF.Blueprint.Edit.Canvas>虚拟空间编辑</RSMF.Blueprint.Edit.Canvas>
+  <RSMF.Blueprint.Edit.CanvasTip>在虚拟空间中点击建筑可以选中，按住拖动可以移动建筑位置。地板和商店区格子仍可在下方列表中删除。</RSMF.Blueprint.Edit.CanvasTip>
+  <RSMF.Blueprint.Edit.SelectedBuilding>已选中：{label} · ({x},{z})</RSMF.Blueprint.Edit.SelectedBuilding>
+  <RSMF.Blueprint.Edit.NoSelection>点击虚拟空间中的建筑后，可以拖动它调整蓝图内的位置。</RSMF.Blueprint.Edit.NoSelection>
+  <RSMF.Blueprint.Edit.Buildings>建筑元素 {count} 个</RSMF.Blueprint.Edit.Buildings>
+  <RSMF.Blueprint.Edit.BuildingsTip>删除建筑元素后，放置蓝图时不会再创建对应建筑施工计划，也不会应用该建筑的货柜或招牌配置。</RSMF.Blueprint.Edit.BuildingsTip>
+  <RSMF.Blueprint.Edit.Terrains>地板元素 {count} 个</RSMF.Blueprint.Edit.Terrains>
+  <RSMF.Blueprint.Edit.TerrainsTip>删除地板元素后，放置蓝图时不会再创建对应地板施工计划。</RSMF.Blueprint.Edit.TerrainsTip>
+  <RSMF.Blueprint.Edit.ZoneCells>商店区格子 {count} 个</RSMF.Blueprint.Edit.ZoneCells>
+  <RSMF.Blueprint.Edit.ZoneCellsTip>删除商店区格子后，放置蓝图时新商店区域不会包含这些格子。</RSMF.Blueprint.Edit.ZoneCellsTip>
+  <RSMF.Blueprint.Edit.BuildingRow>{label} / {def} · ({x},{z})</RSMF.Blueprint.Edit.BuildingRow>
+  <RSMF.Blueprint.Edit.TerrainRow>{def} · ({x},{z})</RSMF.Blueprint.Edit.TerrainRow>
+  <RSMF.Blueprint.Edit.ZoneCellRow>商店格 · ({x},{z})</RSMF.Blueprint.Edit.ZoneCellRow>
+  <RSMF.Blueprint.Edit.DeleteElement>删除</RSMF.Blueprint.Edit.DeleteElement>
+  <RSMF.Blueprint.Edit.EmptySection>这个分组里没有元素。</RSMF.Blueprint.Edit.EmptySection>
   <RSMF.CustomSign.Error.EmptyImagePath>图片路径为空。</RSMF.CustomSign.Error.EmptyImagePath>
   <RSMF.CustomSign.Error.ImageFileNotFound>找不到图片文件。</RSMF.CustomSign.Error.ImageFileNotFound>
   <RSMF.CustomSign.Error.UnsupportedImageFormat>只支持 png、jpg、jpeg 图片。</RSMF.CustomSign.Error.UnsupportedImageFormat>

@@ -32,11 +32,6 @@ namespace SimManagementLib.SimDialog
             Rect saveRect = new Rect(rect.xMax - 120f, btnY, 108f, 30f);
             if (SimUiStyle.DrawPrimaryButton(saveRect, SimTranslation.T("RSMF.ShopManager.Save"), true, GameFont.Tiny))
             {
-                HashSet<Building_SimContainer> storages = ShopDataUtility.GetStoragesInZone(shopZone);
-                int totalTrimmed = 0;
-                int trimmedStorageCount = 0;
-                ApplyDraftGoodsSettingsToStorages(storages, ref totalTrimmed, ref trimmedStorageCount);
-
                 foreach (Thing provider in serviceProviders)
                 {
                     if (provider == null || provider.Destroyed) continue;
@@ -58,102 +53,66 @@ namespace SimManagementLib.SimDialog
 
                 shopZone.ApplySchedule(draftSchedule);
 
-                if (totalTrimmed > 0)
-                {
-                    Messages.Message(SimTranslation.T("RSMF.ShopManager.AutoTrimNotice",
-                        trimmedStorageCount.Named("storageCount"),
-                        totalTrimmed.Named("trimmed")), MessageTypeDefOf.NeutralEvent, false);
-                }
-
                 Close();
             }
         }
 
         /// <summary>
-        /// 将商店级货品草稿写回店内货柜，负责兼容已有分类货柜和未配置分类的空货柜。
+        /// 判断店内是否存在任意一个正在售卖指定商品的货柜，负责给套餐编辑页过滤可选商品。
         /// </summary>
-        private void ApplyDraftGoodsSettingsToStorages(HashSet<Building_SimContainer> storages, ref int totalTrimmed, ref int trimmedStorageCount)
+        private bool HasAnyStorageSellingThing(ThingDef thingDef)
         {
-            if (storages.NullOrEmpty()) return;
+            if (thingDef == null || storages.NullOrEmpty())
+                return false;
 
             foreach (Building_SimContainer storage in storages)
             {
                 if (storage == null || storage.Destroyed) continue;
                 ThingComp_GoodsData comp = storage.GetComp<ThingComp_GoodsData>();
                 if (comp == null) continue;
-
-                string categoryId = ResolveStorageCategoryForDraft(comp);
-                if (string.IsNullOrEmpty(categoryId)) continue;
-
-                Dictionary<string, GoodsItemData> settingsCopy = CloneDraftItemSettings();
-                Dictionary<string, GoodsItemData> clamped = storage.ClampSettingsToCapacity(categoryId, settingsCopy, out int trimmed);
-                if (trimmed > 0)
-                {
-                    totalTrimmed += trimmed;
-                    trimmedStorageCount++;
-                }
-
-                comp.ApplySettings(categoryId, clamped);
+                GoodsItemData data = comp.FindItemData(thingDef);
+                if (data != null && data.enabled && data.count > 0)
+                    return true;
             }
+
+            return false;
         }
 
         /// <summary>
-        /// 为单个货柜选择商店级草稿应写入的商品分类，负责让已有货柜保持原分类并给空货柜选择目标量最高的可用分类。
+        /// 返回套餐估价时参考的单件售价，负责优先使用当前选中货柜的配置价，再回退到其他货柜或物品基础市价。
         /// </summary>
-        private string ResolveStorageCategoryForDraft(ThingComp_GoodsData comp)
+        private float GetReferencePriceForCombo(ThingDef thingDef)
         {
-            if (comp == null) return "";
-            if (!string.IsNullOrEmpty(comp.ActiveGoodsDefName) && comp.AllowsGoodsCategory(comp.ActiveGoodsDefName))
-                return comp.ActiveGoodsDefName;
+            if (thingDef == null) return 1f;
 
-            return manageableGoodsCategoryIds
-                .Where(comp.AllowsGoodsCategory)
-                .Select(categoryId => new
-                {
-                    CategoryId = categoryId,
-                    Target = GetDraftTargetTotalForCategory(categoryId)
-                })
-                .Where(entry => entry.Target > 0)
-                .OrderByDescending(entry => entry.Target)
-                .ThenBy(entry => GoodsCatalog.GetCategory(entry.CategoryId)?.label ?? entry.CategoryId)
-                .Select(entry => entry.CategoryId)
-                .FirstOrDefault() ?? "";
-        }
+            Building_SimContainer selectedStorage = GetSelectedStorage();
+            if (TryGetConfiguredPrice(selectedStorage, thingDef, out float selectedPrice))
+                return selectedPrice;
 
-        /// <summary>
-        /// 复制商店级货品草稿，负责避免同一份 GoodsItemData 被多个货柜共享引用。
-        /// </summary>
-        private Dictionary<string, GoodsItemData> CloneDraftItemSettings()
-        {
-            return draftItemData.ToDictionary(
-                kv => kv.Key,
-                kv => new GoodsItemData
-                {
-                    enabled = kv.Value.enabled,
-                    count = kv.Value.count,
-                    price = kv.Value.price
-                });
-        }
-
-        /// <summary>
-        /// 统计指定分类在草稿中的目标数量，负责给未配置货柜自动选择写入分类。
-        /// </summary>
-        private int GetDraftTargetTotalForCategory(string categoryId)
-        {
-            if (string.IsNullOrEmpty(categoryId)) return 0;
-
-            int total = 0;
-            IReadOnlyList<RuntimeGoodsItem> items = GoodsCatalog.GetItems(categoryId);
-            for (int i = 0; i < items.Count; i++)
+            for (int i = 0; i < storages.Count; i++)
             {
-                ThingDef thingDef = items[i]?.thingDef;
-                if (thingDef == null) continue;
-                if (!draftItemData.TryGetValue(thingDef.defName, out GoodsItemData data) || data == null) continue;
-                if (!data.enabled || data.count <= 0) continue;
-                total += data.count;
+                if (TryGetConfiguredPrice(storages[i], thingDef, out float price))
+                    return price;
             }
 
-            return total;
+            return Mathf.Max(1f, thingDef.BaseMarketValue);
+        }
+
+        /// <summary>
+        /// 读取指定货柜对某个商品的配置售价，负责给套餐页和总管概览复用同一套判断。
+        /// </summary>
+        private static bool TryGetConfiguredPrice(Building_SimContainer storage, ThingDef thingDef, out float price)
+        {
+            price = 0f;
+            if (storage == null || thingDef == null) return false;
+
+            ThingComp_GoodsData comp = storage.GetComp<ThingComp_GoodsData>();
+            GoodsItemData data = comp?.FindItemData(thingDef);
+            if (data == null || !data.enabled || data.price <= 0f)
+                return false;
+
+            price = Mathf.Max(1f, data.price);
+            return true;
         }
 
         private void DrawTableHeader(Rect rect, System.Action drawColumns)
