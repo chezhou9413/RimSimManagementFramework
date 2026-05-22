@@ -267,6 +267,7 @@
     <Compile Include="Tool\PurchaseOutcomeCatalog.cs" />
     <Compile Include="Tool\BlueprintDependencyCollector.cs" />
     <Compile Include="Tool\BlueprintEndpointCodec.cs" />
+    <Compile Include="Tool\BlueprintOwnershipUtility.cs" />
     <Compile Include="Tool\BlueprintModCompatibilityChecker.cs" />
     <Compile Include="Tool\BlueprintNetworkApiClient.cs" />
     <Compile Include="Tool\BlueprintNetworkImportService.cs" />

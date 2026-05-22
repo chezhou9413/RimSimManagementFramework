@@ -103,7 +103,8 @@ namespace SimManagementLib.Tool
                 form.Add(new StringContent(record.Data.label ?? "", Encoding.UTF8), "Name");
                 form.Add(new StringContent(record.Data.description ?? "", Encoding.UTF8), "Description");
                 form.Add(new StringContent(SerializeJson(record.Data.requiredMods), Encoding.UTF8), "RequiredModsJson");
-                if (!string.IsNullOrWhiteSpace(record.Data.remoteBlueprintCode))
+                form.Add(new StringContent(record.Data.remoteBlueprintSourceKind ?? "", Encoding.UTF8), "ClientBlueprintSourceKind");
+                if (BlueprintOwnershipUtility.CanUpdateExisting(record.Data, steamId))
                     form.Add(new StringContent(record.Data.remoteBlueprintCode, Encoding.UTF8), "ExistingBlueprintCode");
 
                 byte[] blueprintBytes = File.ReadAllBytes(record.BlueprintPath);

@@ -16,6 +16,18 @@ namespace SimManagementLib.Tool
     public static class ShopBlueprintPlacementUtility
     {
         /// <summary>
+        /// 负责承载一次蓝图放置的创建、复用和错误结果。
+        /// </summary>
+        private sealed class BlueprintPlacementResult
+        {
+            public int createdBlueprintCount;
+            public int reusedExistingCount;
+            public string error;
+
+            public int totalSatisfiedCount => createdBlueprintCount + reusedExistingCount;
+        }
+
+        /// <summary>
         /// 判断蓝图是否可以放置在指定锚点。
         /// </summary>
         public static AcceptanceReport CanPlaceAt(Map map, IntVec3 origin, ShopBlueprintData data)
@@ -54,20 +66,20 @@ namespace SimManagementLib.Tool
         /// </summary>
         public static bool TryPlaceAt(Map map, IntVec3 origin, ShopBlueprintData data, Rot4 blueprintRot, out int plannedCount, out string error)
         {
-            plannedCount = 0;
-            error = null;
+            BlueprintPlacementResult result = EvaluatePlacement(map, origin, data, blueprintRot);
+            plannedCount = result?.totalSatisfiedCount ?? 0;
+            error = result?.error;
 
-            AcceptanceReport report = CanPlaceAt(map, origin, data, blueprintRot);
-            if (!report.Accepted)
+            if (result == null || !string.IsNullOrEmpty(result.error))
             {
-                error = report.Reason;
                 return false;
             }
 
             MapComponent_ShopBlueprintPlacement component = map.GetComponent<MapComponent_ShopBlueprintPlacement>();
-            PlaceTerrainBlueprints(map, origin, data, blueprintRot, ref plannedCount);
-            PlaceBuildingBlueprints(map, origin, data, blueprintRot, component, ref plannedCount);
+            PlaceTerrainBlueprints(map, origin, data, blueprintRot, ref result.createdBlueprintCount);
+            PlaceBuildingBlueprints(map, origin, data, blueprintRot, component, ref result.createdBlueprintCount, ref result.reusedExistingCount);
             CreateShopZone(map, origin, data, blueprintRot);
+            plannedCount = result.totalSatisfiedCount;
             return true;
         }
 
@@ -94,7 +106,6 @@ namespace SimManagementLib.Tool
             Color ghostColor = canPlace ? Designator_Place.CanPlaceColor : Designator_Place.CannotPlaceColor;
             List<IntVec3> cells = rect.Cells.ToList();
             GenDraw.DrawFieldEdges(cells, ghostColor);
-            DrawTerrainPreview(origin, data, blueprintRot, ghostColor);
             DrawBuildingGhosts(map, origin, data, blueprintRot, ghostColor);
         }
 
@@ -153,9 +164,12 @@ namespace SimManagementLib.Tool
                     if (def == null)
                         continue;
 
+                    IntVec3 cell = ToWorldCell(origin, data, buildingData.x, buildingData.z, blueprintRot);
+                    if (TryFindReusableExistingBuilding(map, cell, buildingData, def, out _))
+                        continue;
+
                     ThingDef stuff = GetStuffDef(buildingData);
                     Rot4 rotation = RotateBuildingRotation(ParseRotation(buildingData.rotation), blueprintRot);
-                    IntVec3 cell = ToWorldCell(origin, data, buildingData.x, buildingData.z, blueprintRot);
                     AcceptanceReport report = GenConstruct.CanPlaceBlueprintAt(def, cell, rotation, map, DebugSettings.godMode, null, null, stuff);
                     if (!report.Accepted)
                         return report.Reason;
@@ -191,47 +205,6 @@ namespace SimManagementLib.Tool
                     map.terrainGrid.SetTerrain(cell, terrainDef);
                 else
                     GenConstruct.PlaceBlueprintForBuild(terrainDef, cell, map, Rot4.North, Faction.OfPlayer, null);
-
-                plannedCount++;
-            }
-        }
-
-        /// <summary>
-        /// 创建蓝图中保存的建筑施工计划，并登记完工后要应用的经营配置。
-        /// </summary>
-        private static void PlaceBuildingBlueprints(Map map, IntVec3 origin, ShopBlueprintData data, Rot4 blueprintRot, MapComponent_ShopBlueprintPlacement component, ref int plannedCount)
-        {
-            if (data.buildings == null)
-                return;
-
-            for (int i = 0; i < data.buildings.Count; i++)
-            {
-                ShopBlueprintBuildingData buildingData = data.buildings[i];
-                ThingDef def = DefDatabase<ThingDef>.GetNamedSilentFail(buildingData.defName);
-                if (def == null)
-                    continue;
-
-                ThingDef stuff = GetStuffDef(buildingData);
-                ThingStyleDef styleDef = GetStyleDef(buildingData);
-                Rot4 rotation = RotateBuildingRotation(ParseRotation(buildingData.rotation), blueprintRot);
-                IntVec3 cell = ToWorldCell(origin, data, buildingData.x, buildingData.z, blueprintRot);
-                if (!GenConstruct.CanPlaceBlueprintAt(def, cell, rotation, map, DebugSettings.godMode, null, null, stuff).Accepted)
-                    continue;
-
-                if (DebugSettings.godMode || def.GetStatValueAbstract(StatDefOf.WorkToBuild, stuff) == 0f)
-                {
-                    Thing thing = ThingMaker.MakeThing(def, stuff);
-                    thing.SetFactionDirect(Faction.OfPlayer);
-                    thing.StyleDef = styleDef;
-                    Thing spawned = GenSpawn.Spawn(thing, cell, map, rotation);
-                    component?.RegisterPendingBuilding(cell, def, rotation, buildingData);
-                    component?.TryApplyPendingConfig(spawned);
-                }
-                else
-                {
-                    GenConstruct.PlaceBlueprintForBuild(def, cell, map, rotation, Faction.OfPlayer, stuff, null, styleDef);
-                    component?.RegisterPendingBuilding(cell, def, rotation, buildingData);
-                }
 
                 plannedCount++;
             }
@@ -377,27 +350,6 @@ namespace SimManagementLib.Tool
         /// <summary>
         /// 绘制蓝图地板格子的淡色提示。
         /// </summary>
-        private static void DrawTerrainPreview(IntVec3 origin, ShopBlueprintData data, Rot4 blueprintRot, Color ghostColor)
-        {
-            if (data.terrains.NullOrEmpty())
-                return;
-
-            List<IntVec3> cells = new List<IntVec3>();
-            for (int i = 0; i < data.terrains.Count; i++)
-            {
-                ShopBlueprintTerrainData terrain = data.terrains[i];
-                if (GetTerrainDef(terrain) == null)
-                    continue;
-                cells.Add(ToWorldCell(origin, data, terrain.x, terrain.z, blueprintRot));
-            }
-
-            if (cells.Count > 0)
-                GenDraw.DrawFieldEdges(cells, ghostColor);
-        }
-
-        /// <summary>
-        /// 绘制蓝图中每个建筑的放置虚影。
-        /// </summary>
         private static void DrawBuildingGhosts(Map map, IntVec3 origin, ShopBlueprintData data, Rot4 blueprintRot, Color ghostColor)
         {
             if (data.buildings.NullOrEmpty())
@@ -417,8 +369,154 @@ namespace SimManagementLib.Tool
                     continue;
 
                 GhostDrawer.DrawGhostThing(cell, rotation, def, null, ghostColor, AltitudeLayer.Blueprint, null, false, stuff);
-                GenDraw.DrawFieldEdges(GenAdj.OccupiedRect(cell, rotation, def.Size).Cells.ToList(), ghostColor);
             }
+        }
+
+        /// <summary>
+        /// 预先评估当前蓝图放置是否成功，并收集复用结果。
+        /// </summary>
+        private static BlueprintPlacementResult EvaluatePlacement(Map map, IntVec3 origin, ShopBlueprintData data, Rot4 blueprintRot)
+        {
+            AcceptanceReport report = CanPlaceAt(map, origin, data, blueprintRot);
+            return new BlueprintPlacementResult
+            {
+                error = report.Accepted ? null : report.Reason
+            };
+        }
+
+        /// <summary>
+        /// 创建蓝图中保存的建筑施工计划，或复用已存在的普通建筑。
+        /// </summary>
+        private static void PlaceBuildingBlueprints(
+            Map map,
+            IntVec3 origin,
+            ShopBlueprintData data,
+            Rot4 blueprintRot,
+            MapComponent_ShopBlueprintPlacement component,
+            ref int createdBlueprintCount,
+            ref int reusedExistingCount)
+        {
+            if (data.buildings == null)
+                return;
+
+            for (int i = 0; i < data.buildings.Count; i++)
+            {
+                ShopBlueprintBuildingData buildingData = data.buildings[i];
+                ThingDef def = DefDatabase<ThingDef>.GetNamedSilentFail(buildingData.defName);
+                if (def == null)
+                    continue;
+
+                Rot4 rotation = RotateBuildingRotation(ParseRotation(buildingData.rotation), blueprintRot);
+                IntVec3 cell = ToWorldCell(origin, data, buildingData.x, buildingData.z, blueprintRot);
+                if (TryFindReusableExistingBuilding(map, cell, buildingData, def, out Building existing))
+                {
+                    TryApplyReusableBuildingConfig(existing, buildingData);
+                    reusedExistingCount++;
+                    continue;
+                }
+
+                ThingDef stuff = GetStuffDef(buildingData);
+                ThingStyleDef styleDef = GetStyleDef(buildingData);
+                if (!GenConstruct.CanPlaceBlueprintAt(def, cell, rotation, map, DebugSettings.godMode, null, null, stuff).Accepted)
+                    continue;
+
+                if (DebugSettings.godMode || def.GetStatValueAbstract(StatDefOf.WorkToBuild, stuff) == 0f)
+                {
+                    Thing thing = ThingMaker.MakeThing(def, stuff);
+                    thing.SetFactionDirect(Faction.OfPlayer);
+                    thing.StyleDef = styleDef;
+                    Thing spawned = GenSpawn.Spawn(thing, cell, map, rotation);
+                    component?.RegisterPendingBuilding(cell, def, rotation, buildingData);
+                    component?.TryApplyPendingConfig(spawned);
+                }
+                else
+                {
+                    GenConstruct.PlaceBlueprintForBuild(def, cell, map, rotation, Faction.OfPlayer, stuff, null, styleDef);
+                    component?.RegisterPendingBuilding(cell, def, rotation, buildingData);
+                }
+
+                createdBlueprintCount++;
+            }
+        }
+
+        /// <summary>
+        /// 判断指定蓝图建筑是否允许复用现有普通建筑。
+        /// </summary>
+        private static bool TryFindReusableExistingBuilding(Map map, IntVec3 cell, ShopBlueprintBuildingData buildingData, ThingDef expectedDef, out Building existing)
+        {
+            existing = null;
+            if (map == null || !cell.InBounds(map) || buildingData == null || expectedDef == null)
+                return false;
+            if (IsStrictManagedBlueprintBuilding(buildingData, expectedDef))
+                return false;
+
+            List<Thing> things = cell.GetThingList(map);
+            for (int i = 0; i < things.Count; i++)
+            {
+                Building building = things[i] as Building;
+                if (building == null || building.Destroyed)
+                    continue;
+                if (building is Frame)
+                    continue;
+                if (!string.Equals(building.def?.defName, expectedDef.defName, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                if (!IsReusableForPlayer(building))
+                    continue;
+
+                existing = building;
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 判断蓝图建筑是否属于必须严格新建的货柜或招牌。
+        /// </summary>
+        private static bool IsStrictManagedBlueprintBuilding(ShopBlueprintBuildingData buildingData, ThingDef def)
+        {
+            if (def == null || buildingData == null)
+                return true;
+            if (typeof(SimThingClass.Building_SimContainer).IsAssignableFrom(def.thingClass))
+                return true;
+            if (buildingData.goods != null || buildingData.container != null || buildingData.sign != null)
+                return true;
+            if (def.comps != null && def.comps.Any(comp => comp?.compClass == typeof(SimThingComp.ThingComp_CustomSign)))
+                return true;
+
+            return false;
+        }
+
+        /// <summary>
+        /// 判断现有建筑是否可以视为玩家可直接复用的建筑。
+        /// </summary>
+        private static bool IsReusableForPlayer(Building building)
+        {
+            if (building == null)
+                return false;
+            if (building.Faction == null)
+                return true;
+            if (building.Faction == Faction.OfPlayer)
+                return true;
+
+            return !building.Faction.HostileTo(Faction.OfPlayer);
+        }
+
+        /// <summary>
+        /// 把复用命中的普通建筑立即套用兼容蓝图配置。
+        /// </summary>
+        private static void TryApplyReusableBuildingConfig(Building building, ShopBlueprintBuildingData data)
+        {
+            if (building == null || data == null)
+                return;
+
+            MapComponent_ShopBlueprintPlacement.ApplyBlueprintConfigDirectly(building, new ShopBlueprintBuildingData
+            {
+                paintColorDefName = data.paintColorDefName ?? "",
+                service = data.service,
+                vending = data.vending,
+                cash = data.cash
+            });
         }
     }
 }

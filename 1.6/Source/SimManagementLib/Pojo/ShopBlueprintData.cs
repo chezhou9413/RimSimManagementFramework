@@ -27,6 +27,7 @@ namespace SimManagementLib.Pojo
         [DataMember] public List<ShopBlueprintRequiredModData> requiredMods = new List<ShopBlueprintRequiredModData>();
         [DataMember] public string remoteBlueprintCode = "";
         [DataMember] public string remoteAuthorSteamId = "";
+        [DataMember] public string remoteBlueprintSourceKind = "";
         [DataMember] public long remoteImportedAtTicks;
     }
 

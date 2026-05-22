@@ -201,25 +201,31 @@ namespace SimManagementLib.SimDialog
                 uploadSession = SteamSessionResolver.TryGetCurrentSession();
             if (uploadSession != null && uploadSession.IsAvailable)
                 blueprintSteamSession = uploadSession;
-            bool alreadyUploaded = !string.IsNullOrWhiteSpace(data.remoteBlueprintCode);
+            bool alreadyUploaded = BlueprintOwnershipUtility.IsUploadedByCurrentSteam(data, uploadSession?.SteamId ?? "");
+            bool importedFromNetwork = BlueprintOwnershipUtility.IsImportedFromNetwork(data);
             bool canUpload = uploadSession != null && uploadSession.IsAvailable;
             string uploadLabel = alreadyUploaded
                 ? SimTranslation.T("RSMF.Blueprint.Network.Update")
                 : SimTranslation.T("RSMF.Blueprint.Network.Upload");
-            if (SimUiStyle.DrawSecondaryButton(uploadRect, uploadLabel, canUpload, GameFont.Tiny))
+            bool canPressUpload = canUpload && (alreadyUploaded || BlueprintOwnershipUtility.CanUploadAsNew(data));
+            if (SimUiStyle.DrawSecondaryButton(uploadRect, uploadLabel, canPressUpload, GameFont.Tiny))
                 UploadBlueprintRecordToNetwork(record);
             TooltipHandler.TipRegion(uploadRect, canUpload
                 ? alreadyUploaded
                     ? SimTranslation.T("RSMF.Blueprint.Network.UpdateTip")
-                    : SimTranslation.T("RSMF.Blueprint.Network.UploadTip")
+                    : importedFromNetwork
+                        ? SimTranslation.T("RSMF.Blueprint.Network.ImportedCannotUpload")
+                        : SimTranslation.T("RSMF.Blueprint.Network.UploadTip")
                 : alreadyUploaded
                     ? SimTranslation.T("RSMF.Blueprint.Network.UpdateNeedSteam")
                     : SimTranslation.T("RSMF.Blueprint.Network.UploadNeedSteam"));
 
             Rect sourceRect = new Rect(bx - btnW - 8f, row.y + 82f, btnW, btnH);
-            string sourceLabel = string.IsNullOrWhiteSpace(data.remoteBlueprintCode)
-                ? SimTranslation.T("RSMF.Blueprint.Network.LocalOnly")
-                : SimTranslation.T("RSMF.Blueprint.Network.UploadedTag");
+            string sourceLabel = importedFromNetwork
+                ? SimTranslation.T("RSMF.Blueprint.Network.ImportedTag")
+                : alreadyUploaded
+                    ? SimTranslation.T("RSMF.Blueprint.Network.UploadedTag")
+                    : SimTranslation.T("RSMF.Blueprint.Network.LocalOnly");
             SimUiStyle.DrawDisabledClickableButton(sourceRect, sourceLabel, GameFont.Tiny);
         }
 

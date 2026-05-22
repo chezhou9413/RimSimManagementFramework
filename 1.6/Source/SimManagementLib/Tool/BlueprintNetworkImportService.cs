@@ -39,8 +39,7 @@ namespace SimManagementLib.Tool
                 }
 
                 data.remoteBlueprintCode = detail.blueprintCode ?? "";
-                data.remoteAuthorSteamId = detail.steamId ?? "";
-                data.remoteImportedAtTicks = DateTime.UtcNow.Ticks;
+                BlueprintOwnershipUtility.MarkAsImported(data, detail.steamId ?? "", DateTime.UtcNow.Ticks);
                 data.requiredMods = detail.requiredMods ?? new System.Collections.Generic.List<ShopBlueprintRequiredModData>();
                 data.blueprintId = DateTime.UtcNow.ToString("yyyyMMddHHmmss") + "_remote_" + (detail.blueprintCode ?? "blueprint").ToLowerInvariant();
 

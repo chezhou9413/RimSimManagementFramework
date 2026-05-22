@@ -655,7 +655,20 @@ namespace SimManagementLib.SimDialog
                 return;
             }
 
-            if (!string.IsNullOrWhiteSpace(record.Data.remoteBlueprintCode))
+            if (BlueprintOwnershipUtility.IsImportedFromNetwork(record.Data))
+            {
+                Messages.Message(SimTranslation.T("RSMF.Blueprint.Network.ImportedCannotUpload"), MessageTypeDefOf.RejectInput, false);
+                return;
+            }
+
+            if (!BlueprintOwnershipUtility.CanUploadAsNew(record.Data)
+                && !BlueprintOwnershipUtility.CanUpdateExisting(record.Data, blueprintSteamSession.SteamId))
+            {
+                Messages.Message(SimTranslation.T("RSMF.Blueprint.Network.UpdateNotOwner"), MessageTypeDefOf.RejectInput, false);
+                return;
+            }
+
+            if (BlueprintOwnershipUtility.CanUpdateExisting(record.Data, blueprintSteamSession.SteamId))
             {
                 Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(SimTranslation.T("RSMF.Blueprint.Network.UpdateConfirm"), delegate
                 {
@@ -678,7 +691,7 @@ namespace SimManagementLib.SimDialog
             try
             {
                 EnsureBlueprintNetworkCts();
-                bool isUpdate = !string.IsNullOrWhiteSpace(record.Data.remoteBlueprintCode);
+                bool isUpdate = BlueprintOwnershipUtility.CanUpdateExisting(record.Data, blueprintSteamSession?.SteamId ?? "");
                 blueprintNetworkMessage = isUpdate
                     ? SimTranslation.T("RSMF.Blueprint.Network.Updating")
                     : SimTranslation.T("RSMF.Blueprint.Network.Uploading");
@@ -913,8 +926,7 @@ namespace SimManagementLib.SimDialog
                 return;
 
             record.Data.remoteBlueprintCode = detail.blueprintCode ?? "";
-            record.Data.remoteAuthorSteamId = detail.steamId ?? blueprintSteamSession?.SteamId ?? "";
-            record.Data.remoteImportedAtTicks = DateTime.UtcNow.Ticks;
+            BlueprintOwnershipUtility.MarkAsUploaded(record.Data, detail.steamId ?? blueprintSteamSession?.SteamId ?? "");
             record.Data.requiredMods = detail.requiredMods ?? record.Data.requiredMods ?? new List<ShopBlueprintRequiredModData>();
             ShopBlueprintLibrary.EnsureDataDefaults(record.Data);
             if (!ShopBlueprintLibrary.TryUpdateRecord(record, record.Data, out string error))
@@ -1377,7 +1389,7 @@ namespace SimManagementLib.SimDialog
 
             ShopBlueprintLocalRecord imported = blueprintRecords.FirstOrDefault(record =>
                 record?.Data != null &&
-                !string.IsNullOrWhiteSpace(record.Data.remoteBlueprintCode) &&
+                BlueprintOwnershipUtility.HasRemoteCode(record.Data) &&
                 string.Equals(record.Data.remoteBlueprintCode, blueprintNetworkDetail.blueprintCode, StringComparison.OrdinalIgnoreCase));
             return imported?.PreviewPath;
         }

@@ -752,6 +752,7 @@ namespace SimManagementLib.Tool
             data.requiredMods = data.requiredMods ?? new List<ShopBlueprintRequiredModData>();
             data.remoteBlueprintCode = data.remoteBlueprintCode ?? "";
             data.remoteAuthorSteamId = data.remoteAuthorSteamId ?? "";
+            data.remoteBlueprintSourceKind = data.remoteBlueprintSourceKind ?? "";
 
             for (int i = data.zoneCells.Count - 1; i >= 0; i--)
             {

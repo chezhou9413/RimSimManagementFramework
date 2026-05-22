@@ -825,6 +825,8 @@
   <RSMF.Blueprint.Network.LocalOnly>Local only</RSMF.Blueprint.Network.LocalOnly>
   <RSMF.Blueprint.Network.ImportedTag>Imported</RSMF.Blueprint.Network.ImportedTag>
   <RSMF.Blueprint.Network.UploadedTag>Uploaded</RSMF.Blueprint.Network.UploadedTag>
+  <RSMF.Blueprint.Network.ImportedCannotUpload>Blueprints imported from the network cannot be uploaded again directly. Save them as a new local blueprint first.</RSMF.Blueprint.Network.ImportedCannotUpload>
+  <RSMF.Blueprint.Network.UpdateNotOwner>Only blueprints uploaded and bound by your own Steam account can be updated.</RSMF.Blueprint.Network.UpdateNotOwner>
   <RSMF.Blueprint.Network.Error.SteamNotLoggedIn>No local Steam login was detected.</RSMF.Blueprint.Network.Error.SteamNotLoggedIn>
   <RSMF.Blueprint.Network.Error.SteamIdUnavailable>Could not read the current SteamId.</RSMF.Blueprint.Network.Error.SteamIdUnavailable>
   <RSMF.Blueprint.Network.Error.SteamSessionFailed>Failed to read Steam session: {message}</RSMF.Blueprint.Network.Error.SteamSessionFailed>

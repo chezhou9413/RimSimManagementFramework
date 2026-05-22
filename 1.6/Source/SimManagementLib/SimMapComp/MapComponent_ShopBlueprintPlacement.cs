@@ -85,12 +85,23 @@ namespace SimManagementLib.SimMapComp
                     continue;
                 }
 
-                ApplyBuildingConfig(thing, data);
+                ApplyBlueprintConfigDirectly(thing, data);
                 pendingBuildings.RemoveAt(i);
                 return true;
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// 直接把蓝图中的兼容运行时配置写入现有建筑，供复用已存在建筑时立即套用。
+        /// </summary>
+        public static void ApplyBlueprintConfigDirectly(Thing thing, ShopBlueprintBuildingData data)
+        {
+            if (thing == null || data == null)
+                return;
+
+            ApplyBuildingConfig(thing, data);
         }
 
         /// <summary>

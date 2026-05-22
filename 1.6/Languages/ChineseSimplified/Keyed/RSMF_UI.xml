@@ -825,6 +825,8 @@
   <RSMF.Blueprint.Network.LocalOnly>仅本地</RSMF.Blueprint.Network.LocalOnly>
   <RSMF.Blueprint.Network.ImportedTag>网络导入</RSMF.Blueprint.Network.ImportedTag>
   <RSMF.Blueprint.Network.UploadedTag>已上传</RSMF.Blueprint.Network.UploadedTag>
+  <RSMF.Blueprint.Network.ImportedCannotUpload>网络下载导入的蓝图不能直接再次上传，请先另存为新的本地蓝图后再发布。</RSMF.Blueprint.Network.ImportedCannotUpload>
+  <RSMF.Blueprint.Network.UpdateNotOwner>只有你自己上传并绑定的蓝图，才允许执行更新。</RSMF.Blueprint.Network.UpdateNotOwner>
   <RSMF.Blueprint.Network.Error.SteamNotLoggedIn>未检测到本地 Steam 登录状态。</RSMF.Blueprint.Network.Error.SteamNotLoggedIn>
   <RSMF.Blueprint.Network.Error.SteamIdUnavailable>无法读取当前 SteamId。</RSMF.Blueprint.Network.Error.SteamIdUnavailable>
   <RSMF.Blueprint.Network.Error.SteamSessionFailed>读取 Steam 会话失败：{message}</RSMF.Blueprint.Network.Error.SteamSessionFailed>
