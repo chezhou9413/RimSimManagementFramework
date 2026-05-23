@@ -170,7 +170,7 @@ namespace SimManagementLib.Tool
 
                     ThingDef stuff = GetStuffDef(buildingData, def);
                     Rot4 rotation = RotateBuildingRotation(ParseRotation(buildingData.rotation), blueprintRot);
-                    AcceptanceReport report = CanPlaceBuildingOrBlueprintAt(def, cell, rotation, map, stuff);
+                    AcceptanceReport report = CanPlaceBuildingOrBlueprintAt(def, cell, rotation, map, stuff, data, origin, blueprintRot);
                     if (!report.Accepted)
                         return report.Reason;
                 }
@@ -414,9 +414,14 @@ namespace SimManagementLib.Tool
             if (data.buildings == null)
                 return;
 
-            for (int i = 0; i < data.buildings.Count; i++)
+            List<ShopBlueprintBuildingData> orderedBuildings = data.buildings
+                .Where(building => building != null)
+                .OrderBy(building => IsWallAttachmentDef(DefDatabase<ThingDef>.GetNamedSilentFail(building.defName)) ? 1 : 0)
+                .ToList();
+
+            for (int i = 0; i < orderedBuildings.Count; i++)
             {
-                ShopBlueprintBuildingData buildingData = data.buildings[i];
+                ShopBlueprintBuildingData buildingData = orderedBuildings[i];
                 ThingDef def = DefDatabase<ThingDef>.GetNamedSilentFail(buildingData.defName);
                 if (def == null)
                     continue;
@@ -433,7 +438,7 @@ namespace SimManagementLib.Tool
 
                 ThingDef stuff = GetStuffDef(buildingData, def);
                 ThingStyleDef styleDef = GetStyleDef(buildingData);
-                if (!CanPlaceBuildingOrBlueprintAt(def, cell, rotation, map, stuff).Accepted)
+                if (!CanPlaceBuildingOrBlueprintAt(def, cell, rotation, map, stuff, data, origin, blueprintRot).Accepted)
                     continue;
 
                 if (ShouldSpawnBuildingDirectly(def, stuff))
@@ -489,17 +494,99 @@ namespace SimManagementLib.Tool
         /// <summary>
         /// 检查普通施工蓝图或直接生成建筑是否能放在目标位置。
         /// </summary>
-        private static AcceptanceReport CanPlaceBuildingOrBlueprintAt(ThingDef def, IntVec3 cell, Rot4 rotation, Map map, ThingDef stuff)
+        private static AcceptanceReport CanPlaceBuildingOrBlueprintAt(ThingDef def, IntVec3 cell, Rot4 rotation, Map map, ThingDef stuff, ShopBlueprintData data = null, IntVec3 origin = default(IntVec3), Rot4 blueprintRot = default(Rot4))
         {
             if (def == null)
                 return false;
 
             if (def.blueprintDef != null)
-                return GenConstruct.CanPlaceBlueprintAt(def, cell, rotation, map, DebugSettings.godMode, null, null, stuff);
+            {
+                AcceptanceReport report = GenConstruct.CanPlaceBlueprintAt(def, cell, rotation, map, DebugSettings.godMode, null, null, stuff);
+                if (report.Accepted || !CanIgnoreFutureWallAttachmentFailure(report, def, cell, rotation, map, data, origin, blueprintRot))
+                    return report;
+
+                return AcceptanceReport.WasAccepted;
+            }
 
             return GenSpawn.CanSpawnAt(def, cell, map, rotation, false)
                 ? AcceptanceReport.WasAccepted
                 : "Cannot place " + def.LabelCap + " here.";
+        }
+
+        /// <summary>
+        /// 判断墙体挂件的失败是否只因为支撑墙还在同一张蓝图里，职责是让整店蓝图能一次性放下墙和招牌。
+        /// </summary>
+        private static bool CanIgnoreFutureWallAttachmentFailure(AcceptanceReport report, ThingDef def, IntVec3 cell, Rot4 rotation, Map map, ShopBlueprintData data, IntVec3 origin, Rot4 blueprintRot)
+        {
+            if (report.Accepted || !IsWallAttachmentDef(def) || data?.buildings == null)
+                return false;
+
+            string reason = report.Reason ?? "";
+            string mustPlaceOnWall = "MustPlaceOnWall".Translate().ToString();
+            if (!string.Equals(reason, mustPlaceOnWall, StringComparison.Ordinal))
+                return false;
+
+            IntVec3 supportCell = cell + GenAdj.CardinalDirections[rotation.AsInt];
+            return HasBlueprintWallSupportAt(map, supportCell, data, origin, blueprintRot);
+        }
+
+        /// <summary>
+        /// 判断蓝图内是否会在指定格子创建可支撑墙体挂件的满格墙体。
+        /// </summary>
+        private static bool HasBlueprintWallSupportAt(Map map, IntVec3 supportCell, ShopBlueprintData data, IntVec3 origin, Rot4 blueprintRot)
+        {
+            if (map == null || !supportCell.InBounds(map) || data?.buildings == null)
+                return false;
+
+            for (int i = 0; i < data.buildings.Count; i++)
+            {
+                ShopBlueprintBuildingData supportData = data.buildings[i];
+                ThingDef supportDef = DefDatabase<ThingDef>.GetNamedSilentFail(supportData?.defName);
+                if (!CanSupportWallAttachment(supportDef))
+                    continue;
+
+                Rot4 supportRot = RotateBuildingRotation(ParseRotation(supportData.rotation), blueprintRot);
+                IntVec3 supportCenter = ToWorldCell(origin, data, supportData.x, supportData.z, blueprintRot);
+                if (GenAdj.OccupiedRect(supportCenter, supportRot, supportDef.Size).Contains(supportCell))
+                    return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 判断建筑 Def 是否是墙体挂件。
+        /// </summary>
+        private static bool IsWallAttachmentDef(ThingDef def)
+        {
+            return def?.building?.isAttachment == true && HasAttachedToWallPlaceWorker(def);
+        }
+
+        /// <summary>
+        /// 判断建筑 Def 是否带有原版贴墙放置规则。
+        /// </summary>
+        private static bool HasAttachedToWallPlaceWorker(ThingDef def)
+        {
+            if (def?.PlaceWorkers == null)
+                return false;
+
+            for (int i = 0; i < def.PlaceWorkers.Count; i++)
+            {
+                if (def.PlaceWorkers[i]?.GetType().Name == "Placeworker_AttachedToWall")
+                    return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 判断指定建筑是否可作为墙体挂件的支撑墙。
+        /// </summary>
+        private static bool CanSupportWallAttachment(ThingDef def)
+        {
+            return def?.building != null
+                && def.building.supportsWallAttachments
+                && def.Fillage == FillCategory.Full;
         }
 
         /// <summary>
