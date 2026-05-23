@@ -78,6 +78,20 @@ namespace SimManagementLib.Pojo
         [DataMember] public ShopBlueprintVendingConfig vending;
         [DataMember] public ShopBlueprintCashConfig cash;
         [DataMember] public ShopBlueprintContainerConfig container;
+        [DataMember] public List<ShopBlueprintExternalConfigData> externalConfigs = new List<ShopBlueprintExternalConfigData>();
+        [DataMember] public ShopBlueprintTextureAdjustmentConfig textureAdjustment;
+    }
+
+    /// <summary>
+    /// 负责保存软依赖模组提供的建筑运行时配置，具体内容由对应桥接器解释。
+    /// </summary>
+    [DataContract]
+    public sealed class ShopBlueprintExternalConfigData
+    {
+        [DataMember] public string bridgeId = "";
+        [DataMember] public string packageId = "";
+        [DataMember] public string version = "";
+        [DataMember] public string payload = "";
     }
 
     /// <summary>
@@ -122,6 +136,20 @@ namespace SimManagementLib.Pojo
         [DataMember] public List<ShopBlueprintSignLayerConfig> southLayers = new List<ShopBlueprintSignLayerConfig>();
         [DataMember] public List<ShopBlueprintSignLayerConfig> eastLayers = new List<ShopBlueprintSignLayerConfig>();
         [DataMember] public List<ShopBlueprintSignLayerConfig> northLayers = new List<ShopBlueprintSignLayerConfig>();
+        [DataMember] public List<ShopBlueprintSignImagePayload> images = new List<ShopBlueprintSignImagePayload>();
+    }
+
+    /// <summary>
+    /// 负责把招牌图层引用的图片内容打包进蓝图，保证网络上传下载后不丢失自定义图片。
+    /// </summary>
+    [DataContract]
+    public sealed class ShopBlueprintSignImagePayload
+    {
+        [DataMember] public string imageId = "";
+        [DataMember] public string label = "";
+        [DataMember] public int width;
+        [DataMember] public int height;
+        [DataMember] public string pngBase64 = "";
     }
 
     /// <summary>
@@ -188,6 +216,22 @@ namespace SimManagementLib.Pojo
     public sealed class ShopBlueprintContainerConfig
     {
         [DataMember] public string customName = "";
+    }
+
+    /// <summary>
+    /// 负责保存通用建筑贴图调整的偏移、缩放、旋转、镜像和透明度配置。
+    /// </summary>
+    [DataContract]
+    public sealed class ShopBlueprintTextureAdjustmentConfig
+    {
+        [DataMember] public float offsetX;
+        [DataMember] public float offsetZ;
+        [DataMember] public float offsetVertical;
+        [DataMember] public float scale = 1f;
+        [DataMember] public float altitude;
+        [DataMember] public bool mirror;
+        [DataMember] public float rotation;
+        [DataMember] public float transparency = 1f;
     }
 
     /// <summary>

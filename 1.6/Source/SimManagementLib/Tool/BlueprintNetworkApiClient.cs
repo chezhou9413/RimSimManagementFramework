@@ -84,6 +84,7 @@ namespace SimManagementLib.Tool
                 return null;
 
             ShopBlueprintLibrary.EnsureDataDefaults(record.Data);
+            ShopBlueprintSignPayloadUtility.EmbedImages(record.Data);
             BlueprintDependencyCollector.PopulateRequiredMods(record.Data);
             if (record.Data.requiredMods == null)
                 record.Data.requiredMods = new List<ShopBlueprintRequiredModData>();

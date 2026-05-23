@@ -918,4 +918,44 @@
   <RSMF.Business.Reviews.ReplyTitle>{author} replied to {target} · {stance}</RSMF.Business.Reviews.ReplyTitle>
   <RSMF.Business.Reviews.AllShops>All shops</RSMF.Business.Reviews.AllShops>
   <RSMF.Business.Reviews.ShopFallback>Shop #{id}</RSMF.Business.Reviews.ShopFallback>
+  <RSMF.CollectibleDisplayStand.Gizmo.Label>Manage stand</RSMF.CollectibleDisplayStand.Gizmo.Label>
+  <RSMF.CollectibleDisplayStand.Gizmo.Desc>Open the collectible display stand panel to choose slot collectibles, review hauling state, and unload displayed collectibles.</RSMF.CollectibleDisplayStand.Gizmo.Desc>
+  <RSMF.CollectibleDisplayStand.DebugGizmo.Label>Debug stand slots</RSMF.CollectibleDisplayStand.DebugGizmo.Label>
+  <RSMF.CollectibleDisplayStand.DebugGizmo.Desc>Open the god mode placement tool to adjust collectible render positions and export XML slot defaults.</RSMF.CollectibleDisplayStand.DebugGizmo.Desc>
+  <RSMF.CollectibleDisplayStand.Window.Title>Collectible display stand</RSMF.CollectibleDisplayStand.Window.Title>
+  <RSMF.CollectibleDisplayStand.Window.Summary>{rows} rows × {columns} columns · displaying {stored}/{total}</RSMF.CollectibleDisplayStand.Window.Summary>
+  <RSMF.CollectibleDisplayStand.Grid.Title>Display slots</RSMF.CollectibleDisplayStand.Grid.Title>
+  <RSMF.CollectibleDisplayStand.Grid.Pending>Pending</RSMF.CollectibleDisplayStand.Grid.Pending>
+  <RSMF.CollectibleDisplayStand.Grid.PendingTooltip>Waiting for hauling: {source}</RSMF.CollectibleDisplayStand.Grid.PendingTooltip>
+  <RSMF.CollectibleDisplayStand.Grid.EmptyTooltip>Empty slot. Click to choose a collectible on the current map.</RSMF.CollectibleDisplayStand.Grid.EmptyTooltip>
+  <RSMF.CollectibleDisplayStand.Detail.Title>Slot {index}</RSMF.CollectibleDisplayStand.Detail.Title>
+  <RSMF.CollectibleDisplayStand.Detail.Empty>Empty slot</RSMF.CollectibleDisplayStand.Detail.Empty>
+  <RSMF.CollectibleDisplayStand.Detail.Pending>Waiting for hauling: {source}</RSMF.CollectibleDisplayStand.Detail.Pending>
+  <RSMF.CollectibleDisplayStand.Detail.Values>Position {x}, {z} · scale {scale}</RSMF.CollectibleDisplayStand.Detail.Values>
+  <RSMF.CollectibleDisplayStand.Detail.BusinessHint>Collectibles are displayed using the stand's default slot positions.</RSMF.CollectibleDisplayStand.Detail.BusinessHint>
+  <RSMF.CollectibleDisplayStand.Detail.StoredSummary>Displaying: {thing}. You can unload it and choose another collectible.</RSMF.CollectibleDisplayStand.Detail.StoredSummary>
+  <RSMF.CollectibleDisplayStand.Detail.PendingSummary>A pawn will haul {source} to this slot.</RSMF.CollectibleDisplayStand.Detail.PendingSummary>
+  <RSMF.CollectibleDisplayStand.Detail.EmptySummary>Choose a collectible on the current map to create a hauling job.</RSMF.CollectibleDisplayStand.Detail.EmptySummary>
+  <RSMF.CollectibleDisplayStand.Detail.NormalModeHint>Display positions come from XML slot defaults. Transform sliders are only shown in developer mode with god mode enabled.</RSMF.CollectibleDisplayStand.Detail.NormalModeHint>
+  <RSMF.CollectibleDisplayStand.Detail.Unload>Unload</RSMF.CollectibleDisplayStand.Detail.Unload>
+  <RSMF.CollectibleDisplayStand.Detail.ChooseSource>Choose collectible</RSMF.CollectibleDisplayStand.Detail.ChooseSource>
+  <RSMF.CollectibleDisplayStand.Detail.ClearPending>Clear pending</RSMF.CollectibleDisplayStand.Detail.ClearPending>
+  <RSMF.CollectibleDisplayStand.Detail.OffsetX>X offset</RSMF.CollectibleDisplayStand.Detail.OffsetX>
+  <RSMF.CollectibleDisplayStand.Detail.OffsetZ>Z offset</RSMF.CollectibleDisplayStand.Detail.OffsetZ>
+  <RSMF.CollectibleDisplayStand.Detail.Height>Height</RSMF.CollectibleDisplayStand.Detail.Height>
+  <RSMF.CollectibleDisplayStand.Detail.Scale>Scale</RSMF.CollectibleDisplayStand.Detail.Scale>
+  <RSMF.CollectibleDisplayStand.Detail.Rotation>Rotation</RSMF.CollectibleDisplayStand.Detail.Rotation>
+  <RSMF.CollectibleDisplayStand.Detail.ResetPosition>Reset position</RSMF.CollectibleDisplayStand.Detail.ResetPosition>
+  <RSMF.CollectibleDisplayStand.Menu.NoSources>No RimSim collectible is available on the current map.</RSMF.CollectibleDisplayStand.Menu.NoSources>
+  <RSMF.CollectibleDisplayStand.Debug.Title>Display stand slot placement</RSMF.CollectibleDisplayStand.Debug.Title>
+  <RSMF.CollectibleDisplayStand.Debug.Subtitle>Shown only in developer mode with god mode enabled. Exported XML can be written into the stand Def as default parameters.</RSMF.CollectibleDisplayStand.Debug.Subtitle>
+  <RSMF.CollectibleDisplayStand.Debug.Slot>Slot {index}</RSMF.CollectibleDisplayStand.Debug.Slot>
+  <RSMF.CollectibleDisplayStand.Debug.ResetSlot>Reset slot</RSMF.CollectibleDisplayStand.Debug.ResetSlot>
+  <RSMF.CollectibleDisplayStand.Debug.CopySlot>Copy slot XML</RSMF.CollectibleDisplayStand.Debug.CopySlot>
+  <RSMF.CollectibleDisplayStand.Debug.CopyAll>Copy all XML</RSMF.CollectibleDisplayStand.Debug.CopyAll>
+  <RSMF.CollectibleDisplayStand.Debug.Copied>Display stand slot XML copied.</RSMF.CollectibleDisplayStand.Debug.Copied>
+  <RSMF.CollectibleDisplayStand.Error.InvalidSlot>Invalid slot.</RSMF.CollectibleDisplayStand.Error.InvalidSlot>
+  <RSMF.CollectibleDisplayStand.Error.SlotOccupied>This slot already contains a collectible.</RSMF.CollectibleDisplayStand.Error.SlotOccupied>
+  <RSMF.CollectibleDisplayStand.Error.InvalidSource>Only RimSim Framework collectibles can be selected.</RSMF.CollectibleDisplayStand.Error.InvalidSource>
+  <RSMF.ShopService.Fail.DisplayStandEmpty>The collectible display stand has no displayed collectibles.</RSMF.ShopService.Fail.DisplayStandEmpty>
 </LanguageData>

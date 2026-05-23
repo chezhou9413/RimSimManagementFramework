@@ -11,4 +11,10 @@
     <driverClass>SimManagementLib.SimAI.JobDriver_WithdrawFromMegaStorage</driverClass>
     <reportString>正在取出多余货物。</reportString>
   </JobDef>
+
+  <JobDef>
+    <defName>FillCollectibleDisplayStand</defName>
+    <driverClass>SimManagementLib.SimAI.JobDriver_FillCollectibleDisplayStand</driverClass>
+    <reportString>正在布置收藏品展台。</reportString>
+  </JobDef>
 </Defs>

@@ -61,10 +61,8 @@ namespace SimManagementLib.SimMapComp
 
             if (hasGoodsMatch) return true;
 
-            if (!acceptsAnyServiceCategory)
-                return ShopServiceUtility.HasUsableServiceProvider(Shop, null, serviceTargets);
-
-            return acceptsAnyGoodsCategory && ShopServiceUtility.HasUsableServiceProvider(Shop);
+            // 服务建筑不按顾客偏好分类做硬过滤，任何顾客都有概率被任意可用服务吸引。
+            return ShopServiceUtility.HasUsableServiceProvider(Shop);
         }
 
         /// <summary>

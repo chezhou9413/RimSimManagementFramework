@@ -42,6 +42,8 @@ namespace SimManagementLib.Tool
                 BlueprintOwnershipUtility.MarkAsImported(data, detail.steamId ?? "", DateTime.UtcNow.Ticks);
                 data.requiredMods = detail.requiredMods ?? new System.Collections.Generic.List<ShopBlueprintRequiredModData>();
                 data.blueprintId = DateTime.UtcNow.ToString("yyyyMMddHHmmss") + "_remote_" + (detail.blueprintCode ?? "blueprint").ToLowerInvariant();
+                ShopBlueprintLibrary.EnsureDataDefaults(data);
+                ShopBlueprintSignPayloadUtility.ImportImages(data);
 
                 string directory = Path.Combine(ShopBlueprintLibrary.LibraryDirectory, data.blueprintId);
                 Directory.CreateDirectory(directory);

@@ -131,7 +131,9 @@ namespace SimManagementLib.SimDialog
             Rect viewRect = new Rect(0f, 0f, viewWidth, blueprintRecords.Count * rowHeight);
             Widgets.BeginScrollView(rect, ref blueprintScrollPos, viewRect);
 
-            for (int i = 0; i < blueprintRecords.Count; i++)
+            int firstVisibleIndex = Mathf.Max(0, Mathf.FloorToInt(blueprintScrollPos.y / rowHeight) - 1);
+            int lastVisibleIndex = Mathf.Min(blueprintRecords.Count - 1, Mathf.CeilToInt((blueprintScrollPos.y + rect.height) / rowHeight) + 1);
+            for (int i = firstVisibleIndex; i <= lastVisibleIndex; i++)
             {
                 ShopBlueprintLocalRecord record = blueprintRecords[i];
                 DrawBlueprintRow(new Rect(0f, i * rowHeight, viewWidth, rowHeight - 6f), record, i);
@@ -196,11 +198,7 @@ namespace SimManagementLib.SimDialog
                 OpenRecordFolder(record);
 
             Rect uploadRect = new Rect(bx - btnW - 8f, row.y + 46f, btnW, btnH);
-            SteamSessionInfo uploadSession = blueprintSteamSession;
-            if (uploadSession == null || string.IsNullOrWhiteSpace(uploadSession.SteamId))
-                uploadSession = SteamSessionResolver.TryGetCurrentSession();
-            if (uploadSession != null && uploadSession.IsAvailable)
-                blueprintSteamSession = uploadSession;
+            SteamSessionInfo uploadSession = GetCachedBlueprintSteamSession(false);
             bool alreadyUploaded = BlueprintOwnershipUtility.IsUploadedByCurrentSteam(data, uploadSession?.SteamId ?? "");
             bool importedFromNetwork = BlueprintOwnershipUtility.IsImportedFromNetwork(data);
             bool canUpload = uploadSession != null && uploadSession.IsAvailable;
@@ -237,7 +235,7 @@ namespace SimManagementLib.SimDialog
             Widgets.DrawBoxSolid(rect, new Color(0f, 0f, 0f, 0.35f));
             SimUiStyle.DrawBorder(rect, new Color(1f, 1f, 1f, 0.16f));
 
-            Texture2D texture = LoadPreviewTexture(previewPath);
+            Texture2D texture = BlueprintPreviewTextureCache.Get(previewPath);
             if (texture != null)
             {
                 GUI.DrawTexture(rect.ContractedBy(4f), texture, ScaleMode.ScaleToFit);
@@ -252,22 +250,19 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// 从磁盘读取预览图纹理。
+        /// 读取当前 Steam 会话缓存，负责避免本地蓝图列表每行每帧重复解析 Steam 状态。
         /// </summary>
-        private static Texture2D LoadPreviewTexture(string previewPath)
+        private SteamSessionInfo GetCachedBlueprintSteamSession(bool force)
         {
-            if (string.IsNullOrEmpty(previewPath) || !File.Exists(previewPath))
-                return null;
+            if (!force && blueprintSteamSession != null && blueprintSteamSession.IsAvailable)
+                return blueprintSteamSession;
 
-            try
-            {
-                Texture2D texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
-                return texture.LoadImage(File.ReadAllBytes(previewPath)) ? texture : null;
-            }
-            catch
-            {
-                return null;
-            }
+            if (!force && Time.realtimeSinceStartup < blueprintNextSteamSessionResolveTime)
+                return blueprintSteamSession;
+
+            blueprintNextSteamSessionResolveTime = Time.realtimeSinceStartup + 5f;
+            blueprintSteamSession = SteamSessionResolver.TryGetCurrentSession();
+            return blueprintSteamSession;
         }
 
         /// <summary>
@@ -340,6 +335,7 @@ namespace SimManagementLib.SimDialog
         /// </summary>
         private void ReloadBlueprintRecords()
         {
+            BlueprintPreviewTextureCache.Clear();
             blueprintRecords = ShopBlueprintLibrary.LoadRecords();
         }
 

@@ -12,4 +12,17 @@
     <workerClass>SimManagementLib.SimService.ShopServiceWorker_Toilet</workerClass>
     <useJobDef>Customer_UsePaidService</useJobDef>
   </SimManagementLib.SimService.ShopServiceDef>
+
+  <!-- 收藏品展台参观服务。使用 UseBeforePay 表示顾客先参观，再把参观费用加入结账账单。 -->
+  <SimManagementLib.SimService.ShopServiceDef>
+    <defName>Sim_Service_CollectibleDisplayStandVisit</defName>
+    <label>参观收藏品展台</label>
+    <description>顾客会在收藏品展台前停留参观，并按展台当前展品数量支付参观费用。每个展品增加 20 白银。</description>
+    <serviceCategoryId>Service_CollectibleDisplay</serviceCategoryId>
+    <basePrice>20</basePrice>
+    <durationTicks>360~720</durationTicks>
+    <billingMode>UseBeforePay</billingMode>
+    <workerClass>SimManagementLib.SimService.ShopServiceWorker_CollectibleDisplayStandVisit</workerClass>
+    <useJobDef>Customer_UsePaidService</useJobDef>
+  </SimManagementLib.SimService.ShopServiceDef>
 </Defs>

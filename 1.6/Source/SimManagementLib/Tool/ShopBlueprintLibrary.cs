@@ -79,6 +79,7 @@ namespace SimManagementLib.Tool
             try
             {
                 EnsureDataDefaults(data);
+                ShopBlueprintSignPayloadUtility.EmbedImages(data);
                 EnsureDirectoryExists();
                 string directory = Path.Combine(LibraryDirectory, data.blueprintId);
                 Directory.CreateDirectory(directory);
@@ -148,6 +149,7 @@ namespace SimManagementLib.Tool
             try
             {
                 EnsureDataDefaults(data);
+                ShopBlueprintSignPayloadUtility.EmbedImages(data);
 
                 string directoryPath = string.IsNullOrWhiteSpace(record.DirectoryPath)
                     ? Path.GetDirectoryName(record.BlueprintPath)
@@ -364,6 +366,7 @@ namespace SimManagementLib.Tool
             data.vending = ToVendingConfig(thingWithComps?.GetComp<ThingComp_VendingMachine>());
             data.cash = ToCashConfig(thingWithComps?.GetComp<ThingComp_CashStorage>());
             data.container = ToContainerConfig(thing as Building_SimContainer);
+            data.externalConfigs = BlueprintExternalConfigRegistry.CaptureConfigs(thing);
             return data;
         }
 
@@ -406,12 +409,13 @@ namespace SimManagementLib.Tool
             if (comp == null)
                 return null;
 
-            return new ShopBlueprintSignConfig
-            {
-                southLayers = ToSignLayers(comp.SouthFace),
-                eastLayers = ToSignLayers(comp.EastFace),
-                northLayers = ToSignLayers(comp.NorthFace)
-            };
+                return new ShopBlueprintSignConfig
+                {
+                    southLayers = ToSignLayers(comp.SouthFace),
+                    eastLayers = ToSignLayers(comp.EastFace),
+                    northLayers = ToSignLayers(comp.NorthFace),
+                    images = new List<ShopBlueprintSignImagePayload>()
+                };
         }
 
         /// <summary>
@@ -684,9 +688,11 @@ namespace SimManagementLib.Tool
                 building.sign.southLayers = building.sign.southLayers ?? new List<ShopBlueprintSignLayerConfig>();
                 building.sign.eastLayers = building.sign.eastLayers ?? new List<ShopBlueprintSignLayerConfig>();
                 building.sign.northLayers = building.sign.northLayers ?? new List<ShopBlueprintSignLayerConfig>();
+                building.sign.images = building.sign.images ?? new List<ShopBlueprintSignImagePayload>();
                 EnsureSignLayers(building.sign.southLayers);
                 EnsureSignLayers(building.sign.eastLayers);
                 EnsureSignLayers(building.sign.northLayers);
+                EnsureSignImages(building.sign.images);
             }
 
             if (building.service != null)
@@ -707,6 +713,33 @@ namespace SimManagementLib.Tool
 
             if (building.container != null)
                 building.container.customName = building.container.customName ?? "";
+
+            ShopBlueprintTextureAdjustmentBridge.EnsureConfigDefaults(building.textureAdjustment);
+            building.externalConfigs = building.externalConfigs ?? new List<ShopBlueprintExternalConfigData>();
+            MigrateLegacyTextureAdjustmentConfig(building);
+            BlueprintExternalConfigRegistry.EnsureDefaults(building.externalConfigs);
+        }
+
+        /// <summary>
+        /// 将旧版专用贴图调整字段迁移到通用外部配置列表，保持旧蓝图可继续应用和上传校验。
+        /// </summary>
+        private static void MigrateLegacyTextureAdjustmentConfig(ShopBlueprintBuildingData building)
+        {
+            if (building == null || building.textureAdjustment == null)
+                return;
+
+            bool alreadyMigrated = building.externalConfigs.Any(config =>
+                config != null
+                && (string.Equals(config.bridgeId, ShopBlueprintTextureAdjustmentBridge.BridgeIdValue, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(config.packageId, ShopBlueprintTextureAdjustmentBridge.PackageId, StringComparison.OrdinalIgnoreCase)));
+            if (!alreadyMigrated)
+            {
+                ShopBlueprintExternalConfigData config = ShopBlueprintTextureAdjustmentBridge.ToExternalConfig(building.textureAdjustment);
+                if (config != null)
+                    building.externalConfigs.Add(config);
+            }
+
+            building.textureAdjustment = null;
         }
 
         /// <summary>
@@ -728,6 +761,29 @@ namespace SimManagementLib.Tool
 
                 layer.imageId = layer.imageId ?? "";
                 layer.label = layer.label ?? "";
+            }
+        }
+
+        /// <summary>
+        /// 为招牌图片载荷补齐默认字段并移除损坏条目。
+        /// </summary>
+        private static void EnsureSignImages(List<ShopBlueprintSignImagePayload> images)
+        {
+            if (images == null)
+                return;
+
+            for (int i = images.Count - 1; i >= 0; i--)
+            {
+                ShopBlueprintSignImagePayload image = images[i];
+                if (image == null || string.IsNullOrWhiteSpace(image.imageId))
+                {
+                    images.RemoveAt(i);
+                    continue;
+                }
+
+                image.imageId = image.imageId ?? "";
+                image.label = image.label ?? "";
+                image.pngBase64 = image.pngBase64 ?? "";
             }
         }
 

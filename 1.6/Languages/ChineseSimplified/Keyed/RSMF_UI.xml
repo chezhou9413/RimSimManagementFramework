@@ -918,4 +918,44 @@
   <RSMF.Business.Reviews.ReplyTitle>{author} 回复 {target} · {stance}</RSMF.Business.Reviews.ReplyTitle>
   <RSMF.Business.Reviews.AllShops>全部店铺</RSMF.Business.Reviews.AllShops>
   <RSMF.Business.Reviews.ShopFallback>店铺 #{id}</RSMF.Business.Reviews.ShopFallback>
+  <RSMF.CollectibleDisplayStand.Gizmo.Label>管理展台</RSMF.CollectibleDisplayStand.Gizmo.Label>
+  <RSMF.CollectibleDisplayStand.Gizmo.Desc>打开收藏品展台管理面板，选择槽位收藏品、查看搬运状态并卸载已展示收藏品。</RSMF.CollectibleDisplayStand.Gizmo.Desc>
+  <RSMF.CollectibleDisplayStand.DebugGizmo.Label>调试展台槽位</RSMF.CollectibleDisplayStand.DebugGizmo.Label>
+  <RSMF.CollectibleDisplayStand.DebugGizmo.Desc>打开上帝模式专用定位工具，调整收藏品渲染位置并导出 XML 默认槽位配置。</RSMF.CollectibleDisplayStand.DebugGizmo.Desc>
+  <RSMF.CollectibleDisplayStand.Window.Title>收藏品展台</RSMF.CollectibleDisplayStand.Window.Title>
+  <RSMF.CollectibleDisplayStand.Window.Summary>{rows} 行 × {columns} 列 · 已展示 {stored}/{total}</RSMF.CollectibleDisplayStand.Window.Summary>
+  <RSMF.CollectibleDisplayStand.Grid.Title>展示槽位</RSMF.CollectibleDisplayStand.Grid.Title>
+  <RSMF.CollectibleDisplayStand.Grid.Pending>待搬运</RSMF.CollectibleDisplayStand.Grid.Pending>
+  <RSMF.CollectibleDisplayStand.Grid.PendingTooltip>等待搬运：{source}</RSMF.CollectibleDisplayStand.Grid.PendingTooltip>
+  <RSMF.CollectibleDisplayStand.Grid.EmptyTooltip>空槽位，点击选择当前地图上的收藏品。</RSMF.CollectibleDisplayStand.Grid.EmptyTooltip>
+  <RSMF.CollectibleDisplayStand.Detail.Title>槽位 {index}</RSMF.CollectibleDisplayStand.Detail.Title>
+  <RSMF.CollectibleDisplayStand.Detail.Empty>空槽位</RSMF.CollectibleDisplayStand.Detail.Empty>
+  <RSMF.CollectibleDisplayStand.Detail.Pending>等待搬运：{source}</RSMF.CollectibleDisplayStand.Detail.Pending>
+  <RSMF.CollectibleDisplayStand.Detail.Values>位置 {x}, {z} · 缩放 {scale}</RSMF.CollectibleDisplayStand.Detail.Values>
+  <RSMF.CollectibleDisplayStand.Detail.BusinessHint>收藏品会按展台默认槽位位置展示。</RSMF.CollectibleDisplayStand.Detail.BusinessHint>
+  <RSMF.CollectibleDisplayStand.Detail.StoredSummary>当前展示：{thing}。可以卸载并重新选择收藏品。</RSMF.CollectibleDisplayStand.Detail.StoredSummary>
+  <RSMF.CollectibleDisplayStand.Detail.PendingSummary>小人会把 {source} 搬运到这个槽位。</RSMF.CollectibleDisplayStand.Detail.PendingSummary>
+  <RSMF.CollectibleDisplayStand.Detail.EmptySummary>选择当前地图上的收藏品后，会自动生成搬运工作。</RSMF.CollectibleDisplayStand.Detail.EmptySummary>
+  <RSMF.CollectibleDisplayStand.Detail.NormalModeHint>展示位置由 XML 默认槽位配置决定；定位滑条只在开发者模式和上帝模式显示。</RSMF.CollectibleDisplayStand.Detail.NormalModeHint>
+  <RSMF.CollectibleDisplayStand.Detail.Unload>卸载收藏品</RSMF.CollectibleDisplayStand.Detail.Unload>
+  <RSMF.CollectibleDisplayStand.Detail.ChooseSource>选择收藏品</RSMF.CollectibleDisplayStand.Detail.ChooseSource>
+  <RSMF.CollectibleDisplayStand.Detail.ClearPending>清除等待</RSMF.CollectibleDisplayStand.Detail.ClearPending>
+  <RSMF.CollectibleDisplayStand.Detail.OffsetX>横向</RSMF.CollectibleDisplayStand.Detail.OffsetX>
+  <RSMF.CollectibleDisplayStand.Detail.OffsetZ>纵向</RSMF.CollectibleDisplayStand.Detail.OffsetZ>
+  <RSMF.CollectibleDisplayStand.Detail.Height>高度</RSMF.CollectibleDisplayStand.Detail.Height>
+  <RSMF.CollectibleDisplayStand.Detail.Scale>缩放</RSMF.CollectibleDisplayStand.Detail.Scale>
+  <RSMF.CollectibleDisplayStand.Detail.Rotation>旋转</RSMF.CollectibleDisplayStand.Detail.Rotation>
+  <RSMF.CollectibleDisplayStand.Detail.ResetPosition>重置位置</RSMF.CollectibleDisplayStand.Detail.ResetPosition>
+  <RSMF.CollectibleDisplayStand.Menu.NoSources>当前地图没有可用的模拟经营收藏品。</RSMF.CollectibleDisplayStand.Menu.NoSources>
+  <RSMF.CollectibleDisplayStand.Debug.Title>展台槽位定位</RSMF.CollectibleDisplayStand.Debug.Title>
+  <RSMF.CollectibleDisplayStand.Debug.Subtitle>只在开发者模式和上帝模式显示；导出的 XML 可写入展台 Def 作为默认参数。</RSMF.CollectibleDisplayStand.Debug.Subtitle>
+  <RSMF.CollectibleDisplayStand.Debug.Slot>槽位 {index}</RSMF.CollectibleDisplayStand.Debug.Slot>
+  <RSMF.CollectibleDisplayStand.Debug.ResetSlot>重置槽位</RSMF.CollectibleDisplayStand.Debug.ResetSlot>
+  <RSMF.CollectibleDisplayStand.Debug.CopySlot>复制单槽 XML</RSMF.CollectibleDisplayStand.Debug.CopySlot>
+  <RSMF.CollectibleDisplayStand.Debug.CopyAll>复制全部 XML</RSMF.CollectibleDisplayStand.Debug.CopyAll>
+  <RSMF.CollectibleDisplayStand.Debug.Copied>已复制展台槽位 XML。</RSMF.CollectibleDisplayStand.Debug.Copied>
+  <RSMF.CollectibleDisplayStand.Error.InvalidSlot>槽位无效。</RSMF.CollectibleDisplayStand.Error.InvalidSlot>
+  <RSMF.CollectibleDisplayStand.Error.SlotOccupied>这个槽位已经有收藏品。</RSMF.CollectibleDisplayStand.Error.SlotOccupied>
+  <RSMF.CollectibleDisplayStand.Error.InvalidSource>只能选择模拟经营框架收藏品。</RSMF.CollectibleDisplayStand.Error.InvalidSource>
+  <RSMF.ShopService.Fail.DisplayStandEmpty>收藏品展台没有可参观的展品。</RSMF.ShopService.Fail.DisplayStandEmpty>
 </LanguageData>

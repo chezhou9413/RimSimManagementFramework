@@ -168,9 +168,9 @@ namespace SimManagementLib.Tool
                     if (TryFindReusableExistingBuilding(map, cell, buildingData, def, out _))
                         continue;
 
-                    ThingDef stuff = GetStuffDef(buildingData);
+                    ThingDef stuff = GetStuffDef(buildingData, def);
                     Rot4 rotation = RotateBuildingRotation(ParseRotation(buildingData.rotation), blueprintRot);
-                    AcceptanceReport report = GenConstruct.CanPlaceBlueprintAt(def, cell, rotation, map, DebugSettings.godMode, null, null, stuff);
+                    AcceptanceReport report = CanPlaceBuildingOrBlueprintAt(def, cell, rotation, map, stuff);
                     if (!report.Accepted)
                         return report.Reason;
                 }
@@ -281,6 +281,21 @@ namespace SimManagementLib.Tool
         }
 
         /// <summary>
+        /// 返回蓝图建筑真正可使用的材料 Def，并过滤不需要材料或非法材料的情况。
+        /// </summary>
+        private static ThingDef GetStuffDef(ShopBlueprintBuildingData data, ThingDef def)
+        {
+            if (def == null || !def.MadeFromStuff)
+                return null;
+
+            ThingDef stuff = GetStuffDef(data);
+            if (stuff != null && stuff.IsStuff)
+                return stuff;
+
+            return GenStuff.DefaultStuffFor(def);
+        }
+
+        /// <summary>
         /// 返回蓝图建筑使用的样式 Def。
         /// </summary>
         private static ThingStyleDef GetStyleDef(ShopBlueprintBuildingData data)
@@ -362,7 +377,7 @@ namespace SimManagementLib.Tool
                 if (def == null)
                     continue;
 
-                ThingDef stuff = GetStuffDef(building);
+                ThingDef stuff = GetStuffDef(building, def);
                 Rot4 rotation = RotateBuildingRotation(ParseRotation(building.rotation), blueprintRot);
                 IntVec3 cell = ToWorldCell(origin, data, building.x, building.z, blueprintRot);
                 if (!cell.InBounds(map))
@@ -406,37 +421,117 @@ namespace SimManagementLib.Tool
                 if (def == null)
                     continue;
 
+                ShopBlueprintBuildingData placementData = PrepareBuildingDataForPlacement(buildingData, blueprintRot);
                 Rot4 rotation = RotateBuildingRotation(ParseRotation(buildingData.rotation), blueprintRot);
                 IntVec3 cell = ToWorldCell(origin, data, buildingData.x, buildingData.z, blueprintRot);
                 if (TryFindReusableExistingBuilding(map, cell, buildingData, def, out Building existing))
                 {
-                    TryApplyReusableBuildingConfig(existing, buildingData);
+                    TryApplyReusableBuildingConfig(existing, placementData);
                     reusedExistingCount++;
                     continue;
                 }
 
-                ThingDef stuff = GetStuffDef(buildingData);
+                ThingDef stuff = GetStuffDef(buildingData, def);
                 ThingStyleDef styleDef = GetStyleDef(buildingData);
-                if (!GenConstruct.CanPlaceBlueprintAt(def, cell, rotation, map, DebugSettings.godMode, null, null, stuff).Accepted)
+                if (!CanPlaceBuildingOrBlueprintAt(def, cell, rotation, map, stuff).Accepted)
                     continue;
 
-                if (DebugSettings.godMode || def.GetStatValueAbstract(StatDefOf.WorkToBuild, stuff) == 0f)
+                if (ShouldSpawnBuildingDirectly(def, stuff))
                 {
-                    Thing thing = ThingMaker.MakeThing(def, stuff);
-                    thing.SetFactionDirect(Faction.OfPlayer);
-                    thing.StyleDef = styleDef;
-                    Thing spawned = GenSpawn.Spawn(thing, cell, map, rotation);
-                    component?.RegisterPendingBuilding(cell, def, rotation, buildingData);
+                    Thing spawned = SpawnBuildingDirectly(def, stuff, styleDef, cell, map, rotation);
+                    if (spawned == null)
+                        continue;
+                    component?.RegisterPendingBuilding(cell, def, rotation, placementData);
                     component?.TryApplyPendingConfig(spawned);
                 }
                 else
                 {
                     GenConstruct.PlaceBlueprintForBuild(def, cell, map, rotation, Faction.OfPlayer, stuff, null, styleDef);
-                    component?.RegisterPendingBuilding(cell, def, rotation, buildingData);
+                    component?.RegisterPendingBuilding(cell, def, rotation, placementData);
                 }
 
                 createdBlueprintCount++;
             }
+        }
+
+        /// <summary>
+        /// 判断建筑应创建施工蓝图还是直接生成真实建筑。
+        /// </summary>
+        private static bool ShouldSpawnBuildingDirectly(ThingDef def, ThingDef stuff)
+        {
+            if (def == null)
+                return false;
+
+            return DebugSettings.godMode
+                || def.blueprintDef == null
+                || def.GetStatValueAbstract(StatDefOf.WorkToBuild, stuff) == 0f;
+        }
+
+        /// <summary>
+        /// 直接生成无法创建普通施工蓝图的建筑，并负责写入阵营和样式。
+        /// </summary>
+        private static Thing SpawnBuildingDirectly(ThingDef def, ThingDef stuff, ThingStyleDef styleDef, IntVec3 cell, Map map, Rot4 rotation)
+        {
+            try
+            {
+                Thing thing = ThingMaker.MakeThing(def, stuff);
+                thing.SetFactionDirect(Faction.OfPlayer);
+                thing.StyleDef = styleDef;
+                return GenSpawn.Spawn(thing, cell, map, rotation);
+            }
+            catch (Exception ex)
+            {
+                Log.Warning("[SimManagementLib] 店铺蓝图直接生成建筑失败：" + (def?.defName ?? "null") + "：" + ex.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 检查普通施工蓝图或直接生成建筑是否能放在目标位置。
+        /// </summary>
+        private static AcceptanceReport CanPlaceBuildingOrBlueprintAt(ThingDef def, IntVec3 cell, Rot4 rotation, Map map, ThingDef stuff)
+        {
+            if (def == null)
+                return false;
+
+            if (def.blueprintDef != null)
+                return GenConstruct.CanPlaceBlueprintAt(def, cell, rotation, map, DebugSettings.godMode, null, null, stuff);
+
+            return GenSpawn.CanSpawnAt(def, cell, map, rotation, false)
+                ? AcceptanceReport.WasAccepted
+                : "Cannot place " + def.LabelCap + " here.";
+        }
+
+        /// <summary>
+        /// 为本次放置创建建筑配置副本，负责让外部贴图偏移跟随蓝图整体旋转。
+        /// </summary>
+        private static ShopBlueprintBuildingData PrepareBuildingDataForPlacement(ShopBlueprintBuildingData data, Rot4 blueprintRot)
+        {
+            if (data == null || (data.textureAdjustment == null && !BlueprintExternalConfigRegistry.HasConfigs(data.externalConfigs)))
+                return data;
+
+            return new ShopBlueprintBuildingData
+            {
+                localId = data.localId,
+                defName = data.defName,
+                label = data.label,
+                stuffDefName = data.stuffDefName,
+                styleDefName = data.styleDefName,
+                paintColorDefName = data.paintColorDefName,
+                rotation = data.rotation,
+                x = data.x,
+                z = data.z,
+                width = data.width,
+                height = data.height,
+                goods = data.goods,
+                sign = data.sign,
+                service = data.service,
+                vending = data.vending,
+                cash = data.cash,
+                container = data.container,
+                externalConfigs = BlueprintExternalConfigRegistry.PrepareForPlacement(data.externalConfigs, blueprintRot),
+                textureAdjustment = ShopBlueprintTextureAdjustmentBridge.PrepareForPlacement(data.textureAdjustment, blueprintRot)
+            };
         }
 
         /// <summary>
@@ -515,7 +610,9 @@ namespace SimManagementLib.Tool
                 paintColorDefName = data.paintColorDefName ?? "",
                 service = data.service,
                 vending = data.vending,
-                cash = data.cash
+                cash = data.cash,
+                externalConfigs = data.externalConfigs,
+                textureAdjustment = data.textureAdjustment
             });
         }
     }

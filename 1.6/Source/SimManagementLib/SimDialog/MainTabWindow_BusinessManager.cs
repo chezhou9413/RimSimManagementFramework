@@ -61,6 +61,7 @@ namespace SimManagementLib.SimDialog
         private int blueprintNetworkPage = 1;
         private const int BlueprintNetworkPageSize = 12;
         private SteamSessionInfo blueprintSteamSession;
+        private float blueprintNextSteamSessionResolveTime;
         private BlueprintNetworkStatusData blueprintNetworkStatus;
         private BlueprintNetworkPagedListData blueprintNetworkPagedList;
         private BlueprintNetworkDetailData blueprintNetworkDetail;
@@ -98,6 +99,7 @@ namespace SimManagementLib.SimDialog
         {
             base.PreClose();
             CancelBlueprintNetworkRequests();
+            BlueprintPreviewTextureCache.Clear();
         }
 
         public override void DoWindowContents(Rect inRect)

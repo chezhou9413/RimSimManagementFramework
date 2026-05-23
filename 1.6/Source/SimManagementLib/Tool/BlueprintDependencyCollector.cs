@@ -67,6 +67,11 @@ namespace SimManagementLib.Tool
                 AddModFromDef(DefDatabase<ThingDef>.GetNamedSilentFail(building.defName), result);
                 AddModFromDef(DefDatabase<ThingDef>.GetNamedSilentFail(building.stuffDefName), result);
                 AddModFromDef(DefDatabase<ThingStyleDef>.GetNamedSilentFail(building.styleDefName), result);
+                if (building.textureAdjustment != null)
+                    AddRequiredMod(ShopBlueprintTextureAdjustmentBridge.BuildRequiredMod(), result);
+                List<ShopBlueprintRequiredModData> externalMods = BlueprintExternalConfigRegistry.CollectRequiredMods(building.externalConfigs);
+                for (int e = 0; e < externalMods.Count; e++)
+                    AddRequiredMod(externalMods[e], result);
 
                 if (building.goods?.items != null)
                 {
@@ -99,6 +104,40 @@ namespace SimManagementLib.Tool
             if (data == null || string.IsNullOrWhiteSpace(data.terrainDefName))
                 return null;
             return DefDatabase<TerrainDef>.GetNamedSilentFail(data.terrainDefName);
+        }
+
+        /// <summary>
+        /// 把外部运行时配置声明的模组依赖加入结果集。
+        /// </summary>
+        private static void AddRequiredMod(ShopBlueprintRequiredModData mod, Dictionary<string, ShopBlueprintRequiredModData> result)
+        {
+            if (mod == null || string.IsNullOrWhiteSpace(mod.packageId))
+                return;
+
+            if (result.TryGetValue(mod.packageId, out ShopBlueprintRequiredModData existing))
+            {
+                MergeRequiredMod(existing, mod);
+                return;
+            }
+
+            result[mod.packageId] = mod;
+        }
+
+        /// <summary>
+        /// 用软依赖桥接器提供的更完整信息补齐已收集的同包依赖。
+        /// </summary>
+        private static void MergeRequiredMod(ShopBlueprintRequiredModData existing, ShopBlueprintRequiredModData incoming)
+        {
+            if (existing == null || incoming == null)
+                return;
+
+            if (string.IsNullOrWhiteSpace(existing.displayName) && !string.IsNullOrWhiteSpace(incoming.displayName))
+                existing.displayName = incoming.displayName;
+            if (string.IsNullOrWhiteSpace(existing.steamWorkshopUrl) && !string.IsNullOrWhiteSpace(incoming.steamWorkshopUrl))
+                existing.steamWorkshopUrl = incoming.steamWorkshopUrl;
+            if (existing.steamAppId == 0u && incoming.steamAppId != 0u)
+                existing.steamAppId = incoming.steamAppId;
+            existing.isOfficial = existing.isOfficial || incoming.isOfficial;
         }
 
         private static void AddModFromDef(Def def, Dictionary<string, ShopBlueprintRequiredModData> result)

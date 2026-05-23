@@ -25,4 +25,17 @@
       <li>Manipulation</li>
     </requiredCapacities>
   </WorkGiverDef>
+
+  <WorkGiverDef>
+    <defName>FillCollectibleDisplayStand</defName>
+    <label>布置收藏品展台</label>
+    <giverClass>SimManagementLib.SimWorkGiver.WorkGiver_FillCollectibleDisplayStand</giverClass>
+    <workType>Hauling</workType>
+    <priorityInType>72</priorityInType>
+    <verb>fill collectible display stand</verb>
+    <gerund>filling collectible display stand</gerund>
+    <requiredCapacities>
+      <li>Manipulation</li>
+    </requiredCapacities>
+  </WorkGiverDef>
 </Defs>

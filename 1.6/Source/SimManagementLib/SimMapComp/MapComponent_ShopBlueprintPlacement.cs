@@ -3,6 +3,7 @@ using SimManagementLib.Pojo;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimThingComp;
 using SimManagementLib.SimZone;
+using SimManagementLib.Tool;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -115,6 +116,8 @@ namespace SimManagementLib.SimMapComp
                 || data.vending != null
                 || data.cash != null
                 || data.container != null
+                || BlueprintExternalConfigRegistry.HasConfigs(data.externalConfigs)
+                || data.textureAdjustment != null
                 || !string.IsNullOrEmpty(data.paintColorDefName);
         }
 
@@ -131,6 +134,8 @@ namespace SimManagementLib.SimMapComp
             ApplyCashConfig(thingWithComps?.GetComp<ThingComp_CashStorage>(), data.cash);
             ApplyContainerConfig(thing as Building_SimContainer, data.container);
             ApplyPaintColor(thing as Building, data.paintColorDefName);
+            BlueprintExternalConfigRegistry.ApplyConfigs(thing, data.externalConfigs);
+            ShopBlueprintTextureAdjustmentBridge.ApplyConfig(thing, data.textureAdjustment);
         }
 
         /// <summary>
@@ -170,6 +175,13 @@ namespace SimManagementLib.SimMapComp
             if (comp == null || config == null)
                 return;
 
+            ShopBlueprintSignPayloadUtility.ImportImages(new ShopBlueprintData
+            {
+                buildings = new List<ShopBlueprintBuildingData>
+                {
+                    new ShopBlueprintBuildingData { sign = config }
+                }
+            });
             comp.SetFaces(ToFaceData(config.southLayers), ToFaceData(config.eastLayers), ToFaceData(config.northLayers));
         }
 

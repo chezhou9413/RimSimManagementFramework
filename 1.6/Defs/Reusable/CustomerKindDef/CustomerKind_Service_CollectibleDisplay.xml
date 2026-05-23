@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+  <!-- 专门会被收藏品展台参观服务吸引的顾客。 -->
+  <SimManagementLib.SimDef.CustomerKindDef>
+    <defName>Sim_CollectibleDisplayCustomerKind</defName>
+    <label>收藏品展台顾客</label>
+
+    <pawnKindDefs>
+      <li>Villager</li>
+      <li>Town_Trader</li>
+      <li>Town_Guard</li>
+      <li>Town_Councilman</li>
+    </pawnKindDefs>
+
+    <arrivalCurve>
+      <points>
+        <li>(0, 0.2)</li>
+        <li>(9, 0.9)</li>
+        <li>(13, 1.1)</li>
+        <li>(20, 1.0)</li>
+        <li>(24, 0.2)</li>
+      </points>
+    </arrivalCurve>
+
+    <baseMtbDays>0.16</baseMtbDays>
+    <budgetRange>80~400</budgetRange>
+    <queuePatienceRange>1000~2600</queuePatienceRange>
+    <activeHourRange>6~23</activeHourRange>
+    <targetServiceCategoryIds>
+      <li>Service_CollectibleDisplay</li>
+    </targetServiceCategoryIds>
+
+    <shoppingBehavior>
+      <browseTimeRange>240~480</browseTimeRange>
+      <maxShelvesToVisit>1</maxShelvesToVisit>
+      <queuePatience>1800</queuePatience>
+    </shoppingBehavior>
+  </SimManagementLib.SimDef.CustomerKindDef>
+</Defs>

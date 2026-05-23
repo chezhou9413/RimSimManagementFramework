@@ -2,6 +2,7 @@ using RimWorld;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 using Verse;
 
@@ -72,6 +73,99 @@ namespace SimManagementLib.Tool
             {
             }
             return null;
+        }
+
+        /// <summary>
+        /// 清理不再被点评记录或待生成快照引用的头像文件，并同步释放内存纹理缓存。
+        /// </summary>
+        public static void CleanupUnusedAvatars(IEnumerable<string> referencedAvatarImageIds)
+        {
+            try
+            {
+                string directory = AvatarDirectory;
+                if (!Directory.Exists(directory))
+                    return;
+
+                HashSet<string> referencedIds = BuildReferencedIdSet(referencedAvatarImageIds);
+                string[] files = Directory.GetFiles(directory, "*.png", SearchOption.TopDirectoryOnly);
+                for (int i = 0; i < files.Length; i++)
+                {
+                    string fileName = Path.GetFileName(files[i]);
+                    if (string.IsNullOrEmpty(fileName) || referencedIds.Contains(fileName))
+                        continue;
+
+                    DeleteAvatarFile(files[i], fileName);
+                }
+
+                CleanupTextureCache(referencedIds);
+            }
+            catch (Exception ex)
+            {
+                Log.Warning("清理顾客点评头像缓存失败: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// 根据当前仍被引用的头像编号创建查找集合。
+        /// </summary>
+        private static HashSet<string> BuildReferencedIdSet(IEnumerable<string> referencedAvatarImageIds)
+        {
+            HashSet<string> result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (referencedAvatarImageIds == null)
+                return result;
+
+            foreach (string avatarImageId in referencedAvatarImageIds)
+            {
+                if (string.IsNullOrWhiteSpace(avatarImageId))
+                    continue;
+
+                result.Add(Path.GetFileName(avatarImageId));
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 删除单个头像文件，并移除同名内存纹理。
+        /// </summary>
+        private static void DeleteAvatarFile(string path, string avatarImageId)
+        {
+            try
+            {
+                File.Delete(path);
+                RemoveTextureCache(avatarImageId);
+            }
+            catch (Exception ex)
+            {
+                Log.Warning("删除顾客点评头像失败: " + avatarImageId + "，" + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// 移除内存中已经没有引用的头像纹理。
+        /// </summary>
+        private static void CleanupTextureCache(HashSet<string> referencedIds)
+        {
+            List<string> unusedKeys = AvatarTextures.Keys
+                .Where(key => !referencedIds.Contains(key))
+                .ToList();
+            for (int i = 0; i < unusedKeys.Count; i++)
+                RemoveTextureCache(unusedKeys[i]);
+        }
+
+        /// <summary>
+        /// 从内存缓存移除指定头像纹理，并释放 Unity 纹理对象。
+        /// </summary>
+        private static void RemoveTextureCache(string avatarImageId)
+        {
+            if (string.IsNullOrEmpty(avatarImageId))
+                return;
+            if (!AvatarTextures.TryGetValue(avatarImageId, out Texture2D texture))
+                return;
+
+            AvatarTextures.Remove(avatarImageId);
+            if (texture != null)
+                UnityEngine.Object.Destroy(texture);
         }
 
         private static string AvatarDirectory => Path.Combine(GenFilePaths.SaveDataFolderPath, "SimManagementLib", "CustomerReviewAvatars");

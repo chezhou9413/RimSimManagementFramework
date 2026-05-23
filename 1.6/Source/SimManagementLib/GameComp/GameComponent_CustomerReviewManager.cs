@@ -16,12 +16,16 @@ namespace SimManagementLib.GameComp
     public class GameComponent_CustomerReviewManager : GameComponent
     {
         private const float ForumReplyStrongBonus = 0.18f;
+        private const int AvatarCleanupIntervalTicks = 60000;
+        private const int AvatarCleanupInitialDelayTicks = 2500;
         private List<CustomerReviewRecord> records = new List<CustomerReviewRecord>();
         private List<CustomerReviewSnapshot> pendingSnapshots = new List<CustomerReviewSnapshot>();
         private int failedCount;
         private int nextAllowedRequestTick;
+        private int nextAvatarCleanupTick;
         private bool requestInFlight;
         private Task<CustomerReviewRecord> runningTask;
+        private string runningAvatarImageId = "";
 
         public IReadOnlyList<CustomerReviewRecord> Records => records;
         public int PendingCount => pendingSnapshots?.Count ?? 0;
@@ -43,8 +47,11 @@ namespace SimManagementLib.GameComp
             Scribe_Collections.Look(ref records, "customerReviewRecords", LookMode.Deep);
             Scribe_Collections.Look(ref pendingSnapshots, "customerReviewPendingSnapshots", LookMode.Deep);
             Scribe_Values.Look(ref failedCount, "customerReviewFailedCount", 0);
+            Scribe_Values.Look(ref nextAvatarCleanupTick, "customerReviewNextAvatarCleanupTick", 0);
             if (records == null) records = new List<CustomerReviewRecord>();
             if (pendingSnapshots == null) pendingSnapshots = new List<CustomerReviewSnapshot>();
+            if (nextAvatarCleanupTick <= 0)
+                nextAvatarCleanupTick = AvatarCleanupInitialDelayTicks;
         }
 
         /// <summary>
@@ -55,6 +62,7 @@ namespace SimManagementLib.GameComp
             base.GameComponentTick();
             MergeCompletedRecords();
             TrimRecords();
+            TryCleanupUnusedAvatars();
             if (!CanStartRequest()) return;
 
             CustomerReviewSnapshot snapshot = pendingSnapshots[0];
@@ -119,6 +127,9 @@ namespace SimManagementLib.GameComp
             return record != null && !string.IsNullOrWhiteSpace(record.replyToReviewId);
         }
 
+        /// <summary>
+        /// 判断当前是否允许启动新的点评生成请求。
+        /// </summary>
         private bool CanStartRequest()
         {
             SimManagementLibSettings settings = SimManagementLibMod.Settings;
@@ -128,10 +139,14 @@ namespace SimManagementLib.GameComp
             return Find.TickManager.TicksGame >= nextAllowedRequestTick;
         }
 
+        /// <summary>
+        /// 启动一次后台点评生成请求，并记录正在使用的头像避免清理误删。
+        /// </summary>
         private void StartRequest(CustomerReviewSnapshot snapshot)
         {
             SimManagementLibSettings settings = CopySettings(SimManagementLibMod.Settings);
             requestInFlight = true;
+            runningAvatarImageId = snapshot?.avatarImageId ?? "";
             int intervalTicks = MathfRoundTicksPerRequest(settings.reviewRequestsPerMinute);
             nextAllowedRequestTick = Find.TickManager.TicksGame + intervalTicks;
 
@@ -151,6 +166,9 @@ namespace SimManagementLib.GameComp
 
         }
 
+        /// <summary>
+        /// 合并后台点评生成结果，并在请求结束后释放正在生成头像的保护引用。
+        /// </summary>
         private void MergeCompletedRecords()
         {
             if (!requestInFlight || runningTask == null || !runningTask.IsCompleted) return;
@@ -172,8 +190,12 @@ namespace SimManagementLib.GameComp
             TrimRecords();
             requestInFlight = false;
             runningTask = null;
+            runningAvatarImageId = "";
         }
 
+        /// <summary>
+        /// 裁剪超出上限的点评记录，头像文件由定期清理统一回收。
+        /// </summary>
         private void TrimRecords()
         {
             int max = Math.Max(1, SimManagementLibMod.Settings?.maxReviewRecords ?? 1000);
@@ -181,6 +203,48 @@ namespace SimManagementLib.GameComp
             {
                 records.RemoveAt(0);
             }
+        }
+
+        /// <summary>
+        /// 按固定间隔清理没有被任何点评记录或待处理快照引用的头像文件。
+        /// </summary>
+        private void TryCleanupUnusedAvatars()
+        {
+            int ticksGame = Find.TickManager?.TicksGame ?? 0;
+            if (ticksGame < nextAvatarCleanupTick)
+                return;
+
+            nextAvatarCleanupTick = ticksGame + AvatarCleanupIntervalTicks;
+            CustomerReviewAvatarCache.CleanupUnusedAvatars(CollectReferencedAvatarIds());
+        }
+
+        /// <summary>
+        /// 收集当前仍需要保留的头像编号，覆盖已完成点评、待生成快照和正在生成中的请求。
+        /// </summary>
+        private IEnumerable<string> CollectReferencedAvatarIds()
+        {
+            if (records != null)
+            {
+                for (int i = 0; i < records.Count; i++)
+                {
+                    string avatarImageId = records[i]?.avatarImageId;
+                    if (!string.IsNullOrWhiteSpace(avatarImageId))
+                        yield return avatarImageId;
+                }
+            }
+
+            if (pendingSnapshots != null)
+            {
+                for (int i = 0; i < pendingSnapshots.Count; i++)
+                {
+                    string avatarImageId = pendingSnapshots[i]?.avatarImageId;
+                    if (!string.IsNullOrWhiteSpace(avatarImageId))
+                        yield return avatarImageId;
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(runningAvatarImageId))
+                yield return runningAvatarImageId;
         }
 
         private static CustomerReviewRecord BuildRecord(CustomerReviewSnapshot snapshot, CustomerReviewAiResult result, CustomerReviewProvider provider)
