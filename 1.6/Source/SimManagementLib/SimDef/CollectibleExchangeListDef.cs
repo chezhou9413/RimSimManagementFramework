@@ -24,6 +24,9 @@ namespace SimManagementLib.SimDef
         // 是否在经商管理首页显示该入口。
         public bool visible = true;
 
+        // 商店整体刷新周期，单位为游戏 tick；小于等于 0 时不会自动刷新商品库存。
+        public int refreshIntervalTicks;
+
         // 二级商店左侧立绘贴图路径，位于 Textures 目录下且不包含扩展名。
         public string portraitTexPath = "";
 
@@ -87,6 +90,12 @@ namespace SimManagementLib.SimDef
         // 单次购买发放的物品数量；小于等于 0 时按 1 处理。
         public int count = 1;
 
+        // 是否允许该商品在商店周期刷新时重置已购买次数。
+        public bool canRefresh;
+
+        // 商品在周期刷新时恢复库存的概率，运行时会限制到 0~1。
+        public float refreshChance = 1f;
+
         // 自定义商品图标贴图路径；为空时使用 thingDef 默认图标。
         public string iconTexPath = "";
 
@@ -149,6 +158,17 @@ namespace SimManagementLib.SimDef
             get
             {
                 return count > 0 ? count : 1;
+            }
+        }
+
+        /// <summary>
+        /// 读取商品刷新概率，负责把 XML 中的异常值限制到合法概率范围。
+        /// </summary>
+        public float RefreshChance
+        {
+            get
+            {
+                return Mathf.Clamp01(refreshChance);
             }
         }
 

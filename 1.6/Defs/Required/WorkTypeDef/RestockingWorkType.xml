@@ -9,7 +9,7 @@
     <description>搬运物资到货柜，直到达到配置目标数量。</description>
     <verb>Restock</verb>
     <naturalPriority>450</naturalPriority>
-    <alwaysStartActive>false</alwaysStartActive>
+    <alwaysStartActive>true</alwaysStartActive>
     <requireCapableColonist>true</requireCapableColonist>
     <workTags>
       <li>ManualDumb</li>

@@ -248,12 +248,15 @@
   <RSMF.Business.CollectibleExchange.Enter>Enter</RSMF.Business.CollectibleExchange.Enter>
   <RSMF.Business.CollectibleExchange.Progress>Progress: {progress}</RSMF.Business.CollectibleExchange.Progress>
   <RSMF.Business.CollectibleExchange.StockProgress>Exchange progress: purchased {purchased}/{total}, stock left {remaining}</RSMF.Business.CollectibleExchange.StockProgress>
+  <RSMF.Business.CollectibleExchange.RefreshDisabled>No automatic refresh.</RSMF.Business.CollectibleExchange.RefreshDisabled>
+  <RSMF.Business.CollectibleExchange.NextRefresh>Next refresh: in about {time}.</RSMF.Business.CollectibleExchange.NextRefresh>
   <RSMF.CollectibleExchange.EmptyItems>This exchange shop has no configured items.</RSMF.CollectibleExchange.EmptyItems>
   <RSMF.CollectibleExchange.Remaining>{count} left</RSMF.CollectibleExchange.Remaining>
   <RSMF.CollectibleExchange.SoldOut>Sold out</RSMF.CollectibleExchange.SoldOut>
   <RSMF.CollectibleExchange.Buy>Buy</RSMF.CollectibleExchange.Buy>
   <RSMF.CollectibleExchange.PriceLine>{price} x {currency}</RSMF.CollectibleExchange.PriceLine>
   <RSMF.CollectibleExchange.SinglePurchaseCount>{count} per purchase</RSMF.CollectibleExchange.SinglePurchaseCount>
+  <RSMF.CollectibleExchange.RefreshableItem>Refreshable · {percent}% chance</RSMF.CollectibleExchange.RefreshableItem>
   <RSMF.CollectibleExchange.ItemWithCount>{item} x{count}</RSMF.CollectibleExchange.ItemWithCount>
   <RSMF.CollectibleExchange.InvalidItem>Invalid item configuration.</RSMF.CollectibleExchange.InvalidItem>
   <RSMF.CollectibleExchange.InvalidCurrency>Invalid currency configuration.</RSMF.CollectibleExchange.InvalidCurrency>

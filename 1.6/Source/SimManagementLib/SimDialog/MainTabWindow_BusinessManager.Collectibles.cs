@@ -1,6 +1,7 @@
 using SimManagementLib.GameComp;
 using SimManagementLib.SimDef;
 using SimManagementLib.Tool;
+using RimWorld;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -84,8 +85,9 @@ namespace SimManagementLib.SimDialog
             float innerWidth = Mathf.Max(120f, width - 156f);
             Text.Font = GameFont.Tiny;
             float introHeight = Text.CalcHeight(GetCollectibleExchangeIntro(entry), innerWidth);
-            float progressHeight = Mathf.Max(48f, Text.LineHeightOf(GameFont.Tiny) + 28f);
-            return Mathf.Max(112f, 70f + introHeight + progressHeight);
+            float refreshHeight = Mathf.Max(20f, Text.LineHeightOf(GameFont.Tiny) + 4f);
+            float progressHeight = Mathf.Max(66f, Text.LineHeightOf(GameFont.Tiny) + refreshHeight + 34f);
+            return Mathf.Max(126f, 70f + introHeight + progressHeight);
         }
 
         /// <summary>
@@ -153,11 +155,31 @@ namespace SimManagementLib.SimDialog
             float labelHeight = Mathf.Max(20f, Text.LineHeightOf(GameFont.Tiny) + 4f);
             Widgets.Label(new Rect(rect.x, rect.y, rect.width, labelHeight), label);
 
-            Rect barRect = new Rect(rect.x, rect.y + labelHeight + 4f, rect.width, 14f);
+            float refreshY = rect.y + labelHeight + 2f;
+            GUI.color = CDim;
+            Widgets.Label(new Rect(rect.x, refreshY, rect.width, labelHeight), GetCollectibleExchangeRefreshText(entry));
+
+            Rect barRect = new Rect(rect.x, refreshY + labelHeight + 4f, rect.width, 14f);
             Widgets.DrawBoxSolid(barRect, new Color(0f, 0f, 0f, 0.35f));
             Rect fillRect = new Rect(barRect.x, barRect.y, barRect.width * Mathf.Clamp01(progress.Percent), barRect.height);
             Widgets.DrawBoxSolid(fillRect, CAccent);
             DrawBorder(barRect, new Color(1f, 1f, 1f, 0.16f));
+        }
+
+        /// <summary>
+        /// 读取收藏品兑换刷新状态文本，负责显示未启用刷新或下次刷新倒计时。
+        /// </summary>
+        private static string GetCollectibleExchangeRefreshText(CollectibleExchangeListDef entry)
+        {
+            GameComponent_CollectibleExchangeManager manager = Current.Game?.GetComponent<GameComponent_CollectibleExchangeManager>();
+            int ticks = manager?.GetTicksUntilNextRefresh(entry) ?? -1;
+            if (ticks < 0)
+                return SimTranslation.T("RSMF.Business.CollectibleExchange.RefreshDisabled");
+
+            int safeTicks = Mathf.Max(0, ticks);
+            int displayTicks = safeTicks <= 0 ? 0 : Mathf.CeilToInt(safeTicks / (float)GenDate.TicksPerHour) * GenDate.TicksPerHour;
+            string time = displayTicks.ToStringTicksToPeriod(allowSeconds: false, shortForm: false, canUseDecimals: false, allowYears: false);
+            return SimTranslation.T("RSMF.Business.CollectibleExchange.NextRefresh", time.Named("time"));
         }
 
         /// <summary>

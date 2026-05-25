@@ -157,9 +157,16 @@
     <Compile Include="SimAI\JobGiver_Customer_SelectPaidService.cs" />
     <Compile Include="SimAI\JobGiver_Customer_BrowseAndPick.cs" />
     <Compile Include="SimAI\JobGiver_Customer_UseVendingMachine.cs" />
+    <Compile Include="SimAI\CustomerCartState.cs" />
+    <Compile Include="SimAI\CustomerCheckoutState.cs" />
+    <Compile Include="SimAI\CustomerPawnSettingsState.cs" />
+    <Compile Include="SimAI\CustomerServiceOrderState.cs" />
     <Compile Include="SimAI\LordJob_CustomerVisit.cs" />
+    <Compile Include="SimAI\LordJob_CustomerVisit.Cart.cs" />
+    <Compile Include="SimAI\LordJob_CustomerVisit.Checkout.cs" />
     <Compile Include="SimAI\LordJob_CustomerVisit.Persistence.cs" />
     <Compile Include="SimAI\LordJob_CustomerVisit.Runtime.cs" />
+    <Compile Include="SimAI\LordJob_CustomerVisit.ServiceOrders.cs" />
     <Compile Include="SimAI\LordJob_VendingMachineVisit.cs" />
     <Compile Include="SimAI\LordToil_CustomerBrowse.cs" />
     <Compile Include="SimAI\LordToil_CustomerCheckout.cs" />

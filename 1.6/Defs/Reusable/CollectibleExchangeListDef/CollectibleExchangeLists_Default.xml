@@ -10,6 +10,7 @@
     <intro>可以查看当前物品切换进度，并进入本期收藏品兑换商店。</intro>
     <priority>1000</priority>
     <visible>true</visible>
+    <refreshIntervalTicks>60000</refreshIntervalTicks>
     <portraitTexPath>UI/CollectibleExchange/Migua</portraitTexPath>
     <portraitScale>2</portraitScale>
     <portraitOffsetX>0</portraitOffsetX>
@@ -53,6 +54,8 @@
         <currencyDef>Silver</currencyDef>
         <maxPurchases>5</maxPurchases>
         <count>2</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>1</refreshChance>
         <labelOverride>旅行简餐</labelOverride>
         <descriptionOverride>适合临时补给的简单餐食。</descriptionOverride>
       </li>
@@ -63,6 +66,8 @@
         <currencyDef>Silver</currencyDef>
         <maxPurchases>4</maxPurchases>
         <count>1</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>0.75</refreshChance>
         <labelOverride>应急药包</labelOverride>
         <descriptionOverride>给小伤和突发感染准备的工业药品，库存有限。</descriptionOverride>
       </li>
@@ -73,6 +78,8 @@
         <currencyDef>Silver</currencyDef>
         <maxPurchases>3</maxPurchases>
         <count>3</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>0.6</refreshChance>
         <labelOverride>维护零件</labelOverride>
         <descriptionOverride>常用工业零部件，可以补上设备维修和临时建造的缺口。</descriptionOverride>
       </li>
@@ -83,6 +90,8 @@
         <currencyDef>Silver</currencyDef>
         <maxPurchases>6</maxPurchases>
         <count>5</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>1</refreshChance>
         <labelOverride>甜味小包</labelOverride>
         <descriptionOverride>不算必需品，但适合给忙了一天的人留一点甜头。</descriptionOverride>
       </li>
@@ -93,6 +102,8 @@
         <currencyDef>Gold</currencyDef>
         <maxPurchases>8</maxPurchases>
         <count>25</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>0.5</refreshChance>
         <labelOverride>金券钢材</labelOverride>
         <descriptionOverride>用黄金兑换的小批钢材，用于测试每个商品可以独立配置货币。</descriptionOverride>
       </li>
@@ -107,6 +118,7 @@
     <intro>可以查看当前物品切换进度，并进入本期收藏品兑换商店。</intro>
     <priority>1000</priority>
     <visible>true</visible>
+    <refreshIntervalTicks>60000</refreshIntervalTicks>
     <portraitTexPath>UI/CollectibleExchange/Migua</portraitTexPath>
     <portraitScale>2</portraitScale>
     <portraitOffsetX>0</portraitOffsetX>
@@ -150,6 +162,8 @@
         <currencyDef>Silver</currencyDef>
         <maxPurchases>5</maxPurchases>
         <count>2</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>1</refreshChance>
         <labelOverride>旅行简餐</labelOverride>
         <descriptionOverride>适合临时补给的简单餐食。</descriptionOverride>
       </li>
@@ -280,6 +294,222 @@
         <count>1</count>
         <labelOverride>金色魔方</labelOverride>
         <descriptionOverride>一个由纯金打造的魔方，像是拥有魔力一样会不由自主的引人注目，但据说是仿制品，与正版的效果相去甚远。</descriptionOverride>
+      </li>
+    </items>
+  </SimManagementLib.SimDef.CollectibleExchangeListDef>
+
+  <SimManagementLib.SimDef.CollectibleExchangeListDef>
+    <defName>RSMF_CollectibleExchange_GeneralBrashDebtBond</defName>
+    <label>布拉施将军的债券</label>
+    <shopName>布拉施将军的债券</shopName>
+    <title>前线军需债券</title>
+    <intro>用白银兑现一份光荣的军需债券，把自由的重量装进武器架和装甲柜。</intro>
+    <priority>1200</priority>
+    <visible>true</visible>
+    <refreshIntervalTicks>60000</refreshIntervalTicks>
+    <portraitTexPath>UI/CollectibleExchange/GeneralBrash</portraitTexPath>
+    <portraitScale>3.193</portraitScale>
+    <portraitOffsetX>0.04</portraitOffsetX>
+    <portraitOffsetY>0.996</portraitOffsetY>
+    <periodLabel>前线军需债券</periodLabel>
+    <progressLabel>军需部确认：本期债券清单已完成授权，装备等待合格殖民者签收。</progressLabel>
+    <idleTextIntervalSeconds>9</idleTextIntervalSeconds>
+    <welcomeTexts>
+      <li>公民，站直。布拉施将军的债券柜台已经开启，今天的购物行为将被记入光荣档案。</li>
+      <li>欢迎来到前线军需债券窗口。每一枚白银都在投票，每一件装备都在发言。</li>
+      <li>你不是来买东西的，你是来把管理式民主递送到那些拒绝排队的目标脸上。</li>
+      <li>军需部提示：犹豫不是节省预算，犹豫只是让敌人提前庆祝。</li>
+      <li>布拉施将军欢迎所有守法、缴费、愿意把枪口对准正确方向的公民。</li>
+      <li>前线债券不是折扣券。它是你和管理式民主之间一份会开火的握手协议。</li>
+      <li>请把背挺直，把钱包打开，把怀疑留给那些还没收到补给的人。</li>
+      <li>你今天买下的不是军火，是一套更有说服力的外交辞令。</li>
+      <li>军需部已确认你的殖民地仍然存在，因此你仍然具备继续采购的资格。</li>
+      <li>欢迎回来，公民。上次卖给你的东西如果还在冒烟，说明使用方向大体正确。</li>
+    </welcomeTexts>
+    <browseTexts>
+      <li>这不是普通货架，这是压缩成商品卡片的前线解决方案。</li>
+      <li>看见限量了吗？那不是饥饿营销，那是后勤官仍然相信公平分配。</li>
+      <li>购买武器不会自动带来胜利，但它会让失败显得非常没有借口。</li>
+      <li>装甲的意义不是让你无敌，而是让你有足够时间完成下一句口号。</li>
+      <li>选择一件装备，然后把剩下的疑问交给弹道学。</li>
+      <li>如果你不知道该买什么，说明你的敌人还不够努力；如果你什么都想买，说明你学习得很快。</li>
+      <li>这件装备经过军需部严格批准，至少有三名官员认为它看起来很可靠。</li>
+      <li>请注意限购数量。管理式民主鼓励慷慨，但也鼓励别人排队。</li>
+      <li>不要问它贵不贵，问问你的殖民地愿不愿意裸奔进下一场袭击。</li>
+      <li>武器架上的每一件商品都在等待一个足够响亮的理由。</li>
+      <li>防具不是恐惧的象征，它是让勇敢多坚持几秒的预算成果。</li>
+      <li>火力、护甲、手雷。三者合在一起，就是一份格式正确的民主申请书。</li>
+      <li>别被价格吓到。真正昂贵的是让敌人活着离开射程。</li>
+    </browseTexts>
+    <idleTexts>
+      <li>军需窗口正在待命。你的殖民地也许还能和平五分钟，但预算不该闲着。</li>
+      <li>如果你听见沉默，那是库存正在用纪律等待你的决定。</li>
+      <li>每隔一段时间，债券库存会重新核发。真正的问题是：你能不能活到下一轮补给。</li>
+      <li>布拉施将军认为，空货架是一种荣耀；满货架是一种命令。</li>
+      <li>停留时间已被记录为深思熟虑。军需部建议把深思熟虑升级为付款。</li>
+      <li>敌人不会因为你节省白银而感动，但他们可能会因为你购买手雷而移动。</li>
+      <li>你的殖民者正在等待更厚的护甲，或者一份解释为什么没有护甲的报告。</li>
+      <li>库存刷新倒计时正在前进，和所有优秀公民一样，它不会后退。</li>
+      <li>布拉施将军提醒你：胜利不会自动配送，除非你先点购买。</li>
+      <li>沉默不是和平。沉默只是还没人把轻机枪架起来。</li>
+      <li>如果你正在比较价格，说明管理式民主仍然给了你选择的荣幸。</li>
+    </idleTexts>
+    <purchaseTexts>
+      <li>交易确认。军需部已把你的白银转化为更响亮的说服力。</li>
+      <li>批准发放。请让这件装备服务于管理式民主，而不是服务于仓库积灰。</li>
+      <li>很好，公民。你刚刚让下一次战斗的统计表更好看了一点。</li>
+      <li>债券兑现完成。空投抵达时，请以胜利者的姿态签收。</li>
+      <li>采购成功。请把包装拆开，把保险打开，把自由送到正确地址。</li>
+      <li>军需部喜欢你的果断。敌人很快就会被迫理解这份果断。</li>
+      <li>付款通过。你的殖民地现在多了一份沉甸甸的民主凭证。</li>
+      <li>签发完成。若装备造成额外胜利，请视为正常现象。</li>
+      <li>很好。布拉施将军批准你把这笔消费称为战略投资。</li>
+      <li>交易完成。请在空投落地前清理接收区，或清理接收区里的敌人。</li>
+      <li>装备已进入配送序列。军需部祝你把它用到需要补货为止。</li>
+    </purchaseTexts>
+    <notEnoughCurrencyTexts>
+      <li>白银不足。爱国热情可贵，但会计部门暂不接受热情付款。</li>
+      <li>军需部拒绝赊账。请补足白银，再回来为管理式民主添砖加瓦。</li>
+      <li>你的预算尚未达到装备解放标准。去采矿，去贸易，去让账本变得更勇敢。</li>
+      <li>付款失败。你的钱包正在发表一种非常不民主的反对意见。</li>
+      <li>白银储备不足以支撑这份雄心。建议先解放几块矿脉。</li>
+      <li>军需部检测到资金短缺。请不要难过，敌人也经常资源不足。</li>
+      <li>采购申请被会计部门拦截。请用更多白银发动第二轮攻势。</li>
+      <li>目前预算无法通过。管理式民主不是免费的，只是非常值得。</li>
+      <li>你离这件装备只差一点白银，以及一点对采矿工作的热爱。</li>
+    </notEnoughCurrencyTexts>
+    <items>
+      <li>
+        <id>brasch_assault_rifle_bond</id>
+        <thingDef>Gun_AssaultRifle</thingDef>
+        <price>680</price>
+        <currencyDef>Silver</currencyDef>
+        <maxPurchases>2</maxPurchases>
+        <count>1</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>1</refreshChance>
+        <labelOverride>BR-16“投票机”突击步枪</labelOverride>
+        <descriptionOverride>适合把反对意见整理成短点射的标准前线工具。后勤建议：瞄准前先确认自己站在民主这一边。</descriptionOverride>
+      </li>
+      <li>
+        <id>brasch_lmg_bond</id>
+        <thingDef>Gun_LMG</thingDef>
+        <price>920</price>
+        <currencyDef>Silver</currencyDef>
+        <maxPurchases>1</maxPurchases>
+        <count>1</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>0.85</refreshChance>
+        <labelOverride>LM-74“会议记录”轻机枪</labelOverride>
+        <descriptionOverride>当敌人数量多到无法逐个教育时，请使用持续火力召开一次简短而有效的现场会议。</descriptionOverride>
+      </li>
+      <li>
+        <id>brasch_chain_shotgun_bond</id>
+        <thingDef>Gun_ChainShotgun</thingDef>
+        <price>860</price>
+        <currencyDef>Silver</currencyDef>
+        <maxPurchases>1</maxPurchases>
+        <count>1</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>0.8</refreshChance>
+        <labelOverride>CS-29“近距离表决”链式霰弹枪</labelOverride>
+        <descriptionOverride>给那些不愿保持安全社交距离的目标准备。每一次轰鸣，都是一次快速通过的动议。</descriptionOverride>
+      </li>
+      <li>
+        <id>brasch_sniper_bond</id>
+        <thingDef>Gun_SniperRifle</thingDef>
+        <price>1150</price>
+        <currencyDef>Silver</currencyDef>
+        <maxPurchases>1</maxPurchases>
+        <count>1</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>0.65</refreshChance>
+        <labelOverride>MR-51“远程纠偏”狙击步枪</labelOverride>
+        <descriptionOverride>用于远距离纠正错误站位、错误思想和错误地出现在瞄准镜中心的行为。</descriptionOverride>
+      </li>
+      <li>
+        <id>brasch_charge_rifle_bond</id>
+        <thingDef>Gun_ChargeRifle</thingDef>
+        <price>1850</price>
+        <currencyDef>Silver</currencyDef>
+        <maxPurchases>1</maxPurchases>
+        <count>1</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>0.5</refreshChance>
+        <labelOverride>CR-88“明亮未来”电荷步枪</labelOverride>
+        <descriptionOverride>高能束流把战场照得像宣传海报。请勿直视枪口，除非你正在替敌人检查视觉忠诚度。</descriptionOverride>
+      </li>
+      <li>
+        <id>brasch_frag_grenade_bond</id>
+        <thingDef>Weapon_GrenadeFrag</thingDef>
+        <price>420</price>
+        <currencyDef>Silver</currencyDef>
+        <maxPurchases>3</maxPurchases>
+        <count>1</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>1</refreshChance>
+        <labelOverride>FG-12“热烈掌声”破片手雷</labelOverride>
+        <descriptionOverride>拉环、投掷、卧倒。三步完成一次足以让掩体后方也参与讨论的热烈表决。</descriptionOverride>
+      </li>
+      <li>
+        <id>brasch_emp_grenade_bond</id>
+        <thingDef>Weapon_GrenadeEMP</thingDef>
+        <price>520</price>
+        <currencyDef>Silver</currencyDef>
+        <maxPurchases>2</maxPurchases>
+        <count>1</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>0.9</refreshChance>
+        <labelOverride>EG-23“停机审查”EMP 手雷</labelOverride>
+        <descriptionOverride>专为机械目标准备的临时静默程序。投出后，请欣赏它们短暂理解服从的样子。</descriptionOverride>
+      </li>
+      <li>
+        <id>brasch_flak_helmet_bond</id>
+        <thingDef>Apparel_AdvancedHelmet</thingDef>
+        <price>360</price>
+        <currencyDef>Silver</currencyDef>
+        <maxPurchases>3</maxPurchases>
+        <count>1</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>1</refreshChance>
+        <labelOverride>CH-09“公民头脑”防弹头盔</labelOverride>
+        <descriptionOverride>保护最重要的战场资产：还能继续听从命令的头部。适合所有不打算用额头挡子弹的公民。</descriptionOverride>
+      </li>
+      <li>
+        <id>brasch_flak_vest_bond</id>
+        <thingDef>Apparel_FlakVest</thingDef>
+        <price>520</price>
+        <currencyDef>Silver</currencyDef>
+        <maxPurchases>2</maxPurchases>
+        <count>1</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>0.9</refreshChance>
+        <labelOverride>CV-14“预算批准”防弹背心</labelOverride>
+        <descriptionOverride>覆盖胸腔要害，让你有机会在中弹后继续完成报销流程、战斗流程和胜利流程。</descriptionOverride>
+      </li>
+      <li>
+        <id>brasch_marine_armor_bond</id>
+        <thingDef>Apparel_PowerArmor</thingDef>
+        <price>2650</price>
+        <currencyDef>Silver</currencyDef>
+        <maxPurchases>1</maxPurchases>
+        <count>1</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>0.4</refreshChance>
+        <labelOverride>PA-66“债券执行者”冲锋甲</labelOverride>
+        <descriptionOverride>厚重、昂贵、令人安心。穿上它，你不只是一个殖民者，你是移动的采购审批结果。</descriptionOverride>
+      </li>
+      <li>
+        <id>brasch_marine_helmet_bond</id>
+        <thingDef>Apparel_PowerArmorHelmet</thingDef>
+        <price>1350</price>
+        <currencyDef>Silver</currencyDef>
+        <maxPurchases>1</maxPurchases>
+        <count>1</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>0.45</refreshChance>
+        <labelOverride>PH-66“忠诚封闭式”冲锋盔</labelOverride>
+        <descriptionOverride>减少弹片、噪音和不必要的怀疑进入脑袋。透明面罩未附带，信念本来就不需要视野开阔。</descriptionOverride>
       </li>
     </items>
   </SimManagementLib.SimDef.CollectibleExchangeListDef>

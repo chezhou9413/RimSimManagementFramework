@@ -369,7 +369,8 @@ namespace SimManagementLib.SimDialog
             float descHeight = Text.CalcHeight(item?.DisplayDescription ?? "", textWidth);
             float priceHeight = Mathf.Max(30f, CurrencyIconSize + 4f);
             float remainingHeight = Mathf.Max(22f, Text.LineHeightOf(GameFont.Tiny) + 4f);
-            float textHeight = 10f + titleHeight + 4f + descHeight + 8f + priceHeight + 6f + remainingHeight + 12f;
+            float refreshHeight = item?.canRefresh == true ? Mathf.Max(20f, Text.LineHeightOf(GameFont.Tiny) + 4f) + 4f : 0f;
+            float textHeight = 10f + titleHeight + 4f + descHeight + 8f + priceHeight + 6f + remainingHeight + refreshHeight + 12f;
             float iconHeight = 14f + ItemIconSize + 14f;
             float buttonHeight = 12f + Mathf.Max(32f, Text.LineHeightOf(GameFont.Small) + 12f) + 12f;
             return Mathf.Max(136f, Mathf.Max(textHeight, Mathf.Max(iconHeight, buttonHeight)));
@@ -439,6 +440,15 @@ namespace SimManagementLib.SimDialog
             GUI.color = RemainingCount(item) > 0 ? Accent : WarnText;
             string countText = SimTranslation.T("RSMF.CollectibleExchange.SinglePurchaseCount", (item?.PurchaseCount ?? 1).Named("count"));
             Widgets.Label(new Rect(rect.x, remainingY, rect.width, Mathf.Max(22f, Text.LineHeightOf(GameFont.Tiny) + 4f)), RemainingText(item) + "  ·  " + countText);
+
+            if (item?.canRefresh == true)
+            {
+                float refreshY = remainingY + Mathf.Max(22f, Text.LineHeightOf(GameFont.Tiny) + 4f) + 4f;
+                GUI.color = MutedText;
+                int percent = Mathf.RoundToInt(item.RefreshChance * 100f);
+                Widgets.Label(new Rect(rect.x, refreshY, rect.width, Mathf.Max(20f, Text.LineHeightOf(GameFont.Tiny) + 4f)),
+                    SimTranslation.T("RSMF.CollectibleExchange.RefreshableItem", percent.Named("percent")));
+            }
         }
 
         /// <summary>

@@ -1,14 +1,16 @@
-using SimManagementLib.Pojo;
-using System.Collections.Generic;
 using Verse;
 
 namespace SimManagementLib.SimAI
 {
     public partial class LordJob_CustomerVisit
     {
+        /// <summary>
+        /// 读写顾客访问的群体状态和拆分后的运行状态，负责保持旧存档字段名兼容。
+        /// </summary>
         public override void ExposeData()
         {
             base.ExposeData();
+            EnsureStateObjects();
 
             Scribe_Defs.Look(ref customerKind, "customerKind");
             Scribe_Values.Look(ref customerKindId, "customerKindId", "");
@@ -16,33 +18,10 @@ namespace SimManagementLib.SimAI
             Scribe_Values.Look(ref targetShopCell, "targetShopCell");
             Scribe_Values.Look(ref totalBudget, "totalBudget", 0);
 
-            Scribe_Collections.Look(ref cartValues, "cartValues", LookMode.Value, LookMode.Value);
-            Scribe_Collections.Look(ref satisfactionMap, "satisfactionMap", LookMode.Value, LookMode.Value);
-            Scribe_Collections.Look(ref cartItems, "cartItems", LookMode.Value, LookMode.Deep, ref tmpCartItemKeys, ref tmpCartItemValues);
-            Scribe_Collections.Look(ref serviceOrders, "serviceOrders", LookMode.Value, LookMode.Deep, ref tmpServiceOrderKeys, ref tmpServiceOrderValues);
-            Scribe_Collections.Look(ref consumptionActionCounts, "consumptionActionCounts", LookMode.Value, LookMode.Value);
-            Scribe_Collections.Look(ref pawnSettings, "pawnSettings", LookMode.Value, LookMode.Deep, ref tmpSettingKeys, ref tmpSettingValues);
-            Scribe_Collections.Look(ref effectiveBudgetCaps, "effectiveBudgetCaps", LookMode.Value, LookMode.Value, ref tmpEffectiveBudgetCapKeys, ref tmpEffectiveBudgetCapValues);
-            Scribe_Collections.Look(ref checkoutOrder, "checkoutOrder", LookMode.Value, LookMode.Value);
-            Scribe_Values.Look(ref nextServiceOrderId, "nextServiceOrderId", 1);
-            Scribe_Values.Look(ref nextCheckoutOrder, "nextCheckoutOrder", 1);
-            Scribe_Collections.Look(ref readyForCheckout, "readyForCheckout", LookMode.Value);
-            Scribe_Collections.Look(ref browseWaitStartTick, "browseWaitStartTick", LookMode.Value, LookMode.Value);
-
-            if (Scribe.mode == LoadSaveMode.PostLoadInit)
-            {
-                if (cartValues == null) cartValues = new Dictionary<int, float>();
-                if (satisfactionMap == null) satisfactionMap = new Dictionary<int, float>();
-                if (cartItems == null) cartItems = new Dictionary<int, List<CustomerCartItem>>();
-                if (serviceOrders == null) serviceOrders = new Dictionary<int, List<CustomerServiceOrder>>();
-                if (consumptionActionCounts == null) consumptionActionCounts = new Dictionary<int, int>();
-                if (pawnSettings == null) pawnSettings = new Dictionary<int, CustomerRuntimeSettings>();
-                if (effectiveBudgetCaps == null) effectiveBudgetCaps = new Dictionary<int, int>();
-                if (checkoutOrder == null) checkoutOrder = new Dictionary<int, int>();
-                if (nextServiceOrderId <= 0) nextServiceOrderId = 1;
-                if (readyForCheckout == null) readyForCheckout = new List<int>();
-                if (browseWaitStartTick == null) browseWaitStartTick = new Dictionary<int, int>();
-            }
+            cartState.ExposeData();
+            serviceOrderState.ExposeData();
+            pawnSettingsState.ExposeData();
+            checkoutState.ExposeData();
         }
     }
 }

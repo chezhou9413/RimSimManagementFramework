@@ -248,12 +248,15 @@
   <RSMF.Business.CollectibleExchange.Enter>进入</RSMF.Business.CollectibleExchange.Enter>
   <RSMF.Business.CollectibleExchange.Progress>切换进度：{progress}</RSMF.Business.CollectibleExchange.Progress>
   <RSMF.Business.CollectibleExchange.StockProgress>兑换进度：已兑换 {purchased}/{total}，剩余货量 {remaining}</RSMF.Business.CollectibleExchange.StockProgress>
+  <RSMF.Business.CollectibleExchange.RefreshDisabled>不会自动刷新。</RSMF.Business.CollectibleExchange.RefreshDisabled>
+  <RSMF.Business.CollectibleExchange.NextRefresh>下次刷新：约 {time} 后。</RSMF.Business.CollectibleExchange.NextRefresh>
   <RSMF.CollectibleExchange.EmptyItems>这个兑换商店暂未配置商品。</RSMF.CollectibleExchange.EmptyItems>
   <RSMF.CollectibleExchange.Remaining>剩余 {count}</RSMF.CollectibleExchange.Remaining>
   <RSMF.CollectibleExchange.SoldOut>已售罄</RSMF.CollectibleExchange.SoldOut>
   <RSMF.CollectibleExchange.Buy>购买</RSMF.CollectibleExchange.Buy>
   <RSMF.CollectibleExchange.PriceLine>{price} x {currency}</RSMF.CollectibleExchange.PriceLine>
   <RSMF.CollectibleExchange.SinglePurchaseCount>单次 {count} 个</RSMF.CollectibleExchange.SinglePurchaseCount>
+  <RSMF.CollectibleExchange.RefreshableItem>可刷新 · 概率 {percent}%</RSMF.CollectibleExchange.RefreshableItem>
   <RSMF.CollectibleExchange.ItemWithCount>{item} x{count}</RSMF.CollectibleExchange.ItemWithCount>
   <RSMF.CollectibleExchange.InvalidItem>商品配置无效。</RSMF.CollectibleExchange.InvalidItem>
   <RSMF.CollectibleExchange.InvalidCurrency>货币配置无效。</RSMF.CollectibleExchange.InvalidCurrency>
