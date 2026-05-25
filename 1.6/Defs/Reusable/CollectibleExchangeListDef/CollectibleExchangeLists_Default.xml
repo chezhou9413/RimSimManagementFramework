@@ -295,6 +295,16 @@
         <labelOverride>金色魔方</labelOverride>
         <descriptionOverride>一个由纯金打造的魔方，像是拥有魔力一样会不由自主的引人注目，但据说是仿制品，与正版的效果相去甚远。</descriptionOverride>
       </li>
+      <li>
+        <id>The_GoldenToilet</id>
+        <thingDef>RSMF_Collections_GoldenToilet</thingDef>
+        <price>5000000</price>
+        <currencyDef>Silver</currencyDef>
+        <maxPurchases>1</maxPurchases>
+        <count>1</count>
+        <labelOverride>黄金马桶</labelOverride>
+        <descriptionOverride>一个由黄金与大理石打造而成的黄金马桶，坐上去之后会被持续的吸取灵能力量直到被彻底抽干化为飞灰。这当然是假的。</descriptionOverride>
+      </li>
     </items>
   </SimManagementLib.SimDef.CollectibleExchangeListDef>
 
