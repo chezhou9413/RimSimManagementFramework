@@ -246,5 +246,37 @@
         <pathCost>50</pathCost>
         <minifiedDef>MinifiedThing</minifiedDef>
     </ThingDef>
+
+    <ThingDef ParentName="BuildingBase">
+        <defName>RSMF_Collections_GoldenToilet</defName>
+        <label>黄金马桶</label>
+        <description>一个由黄金与大理石打造而成的马桶，坐上去之后会被持续的吸取灵能力量直到被彻底抽干化为飞灰。这当然是假的。</description>
+        <graphicData>
+            <texPath>Things/Collection/GoldenToilet/GoldenToilet</texPath>
+            <graphicClass>Graphic_Multi</graphicClass>
+            <drawSize>(4.5,4.5)</drawSize>
+            <drawOffsetNorth>(0,0,0.2)</drawOffsetNorth>
+            <drawOffsetSouth>(0,0,0.2)</drawOffsetSouth>
+            <drawOffsetWest>(0.2,0,0.3)</drawOffsetWest>
+            <drawOffsetEast>(-0.2,0,0.3)</drawOffsetEast>
+        </graphicData>
+        <size>(3,3)</size>
+        <thingCategories>
+            <li>BuildingsArt</li>
+        </thingCategories>
+        <statBases>
+            <MaxHitPoints>200</MaxHitPoints>
+            <WorkToMake>100</WorkToMake>
+            <Mass>1</Mass>
+            <Beauty>25</Beauty>
+        </statBases>
+        <altitudeLayer>Building</altitudeLayer>
+        <rotatable>true</rotatable>
+        <thingClass>Building</thingClass>
+        <passability>PassThroughOnly</passability>
+        <pathCost>50</pathCost>
+        <minifiedDef>MinifiedThing</minifiedDef>
+        <defaultPlacingRot>South</defaultPlacingRot>
+    </ThingDef>
 </Defs>
     

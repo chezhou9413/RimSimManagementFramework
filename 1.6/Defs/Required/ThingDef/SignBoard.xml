@@ -3,8 +3,8 @@
 
     <ThingDef ParentName="LampBase">
         <defName>Sim_SignBoard1A</defName>
-        <label>招牌1A</label>
-        <description>招牌1A</description>
+        <label>一格招牌(南)</label>
+        <description>一格招牌(南)</description>
         <rotatable>false</rotatable>
         <defaultPlacingRot>South</defaultPlacingRot>
         <graphicData>
@@ -66,8 +66,8 @@
 
     <ThingDef ParentName="LampBase">
         <defName>Sim_SignBoard2A</defName>
-        <label>招牌2A</label>
-        <description>招牌2A</description>
+        <label>二格招牌(南)</label>
+        <description>二格招牌(南)</description>
         <rotatable>false</rotatable>
         <defaultPlacingRot>South</defaultPlacingRot>
         <graphicData>
@@ -130,8 +130,8 @@
 
     <ThingDef ParentName="LampBase">
         <defName>Sim_SignBoard3A</defName>
-        <label>招牌3A</label>
-        <description>招牌3A</description>
+        <label>三格招牌(南)</label>
+        <description>三格招牌(南)</description>
         <rotatable>false</rotatable>
         <defaultPlacingRot>South</defaultPlacingRot>
         <graphicData>
@@ -193,8 +193,8 @@
 
     <ThingDef ParentName="LampBase">
         <defName>Sim_SignBoard4A</defName>
-        <label>招牌4A</label>
-        <description>招牌4A</description>
+        <label>四格招牌(南)</label>
+        <description>四格招牌(南)</description>
         <rotatable>false</rotatable>
         <defaultPlacingRot>South</defaultPlacingRot>
         <graphicData>
@@ -256,8 +256,8 @@
 
     <ThingDef ParentName="LampBase">
         <defName>Sim_SignBoard1B</defName>
-        <label>招牌1B</label>
-        <description>招牌1B</description>
+        <label>一格招牌(西)</label>
+        <description>一格招牌(西)</description>
         <rotatable>false</rotatable>
         <defaultPlacingRot>West</defaultPlacingRot>
         <graphicData>
@@ -319,8 +319,8 @@
 
     <ThingDef ParentName="LampBase">
         <defName>Sim_SignBoard2B</defName>
-        <label>招牌2B</label>
-        <description>招牌2B</description>
+        <label>二格招牌(西)</label>
+        <description>二格招牌(西)</description>
         <rotatable>false</rotatable>
         <defaultPlacingRot>West</defaultPlacingRot>
         <graphicData>
@@ -382,8 +382,8 @@
 
     <ThingDef ParentName="LampBase">
         <defName>Sim_SignBoard3B</defName>
-        <label>招牌3B</label>
-        <description>招牌3B</description>
+        <label>三格招牌(西)</label>
+        <description>三格招牌(西)</description>
         <rotatable>false</rotatable>
         <defaultPlacingRot>West</defaultPlacingRot>
         <graphicData>
@@ -445,8 +445,8 @@
 
     <ThingDef ParentName="LampBase">
         <defName>Sim_SignBoard4B</defName>
-        <label>招牌4B</label>
-        <description>招牌4B</description>
+        <label>四格招牌(西)</label>
+        <description>四格招牌(西)</description>
         <rotatable>false</rotatable>
         <defaultPlacingRot>West</defaultPlacingRot>
         <graphicData>
@@ -459,6 +459,258 @@
             </damageData>
         </graphicData>
         <uiIconPath>Things/Building/SignBoard/SignBoardB/SignBoard4B</uiIconPath>
+        <drawerType>MapMeshAndRealTime</drawerType>
+        <altitudeLayer>BuildingOnTop</altitudeLayer>
+        <costList>
+          <Steel>15</Steel>
+        </costList>
+        <statBases>
+          <WorkToBuild>330</WorkToBuild>
+          <MaxHitPoints>35</MaxHitPoints>
+          <Mass>2</Mass>
+        </statBases>
+        <designationCategory>SimManagementBuildings</designationCategory>
+        <size>(4,1)</size>
+        <uiOrder>2991</uiOrder>
+        <passability>Standable</passability>
+        <terrainAffordanceNeeded IsNull="True" />
+        <pathCost>0</pathCost>
+        <overrideMinifiedRot>North</overrideMinifiedRot>
+        <minifiedDrawOffset>(0, 0, 0.2)</minifiedDrawOffset>
+        <building>
+          <isEdifice>false</isEdifice>
+          <isAttachment>true</isAttachment>
+        </building>
+        <placeWorkers>
+          <li>Placeworker_AttachedToWall</li>
+        </placeWorkers>
+        <comps>
+          <li Class="CompProperties_Power">
+            <compClass>CompPowerTrader</compClass>
+            <basePowerConsumption>30</basePowerConsumption>
+            <powerUpgrades>
+              <li>
+                <researchProject>ColoredLights</researchProject>
+                <factor>0.5</factor>
+              </li>
+            </powerUpgrades>
+          </li>
+          <li Class="CompProperties_Styleable" />
+          <li Class="CompProperties_Glower">
+            <glowRadius>11</glowRadius>
+            <glowColor>(214,148,94,0)</glowColor>
+            <colorPickerEnabled>true</colorPickerEnabled>
+            <darklightToggle>true</darklightToggle>
+          </li>
+          <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
+        </comps>
+    </ThingDef>
+
+    <ThingDef ParentName="LampBase">
+        <defName>Sim_SignBoard1C</defName>
+        <label>一格招牌(东)</label>
+        <description>一格招牌(东)</description>
+        <rotatable>false</rotatable>
+        <defaultPlacingRot>West</defaultPlacingRot>
+        <graphicData>
+            <texPath>Things/Building/SignBoard/SignBoardC/SignBoard1C</texPath>
+            <graphicClass>Graphic_Single</graphicClass>
+            <drawOffset>(-0.25,0,0)</drawOffset>
+            <drawSize>(2.0,2.5)</drawSize>
+            <damageData>
+                <enabled>false</enabled>
+            </damageData>
+        </graphicData>
+        <uiIconPath>Things/Building/SignBoard/SignBoardC/SignBoard1C</uiIconPath>
+        <drawerType>MapMeshAndRealTime</drawerType>
+        <altitudeLayer>BuildingOnTop</altitudeLayer>
+        <costList>
+          <Steel>15</Steel>
+        </costList>
+        <statBases>
+          <WorkToBuild>330</WorkToBuild>
+          <MaxHitPoints>35</MaxHitPoints>
+          <Mass>2</Mass>
+        </statBases>
+        <designationCategory>SimManagementBuildings</designationCategory>
+        <size>(1,1)</size>
+        <uiOrder>2991</uiOrder>
+        <passability>Standable</passability>
+        <terrainAffordanceNeeded IsNull="True" />
+        <pathCost>0</pathCost>
+        <overrideMinifiedRot>North</overrideMinifiedRot>
+        <minifiedDrawOffset>(0, 0, 0.2)</minifiedDrawOffset>
+        <building>
+          <isEdifice>false</isEdifice>
+          <isAttachment>true</isAttachment>
+        </building>
+        <placeWorkers>
+          <li>Placeworker_AttachedToWall</li>
+        </placeWorkers>
+        <comps>
+          <li Class="CompProperties_Power">
+            <compClass>CompPowerTrader</compClass>
+            <basePowerConsumption>30</basePowerConsumption>
+            <powerUpgrades>
+              <li>
+                <researchProject>ColoredLights</researchProject>
+                <factor>0.5</factor>
+              </li>
+            </powerUpgrades>
+          </li>
+          <li Class="CompProperties_Styleable" />
+          <li Class="CompProperties_Glower">
+            <glowRadius>11</glowRadius>
+            <glowColor>(214,148,94,0)</glowColor>
+            <colorPickerEnabled>true</colorPickerEnabled>
+            <darklightToggle>true</darklightToggle>
+          </li>
+          <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
+        </comps>
+    </ThingDef>
+
+    <ThingDef ParentName="LampBase">
+        <defName>Sim_SignBoard2C</defName>
+        <label>二格招牌(东)</label>
+        <description>二格招牌(东)</description>
+        <rotatable>false</rotatable>
+        <defaultPlacingRot>West</defaultPlacingRot>
+        <graphicData>
+            <texPath>Things/Building/SignBoard/SignBoardC/SignBoard2C</texPath>
+            <graphicClass>Graphic_Single</graphicClass>
+            <drawOffset>(-0.25,0,0)</drawOffset>
+            <drawSize>(2.4,2.5)</drawSize>
+            <damageData>
+                <enabled>false</enabled>
+            </damageData>
+        </graphicData>
+        <uiIconPath>Things/Building/SignBoard/SignBoardC/SignBoard2C</uiIconPath>
+        <drawerType>MapMeshAndRealTime</drawerType>
+        <altitudeLayer>BuildingOnTop</altitudeLayer>
+        <costList>
+          <Steel>15</Steel>
+        </costList>
+        <statBases>
+          <WorkToBuild>330</WorkToBuild>
+          <MaxHitPoints>35</MaxHitPoints>
+          <Mass>2</Mass>
+        </statBases>
+        <designationCategory>SimManagementBuildings</designationCategory>
+        <size>(2,1)</size>
+        <uiOrder>2991</uiOrder>
+        <passability>Standable</passability>
+        <terrainAffordanceNeeded IsNull="True" />
+        <pathCost>0</pathCost>
+        <overrideMinifiedRot>North</overrideMinifiedRot>
+        <minifiedDrawOffset>(0, 0, 0.2)</minifiedDrawOffset>
+        <building>
+          <isEdifice>false</isEdifice>
+          <isAttachment>true</isAttachment>
+        </building>
+        <placeWorkers>
+          <li>Placeworker_AttachedToWall</li>
+        </placeWorkers>
+        <comps>
+          <li Class="CompProperties_Power">
+            <compClass>CompPowerTrader</compClass>
+            <basePowerConsumption>30</basePowerConsumption>
+            <powerUpgrades>
+              <li>
+                <researchProject>ColoredLights</researchProject>
+                <factor>0.5</factor>
+              </li>
+            </powerUpgrades>
+          </li>
+          <li Class="CompProperties_Styleable" />
+          <li Class="CompProperties_Glower">
+            <glowRadius>11</glowRadius>
+            <glowColor>(214,148,94,0)</glowColor>
+            <colorPickerEnabled>true</colorPickerEnabled>
+            <darklightToggle>true</darklightToggle>
+          </li>
+          <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
+        </comps>
+    </ThingDef>
+
+    <ThingDef ParentName="LampBase">
+        <defName>Sim_SignBoard3C</defName>
+        <label>三格招牌(东)</label>
+        <description>三格招牌(东)</description>
+        <rotatable>false</rotatable>
+        <defaultPlacingRot>West</defaultPlacingRot>
+        <graphicData>
+            <texPath>Things/Building/SignBoard/SignBoardC/SignBoard3C</texPath>
+            <graphicClass>Graphic_Single</graphicClass>
+            <drawOffset>(-0.25,0,0)</drawOffset>
+            <drawSize>(5.0,5.0)</drawSize>
+            <damageData>
+                <enabled>false</enabled>
+            </damageData>
+        </graphicData>
+        <uiIconPath>Things/Building/SignBoard/SignBoardC/SignBoard3C</uiIconPath>
+        <drawerType>MapMeshAndRealTime</drawerType>
+        <altitudeLayer>BuildingOnTop</altitudeLayer>
+        <costList>
+          <Steel>15</Steel>
+        </costList>
+        <statBases>
+          <WorkToBuild>330</WorkToBuild>
+          <MaxHitPoints>35</MaxHitPoints>
+          <Mass>2</Mass>
+        </statBases>
+        <designationCategory>SimManagementBuildings</designationCategory>
+        <size>(3,1)</size>
+        <uiOrder>2991</uiOrder>
+        <passability>Standable</passability>
+        <terrainAffordanceNeeded IsNull="True" />
+        <pathCost>0</pathCost>
+        <overrideMinifiedRot>North</overrideMinifiedRot>
+        <minifiedDrawOffset>(0, 0, 0.2)</minifiedDrawOffset>
+        <building>
+          <isEdifice>false</isEdifice>
+          <isAttachment>true</isAttachment>
+        </building>
+        <placeWorkers>
+          <li>Placeworker_AttachedToWall</li>
+        </placeWorkers>
+        <comps>
+          <li Class="CompProperties_Power">
+            <compClass>CompPowerTrader</compClass>
+            <basePowerConsumption>30</basePowerConsumption>
+            <powerUpgrades>
+              <li>
+                <researchProject>ColoredLights</researchProject>
+                <factor>0.5</factor>
+              </li>
+            </powerUpgrades>
+          </li>
+          <li Class="CompProperties_Styleable" />
+          <li Class="CompProperties_Glower">
+            <glowRadius>11</glowRadius>
+            <glowColor>(214,148,94,0)</glowColor>
+            <colorPickerEnabled>true</colorPickerEnabled>
+            <darklightToggle>true</darklightToggle>
+          </li>
+          <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
+        </comps>
+    </ThingDef>
+
+    <ThingDef ParentName="LampBase">
+        <defName>Sim_SignBoard4C</defName>
+        <label>四格招牌(东)</label>
+        <description>四格招牌(东)</description>
+        <rotatable>false</rotatable>
+        <defaultPlacingRot>West</defaultPlacingRot>
+        <graphicData>
+            <texPath>Things/Building/SignBoard/SignBoardC/SignBoard4C</texPath>
+            <graphicClass>Graphic_Single</graphicClass>
+            <drawOffset>(-0.25,0,0)</drawOffset>
+            <drawSize>(5.0,5.0)</drawSize>
+            <damageData>
+                <enabled>false</enabled>
+            </damageData>
+        </graphicData>
+        <uiIconPath>Things/Building/SignBoard/SignBoardC/SignBoard4C</uiIconPath>
         <drawerType>MapMeshAndRealTime</drawerType>
         <altitudeLayer>BuildingOnTop</altitudeLayer>
         <costList>

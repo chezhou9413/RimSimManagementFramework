@@ -7,9 +7,9 @@
     <description>提供收费厕所服务的商店建筑。顾客付款后会在这里停留一段时间完成服务。</description>
     <thingClass>Building</thingClass>
     <graphicData>
-      <texPath>Things/Building/Furniture/Stool</texPath>
+      <texPath>Things/Building/Toilet/Toilet</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
-      <drawSize>(1, 1)</drawSize>
+      <drawSize>(1.6, 1.6)</drawSize>
       <damageData>
         <cornerTL>Damage/Corner</cornerTL>
         <cornerTR>Damage/Corner</cornerTR>
@@ -21,6 +21,7 @@
       </shadowData>
     </graphicData>
     <altitudeLayer>Building</altitudeLayer>
+    <defaultPlacingRot>South</defaultPlacingRot>
     <drawerType>MapMeshOnly</drawerType>
     <category>Building</category>
     <designationCategory>SimManagementBuildings</designationCategory>
@@ -30,7 +31,7 @@
     <minifiedDef>MinifiedThing</minifiedDef>
     <canOverlapZones>true</canOverlapZones>
     <hasInteractionCell>true</hasInteractionCell>
-    <interactionCellOffset>(0,0,-1)</interactionCellOffset>
+    <interactionCellOffset>(0,0,1)</interactionCellOffset>
     <fillPercent>0.2</fillPercent>
     <pathCost>30</pathCost>
     <passability>Standable</passability>
