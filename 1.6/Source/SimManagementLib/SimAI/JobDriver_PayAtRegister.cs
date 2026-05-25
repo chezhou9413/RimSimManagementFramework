@@ -1,4 +1,5 @@
 using RimWorld;
+using SimManagementLib.Api;
 using SimManagementLib.GameComp;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimDef;
@@ -161,7 +162,9 @@ namespace SimManagementLib.SimAI
 
                 if (abortedByTimeout)
                 {
-                    CustomerReviewSnapshotBuilder.TryEnqueueReview(pawn, lordJob, shopZone, new List<FinanceLineItem>(), 0, "等太久没轮到收银，离店前没有付款，商品已放回店里");
+                    ShopCheckoutContext timeoutContext = BuildCheckoutContext(lordJob, shopZone, finance, pawnId, purchasedItems, 0f, new List<FinanceLineItem>(), 0, true, false, "等太久没轮到收银，离店前没有付款，商品已放回店里");
+                    SimShopCheckoutApi.NotifyCheckoutFailed(timeoutContext);
+                    CustomerReviewSnapshotBuilder.TryEnqueueReview(pawn, lordJob, shopZone, timeoutContext.billLines, 0, timeoutContext.failReason);
                     HandleCheckoutTimeout(lordJob, finance, pawnId, shopZone);
                     analytics?.RecordCheckoutResult(shopZone, totalWaitTicks, maxQueueWaitTicks, 0, budget, success: false, timeout: true);
                     lordJob.CheckAllCheckoutsDone();
@@ -172,12 +175,20 @@ namespace SimManagementLib.SimAI
                 {
                     int silverAmount = Mathf.CeilToInt(amountOwed);
                     List<FinanceLineItem> reviewLines = finance?.GetPendingBillLines(pawn) ?? new List<FinanceLineItem>();
+                    ShopCheckoutContext checkoutContext = BuildCheckoutContext(lordJob, shopZone, finance, pawnId, purchasedItems, amountOwed, reviewLines, silverAmount, false, true, "");
+                    SimShopCheckoutApi.NotifyBuildCheckoutLines(checkoutContext);
+                    SimShopCheckoutApi.NotifyBeforeCheckoutCommit(checkoutContext);
+                    silverAmount = SimShopCheckoutApi.ModifyPaidSilver(checkoutContext, checkoutContext.paidSilver);
+                    checkoutContext.paidSilver = silverAmount;
                     Register.DepositSilver(silverAmount);
                     finance?.CommitCheckout(pawn, Register, silverAmount);
                     lordJob.ResolveServiceOrdersOnCheckoutPaid(pawn, shopZone);
                     CustomerPurchaseDeliveryUtility.DeliverPurchasedItems(pawn, purchasedItems);
                     PurchaseOutcomeResolver.TryQueuePostPurchaseJobs(pawn, lordJob, pawnId, shopZone, purchasedItems);
-                    CustomerReviewSnapshotBuilder.TryEnqueueReview(pawn, lordJob, shopZone, reviewLines, silverAmount, "付款完成");
+                    if (!checkoutContext.postCheckoutJobs.NullOrEmpty())
+                        lordJob.QueuePostCheckoutJobs(pawnId, checkoutContext.postCheckoutJobs);
+                    SimShopCheckoutApi.NotifyCheckoutPaid(checkoutContext);
+                    CustomerReviewSnapshotBuilder.TryEnqueueReview(pawn, lordJob, shopZone, checkoutContext.billLines, silverAmount, "付款完成");
                     CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.CheckoutPaid);
                     ShopBubbleUtility.ShowSilverPayment(pawn, silverAmount);
                     lordJob.ClearCustomerCart(pawnId);
@@ -186,11 +197,17 @@ namespace SimManagementLib.SimAI
                 else
                 {
                     List<FinanceLineItem> reviewLines = finance?.GetPendingBillLines(pawn) ?? new List<FinanceLineItem>();
+                    ShopCheckoutContext checkoutContext = BuildCheckoutContext(lordJob, shopZone, finance, pawnId, purchasedItems, 0f, reviewLines, 0, false, true, "");
+                    SimShopCheckoutApi.NotifyBuildCheckoutLines(checkoutContext);
+                    SimShopCheckoutApi.NotifyBeforeCheckoutCommit(checkoutContext);
                     finance?.ClearPendingBill(pawn);
                     lordJob.ResolveServiceOrdersOnCheckoutPaid(pawn, shopZone);
                     CustomerPurchaseDeliveryUtility.DeliverPurchasedItems(pawn, purchasedItems);
                     PurchaseOutcomeResolver.TryQueuePostPurchaseJobs(pawn, lordJob, pawnId, shopZone, purchasedItems);
-                    CustomerReviewSnapshotBuilder.TryEnqueueReview(pawn, lordJob, shopZone, reviewLines, 0, "未消费离店");
+                    if (!checkoutContext.postCheckoutJobs.NullOrEmpty())
+                        lordJob.QueuePostCheckoutJobs(pawnId, checkoutContext.postCheckoutJobs);
+                    SimShopCheckoutApi.NotifyCheckoutPaid(checkoutContext);
+                    CustomerReviewSnapshotBuilder.TryEnqueueReview(pawn, lordJob, shopZone, checkoutContext.billLines, 0, "未消费离店");
                     lordJob.ClearCustomerCart(pawnId);
                     analytics?.RecordCheckoutResult(shopZone, totalWaitTicks, maxQueueWaitTicks, 0, budget, success: true, timeout: false);
                 }
@@ -308,6 +325,37 @@ namespace SimManagementLib.SimAI
             lordJob.ClearCustomerServiceOrders(pawnId);
             CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.CheckoutTimeout);
             ShopBubbleUtility.ShowTextBubble(pawn, SimTranslation.T("RSMF.Bubble.CheckoutQueueTimeout"), new Color(1f, 0.72f, 0.4f));
+        }
+
+        /// <summary>
+        /// 构建结账公开上下文，负责把内部收银状态安全传递给外部 Hook。
+        /// </summary>
+        private ShopCheckoutContext BuildCheckoutContext(
+            LordJob_CustomerVisit lordJob,
+            Zone_Shop shopZone,
+            GameComponent_ShopFinanceManager finance,
+            int pawnId,
+            List<CustomerCartItem> purchasedItems,
+            float amountOwed,
+            List<FinanceLineItem> billLines,
+            int paidSilver,
+            bool timedOut,
+            bool success,
+            string failReason)
+        {
+            return new ShopCheckoutContext
+            {
+                customer = pawn,
+                shop = shopZone,
+                register = Register,
+                visit = lordJob,
+                billLines = billLines ?? new List<FinanceLineItem>(),
+                amountOwed = amountOwed,
+                paidSilver = paidSilver,
+                timedOut = timedOut,
+                success = success,
+                failReason = failReason ?? ""
+            };
         }
 
         /// <summary>

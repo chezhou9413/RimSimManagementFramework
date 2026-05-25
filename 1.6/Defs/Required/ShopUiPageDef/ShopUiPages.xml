@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <SimManagementLib.SimDef.ShopUiPageDef>
+    <defName>Sim_BusinessUi_Main_Shops</defName>
+    <label>Shop management</label>
+    <description>Business manager page for shop management.</description>
+    <labelKey>RSMF.ShopUi.Page.Main.Shops.Label</labelKey>
+    <descriptionKey>RSMF.ShopUi.Page.Main.Shops.Description</descriptionKey>
+    <scope>BusinessManager</scope>
+    <order>100</order>
+    <workerClass>SimManagementLib.SimDialog.BusinessPageWorker_ShopManagement</workerClass>
+  </SimManagementLib.SimDef.ShopUiPageDef>
+
+  <SimManagementLib.SimDef.ShopUiPageDef>
+    <defName>Sim_BusinessUi_Main_Vending</defName>
+    <label>Vending</label>
+    <description>Business manager page for vending machines.</description>
+    <labelKey>RSMF.ShopUi.Page.Main.Vending.Label</labelKey>
+    <descriptionKey>RSMF.ShopUi.Page.Main.Vending.Description</descriptionKey>
+    <scope>BusinessManager</scope>
+    <order>200</order>
+    <workerClass>SimManagementLib.SimDialog.BusinessPageWorker_Vending</workerClass>
+  </SimManagementLib.SimDef.ShopUiPageDef>
+
+  <SimManagementLib.SimDef.ShopUiPageDef>
+    <defName>Sim_BusinessUi_Main_Finance</defName>
+    <label>Finance</label>
+    <description>Business manager page for finance reports.</description>
+    <labelKey>RSMF.ShopUi.Page.Main.Finance.Label</labelKey>
+    <descriptionKey>RSMF.ShopUi.Page.Main.Finance.Description</descriptionKey>
+    <scope>BusinessManager</scope>
+    <order>300</order>
+    <workerClass>SimManagementLib.SimDialog.BusinessPageWorker_Finance</workerClass>
+  </SimManagementLib.SimDef.ShopUiPageDef>
+
+  <SimManagementLib.SimDef.ShopUiPageDef>
+    <defName>Sim_BusinessUi_Main_Reviews</defName>
+    <label>Customer reviews</label>
+    <description>Business manager page for customer reviews.</description>
+    <labelKey>RSMF.ShopUi.Page.Main.Reviews.Label</labelKey>
+    <descriptionKey>RSMF.ShopUi.Page.Main.Reviews.Description</descriptionKey>
+    <scope>BusinessManager</scope>
+    <order>400</order>
+    <workerClass>SimManagementLib.SimDialog.BusinessPageWorker_Reviews</workerClass>
+  </SimManagementLib.SimDef.ShopUiPageDef>
+
+  <SimManagementLib.SimDef.ShopUiPageDef>
+    <defName>Sim_BusinessUi_Main_CollectibleExchange</defName>
+    <label>Collectible exchange</label>
+    <description>Business manager page for collectible exchange lists.</description>
+    <labelKey>RSMF.ShopUi.Page.Main.CollectibleExchange.Label</labelKey>
+    <descriptionKey>RSMF.ShopUi.Page.Main.CollectibleExchange.Description</descriptionKey>
+    <scope>BusinessManager</scope>
+    <order>500</order>
+    <workerClass>SimManagementLib.SimDialog.BusinessPageWorker_CollectibleExchange</workerClass>
+  </SimManagementLib.SimDef.ShopUiPageDef>
+
+  <SimManagementLib.SimDef.ShopUiPageDef>
+    <defName>Sim_BusinessUi_Main_Blueprints</defName>
+    <label>Blueprints</label>
+    <description>Business manager page for shop blueprints.</description>
+    <labelKey>RSMF.ShopUi.Page.Main.Blueprints.Label</labelKey>
+    <descriptionKey>RSMF.ShopUi.Page.Main.Blueprints.Description</descriptionKey>
+    <scope>BusinessManager</scope>
+    <order>600</order>
+    <workerClass>SimManagementLib.SimDialog.BusinessPageWorker_Blueprints</workerClass>
+  </SimManagementLib.SimDef.ShopUiPageDef>
+
+  <SimManagementLib.SimDef.ShopUiPageDef>
+    <defName>Sim_BusinessUi_Main_Customers</defName>
+    <label>Customers</label>
+    <description>Business manager page for active customers.</description>
+    <labelKey>RSMF.ShopUi.Page.Main.Customers.Label</labelKey>
+    <descriptionKey>RSMF.ShopUi.Page.Main.Customers.Description</descriptionKey>
+    <scope>BusinessManager</scope>
+    <order>700</order>
+    <workerClass>SimManagementLib.SimDialog.BusinessPageWorker_Customers</workerClass>
+  </SimManagementLib.SimDef.ShopUiPageDef>
+
+  <SimManagementLib.SimDef.ShopUiPageDef>
+    <defName>Sim_BusinessUi_Main_Staff</defName>
+    <label>Staff</label>
+    <description>Business manager page for shop staff.</description>
+    <labelKey>RSMF.ShopUi.Page.Main.Staff.Label</labelKey>
+    <descriptionKey>RSMF.ShopUi.Page.Main.Staff.Description</descriptionKey>
+    <scope>BusinessManager</scope>
+    <order>800</order>
+    <workerClass>SimManagementLib.SimDialog.BusinessPageWorker_Staff</workerClass>
+  </SimManagementLib.SimDef.ShopUiPageDef>
+
+  <SimManagementLib.SimDef.ShopUiPageDef>
+    <defName>Sim_BusinessUi_Shop_Overview</defName>
+    <label>Overview</label>
+    <description>Shop manager overview page.</description>
+    <labelKey>RSMF.ShopUi.Page.Shop.Overview.Label</labelKey>
+    <descriptionKey>RSMF.ShopUi.Page.Shop.Overview.Description</descriptionKey>
+    <scope>ShopManager</scope>
+    <order>100</order>
+    <workerClass>SimManagementLib.SimDialog.ShopPageWorker_Overview</workerClass>
+  </SimManagementLib.SimDef.ShopUiPageDef>
+
+  <SimManagementLib.SimDef.ShopUiPageDef>
+    <defName>Sim_BusinessUi_Shop_BusinessHours</defName>
+    <label>Business hours</label>
+    <description>Shop manager business hours page.</description>
+    <labelKey>RSMF.ShopUi.Page.Shop.BusinessHours.Label</labelKey>
+    <descriptionKey>RSMF.ShopUi.Page.Shop.BusinessHours.Description</descriptionKey>
+    <scope>ShopManager</scope>
+    <order>200</order>
+    <workerClass>SimManagementLib.SimDialog.ShopPageWorker_BusinessHours</workerClass>
+  </SimManagementLib.SimDef.ShopUiPageDef>
+
+  <SimManagementLib.SimDef.ShopUiPageDef>
+    <defName>Sim_BusinessUi_Shop_Services</defName>
+    <label>Services</label>
+    <description>Shop manager services page.</description>
+    <labelKey>RSMF.ShopUi.Page.Shop.Services.Label</labelKey>
+    <descriptionKey>RSMF.ShopUi.Page.Shop.Services.Description</descriptionKey>
+    <scope>ShopManager</scope>
+    <order>400</order>
+    <workerClass>SimManagementLib.SimDialog.ShopPageWorker_Services</workerClass>
+  </SimManagementLib.SimDef.ShopUiPageDef>
+
+  <SimManagementLib.SimDef.ShopUiPageDef>
+    <defName>Sim_BusinessUi_Shop_ComboEdit</defName>
+    <label>Combo editor</label>
+    <description>Shop manager combo editor page.</description>
+    <labelKey>RSMF.ShopUi.Page.Shop.ComboEdit.Label</labelKey>
+    <descriptionKey>RSMF.ShopUi.Page.Shop.ComboEdit.Description</descriptionKey>
+    <showInNavigation>false</showInNavigation>
+    <scope>ShopManager</scope>
+    <order>500</order>
+    <workerClass>SimManagementLib.SimDialog.ShopPageWorker_ComboEdit</workerClass>
+  </SimManagementLib.SimDef.ShopUiPageDef>
+</Defs>

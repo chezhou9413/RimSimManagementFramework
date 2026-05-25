@@ -385,8 +385,12 @@
   <RSMF.GoodsManager.InvalidCategory>This storage cannot sell that goods category.</RSMF.GoodsManager.InvalidCategory>
   <RSMF.GoodsManager.AllGoodsCategories>All goods categories</RSMF.GoodsManager.AllGoodsCategories>
   <RSMF.ShopManager.SaveTip>Tip: changes only take effect after clicking "Save"; "Cancel" will discard all changes.</RSMF.ShopManager.SaveTip>
+  <RSMF.ShopManager.SaveTip.Schedule>Business hour changes are applied after clicking "Save".</RSMF.ShopManager.SaveTip.Schedule>
+  <RSMF.ShopManager.SaveTip.Services>Service enablement, prices, and concurrency changes are applied after clicking "Save".</RSMF.ShopManager.SaveTip.Services>
+  <RSMF.ShopManager.NoSaveNeededTip>This page has no draft to apply; unsaved changes on other pages can still be discarded with Cancel.</RSMF.ShopManager.NoSaveNeededTip>
   <RSMF.ShopManager.Cancel>Cancel</RSMF.ShopManager.Cancel>
-  <RSMF.ShopManager.Save>✔  Save</RSMF.ShopManager.Save>
+  <RSMF.ShopManager.Save>Save</RSMF.ShopManager.Save>
+  <RSMF.ShopManager.SaveSuccess>Shop settings saved.</RSMF.ShopManager.SaveSuccess>
   <RSMF.ShopManager.AutoTrimNotice>Target amounts were trimmed to the storage capacity limit: {storageCount} storages removed {trimmed} excess entries.</RSMF.ShopManager.AutoTrimNotice>
   <RSMF.ShopManager.Header.Status>Status</RSMF.ShopManager.Header.Status>
   <RSMF.ShopManager.Header.Stock>Current / Target</RSMF.ShopManager.Header.Stock>
@@ -403,8 +407,9 @@
   <RSMF.ShopManager.ComboName>Bundle name</RSMF.ShopManager.ComboName>
   <RSMF.ShopManager.RandomName>🎲 Random name</RSMF.ShopManager.RandomName>
   <RSMF.ShopManager.ComboPrice>Bundle price</RSMF.ShopManager.ComboPrice>
-  <RSMF.ShopManager.EstimateByItem>📊 Estimate by item</RSMF.ShopManager.EstimateByItem>
+  <RSMF.ShopManager.EstimateByItem>Estimate by item</RSMF.ShopManager.EstimateByItem>
   <RSMF.ShopManager.AutoEstimateTip>Estimate automatically as 90% of the sum of item base prices</RSMF.ShopManager.AutoEstimateTip>
+  <RSMF.ShopManager.ComboSavedAndNew>Bundle "{comboName}" saved; a new empty bundle is ready.</RSMF.ShopManager.ComboSavedAndNew>
   <RSMF.ShopManager.DeleteCombo>Delete bundle</RSMF.ShopManager.DeleteCombo>
   <RSMF.ShopManager.Quantity>Quantity</RSMF.ShopManager.Quantity>
   <RSMF.ShopManager.Slider>Slider</RSMF.ShopManager.Slider>
@@ -433,11 +438,15 @@
   <RSMF.ShopManager.SearchPlaceholder>Search item name...</RSMF.ShopManager.SearchPlaceholder>
   <RSMF.ShopManager.ClearSearch>Clear</RSMF.ShopManager.ClearSearch>
   <RSMF.ShopManager.GoodsServiceCount>Goods {goods} / Services {services}</RSMF.ShopManager.GoodsServiceCount>
-  <RSMF.ShopManager.Sidebar.Overview>📊  Inventory overview</RSMF.ShopManager.Sidebar.Overview>
-  <RSMF.ShopManager.Sidebar.Schedule>🕘  Business settings</RSMF.ShopManager.Sidebar.Schedule>
-  <RSMF.ShopManager.Sidebar.Goods>📦  Stock goods</RSMF.ShopManager.Sidebar.Goods>
-  <RSMF.ShopManager.Sidebar.Services>💧  Service setup</RSMF.ShopManager.Sidebar.Services>
+  <RSMF.ShopManager.Sidebar.Overview>Inventory overview</RSMF.ShopManager.Sidebar.Overview>
+  <RSMF.ShopManager.Sidebar.Schedule>Business settings</RSMF.ShopManager.Sidebar.Schedule>
+  <RSMF.ShopManager.Sidebar.Goods>Stock goods</RSMF.ShopManager.Sidebar.Goods>
+  <RSMF.ShopManager.Sidebar.Services>Service setup</RSMF.ShopManager.Sidebar.Services>
   <RSMF.ShopManager.CombosHeader>Bundles  ({count})</RSMF.ShopManager.CombosHeader>
+  <RSMF.ShopManager.StorageHeader>Storages ({count})</RSMF.ShopManager.StorageHeader>
+  <RSMF.ShopManager.NoStorageSelected>Select a storage building to manage it separately.</RSMF.ShopManager.NoStorageSelected>
+  <RSMF.ShopManager.StorageSummaryLine>Category: {category}  Stock: {stored}/{capacity}</RSMF.ShopManager.StorageSummaryLine>
+  <RSMF.ShopManager.StorageHintLine>This page shows the current storage settings. Use "Manage storage" to edit them.</RSMF.ShopManager.StorageHintLine>
   <RSMF.ShopManager.NewCombo>+ New bundle</RSMF.ShopManager.NewCombo>
   <RSMF.ShopSchedule.ManuallyClosed>Manually closed</RSMF.ShopSchedule.ManuallyClosed>
   <RSMF.ShopSchedule.OpenAllDay>Open all day</RSMF.ShopSchedule.OpenAllDay>
@@ -654,6 +663,7 @@
   <RSMF.CustomGoods.TotalPaged>{count} total, paged</RSMF.CustomGoods.TotalPaged>
   <RSMF.CustomGoods.PrevPage>Previous</RSMF.CustomGoods.PrevPage>
   <RSMF.CustomGoods.NextPage>Next</RSMF.CustomGoods.NextPage>
+  <RSMF.CustomGoods.AppendCurrentPage>Add page</RSMF.CustomGoods.AppendCurrentPage>
   <RSMF.CustomGoods.DefMarketValue>{defName}   market {value}</RSMF.CustomGoods.DefMarketValue>
   <RSMF.CustomGoods.Exists>Exists</RSMF.CustomGoods.Exists>
   <RSMF.CustomGoods.Append>Add</RSMF.CustomGoods.Append>
@@ -961,4 +971,33 @@
   <RSMF.CollectibleDisplayStand.Error.SlotOccupied>This slot already contains a collectible.</RSMF.CollectibleDisplayStand.Error.SlotOccupied>
   <RSMF.CollectibleDisplayStand.Error.InvalidSource>Only RimSim Framework collectibles can be selected.</RSMF.CollectibleDisplayStand.Error.InvalidSource>
   <RSMF.ShopService.Fail.DisplayStandEmpty>The collectible display stand has no displayed collectibles.</RSMF.ShopService.Fail.DisplayStandEmpty>
+  <RSMF.ShopUi.Empty.NoRows>No items to display.</RSMF.ShopUi.Empty.NoRows>
+  <RSMF.ShopUi.Empty.NoPages>No available pages.</RSMF.ShopUi.Empty.NoPages>
+  <RSMF.ShopUi.Error.PageDrawFailed>Page drawing failed.</RSMF.ShopUi.Error.PageDrawFailed>
+  <RSMF.ShopUi.Page.Main.Shops.Label>Shop management</RSMF.ShopUi.Page.Main.Shops.Label>
+  <RSMF.ShopUi.Page.Main.Shops.Description>Business manager page for shop management.</RSMF.ShopUi.Page.Main.Shops.Description>
+  <RSMF.ShopUi.Page.Main.Vending.Label>Vending</RSMF.ShopUi.Page.Main.Vending.Label>
+  <RSMF.ShopUi.Page.Main.Vending.Description>Business manager page for vending machines.</RSMF.ShopUi.Page.Main.Vending.Description>
+  <RSMF.ShopUi.Page.Main.Finance.Label>Finance</RSMF.ShopUi.Page.Main.Finance.Label>
+  <RSMF.ShopUi.Page.Main.Finance.Description>Business manager page for finance reports.</RSMF.ShopUi.Page.Main.Finance.Description>
+  <RSMF.ShopUi.Page.Main.Reviews.Label>Customer reviews</RSMF.ShopUi.Page.Main.Reviews.Label>
+  <RSMF.ShopUi.Page.Main.Reviews.Description>Business manager page for customer reviews.</RSMF.ShopUi.Page.Main.Reviews.Description>
+  <RSMF.ShopUi.Page.Main.CollectibleExchange.Label>Collectible exchange</RSMF.ShopUi.Page.Main.CollectibleExchange.Label>
+  <RSMF.ShopUi.Page.Main.CollectibleExchange.Description>Business manager page for collectible exchange lists.</RSMF.ShopUi.Page.Main.CollectibleExchange.Description>
+  <RSMF.ShopUi.Page.Main.Blueprints.Label>Blueprints</RSMF.ShopUi.Page.Main.Blueprints.Label>
+  <RSMF.ShopUi.Page.Main.Blueprints.Description>Business manager page for shop blueprints.</RSMF.ShopUi.Page.Main.Blueprints.Description>
+  <RSMF.ShopUi.Page.Main.Customers.Label>Customers</RSMF.ShopUi.Page.Main.Customers.Label>
+  <RSMF.ShopUi.Page.Main.Customers.Description>Business manager page for active customers.</RSMF.ShopUi.Page.Main.Customers.Description>
+  <RSMF.ShopUi.Page.Main.Staff.Label>Staff</RSMF.ShopUi.Page.Main.Staff.Label>
+  <RSMF.ShopUi.Page.Main.Staff.Description>Business manager page for shop staff.</RSMF.ShopUi.Page.Main.Staff.Description>
+  <RSMF.ShopUi.Page.Shop.Overview.Label>Overview</RSMF.ShopUi.Page.Shop.Overview.Label>
+  <RSMF.ShopUi.Page.Shop.Overview.Description>Shop manager overview page.</RSMF.ShopUi.Page.Shop.Overview.Description>
+  <RSMF.ShopUi.Page.Shop.BusinessHours.Label>Business hours</RSMF.ShopUi.Page.Shop.BusinessHours.Label>
+  <RSMF.ShopUi.Page.Shop.BusinessHours.Description>Shop manager business hours page.</RSMF.ShopUi.Page.Shop.BusinessHours.Description>
+  <RSMF.ShopUi.Page.Shop.Goods.Label>Goods</RSMF.ShopUi.Page.Shop.Goods.Label>
+  <RSMF.ShopUi.Page.Shop.Goods.Description>Shop manager goods page.</RSMF.ShopUi.Page.Shop.Goods.Description>
+  <RSMF.ShopUi.Page.Shop.Services.Label>Services</RSMF.ShopUi.Page.Shop.Services.Label>
+  <RSMF.ShopUi.Page.Shop.Services.Description>Shop manager services page.</RSMF.ShopUi.Page.Shop.Services.Description>
+  <RSMF.ShopUi.Page.Shop.ComboEdit.Label>Combo editor</RSMF.ShopUi.Page.Shop.ComboEdit.Label>
+  <RSMF.ShopUi.Page.Shop.ComboEdit.Description>Shop manager combo editor page.</RSMF.ShopUi.Page.Shop.ComboEdit.Description>
 </LanguageData>

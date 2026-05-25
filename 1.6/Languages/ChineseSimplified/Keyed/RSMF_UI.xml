@@ -385,8 +385,12 @@
   <RSMF.GoodsManager.InvalidCategory>该货柜不能售卖这个商品分类。</RSMF.GoodsManager.InvalidCategory>
   <RSMF.GoodsManager.AllGoodsCategories>全部商品分类</RSMF.GoodsManager.AllGoodsCategories>
   <RSMF.ShopManager.SaveTip>提示：修改后点击“确认保存”才会生效，“取消”将放弃所有更改。</RSMF.ShopManager.SaveTip>
+  <RSMF.ShopManager.SaveTip.Schedule>营业时间修改后点击“确认保存”才会应用到店铺。</RSMF.ShopManager.SaveTip.Schedule>
+  <RSMF.ShopManager.SaveTip.Services>服务启用、价格和并发修改后点击“确认保存”才会应用到店铺。</RSMF.ShopManager.SaveTip.Services>
+  <RSMF.ShopManager.NoSaveNeededTip>当前页面没有需要提交的草稿；其他页面未保存修改仍可用“取消”放弃。</RSMF.ShopManager.NoSaveNeededTip>
   <RSMF.ShopManager.Cancel>取消</RSMF.ShopManager.Cancel>
-  <RSMF.ShopManager.Save>✔  确认保存</RSMF.ShopManager.Save>
+  <RSMF.ShopManager.Save>确认保存</RSMF.ShopManager.Save>
+  <RSMF.ShopManager.SaveSuccess>店铺设置已保存。</RSMF.ShopManager.SaveSuccess>
   <RSMF.ShopManager.AutoTrimNotice>已按货柜容量上限自动调整目标量：{storageCount} 个货柜共裁剪 {trimmed} 件超额配置。</RSMF.ShopManager.AutoTrimNotice>
   <RSMF.ShopManager.Header.Status>状态</RSMF.ShopManager.Header.Status>
   <RSMF.ShopManager.Header.Stock>当前 / 目标</RSMF.ShopManager.Header.Stock>
@@ -403,8 +407,9 @@
   <RSMF.ShopManager.ComboName>套餐名称</RSMF.ShopManager.ComboName>
   <RSMF.ShopManager.RandomName>🎲 随机取名</RSMF.ShopManager.RandomName>
   <RSMF.ShopManager.ComboPrice>套餐售价</RSMF.ShopManager.ComboPrice>
-  <RSMF.ShopManager.EstimateByItem>📊 按单品估算</RSMF.ShopManager.EstimateByItem>
+  <RSMF.ShopManager.EstimateByItem>按单品估算</RSMF.ShopManager.EstimateByItem>
   <RSMF.ShopManager.AutoEstimateTip>按单品原价总和 × 0.9 自动估算</RSMF.ShopManager.AutoEstimateTip>
+  <RSMF.ShopManager.ComboSavedAndNew>套餐“{comboName}”已保存，已新建空套餐。</RSMF.ShopManager.ComboSavedAndNew>
   <RSMF.ShopManager.DeleteCombo>删除套餐</RSMF.ShopManager.DeleteCombo>
   <RSMF.ShopManager.Quantity>数量</RSMF.ShopManager.Quantity>
   <RSMF.ShopManager.Slider>调节滑块</RSMF.ShopManager.Slider>
@@ -433,11 +438,15 @@
   <RSMF.ShopManager.SearchPlaceholder>搜索物品名称...</RSMF.ShopManager.SearchPlaceholder>
   <RSMF.ShopManager.ClearSearch>清空</RSMF.ShopManager.ClearSearch>
   <RSMF.ShopManager.GoodsServiceCount>商品 {goods} / 服务 {services}</RSMF.ShopManager.GoodsServiceCount>
-  <RSMF.ShopManager.Sidebar.Overview>📊  库存概览</RSMF.ShopManager.Sidebar.Overview>
-  <RSMF.ShopManager.Sidebar.Schedule>🕘  营业设置</RSMF.ShopManager.Sidebar.Schedule>
-  <RSMF.ShopManager.Sidebar.Goods>📦  货品上架</RSMF.ShopManager.Sidebar.Goods>
-  <RSMF.ShopManager.Sidebar.Services>💧  服务配置</RSMF.ShopManager.Sidebar.Services>
+  <RSMF.ShopManager.Sidebar.Overview>库存概览</RSMF.ShopManager.Sidebar.Overview>
+  <RSMF.ShopManager.Sidebar.Schedule>营业设置</RSMF.ShopManager.Sidebar.Schedule>
+  <RSMF.ShopManager.Sidebar.Goods>货品上架</RSMF.ShopManager.Sidebar.Goods>
+  <RSMF.ShopManager.Sidebar.Services>服务配置</RSMF.ShopManager.Sidebar.Services>
   <RSMF.ShopManager.CombosHeader>套  餐  ({count})</RSMF.ShopManager.CombosHeader>
+  <RSMF.ShopManager.StorageHeader>货柜 ({count})</RSMF.ShopManager.StorageHeader>
+  <RSMF.ShopManager.NoStorageSelected>请选择一个货柜进行独立管理。</RSMF.ShopManager.NoStorageSelected>
+  <RSMF.ShopManager.StorageSummaryLine>分类：{category}  库存：{stored}/{capacity}</RSMF.ShopManager.StorageSummaryLine>
+  <RSMF.ShopManager.StorageHintLine>此页面只展示当前货柜的真实配置，编辑请使用右侧“打开货柜管理”。</RSMF.ShopManager.StorageHintLine>
   <RSMF.ShopManager.NewCombo>+ 新建套餐</RSMF.ShopManager.NewCombo>
   <RSMF.ShopSchedule.ManuallyClosed>手动停业</RSMF.ShopSchedule.ManuallyClosed>
   <RSMF.ShopSchedule.OpenAllDay>全天营业</RSMF.ShopSchedule.OpenAllDay>
@@ -654,6 +663,7 @@
   <RSMF.CustomGoods.TotalPaged>共 {count} 项，分页显示</RSMF.CustomGoods.TotalPaged>
   <RSMF.CustomGoods.PrevPage>上一页</RSMF.CustomGoods.PrevPage>
   <RSMF.CustomGoods.NextPage>下一页</RSMF.CustomGoods.NextPage>
+  <RSMF.CustomGoods.AppendCurrentPage>追加当前页</RSMF.CustomGoods.AppendCurrentPage>
   <RSMF.CustomGoods.DefMarketValue>{defName}   市价 {value}</RSMF.CustomGoods.DefMarketValue>
   <RSMF.CustomGoods.Exists>已存在</RSMF.CustomGoods.Exists>
   <RSMF.CustomGoods.Append>追加</RSMF.CustomGoods.Append>
@@ -961,4 +971,33 @@
   <RSMF.CollectibleDisplayStand.Error.SlotOccupied>这个槽位已经有收藏品。</RSMF.CollectibleDisplayStand.Error.SlotOccupied>
   <RSMF.CollectibleDisplayStand.Error.InvalidSource>只能选择模拟经营框架收藏品。</RSMF.CollectibleDisplayStand.Error.InvalidSource>
   <RSMF.ShopService.Fail.DisplayStandEmpty>收藏品展台没有可参观的展品。</RSMF.ShopService.Fail.DisplayStandEmpty>
+  <RSMF.ShopUi.Empty.NoRows>无可显示项目。</RSMF.ShopUi.Empty.NoRows>
+  <RSMF.ShopUi.Empty.NoPages>没有可用页面。</RSMF.ShopUi.Empty.NoPages>
+  <RSMF.ShopUi.Error.PageDrawFailed>页面绘制失败。</RSMF.ShopUi.Error.PageDrawFailed>
+  <RSMF.ShopUi.Page.Main.Shops.Label>商店管理</RSMF.ShopUi.Page.Main.Shops.Label>
+  <RSMF.ShopUi.Page.Main.Shops.Description>经商管理主界面的商店管理页。</RSMF.ShopUi.Page.Main.Shops.Description>
+  <RSMF.ShopUi.Page.Main.Vending.Label>自动售卖</RSMF.ShopUi.Page.Main.Vending.Label>
+  <RSMF.ShopUi.Page.Main.Vending.Description>经商管理主界面的售货机页。</RSMF.ShopUi.Page.Main.Vending.Description>
+  <RSMF.ShopUi.Page.Main.Finance.Label>财务</RSMF.ShopUi.Page.Main.Finance.Label>
+  <RSMF.ShopUi.Page.Main.Finance.Description>经商管理主界面的财务页。</RSMF.ShopUi.Page.Main.Finance.Description>
+  <RSMF.ShopUi.Page.Main.Reviews.Label>顾客评价</RSMF.ShopUi.Page.Main.Reviews.Label>
+  <RSMF.ShopUi.Page.Main.Reviews.Description>经商管理主界面的顾客评价页。</RSMF.ShopUi.Page.Main.Reviews.Description>
+  <RSMF.ShopUi.Page.Main.CollectibleExchange.Label>收藏品兑换</RSMF.ShopUi.Page.Main.CollectibleExchange.Label>
+  <RSMF.ShopUi.Page.Main.CollectibleExchange.Description>经商管理主界面的收藏品兑换页。</RSMF.ShopUi.Page.Main.CollectibleExchange.Description>
+  <RSMF.ShopUi.Page.Main.Blueprints.Label>蓝图管理</RSMF.ShopUi.Page.Main.Blueprints.Label>
+  <RSMF.ShopUi.Page.Main.Blueprints.Description>经商管理主界面的蓝图页。</RSMF.ShopUi.Page.Main.Blueprints.Description>
+  <RSMF.ShopUi.Page.Main.Customers.Label>顾客</RSMF.ShopUi.Page.Main.Customers.Label>
+  <RSMF.ShopUi.Page.Main.Customers.Description>经商管理主界面的顾客页。</RSMF.ShopUi.Page.Main.Customers.Description>
+  <RSMF.ShopUi.Page.Main.Staff.Label>店员</RSMF.ShopUi.Page.Main.Staff.Label>
+  <RSMF.ShopUi.Page.Main.Staff.Description>经商管理主界面的店员页。</RSMF.ShopUi.Page.Main.Staff.Description>
+  <RSMF.ShopUi.Page.Shop.Overview.Label>概览</RSMF.ShopUi.Page.Shop.Overview.Label>
+  <RSMF.ShopUi.Page.Shop.Overview.Description>单店铺管理窗口的概览页。</RSMF.ShopUi.Page.Shop.Overview.Description>
+  <RSMF.ShopUi.Page.Shop.BusinessHours.Label>营业时间</RSMF.ShopUi.Page.Shop.BusinessHours.Label>
+  <RSMF.ShopUi.Page.Shop.BusinessHours.Description>单店铺管理窗口的营业时间页。</RSMF.ShopUi.Page.Shop.BusinessHours.Description>
+  <RSMF.ShopUi.Page.Shop.Goods.Label>商品</RSMF.ShopUi.Page.Shop.Goods.Label>
+  <RSMF.ShopUi.Page.Shop.Goods.Description>单店铺管理窗口的商品页。</RSMF.ShopUi.Page.Shop.Goods.Description>
+  <RSMF.ShopUi.Page.Shop.Services.Label>服务</RSMF.ShopUi.Page.Shop.Services.Label>
+  <RSMF.ShopUi.Page.Shop.Services.Description>单店铺管理窗口的服务页。</RSMF.ShopUi.Page.Shop.Services.Description>
+  <RSMF.ShopUi.Page.Shop.ComboEdit.Label>套餐编辑</RSMF.ShopUi.Page.Shop.ComboEdit.Label>
+  <RSMF.ShopUi.Page.Shop.ComboEdit.Description>单店铺管理窗口的套餐编辑页。</RSMF.ShopUi.Page.Shop.ComboEdit.Description>
 </LanguageData>

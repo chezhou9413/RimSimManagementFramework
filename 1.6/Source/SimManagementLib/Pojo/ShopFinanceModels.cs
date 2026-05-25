@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using SimManagementLib.Tool;
 using Verse;
 
 namespace SimManagementLib.Pojo
@@ -79,23 +80,13 @@ namespace SimManagementLib.Pojo
         public void AddOrMergeLine(FinanceLineItem incoming)
         {
             if (incoming == null) return;
-            if (string.IsNullOrEmpty(incoming.lineType))
-                incoming.lineType = incoming.isCombo ? FinanceLineTypes.Combo : FinanceLineTypes.Product;
+            ShopFinanceLineTypeUtility.NormalizeLine(incoming);
 
             for (int i = 0; i < lines.Count; i++)
             {
                 FinanceLineItem line = lines[i];
                 if (line == null) continue;
-                if (line.EffectiveLineType != incoming.EffectiveLineType) continue;
-
-                if (incoming.EffectiveLineType == FinanceLineTypes.Combo || incoming.EffectiveLineType == FinanceLineTypes.Service)
-                {
-                    if (line.label != incoming.label) continue;
-                }
-                else
-                {
-                    if (line.defName != incoming.defName) continue;
-                }
+                if (!ShopFinanceLineTypeUtility.CanMerge(line, incoming)) continue;
 
                 line.count += incoming.count;
                 line.amount += incoming.amount;
@@ -117,6 +108,7 @@ namespace SimManagementLib.Pojo
                 FinanceLineItem line = lines[i];
                 if (line != null && string.IsNullOrEmpty(line.lineType))
                     line.lineType = line.isCombo ? FinanceLineTypes.Combo : FinanceLineTypes.Product;
+                ShopFinanceLineTypeUtility.NormalizeLine(line);
             }
         }
     }
@@ -149,6 +141,7 @@ namespace SimManagementLib.Pojo
                 FinanceLineItem line = lines[i];
                 if (line != null && string.IsNullOrEmpty(line.lineType))
                     line.lineType = line.isCombo ? FinanceLineTypes.Combo : FinanceLineTypes.Product;
+                ShopFinanceLineTypeUtility.NormalizeLine(line);
             }
         }
     }

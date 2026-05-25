@@ -1,8 +1,11 @@
 using SimManagementLib.Pojo;
+using SimManagementLib.SimDef;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimThingComp;
 using SimManagementLib.Tool;
+using SimManagementLib.Api;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Verse;
 
@@ -19,7 +22,7 @@ namespace SimManagementLib.SimDialog
             GUI.color = CTextDim;
             Text.Font = GameFont.Tiny;
             Text.Anchor = TextAnchor.MiddleLeft;
-            Widgets.Label(new Rect(rect.x + 8f, fieldY, 18f, fieldH), "🔍");
+            Widgets.Label(new Rect(rect.x + 8f, fieldY, 18f, fieldH), "");
             GUI.color = Color.white;
 
             Rect inputRect = new Rect(rect.x + 28f, fieldY, 210f, fieldH);
@@ -76,95 +79,90 @@ namespace SimManagementLib.SimDialog
             Widgets.DrawLineHorizontal(rect.x, nameplate.yMax, rect.width);
 
             Rect outRect = new Rect(rect.x, nameplate.yMax + 4f, rect.width, rect.height - nameplate.height - 4f);
-            float itemH = 36f;
-            Rect viewRect = new Rect(0f, 0f, rect.width - ScrW, (6 + storages.Count + zoneCombos.Count) * itemH + 30f);
+            float itemH = Mathf.Max(40f, Text.LineHeightOf(GameFont.Tiny) + 18f);
+            List<ShopUiNavigationItem> navigationItems = BuildSidebarNavigationItems();
+            Rect viewRect = new Rect(0f, 0f, rect.width - ScrW, navigationItems.Count * itemH + CountNavigationGroups(navigationItems) * 11f + 8f);
 
             Widgets.BeginScrollView(outRect, ref sideScroll, viewRect);
             float y = 4f;
 
-            DrawSidebarItem(new Rect(0f, y, viewRect.width, itemH), SimTranslation.T("RSMF.ShopManager.Sidebar.Overview"), curMenu == MenuType.Overview, delegate { SwitchMenu(MenuType.Overview); });
-            y += itemH;
-
-            DrawSidebarItem(new Rect(0f, y, viewRect.width, itemH), SimTranslation.T("RSMF.ShopManager.Sidebar.Schedule"), curMenu == MenuType.BusinessHours, delegate { SwitchMenu(MenuType.BusinessHours); });
-            y += itemH;
-
-            DrawSidebarItem(new Rect(0f, y, viewRect.width, itemH), SimTranslation.T("RSMF.ShopManager.Sidebar.Goods"), curMenu == MenuType.ManageGoods, delegate { SwitchMenu(MenuType.ManageGoods); });
-            y += itemH;
-
-            DrawSidebarItem(new Rect(0f, y, viewRect.width, itemH), SimTranslation.T("RSMF.ShopManager.Sidebar.Services"), curMenu == MenuType.ManageServices, delegate { SwitchMenu(MenuType.ManageServices); });
-            y += itemH + 6f;
-
-            Widgets.DrawBoxSolid(new Rect(0f, y, viewRect.width, 1f), CDivider);
-            y += 4f;
-            Text.Font = GameFont.Tiny;
-            Text.Anchor = TextAnchor.MiddleLeft;
-            GUI.color = CTextDim;
-            Widgets.Label(new Rect(10f, y, viewRect.width - 10f, 18f), SimTranslation.TOrFallback("RSMF.ShopManager.StorageHeader", $"货柜 ({storages.Count})"));
-            y += 20f;
-
-            for (int i = 0; i < storages.Count; i++)
+            for (int i = 0; i < navigationItems.Count; i++)
             {
-                Building_SimContainer storage = storages[i];
-                if (storage == null) continue;
-
-                bool isSelected = storage.thingIDNumber == selectedStorageThingId;
-                string label = storage.StorageDisplayLabel;
-                DrawSidebarItem(new Rect(0f, y, viewRect.width, itemH), "📦  " + label, isSelected, delegate
+                ShopUiNavigationItem item = navigationItems[i];
+                if (item == null) continue;
+                if (item.startsNewGroup && y > 4f)
                 {
-                    selectedStorageThingId = storage.thingIDNumber;
-                    if (curMenu != MenuType.ManageGoods)
-                    {
-                        curMenu = MenuType.ManageGoods;
-                        curCombo = null;
-                    }
-                    listScroll = Vector2.zero;
-                });
+                    y += 6f;
+                    Widgets.DrawBoxSolid(new Rect(0f, y, viewRect.width, 1f), CDivider);
+                    y += 4f;
+                }
+
+                ShopUiNavigationItem localItem = item;
+                DrawSidebarItem(new Rect(0f, y, viewRect.width, itemH), localItem.label, localItem.IsSelected(uiContext), delegate { localItem.Activate(uiContext); });
                 y += itemH;
-            }
-
-            Widgets.DrawBoxSolid(new Rect(0f, y, viewRect.width, 1f), CDivider);
-            y += 4f;
-            Text.Font = GameFont.Tiny;
-            Text.Anchor = TextAnchor.MiddleLeft;
-            GUI.color = CTextDim;
-            Widgets.Label(new Rect(10f, y, viewRect.width - 10f, 18f), SimTranslation.T("RSMF.ShopManager.CombosHeader", zoneCombos.Count.Named("count")));
-            y += 20f;
-
-            foreach (ComboData combo in zoneCombos)
-            {
-                bool isCurrent = curMenu == MenuType.ComboEdit && curCombo == combo;
-                ComboData localCombo = combo;
-                DrawSidebarItem(new Rect(0f, y, viewRect.width, itemH), "🍔  " + localCombo.comboName, isCurrent, delegate
-                {
-                    curMenu = MenuType.ComboEdit;
-                    curCombo = localCombo;
-                    listScroll = Vector2.zero;
-                    comboPriceBuf = localCombo.totalPrice.ToString("F0");
-                });
-                y += itemH;
-            }
-
-            y += 4f;
-            Rect newRect = new Rect(8f, y, viewRect.width - 16f, itemH - 4f);
-            if (SimUiStyle.DrawPrimaryButton(newRect, SimTranslation.T("RSMF.ShopManager.NewCombo"), true, GameFont.Tiny))
-            {
-                ComboData newCombo = new ComboData();
-                zoneCombos.Add(newCombo);
-                curCombo = newCombo;
-                curMenu = MenuType.ComboEdit;
-                listScroll = Vector2.zero;
-                comboPriceBuf = "0";
             }
 
             Widgets.EndScrollView();
             ResetText();
         }
 
-        private void SwitchMenu(MenuType menu)
+        /// <summary>
+        /// 构建侧栏导航项，负责让页面 Worker 统一提供静态页面和运行时入口。
+        /// </summary>
+        private List<ShopUiNavigationItem> BuildSidebarNavigationItems()
         {
-            curMenu = menu;
-            curCombo = null;
-            listScroll = Vector2.zero;
+            List<ShopUiNavigationItem> items = new List<ShopUiNavigationItem>();
+            for (int i = 0; i < uiPages.Count; i++)
+            {
+                ShopUiPageDef page = uiPages[i];
+                if (page == null) continue;
+                SimShopUiApi.SafeInvoke(page, uiContext, "BuildNavigationItems", worker =>
+                {
+                    IEnumerable<ShopUiNavigationItem> produced = worker?.BuildNavigationItems(uiContext);
+                    if (produced == null) return;
+                    foreach (ShopUiNavigationItem item in produced)
+                    {
+                        if (item == null) continue;
+                        item.pageDef = item.pageDef ?? page;
+                        if (string.IsNullOrEmpty(item.label))
+                            item.label = BuildSidebarPageLabel(page);
+                        items.Add(item);
+                    }
+                });
+            }
+
+            return items
+                .OrderBy(item => item.order)
+                .ThenBy(item => item.id)
+                .ToList();
+        }
+
+        /// <summary>
+        /// 统计导航分组数量，负责给滚动视图预留分隔线高度。
+        /// </summary>
+        private static int CountNavigationGroups(List<ShopUiNavigationItem> items)
+        {
+            if (items.NullOrEmpty()) return 0;
+            int count = 0;
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (items[i]?.startsNewGroup == true && i > 0)
+                    count++;
+            }
+            return count;
+        }
+
+        /// <summary>
+        /// 返回侧栏页面显示名称，负责给内置页面补回旧 UI 的翻译文本。
+        /// </summary>
+        private string BuildSidebarPageLabel(ShopUiPageDef page)
+        {
+            if (page == null) return "";
+            if (page.defName == PageOverview) return SimTranslation.T("RSMF.ShopManager.Sidebar.Overview");
+            if (page.defName == PageBusinessHours) return SimTranslation.T("RSMF.ShopManager.Sidebar.Schedule");
+            if (page.defName == PageManageServices) return SimTranslation.T("RSMF.ShopManager.Sidebar.Services");
+            if (page.defName == PageComboEdit) return page.DisplayLabel;
+            return page.DisplayLabel;
         }
 
         private void DrawSidebarItem(Rect rect, string label, bool isCurrent, System.Action action)

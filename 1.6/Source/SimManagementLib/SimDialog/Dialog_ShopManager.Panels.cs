@@ -111,7 +111,7 @@ namespace SimManagementLib.SimDialog
             {
                 Text.Anchor = TextAnchor.MiddleCenter;
                 GUI.color = CTextDim;
-                Widgets.Label(rect, SimTranslation.TOrFallback("RSMF.ShopManager.NoStorageSelected", "请选择一个货柜进行独立管理。"));
+                Widgets.Label(rect, SimTranslation.T("RSMF.ShopManager.NoStorageSelected"));
                 ResetText();
                 return;
             }
@@ -125,7 +125,21 @@ namespace SimManagementLib.SimDialog
                 .Where(def => def != null && MatchSearch(def.label))
                 .ToList();
 
-            Rect infoRect = new Rect(rect.x, rect.y, rect.width, 64f);
+            string categoryText = activeCategory != null
+                ? activeCategory.label
+                : SimTranslation.TOrFallback("RSMF.Common.None", "无");
+            string summaryLine = SimTranslation.T("RSMF.ShopManager.StorageSummaryLine",
+                categoryText.Named("category"),
+                storage.CountTotalStored().Named("stored"),
+                storage.MaxTotalCapacity.Named("capacity"));
+            string hintLine = SimTranslation.T("RSMF.ShopManager.StorageHintLine");
+            GameFont oldMeasureFont = Text.Font;
+            Text.Font = GameFont.Tiny;
+            float tinyLine = Text.LineHeightOf(GameFont.Tiny) + 2f;
+            float hintHeight = Mathf.Max(tinyLine, Text.CalcHeight(hintLine, Mathf.Max(120f, rect.width - 160f)));
+            Text.Font = oldMeasureFont;
+            float infoHeight = Mathf.Max(72f, 12f + Text.LineHeightOf(GameFont.Small) + tinyLine + hintHeight + 8f);
+            Rect infoRect = new Rect(rect.x, rect.y, rect.width, infoHeight);
             Widgets.DrawBoxSolid(infoRect, new Color(0f, 0f, 0f, 0.14f));
             DrawBorderRect(infoRect, CDivider, 1f);
 
@@ -136,18 +150,8 @@ namespace SimManagementLib.SimDialog
 
             Text.Font = GameFont.Tiny;
             GUI.color = CTextDim;
-            string categoryText = activeCategory != null
-                ? activeCategory.label
-                : SimTranslation.TOrFallback("RSMF.Common.None", "无");
-            Widgets.Label(
-                new Rect(infoRect.x + 10f, infoRect.y + 28f, infoRect.width - 160f, 18f),
-                SimTranslation.TOrFallback("RSMF.ShopManager.StorageSummaryLine", "分类: {category}  库存: {stored}/{capacity}")
-                    .Replace("{category}", categoryText)
-                    .Replace("{stored}", storage.CountTotalStored().ToString())
-                    .Replace("{capacity}", storage.MaxTotalCapacity.ToString()));
-            Widgets.Label(
-                new Rect(infoRect.x + 10f, infoRect.y + 44f, infoRect.width - 160f, 18f),
-                SimTranslation.TOrFallback("RSMF.ShopManager.StorageHintLine", "此页面只展示当前货柜的真实配置，编辑请使用右侧“打开货柜管理”。"));
+            Widgets.Label(new Rect(infoRect.x + 10f, infoRect.y + 30f, infoRect.width - 160f, tinyLine), summaryLine);
+            Widgets.Label(new Rect(infoRect.x + 10f, infoRect.y + 30f + tinyLine, infoRect.width - 160f, hintHeight), hintLine);
 
             Rect openButtonRect = new Rect(infoRect.xMax - 132f, infoRect.y + 17f, 120f, 30f);
             if (SimUiStyle.DrawPrimaryButton(openButtonRect, SimTranslation.T("RSMF.Gizmo.ContainerManagement.Label"), true, GameFont.Tiny))
@@ -308,12 +312,16 @@ namespace SimManagementLib.SimDialog
             Widgets.Label(new Rect(editX, y, editW, 18f), SimTranslation.T("RSMF.ShopManager.AutoEstimateTip"));
             ResetText();
 
+            Rect saveNewRect = new Rect(topRect.xMax - 224f, topRect.y + 10f, 116f, 26f);
+            if (SimUiStyle.DrawSecondaryButton(saveNewRect, SimTranslation.T("RSMF.ShopManager.NewCombo"), true, GameFont.Tiny))
+                SaveCurrentComboAndCreateNext();
+
             Rect deleteRect = new Rect(topRect.xMax - 100f, topRect.y + 10f, 88f, 26f);
             if (SimUiStyle.DrawDangerButton(deleteRect, SimTranslation.T("RSMF.ShopManager.DeleteCombo"), true, GameFont.Tiny))
             {
                 zoneCombos.Remove(curCombo);
                 curCombo = null;
-                curMenu = MenuType.Overview;
+                curPageDefName = PageOverview;
                 ResetText();
                 return;
             }

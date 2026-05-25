@@ -1,6 +1,8 @@
 using RimWorld;
+using SimManagementLib.Api;
 using SimManagementLib.GameComp;
 using SimManagementLib.Pojo;
+using SimManagementLib.SimDef;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimThingComp;
 using SimManagementLib.SimZone;
@@ -44,9 +46,14 @@ namespace SimManagementLib.SimDialog
         private static readonly Color CTextMid = new Color(0.78f, 0.78f, 0.78f, 1f);
         private static readonly Color CGold = new Color(0.95f, 0.82f, 0.35f, 1f);
 
-        private enum MenuType { Overview, BusinessHours, ManageGoods, ManageServices, ComboEdit }
+        private const string PageOverview = "Sim_BusinessUi_Shop_Overview";
+        private const string PageBusinessHours = "Sim_BusinessUi_Shop_BusinessHours";
+        private const string PageManageServices = "Sim_BusinessUi_Shop_Services";
+        private const string PageComboEdit = "Sim_BusinessUi_Shop_ComboEdit";
 
-        private MenuType curMenu = MenuType.Overview;
+        private readonly List<ShopUiPageDef> uiPages = new List<ShopUiPageDef>();
+        private readonly ShopManagerUiContext uiContext = new ShopManagerUiContext();
+        private string curPageDefName = PageOverview;
         private Zone_Shop shopZone;
         private ComboData curCombo;
         private List<ComboData> zoneCombos;
@@ -115,6 +122,10 @@ namespace SimManagementLib.SimDialog
                     })
                     .ToList();
             }
+
+            uiContext.Window = this;
+            uiContext.PageSelector = SwitchPage;
+            EnsureUiPages();
         }
 
         /// <summary>
@@ -202,6 +213,12 @@ namespace SimManagementLib.SimDialog
             }
 
             EnsureSelectedStorageValid();
+            EnsureUiPages();
+            uiContext.Window = this;
+            uiContext.PageSelector = SwitchPage;
+            uiContext.CurrentPageDefName = curPageDefName;
+            uiContext.WindowRect = inRect;
+            uiContext.SearchText = searchQuery;
 
             Rect contentRect = new Rect(inRect.x, inRect.y, inRect.width, inRect.height - BottomH);
             Rect sideRect = new Rect(contentRect.x, contentRect.y, SidebarW, contentRect.height);
@@ -217,16 +234,89 @@ namespace SimManagementLib.SimDialog
             DrawSearchBar(new Rect(innerRect.x, innerRect.y, innerRect.width, SearchBarH));
             Rect panelRect = new Rect(innerRect.x, SearchBarH + 4f, innerRect.width, innerRect.height - SearchBarH - 4f);
 
-            if (curMenu == MenuType.Overview) DrawOverviewPanel(panelRect);
-            else if (curMenu == MenuType.BusinessHours) DrawBusinessHoursPanel(panelRect);
-            else if (curMenu == MenuType.ManageGoods) DrawManagePanel(panelRect);
-            else if (curMenu == MenuType.ManageServices) DrawServicesPanel(panelRect);
-            else if (curMenu == MenuType.ComboEdit) DrawComboPanel(panelRect);
+            DrawCurrentUiPage(panelRect);
 
             GUI.EndGroup();
 
             priceJustCalculated = false;
             DrawBottomBar(bottomRect);
+        }
+
+        /// <summary>
+        /// 确保店铺管理页面缓存有效，负责从 Def/API 拉取当前可见页。
+        /// </summary>
+        private void EnsureUiPages()
+        {
+            if (!uiPages.NullOrEmpty() && !SimShopUiApi.ConsumeRefreshRequest())
+                return;
+
+            uiPages.Clear();
+            uiContext.Window = this;
+            uiPages.AddRange(SimShopUiApi.GetPages(ShopUiPageScope.ShopManager, uiContext));
+            if (uiPages.Count == 0)
+                return;
+
+            if (!uiPages.Any(page => page.defName == curPageDefName))
+                curPageDefName = uiPages[0].defName;
+            NotifyPageOpened(GetCurrentUiPage());
+        }
+
+        /// <summary>
+        /// 返回当前选中的 UI 页面 Def。
+        /// </summary>
+        private ShopUiPageDef GetCurrentUiPage()
+        {
+            return uiPages.FirstOrDefault(page => page.defName == curPageDefName) ?? uiPages.FirstOrDefault();
+        }
+
+        /// <summary>
+        /// 绘制当前 UI 页面，负责隔离外部 Worker 异常。
+        /// </summary>
+        private void DrawCurrentUiPage(Rect rect)
+        {
+            ShopUiPageDef page = GetCurrentUiPage();
+            if (page == null)
+            {
+                ShopUiLayoutUtility.DrawEmptyState(rect, SimTranslation.TOrFallback("RSMF.ShopUi.Empty.NoPages", "No available pages."));
+                return;
+            }
+
+            SimShopUiApi.SafeInvoke(page, uiContext, "DrawPage", worker => worker?.DrawPage(rect, uiContext));
+            if (uiContext.LastException != null)
+                ShopUiLayoutUtility.DrawErrorState(rect, SimTranslation.TOrFallback("RSMF.ShopUi.Error.PageDrawFailed", "Page drawing failed."), uiContext.LastException.Message);
+        }
+
+        /// <summary>
+        /// 切换到指定页面，负责触发打开生命周期并重置列表滚动。
+        /// </summary>
+        private void SwitchPage(string defName)
+        {
+            if (string.IsNullOrEmpty(defName))
+                return;
+
+            curPageDefName = defName;
+            if (defName != PageComboEdit)
+                curCombo = null;
+            listScroll = Vector2.zero;
+            NotifyPageOpened(GetCurrentUiPage());
+        }
+
+        /// <summary>
+        /// 通知页面已打开，负责触发 Def Worker 的打开生命周期。
+        /// </summary>
+        private void NotifyPageOpened(ShopUiPageDef page)
+        {
+            if (page == null) return;
+            SimShopUiApi.SafeInvoke(page, uiContext, "OnOpen", worker => worker?.OnOpen(uiContext));
+        }
+
+        /// <summary>
+        /// 关闭窗口前清理 UI API 上下文。
+        /// </summary>
+        public override void PreClose()
+        {
+            base.PreClose();
+            SimShopUiApi.ClearContext(uiContext);
         }
     }
 }

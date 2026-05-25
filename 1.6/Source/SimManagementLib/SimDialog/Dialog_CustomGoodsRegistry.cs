@@ -437,7 +437,7 @@ namespace SimManagementLib.SimDialog
             int pageItemCount = Mathf.Min(BrowserPageSize, Mathf.Max(0, filtered.Count - pageStartIndex));
 
             Rect pagerRect = new Rect(rect.x + 12f, rect.y + 44f, rect.width - 24f, 30f);
-            DrawBrowserPager(pagerRect, filtered.Count, pageCount);
+            DrawBrowserPager(pagerRect, category, filtered, pageStartIndex, pageItemCount, pageCount);
 
             Rect listRect = new Rect(rect.x + 12f, pagerRect.yMax + 4f, rect.width - 24f, Mathf.Max(0f, rect.height - 90f));
             Rect viewRect = new Rect(0f, 0f, Mathf.Max(0f, listRect.width - ScrollbarWidth), Mathf.Max(listRect.height, pageItemCount * BrowserRowHeight));
@@ -457,11 +457,15 @@ namespace SimManagementLib.SimDialog
         /// <summary>
         /// 绘制候选商品浏览器的分页控件。
         /// </summary>
-        private void DrawBrowserPager(Rect rect, int totalItemCount, int pageCount)
+        private void DrawBrowserPager(Rect rect, RuntimeGoodsCategory category, List<ThingDef> filteredItems, int pageStartIndex, int pageItemCount, int pageCount)
         {
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
-            Widgets.Label(new Rect(rect.x, rect.y + 6f, 220f, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomGoods.TotalPaged", totalItemCount.Named("count")));
+            float appendButtonWidth = 116f;
+            int appendableCount = CountAppendableCurrentPageItems(category, filteredItems, pageStartIndex, pageItemCount);
+            Rect appendButtonRect = new Rect(rect.xMax - appendButtonWidth, rect.y, appendButtonWidth, 28f);
+            float totalLabelWidth = Mathf.Max(80f, appendButtonRect.x - rect.x - 8f);
+            Widgets.Label(new Rect(rect.x, rect.y + 6f, totalLabelWidth, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomGoods.TotalPaged", filteredItems.Count.Named("count")));
 
             float centerX = rect.center.x;
             if (SimUiStyle.DrawSecondaryButton(new Rect(centerX - 124f, rect.y, 84f, 28f), SimTranslation.T("RSMF.CustomGoods.PrevPage"), browserPageIndex > 0, GameFont.Tiny))
@@ -480,8 +484,31 @@ namespace SimManagementLib.SimDialog
                 browserScroll = Vector2.zero;
             }
 
+            if (SimUiStyle.DrawPrimaryButton(appendButtonRect, SimTranslation.T("RSMF.CustomGoods.AppendCurrentPage"), appendableCount > 0, GameFont.Tiny))
+                AddCurrentPageItemsToSelectedCategory(category, filteredItems, pageStartIndex, pageItemCount);
+
             GUI.color = Color.white;
             Text.Font = GameFont.Small;
+        }
+
+        /// <summary>
+        /// 统计当前分页中还没有加入当前商品类型的候选商品数量。
+        /// </summary>
+        private static int CountAppendableCurrentPageItems(RuntimeGoodsCategory category, List<ThingDef> filteredItems, int pageStartIndex, int pageItemCount)
+        {
+            if (category == null || filteredItems == null || pageItemCount <= 0)
+                return 0;
+
+            int count = 0;
+            int pageEndIndex = Mathf.Min(filteredItems.Count, pageStartIndex + pageItemCount);
+            for (int i = pageStartIndex; i < pageEndIndex; i++)
+            {
+                ThingDef thingDef = filteredItems[i];
+                if (thingDef != null && !category.Contains(thingDef))
+                    count++;
+            }
+
+            return count;
         }
 
         /// <summary>
@@ -820,12 +847,49 @@ namespace SimManagementLib.SimDialog
 
             bool builtInCategory = selected.IsBuiltInCategory;
             CustomGoodsCategoryRecord record = GetOrCreateDraftRecord(selected.categoryId, builtInCategory, selected.label);
+            if (record.itemDefNames == null)
+                record.itemDefNames = new List<string>();
+
             if (!record.itemDefNames.Contains(thingDef.defName))
                 record.itemDefNames.Add(thingDef.defName);
 
             dirty = true;
             RebuildPreviewFromDraft();
-            browserScroll = Vector2.zero;
+        }
+
+        /// <summary>
+        /// 将当前分页中尚未存在的候选商品批量追加到当前商品类型，并保留候选列表滚动位置。
+        /// </summary>
+        private void AddCurrentPageItemsToSelectedCategory(RuntimeGoodsCategory category, List<ThingDef> filteredItems, int pageStartIndex, int pageItemCount)
+        {
+            RuntimeGoodsCategory selected = GetSelectedCategory();
+            if (selected == null || category == null || selected.categoryId != category.categoryId || filteredItems == null || pageItemCount <= 0)
+                return;
+
+            bool builtInCategory = selected.IsBuiltInCategory;
+            CustomGoodsCategoryRecord record = GetOrCreateDraftRecord(selected.categoryId, builtInCategory, selected.label);
+            if (record.itemDefNames == null)
+                record.itemDefNames = new List<string>();
+
+            HashSet<string> existingDefNames = new HashSet<string>(record.itemDefNames.Where(defName => !string.IsNullOrEmpty(defName)), StringComparer.OrdinalIgnoreCase);
+            int pageEndIndex = Mathf.Min(filteredItems.Count, pageStartIndex + pageItemCount);
+            bool changed = false;
+
+            for (int i = pageStartIndex; i < pageEndIndex; i++)
+            {
+                ThingDef thingDef = filteredItems[i];
+                if (thingDef == null || selected.Contains(thingDef) || !existingDefNames.Add(thingDef.defName))
+                    continue;
+
+                record.itemDefNames.Add(thingDef.defName);
+                changed = true;
+            }
+
+            if (!changed)
+                return;
+
+            dirty = true;
+            RebuildPreviewFromDraft();
         }
 
         /// <summary>

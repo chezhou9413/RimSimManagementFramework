@@ -99,6 +99,7 @@ namespace SimManagementLib.SimDialog
                 SimUiStyle.DrawBorder(row, selected ? Accent : new Color(1f, 1f, 1f, 0.08f));
 
                 List<Pawn> assigned = zone.GetAssignedPawns(role.defName);
+                int maxAssigned = ShopStaffUtility.GetMaxAssignedPawns(zone, role);
 
                 Text.Font = GameFont.Small;
                 Text.Anchor = TextAnchor.MiddleLeft;
@@ -112,7 +113,7 @@ namespace SimManagementLib.SimDialog
                 GUI.color = assigned.Count > 0 ? Ok : Warn;
                 Widgets.Label(new Rect(row.x + 10f, row.y + 48f, row.width - 20f, 20f), SimTranslation.T("RSMF.StaffManager.AssignedCount",
                     assigned.Count.Named("assigned"),
-                    (role.MaxAssignedPawns <= 0 ? SimTranslation.T("RSMF.Common.Unlimited") : role.MaxAssignedPawns.ToString()).Named("max")));
+                    (maxAssigned <= 0 ? SimTranslation.T("RSMF.Common.Unlimited") : maxAssigned.ToString()).Named("max")));
 
                 if (Widgets.ButtonInvisible(row))
                     selectedRoleDefName = role.defName;
@@ -167,8 +168,9 @@ namespace SimManagementLib.SimDialog
             {
                 Pawn pawn = list[i];
                 bool isAssigned = assigned.Contains(pawn);
-                ShopStaffUtility.StaffEligibility eligibility = ShopStaffUtility.EvaluateEligibility(pawn, role);
-                bool canAdd = role.MaxAssignedPawns <= 0 || assigned.Count < role.MaxAssignedPawns || isAssigned;
+                int maxAssigned = ShopStaffUtility.GetMaxAssignedPawns(zone, role);
+                ShopStaffUtility.StaffEligibility eligibility = ShopStaffUtility.EvaluateEligibility(zone, pawn, role);
+                bool canAdd = maxAssigned <= 0 || assigned.Count < maxAssigned || isAssigned;
                 bool canAssign = eligibility.Eligible && canAdd;
                 Rect row = new Rect(0f, i * 88f, viewRect.width, 80f);
                 Color rowFill = isAssigned
@@ -216,7 +218,7 @@ namespace SimManagementLib.SimDialog
                 else
                 {
                     if (SimUiStyle.DrawPrimaryButton(actionRect, SimTranslation.T("RSMF.StaffManager.AddRole"), canAssign, GameFont.Tiny))
-                        zone.AddAssignedPawn(role.defName, pawn, role.MaxAssignedPawns);
+                        zone.AddAssignedPawn(role.defName, pawn, maxAssigned);
                 }
             }
 

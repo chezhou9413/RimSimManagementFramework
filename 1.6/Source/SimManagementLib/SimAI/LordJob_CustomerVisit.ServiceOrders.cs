@@ -1,3 +1,4 @@
+using SimManagementLib.Api;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimService;
 using SimManagementLib.SimZone;
@@ -92,6 +93,7 @@ namespace SimManagementLib.SimAI
                     {
                         order.state = ServiceOrderState.Completed;
                         serviceDef?.Worker.NotifyServicePaid(pawn, provider, order);
+                        SimShopEvents.NotifyServiceOrderPaid(pawn, order, shopZone);
                         continue;
                     }
 
@@ -99,6 +101,19 @@ namespace SimManagementLib.SimAI
                         ? ServiceOrderState.TicketIssued
                         : ServiceOrderState.ReadyToUse;
                     serviceDef?.Worker.NotifyServicePaid(pawn, provider, order);
+                    SimShopEvents.NotifyServiceOrderPaid(pawn, order, shopZone);
+
+                    if (serviceDef != null && SimShopOrderApi.HasPreparedOrderWorker(serviceDef.defName))
+                    {
+                        PreparedShopOrderResult prepared = SimShopOrderApi.CreatePreparedOrder(pawn, provider, shopZone, serviceDef, order.totalPrice);
+                        if (prepared.success)
+                        {
+                            prepared.order.sourceServiceOrderId = order.orderId;
+                            SimShopOrderApi.MarkPaid(prepared.order.orderId);
+                            order.state = ServiceOrderState.Completed;
+                            continue;
+                        }
+                    }
 
                     Job job = ShopServiceUtility.MakeServiceUseJob(pawn, order);
                     if (job != null) followUps.Add(job);
@@ -108,6 +123,7 @@ namespace SimManagementLib.SimAI
                     order.paidTick = Find.TickManager.TicksGame;
                     order.state = ServiceOrderState.Completed;
                     serviceDef?.Worker.NotifyServicePaid(pawn, provider, order);
+                    SimShopEvents.NotifyServiceOrderPaid(pawn, order, shopZone);
                 }
             }
 

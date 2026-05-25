@@ -1,5 +1,7 @@
 using RimWorld;
+using SimManagementLib.Api;
 using SimManagementLib.SimAI;
+using SimManagementLib.SimDef;
 using SimManagementLib.SimZone;
 using SimManagementLib.Pojo;
 using SimManagementLib.Tool;
@@ -14,18 +16,18 @@ namespace SimManagementLib.SimDialog
 {
     public partial class MainTabWindow_BusinessManager : MainTabWindow
     {
-        private sealed class PageDef
-        {
-            public string Label;
-            public Action<Rect> DrawAction;
-        }
-
+        /// <summary>
+        /// 保存经商管理商店行需要的地图与区域，负责避免绘制循环反复解析地图。
+        /// </summary>
         private sealed class ShopViewData
         {
             public Map Map;
             public Zone_Shop Zone;
         }
 
+        /// <summary>
+        /// 保存经商管理顾客行需要的顾客、地图、商店和 Lord 状态。
+        /// </summary>
         private sealed class CustomerViewData
         {
             public Map Map;
@@ -34,9 +36,11 @@ namespace SimManagementLib.SimDialog
             public LordJob_CustomerVisit Visit;
         }
 
-        private readonly List<PageDef> pages = new List<PageDef>();
-        private bool pagesBuiltWithReviews;
+        private readonly List<ShopUiPageDef> pages = new List<ShopUiPageDef>();
+        private readonly BusinessManagerUiContext uiContext = new BusinessManagerUiContext();
+        private string curPageDefName;
         private int curPageIndex;
+        private Vector2 pageTabScrollPos;
         private Vector2 shopScrollPos;
         private Vector2 financeScrollPos;
         private Vector2 financeLogScrollPos;
@@ -89,6 +93,7 @@ namespace SimManagementLib.SimDialog
         public override void PreOpen()
         {
             base.PreOpen();
+            uiContext.Window = this;
             EnsurePages();
         }
 
@@ -98,6 +103,7 @@ namespace SimManagementLib.SimDialog
         public override void PreClose()
         {
             base.PreClose();
+            SimShopUiApi.ClearContext(uiContext);
             CancelBlueprintNetworkRequests();
             BlueprintPreviewTextureCache.Clear();
         }
@@ -115,6 +121,8 @@ namespace SimManagementLib.SimDialog
                     return;
 
                 EnsurePages();
+                uiContext.Window = this;
+                uiContext.WindowRect = inRect;
 
                 Rect tabRect = new Rect(inRect.x, inRect.y, inRect.width, 42f);
                 DrawPageTabs(tabRect);
@@ -123,7 +131,16 @@ namespace SimManagementLib.SimDialog
                 Widgets.DrawBoxSolid(bodyRect, CPanel);
                 if (curPageIndex >= 0 && curPageIndex < pages.Count)
                 {
-                    pages[curPageIndex].DrawAction?.Invoke(bodyRect.ContractedBy(10f));
+                    ShopUiPageDef page = pages[curPageIndex];
+                    SimShopUiApi.SafeInvoke(page, uiContext, "DrawPage", worker =>
+                    {
+                        worker?.DrawPage(bodyRect.ContractedBy(10f), uiContext);
+                    });
+
+                    if (uiContext.LastException != null)
+                    {
+                        ShopUiLayoutUtility.DrawErrorState(bodyRect.ContractedBy(10f), SimTranslation.TOrFallback("RSMF.ShopUi.Error.PageDrawFailed", "Page drawing failed."), uiContext.LastException.Message);
+                    }
                 }
             }
             finally
@@ -137,46 +154,62 @@ namespace SimManagementLib.SimDialog
 
         private void EnsurePages()
         {
-            bool shouldShowReviews = SimManagementLibMod.Settings?.HasValidReviewAiConfig() == true;
-            if (!pages.NullOrEmpty() && pagesBuiltWithReviews == shouldShowReviews)
+            if (!pages.NullOrEmpty() && !SimShopUiApi.ConsumeRefreshRequest())
             {
                 if (curPageIndex >= pages.Count)
                     curPageIndex = Mathf.Max(0, pages.Count - 1);
                 return;
             }
 
+            string previousDefName = curPageDefName;
             pages.Clear();
-            pagesBuiltWithReviews = shouldShowReviews;
-            pages.Add(new PageDef { Label = SimTranslation.T("RSMF.Business.Page.ShopManagement"), DrawAction = DrawShopManagementPage });
-            pages.Add(new PageDef { Label = SimTranslation.T("RSMF.Business.Page.Vending"), DrawAction = DrawVendingMachinePage });
-            pages.Add(new PageDef { Label = SimTranslation.T("RSMF.Business.Page.Finance"), DrawAction = DrawFinancePage });
-            if (shouldShowReviews)
-                pages.Add(new PageDef { Label = SimTranslation.T("RSMF.Business.Page.Reviews"), DrawAction = DrawCustomerReviewsPage });
-            pages.Add(new PageDef { Label = SimTranslation.T("RSMF.Business.Page.CollectibleExchange"), DrawAction = DrawCollectibleExchangePage });
-            pages.Add(new PageDef { Label = SimTranslation.T("RSMF.Business.Page.Blueprints"), DrawAction = DrawBlueprintPage });
-            pages.Add(new PageDef { Label = SimTranslation.T("RSMF.Business.Page.Customers"), DrawAction = DrawCustomerPage });
-            pages.Add(new PageDef { Label = SimTranslation.T("RSMF.Business.Page.Staff"), DrawAction = DrawStaffPage });
+            uiContext.Window = this;
+            pages.AddRange(SimShopUiApi.GetPages(ShopUiPageScope.BusinessManager, uiContext));
+            if (!string.IsNullOrEmpty(previousDefName))
+            {
+                int restoredIndex = pages.FindIndex(page => page.defName == previousDefName);
+                if (restoredIndex >= 0)
+                    curPageIndex = restoredIndex;
+            }
             if (curPageIndex >= pages.Count)
                 curPageIndex = Mathf.Max(0, pages.Count - 1);
+            if (pages.Count > 0)
+            {
+                curPageDefName = pages[curPageIndex].defName;
+                NotifyPageOpened(pages[curPageIndex]);
+            }
         }
 
         private void DrawPageTabs(Rect rect)
         {
             Widgets.DrawBoxSolid(rect, new Color(0f, 0f, 0f, 0.2f));
-            float x = rect.x + 8f;
+            float viewWidth = 8f;
+            for (int i = 0; i < pages.Count; i++)
+            {
+                string measureLabel = pages[i]?.DisplayLabel ?? "";
+                viewWidth += Mathf.Max(110f, Text.CalcSize(measureLabel).x + 30f) + 8f;
+            }
+
+            Rect outRect = rect.ContractedBy(4f);
+            Rect viewRect = new Rect(0f, 0f, Mathf.Max(outRect.width + 1f, viewWidth), outRect.height - 2f);
+            Widgets.BeginScrollView(outRect, ref pageTabScrollPos, viewRect, false);
+
+            float x = 4f;
             const float tabH = 30f;
-            float y = rect.y + (rect.height - tabH) / 2f;
+            float y = (viewRect.height - tabH) / 2f;
 
             for (int i = 0; i < pages.Count; i++)
             {
-                PageDef page = pages[i];
-                float w = Mathf.Max(110f, Text.CalcSize(page.Label).x + 30f);
+                ShopUiPageDef page = pages[i];
+                string label = page.DisplayLabel;
+                float w = Mathf.Max(110f, Text.CalcSize(label).x + 30f);
                 Rect tab = new Rect(x, y, w, tabH);
 
                 bool selected = i == curPageIndex;
-                if (SimUiStyle.DrawTabButton(tab, page.Label, selected, CDim))
+                if (SimUiStyle.DrawTabButton(tab, label, selected, CDim))
                 {
                     curPageIndex = i;
+                    curPageDefName = page.defName;
                     shopScrollPos = Vector2.zero;
                     financeScrollPos = Vector2.zero;
                     financeLogScrollPos = Vector2.zero;
@@ -187,10 +220,22 @@ namespace SimManagementLib.SimDialog
                     staffScrollPos = Vector2.zero;
                     vendingScrollPos = Vector2.zero;
                     blueprintScrollPos = Vector2.zero;
+                    NotifyPageOpened(page);
                 }
 
                 x += w + 8f;
             }
+
+            Widgets.EndScrollView();
+        }
+
+        /// <summary>
+        /// 通知当前页面已打开，负责触发 Def Worker 的打开生命周期。
+        /// </summary>
+        private void NotifyPageOpened(ShopUiPageDef page)
+        {
+            if (page == null) return;
+            SimShopUiApi.SafeInvoke(page, uiContext, "OnOpen", worker => worker?.OnOpen(uiContext));
         }
 
         private static void DrawBorder(Rect rect, Color color)

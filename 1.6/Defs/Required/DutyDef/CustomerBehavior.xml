@@ -7,6 +7,7 @@
     <threatDisabled>true</threatDisabled>
     <thinkNode Class="ThinkNode_Priority">
       <subNodes>
+        <li Class="SimManagementLib.SimAI.JobGiver_Customer_RunExternalAction" />
         <li Class="SimManagementLib.SimAI.JobGiver_Customer_SelectPaidService" />
         <li Class="SimManagementLib.SimAI.JobGiver_Customer_BrowseAndPick" />
         <li Class="ThinkNode_ConditionalStarving">

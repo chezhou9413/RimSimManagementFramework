@@ -132,6 +132,14 @@ namespace SimManagementLib.Tool
         /// </summary>
         public static bool TryFindServiceForCustomer(Pawn pawn, Zone_Shop shop, float remainingBudget, out Thing provider, out ShopServiceDef serviceDef, out float price)
         {
+            return TryFindServiceForCustomer(pawn, shop, remainingBudget, null, out provider, out serviceDef, out price);
+        }
+
+        /// <summary>
+        /// 查找顾客当前商店里最适合的一项可消费服务，并允许调用方按服务分类过滤。
+        /// </summary>
+        public static bool TryFindServiceForCustomer(Pawn pawn, Zone_Shop shop, float remainingBudget, IReadOnlyCollection<string> targetServiceCategoryIds, out Thing provider, out ShopServiceDef serviceDef, out float price)
+        {
             provider = null;
             serviceDef = null;
             price = 0f;
@@ -148,6 +156,7 @@ namespace SimManagementLib.Tool
                 {
                     ShopServiceDef def = slot.ServiceDef;
                     if (def == null) continue;
+                    if (targetServiceCategoryIds != null && targetServiceCategoryIds.Count > 0 && !targetServiceCategoryIds.Contains(def.serviceCategoryId)) continue;
                     float unitPrice = def.Worker.GetPrice(pawn, candidateProvider, shop);
                     if (unitPrice > remainingBudget) continue;
                     if (!def.Worker.CanUse(pawn, candidateProvider, shop, out _)) continue;

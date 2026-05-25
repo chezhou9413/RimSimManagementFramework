@@ -28,6 +28,8 @@ namespace SimManagementLib.GameComp
 
         private Dictionary<string, int> serviceSoldCounts = new Dictionary<string, int>();
         private Dictionary<string, float> serviceRevenues = new Dictionary<string, float>();
+        private Dictionary<string, int> customLineSoldCounts = new Dictionary<string, int>();
+        private Dictionary<string, float> customLineRevenues = new Dictionary<string, float>();
 
         private Dictionary<int, ShopFinanceState> shopStates = new Dictionary<int, ShopFinanceState>();
         private Dictionary<int, float> dailyRevenue = new Dictionary<int, float>();
@@ -54,6 +56,8 @@ namespace SimManagementLib.GameComp
         public IReadOnlyDictionary<string, float> ComboRevenues => comboRevenues;
         public IReadOnlyDictionary<string, int> ServiceSoldCounts => serviceSoldCounts;
         public IReadOnlyDictionary<string, float> ServiceRevenues => serviceRevenues;
+        public IReadOnlyDictionary<string, int> CustomLineSoldCounts => customLineSoldCounts;
+        public IReadOnlyDictionary<string, float> CustomLineRevenues => customLineRevenues;
         public IReadOnlyDictionary<int, float> ShopRevenue => shopStates.ToDictionary(kv => kv.Key, kv => kv.Value?.revenue ?? 0f);
         public IReadOnlyDictionary<int, float> ShopProfit => shopStates.ToDictionary(kv => kv.Key, kv => kv.Value?.profit ?? 0f);
         public IReadOnlyDictionary<int, float> DailyRevenue => dailyRevenue;
@@ -76,6 +80,8 @@ namespace SimManagementLib.GameComp
             Scribe_Collections.Look(ref comboRevenues, "comboRevenues", LookMode.Value, LookMode.Value);
             Scribe_Collections.Look(ref serviceSoldCounts, "serviceSoldCounts", LookMode.Value, LookMode.Value);
             Scribe_Collections.Look(ref serviceRevenues, "serviceRevenues", LookMode.Value, LookMode.Value);
+            Scribe_Collections.Look(ref customLineSoldCounts, "customLineSoldCounts", LookMode.Value, LookMode.Value);
+            Scribe_Collections.Look(ref customLineRevenues, "customLineRevenues", LookMode.Value, LookMode.Value);
             Scribe_Collections.Look(ref shopStates, "shopStates", LookMode.Value, LookMode.Deep, ref tmpStateKeys, ref tmpStateValues);
             Scribe_Collections.Look(ref dailyRevenue, "dailyRevenue", LookMode.Value, LookMode.Value);
             Scribe_Collections.Look(ref dailyProfit, "dailyProfit", LookMode.Value, LookMode.Value);
@@ -95,6 +101,8 @@ namespace SimManagementLib.GameComp
             if (comboRevenues == null) comboRevenues = new Dictionary<string, float>();
             if (serviceSoldCounts == null) serviceSoldCounts = new Dictionary<string, int>();
             if (serviceRevenues == null) serviceRevenues = new Dictionary<string, float>();
+            if (customLineSoldCounts == null) customLineSoldCounts = new Dictionary<string, int>();
+            if (customLineRevenues == null) customLineRevenues = new Dictionary<string, float>();
             if (shopStates == null) shopStates = new Dictionary<int, ShopFinanceState>();
             if (dailyRevenue == null) dailyRevenue = new Dictionary<int, float>();
             if (dailyProfit == null) dailyProfit = new Dictionary<int, float>();
@@ -161,6 +169,17 @@ namespace SimManagementLib.GameComp
                 amount = amount,
                 cost = 0f
             });
+        }
+
+        /// <summary>
+        /// 把外部自定义财务明细加入顾客待结账账单。
+        /// </summary>
+        public void QueueCustomLine(Pawn customer, Zone_Shop zone, FinanceLineItem line)
+        {
+            if (customer == null || line == null || line.amount <= 0f) return;
+            ShopFinanceLineTypeUtility.NormalizeLine(line);
+            PendingFinanceBill pending = GetOrCreatePending(customer, zone);
+            pending.AddOrMergeLine(line);
         }
 
         /// <summary>
@@ -289,6 +308,12 @@ namespace SimManagementLib.GameComp
                     string serviceKey = string.IsNullOrEmpty(line.defName) ? line.label : line.defName;
                     AddInt(serviceSoldCounts, serviceKey, line.count);
                     AddFloat(serviceRevenues, serviceKey, line.amount);
+                }
+                else if (!ShopFinanceLineTypeUtility.IsBuiltInLineType(lineType))
+                {
+                    string customKey = ShopFinanceLineTypeUtility.GetStatKey(line);
+                    AddInt(customLineSoldCounts, customKey, line.count);
+                    AddFloat(customLineRevenues, customKey, line.amount);
                 }
                 else
                 {
@@ -420,6 +445,7 @@ namespace SimManagementLib.GameComp
                     amount = line.amount,
                     cost = line.cost
                 });
+                ShopFinanceLineTypeUtility.NormalizeLine(result[result.Count - 1]);
             }
 
             return result;

@@ -1,4 +1,5 @@
 using SimManagementLib.GameComp;
+using SimManagementLib.Api;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimService;
 using SimManagementLib.SimThingComp;
@@ -132,6 +133,7 @@ namespace SimManagementLib.SimAI
                 }
 
                 lordJob.AddServiceOrder(pawnId, activeOrder);
+                SimShopEvents.NotifyServiceOrderCreated(pawn, activeOrder, shopZone);
                 lordJob.cartValues[pawnId] += activeOrder.totalPrice;
                 finance?.QueueServiceSale(pawn, shopZone, activeOrder.serviceDefName, selectedService.DisplayLabel, activeOrder.count, activeOrder.totalPrice);
                 ShopBubbleUtility.ShowTextBubble(pawn, SimTranslation.T("RSMF.Bubble.SelectService", selectedService.DisplayLabel.Named("service")), new Color(0.55f, 0.85f, 1f));

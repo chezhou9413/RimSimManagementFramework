@@ -64,10 +64,11 @@ namespace SimManagementLib.Tool
             // ★ 修复3：套餐名超长时截断并加 Tooltip
             float nameLabelX = bottomBar.x + 14f;
             float nameLabelW = bottomBar.width - 18f;
-            string nameDisplay = combo.comboName.Truncate(nameLabelW);
+            string comboName = string.IsNullOrEmpty(combo.comboName) ? SimTranslation.T("RSMF.Common.UnnamedCombo") : combo.comboName;
+            string nameDisplay = comboName.Truncate(nameLabelW);
             Widgets.Label(new Rect(nameLabelX, bottomBar.y, nameLabelW, bottomH), nameDisplay);
-            if (nameDisplay != combo.comboName)
-                TooltipHandler.TipRegion(bottomBar, combo.comboName);
+            if (nameDisplay != comboName)
+                TooltipHandler.TipRegion(bottomBar, comboName);
             GUI.color = Color.white;
             Text.Anchor = TextAnchor.UpperLeft;
 

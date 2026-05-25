@@ -2,6 +2,7 @@ using RimWorld;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimThingComp;
+using SimManagementLib.SimDef;
 using SimManagementLib.Tool;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,43 +18,139 @@ namespace SimManagementLib.SimDialog
             Widgets.DrawBoxSolid(rect, new Color(0f, 0f, 0f, 0.2f));
             Widgets.DrawLineHorizontal(rect.x, rect.y, rect.width);
             float btnY = rect.y + (rect.height - 30f) / 2f;
+            ShopUiPageDef currentPage = GetCurrentUiPage();
+            bool showSave = CurrentPageShowsSaveButton(currentPage);
+            string tip = GetCurrentPageSaveTip(currentPage);
 
             Text.Font = GameFont.Tiny;
             Text.Anchor = TextAnchor.MiddleLeft;
             GUI.color = CTextDim;
-            Widgets.Label(new Rect(rect.x + 12f, btnY, 420f, 30f), SimTranslation.T("RSMF.ShopManager.SaveTip"));
+            float reservedRight = showSave ? 260f : 150f;
+            Rect tipRect = new Rect(rect.x + 12f, btnY, Mathf.Max(80f, rect.width - reservedRight), 30f);
+            Widgets.Label(tipRect, tip.Truncate(tipRect.width));
             ResetText();
 
-            if (SimUiStyle.DrawSecondaryButton(new Rect(rect.xMax - 230f, btnY, 100f, 30f), SimTranslation.T("RSMF.ShopManager.Cancel"), true, GameFont.Tiny))
+            float cancelX = showSave ? rect.xMax - 230f : rect.xMax - 120f;
+            if (SimUiStyle.DrawSecondaryButton(new Rect(cancelX, btnY, 100f, 30f), SimTranslation.T("RSMF.ShopManager.Cancel"), true, GameFont.Tiny))
             {
+                NotifyAllPagesCancel();
                 Close();
             }
 
+            if (!showSave)
+                return;
+
             Rect saveRect = new Rect(rect.xMax - 120f, btnY, 108f, 30f);
-            if (SimUiStyle.DrawPrimaryButton(saveRect, SimTranslation.T("RSMF.ShopManager.Save"), true, GameFont.Tiny))
+            if (SimUiStyle.DrawPrimaryButton(saveRect, GetCurrentPageSaveLabel(currentPage), true, GameFont.Tiny))
             {
-                foreach (Thing provider in serviceProviders)
-                {
-                    if (provider == null || provider.Destroyed) continue;
-                    ThingComp_ServiceProvider comp = ShopServiceUtility.GetProviderComp(provider);
-                    if (comp == null) continue;
-                    if (!draftServiceData.TryGetValue(provider.thingIDNumber, out List<ServiceSlotData> drafts)) continue;
+                ApiSaveDrafts(closeAfterSave: true);
+            }
+        }
 
-                    comp.serviceSlots = drafts
-                        .Where(s => s != null)
-                        .Select(s => new ServiceSlotData
-                        {
-                            serviceDefName = s.serviceDefName,
-                            enabled = s.enabled,
-                            priceOverride = Mathf.Max(0f, s.priceOverride),
-                            maxSimultaneousUsers = Mathf.Max(1, s.maxSimultaneousUsers)
-                        })
-                        .ToList();
-                }
+        /// <summary>
+        /// 判断当前页面是否显示底部保存按钮，负责把按钮可见性委托给页面 Worker。
+        /// </summary>
+        private bool CurrentPageShowsSaveButton(ShopUiPageDef page)
+        {
+            bool show = true;
+            if (page == null) return false;
+            SimManagementLib.Api.SimShopUiApi.SafeInvoke(page, uiContext, "ShowSaveButton", worker => show = worker?.ShowSaveButton(uiContext) != false);
+            return show;
+        }
 
-                shopZone.ApplySchedule(draftSchedule);
+        /// <summary>
+        /// 返回当前页面保存按钮文本，负责按页面语义显示提交动作。
+        /// </summary>
+        private string GetCurrentPageSaveLabel(ShopUiPageDef page)
+        {
+            string label = SimTranslation.T("RSMF.ShopManager.Save");
+            if (page == null) return label;
+            SimManagementLib.Api.SimShopUiApi.SafeInvoke(page, uiContext, "GetSaveButtonLabel", worker =>
+            {
+                string workerLabel = worker?.GetSaveButtonLabel(uiContext);
+                if (!string.IsNullOrEmpty(workerLabel))
+                    label = workerLabel;
+            });
+            return label;
+        }
 
+        /// <summary>
+        /// 返回当前页面底部提示，负责让无保存按钮页面说明修改是否即时生效。
+        /// </summary>
+        private string GetCurrentPageSaveTip(ShopUiPageDef page)
+        {
+            string tip = SimTranslation.T("RSMF.ShopManager.NoSaveNeededTip");
+            if (page == null) return tip;
+            SimManagementLib.Api.SimShopUiApi.SafeInvoke(page, uiContext, "GetSaveTip", worker =>
+            {
+                string workerTip = worker?.GetSaveTip(uiContext);
+                if (!string.IsNullOrEmpty(workerTip))
+                    tip = workerTip;
+            });
+            return tip;
+        }
+
+        /// <summary>
+        /// 保存当前窗口所有草稿并关闭窗口，负责兼容外部代码需要提交后退出的旧入口。
+        /// </summary>
+        public void ApiSaveDraftsAndClose()
+        {
+            ApiSaveDrafts(closeAfterSave: true);
+        }
+
+        /// <summary>
+        /// 保存当前窗口所有草稿，负责统一内置页面和外部页面保存流程。
+        /// </summary>
+        public void ApiSaveDrafts(bool closeAfterSave)
+        {
+            NotifyAllPagesSave();
+
+            foreach (Thing provider in serviceProviders)
+            {
+                if (provider == null || provider.Destroyed) continue;
+                ThingComp_ServiceProvider comp = ShopServiceUtility.GetProviderComp(provider);
+                if (comp == null) continue;
+                if (!draftServiceData.TryGetValue(provider.thingIDNumber, out List<ServiceSlotData> drafts)) continue;
+
+                comp.serviceSlots = drafts
+                    .Where(s => s != null)
+                    .Select(s => new ServiceSlotData
+                    {
+                        serviceDefName = s.serviceDefName,
+                        enabled = s.enabled,
+                        priceOverride = Mathf.Max(0f, s.priceOverride),
+                        maxSimultaneousUsers = Mathf.Max(1, s.maxSimultaneousUsers)
+                    })
+                    .ToList();
+            }
+
+            shopZone.ApplySchedule(draftSchedule);
+
+            Messages.Message(SimTranslation.T("RSMF.ShopManager.SaveSuccess"), MessageTypeDefOf.PositiveEvent, false);
+
+            if (closeAfterSave)
                 Close();
+        }
+
+        /// <summary>
+        /// 通知所有页面保存，负责让外部表单页参与保存按钮生命周期。
+        /// </summary>
+        private void NotifyAllPagesSave()
+        {
+            for (int i = 0; i < uiPages.Count; i++)
+            {
+                SimManagementLib.Api.SimShopUiApi.SafeInvoke(uiPages[i], uiContext, "OnSave", worker => worker?.OnSave(uiContext));
+            }
+        }
+
+        /// <summary>
+        /// 通知所有页面取消，负责让外部表单页清理未保存草稿。
+        /// </summary>
+        private void NotifyAllPagesCancel()
+        {
+            for (int i = 0; i < uiPages.Count; i++)
+            {
+                SimManagementLib.Api.SimShopUiApi.SafeInvoke(uiPages[i], uiContext, "OnCancel", worker => worker?.OnCancel(uiContext));
             }
         }
 
@@ -174,6 +271,27 @@ namespace SimManagementLib.SimDialog
             Text.Anchor = TextAnchor.UpperLeft;
             Text.Font = GameFont.Small;
             GUI.color = Color.white;
+        }
+
+        /// <summary>
+        /// 保存当前套餐并打开一个新套餐，负责支持连续录入多个套餐。
+        /// </summary>
+        private void SaveCurrentComboAndCreateNext()
+        {
+            if (curCombo == null) return;
+            EnsureComboHasName(curCombo);
+            Messages.Message(SimTranslation.T("RSMF.ShopManager.ComboSavedAndNew", curCombo.comboName.Named("comboName")), MessageTypeDefOf.TaskCompletion, false);
+            ApiCreateCombo();
+        }
+
+        /// <summary>
+        /// 确保套餐拥有可显示名称，负责在玩家留空时按当前商品内容自动生成随机名称。
+        /// </summary>
+        private static void EnsureComboHasName(ComboData combo)
+        {
+            if (combo == null) return;
+            if (!string.IsNullOrWhiteSpace(combo.comboName)) return;
+            combo.comboName = ComboNameGenerator.GenerateName(combo);
         }
     }
 }

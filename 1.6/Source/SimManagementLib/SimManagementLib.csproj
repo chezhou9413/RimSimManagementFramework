@@ -106,16 +106,37 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\PreparedShopOrderModels.cs" />
+    <Compile Include="Api\PreparedShopOrderWorker.cs" />
+    <Compile Include="Api\SimApiResult.cs" />
+    <Compile Include="Api\CustomerActionOrderModels.cs" />
+    <Compile Include="Api\CustomerActionContext.cs" />
+    <Compile Include="Api\CustomerActionWorker.cs" />
+    <Compile Include="Api\CustomerActionSessionWorker.cs" />
+    <Compile Include="Api\SimShopApi.cs" />
+    <Compile Include="Api\SimShopCustomerApi.cs" />
+    <Compile Include="Api\SimShopEvents.cs" />
+    <Compile Include="Api\SimShopFinanceApi.cs" />
+    <Compile Include="Api\SimShopOrderApi.cs" />
+    <Compile Include="Api\SimShopServiceApi.cs" />
+    <Compile Include="Api\SimShopStaffApi.cs" />
+    <Compile Include="Api\ShopCheckoutApi.cs" />
+    <Compile Include="Api\ShopUiContexts.cs" />
+    <Compile Include="Api\ShopUiLayoutUtility.cs" />
+    <Compile Include="Api\ShopUiWorkers.cs" />
+    <Compile Include="Api\SimShopUiApi.cs" />
     <Compile Include="Debug\\DebugActions_SimShop.cs" />
     <Compile Include="Debug\\DebugActions_SimShop.Tools.cs" />
     <Compile Include="GameComp\\GameComponent_ShopComboManager.cs" />
     <Compile Include="GameComp\\GameComponent_ShopAnalyticsManager.cs" />
     <Compile Include="GameComp\\GameComponent_CustomerCatalog.cs" />
     <Compile Include="GameComp\\GameComponent_CustomerReviewManager.cs" />
+    <Compile Include="GameComp\GameComponent_CustomerActionOrderManager.cs" />
     <Compile Include="GameComp\\GameComponent_GoodsCatalog.cs" />
     <Compile Include="GameComp\\GameComponent_PurchaseOutcomeCatalog.cs" />
     <Compile Include="GameComp\\GameComponent_CollectibleExchangeManager.cs" />
     <Compile Include="GameComp\\GameComponent_ShopFinanceManager.cs" />
+    <Compile Include="GameComp\GameComponent_PreparedShopOrderManager.cs" />
     <Compile Include="GameComp\\GameComponent_ShopZoneTransportManager.cs" />
     <Compile Include="Pojo\ComboData.cs" />
     <Compile Include="Pojo\ComboItem.cs" />
@@ -148,12 +169,16 @@
     <Compile Include="SimAI\JobDriver_FillCollectibleDisplayStand.cs" />
     <Compile Include="SimAI\JobDriver_ManCashRegister.cs" />
     <Compile Include="SimAI\JobDriver_PayAtRegister.cs" />
+    <Compile Include="SimAI\JobDriver_PrepareShopOrder.cs" />
     <Compile Include="SimAI\JobDriver_SelectPaidService.cs" />
     <Compile Include="SimAI\JobDriver_UseVendingMachine.cs" />
     <Compile Include="SimAI\JobDriver_UsePaidService.cs" />
     <Compile Include="SimAI\JobDriver_PostPurchaseDineInShop.cs" />
     <Compile Include="SimAI\JobDriver_PostPurchaseUseDrugInShop.cs" />
+    <Compile Include="SimAI\CustomerActionJobDriverBase.cs" />
+    <Compile Include="SimAI\CustomerActionSessionJobDriverBase.cs" />
     <Compile Include="SimAI\JobGiver_CustomerCheckout.cs" />
+    <Compile Include="SimAI\JobGiver_Customer_RunExternalAction.cs" />
     <Compile Include="SimAI\JobGiver_Customer_SelectPaidService.cs" />
     <Compile Include="SimAI\JobGiver_Customer_BrowseAndPick.cs" />
     <Compile Include="SimAI\JobGiver_Customer_UseVendingMachine.cs" />
@@ -172,6 +197,7 @@
     <Compile Include="SimAI\LordToil_CustomerCheckout.cs" />
     <Compile Include="SimAI\LordToil_VendingMachineUse.cs" />
     <Compile Include="SimDef\CustomerKindDef.cs" />
+    <Compile Include="SimDef\CustomerActionDef.cs" />
     <Compile Include="SimDef\CollectibleExchangeListDef.cs" />
     <Compile Include="SimDef\CustomerExpressionSetDef.cs" />
     <Compile Include="SimDef\PurchaseOutcomeDef.cs" />
@@ -180,9 +206,13 @@
     <Compile Include="SimDef\PurchaseOutcomeTargetResolver.cs" />
     <Compile Include="SimDef\ShopStaffRoleDef.cs" />
     <Compile Include="SimDef\ShopTuningDef.cs" />
+    <Compile Include="SimDef\ShopUiPageDef.cs" />
+    <Compile Include="SimDef\PreparedShopOrderWorkerDef.cs" />
+    <Compile Include="SimDef\ShopFinanceLineTypeDef.cs" />
     <Compile Include="SimService\ShopServiceDef.cs" />
     <Compile Include="SimService\ShopServiceWorkers.cs" />
     <Compile Include="SimDialog\Dialog_ShopManager.cs" />
+    <Compile Include="SimDialog\Dialog_ShopManager.Api.cs" />
     <Compile Include="SimDialog\Dialog_ShopManager.Helpers.cs" />
     <Compile Include="SimDialog\Dialog_ShopManager.Panels.cs" />
     <Compile Include="SimDialog\Dialog_ShopManager.Schedule.cs" />
@@ -196,6 +226,7 @@
     <Compile Include="SimDialog\Designator_PlaceShopBlueprint.cs" />
     <Compile Include="SimDialog\Designator_SaveShopBlueprintRect.cs" />
     <Compile Include="SimDialog\MainTabWindow_BusinessManager.cs" />
+    <Compile Include="SimDialog\MainTabWindow_BusinessManager.Api.cs" />
     <Compile Include="SimDialog\MainTabWindow_BusinessManager.Blueprints.cs" />
     <Compile Include="SimDialog\MainTabWindow_BusinessManager.Blueprints.Network.cs" />
     <Compile Include="SimDialog\MainTabWindow_BusinessManager.Data.cs" />
@@ -204,6 +235,7 @@
     <Compile Include="SimDialog\MainTabWindow_BusinessManager.Collectibles.cs" />
     <Compile Include="SimDialog\MainTabWindow_BusinessManager.Reviews.cs" />
     <Compile Include="SimDialog\MainTabWindow_BusinessManager.Vending.cs" />
+    <Compile Include="SimDialog\ShopUiBuiltinPageWorkers.cs" />
     <Compile Include="SimDialog\SimUiStyle.cs" />
     <Compile Include="SimManagementLibMod.cs" />
     <Compile Include="Patch\Patch_CustomerCombatSafety.cs" />
@@ -254,6 +286,7 @@
     <Compile Include="SimWorkGiver\WorkGiver_CollectCashRegisterSilver.cs" />
     <Compile Include="SimWorkGiver\WorkGiver_FillCollectibleDisplayStand.cs" />
     <Compile Include="SimWorkGiver\WorkGiver_ManCashRegister.cs" />
+    <Compile Include="SimWorkGiver\WorkGiver_PrepareShopOrder.cs" />
     <Compile Include="SimWorkGiver\WorkGiver_RestockMegaStorage.cs" />
     <Compile Include="SimWorkGiver\WorkGiver_WithdrawFromMegaStorage.cs" />
     <Compile Include="SimZone\Designator_ZoneAdd_Shop.cs" />
@@ -304,6 +337,7 @@
     <Compile Include="Tool\ShopBlueprintTextureAdjustmentBridge.cs" />
     <Compile Include="Tool\ShopDataUtility.cs" />
     <Compile Include="Tool\ShopDemandCurveUtility.cs" />
+    <Compile Include="Tool\ShopFinanceLineTypeUtility.cs" />
     <Compile Include="Tool\ShopPricingUtility.cs" />
     <Compile Include="Tool\ShopProgressBarUtility.cs" />
     <Compile Include="Tool\ShopServiceUtility.cs" />

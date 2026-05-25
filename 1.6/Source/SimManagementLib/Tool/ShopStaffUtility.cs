@@ -45,34 +45,22 @@ namespace SimManagementLib.Tool
             return Roles.Where(r => RoleMatchesShop(zone, r)).OrderBy(r => r.index).ThenBy(r => r.defName).ToList();
         }
 
+        /// <summary>
+        /// 判断岗位是否应在商店中显示，负责委托岗位 Worker 执行可见性策略。
+        /// </summary>
         public static bool RoleMatchesShop(Zone_Shop zone, ShopStaffRoleDef role)
         {
             if (zone?.Map == null || role == null) return false;
-            if (role.requiredThingDefs.NullOrEmpty() && role.requiredThingClasses.NullOrEmpty()) return true;
+            return role.Worker?.CanShow(zone) == true;
+        }
 
-            foreach (IntVec3 cell in zone.Cells)
-            {
-                List<Thing> things = zone.Map.thingGrid.ThingsListAt(cell);
-                for (int i = 0; i < things.Count; i++)
-                {
-                    Thing thing = things[i];
-                    if (thing == null || thing.Destroyed) continue;
-
-                    if (!role.requiredThingDefs.NullOrEmpty() && role.requiredThingDefs.Contains(thing.def))
-                        return true;
-
-                    if (!role.requiredThingClasses.NullOrEmpty())
-                    {
-                        for (int c = 0; c < role.requiredThingClasses.Count; c++)
-                        {
-                            if (role.requiredThingClasses[c] != null && role.requiredThingClasses[c].IsInstanceOfType(thing))
-                                return true;
-                        }
-                    }
-                }
-            }
-
-            return false;
+        /// <summary>
+        /// 返回指定商店中岗位允许分配的人数上限，负责支持 Worker 按店铺状态动态控制人数。
+        /// </summary>
+        public static int GetMaxAssignedPawns(Zone_Shop zone, ShopStaffRoleDef role)
+        {
+            if (role == null) return 0;
+            return System.Math.Max(0, role.Worker?.GetMaxAssignedPawns(zone) ?? role.MaxAssignedPawns);
         }
 
         public static bool AllowsPawnForWorkGiver(Zone_Shop zone, Pawn pawn, WorkGiverDef workGiverDef)
@@ -91,7 +79,7 @@ namespace SimManagementLib.Tool
                 List<Pawn> assigned = zone.GetAssignedPawns(matchingRoles[i].defName);
                 if (assigned.Count <= 0) continue;
                 hasAnyAssignment = true;
-                if (assigned.Contains(pawn)) return true;
+                if (assigned.Contains(pawn) && matchingRoles[i].Worker.AllowsPawnForWorkGiver(zone, pawn, workGiverDef)) return true;
             }
 
             return !hasAnyAssignment;
@@ -123,7 +111,8 @@ namespace SimManagementLib.Tool
 
             string joined = string.Join(SimTranslation.T("RSMF.Common.ListSeparator"), pawns.Take(3).Select(p => p.LabelShortCap));
             if (pawns.Count > 3) joined += "…";
-            return $"{joined} ({pawns.Count}/{role.MaxAssignedPawns})";
+            int max = GetMaxAssignedPawns(zone, role);
+            return $"{joined} ({pawns.Count}/{(max <= 0 ? SimTranslation.T("RSMF.Common.Unlimited") : max.ToString())})";
         }
 
         public static IEnumerable<Pawn> GetAssignablePawns(Map map)
@@ -134,12 +123,17 @@ namespace SimManagementLib.Tool
                 .OrderBy(p => p.LabelShortCap);
         }
 
-        public static StaffEligibility EvaluateEligibility(Pawn pawn, ShopStaffRoleDef role)
+        /// <summary>
+        /// 评估员工是否满足岗位基础与 Worker 自定义资格要求。
+        /// </summary>
+        public static StaffEligibility EvaluateEligibility(Zone_Shop zone, Pawn pawn, ShopStaffRoleDef role)
         {
             if (pawn == null) return new StaffEligibility { Eligible = false, Reason = SimTranslation.T("RSMF.StaffManager.InvalidPawn") };
             if (role == null) return new StaffEligibility { Eligible = false, Reason = SimTranslation.T("RSMF.StaffManager.InvalidRole") };
             if (pawn.Destroyed || pawn.Dead) return new StaffEligibility { Eligible = false, Reason = SimTranslation.T("RSMF.StaffManager.DeadOrUnavailable") };
             if (pawn.workSettings == null || !pawn.workSettings.EverWork) return new StaffEligibility { Eligible = false, Reason = SimTranslation.T("RSMF.StaffManager.NoWorkSettings") };
+            if (role.Worker != null && !role.Worker.CanAssignPawn(zone, pawn, out string workerReason))
+                return new StaffEligibility { Eligible = false, Reason = workerReason ?? "" };
 
             if (role.workGivers.NullOrEmpty())
                 return new StaffEligibility { Eligible = true, Reason = SimTranslation.T("RSMF.StaffManager.Eligible") };
@@ -208,6 +202,14 @@ namespace SimManagementLib.Tool
             }
 
             return new StaffEligibility { Eligible = false, Reason = sb.ToString() };
+        }
+
+        /// <summary>
+        /// 评估员工是否满足岗位要求，负责兼容缺少商店上下文的旧调用。
+        /// </summary>
+        public static StaffEligibility EvaluateEligibility(Pawn pawn, ShopStaffRoleDef role)
+        {
+            return EvaluateEligibility(null, pawn, role);
         }
     }
 }

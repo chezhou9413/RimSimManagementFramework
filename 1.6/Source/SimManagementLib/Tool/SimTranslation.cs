@@ -57,6 +57,8 @@ namespace SimManagementLib.Tool
 
             try
             {
+                if (string.IsNullOrEmpty(key) || !key.CanTranslate())
+                    return fallback ?? key;
                 return key.Translate().Resolve();
             }
             catch

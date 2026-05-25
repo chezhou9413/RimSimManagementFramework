@@ -27,4 +27,18 @@
       <li>Manipulation</li>
     </requiredCapacities>
   </WorkGiverDef>
+
+  <!-- 服务人员处理外部 API 创建的待处理订单。 -->
+  <WorkGiverDef>
+    <defName>Sim_WorkGiver_PrepareShopOrder</defName>
+    <label>处理顾客订单</label>
+    <giverClass>SimManagementLib.SimWorkGiver.WorkGiver_PrepareShopOrder</giverClass>
+    <workType>Sim_ServiceWork</workType>
+    <priorityInType>90</priorityInType>
+    <verb>处理</verb>
+    <gerund>正在处理顾客订单</gerund>
+    <requiredCapacities>
+      <li>Manipulation</li>
+    </requiredCapacities>
+  </WorkGiverDef>
 </Defs>
