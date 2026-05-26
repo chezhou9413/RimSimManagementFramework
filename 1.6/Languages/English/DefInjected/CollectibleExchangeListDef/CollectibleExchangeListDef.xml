@@ -1,0 +1,18 @@
+﻿<LanguageData>
+    <!--RSMF_CollectibleExchange_GeneralBrashDebtBond.items.6.labelOverride>EG-23 "Shutdown Review" EMP Grenade</RSMF_CollectibleExchange_GeneralBrashDebtBond.items.6.labelOverride-->
+    <RSMF_CollectibleExchange_GeneralBrashDebtBond.label>General Brash's Debt Bond</RSMF_CollectibleExchange_GeneralBrashDebtBond.label>
+    <RSMF_CollectibleExchange_GeneralBrashDebtBond.shopName>General Brash's Debt Bond</RSMF_CollectibleExchange_GeneralBrashDebtBond.shopName>
+    <RSMF_CollectibleExchange_GeneralBrashDebtBond.title>The frontline military supplies debt bond</RSMF_CollectibleExchange_GeneralBrashDebtBond.title>
+
+    <RSMF_CollectibleExchange_MiguaShopCollection.label>Migua's Little Shop</RSMF_CollectibleExchange_MiguaShopCollection.label>
+    <RSMF_CollectibleExchange_MiguaShopCollection.shopName>Migua's Little Shop</RSMF_CollectibleExchange_MiguaShopCollection.shopName>
+    <RSMF_CollectibleExchange_MiguaShopCollection.title>The collections</RSMF_CollectibleExchange_MiguaShopCollection.title>
+
+    <RSMF_CollectibleExchange_MiguaShopOne.label>Migua's Little Shop</RSMF_CollectibleExchange_MiguaShopOne.label>
+    <RSMF_CollectibleExchange_MiguaShopOne.shopName>Migua's Little Shop</RSMF_CollectibleExchange_MiguaShopOne.shopName>
+    <RSMF_CollectibleExchange_MiguaShopOne.title>The first part</RSMF_CollectibleExchange_MiguaShopOne.title>
+
+    <RSMF_CollectibleExchange_MiguaShopTwo.label>Migua's Little Shop</RSMF_CollectibleExchange_MiguaShopTwo.label>
+    <RSMF_CollectibleExchange_MiguaShopTwo.shopName>Migua's Little Shop</RSMF_CollectibleExchange_MiguaShopTwo.shopName>
+    <RSMF_CollectibleExchange_MiguaShopTwo.title>The second part</RSMF_CollectibleExchange_MiguaShopTwo.title>
+</LanguageData>
