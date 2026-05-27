@@ -80,9 +80,10 @@ namespace SimManagementLib.SimAI
                     return;
                 }
 
-                if (QueueCell.IsValid && pawn.Position != QueueCell && pawn.IsHashIntervalTick(90))
+                if (pawn.IsHashIntervalTick(90))
                 {
-                    if (pawn.CanReach(QueueCell, PathEndMode.OnCell, Danger.Deadly))
+                    UpdateQueueCell(lordJob);
+                    if (QueueCell.IsValid && pawn.Position != QueueCell && pawn.CanReach(QueueCell, PathEndMode.OnCell, Danger.Deadly))
                     {
                         pawn.pather.StartPath(QueueCell, PathEndMode.OnCell);
                     }
@@ -90,7 +91,7 @@ namespace SimManagementLib.SimAI
 
                 if (!Register.IsManned) return;
                 if (!IsMyTurn(lordJob)) return;
-                if (!IsServiceCellUsable(pawn.Map, ServiceCell, pawn)) return;
+                if (!CheckoutQueueCellUtility.IsServiceCellFreeForPawn(pawn.Map, ServiceCell, pawn)) return;
 
                 ReadyForNextToil();
             };
@@ -227,16 +228,17 @@ namespace SimManagementLib.SimAI
             toil.initAction = () =>
             {
                 IntVec3 service = ServiceCell;
-                if (!IsServiceCellUsable(pawn.Map, service, pawn))
+                if (!CheckoutQueueCellUtility.IsServiceCellStructurallyUsable(pawn.Map, service, pawn))
                 {
-                    service = FindServiceCell(pawn.Map);
+                    service = CheckoutQueueCellUtility.FindServiceCell(Register, pawn);
                     job.SetTarget(TargetIndex.C, service);
                 }
 
                 IntVec3 queue = QueueCell;
-                if (!IsServiceCellUsable(pawn.Map, queue, pawn))
+                LordJob_CustomerVisit lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
+                if (!CheckoutQueueCellUtility.IsWaitingCellUsable(queue, pawn.Map, pawn, service))
                 {
-                    queue = service;
+                    queue = CheckoutQueueCellUtility.FindQueueCell(Register, service, GetQueueIndex(lordJob), pawn);
                     job.SetTarget(TargetIndex.B, queue);
                 }
             };
@@ -244,42 +246,41 @@ namespace SimManagementLib.SimAI
         }
 
         /// <summary>
-        /// 为顾客查找可站立且可到达的收银服务格。
+        /// 按当前队列顺序刷新等待格，负责在其他顾客离开或让路后恢复队列站位。
         /// </summary>
-        private IntVec3 FindServiceCell(Map map)
+        private void UpdateQueueCell(LordJob_CustomerVisit lordJob)
         {
-            IntVec3 cashierCell = Register.InteractionCell;
-            IntVec3 delta = cashierCell - Register.Position;
-            IntVec3 mirrored = Register.Position - new IntVec3(Mathf.Clamp(delta.x, -1, 1), 0, Mathf.Clamp(delta.z, -1, 1));
+            IntVec3 service = ServiceCell;
+            if (!CheckoutQueueCellUtility.IsServiceCellStructurallyUsable(pawn.Map, service, pawn))
+            {
+                service = CheckoutQueueCellUtility.FindServiceCell(Register, pawn);
+                job.SetTarget(TargetIndex.C, service);
+            }
 
-            if (IsServiceCellUsable(map, mirrored, pawn))
-                return mirrored;
-
-            if (CellFinder.TryFindRandomCellNear(Register.Position, map, 3, c => IsServiceCellUsable(map, c, pawn), out IntVec3 found))
-                return found;
-
-            if (IsServiceCellUsable(map, Register.Position, pawn))
-                return Register.Position;
-
-            return pawn.Position;
+            IntVec3 queue = CheckoutQueueCellUtility.FindQueueCell(Register, service, GetQueueIndex(lordJob), pawn);
+            if (queue.IsValid && queue != QueueCell)
+                job.SetTarget(TargetIndex.B, queue);
         }
 
         /// <summary>
-        /// 判断指定格子是否可作为收银服务或排队位置。
+        /// 计算当前顾客在本收银台前面的待付款顾客数量，负责得到稳定的等待格序号。
         /// </summary>
-        private static bool IsServiceCellUsable(Map map, IntVec3 cell, Pawn pawn)
+        private int GetQueueIndex(LordJob_CustomerVisit lordJob)
         {
-            if (!cell.IsValid) return false;
-            if (!cell.InBounds(map)) return false;
-            if (!cell.Standable(map)) return false;
-            if (!pawn.CanReach(cell, PathEndMode.OnCell, Danger.Deadly)) return false;
+            if (lordJob == null) return 0;
 
-            List<Thing> things = map.thingGrid.ThingsListAt(cell);
-            for (int i = 0; i < things.Count; i++)
+            int ahead = 0;
+            int myId = pawn.thingIDNumber;
+            int myOrder = lordJob.EnsureCheckoutOrder(myId);
+            IReadOnlyList<Pawn> pawns = pawn.Map.mapPawns.AllPawnsSpawned;
+            for (int i = 0; i < pawns.Count; i++)
             {
-                if (things[i] is Pawn other && other != pawn) return false;
+                Pawn other = pawns[i];
+                if (!IsEarlierPayingPawn(other, lordJob, myId, myOrder)) continue;
+                ahead++;
             }
-            return true;
+
+            return ahead;
         }
 
         /// <summary>
@@ -294,19 +295,26 @@ namespace SimManagementLib.SimAI
             for (int i = 0; i < pawns.Count; i++)
             {
                 Pawn other = pawns[i];
-                if (other == null || other == pawn) continue;
-                if (other.CurJobDef == null || other.CurJobDef.defName != "Customer_PayAtRegister") continue;
-                if (other.CurJob?.targetA.Thing != Register) continue;
-
-                int otherId = other.thingIDNumber;
-                if (!lordJob.cartValues.TryGetValue(otherId, out float otherOwed) || otherOwed <= 0f) continue;
-
-                int otherOrder = lordJob.GetCheckoutOrder(otherId);
-                if (otherOrder < myOrder)
-                    return false;
+                if (IsEarlierPayingPawn(other, lordJob, myId, myOrder)) return false;
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// 判断另一个顾客是否正在同一收银台前排在当前顾客前方，负责复用结账顺序判断。
+        /// </summary>
+        private bool IsEarlierPayingPawn(Pawn other, LordJob_CustomerVisit lordJob, int myId, int myOrder)
+        {
+            if (other == null || other == pawn || other.thingIDNumber == myId) return false;
+            if (other.CurJobDef == null || other.CurJobDef.defName != "Customer_PayAtRegister") return false;
+            if (other.CurJob?.targetA.Thing != Register) return false;
+
+            int otherId = other.thingIDNumber;
+            if (!lordJob.cartValues.TryGetValue(otherId, out float otherOwed) || otherOwed <= 0f) return false;
+
+            int otherOrder = lordJob.GetCheckoutOrder(otherId);
+            return otherOrder < myOrder;
         }
 
         /// <summary>

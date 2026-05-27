@@ -76,8 +76,8 @@ namespace SimManagementLib.SimAI
             if (register == null) return null;
 
             int queueIndex = GetQueueIndexForPawn(pawn.Map, register, lordJob, pawnId, myOrder);
-            IntVec3 serviceCell = FindServiceCell(register, pawn);
-            IntVec3 queueCell = FindQueueCell(register, serviceCell, queueIndex, pawn);
+            IntVec3 serviceCell = CheckoutQueueCellUtility.FindServiceCell(register, pawn);
+            IntVec3 queueCell = CheckoutQueueCellUtility.FindQueueCell(register, serviceCell, queueIndex, pawn);
 
             Job job = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Customer_PayAtRegister"), register);
             job.SetTarget(TargetIndex.B, queueCell);
@@ -124,68 +124,5 @@ namespace SimManagementLib.SimAI
             return ahead;
         }
 
-        /// <summary>
-        /// 查找顾客与收银台交互时使用的服务格。
-        /// </summary>
-        private static IntVec3 FindServiceCell(Building_CashRegister register, Pawn pawn)
-        {
-            Map map = register.Map;
-            IntVec3 cashierCell = register.InteractionCell;
-            IntVec3 delta = cashierCell - register.Position;
-            IntVec3 mirrored = register.Position - new IntVec3(Mathf.Clamp(delta.x, -1, 1), 0, Mathf.Clamp(delta.z, -1, 1));
-
-            if (IsValidQueueCell(mirrored, map, pawn))
-                return mirrored;
-
-            if (CellFinder.TryFindRandomCellNear(register.Position, map, 3, c => IsValidQueueCell(c, map, pawn), out IntVec3 found))
-                return found;
-
-            if (IsValidQueueCell(register.Position, map, pawn))
-                return register.Position;
-
-            return pawn.Position;
-        }
-
-        /// <summary>
-        /// 按服务格和队列序号查找顾客应该等待的排队格。
-        /// </summary>
-        private static IntVec3 FindQueueCell(Building_CashRegister register, IntVec3 serviceCell, int queueIndex, Pawn pawn)
-        {
-            Map map = register.Map;
-            IntVec3 laneDir = serviceCell - register.Position;
-            laneDir = new IntVec3(Mathf.Clamp(laneDir.x, -1, 1), 0, Mathf.Clamp(laneDir.z, -1, 1));
-            if (!laneDir.IsValid || (laneDir.x == 0 && laneDir.z == 0))
-                laneDir = register.Rotation.FacingCell;
-
-            IntVec3 preferred = serviceCell + laneDir * queueIndex;
-            if (IsValidQueueCell(preferred, map, pawn))
-                return preferred;
-
-            if (CellFinder.TryFindRandomCellNear(preferred, map, 3, c => IsValidQueueCell(c, map, pawn), out IntVec3 found))
-                return found;
-
-            if (IsValidQueueCell(register.InteractionCell, map, pawn))
-                return register.InteractionCell;
-
-            return register.Position;
-        }
-
-        /// <summary>
-        /// 判断指定格子是否适合作为排队或服务位置。
-        /// </summary>
-        private static bool IsValidQueueCell(IntVec3 cell, Map map, Pawn pawn)
-        {
-            if (!cell.InBounds(map)) return false;
-            if (!cell.Standable(map)) return false;
-            if (cell.IsForbidden(pawn)) return false;
-            if (!pawn.CanReach(cell, PathEndMode.OnCell, Danger.Deadly)) return false;
-
-            List<Thing> things = map.thingGrid.ThingsListAt(cell);
-            for (int i = 0; i < things.Count; i++)
-            {
-                if (things[i] is Pawn) return false;
-            }
-            return true;
-        }
     }
 }

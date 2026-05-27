@@ -175,6 +175,7 @@
     <Compile Include="SimAI\JobDriver_UsePaidService.cs" />
     <Compile Include="SimAI\JobDriver_PostPurchaseDineInShop.cs" />
     <Compile Include="SimAI\JobDriver_PostPurchaseUseDrugInShop.cs" />
+    <Compile Include="SimAI\CheckoutQueueCellUtility.cs" />
     <Compile Include="SimAI\CustomerActionJobDriverBase.cs" />
     <Compile Include="SimAI\CustomerActionSessionJobDriverBase.cs" />
     <Compile Include="SimAI\JobGiver_CustomerCheckout.cs" />

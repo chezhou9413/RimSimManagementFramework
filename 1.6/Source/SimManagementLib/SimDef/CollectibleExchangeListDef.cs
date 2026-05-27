@@ -10,12 +10,15 @@ namespace SimManagementLib.SimDef
     public class CollectibleExchangeListDef : Def
     {
         // 商店名显示在列表主标题前，用于区分不同收藏品兑换来源。
+        [MustTranslate]
         public string shopName = "";
 
         // 首页入口标题；为空时使用 Def 的 label。
+        [MustTranslate]
         public string title = "";
 
         // 首页入口介绍；为空时使用 Def 的 description。
+        [MustTranslate]
         public string intro = "";
 
         // 优先级越高越靠前；相同优先级按标题和 defName 排序。
@@ -40,24 +43,31 @@ namespace SimManagementLib.SimDef
         public float portraitOffsetY;
 
         // 二级商店显示的期数或标题标签。
+        [MustTranslate]
         public string periodLabel = "";
 
         // 二级商店显示的物品切换进度说明。
+        [MustTranslate]
         public string progressLabel = "";
 
         // 进入二级商店时随机播放的欢迎文本列表。
+        [MustTranslate]
         public List<string> welcomeTexts = new List<string>();
 
         // 鼠标浏览商品时随机播放的商品介绍或闲聊文本列表。
+        [MustTranslate]
         public List<string> browseTexts = new List<string>();
 
         // 玩家在商店停留一段时间后随机播放的闲聊文本列表。
+        [MustTranslate]
         public List<string> idleTexts = new List<string>();
 
         // 玩家成功购买商品后随机播放的感谢或反馈文本列表。
+        [MustTranslate]
         public List<string> purchaseTexts = new List<string>();
 
         // 玩家货币不足时随机播放的提示文本列表。
+        [MustTranslate]
         public List<string> notEnoughCurrencyTexts = new List<string>();
 
         // 停留文本触发间隔秒数；小于等于 0 时使用默认间隔。
@@ -100,9 +110,11 @@ namespace SimManagementLib.SimDef
         public string iconTexPath = "";
 
         // 商品名称覆盖文本；为空时使用 thingDef 标签。
+        [MustTranslate]
         public string labelOverride = "";
 
         // 商品说明覆盖文本；为空时使用 thingDef 说明。
+        [MustTranslate]
         public string descriptionOverride = "";
 
         // 自定义图标缓存，避免 IMGUI 每帧重复查找贴图。
