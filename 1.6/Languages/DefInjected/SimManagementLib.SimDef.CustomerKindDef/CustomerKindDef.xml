@@ -31,4 +31,9 @@
   <Test_BasicCustomer.spawnProfiles.0.label>Office worker</Test_BasicCustomer.spawnProfiles.0.label>
   <Test_BasicCustomer.spawnProfiles.1.label>night owl</Test_BasicCustomer.spawnProfiles.1.label>
 
+  <SimCustomer_ArmsDealer.label>Arms Dealer</SimCustomer_ArmsDealer.label>
+  <SimCustomer_ArmsDealer.spawnProfiles.0.label>Melee Weapon Specialist</SimCustomer_ArmsDealer.spawnProfiles.0.label>
+  <SimCustomer_ArmsDealer.spawnProfiles.1.label>Firearm Specialist</SimCustomer_ArmsDealer.spawnProfiles.1.label>
+  <SimCustomer_ArmsDealer.spawnProfiles.2.label>Ammunition Specialist</SimCustomer_ArmsDealer.spawnProfiles.2.label>
+
 </LanguageData>
