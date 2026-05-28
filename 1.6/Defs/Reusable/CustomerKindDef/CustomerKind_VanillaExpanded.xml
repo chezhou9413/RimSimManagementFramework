@@ -357,11 +357,90 @@
     <label>军火商</label>
 
     <pawnKindDefs>
-      <li>Villager</li>
-      <li>SpaceRefugee</li>
+      <li>Tribal_Trader</li>
+      <li>SpaceRefugee_Clothed</li>
       <li>Town_Councilman</li>
       <li>Town_Trader</li>
       <li>Town_Guard</li>
+      <li MayRequire="Ludeon.Rimworld.Royalty">Empire_Common_Trader</li>
+    </pawnKindDefs>
+
+    <arrivalCurve>
+      <points>
+        <li>(0, 0.25)</li>
+        <li>(7, 0.7)</li>
+        <li>(12, 0.95)</li>
+        <li>(17, 0.7)</li>
+        <li>(24, 0.25)</li>
+      </points>
+    </arrivalCurve>
+
+    <baseMtbDays>0.1</baseMtbDays>
+    <budgetRange>1000~3500</budgetRange>
+    <queuePatienceRange>1200~2600</queuePatienceRange>
+    <activeHourRange>9~17</activeHourRange>
+
+    <allowedWeathers>
+      <li>Clear</li>
+      <li>Fog</li>
+    </allowedWeathers>
+
+    <targetGoodsCategories>
+      <li>Goods_Weapons</li>
+      <li>Goods_MeleeWeapons</li>
+    </targetGoodsCategories>
+
+    <spawnProfiles>
+      <li>
+        <label>近战专家</label>
+        <weight>0.8</weight>
+        <budgetRange>1000~3500</budgetRange>
+        <queuePatienceRange>2000~3000</queuePatienceRange>
+        <activeHourRange>20~4</activeHourRange>
+        <preferredGoodsCategories>
+          <li>Goods_MeleeWeapons</li>
+        </preferredGoodsCategories>
+      </li>
+      <li>
+        <label>枪械专家</label>
+        <weight>1.4</weight>
+        <budgetRange>1000~3500</budgetRange>
+        <queuePatienceRange>2000~3000</queuePatienceRange>
+        <activeHourRange>9~17</activeHourRange>
+        <preferredGoodsCategories>
+          <li>Goods_Weapons</li>
+        </preferredGoodsCategories>
+      </li>
+      <li>
+        <label>弹药专家</label>
+        <weight>0.8</weight>
+        <budgetRange>1000~3500</budgetRange>
+        <queuePatienceRange>2000~3000</queuePatienceRange>
+        <activeHourRange>9~17</activeHourRange>
+        <preferredGoodsCategories>
+          <li>Goods_Weapons</li>
+        </preferredGoodsCategories>
+      </li>
+    </spawnProfiles>
+
+    <shoppingBehavior>
+      <browseTimeRange>220~480</browseTimeRange>
+      <maxShelvesToVisit>3</maxShelvesToVisit>
+      <queuePatience>2500</queuePatience>
+    </shoppingBehavior>
+  </SimManagementLib.SimDef.CustomerKindDef>
+
+  <SimManagementLib.SimDef.CustomerKindDef>
+    <defName>SimCustomer_ArmsDealer</defName>
+    <label>军火商</label>
+
+    <pawnKindDefs>
+      <li>Tribal_Trader</li>
+      <li>SpaceRefugee_Clothed</li>
+      <li>Town_Councilman</li>
+      <li>Town_Trader</li>
+      <li>Town_Guard</li>
+      <li MayRequire="Ludeon.Rimworld.Royalty">Empire_Common_Trader</li>
     </pawnKindDefs>
 
     <arrivalCurve>
