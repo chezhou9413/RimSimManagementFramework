@@ -47,6 +47,14 @@ namespace SimManagementLib.SimAI
                 serviceOrders[pawnId] = list;
             }
 
+            for (int i = 0; i < list.Count; i++)
+            {
+                CustomerServiceOrder existing = list[i];
+                if (existing == null || existing.orderId != order.orderId) continue;
+                list[i] = order;
+                return;
+            }
+
             list.Add(order);
         }
 

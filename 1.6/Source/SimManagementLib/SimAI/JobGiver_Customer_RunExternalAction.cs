@@ -27,10 +27,7 @@ namespace SimManagementLib.SimAI
                 return null;
             }
 
-            Zone_Shop shopZone = ShopDataUtility.FindAssignedShopZone(
-                pawn.Map,
-                lordJob.targetShopZoneId,
-                lordJob.targetShopCell);
+            Zone_Shop shopZone = lordJob.GetCurrentShop(pawn);
             if (shopZone == null) return null;
 
             CustomerActionContext context = SimShopCustomerApi.BuildActionContext(pawn, lordJob, shopZone);

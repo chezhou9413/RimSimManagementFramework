@@ -28,7 +28,13 @@ namespace SimManagementLib.Tool
     public class CustomerExpressionRequest
     {
         public HashSet<string> contextTags = new HashSet<string>();
+        public string label = "";
+        public Color? labelColor;
+        public bool useMediumText;
 
+        /// <summary>
+        /// 添加表情上下文标签，负责让表情配置按顾客和场景筛选。
+        /// </summary>
         public CustomerExpressionRequest AddTag(string tag)
         {
             if (!tag.NullOrEmpty())
@@ -36,6 +42,17 @@ namespace SimManagementLib.Tool
                 contextTags.Add(tag);
             }
 
+            return this;
+        }
+
+        /// <summary>
+        /// 设置表情气泡文字，负责让外部玩法在表情图标旁显示动态内容。
+        /// </summary>
+        public CustomerExpressionRequest WithLabel(string text, Color? color = null, bool mediumText = false)
+        {
+            label = text ?? "";
+            labelColor = color;
+            useMediumText = mediumText;
             return this;
         }
     }
@@ -85,11 +102,11 @@ namespace SimManagementLib.Tool
             ShopBubbleUtility.ShowCustomBubble(
                 pawn,
                 texture,
-                null,
+                request.label,
                 picked.iconColor,
-                null,
+                request.labelColor,
                 picked.popupScale,
-                false);
+                request.useMediumText);
             LastShownTicks[cooldownKey] = now;
             return true;
         }

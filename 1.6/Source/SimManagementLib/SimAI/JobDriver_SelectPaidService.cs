@@ -43,18 +43,19 @@ namespace SimManagementLib.SimAI
             init.initAction = () =>
             {
                 LordJob_CustomerVisit lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
-                Zone_Shop shopZone = ShopDataUtility.FindAssignedShopZone(pawn.Map, lordJob?.targetShopZoneId ?? -1, lordJob?.targetShopCell ?? IntVec3.Invalid);
+                Zone_Shop shopZone = lordJob?.GetCurrentShop(pawn);
                 if (lordJob == null || shopZone == null)
                 {
+                    SimDebugLogger.Journey("RSMF.SelectService", "选择服务失败：没有 LordJob 或当前店铺", pawn);
                     EndJobWith(JobCondition.Incompletable);
                     return;
                 }
 
                 int pawnId = pawn.thingIDNumber;
-                float alreadySpent = lordJob.cartValues.TryGetValue(pawnId, out float value) ? value : 0f;
-                float remainingBudget = lordJob.GetEffectiveBudgetForPawn(pawn, shopZone) - alreadySpent;
+                float remainingBudget = lordJob.GetRemainingTripBudget(pawn, shopZone);
                 if (!TryPickService(shopZone, remainingBudget, out selectedService, out selectedPrice))
                 {
+                    SimDebugLogger.Journey("RSMF.SelectService", $"选择服务失败：无可用服务 remainingBudget={remainingBudget}", pawn, shopZone, -1);
                     EndJobWith(JobCondition.Incompletable);
                     return;
                 }
@@ -62,9 +63,11 @@ namespace SimManagementLib.SimAI
                 activeOrder = ShopServiceUtility.CreateOrder(lordJob.nextServiceOrderId++, Provider, selectedService, selectedPrice);
                 if (!selectedService.Worker.TryReserve(pawn, Provider, activeOrder))
                 {
+                    SimDebugLogger.Journey("RSMF.SelectService", $"服务预约失败 service={selectedService.defName} provider={Provider?.thingIDNumber ?? -1}", pawn, shopZone, activeOrder.orderId);
                     EndJobWith(JobCondition.Incompletable);
                     return;
                 }
+                SimDebugLogger.Journey("RSMF.SelectService", $"选择服务成功 service={selectedService.defName} price={selectedPrice} provider={Provider?.thingIDNumber ?? -1}", pawn, shopZone, activeOrder.orderId);
             };
             yield return init;
 
@@ -87,6 +90,7 @@ namespace SimManagementLib.SimAI
                     ticksLeftThisToil = serviceDurationTicks;
                     activeOrder.state = ServiceOrderState.InUse;
                     activeOrder.startedTick = Find.TickManager.TicksGame;
+                    SimDebugLogger.Journey("RSMF.SelectService", $"服务开始使用 service={selectedService.defName} duration={serviceDurationTicks}", pawn, pawn.Map.lordManager.LordOf(pawn)?.LordJob is LordJob_CustomerVisit visit ? visit.GetCurrentShop(pawn) : null, activeOrder.orderId);
                     selectedService.Worker.NotifyServiceStarted(pawn, Provider, activeOrder);
                 }
                 else
@@ -111,10 +115,7 @@ namespace SimManagementLib.SimAI
                 LordJob_CustomerVisit lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
                 if (lordJob == null || activeOrder == null || selectedService == null) return;
 
-                Zone_Shop shopZone = ShopDataUtility.FindAssignedShopZone(
-                    pawn.Map,
-                    lordJob.targetShopZoneId,
-                    lordJob.targetShopCell);
+                Zone_Shop shopZone = lordJob.GetCurrentShop(pawn);
                 GameComponent_ShopFinanceManager finance = Current.Game?.GetComponent<GameComponent_ShopFinanceManager>();
                 int pawnId = pawn.thingIDNumber;
 
@@ -125,11 +126,13 @@ namespace SimManagementLib.SimAI
                 {
                     activeOrder.state = ServiceOrderState.UsedAwaitingPayment;
                     activeOrder.completedTick = Find.TickManager.TicksGame;
+                    SimDebugLogger.Journey("RSMF.SelectService", $"先用后付服务完成，等待付款 service={selectedService.defName}", pawn, shopZone, activeOrder.orderId);
                     selectedService.Worker.NotifyServiceCompleted(pawn, Provider, activeOrder);
                 }
                 else
                 {
                     activeOrder.state = ServiceOrderState.AwaitingPayment;
+                    SimDebugLogger.Journey("RSMF.SelectService", $"服务票据生成，等待付款 service={selectedService.defName}", pawn, shopZone, activeOrder.orderId);
                 }
 
                 lordJob.AddServiceOrder(pawnId, activeOrder);
@@ -138,7 +141,7 @@ namespace SimManagementLib.SimAI
                 finance?.QueueServiceSale(pawn, shopZone, activeOrder.serviceDefName, selectedService.DisplayLabel, activeOrder.count, activeOrder.totalPrice);
                 ShopBubbleUtility.ShowTextBubble(pawn, SimTranslation.T("RSMF.Bubble.SelectService", selectedService.DisplayLabel.Named("service")), new Color(0.55f, 0.85f, 1f));
 
-                if (lordJob.RegisterConsumptionActionAndShouldCheckout(pawnId))
+                if (lordJob.RegisterConsumptionActionAndShouldCheckout(pawnId) || lordJob.ShouldCheckoutFromCurrentShop(pawn, shopZone, "服务选择完成"))
                     lordJob.MarkPawnReadyForCheckout(pawnId);
             };
             yield return finalize;

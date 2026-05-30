@@ -56,12 +56,8 @@ namespace SimManagementLib.SimAI
                 if (!lordJob.cartValues.ContainsKey(pId))
                     lordJob.cartValues[pId] = 0f;
 
-                float alreadySpent = lordJob.cartValues[pId];
-                Zone_Shop shopZone = ShopDataUtility.FindAssignedShopZone(
-                    pawn.Map,
-                    lordJob.targetShopZoneId,
-                    lordJob.targetShopCell);
-                float remainingBudget = lordJob.GetEffectiveBudgetForPawn(pawn, shopZone) - alreadySpent;
+                Zone_Shop shopZone = lordJob.GetCurrentShop(pawn);
+                float remainingBudget = lordJob.GetRemainingTripBudget(pawn, shopZone);
 
                 if (remainingBudget <= 0f)
                 {
@@ -104,7 +100,7 @@ namespace SimManagementLib.SimAI
                                 SimTranslation.T("RSMF.Bubble.PickCombo", comboName.Named("comboName")),
                                 new Color(0.95f, 0.8f, 0.35f),
                                 Color.white);
-                            if (lordJob.RegisterConsumptionActionAndShouldCheckout(pId))
+                            if (lordJob.RegisterConsumptionActionAndShouldCheckout(pId) || lordJob.ShouldCheckoutFromCurrentShop(pawn, shopZone, "套餐购买完成"))
                                 lordJob.MarkPawnReadyForCheckout(pId);
                             return;
                         }
@@ -183,7 +179,7 @@ namespace SimManagementLib.SimAI
                         Color.white);
                 }
 
-                if (lordJob.RegisterConsumptionActionAndShouldCheckout(pId))
+                if (lordJob.RegisterConsumptionActionAndShouldCheckout(pId) || lordJob.ShouldCheckoutFromCurrentShop(pawn, shopZone, "商品购买完成"))
                     lordJob.MarkPawnReadyForCheckout(pId);
             };
 

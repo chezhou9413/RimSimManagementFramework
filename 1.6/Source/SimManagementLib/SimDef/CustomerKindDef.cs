@@ -260,5 +260,15 @@ namespace SimManagementLib.SimDef
         public IntRange browseTimeRange = new IntRange(300, 900);
         public int maxShelvesToVisit = 4;
         public int queuePatience = 600;
+        public int maxConsumptionActionsPerShop = 3;
+        public int maxShopsToVisit = 3;
+        public FloatRange desiredSpendRatioRange = new FloatRange(0.35f, 0.85f);
+        public float satisfactionCheckoutThreshold = 82f;
+        public float nextShopMinRemainingBudgetRatio = 0.20f;
+        public int maxShopVisitTicks = 6000;
+        public int maxTotalVisitTicks = 18000;
+        public int crowdingQueueSoftLimit = 4;
+        public float continueShopChance = 0.65f;
+        public float continueToNextShopChance = 0.45f;
     }
 }

@@ -1,4 +1,5 @@
 using RimWorld;
+using SimManagementLib.Api;
 using SimManagementLib.GameComp;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimAI;
@@ -32,6 +33,16 @@ namespace SimManagementLib.Tool
 
             CustomerReviewSnapshot snapshot = BuildSnapshot(pawn, lordJob, shopZone, billLines, paidSilver, checkoutResult);
             if (snapshot == null) return;
+            SimShopReviewApi.NotifyBeforeEnqueue(new CustomerReviewSnapshotContext
+            {
+                customer = pawn,
+                visit = lordJob,
+                shop = shopZone,
+                billLines = billLines,
+                paidSilver = paidSilver,
+                checkoutResult = checkoutResult ?? "",
+                snapshot = snapshot
+            });
             manager.EnqueueSnapshot(snapshot);
         }
 

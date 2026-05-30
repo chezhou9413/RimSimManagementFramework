@@ -36,6 +36,28 @@ namespace SimManagementLib.Api
     }
 
     /// <summary>
+    /// 保存顾客准备进入结账阶段的公开上下文，负责让外部扩展判断是否需要暂缓结账。
+    /// </summary>
+    public class ShopCheckoutReadinessContext
+    {
+        public Pawn customer;
+        public Zone_Shop shop;
+        public LordJob_CustomerVisit visit;
+        public int pawnId;
+        public bool allowed = true;
+        public string reason = "";
+
+        /// <summary>
+        /// 暂缓顾客进入结账阶段。
+        /// </summary>
+        public void Defer(string deferReason)
+        {
+            allowed = false;
+            reason = deferReason ?? "";
+        }
+    }
+
+    /// <summary>
     /// 提供结账管线的可继承 Hook，负责让外部模组调整账单、金额和结账后行为。
     /// </summary>
     public class ShopCheckoutWorker
@@ -75,6 +97,14 @@ namespace SimManagementLib.Api
         public virtual void OnCheckoutFailed(ShopCheckoutContext context)
         {
         }
+
+        /// <summary>
+        /// 判断顾客是否可以进入结账阶段，默认允许。
+        /// </summary>
+        public virtual bool CanPawnEnterCheckout(ShopCheckoutReadinessContext context)
+        {
+            return true;
+        }
     }
 
     /// <summary>
@@ -100,6 +130,32 @@ namespace SimManagementLib.Api
         public static bool UnregisterCheckoutWorker(ShopCheckoutWorker worker)
         {
             return worker != null && Workers.Remove(worker);
+        }
+
+        /// <summary>
+        /// 判断顾客是否允许进入结账阶段，负责让餐厅、定制服务等扩展能暂缓结账。
+        /// </summary>
+        public static bool CanPawnEnterCheckout(ShopCheckoutReadinessContext context)
+        {
+            if (context == null) return true;
+
+            for (int i = 0; i < Workers.Count; i++)
+            {
+                try
+                {
+                    if (!Workers[i].CanPawnEnterCheckout(context))
+                    {
+                        if (context.allowed)
+                            context.Defer("");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"[SimShop.Checkout] 外部结账 Worker 在准备结账判断阶段执行失败: {ex}");
+                }
+            }
+
+            return context.allowed;
         }
 
         /// <summary>

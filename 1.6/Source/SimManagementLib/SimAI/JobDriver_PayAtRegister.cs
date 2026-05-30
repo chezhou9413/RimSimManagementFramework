@@ -155,10 +155,7 @@ namespace SimManagementLib.SimAI
 
                 int pawnId = pawn.thingIDNumber;
                 int budget = lordJob.GetBudgetForPawn(pawnId);
-                Zone_Shop shopZone = ShopDataUtility.FindAssignedShopZone(
-                    pawn.Map,
-                    lordJob.targetShopZoneId,
-                    lordJob.targetShopCell);
+                Zone_Shop shopZone = lordJob.GetCurrentShop(pawn);
                 List<CustomerCartItem> purchasedItems = SnapshotCartItems(lordJob, pawnId);
 
                 if (abortedByTimeout)
@@ -172,7 +169,8 @@ namespace SimManagementLib.SimAI
                     return;
                 }
 
-                if (lordJob.cartValues.TryGetValue(pawnId, out float amountOwed) && amountOwed > 0f)
+                float amountOwed = lordJob.GetAmountOwedForCheckout(pawnId);
+                if (amountOwed > 0f)
                 {
                     int silverAmount = Mathf.CeilToInt(amountOwed);
                     List<FinanceLineItem> reviewLines = finance?.GetPendingBillLines(pawn) ?? new List<FinanceLineItem>();
@@ -183,6 +181,7 @@ namespace SimManagementLib.SimAI
                     checkoutContext.paidSilver = silverAmount;
                     Register.DepositSilver(silverAmount);
                     finance?.CommitCheckout(pawn, Register, silverAmount);
+                    lordJob.RecordShopPayment(pawn, silverAmount);
                     lordJob.ResolveServiceOrdersOnCheckoutPaid(pawn, shopZone);
                     CustomerPurchaseDeliveryUtility.DeliverPurchasedItems(pawn, purchasedItems);
                     PurchaseOutcomeResolver.TryQueuePostPurchaseJobs(pawn, lordJob, pawnId, shopZone, purchasedItems);
@@ -311,7 +310,7 @@ namespace SimManagementLib.SimAI
             if (other.CurJob?.targetA.Thing != Register) return false;
 
             int otherId = other.thingIDNumber;
-            if (!lordJob.cartValues.TryGetValue(otherId, out float otherOwed) || otherOwed <= 0f) return false;
+            if (lordJob.GetAmountOwedForCheckout(otherId) <= 0f) return false;
 
             int otherOrder = lordJob.GetCheckoutOrder(otherId);
             return otherOrder < myOrder;

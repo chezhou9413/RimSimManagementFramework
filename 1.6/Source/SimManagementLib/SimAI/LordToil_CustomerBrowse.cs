@@ -3,36 +3,83 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SimManagementLib.SimZone;
+using SimManagementLib.Tool;
 using Verse;
 using Verse.AI;
 using Verse.AI.Group;
 
 namespace SimManagementLib.SimAI
 {
+    /// <summary>
+    /// 管理顾客浏览阶段职责，负责让顾客逛店并在商店关门后进入结账收尾。
+    /// </summary>
     public class LordToil_CustomerBrowse : LordToil
     {
+        private const int CloseCheckIntervalTicks = 250;
+
         public IntVec3 shopCenter;
 
+        /// <summary>
+        /// 创建顾客浏览阶段，负责记录顾客围绕闲逛的商店中心点。
+        /// </summary>
         public LordToil_CustomerBrowse(IntVec3 shopCenter)
         {
             this.shopCenter = shopCenter;
         }
 
-        // 【隐患6修复】：这里必须重写为 true，否则后续的 JobGiver 不会被原版执行！
+        /// <summary>
+        /// 标记本阶段会主动分配职责，负责让原版执行顾客浏览 ThinkTree。
+        /// </summary>
         public override bool AssignsDuties => true;
 
+        /// <summary>
+        /// 给所有顾客分配浏览货架职责，负责驱动顾客在商店内寻找商品或服务。
+        /// </summary>
         public override void UpdateAllDuties()
         {
             foreach (Pawn pawn in lord.ownedPawns)
             {
-                // 给小人挂上我们自定义的 "浏览货架" 的职责
-                // 注意："Customer_BrowseShelf" 是一个 DefName，我们稍后要在 XML 里定义它
+                LordJob_CustomerVisit visit = lord?.LordJob as LordJob_CustomerVisit;
+                IntVec3 focus = visit?.GetCurrentShopCell(pawn) ?? shopCenter;
                 PawnDuty duty = new PawnDuty(DefDatabase<DutyDef>.GetNamed("Customer_BrowseShelf"))
                 {
-                    focus = shopCenter,
-                    locomotion = LocomotionUrgency.Amble // 用闲逛的步态，看起来像在逛街
+                    focus = focus,
+                    locomotion = LocomotionUrgency.Amble
                 };
                 pawn.mindState.duty = duty;
+            }
+        }
+
+        /// <summary>
+        /// 周期性检查商店营业状态，负责在关店后停止继续浏览并推进顾客收尾。
+        /// </summary>
+        public override void LordToilTick()
+        {
+            if (Find.TickManager.TicksGame % CloseCheckIntervalTicks != 0) return;
+
+            LordJob_CustomerVisit visit = lord?.LordJob as LordJob_CustomerVisit;
+            if (visit == null) return;
+
+            Pawn pawn = visit.FirstActivePawn();
+            Zone_Shop shop = visit.GetCurrentShop(pawn);
+            if (shop != null && shop.IsOpenNow()) return;
+
+            MarkActivePawnsReadyForCheckout(visit);
+        }
+
+        /// <summary>
+        /// 将仍在地图上的顾客标记为准备结账，负责让关店后的顾客进入付款或离店流程。
+        /// </summary>
+        private void MarkActivePawnsReadyForCheckout(LordJob_CustomerVisit visit)
+        {
+            if (visit == null || lord?.ownedPawns == null) return;
+
+            for (int i = 0; i < lord.ownedPawns.Count; i++)
+            {
+                Pawn pawn = lord.ownedPawns[i];
+                if (pawn == null || pawn.Destroyed || pawn.Dead || !pawn.Spawned) continue;
+                visit.MarkPawnReadyForCheckout(pawn.thingIDNumber);
             }
         }
     }

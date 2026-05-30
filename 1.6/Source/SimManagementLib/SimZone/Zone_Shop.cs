@@ -1,6 +1,7 @@
 using HarmonyLib;
 using RimWorld;
 using SimManagementLib.Pojo;
+using SimManagementLib.SimDef;
 using SimManagementLib.SimDialog;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.Tool;
@@ -294,6 +295,9 @@ namespace SimManagementLib.SimZone
                 .ToList();
         }
 
+        /// <summary>
+        /// 把员工加入指定岗位，并负责启用该岗位关联的原版工作类型。
+        /// </summary>
         public void AddAssignedPawn(string roleDefName, Pawn pawn, int maxCount)
         {
             if (string.IsNullOrEmpty(roleDefName) || pawn == null) return;
@@ -308,18 +312,58 @@ namespace SimManagementLib.SimZone
                 roleDefName = roleDefName,
                 pawn = pawn
             });
+            ActivateRoleWorkTypes(roleDefName, pawn);
         }
 
+        /// <summary>
+        /// 从指定岗位移除员工。
+        /// </summary>
         public void RemoveAssignedPawn(string roleDefName, Pawn pawn)
         {
             if (string.IsNullOrEmpty(roleDefName) || pawn == null || roleAssignments == null) return;
             roleAssignments.RemoveAll(a => a == null || (a.roleDefName == roleDefName && a.pawn == pawn));
         }
 
+        /// <summary>
+        /// 清空指定岗位的员工分配。
+        /// </summary>
         public void ClearAssignedPawns(string roleDefName)
         {
             if (string.IsNullOrEmpty(roleDefName) || roleAssignments == null) return;
             roleAssignments.RemoveAll(a => a == null || a.roleDefName == roleDefName);
+        }
+
+        /// <summary>
+        /// 启用岗位关联的工作类型，负责避免已分配员工因为工作优先级为零而不扫描岗位工作。
+        /// </summary>
+        private static void ActivateRoleWorkTypes(string roleDefName, Pawn pawn)
+        {
+            if (pawn?.workSettings == null || string.IsNullOrEmpty(roleDefName)) return;
+            ShopStaffRoleDef role = DefDatabase<ShopStaffRoleDef>.GetNamedSilentFail(roleDefName);
+            if (role?.workGivers.NullOrEmpty() != false) return;
+
+            pawn.workSettings.EnableAndInitializeIfNotAlreadyInitialized();
+            for (int i = 0; i < role.workGivers.Count; i++)
+            {
+                WorkTypeDef workType = role.workGivers[i]?.workType;
+                if (workType == null || pawn.WorkTypeIsDisabled(workType)) continue;
+                if (!pawn.workSettings.WorkIsActive(workType))
+                    pawn.workSettings.SetPriority(workType, 3);
+            }
+        }
+
+        /// <summary>
+        /// 激活当前店铺已分配员工的岗位工作类型，负责兼容已有存档中的岗位分配。
+        /// </summary>
+        private void ActivateAssignedRoleWorkTypes()
+        {
+            if (roleAssignments.NullOrEmpty()) return;
+            for (int i = 0; i < roleAssignments.Count; i++)
+            {
+                ShopRoleAssignment assignment = roleAssignments[i];
+                if (assignment?.pawn == null) continue;
+                ActivateRoleWorkTypes(assignment.roleDefName, assignment.pawn);
+            }
         }
 
         public MoveableShopZone CreateMoveableZoneSnapshot()
@@ -479,6 +523,8 @@ namespace SimManagementLib.SimZone
                 roleAssignments = new List<ShopRoleAssignment>();
             if (schedule == null)
                 schedule = new ShopScheduleData();
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+                ActivateAssignedRoleWorkTypes();
         }
     }
 }

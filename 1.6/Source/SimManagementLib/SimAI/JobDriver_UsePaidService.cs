@@ -2,6 +2,7 @@ using SimManagementLib.Api;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimService;
 using SimManagementLib.Tool;
+using SimManagementLib.SimZone;
 using System.Collections.Generic;
 using UnityEngine;
 using Verse;
@@ -81,10 +82,7 @@ namespace SimManagementLib.SimAI
                 order.state = ServiceOrderState.Completed;
                 serviceDef.Worker.NotifyServiceCompleted(pawn, Provider, order);
                 LordJob_CustomerVisit lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
-                SimZone.Zone_Shop shopZone = ShopDataUtility.FindAssignedShopZone(
-                    pawn.Map,
-                    lordJob?.targetShopZoneId ?? -1,
-                    lordJob?.targetShopCell ?? IntVec3.Invalid);
+                Zone_Shop shopZone = lordJob?.GetCurrentShop(pawn);
                 SimShopEvents.NotifyServiceOrderCompleted(pawn, order, shopZone);
                 ShopBubbleUtility.ShowTextBubble(pawn, SimTranslation.T("RSMF.Bubble.ServiceCompleted", serviceDef.DisplayLabel.Named("service")), new Color(0.55f, 0.85f, 1f));
 

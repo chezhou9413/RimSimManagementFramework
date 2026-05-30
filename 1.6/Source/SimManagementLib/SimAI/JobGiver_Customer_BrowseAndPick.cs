@@ -30,18 +30,14 @@ namespace SimManagementLib.SimAI
                 return null;
             }
 
-            float alreadySpent = lordJob.cartValues.TryGetValue(pId, out float v) ? v : 0f;
-            Zone_Shop shopZone = ShopDataUtility.FindAssignedShopZone(
-                pawn.Map,
-                lordJob.targetShopZoneId,
-                lordJob.targetShopCell);
+            Zone_Shop shopZone = lordJob.GetCurrentShop(pawn);
             if (shopZone == null)
             {
                 lordJob.MarkPawnReadyForCheckout(pId);
                 return null;
             }
 
-            float remainingBudget = lordJob.GetEffectiveBudgetForPawn(pawn, shopZone) - alreadySpent;
+            float remainingBudget = lordJob.GetRemainingTripBudget(pawn, shopZone);
 
             // 愿意消费的预算耗尽，直接去结账，保留未花完的原始预算。
             if (remainingBudget <= 0f)

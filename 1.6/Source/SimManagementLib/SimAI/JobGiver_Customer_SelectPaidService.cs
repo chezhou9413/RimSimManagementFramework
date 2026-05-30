@@ -25,14 +25,10 @@ namespace SimManagementLib.SimAI
                 return null;
             }
 
-            Zone_Shop shopZone = ShopDataUtility.FindAssignedShopZone(
-                pawn.Map,
-                lordJob.targetShopZoneId,
-                lordJob.targetShopCell);
+            Zone_Shop shopZone = lordJob.GetCurrentShop(pawn);
             if (shopZone == null) return null;
 
-            float alreadySpent = lordJob.cartValues.TryGetValue(pawnId, out float value) ? value : 0f;
-            float remainingBudget = lordJob.GetEffectiveBudgetForPawn(pawn, shopZone) - alreadySpent;
+            float remainingBudget = lordJob.GetRemainingTripBudget(pawn, shopZone);
             if (remainingBudget <= 0f)
             {
                 lordJob.MarkPawnReadyForCheckout(pawnId);

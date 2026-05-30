@@ -22,6 +22,9 @@ namespace SimManagementLib
         public int customerArrivalCheckIntervalTicks = 500;
         public int maxFinanceBillRecords = 2000;
         public int financeLogPageSize = 30;
+        public bool enableJourneyDebugLog = true;
+        public bool mirrorJourneyDebugLogToGameLog;
+        public int journeyDebugLogMaxBytes = 4194304;
         public string debugForcedCustomerKindId = "";
         public bool reviewAiEnabled;
         public CustomerReviewProvider reviewProvider = CustomerReviewProvider.OpenAICompatible;
@@ -64,6 +67,9 @@ namespace SimManagementLib
             Scribe_Values.Look(ref customerArrivalCheckIntervalTicks, "customerArrivalCheckIntervalTicks", 500);
             Scribe_Values.Look(ref maxFinanceBillRecords, "maxFinanceBillRecords", 2000);
             Scribe_Values.Look(ref financeLogPageSize, "financeLogPageSize", 30);
+            Scribe_Values.Look(ref enableJourneyDebugLog, "enableJourneyDebugLog", true);
+            Scribe_Values.Look(ref mirrorJourneyDebugLogToGameLog, "mirrorJourneyDebugLogToGameLog", false);
+            Scribe_Values.Look(ref journeyDebugLogMaxBytes, "journeyDebugLogMaxBytes", 4194304);
             Scribe_Values.Look(ref debugForcedCustomerKindId, "debugForcedCustomerKindId", "");
             Scribe_Values.Look(ref reviewAiEnabled, "reviewAiEnabled", false);
             Scribe_Values.Look(ref reviewProvider, "reviewProvider", CustomerReviewProvider.OpenAICompatible);
@@ -98,6 +104,7 @@ namespace SimManagementLib
             customerArrivalCheckIntervalTicks = Mathf.Clamp(customerArrivalCheckIntervalTicks, 120, 5000);
             maxFinanceBillRecords = Mathf.Clamp(maxFinanceBillRecords, 200, 50000);
             financeLogPageSize = Mathf.Clamp(financeLogPageSize, 10, 200);
+            journeyDebugLogMaxBytes = Mathf.Clamp(journeyDebugLogMaxBytes, 262144, 16777216);
             reviewSampleRate = Mathf.Clamp01(reviewSampleRate);
             reviewRequestsPerMinute = Mathf.Clamp(reviewRequestsPerMinute, 1, 60);
             maxReviewRecords = Mathf.Clamp(maxReviewRecords, 50, 10000);
@@ -231,6 +238,13 @@ namespace SimManagementLib
             Settings.maxFinanceBillRecords = (int)list.Slider(Settings.maxFinanceBillRecords, 200f, 50000f);
             list.Label(SimTranslation.T("RSMF.Settings.FinanceLogPageSize", Settings.financeLogPageSize.Named("count")));
             Settings.financeLogPageSize = (int)list.Slider(Settings.financeLogPageSize, 10f, 200f);
+            list.CheckboxLabeled("启用顾客行程调试日志", ref Settings.enableJourneyDebugLog, "输出到 RimWorld 存档数据目录下的 RimSimManagementFramework/Logs/journey-debug.log。");
+            list.CheckboxLabeled("同步调试日志到游戏日志", ref Settings.mirrorJourneyDebugLogToGameLog, "仅排查问题时开启，会增加游戏日志输出。");
+            list.Label($"行程调试日志最大体积：{Settings.journeyDebugLogMaxBytes / 1024} KB");
+            Settings.journeyDebugLogMaxBytes = (int)list.Slider(Settings.journeyDebugLogMaxBytes, 262144f, 16777216f);
+            Rect clearJourneyLogRect = list.GetRect(32f);
+            if (Widgets.ButtonText(clearJourneyLogRect, "清空顾客行程调试日志"))
+                SimDebugLogger.ClearJourneyLog();
 
             list.GapLine();
             list.Label(SimTranslation.T("RSMF.Settings.CustomerReviews"));
@@ -264,6 +278,9 @@ namespace SimManagementLib
                 Settings.customerArrivalCheckIntervalTicks = 500;
                 Settings.maxFinanceBillRecords = 2000;
                 Settings.financeLogPageSize = 30;
+                Settings.enableJourneyDebugLog = true;
+                Settings.mirrorJourneyDebugLogToGameLog = false;
+                Settings.journeyDebugLogMaxBytes = 4194304;
                 Settings.debugForcedCustomerKindId = "";
             }
 

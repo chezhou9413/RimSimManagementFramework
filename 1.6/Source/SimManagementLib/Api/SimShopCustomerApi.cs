@@ -36,7 +36,6 @@ namespace SimManagementLib.Api
         {
             if (customer == null || visit == null || shop == null) return null;
             int pawnId = customer.thingIDNumber;
-            float spent = visit.cartValues.TryGetValue(pawnId, out float value) ? value : 0f;
             return new CustomerActionContext
             {
                 customer = customer,
@@ -44,7 +43,7 @@ namespace SimManagementLib.Api
                 shop = shop,
                 pawnId = pawnId,
                 customerKind = visit.RuntimeCustomerKind,
-                remainingBudget = visit.GetEffectiveBudgetForPawn(customer, shop) - spent,
+                remainingBudget = visit.GetRemainingTripBudget(customer, shop),
                 currentTick = Find.TickManager?.TicksGame ?? 0
             };
         }

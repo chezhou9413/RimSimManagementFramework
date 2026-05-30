@@ -1,6 +1,7 @@
 using SimManagementLib.Pojo;
 using SimManagementLib.SimDef;
 using System.Collections.Generic;
+using System.Linq;
 using Verse;
 using Verse.AI;
 using Verse.AI.Group;
@@ -21,6 +22,7 @@ namespace SimManagementLib.SimAI
         public CustomerServiceOrderState serviceOrderState = new CustomerServiceOrderState();
         public CustomerCheckoutState checkoutState = new CustomerCheckoutState();
         public CustomerPawnSettingsState pawnSettingsState = new CustomerPawnSettingsState();
+        public Dictionary<int, CustomerVisitState> visitStates = new Dictionary<int, CustomerVisitState>();
 
         public Dictionary<int, float> cartValues => cartState.cartValues;
         public Dictionary<int, float> satisfactionMap => cartState.satisfactionMap;
@@ -30,6 +32,7 @@ namespace SimManagementLib.SimAI
         public Dictionary<int, CustomerRuntimeSettings> pawnSettings => pawnSettingsState.pawnSettings;
         public Dictionary<int, int> effectiveBudgetCaps => cartState.effectiveBudgetCaps;
         public Dictionary<int, int> checkoutOrder => checkoutState.checkoutOrder;
+        public Dictionary<int, CustomerVisitState> customerVisitStates => visitStates;
         public int nextServiceOrderId
         {
             get => serviceOrderState.nextServiceOrderId;
@@ -52,6 +55,7 @@ namespace SimManagementLib.SimAI
             if (serviceOrderState == null) serviceOrderState = new CustomerServiceOrderState();
             if (checkoutState == null) checkoutState = new CustomerCheckoutState();
             if (pawnSettingsState == null) pawnSettingsState = new CustomerPawnSettingsState();
+            if (visitStates == null) visitStates = new Dictionary<int, CustomerVisitState>();
         }
 
         public LordJob_CustomerVisit()
@@ -79,7 +83,7 @@ namespace SimManagementLib.SimAI
         {
             StateGraph graph = new StateGraph();
 
-            LordToil_Travel travelToil = new LordToil_Travel(targetShopCell);
+            LordToil_CustomerTravel travelToil = new LordToil_CustomerTravel();
             graph.AddToil(travelToil);
 
             LordToil_CustomerBrowse browseToil = new LordToil_CustomerBrowse(targetShopCell);
@@ -104,7 +108,20 @@ namespace SimManagementLib.SimAI
             checkoutToExit.AddTrigger(new Trigger_Memo("Customer_CheckoutCompleted"));
             graph.AddTransition(checkoutToExit);
 
+            Transition checkoutToNextShop = new Transition(checkoutToil, travelToil);
+            checkoutToNextShop.AddTrigger(new Trigger_Memo("Customer_GoToNextShop"));
+            graph.AddTransition(checkoutToNextShop, highPriority: true);
+
             return graph;
+        }
+
+        /// <summary>
+        /// 返回当前活跃顾客，负责为单顾客和未来多顾客队伍提供统一入口。
+        /// </summary>
+        public Pawn FirstActivePawn()
+        {
+            return lord?.ownedPawns?
+                .FirstOrDefault(pawn => pawn != null && !pawn.Destroyed && !pawn.Dead && pawn.Spawned);
         }
     }
 }

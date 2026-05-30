@@ -158,7 +158,7 @@ namespace SimManagementLib.Api
         /// </summary>
         public virtual void NotifyActionCompleted(CustomerActionContext context)
         {
-            if (context != null && context.RegisterConsumptionActionAndShouldCheckout())
+            if (context != null && (context.RegisterConsumptionActionAndShouldCheckout() || context.ShouldCheckoutAfterAction("外部动作完成")))
                 context.MarkReadyForCheckout();
         }
 

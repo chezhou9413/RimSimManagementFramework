@@ -1,4 +1,6 @@
+using SimManagementLib.Api;
 using System.Collections.Generic;
+using System.Linq;
 using Verse;
 using Verse.AI;
 
@@ -11,10 +13,37 @@ namespace SimManagementLib.SimAI
         /// </summary>
         public void MarkPawnReadyForCheckout(int pawnId)
         {
+            Pawn pawn = lord?.ownedPawns?.FirstOrDefault(item => item != null && item.thingIDNumber == pawnId);
+            ShopCheckoutReadinessContext context = new ShopCheckoutReadinessContext
+            {
+                customer = pawn,
+                shop = pawn != null ? GetCurrentShop(pawn) : null,
+                visit = this,
+                pawnId = pawnId
+            };
+            if (!SimShopCheckoutApi.CanPawnEnterCheckout(context))
+            {
+                Tool.SimDebugLogger.Journey("RSMF.Checkout", "顾客准备结账被扩展暂缓", pawn, context.shop, -1);
+                checkoutState.ClearPawnReadyForCheckout(pawnId);
+                return;
+            }
+
             checkoutState.MarkPawnReadyForCheckout(pawnId);
+            Tool.SimDebugLogger.Journey("RSMF.Checkout", "顾客已标记准备结账", pawn, context.shop, -1);
 
             if (AreAllActivePawnsReadyForCheckout())
+            {
+                Tool.SimDebugLogger.Journey("RSMF.Checkout", "所有活跃顾客已准备结账，发送 Customer_ReadyToCheckout", pawn, context.shop, -1);
                 lord?.ReceiveMemo("Customer_ReadyToCheckout");
+            }
+        }
+
+        /// <summary>
+        /// 清除顾客准备结账标记，负责让顾客完成单店结账后可以重新浏览下一家店。
+        /// </summary>
+        public void ClearPawnReadyForCheckout(int pawnId)
+        {
+            checkoutState.ClearPawnReadyForCheckout(pawnId);
         }
 
         /// <summary>
@@ -103,7 +132,9 @@ namespace SimManagementLib.SimAI
                 if (pawn == null || pawn.Destroyed || pawn.Dead || !pawn.Spawned) continue;
 
                 int pawnId = pawn.thingIDNumber;
-                if (cartValues.TryGetValue(pawnId, out float value) && value > 0f)
+                float owed = GetAmountOwedForCheckout(pawnId);
+                Tool.SimDebugLogger.Journey("RSMF.Checkout", $"检查结账完成 pawnId={pawnId} owed={owed}", pawn, GetCurrentShop(pawn), -1);
+                if (owed > 0f)
                 {
                     allDone = false;
                     break;
@@ -119,7 +150,17 @@ namespace SimManagementLib.SimAI
 
             if (allDone)
             {
-                lord.ReceiveMemo("Customer_CheckoutCompleted");
+                Pawn pawn = lord.ownedPawns.FirstOrDefault(p => p != null && !p.Destroyed && !p.Dead && p.Spawned);
+                if (pawn != null && TryMovePawnToNextShop(pawn))
+                {
+                    Tool.SimDebugLogger.Journey("RSMF.Checkout", "结账完成，顾客前往下一家店", pawn, GetCurrentShop(pawn), -1);
+                    lord.ReceiveMemo("Customer_GoToNextShop");
+                }
+                else
+                {
+                    Tool.SimDebugLogger.Journey("RSMF.Checkout", "结账完成，顾客离店", pawn, pawn != null ? GetCurrentShop(pawn) : null, -1);
+                    lord.ReceiveMemo("Customer_CheckoutCompleted");
+                }
             }
         }
     }

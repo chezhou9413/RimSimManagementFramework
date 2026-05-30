@@ -12,8 +12,6 @@ namespace SimManagementLib.SimAI
 {
     public partial class LordJob_CustomerVisit
     {
-        private const int DefaultMaxConsumptionActions = 3;
-
         /// <summary>
         /// 添加指定商品到顾客购物车。
         /// </summary>
@@ -52,7 +50,10 @@ namespace SimManagementLib.SimAI
         /// </summary>
         public bool RegisterConsumptionActionAndShouldCheckout(int pawnId)
         {
-            return cartState.RegisterConsumptionActionAndShouldCheckout(pawnId, DefaultMaxConsumptionActions);
+            Pawn pawn = lord?.ownedPawns?.FirstOrDefault(p => p != null && p.thingIDNumber == pawnId);
+            if (pawn != null)
+                return RegisterConsumptionActionForCurrentShop(pawn);
+            return cartState.RegisterConsumptionActionAndShouldCheckout(pawnId, GetShoppingBehavior().maxConsumptionActionsPerShop);
         }
 
         /// <summary>
@@ -60,7 +61,10 @@ namespace SimManagementLib.SimAI
         /// </summary>
         public bool HasReachedConsumptionLimit(int pawnId)
         {
-            return cartState.HasReachedConsumptionLimit(pawnId, DefaultMaxConsumptionActions);
+            Pawn pawn = lord?.ownedPawns?.FirstOrDefault(p => p != null && p.thingIDNumber == pawnId);
+            if (pawn != null)
+                return HasReachedCurrentShopConsumptionLimit(pawn);
+            return cartState.HasReachedConsumptionLimit(pawnId, GetShoppingBehavior().maxConsumptionActionsPerShop);
         }
 
         /// <summary>

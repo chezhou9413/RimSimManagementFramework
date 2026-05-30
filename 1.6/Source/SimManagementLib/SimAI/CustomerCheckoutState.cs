@@ -54,6 +54,15 @@ namespace SimManagementLib.SimAI
         }
 
         /// <summary>
+        /// 清除顾客准备结账标记，负责让跨店顾客重新进入下一店浏览。
+        /// </summary>
+        public void ClearPawnReadyForCheckout(int pawnId)
+        {
+            if (pawnId <= 0) return;
+            readyForCheckout.Remove(pawnId);
+        }
+
+        /// <summary>
         /// 获取或分配顾客的固定结账顺序。
         /// </summary>
         public int EnsureCheckoutOrder(int pawnId)

@@ -302,15 +302,8 @@ namespace SimManagementLib.SimMapComp
                 LordJob_CustomerVisit visit = lord?.LordJob as LordJob_CustomerVisit;
                 if (visit == null) continue;
 
-                if (visit.targetShopZoneId >= 0)
-                {
-                    if (visit.targetShopZoneId == shop.ID)
-                        count++;
-                }
-                else if (shop.Cells.Contains(visit.targetShopCell))
-                {
+                if (visit.GetCurrentShop(pawn) == shop)
                     count++;
-                }
             }
 
             return count;

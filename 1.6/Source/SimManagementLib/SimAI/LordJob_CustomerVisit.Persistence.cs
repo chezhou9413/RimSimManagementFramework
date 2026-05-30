@@ -4,6 +4,9 @@ namespace SimManagementLib.SimAI
 {
     public partial class LordJob_CustomerVisit
     {
+        private System.Collections.Generic.List<int> tmpVisitStateKeys;
+        private System.Collections.Generic.List<CustomerVisitState> tmpVisitStateValues;
+
         /// <summary>
         /// 读写顾客访问的群体状态和拆分后的运行状态，负责保持旧存档字段名兼容。
         /// </summary>
@@ -22,6 +25,8 @@ namespace SimManagementLib.SimAI
             serviceOrderState.ExposeData();
             pawnSettingsState.ExposeData();
             checkoutState.ExposeData();
+            Scribe_Collections.Look(ref visitStates, "visitStates", LookMode.Value, LookMode.Deep, ref tmpVisitStateKeys, ref tmpVisitStateValues);
+            EnsureStateObjects();
         }
     }
 }

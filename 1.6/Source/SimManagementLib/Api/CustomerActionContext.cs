@@ -39,6 +39,14 @@ namespace SimManagementLib.Api
         }
 
         /// <summary>
+        /// 判断外部动作结束后是否应该进入结账，负责复用自然浏览退出决策。
+        /// </summary>
+        public bool ShouldCheckoutAfterAction(string reason)
+        {
+            return visit?.ShouldCheckoutFromCurrentShop(customer, shop, reason) == true;
+        }
+
+        /// <summary>
         /// 向顾客本次账单追加金额，负责让外部动作接入现有收银结账流程。
         /// </summary>
         public void AddBill(float amount)
@@ -55,7 +63,7 @@ namespace SimManagementLib.Api
         public void AddBillAndRegisterConsumption(float amount)
         {
             AddBill(amount);
-            if (RegisterConsumptionActionAndShouldCheckout())
+            if (RegisterConsumptionActionAndShouldCheckout() || ShouldCheckoutAfterAction("外部动作消费完成"))
                 MarkReadyForCheckout();
         }
 

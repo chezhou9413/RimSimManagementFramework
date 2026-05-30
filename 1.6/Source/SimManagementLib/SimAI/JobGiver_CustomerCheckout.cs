@@ -1,5 +1,4 @@
 using RimWorld;
-using SimManagementLib.GameComp;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
@@ -27,7 +26,8 @@ namespace SimManagementLib.SimAI
             if (lordJob == null) return null;
 
             int pawnId = pawn.thingIDNumber;
-            if (!lordJob.cartValues.TryGetValue(pawnId, out float owed) || owed <= 0f)
+            float owed = lordJob.GetAmountOwedForCheckout(pawnId);
+            if (owed <= 0f)
             {
                 if (lordJob.TryTakeNextPostCheckoutJob(pawnId, out Job postJob))
                 {
@@ -43,24 +43,19 @@ namespace SimManagementLib.SimAI
                 return null;
             }
 
-            Zone_Shop targetShop = ShopDataUtility.FindAssignedShopZone(pawn.Map, lordJob.targetShopZoneId, lordJob.targetShopCell);
-            List<Building_CashRegister> registers = pawn.Map.listerBuildings.allBuildingsColonist
+            Zone_Shop targetShop = lordJob.GetCurrentShop(pawn);
+            List<Building_CashRegister> registers = pawn.Map.listerBuildings.allBuildingsNonColonist
+                .Concat(pawn.Map.listerBuildings.allBuildingsColonist)
                 .OfType<Building_CashRegister>()
                 .Where(r => r != null && !r.Destroyed && r.Spawned)
-                .Where(r => targetShop != null && targetShop.Cells.Contains(r.Position))
+                .Where(r => RegisterBelongsToShop(r, targetShop))
                 .Where(r => pawn.CanReach(r, PathEndMode.Touch, Danger.Deadly))
+                .Distinct()
                 .ToList();
 
             if (registers.NullOrEmpty())
             {
-                Current.Game?.GetComponent<GameComponent_ShopFinanceManager>()?.ClearPendingBill(pawn);
-                if (targetShop != null)
-                {
-                    ShopDataUtility.ReturnCartItemsToShop(targetShop, lordJob.GetCartItems(pawnId));
-                }
-                lordJob.ResolveServiceOrdersOnCheckoutFailure(pawnId);
-                lordJob.ClearCustomerCart(pawnId);
-                lordJob.ClearCustomerServiceOrders(pawnId);
+                SimDebugLogger.Journey("RSMF.Checkout", $"没有找到可用收银台，保留账单等待重试 owed={owed}", pawn, targetShop, -1);
                 lordJob.CheckAllCheckoutsDone();
                 return null;
             }
@@ -83,6 +78,21 @@ namespace SimManagementLib.SimAI
             job.SetTarget(TargetIndex.B, queueCell);
             job.SetTarget(TargetIndex.C, serviceCell);
             return job;
+        }
+
+        /// <summary>
+        /// 判断收银台是否属于目标商店，负责兼容建筑主体、交互格或占用格落在商店区内的情况。
+        /// </summary>
+        private static bool RegisterBelongsToShop(Building_CashRegister register, Zone_Shop shop)
+        {
+            if (register == null || shop == null) return false;
+            if (shop.Cells.Contains(register.Position)) return true;
+            if (register.InteractionCell.IsValid && shop.Cells.Contains(register.InteractionCell)) return true;
+            foreach (IntVec3 cell in register.OccupiedRect())
+            {
+                if (shop.Cells.Contains(cell)) return true;
+            }
+            return false;
         }
 
         /// <summary>

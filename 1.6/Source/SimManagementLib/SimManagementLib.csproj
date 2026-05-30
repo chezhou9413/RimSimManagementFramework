@@ -113,6 +113,7 @@
     <Compile Include="Api\CustomerActionContext.cs" />
     <Compile Include="Api\CustomerActionWorker.cs" />
     <Compile Include="Api\CustomerActionSessionWorker.cs" />
+    <Compile Include="Api\CustomerReviewSnapshotApi.cs" />
     <Compile Include="Api\SimShopApi.cs" />
     <Compile Include="Api\SimShopCustomerApi.cs" />
     <Compile Include="Api\SimShopEvents.cs" />
@@ -187,15 +188,18 @@
     <Compile Include="SimAI\CustomerCheckoutState.cs" />
     <Compile Include="SimAI\CustomerPawnSettingsState.cs" />
     <Compile Include="SimAI\CustomerServiceOrderState.cs" />
+    <Compile Include="SimAI\CustomerVisitState.cs" />
     <Compile Include="SimAI\LordJob_CustomerVisit.cs" />
     <Compile Include="SimAI\LordJob_CustomerVisit.Cart.cs" />
     <Compile Include="SimAI\LordJob_CustomerVisit.Checkout.cs" />
     <Compile Include="SimAI\LordJob_CustomerVisit.Persistence.cs" />
     <Compile Include="SimAI\LordJob_CustomerVisit.Runtime.cs" />
+    <Compile Include="SimAI\LordJob_CustomerVisit.Shops.cs" />
     <Compile Include="SimAI\LordJob_CustomerVisit.ServiceOrders.cs" />
     <Compile Include="SimAI\LordJob_VendingMachineVisit.cs" />
     <Compile Include="SimAI\LordToil_CustomerBrowse.cs" />
     <Compile Include="SimAI\LordToil_CustomerCheckout.cs" />
+    <Compile Include="SimAI\LordToil_CustomerTravel.cs" />
     <Compile Include="SimAI\LordToil_VendingMachineUse.cs" />
     <Compile Include="SimDef\CustomerKindDef.cs" />
     <Compile Include="SimDef\CustomerActionDef.cs" />
@@ -239,6 +243,7 @@
     <Compile Include="SimDialog\ShopUiBuiltinPageWorkers.cs" />
     <Compile Include="SimDialog\SimUiStyle.cs" />
     <Compile Include="SimManagementLibMod.cs" />
+    <Compile Include="Debug\DebugActions_SimShop.CrossShop.cs" />
     <Compile Include="Patch\Patch_CustomerCombatSafety.cs" />
     <Compile Include="Patch\Patch_CustomerFactionRelationInit.cs" />
     <Compile Include="Patch\Patch_Gravship_ShopZoneTransport.cs" />
@@ -341,6 +346,7 @@
     <Compile Include="Tool\ShopFinanceLineTypeUtility.cs" />
     <Compile Include="Tool\ShopPricingUtility.cs" />
     <Compile Include="Tool\ShopProgressBarUtility.cs" />
+    <Compile Include="Tool\SimDebugLogger.cs" />
     <Compile Include="Tool\ShopServiceUtility.cs" />
     <Compile Include="Tool\ShopStaffUtility.cs" />
     <Compile Include="Tool\ShopStorageUtility.cs" />

@@ -36,7 +36,7 @@ namespace SimManagementLib.Tool
                 .FirstOrDefault(f => f != null && f.def == factionDef);
             if (faction == null)
             {
-                faction = FactionGenerator.NewGeneratedFaction(new FactionGeneratorParms(factionDef, default, true));
+                faction = CreateCustomerFactionWithoutLeader(factionDef);
                 faction.Name = SimTranslation.T("RSMF.CustomerFaction.Name");
                 faction.hidden = true;
                 faction.temporary = true;
@@ -44,6 +44,30 @@ namespace SimManagementLib.Tool
             }
 
             EnsureNeutralRelations(faction);
+            return faction;
+        }
+
+        /// <summary>
+        /// 创建顾客专用隐藏派系，负责避开原版生成派系领袖时的亲属关系生成流程。
+        /// </summary>
+        private static Faction CreateCustomerFactionWithoutLeader(FactionDef factionDef)
+        {
+            Faction faction = new Faction
+            {
+                def = factionDef,
+                loadID = Find.UniqueIDsManager.GetNextFactionID(),
+                colorFromSpectrum = 0.5f,
+                hidden = true,
+                temporary = true
+            };
+
+            if (factionDef.humanlikeFaction)
+            {
+                faction.ideos = new FactionIdeosTracker(faction);
+                if (ModsConfig.IdeologyActive)
+                    faction.ideos.ChooseOrGenerateIdeo(new IdeoGenerationParms(factionDef, hidden: true, requiredPreceptsOnly: true));
+            }
+
             return faction;
         }
 
