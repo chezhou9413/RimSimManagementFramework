@@ -94,6 +94,25 @@ namespace SimManagementLib.SimAI
         }
 
         /// <summary>
+        /// 判断顾客是否已经完成当前店铺的最低浏览体验。
+        /// </summary>
+        public bool HasCompletedCurrentShopMinimumBrowse(Pawn pawn)
+        {
+            CustomerVisitState state = GetOrCreateVisitState(pawn);
+            return state != null && state.currentShopMinimumBrowseDone;
+        }
+
+        /// <summary>
+        /// 标记顾客已经完成当前店铺的最低浏览体验。
+        /// </summary>
+        public void MarkCurrentShopBrowsed(Pawn pawn)
+        {
+            CustomerVisitState state = GetOrCreateVisitState(pawn);
+            if (state != null)
+                state.currentShopMinimumBrowseDone = true;
+        }
+
+        /// <summary>
         /// 返回顾客跨店剩余预算，负责让每家店独立结账但共享总预算。
         /// </summary>
         public float GetRemainingTripBudget(Pawn pawn, Zone_Shop shopZone)
@@ -161,6 +180,7 @@ namespace SimManagementLib.SimAI
             state.currentShopCell = next.Cells.FirstOrDefault();
             state.currentShopVisitStartTick = Find.TickManager?.TicksGame ?? 0;
             state.currentShopConsumptionActions = 0;
+            state.currentShopMinimumBrowseDone = false;
             if (!state.visitedShopZoneIds.Contains(next.ID))
                 state.visitedShopZoneIds.Add(next.ID);
             targetShopZoneId = state.currentShopZoneId;

@@ -206,24 +206,41 @@ namespace SimManagementLib
     /// </summary>
     public class SimManagementLibMod : Mod
     {
+        private const float SettingsScrollBottomPadding = 24f;
         public static SimManagementLibSettings Settings { get; private set; } = new SimManagementLibSettings();
         public static ModContentPack ActiveContentPack { get; private set; }
+        private Vector2 settingsScrollPosition;
+        private float settingsViewHeight = 700f;
 
+        /// <summary>
+        /// 初始化模组设置实例，负责保存内容包引用并读取玩家配置。
+        /// </summary>
         public SimManagementLibMod(ModContentPack content) : base(content)
         {
             ActiveContentPack = content;
             Settings = GetSettings<SimManagementLibSettings>();
         }
 
+        /// <summary>
+        /// 返回模组设置页名称，负责让 RimWorld 在设置列表中显示本模组入口。
+        /// </summary>
         public override string SettingsCategory()
         {
             return SimTranslation.T("RSMF.Settings.Category");
         }
 
+        /// <summary>
+        /// 绘制模组设置页面，负责提供顾客、财务、评价和注册面板入口。
+        /// </summary>
         public override void DoSettingsWindowContents(Rect inRect)
         {
+            Rect outRect = inRect.ContractedBy(2f);
+            Rect viewRect = new Rect(0f, 0f, outRect.width - 18f, Mathf.Max(settingsViewHeight, outRect.height));
+            Widgets.BeginScrollView(outRect, ref settingsScrollPosition, viewRect);
+
             Listing_Standard list = new Listing_Standard();
-            list.Begin(inRect);
+            list.maxOneColumn = true;
+            list.Begin(viewRect);
 
             list.Label(SimTranslation.T("RSMF.Settings.CustomerSystem"));
             list.CheckboxLabeled(SimTranslation.T("RSMF.Settings.ShowCustomerArrivalMessage"), ref Settings.showCustomerArrivalMessage, SimTranslation.T("RSMF.Settings.ShowCustomerArrivalMessageTip"));
@@ -285,6 +302,8 @@ namespace SimManagementLib
             }
 
             list.End();
+            settingsViewHeight = Mathf.Max(outRect.height, list.CurHeight + SettingsScrollBottomPadding);
+            Widgets.EndScrollView();
             Settings.Write();
         }
 
@@ -332,6 +351,9 @@ namespace SimManagementLib
     [StaticConstructorOnStartup]
     public static class SimManagementLibBootstrap
     {
+        /// <summary>
+        /// 初始化框架补丁和快捷指令注册，负责在 Def 加载后接入必要的运行时入口。
+        /// </summary>
         static SimManagementLibBootstrap()
         {
             Harmony harmony = new Harmony("com.Chezhou.simmanagementlib");
@@ -339,6 +361,9 @@ namespace SimManagementLib
             EnsureShopDesignatorRegistered();
         }
 
+        /// <summary>
+        /// 将商店区和快捷商品注册指令接入原版区划分类，负责兼容只打开原版区划页的玩家操作路径。
+        /// </summary>
         private static void EnsureShopDesignatorRegistered()
         {
             DesignationCategoryDef zoneCategory = DefDatabase<DesignationCategoryDef>.GetNamedSilentFail("Zone");
@@ -351,6 +376,16 @@ namespace SimManagementLib
             Type shopDesignatorType = typeof(Designator_ZoneAdd_Shop);
             if (!zoneCategory.specialDesignatorClasses.Contains(shopDesignatorType))
                 zoneCategory.specialDesignatorClasses.Add(shopDesignatorType);
+
+            Type quickRegisterDesignatorType = typeof(Designator_RegisterGoodsFromSelection);
+            if (zoneCategory.specialDesignatorClasses.Contains(quickRegisterDesignatorType))
+                return;
+
+            int shopIndex = zoneCategory.specialDesignatorClasses.IndexOf(shopDesignatorType);
+            if (shopIndex >= 0 && shopIndex < zoneCategory.specialDesignatorClasses.Count - 1)
+                zoneCategory.specialDesignatorClasses.Insert(shopIndex + 1, quickRegisterDesignatorType);
+            else
+                zoneCategory.specialDesignatorClasses.Add(quickRegisterDesignatorType);
         }
     }
 }

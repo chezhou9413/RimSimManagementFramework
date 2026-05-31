@@ -1,6 +1,11 @@
 using SimManagementLib.Api;
+using SimManagementLib.GameComp;
+using SimManagementLib.Pojo;
+using SimManagementLib.SimZone;
+using SimManagementLib.Tool;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 using Verse;
 using Verse.AI;
 
@@ -101,6 +106,67 @@ namespace SimManagementLib.SimAI
         {
             checkoutState.MarkPostCheckoutCompleted(pawnId);
             ClearCustomerServiceOrders(pawnId);
+        }
+
+        /// <summary>
+        /// 在顾客已完成最低浏览后标记结账，负责避免未完成最低浏览时反复进入无效结账判定。
+        /// </summary>
+        public bool TryMarkReadyForCheckoutAfterMinimumBrowse(Pawn pawn)
+        {
+            if (pawn == null) return false;
+            if (!HasCompletedCurrentShopMinimumBrowse(pawn))
+                return false;
+
+            int pawnId = pawn.thingIDNumber;
+            if (!cartValues.ContainsKey(pawnId))
+                cartValues[pawnId] = 0f;
+            MarkPawnReadyForCheckout(pawnId);
+            return true;
+        }
+
+        /// <summary>
+        /// 放弃无法完成的结账，负责在缺少可达收银台等失败场景中清账并推进离店。
+        /// </summary>
+        public void FailCheckoutAndLeave(Pawn pawn, string failReason)
+        {
+            if (pawn == null) return;
+
+            int pawnId = pawn.thingIDNumber;
+            Zone_Shop shopZone = GetCurrentShop(pawn);
+            GameComponent_ShopFinanceManager finance = Current.Game?.GetComponent<GameComponent_ShopFinanceManager>();
+            GameComponent_ShopAnalyticsManager analytics = Current.Game?.GetComponent<GameComponent_ShopAnalyticsManager>();
+            List<CustomerCartItem> purchasedItems = GetCartItems(pawnId);
+            List<FinanceLineItem> billLines = finance?.GetPendingBillLines(pawn) ?? new List<FinanceLineItem>();
+            float amountOwed = GetAmountOwedForCheckout(pawnId);
+            int budget = GetBudgetForPawn(pawnId);
+
+            if (shopZone != null)
+                ShopDataUtility.ReturnCartItemsToShop(shopZone, purchasedItems);
+
+            ShopCheckoutContext context = new ShopCheckoutContext
+            {
+                customer = pawn,
+                shop = shopZone,
+                register = null,
+                visit = this,
+                billLines = billLines,
+                amountOwed = amountOwed,
+                paidSilver = 0,
+                timedOut = false,
+                success = false,
+                failReason = failReason ?? ""
+            };
+            SimShopCheckoutApi.NotifyCheckoutFailed(context);
+            CustomerReviewSnapshotBuilder.TryEnqueueReview(pawn, this, shopZone, billLines, 0, context.failReason);
+
+            finance?.ClearPendingBill(pawn);
+            ResolveServiceOrdersOnCheckoutFailure(pawnId);
+            ClearCustomerCart(pawnId);
+            ClearCustomerServiceOrders(pawnId);
+            CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.CheckoutTimeout);
+            ShopBubbleUtility.ShowTextBubble(pawn, context.failReason, new Color(1f, 0.72f, 0.4f));
+            analytics?.RecordCheckoutResult(shopZone, 0, GetQueuePatienceForPawn(pawnId), 0, budget, success: false, timeout: true);
+            CheckAllCheckoutsDone();
         }
 
         /// <summary>

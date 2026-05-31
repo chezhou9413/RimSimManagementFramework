@@ -12,6 +12,7 @@
   <RSMF.Zone.Validation.MissingStorageOrService>缺少货柜或服务建筑。</RSMF.Zone.Validation.MissingStorageOrService>
   <RSMF.Zone.Validation.MissingCashRegister>缺少收银台。</RSMF.Zone.Validation.MissingCashRegister>
   <RSMF.Zone.Validation.Valid>商店设施有效。</RSMF.Zone.Validation.Valid>
+  <RSMF.Checkout.NoReachableRegister>找不到可到达的收银台，顾客放弃本次结账并离店。</RSMF.Checkout.NoReachableRegister>
   <RSMF.Zone.Inspect.FacilityStatus>设施状态: {status}</RSMF.Zone.Inspect.FacilityStatus>
   <RSMF.Zone.Inspect.OpenStatus>营业状态: {status}</RSMF.Zone.Inspect.OpenStatus>
   <RSMF.Gizmo.ShopManagement.Label>商店管理</RSMF.Gizmo.ShopManagement.Label>

@@ -405,7 +405,7 @@ namespace SimManagementLib.SimAI
                 return 1f;
 
             float workSpeed = cashier.GetStatValue(StatDefOf.WorkSpeedGlobal);
-            float socialImpact = cashier.GetStatValue(StatDefOf.SocialImpact);
+            float socialImpact = CashierSocialUtility.GetServiceSocialImpact(cashier);
             return Mathf.Max(0.2f, workSpeed * Mathf.Max(0.5f, socialImpact));
         }
     }

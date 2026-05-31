@@ -71,8 +71,6 @@ namespace SimManagementLib.SimAI
             };
             yield return init;
 
-            yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.Touch);
-
             Toil selectOrUse = new Toil();
             selectOrUse.defaultCompleteMode = ToilCompleteMode.Delay;
             selectOrUse.defaultDuration = 120;
@@ -84,28 +82,35 @@ namespace SimManagementLib.SimAI
                     return;
                 }
 
-                if (selectedService.billingMode == ServiceBillingMode.UseBeforePay)
+                if (selectedService.billingMode != ServiceBillingMode.UseBeforePay)
                 {
-                    serviceDurationTicks = selectedService.Worker.GetDurationTicks();
-                    ticksLeftThisToil = serviceDurationTicks;
-                    activeOrder.state = ServiceOrderState.InUse;
-                    activeOrder.startedTick = Find.TickManager.TicksGame;
-                    SimDebugLogger.Journey("RSMF.SelectService", $"服务开始使用 service={selectedService.defName} duration={serviceDurationTicks}", pawn, pawn.Map.lordManager.LordOf(pawn)?.LordJob is LordJob_CustomerVisit visit ? visit.GetCurrentShop(pawn) : null, activeOrder.orderId);
-                    selectedService.Worker.NotifyServiceStarted(pawn, Provider, activeOrder);
+                    ticksLeftThisToil = 1;
+                    return;
                 }
-                else
-                {
-                    serviceDurationTicks = 120;
-                    ticksLeftThisToil = serviceDurationTicks;
-                }
+
+                serviceDurationTicks = selectedService.Worker.GetDurationTicks();
+                ticksLeftThisToil = serviceDurationTicks;
+                activeOrder.state = ServiceOrderState.InUse;
+                activeOrder.startedTick = Find.TickManager.TicksGame;
+                SimDebugLogger.Journey("RSMF.SelectService", $"服务开始使用 service={selectedService.defName} duration={serviceDurationTicks}", pawn, pawn.Map.lordManager.LordOf(pawn)?.LordJob is LordJob_CustomerVisit visit ? visit.GetCurrentShop(pawn) : null, activeOrder.orderId);
+                selectedService.Worker.NotifyServiceStarted(pawn, Provider, activeOrder);
             };
             selectOrUse.tickAction = () =>
             {
+                if (selectedService?.billingMode != ServiceBillingMode.UseBeforePay)
+                {
+                    ticksLeftThisToil = 0;
+                    return;
+                }
+
                 float progress = 1f - ticksLeftThisToil / (float)Mathf.Max(1, serviceDurationTicks);
                 ShopProgressBarUtility.Report(pawn, progress);
                 selectedService?.Worker.TickServiceUse(pawn, Provider, activeOrder);
             };
             selectOrUse.AddFinishAction(() => ShopProgressBarUtility.Clear(pawn));
+
+            yield return Toils_Jump.JumpIf(selectOrUse, () => selectedService?.billingMode != ServiceBillingMode.UseBeforePay);
+            yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.Touch);
             yield return selectOrUse;
 
             Toil finalize = new Toil();

@@ -35,6 +35,8 @@ namespace SimManagementLib.SimAI
             Toil browse = Toils_General.Wait(300);
             browse.initAction = () =>
             {
+                LordJob_CustomerVisit lordJob = pawn.Map?.lordManager?.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
+                lordJob?.MarkCurrentShopBrowsed(pawn);
                 CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.BrowseStart);
             };
             browse.tickAction = () =>

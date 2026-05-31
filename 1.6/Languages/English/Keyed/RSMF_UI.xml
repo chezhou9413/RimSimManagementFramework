@@ -12,6 +12,7 @@
   <RSMF.Zone.Validation.MissingStorageOrService>Missing storage or service building.</RSMF.Zone.Validation.MissingStorageOrService>
   <RSMF.Zone.Validation.MissingCashRegister>Missing cash register.</RSMF.Zone.Validation.MissingCashRegister>
   <RSMF.Zone.Validation.Valid>Shop facilities are valid.</RSMF.Zone.Validation.Valid>
+  <RSMF.Checkout.NoReachableRegister>No reachable cash register was found, so the customer abandons this checkout and leaves.</RSMF.Checkout.NoReachableRegister>
   <RSMF.Zone.Inspect.FacilityStatus>Facilities: {status}</RSMF.Zone.Inspect.FacilityStatus>
   <RSMF.Zone.Inspect.OpenStatus>Open status: {status}</RSMF.Zone.Inspect.OpenStatus>
   <RSMF.Gizmo.ShopManagement.Label>Shop management</RSMF.Gizmo.ShopManagement.Label>

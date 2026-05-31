@@ -23,7 +23,7 @@ namespace SimManagementLib.SimAI
             int pawnId = pawn.thingIDNumber;
             if (lordJob.HasReachedConsumptionLimit(pawnId))
             {
-                lordJob.MarkPawnReadyForCheckout(pawnId);
+                lordJob.TryMarkReadyForCheckoutAfterMinimumBrowse(pawn);
                 return null;
             }
 
@@ -33,7 +33,7 @@ namespace SimManagementLib.SimAI
             CustomerActionContext context = SimShopCustomerApi.BuildActionContext(pawn, lordJob, shopZone);
             if (context == null || context.remainingBudget <= 0f)
             {
-                lordJob.MarkPawnReadyForCheckout(pawnId);
+                lordJob.TryMarkReadyForCheckoutAfterMinimumBrowse(pawn);
                 return null;
             }
 

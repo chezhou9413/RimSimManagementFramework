@@ -832,10 +832,10 @@ namespace SimManagementLib.Tool
             if (cashier == null)
                 return "没有记录到收银员，可能是无人值守或收银员已离开。";
 
-            float socialImpact = SafeStat(cashier, StatDefOf.SocialImpact);
+            float socialImpact = CashierSocialUtility.GetServiceSocialImpact(cashier);
             float tradePriceImprovement = SafeStat(cashier, StatDefOf.TradePriceImprovement);
             float workSpeed = SafeStat(cashier, StatDefOf.WorkSpeedGlobal);
-            int socialSkill = cashier.skills?.GetSkill(SkillDefOf.Social)?.Level ?? 0;
+            int socialSkill = CashierSocialUtility.GetEffectiveSocialLevel(cashier);
             string name = cashier.LabelShortCap;
             string cashierTraits = BuildTraitSummary(cashier);
             return $"{name}，社交 {socialSkill}，魅力/社交影响 {socialImpact:F2}，谈判价格能力 {tradePriceImprovement:F2}，全局工作速度 {workSpeed:F2}，收银台 {(register?.LabelShortCap ?? "未知")}，收银员特性说明: {cashierTraits}";

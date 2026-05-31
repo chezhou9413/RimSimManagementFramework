@@ -1,5 +1,6 @@
 using RimWorld;
 using SimManagementLib.SimThingClass;
+using SimManagementLib.Tool;
 using System.Collections.Generic;
 using UnityEngine;
 using Verse;
@@ -35,14 +36,14 @@ namespace SimManagementLib.SimAI
             work.tickAction = delegate
             {
                 pawn.rotationTracker.FaceTarget(Register);
-                pawn.skills.Learn(SkillDefOf.Social, 0.05f);
+                CashierSocialUtility.TryLearnSocial(pawn, 0.05f);
                 pawn.GainComfortFromCellIfPossible(1);
             };
 
             work.defaultCompleteMode = ToilCompleteMode.Delay;
             work.defaultDuration = Mathf.Max(900, Mathf.RoundToInt(BaseShiftTicks / Mathf.Max(0.2f, pawn.GetStatValue(StatDefOf.WorkSpeedGlobal))));
             work.FailOnCannotTouch(TargetIndex.A, PathEndMode.InteractionCell);
-            work.activeSkill = () => SkillDefOf.Social;
+            work.activeSkill = () => CashierSocialUtility.HasSocialSkillRecord(pawn) ? SkillDefOf.Social : null;
             yield return work;
         }
     }

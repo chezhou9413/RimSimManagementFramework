@@ -55,8 +55,8 @@ namespace SimManagementLib.SimAI
 
             if (registers.NullOrEmpty())
             {
-                SimDebugLogger.Journey("RSMF.Checkout", $"没有找到可用收银台，保留账单等待重试 owed={owed}", pawn, targetShop, -1);
-                lordJob.CheckAllCheckoutsDone();
+                SimDebugLogger.Journey("RSMF.Checkout", $"没有找到可用收银台，取消本次结账 owed={owed}", pawn, targetShop, -1);
+                lordJob.FailCheckoutAndLeave(pawn, SimTranslation.T("RSMF.Checkout.NoReachableRegister"));
                 return null;
             }
 

@@ -27,6 +27,15 @@
   </JobDef>
 
   <JobDef>
+    <defName>Customer_WindowShop</defName>
+    <driverClass>SimManagementLib.SimAI.JobDriver_WindowShop</driverClass>
+    <reportString>正在浏览商品。</reportString>
+    <casualInterruptible>true</casualInterruptible>
+    <joyDuration>300</joyDuration>
+    <joyKind>Meditative</joyKind>
+  </JobDef>
+
+  <JobDef>
     <defName>Customer_PayAtRegister</defName>
     <driverClass>SimManagementLib.SimAI.JobDriver_PayAtRegister</driverClass>
     <reportString>正在排队结账。</reportString>

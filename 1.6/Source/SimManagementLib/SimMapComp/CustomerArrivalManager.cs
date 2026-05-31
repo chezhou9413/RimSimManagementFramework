@@ -310,6 +310,34 @@ namespace SimManagementLib.SimMapComp
         }
 
         /// <summary>
+        /// 查找商店内可作为顾客入店目标的站立格，负责避免不可达商店生成后直接离图。
+        /// </summary>
+        private bool TryFindReachableShopEntryCell(Zone_Shop shop, out IntVec3 targetCell)
+        {
+            targetCell = IntVec3.Invalid;
+            if (shop == null) return false;
+
+            List<IntVec3> storageCells = ShopDataUtility.GetStoragesInZone(shop)
+                .Where(storage => storage != null && !storage.Destroyed && storage.Spawned)
+                .Select(storage => storage.InteractionCell)
+                .Where(cell => cell.IsValid && cell.Standable(map))
+                .ToList();
+            if (!storageCells.NullOrEmpty())
+            {
+                targetCell = storageCells.RandomElement();
+                return true;
+            }
+
+            List<IntVec3> shopCells = shop.Cells
+                .Where(cell => cell.IsValid && cell.Standable(map))
+                .ToList();
+            if (shopCells.NullOrEmpty()) return false;
+
+            targetCell = shopCells.RandomElement();
+            return true;
+        }
+
+        /// <summary>
         /// 为指定商店生成一位顾客并绑定顾客 Lord，失败时返回具体原因。
         /// </summary>
         private bool TrySpawnCustomerWave(Zone_Shop shop, RuntimeCustomerKind kind, bool showArrivalMessage, out int spawnedCount, out string failReason)
@@ -344,8 +372,15 @@ namespace SimManagementLib.SimMapComp
                 return false;
             }
 
+            if (!TryFindReachableShopEntryCell(shop, out IntVec3 shopTargetCell))
+            {
+                Find.WorldPawns.PassToWorld(pawn);
+                failReason = "no reachable shop target cell";
+                return false;
+            }
+
             if (!CellFinder.TryFindRandomEdgeCellWith(
-                c => map.reachability.CanReachColony(c) && !c.Fogged(map),
+                c => !c.Fogged(map) && map.reachability.CanReach(c, shopTargetCell, PathEndMode.OnCell, TraverseParms.For(TraverseMode.PassDoors)),
                 map,
                 CellFinder.EdgeRoadChance_Neutral,
                 out IntVec3 spawnSpot))
@@ -357,7 +392,6 @@ namespace SimManagementLib.SimMapComp
 
             GenSpawn.Spawn(pawn, spawnSpot, map);
 
-            IntVec3 shopTargetCell = shop.Cells.FirstOrDefault();
             int fallbackBudget = kind.budgetRange.RandomInRange;
             LordJob_CustomerVisit lordJob = new LordJob_CustomerVisit(kind.sourceDef, shop.ID, shopTargetCell, fallbackBudget);
             lordJob.customerKindId = kind.kindId;

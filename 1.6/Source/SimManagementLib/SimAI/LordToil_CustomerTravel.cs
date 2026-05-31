@@ -1,4 +1,9 @@
 using RimWorld;
+using SimManagementLib.SimThingClass;
+using SimManagementLib.SimZone;
+using SimManagementLib.Tool;
+using System.Collections.Generic;
+using System.Linq;
 using Verse;
 using Verse.AI;
 using Verse.AI.Group;
@@ -10,15 +15,13 @@ namespace SimManagementLib.SimAI
     /// </summary>
     public class LordToil_CustomerTravel : LordToil
     {
-        private const float ArrivedRadius = 10f;
-
         public override IntVec3 FlagLoc
         {
             get
             {
                 Pawn pawn = FirstActivePawn();
                 LordJob_CustomerVisit visit = lord?.LordJob as LordJob_CustomerVisit;
-                return visit?.GetCurrentShopCell(pawn) ?? IntVec3.Invalid;
+                return ResolveTravelTargetCell(pawn, visit);
             }
         }
 
@@ -33,10 +36,11 @@ namespace SimManagementLib.SimAI
             for (int i = 0; i < lord.ownedPawns.Count; i++)
             {
                 Pawn pawn = lord.ownedPawns[i];
-                IntVec3 dest = visit?.GetCurrentShopCell(pawn) ?? IntVec3.Invalid;
+                IntVec3 dest = ResolveTravelTargetCell(pawn, visit);
                 PawnDuty duty = new PawnDuty(DutyDefOf.TravelOrLeave, dest)
                 {
-                    maxDanger = Danger.Deadly
+                    maxDanger = Danger.Deadly,
+                    locomotion = LocomotionUrgency.Sprint
                 };
                 pawn.mindState.duty = duty;
             }
@@ -56,8 +60,8 @@ namespace SimManagementLib.SimAI
             {
                 Pawn pawn = lord.ownedPawns[i];
                 if (pawn == null || pawn.Destroyed || pawn.Dead || !pawn.Spawned) continue;
-                IntVec3 dest = visit.GetCurrentShopCell(pawn);
-                if (!dest.IsValid || !pawn.Position.InHorDistOf(dest, ArrivedRadius) || !pawn.CanReach(dest, PathEndMode.ClosestTouch, Danger.Deadly))
+                IntVec3 dest = ResolveTravelTargetCell(pawn, visit);
+                if (!dest.IsValid || pawn.Position != dest)
                 {
                     allArrived = false;
                     break;
@@ -74,6 +78,63 @@ namespace SimManagementLib.SimAI
         private Pawn FirstActivePawn()
         {
             return (lord?.LordJob as LordJob_CustomerVisit)?.FirstActivePawn();
+        }
+
+        /// <summary>
+        /// 返回顾客进入商店的真实旅行目标，负责优先选择可到达的货架或店内站立格。
+        /// </summary>
+        private static IntVec3 ResolveTravelTargetCell(Pawn pawn, LordJob_CustomerVisit visit)
+        {
+            if (pawn?.Map == null || visit == null) return IntVec3.Invalid;
+            Zone_Shop shop = visit.GetCurrentShop(pawn);
+            if (shop == null)
+                return visit.GetCurrentShopCell(pawn);
+
+            if (TryFindReachableStorageCell(pawn, shop, out IntVec3 storageCell))
+                return storageCell;
+            if (TryFindReachableShopCell(pawn, shop, out IntVec3 shopCell))
+                return shopCell;
+            return visit.GetCurrentShopCell(pawn);
+        }
+
+        /// <summary>
+        /// 查找可到达货架旁的旅行目标格，负责让顾客优先真正进到商品附近。
+        /// </summary>
+        private static bool TryFindReachableStorageCell(Pawn pawn, Zone_Shop shop, out IntVec3 cell)
+        {
+            cell = IntVec3.Invalid;
+            List<Building_SimContainer> storages = ShopDataUtility.GetStoragesInZone(shop)
+                .Where(item => item != null && !item.Destroyed && item.Spawned)
+                .Where(item => pawn.CanReach(item, PathEndMode.Touch, Danger.Deadly))
+                .ToList();
+            if (storages.NullOrEmpty()) return false;
+
+            Building_SimContainer selectedStorage = storages
+                .OrderBy(item => (item.Position - pawn.Position).LengthHorizontalSquared)
+                .FirstOrDefault();
+            cell = selectedStorage?.InteractionCell ?? IntVec3.Invalid;
+            if (cell.IsValid && pawn.CanReach(cell, PathEndMode.OnCell, Danger.Deadly))
+                return true;
+
+            cell = IntVec3.Invalid;
+            return false;
+        }
+
+        /// <summary>
+        /// 查找商店区内可到达站立格，负责为空店或无货架商店提供进入目标。
+        /// </summary>
+        private static bool TryFindReachableShopCell(Pawn pawn, Zone_Shop shop, out IntVec3 cell)
+        {
+            cell = IntVec3.Invalid;
+            List<IntVec3> cells = shop.Cells
+                .Where(c => c.IsValid && c.Standable(pawn.Map))
+                .Where(c => pawn.CanReach(c, PathEndMode.OnCell, Danger.Deadly))
+                .OrderBy(c => (c - pawn.Position).LengthHorizontalSquared)
+                .ToList();
+            if (cells.NullOrEmpty()) return false;
+
+            cell = cells[0];
+            return true;
         }
     }
 }

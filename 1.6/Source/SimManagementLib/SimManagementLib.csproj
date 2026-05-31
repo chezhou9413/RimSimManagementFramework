@@ -174,6 +174,7 @@
     <Compile Include="SimAI\JobDriver_SelectPaidService.cs" />
     <Compile Include="SimAI\JobDriver_UseVendingMachine.cs" />
     <Compile Include="SimAI\JobDriver_UsePaidService.cs" />
+    <Compile Include="SimAI\JobDriver_WindowShop.cs" />
     <Compile Include="SimAI\JobDriver_PostPurchaseDineInShop.cs" />
     <Compile Include="SimAI\JobDriver_PostPurchaseUseDrugInShop.cs" />
     <Compile Include="SimAI\CheckoutQueueCellUtility.cs" />
@@ -266,6 +267,7 @@
     <Compile Include="SimDialog\Dialog_CustomerReviewPromptPreview.cs" />
     <Compile Include="SimDialog\Dialog_CustomerReviewAiSettings.Injector.cs" />
     <Compile Include="SimDialog\Dialog_CustomerReviewAiSettings.cs" />
+    <Compile Include="SimDialog\Dialog_RegisterSelectedGoodsCategory.cs" />
     <Compile Include="SimDialog\Dialog_CustomSignEditor.cs" />
     <Compile Include="SimDialog\Dialog_CustomSignTransfer.cs" />
     <Compile Include="SimMapComp\CustomerArrivalShopContext.cs" />
@@ -295,6 +297,7 @@
     <Compile Include="SimWorkGiver\WorkGiver_PrepareShopOrder.cs" />
     <Compile Include="SimWorkGiver\WorkGiver_RestockMegaStorage.cs" />
     <Compile Include="SimWorkGiver\WorkGiver_WithdrawFromMegaStorage.cs" />
+    <Compile Include="SimZone\Designator_RegisterGoodsFromSelection.cs" />
     <Compile Include="SimZone\Designator_ZoneAdd_Shop.cs" />
     <Compile Include="SimZone\Zone_Shop.cs" />
     <Compile Include="Tool\ComboNameGenerator.cs" />
@@ -341,11 +344,13 @@
     <Compile Include="Tool\ShopBlueprintPlacementUtility.cs" />
     <Compile Include="Tool\ShopBlueprintSignPayloadUtility.cs" />
     <Compile Include="Tool\ShopBlueprintTextureAdjustmentBridge.cs" />
+    <Compile Include="Tool\CashierSocialUtility.cs" />
     <Compile Include="Tool\ShopDataUtility.cs" />
     <Compile Include="Tool\ShopDemandCurveUtility.cs" />
     <Compile Include="Tool\ShopFinanceLineTypeUtility.cs" />
     <Compile Include="Tool\ShopPricingUtility.cs" />
     <Compile Include="Tool\ShopProgressBarUtility.cs" />
+    <Compile Include="Tool\QuickGoodsRegistrationUtility.cs" />
     <Compile Include="Tool\SimDebugLogger.cs" />
     <Compile Include="Tool\ShopServiceUtility.cs" />
     <Compile Include="Tool\ShopStaffUtility.cs" />

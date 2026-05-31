@@ -23,4 +23,16 @@
   <RSMF.Settings.InvalidForcedCustomerKind>已失效: {kindId}</RSMF.Settings.InvalidForcedCustomerKind>
   <RSMF.Settings.DebugForcedCustomerKind>Debug 强制顾客组: {label}</RSMF.Settings.DebugForcedCustomerKind>
   <RSMF.Settings.DebugForcedCustomerKindTip>开启后自然刷客和强制刷新会优先使用该顾客组；为空时恢复正常权重随机。</RSMF.Settings.DebugForcedCustomerKindTip>
+  <RSMF.QuickGoodsRegister.DesignatorLabel>快捷注册商品</RSMF.QuickGoodsRegister.DesignatorLabel>
+  <RSMF.QuickGoodsRegister.DesignatorDesc>框选地图上的物品，将其 ThingDef 快速追加到某个商品分类中，之后货柜和商店系统会把它识别为可售商品。</RSMF.QuickGoodsRegister.DesignatorDesc>
+  <RSMF.QuickGoodsRegister.Title>快捷注册商品</RSMF.QuickGoodsRegister.Title>
+  <RSMF.QuickGoodsRegister.Summary>已框选 {count} 种可注册商品。请选择要归纳到的商品分类。</RSMF.QuickGoodsRegister.Summary>
+  <RSMF.QuickGoodsRegister.MoreItems>另外 {count} 种</RSMF.QuickGoodsRegister.MoreItems>
+  <RSMF.QuickGoodsRegister.NoCategories>没有可用商品分类。请先在自定义商品注册面板中创建或加载分类。</RSMF.QuickGoodsRegister.NoCategories>
+  <RSMF.QuickGoodsRegister.BuiltInCategory>内置分类</RSMF.QuickGoodsRegister.BuiltInCategory>
+  <RSMF.QuickGoodsRegister.CustomCategory>自定义分类</RSMF.QuickGoodsRegister.CustomCategory>
+  <RSMF.QuickGoodsRegister.Confirm>注册到此类</RSMF.QuickGoodsRegister.Confirm>
+  <RSMF.QuickGoodsRegister.NoValidItems>框选范围内没有可注册为商品的物品。</RSMF.QuickGoodsRegister.NoValidItems>
+  <RSMF.QuickGoodsRegister.AllExisting>这些商品已经在目标分类中，不需要重复注册。</RSMF.QuickGoodsRegister.AllExisting>
+  <RSMF.QuickGoodsRegister.Success>已向 {category} 注册 {count} 种商品。</RSMF.QuickGoodsRegister.Success>
 </LanguageData>

@@ -1,6 +1,7 @@
 ﻿using SimManagementLib.SimThingClass;
 using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Verse;
@@ -26,8 +27,14 @@ namespace SimManagementLib.SimAI
             int pId = pawn.thingIDNumber;
             if (lordJob.HasReachedConsumptionLimit(pId))
             {
-                lordJob.MarkPawnReadyForCheckout(pId);
-                return null;
+                Zone_Shop currentShop = lordJob.GetCurrentShop(pawn);
+                if (currentShop == null)
+                {
+                    lordJob.MarkPawnReadyForCheckout(pId);
+                    return null;
+                }
+
+                return MakeWindowShopOrCheckout(pawn, lordJob, currentShop, pId);
             }
 
             Zone_Shop shopZone = lordJob.GetCurrentShop(pawn);
@@ -39,11 +46,10 @@ namespace SimManagementLib.SimAI
 
             float remainingBudget = lordJob.GetRemainingTripBudget(pawn, shopZone);
 
-            // 愿意消费的预算耗尽，直接去结账，保留未花完的原始预算。
+            // 愿意消费的预算耗尽时，先保证顾客完成最低浏览体验。
             if (remainingBudget <= 0f)
             {
-                lordJob.MarkPawnReadyForCheckout(pId);
-                return null;
+                return MakeWindowShopOrCheckout(pawn, lordJob, shopZone, pId);
             }
 
             bool hasAffordableCombo = ShopDataUtility
@@ -62,17 +68,13 @@ namespace SimManagementLib.SimAI
                 }))
                 .ToList();
 
-            // 没有任何买得起的货，直接去结账
+            // 没有任何买得起的货时，先保证顾客完成最低浏览体验。
             if (allStockedStorages.NullOrEmpty())
             {
                 if (ShopServiceUtility.TryFindServiceForCustomer(pawn, shopZone, remainingBudget, out _, out _, out _))
                     return null;
 
-                // 确保 cartValues 有记录，防止 CheckAllCheckoutsDone 误判
-                if (!lordJob.cartValues.ContainsKey(pId))
-                    lordJob.cartValues[pId] = 0f;
-                lordJob.MarkPawnReadyForCheckout(pId);
-                return null;
+                return MakeWindowShopOrCheckout(pawn, lordJob, shopZone, pId);
             }
 
             // 过滤出当前可以预约的货柜（上限放宽，减少大量顾客时的拥堵）
@@ -89,11 +91,9 @@ namespace SimManagementLib.SimAI
 
                 if (now - waitStartTick >= MaxWaitTicks)
                 {
-                    // 等太久了，放弃购物直接去结账
+                    // 等太久了，改为先做最低浏览体验，再允许放弃购物去结账。
                     lordJob.ClearBrowseWaitStartTick(pId);
-                    if (!lordJob.cartValues.ContainsKey(pId))
-                        lordJob.cartValues[pId] = 0f;
-                    lordJob.MarkPawnReadyForCheckout(pId);
+                    return MakeWindowShopOrCheckout(pawn, lordJob, shopZone, pId);
                 }
                 // 返回 null，触发 XML 兜底游荡，稍后重试
                 return null;
@@ -106,6 +106,58 @@ namespace SimManagementLib.SimAI
             Building_SimContainer targetShelf = availableStorages.RandomElement();
             Job job = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Customer_BrowseAndPick"), targetShelf);
             return job;
+        }
+
+        /// <summary>
+        /// 为不适合购买的顾客创建橱窗浏览 Job，完成过最低浏览后才进入结账。
+        /// </summary>
+        private static Job MakeWindowShopOrCheckout(Pawn pawn, LordJob_CustomerVisit lordJob, Zone_Shop shopZone, int pawnId)
+        {
+            if (lordJob == null) return null;
+            if (lordJob.HasCompletedCurrentShopMinimumBrowse(pawn))
+            {
+                if (!lordJob.cartValues.ContainsKey(pawnId))
+                    lordJob.cartValues[pawnId] = 0f;
+                lordJob.MarkPawnReadyForCheckout(pawnId);
+                return null;
+            }
+
+            if (TryFindWindowShopTarget(pawn, shopZone, out LocalTargetInfo target))
+                return JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Customer_WindowShop"), target);
+
+            lordJob.MarkCurrentShopBrowsed(pawn);
+            if (!lordJob.cartValues.ContainsKey(pawnId))
+                lordJob.cartValues[pawnId] = 0f;
+            lordJob.MarkPawnReadyForCheckout(pawnId);
+            return null;
+        }
+
+        /// <summary>
+        /// 查找橱窗浏览目标，负责优先让顾客靠近货架，其次进入商店区内可站立格。
+        /// </summary>
+        private static bool TryFindWindowShopTarget(Pawn pawn, Zone_Shop shopZone, out LocalTargetInfo target)
+        {
+            target = LocalTargetInfo.Invalid;
+            if (pawn?.Map == null || shopZone == null) return false;
+
+            List<Building_SimContainer> storages = ShopDataUtility.GetStoragesInZone(shopZone)
+                .Where(storage => storage != null && !storage.Destroyed && storage.Spawned)
+                .Where(storage => pawn.CanReach(storage, PathEndMode.Touch, Danger.Deadly))
+                .ToList();
+            if (!storages.NullOrEmpty())
+            {
+                target = storages.RandomElement();
+                return true;
+            }
+
+            List<IntVec3> cells = shopZone.Cells
+                .Where(cell => cell.IsValid && cell.Standable(pawn.Map))
+                .Where(cell => pawn.CanReach(cell, PathEndMode.OnCell, Danger.Deadly))
+                .ToList();
+            if (cells.NullOrEmpty()) return false;
+
+            target = cells.RandomElement();
+            return true;
         }
     }
 }

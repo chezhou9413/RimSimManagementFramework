@@ -16,6 +16,7 @@ namespace SimManagementLib.SimAI
         public float totalSpentAcrossShops;
         public float desiredSpendRatio = -1f;
         public int currentShopConsumptionActions;
+        public bool currentShopMinimumBrowseDone;
         public List<int> visitedShopZoneIds = new List<int>();
 
         /// <summary>
@@ -31,6 +32,7 @@ namespace SimManagementLib.SimAI
             Scribe_Values.Look(ref totalSpentAcrossShops, "totalSpentAcrossShops", 0f);
             Scribe_Values.Look(ref desiredSpendRatio, "desiredSpendRatio", -1f);
             Scribe_Values.Look(ref currentShopConsumptionActions, "currentShopConsumptionActions", 0);
+            Scribe_Values.Look(ref currentShopMinimumBrowseDone, "currentShopMinimumBrowseDone", false);
             Scribe_Collections.Look(ref visitedShopZoneIds, "visitedShopZoneIds", LookMode.Value);
             if (visitedShopZoneIds == null)
                 visitedShopZoneIds = new List<int>();

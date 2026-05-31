@@ -23,4 +23,16 @@
   <RSMF.Settings.InvalidForcedCustomerKind>Invalid: {kindId}</RSMF.Settings.InvalidForcedCustomerKind>
   <RSMF.Settings.DebugForcedCustomerKind>Debug forced customer kind: {label}</RSMF.Settings.DebugForcedCustomerKind>
   <RSMF.Settings.DebugForcedCustomerKindTip>When enabled, natural and forced customer spawns prefer this customer kind. Empty restores normal weighted random selection.</RSMF.Settings.DebugForcedCustomerKindTip>
+  <RSMF.QuickGoodsRegister.DesignatorLabel>Quick register goods</RSMF.QuickGoodsRegister.DesignatorLabel>
+  <RSMF.QuickGoodsRegister.DesignatorDesc>Drag over items on the map and quickly append their ThingDefs to a goods category so shelves and shop systems can sell them.</RSMF.QuickGoodsRegister.DesignatorDesc>
+  <RSMF.QuickGoodsRegister.Title>Quick register goods</RSMF.QuickGoodsRegister.Title>
+  <RSMF.QuickGoodsRegister.Summary>Selected {count} registerable goods. Choose the goods category they should belong to.</RSMF.QuickGoodsRegister.Summary>
+  <RSMF.QuickGoodsRegister.MoreItems>{count} more</RSMF.QuickGoodsRegister.MoreItems>
+  <RSMF.QuickGoodsRegister.NoCategories>No goods categories are available. Create or load categories in the custom goods registry first.</RSMF.QuickGoodsRegister.NoCategories>
+  <RSMF.QuickGoodsRegister.BuiltInCategory>Built-in</RSMF.QuickGoodsRegister.BuiltInCategory>
+  <RSMF.QuickGoodsRegister.CustomCategory>Custom</RSMF.QuickGoodsRegister.CustomCategory>
+  <RSMF.QuickGoodsRegister.Confirm>Register here</RSMF.QuickGoodsRegister.Confirm>
+  <RSMF.QuickGoodsRegister.NoValidItems>No registerable goods were found in the selected area.</RSMF.QuickGoodsRegister.NoValidItems>
+  <RSMF.QuickGoodsRegister.AllExisting>Those goods are already in the target category.</RSMF.QuickGoodsRegister.AllExisting>
+  <RSMF.QuickGoodsRegister.Success>Registered {count} goods to {category}.</RSMF.QuickGoodsRegister.Success>
 </LanguageData>
