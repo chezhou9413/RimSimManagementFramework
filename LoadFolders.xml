@@ -6,8 +6,6 @@
 
     <!-- 判断mod是否存在，存在则激活对应的兼容。 -->
     <!-- Milira -->
-    <li IfModActive="Ancot.MiliraRace">Mods/Ancot.MiliraRace</li>
-    <li IfModActive="Ariandel.MiliraImperium">Mods/Ariandel.MiliraImperium</li>
-    <li IfModActive="sleepycot.wingsofdemocracy">Mods/sleepycot.wingsofdemocracy</li>
+    <!-- li IfModActive="Ancot.MiliraRace">Mods/Ancot.MiliraRace</li-->
   </v1.6>
 </loadFolders>

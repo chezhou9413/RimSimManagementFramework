@@ -430,4 +430,44 @@
     </shoppingBehavior>
   </SimManagementLib.SimDef.CustomerKindDef>
 
+  <SimManagementLib.SimDef.CustomerKindDef>
+    <defName>SimCustomer_BodypartDealer</defName>
+    <label>器官商</label>
+
+    <pawnKindDefs>
+      <li>Tribal_Trader</li>
+      <li>Town_Trader</li>
+      <li MayRequire="Ludeon.Rimworld.Royalty">Empire_Common_Trader</li>
+    </pawnKindDefs>
+
+    <arrivalCurve>
+      <points>
+        <li>(0, 0.9)</li>
+        <li>(7, 0.25)</li>
+        <li>(12, 0.1)</li>
+        <li>(17, 0.25)</li>
+        <li>(24, 0.9)</li>
+      </points>
+    </arrivalCurve>
+
+    <baseMtbDays>0.05</baseMtbDays>
+    <budgetRange>2000~3500</budgetRange>
+    <queuePatienceRange>2000~4000</queuePatienceRange>
+    <activeHourRange>17~9</activeHourRange>
+
+    <allowedWeathers>
+      <li>Clear</li>
+      <li>Fog</li>
+    </allowedWeathers>
+
+    <targetGoodsCategories>
+      <li>Goods_BodyParts</li>
+    </targetGoodsCategories>
+
+    <shoppingBehavior>
+      <browseTimeRange>220~480</browseTimeRange>
+      <maxShelvesToVisit>3</maxShelvesToVisit>
+      <queuePatience>2500</queuePatience>
+    </shoppingBehavior>
+  </SimManagementLib.SimDef.CustomerKindDef>
 </Defs>
