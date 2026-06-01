@@ -34,33 +34,57 @@
   <RSMF_CollectibleExchange_MiguaShopOne.items.3.descriptionOverride>Not exactly essential, but good for leaving a little sweetness for someone after a long day.</RSMF_CollectibleExchange_MiguaShopOne.items.3.descriptionOverride>
   <RSMF_CollectibleExchange_MiguaShopOne.items.4.labelOverride>Gold Voucher Steel</RSMF_CollectibleExchange_MiguaShopOne.items.4.labelOverride>
   <RSMF_CollectibleExchange_MiguaShopOne.items.4.descriptionOverride>A small batch of steel exchanged for gold, used to test per-item currency configuration.</RSMF_CollectibleExchange_MiguaShopOne.items.4.descriptionOverride>
+  <!-- Migua's Bank -->
+  <RSMF_CollectibleExchange_MiguaShopTwo.label>Migua's Bank</RSMF_CollectibleExchange_MiguaShopTwo.label>
+  <RSMF_CollectibleExchange_MiguaShopTwo.shopName>Migua's Bank</RSMF_CollectibleExchange_MiguaShopTwo.shopName>
+  <RSMF_CollectibleExchange_MiguaShopTwo.title>Cheque Exchange</RSMF_CollectibleExchange_MiguaShopTwo.title>
+  <RSMF_CollectibleExchange_MiguaShopTwo.intro>This is a bank that specializes in exchanging cheque of various denominations.</RSMF_CollectibleExchange_MiguaShopTwo.intro>
+  <RSMF_CollectibleExchange_MiguaShopTwo.periodLabel>Cheque Exchange</RSMF_CollectibleExchange_MiguaShopTwo.periodLabel>
+  <RSMF_CollectibleExchange_MiguaShopTwo.progressLabel>Money can't make more money here, but I can keep the pirates from eyeing yours.</RSMF_CollectibleExchange_MiguaShopTwo.progressLabel>
 
-  <RSMF_CollectibleExchange_MiguaShopTwo.label>Migua's Little Shop</RSMF_CollectibleExchange_MiguaShopTwo.label>
-  <RSMF_CollectibleExchange_MiguaShopTwo.shopName>Migua's Little Shop</RSMF_CollectibleExchange_MiguaShopTwo.shopName>
-  <RSMF_CollectibleExchange_MiguaShopTwo.title>Second Edition</RSMF_CollectibleExchange_MiguaShopTwo.title>
-  <RSMF_CollectibleExchange_MiguaShopTwo.intro>Check the current item rotation progress and enter this edition's collectible exchange shop.</RSMF_CollectibleExchange_MiguaShopTwo.intro>
-  <RSMF_CollectibleExchange_MiguaShopTwo.periodLabel>Second Edition</RSMF_CollectibleExchange_MiguaShopTwo.periodLabel>
-  <RSMF_CollectibleExchange_MiguaShopTwo.progressLabel>Current item rotation progress: all second-edition goods have been unlocked.</RSMF_CollectibleExchange_MiguaShopTwo.progressLabel>
-  <RSMF_CollectibleExchange_MiguaShopTwo.welcomeTexts.0>Welcome to Migua's Little Shop. This edition is small, but everything was picked with care.</RSMF_CollectibleExchange_MiguaShopTwo.welcomeTexts.0>
-  <RSMF_CollectibleExchange_MiguaShopTwo.welcomeTexts.1>You came at just the right time. The second-edition shelves are ready, so take your time.</RSMF_CollectibleExchange_MiguaShopTwo.welcomeTexts.1>
-  <RSMF_CollectibleExchange_MiguaShopTwo.welcomeTexts.2>Come in already. Do not stand in the doorway. If you want to exchange for something, check the right side.</RSMF_CollectibleExchange_MiguaShopTwo.welcomeTexts.2>
-  <RSMF_CollectibleExchange_MiguaShopTwo.browseTexts.0>Bring this home and it can be useful right away.</RSMF_CollectibleExchange_MiguaShopTwo.browseTexts.0>
-  <RSMF_CollectibleExchange_MiguaShopTwo.browseTexts.1>The stock on that one is limited. If you really need it, do not wait too long.</RSMF_CollectibleExchange_MiguaShopTwo.browseTexts.1>
-  <RSMF_CollectibleExchange_MiguaShopTwo.browseTexts.2>I did not just make up these prices.</RSMF_CollectibleExchange_MiguaShopTwo.browseTexts.2>
-  <RSMF_CollectibleExchange_MiguaShopTwo.browseTexts.3>Everything on the right is part of this edition's list. Next edition may be different.</RSMF_CollectibleExchange_MiguaShopTwo.browseTexts.3>
-  <RSMF_CollectibleExchange_MiguaShopTwo.idleTexts.0>Take your time. The shelves have not been emptied yet.</RSMF_CollectibleExchange_MiguaShopTwo.idleTexts.0>
-  <RSMF_CollectibleExchange_MiguaShopTwo.idleTexts.1>Some things look ordinary until you suddenly need them.</RSMF_CollectibleExchange_MiguaShopTwo.idleTexts.1>
-  <RSMF_CollectibleExchange_MiguaShopTwo.idleTexts.2>If you are just passing by, you can still see how much stock this edition has left.</RSMF_CollectibleExchange_MiguaShopTwo.idleTexts.2>
-  <RSMF_CollectibleExchange_MiguaShopTwo.idleTexts.3>I do rotate the goods regularly, but for this edition, this is the lineup.</RSMF_CollectibleExchange_MiguaShopTwo.idleTexts.3>
-  <RSMF_CollectibleExchange_MiguaShopTwo.purchaseTexts.0>Deal. The goods will be sent to you. Watch for the drop pod.</RSMF_CollectibleExchange_MiguaShopTwo.purchaseTexts.0>
-  <RSMF_CollectibleExchange_MiguaShopTwo.purchaseTexts.1>All right, it is on the books. One more batch sold.</RSMF_CollectibleExchange_MiguaShopTwo.purchaseTexts.1>
-  <RSMF_CollectibleExchange_MiguaShopTwo.purchaseTexts.2>Thanks for the purchase!</RSMF_CollectibleExchange_MiguaShopTwo.purchaseTexts.2>
-  <RSMF_CollectibleExchange_MiguaShopTwo.purchaseTexts.3>Received. The goods will be delivered soon.</RSMF_CollectibleExchange_MiguaShopTwo.purchaseTexts.3>
-  <RSMF_CollectibleExchange_MiguaShopTwo.notEnoughCurrencyTexts.0>No good. You do not have enough money.</RSMF_CollectibleExchange_MiguaShopTwo.notEnoughCurrencyTexts.0>
+  <RSMF_CollectibleExchange_MiguaShopTwo.welcomeTexts.0>Welcome to Bank. </RSMF_CollectibleExchange_MiguaShopTwo.welcomeTexts.0>
+  <RSMF_CollectibleExchange_MiguaShopTwo.welcomeTexts.1>Have too much money? Save it up.</RSMF_CollectibleExchange_MiguaShopTwo.welcomeTexts.1>
+  <RSMF_CollectibleExchange_MiguaShopTwo.welcomeTexts.2>Cheque value depends on credit.</RSMF_CollectibleExchange_MiguaShopTwo.welcomeTexts.2>
+
+  <RSMF_CollectibleExchange_MiguaShopTwo.browseTexts.0>Buying this will definitely help the flow of wealth.</RSMF_CollectibleExchange_MiguaShopTwo.browseTexts.0>
+  <RSMF_CollectibleExchange_MiguaShopTwo.browseTexts.1>This is economics.</RSMF_CollectibleExchange_MiguaShopTwo.browseTexts.1>
+  <RSMF_CollectibleExchange_MiguaShopTwo.browseTexts.2>Cheque prices are all clearly marked.</RSMF_CollectibleExchange_MiguaShopTwo.browseTexts.2>
+
+  <RSMF_CollectibleExchange_MiguaShopTwo.idleTexts.0>Take your time, no rush. Our cheque also feature special craftsmanship.</RSMF_CollectibleExchange_MiguaShopTwo.idleTexts.0>
+  <RSMF_CollectibleExchange_MiguaShopTwo.idleTexts.1>Feel free to exchange — we're not going to run off.</RSMF_CollectibleExchange_MiguaShopTwo.idleTexts.1>
+  <RSMF_CollectibleExchange_MiguaShopTwo.idleTexts.2>The number of cheque issued each day is also limited.</RSMF_CollectibleExchange_MiguaShopTwo.idleTexts.2>
+
+  <RSMF_CollectibleExchange_MiguaShopTwo.purchaseTexts.0>Remember to keep an eye on the airdrop — don't let some tribal bros snatch it.</RSMF_CollectibleExchange_MiguaShopTwo.purchaseTexts.0>
+  <RSMF_CollectibleExchange_MiguaShopTwo.purchaseTexts.1>Okay, it's been recorded.</RSMF_CollectibleExchange_MiguaShopTwo.purchaseTexts.1>
+  <RSMF_CollectibleExchange_MiguaShopTwo.purchaseTexts.2>Got it, I'll send it over soon.</RSMF_CollectibleExchange_MiguaShopTwo.purchaseTexts.2>
+
+  <RSMF_CollectibleExchange_MiguaShopTwo.notEnoughCurrencyTexts.0>Not good. You do not have enough money.</RSMF_CollectibleExchange_MiguaShopTwo.notEnoughCurrencyTexts.0>
   <RSMF_CollectibleExchange_MiguaShopTwo.notEnoughCurrencyTexts.1>You are a little short. Go check the little treasury and come back.</RSMF_CollectibleExchange_MiguaShopTwo.notEnoughCurrencyTexts.1>
-  <RSMF_CollectibleExchange_MiguaShopTwo.notEnoughCurrencyTexts.2>If you do not have enough money, do not force the exchange. The goods are not going to grow legs and run away.</RSMF_CollectibleExchange_MiguaShopTwo.notEnoughCurrencyTexts.2>
-  <RSMF_CollectibleExchange_MiguaShopTwo.items.0.labelOverride>Travel Meal Pack</RSMF_CollectibleExchange_MiguaShopTwo.items.0.labelOverride>
-  <RSMF_CollectibleExchange_MiguaShopTwo.items.0.descriptionOverride>Simple meals suited for temporary supplies.</RSMF_CollectibleExchange_MiguaShopTwo.items.0.descriptionOverride>
+  <RSMF_CollectibleExchange_MiguaShopTwo.notEnoughCurrencyTexts.2>If you can't exchange large denominations, just exchange some smaller ones.</RSMF_CollectibleExchange_MiguaShopTwo.notEnoughCurrencyTexts.2>
+
+  <RSMF_CollectibleExchange_MiguaShopTwo.items.0.labelOverride>Cheque</RSMF_CollectibleExchange_MiguaShopTwo.items.0.labelOverride>
+  <RSMF_CollectibleExchange_MiguaShopTwo.items.0.descriptionOverride>A cheque with a face value of 1,000 silver is no different from scrap paper in the eyes of ordinary people, yet it can be exchanged for 1,000 silver at the bank.</RSMF_CollectibleExchange_MiguaShopTwo.items.0.descriptionOverride>
+  
+  <RSMF_CollectibleExchange_MiguaShopTwo.items.1.labelOverride>Cheque</RSMF_CollectibleExchange_MiguaShopTwo.items.1.labelOverride>
+  <RSMF_CollectibleExchange_MiguaShopTwo.items.1.descriptionOverride>A cheque with a face value of 1,000 silver is no different from scrap paper in the eyes of ordinary people, yet it can be exchanged for 10,000 silver at the bank.</RSMF_CollectibleExchange_MiguaShopTwo.items.1.descriptionOverride>
+
+  <RSMF_CollectibleExchange_MiguaShopTwo.items.2.labelOverride>Cheque</RSMF_CollectibleExchange_MiguaShopTwo.items.2.labelOverride>
+  <RSMF_CollectibleExchange_MiguaShopTwo.items.2.descriptionOverride>A cheque with a face value of 1,000 silver is no different from scrap paper in the eyes of ordinary people, yet it can be exchanged for 100,000 silver at the bank.</RSMF_CollectibleExchange_MiguaShopTwo.items.2.descriptionOverride>
+
+  <RSMF_CollectibleExchange_MiguaShopTwo.items.3.labelOverride>Cheque</RSMF_CollectibleExchange_MiguaShopTwo.items.3.labelOverride>
+  <RSMF_CollectibleExchange_MiguaShopTwo.items.3.descriptionOverride>A cheque with a face value of 1,000 silver is no different from scrap paper in the eyes of ordinary people, yet it can be exchanged for 1,000,000 silver at the bank.</RSMF_CollectibleExchange_MiguaShopTwo.items.3.descriptionOverride>
+
+  <RSMF_CollectibleExchange_MiguaShopTwo.items.4.labelOverride>Change Silver</RSMF_CollectibleExchange_MiguaShopTwo.items.4.labelOverride>
+  <RSMF_CollectibleExchange_MiguaShopTwo.items.4.descriptionOverride>Exchange the cheque for a small amount of silver.</RSMF_CollectibleExchange_MiguaShopTwo.items.4.descriptionOverride>
+
+  <RSMF_CollectibleExchange_MiguaShopTwo.items.5.labelOverride>Change Silver</RSMF_CollectibleExchange_MiguaShopTwo.items.5.labelOverride>
+  <RSMF_CollectibleExchange_MiguaShopTwo.items.5.descriptionOverride>Exchange the cheque for silver.</RSMF_CollectibleExchange_MiguaShopTwo.items.5.descriptionOverride>
+
+  <RSMF_CollectibleExchange_MiguaShopTwo.items.6.labelOverride>Change Silver</RSMF_CollectibleExchange_MiguaShopTwo.items.6.labelOverride>
+  <RSMF_CollectibleExchange_MiguaShopTwo.items.6.descriptionOverride>Exchange the cheque for a large amount of silver.</RSMF_CollectibleExchange_MiguaShopTwo.items.6.descriptionOverride>
+
+  <RSMF_CollectibleExchange_MiguaShopTwo.items.7.labelOverride>Change Silver</RSMF_CollectibleExchange_MiguaShopTwo.items.7.labelOverride>
+  <RSMF_CollectibleExchange_MiguaShopTwo.items.7.descriptionOverride>Exchange the cheque for a tons of silver.But be sure to watch out for CPU!</RSMF_CollectibleExchange_MiguaShopTwo.items.7.descriptionOverride>
 
   <RSMF_CollectibleExchange_MiguaShopCollection.label>Migua's Little Shop</RSMF_CollectibleExchange_MiguaShopCollection.label>
   <RSMF_CollectibleExchange_MiguaShopCollection.shopName>Migua's Little Shop</RSMF_CollectibleExchange_MiguaShopCollection.shopName>
