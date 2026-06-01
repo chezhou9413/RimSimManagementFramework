@@ -52,6 +52,7 @@ namespace SimManagementLib.SimWorkGiver
         public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
             if (!(t is Building_SimContainer storage)) return false;
+            storage.ReconcilePendingReservations();
             if (!HasExcess(storage, pawn)) return false;
             if (!pawn.CanReach(storage, PathEndMode.Touch, Danger.Deadly)) return false;
             return true;
@@ -63,6 +64,7 @@ namespace SimManagementLib.SimWorkGiver
         public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
             if (!(t is Building_SimContainer storage)) return null;
+            storage.ReconcilePendingReservations();
             if (!pawn.CanReach(storage, PathEndMode.Touch, Danger.Deadly)) return null;
 
             foreach ((ThingDef td, int excess) in storage.GetExcessItems())

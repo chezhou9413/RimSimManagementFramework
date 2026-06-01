@@ -19,7 +19,8 @@ namespace SimManagementLib.SimAI
         private Building_SimContainer Storage => job.GetTarget(StorageInd).Thing as Building_SimContainer;
         private ThingDef WithdrawDef => job.plantDefToSow;
         private int ReservedCount => job.count;
-        private bool reservationCancelled = false;
+        private bool reservationReleased;
+        private bool withdrawSucceeded;
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
@@ -32,6 +33,7 @@ namespace SimManagementLib.SimAI
         protected override IEnumerable<Toil> MakeNewToils()
         {
             this.FailOnDestroyedOrNull(StorageInd);
+            AddFinishAction(CleanupReservation);
 
             yield return Toils_Goto.GotoThing(StorageInd, PathEndMode.Touch)
                 .FailOnDestroyedOrNull(StorageInd);
@@ -73,7 +75,7 @@ namespace SimManagementLib.SimAI
 
                 if (storage == null || storage.Destroyed || td == null)
                 {
-                    CancelReservation();
+                    ReleaseReservation();
                     pawn.jobs.EndCurrentJob(JobCondition.Incompletable);
                     return;
                 }
@@ -81,11 +83,13 @@ namespace SimManagementLib.SimAI
                 Thing result = storage.Withdraw(td, ReservedCount, pawn.Position, ReservedCount);
                 if (result == null)
                 {
+                    ReleaseReservation();
                     pawn.jobs.EndCurrentJob(JobCondition.Incompletable);
                     return;
                 }
 
-                reservationCancelled = true;
+                withdrawSucceeded = true;
+                reservationReleased = true;
                 pawn.jobs.EndCurrentJob(JobCondition.Succeeded);
             };
             toil.defaultCompleteMode = ToilCompleteMode.Instant;
@@ -93,12 +97,21 @@ namespace SimManagementLib.SimAI
         }
 
         /// <summary>
-        /// 取消大货柜的待出库预约，避免中断工作后长期占用库存。
+        /// 根据任务结束结果清理出库预约，负责在任务被打断或失败时恢复可搬出库存。
         /// </summary>
-        private void CancelReservation()
+        private void CleanupReservation(JobCondition condition)
         {
-            if (reservationCancelled) return;
-            reservationCancelled = true;
+            if (withdrawSucceeded || condition == JobCondition.Succeeded) return;
+            ReleaseReservation();
+        }
+
+        /// <summary>
+        /// 释放大货柜的待出库预约，负责避免中断工作后长期占用库存。
+        /// </summary>
+        private void ReleaseReservation()
+        {
+            if (reservationReleased) return;
+            reservationReleased = true;
             Building_SimContainer storage = Storage;
             ThingDef td = WithdrawDef;
             if (storage != null && !storage.Destroyed && td != null)
@@ -111,7 +124,8 @@ namespace SimManagementLib.SimAI
         public override void Notify_Starting()
         {
             base.Notify_Starting();
-            reservationCancelled = false;
+            reservationReleased = false;
+            withdrawSucceeded = false;
         }
     }
 }

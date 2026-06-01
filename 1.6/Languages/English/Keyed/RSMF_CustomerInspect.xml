@@ -11,5 +11,6 @@
   <RSMF.CustomerInspect.AllowedWeathersPrefix>Allowed weather: </RSMF.CustomerInspect.AllowedWeathersPrefix>
   <RSMF.CustomerInspect.ActiveHoursPrefix>Active hours: </RSMF.CustomerInspect.ActiveHoursPrefix>
   <RSMF.CustomerInspect.ReadyForCheckout>Ready for checkout</RSMF.CustomerInspect.ReadyForCheckout>
+  <RSMF.CustomerInspect.ReadyToLeave>Ready to leave</RSMF.CustomerInspect.ReadyToLeave>
   <RSMF.CustomerInspect.Browsing>Browsing</RSMF.CustomerInspect.Browsing>
 </LanguageData>

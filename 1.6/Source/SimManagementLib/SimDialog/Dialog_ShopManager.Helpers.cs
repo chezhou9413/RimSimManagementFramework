@@ -223,6 +223,37 @@ namespace SimManagementLib.SimDialog
             ResetText();
         }
 
+        /// <summary>
+        /// 绘制固定行高的虚拟滚动列表，负责只绘制当前视口附近的行来降低大列表开销。
+        /// </summary>
+        private void DrawVirtualizedRows(Rect outRect, int count, System.Action<int, Rect> drawRow)
+        {
+            float viewWidth = outRect.width - ScrW;
+            float viewHeight = Mathf.Max(outRect.height, count * RowH);
+            Rect viewRect = new Rect(0f, 0f, viewWidth, viewHeight);
+            Widgets.BeginScrollView(outRect, ref listScroll, viewRect);
+            ClampSharedListScroll(viewHeight, outRect.height);
+
+            int firstIndex = Mathf.Max(0, Mathf.FloorToInt(listScroll.y / RowH) - 1);
+            int lastIndex = Mathf.Min(count - 1, Mathf.CeilToInt((listScroll.y + outRect.height) / RowH) + 1);
+            for (int i = firstIndex; i <= lastIndex; i++)
+            {
+                drawRow(i, new Rect(0f, i * RowH, viewWidth, RowH));
+            }
+
+            Widgets.EndScrollView();
+        }
+
+        /// <summary>
+        /// 限制共享列表滚动位置，负责在搜索或切页导致列表变短时避免停留在空白区域。
+        /// </summary>
+        private void ClampSharedListScroll(float viewHeight, float outerHeight)
+        {
+            float maxY = Mathf.Max(0f, viewHeight - outerHeight);
+            listScroll.y = Mathf.Clamp(listScroll.y, 0f, maxY);
+            listScroll.x = 0f;
+        }
+
         private void DrawHdrLabel(Rect rect, string text, TextAnchor anchor = TextAnchor.MiddleLeft)
         {
             Text.Anchor = anchor;

@@ -1,6 +1,7 @@
 ﻿using SimManagementLib.SimThingClass;
 using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
+using SimManagementLib.Pojo;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -18,6 +19,9 @@ namespace SimManagementLib.SimAI
         private const int MaxWaitTicks = 1200; // 约 20 秒
         private const int MaxShelfReservations = 24;
 
+        /// <summary>
+        /// 尝试为顾客分配一次商品浏览或最低橱窗浏览，负责在无目标商品时及时推进结账离店。
+        /// </summary>
         protected override Job TryGiveJob(Pawn pawn)
         {
             var lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
@@ -25,6 +29,9 @@ namespace SimManagementLib.SimAI
 
             // 计算该 pawn 在当前商店品质下愿意消费的剩余预算。
             int pId = pawn.thingIDNumber;
+            if (lordJob.IsPawnReadyForCheckout(pId))
+                return null;
+
             if (lordJob.HasReachedConsumptionLimit(pId))
             {
                 Zone_Shop currentShop = lordJob.GetCurrentShop(pawn);
@@ -44,6 +51,12 @@ namespace SimManagementLib.SimAI
                 return null;
             }
 
+            if (lordJob.HasCompletedCurrentShopMinimumBrowse(pawn)
+                && (lordJob.HasReachedCurrentShopBrowseLimit(pawn) || lordJob.HasReachedCurrentShopNoProgressLimit(pawn)))
+            {
+                return MakeWindowShopOrCheckout(pawn, lordJob, shopZone, pId);
+            }
+
             float remainingBudget = lordJob.GetRemainingTripBudget(pawn, shopZone);
 
             // 愿意消费的预算耗尽时，先保证顾客完成最低浏览体验。
@@ -52,26 +65,36 @@ namespace SimManagementLib.SimAI
                 return MakeWindowShopOrCheckout(pawn, lordJob, shopZone, pId);
             }
 
-            bool hasAffordableCombo = ShopDataUtility
-                .GetAffordableInStockCombos(shopZone, remainingBudget)
-                .Any();
+            List<ComboData> affordableCombos = CustomerShoppingMatchUtility
+                .GetMatchingAffordableInStockCombos(shopZone, lordJob, remainingBudget)
+                .ToList();
+            bool hasAffordableCombo = affordableCombos.Any();
 
             // 找有库存且顾客买得起至少一件的货柜
             var allStockedStorages = ShopDataUtility.GetStoragesInZone(shopZone)
                 .Where(s => s.ActiveDefs.Any(def =>
                 {
                     if (s.CountStored(def) <= 0) return false;
-                    if (hasAffordableCombo) return true;
+                    if (!CustomerShoppingMatchUtility.ThingMatchesCustomer(lordJob, def)) return false;
                     // 使用统一价格规则判断预算，避免筛选价格和实际购买价格不一致。
                     float unitPrice = ShopPricingUtility.GetUnitPrice(s, def);
                     return unitPrice <= remainingBudget;
-                }))
+                })
+                    || (hasAffordableCombo && CustomerShoppingMatchUtility.StorageHasComboItem(s, affordableCombos)))
+                .Where(s => pawn.CanReach(s, PathEndMode.Touch, Danger.Deadly))
                 .ToList();
 
             // 没有任何买得起的货时，先保证顾客完成最低浏览体验。
             if (allStockedStorages.NullOrEmpty())
             {
-                if (ShopServiceUtility.TryFindServiceForCustomer(pawn, shopZone, remainingBudget, out _, out _, out _))
+                if (ShopServiceUtility.TryFindServiceForCustomer(
+                        pawn,
+                        shopZone,
+                        remainingBudget,
+                        CustomerShoppingMatchUtility.GetTargetServiceCategoryIds(lordJob.RuntimeCustomerKind, lordJob.customerKind),
+                        out _,
+                        out _,
+                        out _))
                     return null;
 
                 return MakeWindowShopOrCheckout(pawn, lordJob, shopZone, pId);

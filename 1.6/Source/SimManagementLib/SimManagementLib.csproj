@@ -197,6 +197,7 @@
     <Compile Include="SimAI\LordJob_CustomerVisit.Runtime.cs" />
     <Compile Include="SimAI\LordJob_CustomerVisit.Shops.cs" />
     <Compile Include="SimAI\LordJob_CustomerVisit.ServiceOrders.cs" />
+    <Compile Include="SimAI\LordJob_CustomerVisit.Watchdog.cs" />
     <Compile Include="SimAI\LordJob_VendingMachineVisit.cs" />
     <Compile Include="SimAI\LordToil_CustomerBrowse.cs" />
     <Compile Include="SimAI\LordToil_CustomerCheckout.cs" />
@@ -311,6 +312,7 @@
     <Compile Include="Tool\CustomerExpressionUtility.cs" />
     <Compile Include="Tool\CustomerNeutralFactionUtility.cs" />
     <Compile Include="Tool\CustomerPurchaseDeliveryUtility.cs" />
+    <Compile Include="Tool\CustomerShoppingMatchUtility.cs" />
     <Compile Include="Tool\CustomerReviewAiClient.cs" />
     <Compile Include="Tool\CustomerReviewAiDebugLog.cs" />
     <Compile Include="Tool\CustomerReviewAiDebugRecord.cs" />

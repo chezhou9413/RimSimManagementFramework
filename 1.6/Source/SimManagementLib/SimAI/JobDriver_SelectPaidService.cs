@@ -55,6 +55,7 @@ namespace SimManagementLib.SimAI
                 float remainingBudget = lordJob.GetRemainingTripBudget(pawn, shopZone);
                 if (!TryPickService(shopZone, remainingBudget, out selectedService, out selectedPrice))
                 {
+                    RegisterNoProgressAndCheckoutIfNeeded(lordJob);
                     SimDebugLogger.Journey("RSMF.SelectService", $"选择服务失败：无可用服务 remainingBudget={remainingBudget}", pawn, shopZone, -1);
                     EndJobWith(JobCondition.Incompletable);
                     return;
@@ -63,10 +64,12 @@ namespace SimManagementLib.SimAI
                 activeOrder = ShopServiceUtility.CreateOrder(lordJob.nextServiceOrderId++, Provider, selectedService, selectedPrice);
                 if (!selectedService.Worker.TryReserve(pawn, Provider, activeOrder))
                 {
+                    RegisterNoProgressAndCheckoutIfNeeded(lordJob);
                     SimDebugLogger.Journey("RSMF.SelectService", $"服务预约失败 service={selectedService.defName} provider={Provider?.thingIDNumber ?? -1}", pawn, shopZone, activeOrder.orderId);
                     EndJobWith(JobCondition.Incompletable);
                     return;
                 }
+                lordJob.RegisterCurrentShopBrowseAttempt(pawn);
                 SimDebugLogger.Journey("RSMF.SelectService", $"选择服务成功 service={selectedService.defName} price={selectedPrice} provider={Provider?.thingIDNumber ?? -1}", pawn, shopZone, activeOrder.orderId);
             };
             yield return init;
@@ -141,6 +144,7 @@ namespace SimManagementLib.SimAI
                 }
 
                 lordJob.AddServiceOrder(pawnId, activeOrder);
+                lordJob.ClearCurrentShopNoProgressBrowse(pawn);
                 SimShopEvents.NotifyServiceOrderCreated(pawn, activeOrder, shopZone);
                 lordJob.cartValues[pawnId] += activeOrder.totalPrice;
                 finance?.QueueServiceSale(pawn, shopZone, activeOrder.serviceDefName, selectedService.DisplayLabel, activeOrder.count, activeOrder.totalPrice);
@@ -167,13 +171,30 @@ namespace SimManagementLib.SimAI
                 .Where(d => d != null)
                 .Where(d => d.Worker.CanUse(pawn, Provider, shopZone, out _))
                 .Where(d => d.Worker.GetPrice(pawn, Provider, shopZone) <= remainingBudget)
-                .Where(d => d.Worker.TryReserve(pawn, Provider, null))
+                .Where(d => ShopServiceUtility.CanAcceptMoreUsers(Provider, d))
                 .ToList();
 
             if (candidates.NullOrEmpty()) return false;
             serviceDef = candidates.RandomElement();
             price = serviceDef.Worker.GetPrice(pawn, Provider, shopZone);
             return true;
+        }
+
+        /// <summary>
+        /// 记录一次无进展服务选择，负责在服务反复不可用时让顾客结束浏览。
+        /// </summary>
+        private void RegisterNoProgressAndCheckoutIfNeeded(LordJob_CustomerVisit lordJob)
+        {
+            if (lordJob == null || pawn == null) return;
+            lordJob.RegisterCurrentShopBrowseAttempt(pawn);
+            lordJob.RegisterCurrentShopNoProgressBrowse(pawn);
+            if (!lordJob.HasCompletedCurrentShopMinimumBrowse(pawn)) return;
+            if (!lordJob.HasReachedCurrentShopBrowseLimit(pawn) && !lordJob.HasReachedCurrentShopNoProgressLimit(pawn)) return;
+
+            int pawnId = pawn.thingIDNumber;
+            if (!lordJob.cartValues.ContainsKey(pawnId))
+                lordJob.cartValues[pawnId] = 0f;
+            lordJob.MarkPawnReadyForCheckout(pawnId);
         }
     }
 }

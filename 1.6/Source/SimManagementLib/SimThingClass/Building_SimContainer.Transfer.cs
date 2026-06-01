@@ -15,6 +15,7 @@ namespace SimManagementLib.SimThingClass
         /// </summary>
         public int ReservePending(ThingDef thingDef, int count)
         {
+            ReconcilePendingReservations();
             if (count <= 0) return 0;
             int needed = CountNeeded(thingDef);
             if (needed <= 0) return 0;
@@ -28,6 +29,7 @@ namespace SimManagementLib.SimThingClass
         /// </summary>
         public void CancelPending(ThingDef thingDef, int reservedCount)
         {
+            if (thingDef == null) return;
             if (reservedCount <= 0) return;
             int next = CountPending(thingDef) - reservedCount;
             if (next <= 0) pendingIn.Remove(thingDef);
@@ -44,8 +46,13 @@ namespace SimManagementLib.SimThingClass
             Thing carried = pawn.carryTracker?.CarriedThing;
             if (carried == null || carried.def != thingDef) return 0;
 
+            int currentNeed = CountShortfallIgnoringPendingIn(thingDef);
+            if (currentNeed <= 0) return 0;
+
             int maxByReservation = reservedCount > 0 ? reservedCount : carried.stackCount;
-            int canStore = System.Math.Min(GetRemainingCapacityForStored(), System.Math.Min(carried.stackCount, maxByReservation));
+            int canStore = System.Math.Min(
+                GetRemainingCapacityForStored(),
+                System.Math.Min(currentNeed, System.Math.Min(carried.stackCount, maxByReservation)));
             if (canStore <= 0) return 0;
 
             if (canStore >= carried.stackCount)
@@ -97,6 +104,7 @@ namespace SimManagementLib.SimThingClass
         public int TryCreateAndStore(ThingDef def, int desiredCount)
         {
             if (def == null || desiredCount <= 0) return 0;
+            ReconcilePendingReservations();
 
             int totalStored = 0;
             int remaining = System.Math.Min(desiredCount, GetRemainingCapacityForStored());
@@ -121,6 +129,7 @@ namespace SimManagementLib.SimThingClass
                     break;
             }
 
+            ReconcilePendingReservations();
             return totalStored;
         }
 
@@ -129,6 +138,7 @@ namespace SimManagementLib.SimThingClass
         /// </summary>
         public int CountExcess(ThingDef thingDef)
         {
+            ClearOrphanedPendingOut();
             int stored = CountStored(thingDef);
             int target = GetTargetCount(thingDef);
             int alreadyPendingOut = pendingOut.TryGetValue(thingDef, out int value) ? value : 0;
@@ -156,6 +166,7 @@ namespace SimManagementLib.SimThingClass
         /// </summary>
         public int ReservePendingOut(ThingDef thingDef, int count)
         {
+            ReconcilePendingReservations();
             if (count <= 0) return 0;
             int excess = CountExcess(thingDef);
             if (excess <= 0) return 0;
@@ -169,6 +180,7 @@ namespace SimManagementLib.SimThingClass
         /// </summary>
         public void CancelPendingOut(ThingDef thingDef, int count)
         {
+            if (thingDef == null) return;
             if (count <= 0) return;
             int next = (pendingOut.TryGetValue(thingDef, out int value) ? value : 0) - count;
             if (next <= 0) pendingOut.Remove(thingDef);
@@ -182,6 +194,9 @@ namespace SimManagementLib.SimThingClass
         {
             CancelPendingOut(thingDef, reservedCount);
 
+            int currentExcess = CountExcessIgnoringPendingOut(thingDef);
+            if (currentExcess <= 0) return null;
+
             Thing stored = null;
             foreach (Thing thing in virtualStorage)
             {
@@ -193,7 +208,8 @@ namespace SimManagementLib.SimThingClass
             }
             if (stored == null) return null;
 
-            int actual = System.Math.Min(count, stored.stackCount);
+            int actual = System.Math.Min(currentExcess, System.Math.Min(count, stored.stackCount));
+            if (actual <= 0) return null;
             virtualStorage.TryDrop(stored, dropLoc, Map, ThingPlaceMode.Near, actual, out Thing result);
             if (result != null)
                 RefreshProgressStageGraphic();

@@ -48,6 +48,17 @@ namespace SimManagementLib.Tool
         }
 
         /// <summary>
+        /// 判断 Pawn 是否是不能被转入顾客派系的真实世界派系领袖。
+        /// </summary>
+        public static bool IsProtectedFactionLeader(Pawn pawn)
+        {
+            if (pawn == null || !PawnUtility.IsFactionLeader(pawn)) return false;
+
+            Faction leaderFaction = PawnUtility.GetFactionLeaderFaction(pawn);
+            return leaderFaction != null && !IsCustomerFaction(leaderFaction);
+        }
+
+        /// <summary>
         /// 创建顾客专用隐藏派系，负责避开原版生成派系领袖时的亲属关系生成流程。
         /// </summary>
         private static Faction CreateCustomerFactionWithoutLeader(FactionDef factionDef)
@@ -78,6 +89,12 @@ namespace SimManagementLib.Tool
         {
             customerFaction = GetOrCreateCustomerFaction();
             if (pawn == null || customerFaction == null) return false;
+
+            if (IsProtectedFactionLeader(pawn))
+            {
+                Log.Warning("[SimShop] 跳过真实派系领袖顾客转换，避免原派系领袖被替换：" + pawn.LabelShortCap);
+                return false;
+            }
 
             if (pawn.Faction != customerFaction)
                 pawn.SetFaction(customerFaction);

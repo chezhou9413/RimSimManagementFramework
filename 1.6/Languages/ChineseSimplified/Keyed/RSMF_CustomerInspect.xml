@@ -11,5 +11,6 @@
   <RSMF.CustomerInspect.AllowedWeathersPrefix>出没天气: </RSMF.CustomerInspect.AllowedWeathersPrefix>
   <RSMF.CustomerInspect.ActiveHoursPrefix>出没时间: </RSMF.CustomerInspect.ActiveHoursPrefix>
   <RSMF.CustomerInspect.ReadyForCheckout>已准备结账</RSMF.CustomerInspect.ReadyForCheckout>
+  <RSMF.CustomerInspect.ReadyToLeave>准备离店</RSMF.CustomerInspect.ReadyToLeave>
   <RSMF.CustomerInspect.Browsing>浏览中</RSMF.CustomerInspect.Browsing>
 </LanguageData>

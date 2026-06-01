@@ -47,15 +47,10 @@ namespace SimManagementLib.SimDialog
             });
 
             Rect outRect = new Rect(rect.x, headerRect.yMax, rect.width, rect.height - HeaderH);
-            float viewWidth = outRect.width - ScrW;
-            Widgets.BeginScrollView(outRect, ref listScroll, new Rect(0f, 0f, viewWidth, rows.Count * RowH));
-
-            for (int i = 0; i < rows.Count; i++)
+            DrawVirtualizedRows(outRect, rows.Count, delegate(int i, Rect row)
             {
-                DrawServiceRow(new Rect(0f, i * RowH, viewWidth, RowH), rows[i], i);
-            }
-
-            Widgets.EndScrollView();
+                DrawServiceRow(row, rows[i], i);
+            });
         }
 
         /// <summary>
@@ -107,7 +102,7 @@ namespace SimManagementLib.SimDialog
             GUI.color = enabled ? Color.white : CTextDim;
             Widgets.Label(new Rect(row.x + RowPad, row.y, rx - row.x - RowPad, RowH), data.ServiceLabel.Truncate(rx - row.x - RowPad));
 
-            if (data.ServiceDef != null)
+            if (Mouse.IsOver(row) && data.ServiceDef != null && !string.IsNullOrEmpty(data.ServiceDef.description))
                 TooltipHandler.TipRegion(row, data.ServiceDef.description);
             ResetText();
         }

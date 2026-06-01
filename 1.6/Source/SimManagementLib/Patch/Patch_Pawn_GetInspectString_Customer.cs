@@ -26,13 +26,13 @@ namespace SimManagementLib.Patch
             int pawnId = __instance.thingIDNumber;
             CustomerRuntimeSettings settings = customerLord.GetPawnSettings(pawnId);
             int budget = customerLord.GetBudgetForPawn(pawnId);
-            float spent = customerLord.cartValues.TryGetValue(pawnId, out float v) ? v : 0f;
+            float spent = customerLord.GetAmountOwedForCheckout(pawnId);
             float remaining = budget - spent;
             int patience = customerLord.GetQueuePatienceForPawn(pawnId);
             float spentRatio = budget > 0 ? spent / Mathf.Max(1f, budget) : 0f;
             int spentPct = Mathf.Clamp(Mathf.RoundToInt(spentRatio * 100f), 0, 100);
             string jobLabel = __instance.CurJobDef?.LabelCap.RawText ?? SimTranslation.T("RSMF.Common.None");
-            string queueState = customerLord.readyForCheckout.Contains(pawnId) ? SimTranslation.T("RSMF.CustomerInspect.ReadyForCheckout") : SimTranslation.T("RSMF.CustomerInspect.Browsing");
+            string queueState = GetCustomerQueueState(customerLord, pawnId);
 
             var sb = new StringBuilder();
             if (!string.IsNullOrEmpty(__result))
@@ -77,6 +77,18 @@ namespace SimManagementLib.Patch
             }
 
             __result = sb.ToString().TrimEnd();
+        }
+
+        /// <summary>
+        /// 返回顾客检查面板的经营状态文本，负责区分待付款和无消费离店。
+        /// </summary>
+        private static string GetCustomerQueueState(LordJob_CustomerVisit customerLord, int pawnId)
+        {
+            if (customerLord == null) return SimTranslation.T("RSMF.CustomerInspect.Browsing");
+            if (!customerLord.readyForCheckout.Contains(pawnId)) return SimTranslation.T("RSMF.CustomerInspect.Browsing");
+            return customerLord.GetAmountOwedForCheckout(pawnId) > 0f
+                ? SimTranslation.T("RSMF.CustomerInspect.ReadyForCheckout")
+                : SimTranslation.T("RSMF.CustomerInspect.ReadyToLeave");
         }
     }
 }

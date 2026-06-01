@@ -20,7 +20,9 @@ namespace SimManagementLib.SimAI
         private Thing ToHaul => job.GetTarget(ThingInd).Thing;
         private Building_SimContainer Storage => job.GetTarget(StorageInd).Thing as Building_SimContainer;
         private int ReservedCount => job.count;
-        private bool reservationCancelled = false;
+        private ThingDef ReservedDef => job.plantDefToSow;
+        private bool reservationReleased;
+        private bool depositSucceeded;
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
@@ -34,6 +36,7 @@ namespace SimManagementLib.SimAI
         {
             this.FailOnDestroyedOrNull(ThingInd);
             this.FailOnDestroyedOrNull(StorageInd);
+            AddFinishAction(CleanupReservation);
 
             yield return Toils_Goto.GotoThing(ThingInd, PathEndMode.ClosestTouch)
                 .FailOnSomeonePhysicallyInteracting(ThingInd);
@@ -78,7 +81,7 @@ namespace SimManagementLib.SimAI
                 Building_SimContainer storage = Storage;
                 if (storage == null || storage.Destroyed)
                 {
-                    CancelReservation();
+                    ReleaseReservation();
                     pawn.jobs.EndCurrentJob(JobCondition.Incompletable);
                     return;
                 }
@@ -86,7 +89,7 @@ namespace SimManagementLib.SimAI
                 Thing carried = pawn.carryTracker?.CarriedThing;
                 if (carried == null)
                 {
-                    CancelReservation();
+                    ReleaseReservation();
                     pawn.jobs.EndCurrentJob(JobCondition.Incompletable);
                     return;
                 }
@@ -94,10 +97,13 @@ namespace SimManagementLib.SimAI
                 int deposited = storage.Deposit(pawn, carried.def, ReservedCount);
                 if (deposited <= 0)
                 {
+                    ReleaseReservation();
                     pawn.jobs.EndCurrentJob(JobCondition.Incompletable);
                     return;
                 }
 
+                depositSucceeded = true;
+                reservationReleased = true;
                 pawn.jobs.EndCurrentJob(JobCondition.Succeeded);
             };
             toil.defaultCompleteMode = ToilCompleteMode.Instant;
@@ -105,16 +111,25 @@ namespace SimManagementLib.SimAI
         }
 
         /// <summary>
-        /// 取消大货柜的待入库预约，避免中断工作后长期占用容量。
+        /// 根据任务结束结果清理补货预约，负责在寻路失败、被打断或目标消失时释放“途中”数量。
         /// </summary>
-        private void CancelReservation()
+        private void CleanupReservation(JobCondition condition)
         {
-            if (reservationCancelled) return;
-            reservationCancelled = true;
+            if (depositSucceeded || condition == JobCondition.Succeeded) return;
+            ReleaseReservation();
+        }
+
+        /// <summary>
+        /// 释放大货柜的待入库预约，负责避免中断工作后长期占用容量。
+        /// </summary>
+        private void ReleaseReservation()
+        {
+            if (reservationReleased) return;
+            reservationReleased = true;
             Building_SimContainer storage = Storage;
-            Thing thing = ToHaul;
-            if (storage != null && !storage.Destroyed && thing != null)
-                storage.CancelPending(thing.def, ReservedCount);
+            ThingDef thingDef = ReservedDef ?? ToHaul?.def ?? pawn?.carryTracker?.CarriedThing?.def;
+            if (storage != null && !storage.Destroyed && thingDef != null)
+                storage.CancelPending(thingDef, ReservedCount);
         }
 
         /// <summary>
@@ -123,7 +138,8 @@ namespace SimManagementLib.SimAI
         public override void Notify_Starting()
         {
             base.Notify_Starting();
-            reservationCancelled = false;
+            reservationReleased = false;
+            depositSucceeded = false;
         }
     }
 }

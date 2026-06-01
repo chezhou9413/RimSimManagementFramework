@@ -36,11 +36,19 @@ namespace SimManagementLib.SimAI
             checkoutState.MarkPawnReadyForCheckout(pawnId);
             Tool.SimDebugLogger.Journey("RSMF.Checkout", "顾客已标记准备结账", pawn, context.shop, -1);
 
-            if (AreAllActivePawnsReadyForCheckout())
+            if (ShouldEnterCheckoutPhase())
             {
-                Tool.SimDebugLogger.Journey("RSMF.Checkout", "所有活跃顾客已准备结账，发送 Customer_ReadyToCheckout", pawn, context.shop, -1);
+                Tool.SimDebugLogger.Journey("RSMF.Checkout", "顾客结账条件满足，发送 Customer_ReadyToCheckout", pawn, context.shop, -1);
                 lord?.ReceiveMemo("Customer_ReadyToCheckout");
             }
+        }
+
+        /// <summary>
+        /// 判断顾客是否已被标记为准备结账。
+        /// </summary>
+        public bool IsPawnReadyForCheckout(int pawnId)
+        {
+            return checkoutState.IsPawnReadyForCheckout(pawnId);
         }
 
         /// <summary>
@@ -188,6 +196,27 @@ namespace SimManagementLib.SimAI
         }
 
         /// <summary>
+        /// 判断是否应进入结账阶段，负责让已有未付账单的顾客优先结账而不是继续浏览。
+        /// </summary>
+        private bool ShouldEnterCheckoutPhase()
+        {
+            if (AreAllActivePawnsReadyForCheckout())
+                return true;
+
+            if (lord?.ownedPawns == null) return false;
+            for (int i = 0; i < lord.ownedPawns.Count; i++)
+            {
+                Pawn pawn = lord.ownedPawns[i];
+                if (pawn == null || pawn.Destroyed || pawn.Dead || !pawn.Spawned) continue;
+                int pawnId = pawn.thingIDNumber;
+                if (checkoutState.IsPawnReadyForCheckout(pawnId) && GetAmountOwedForCheckout(pawnId) > 0f)
+                    return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// 检查所有活跃顾客是否都完成结账和购后行为，完成时推进群体状态机离店。
         /// </summary>
         public void CheckAllCheckoutsDone()
@@ -217,7 +246,7 @@ namespace SimManagementLib.SimAI
             if (allDone)
             {
                 Pawn pawn = lord.ownedPawns.FirstOrDefault(p => p != null && !p.Destroyed && !p.Dead && p.Spawned);
-                if (pawn != null && TryMovePawnToNextShop(pawn))
+                if (pawn != null && !ShouldForceLeaveGroupAfterCheckout() && TryMovePawnToNextShop(pawn))
                 {
                     Tool.SimDebugLogger.Journey("RSMF.Checkout", "结账完成，顾客前往下一家店", pawn, GetCurrentShop(pawn), -1);
                     lord.ReceiveMemo("Customer_GoToNextShop");

@@ -10,11 +10,6 @@
         <li Class="SimManagementLib.SimAI.JobGiver_Customer_RunExternalAction" />
         <li Class="SimManagementLib.SimAI.JobGiver_Customer_SelectPaidService" />
         <li Class="SimManagementLib.SimAI.JobGiver_Customer_BrowseAndPick" />
-        <li Class="ThinkNode_ConditionalStarving">
-          <subNodes>
-            <li Class="JobGiver_GetFood"/>
-          </subNodes>
-        </li>
         <li Class="JobGiver_WanderNearDutyLocation">
           <wanderRadius>5</wanderRadius>
         </li>

@@ -34,6 +34,11 @@ namespace SimManagementLib.SimAI
         public override bool AssignsDuties => true;
 
         /// <summary>
+        /// 禁止顾客在浏览阶段改去满足长期需求，负责把饥饿等异常交给顾客访问看门狗处理。
+        /// </summary>
+        public override bool AllowSatisfyLongNeeds => false;
+
+        /// <summary>
         /// 给所有顾客分配浏览货架职责，负责驱动顾客在商店内寻找商品或服务。
         /// </summary>
         public override void UpdateAllDuties()

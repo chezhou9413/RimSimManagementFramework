@@ -22,11 +22,17 @@ namespace SimManagementLib.SimAI
         private const int MaxShelfReservations = 24;
         private Building_SimContainer TargetShelf => (Building_SimContainer)job.GetTarget(TargetIndex.A).Thing;
 
+        /// <summary>
+        /// 预约目标货柜，负责允许多名顾客同时浏览同一货柜但仍通过原版预约系统控制上限。
+        /// </summary>
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
             return pawn.Reserve(TargetShelf, job, MaxShelfReservations, 0, null, errorOnFailed);
         }
 
+        /// <summary>
+        /// 构建顾客浏览货柜并挑选商品或套餐的流程，负责在目标商品耗尽时及时结束本次购物。
+        /// </summary>
         protected override IEnumerable<Toil> MakeNewToils()
         {
             this.FailOnDespawnedOrNull(TargetIndex.A);
@@ -37,6 +43,7 @@ namespace SimManagementLib.SimAI
             {
                 LordJob_CustomerVisit lordJob = pawn.Map?.lordManager?.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
                 lordJob?.MarkCurrentShopBrowsed(pawn);
+                lordJob?.RegisterCurrentShopBrowseAttempt(pawn);
                 CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.BrowseStart);
             };
             browse.tickAction = () =>
@@ -60,21 +67,22 @@ namespace SimManagementLib.SimAI
 
                 Zone_Shop shopZone = lordJob.GetCurrentShop(pawn);
                 float remainingBudget = lordJob.GetRemainingTripBudget(pawn, shopZone);
+                bool noProgressRecorded = false;
 
                 if (remainingBudget <= 0f)
                 {
+                    RegisterNoProgressAndCheckoutIfNeeded(lordJob, ref noProgressRecorded);
                     lordJob.MarkPawnReadyForCheckout(pId);
                     return;
                 }
 
                 if (shopZone != null)
                 {
-                    List<ComboData> combos = ShopDataUtility.GetAffordableInStockCombos(shopZone, remainingBudget);
+                    List<ComboData> combos = CustomerShoppingMatchUtility.GetMatchingAffordableInStockCombos(shopZone, lordJob, remainingBudget);
                     List<CustomerCartItem> currentCart = lordJob.GetCartItems(pId);
                     if (!combos.NullOrEmpty())
                     {
                         ComboData targetCombo = combos
-                            .Where(c => CustomerPurchaseDeliveryUtility.CanCarryCombo(pawn, currentCart, c.items))
                             .OrderByDescending(c => GetComboPreferenceScore(lordJob, pId, c))
                             .ThenByDescending(c => c.totalPrice)
                             .FirstOrDefault();
@@ -90,6 +98,7 @@ namespace SimManagementLib.SimAI
 
                             lordJob.cartValues[pId] += comboPrice;
                             lordJob.AddCartItemsFromCombo(pId, targetCombo.items);
+                            lordJob.ClearCurrentShopNoProgressBrowse(pawn);
                             string comboName = string.IsNullOrEmpty(targetCombo.comboName) ? SimTranslation.T("RSMF.Common.UnnamedCombo") : targetCombo.comboName;
                             finance?.QueueComboSale(pawn, shopZone, comboName, comboPrice, comboCost);
                             CustomerExpressionUtility.TryShowExpression(
@@ -106,37 +115,32 @@ namespace SimManagementLib.SimAI
                                 lordJob.MarkPawnReadyForCheckout(pId);
                             return;
                         }
+
+                        if (RegisterNoProgressAndCheckoutIfNeeded(lordJob, ref noProgressRecorded))
+                            return;
                     }
                 }
 
                 List<(ThingDef def, float unitPrice)> candidates = new List<(ThingDef def, float unitPrice)>();
-                List<CustomerCartItem> cartBeforeItem = lordJob.GetCartItems(pId);
-                bool blockedOnlyByMass = false;
                 foreach (ThingDef def in TargetShelf.ActiveDefs)
                 {
                     if (TargetShelf.CountStored(def) <= 0) continue;
+                    if (!CustomerShoppingMatchUtility.ThingMatchesCustomer(lordJob, def)) continue;
 
                     float unitPrice = ShopPricingUtility.GetUnitPrice(TargetShelf, def);
                     if (unitPrice <= remainingBudget)
                     {
-                        if (CustomerPurchaseDeliveryUtility.MaxAdditionalCountByMass(pawn, cartBeforeItem, def) <= 0)
-                        {
-                            blockedOnlyByMass = true;
-                            continue;
-                        }
-
                         candidates.Add((def, unitPrice));
                     }
                 }
 
                 if (candidates.NullOrEmpty())
                 {
-                    if (!blockedOnlyByMass)
-                    {
-                        CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.BrowseNoMatch);
-                        ShopBubbleUtility.ShowTextBubble(pawn, SimTranslation.T("RSMF.Bubble.NoSuitableGoods"), new Color(0.88f, 0.88f, 0.88f));
-                    }
-                    lordJob.MarkPawnReadyForCheckout(pId);
+                    bool shouldCheckout = RegisterNoProgressAndCheckoutIfNeeded(lordJob, ref noProgressRecorded);
+                    CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.BrowseNoMatch);
+                    ShopBubbleUtility.ShowTextBubble(pawn, SimTranslation.T("RSMF.Bubble.NoSuitableGoods"), new Color(0.88f, 0.88f, 0.88f));
+                    if (shouldCheckout)
+                        lordJob.MarkPawnReadyForCheckout(pId);
                     return;
                 }
 
@@ -145,14 +149,14 @@ namespace SimManagementLib.SimAI
 
                 int maxByBudget = Mathf.FloorToInt(remainingBudget / itemPrice);
                 int maxByStock = TargetShelf.CountStored(itemToBuy);
-                int maxByMass = CustomerPurchaseDeliveryUtility.MaxAdditionalCountByMass(pawn, lordJob.GetCartItems(pId), itemToBuy);
-                int maxCount = Mathf.Min(maxByBudget, maxByStock, maxByMass);
+                int maxCount = Mathf.Min(maxByBudget, maxByStock);
                 if (maxCount <= 0)
                 {
-                    lordJob.MarkPawnReadyForCheckout(pId);
+                    if (RegisterNoProgressAndCheckoutIfNeeded(lordJob, ref noProgressRecorded))
+                        lordJob.MarkPawnReadyForCheckout(pId);
                     return;
                 }
-                int buyCount = maxCount > 1 ? Rand.RangeInclusive(1, maxCount) : 1;
+                int buyCount = PickPurchaseCount(maxCount);
 
                 Thing taken = TargetShelf.TryVirtualBuy(itemToBuy, buyCount, out _);
                 if (taken != null)
@@ -162,6 +166,7 @@ namespace SimManagementLib.SimAI
                     float totalCost = Mathf.Max(0f, itemToBuy.BaseMarketValue * actualCount);
                     lordJob.cartValues[pId] += totalPrice;
                     lordJob.AddCartItem(pId, itemToBuy, actualCount);
+                    lordJob.ClearCurrentShopNoProgressBrowse(pawn);
                     finance?.QueueProductSale(pawn, shopZone, itemToBuy, actualCount, totalPrice, totalCost);
                     taken.Destroy(DestroyMode.Vanish);
                     float preferenceMultiplier = lordJob.GetPreferenceMultiplier(pId, itemToBuy);
@@ -180,6 +185,12 @@ namespace SimManagementLib.SimAI
                         null,
                         Color.white);
                 }
+                else
+                {
+                    if (RegisterNoProgressAndCheckoutIfNeeded(lordJob, ref noProgressRecorded))
+                        lordJob.MarkPawnReadyForCheckout(pId);
+                    return;
+                }
 
                 if (lordJob.RegisterConsumptionActionAndShouldCheckout(pId) || lordJob.ShouldCheckoutFromCurrentShop(pawn, shopZone, "商品购买完成"))
                     lordJob.MarkPawnReadyForCheckout(pId);
@@ -188,6 +199,9 @@ namespace SimManagementLib.SimAI
             yield return pickItem;
         }
 
+        /// <summary>
+        /// 计算套餐对指定顾客的偏好得分，负责让更符合偏好的套餐优先被购买。
+        /// </summary>
         private static float GetComboPreferenceScore(LordJob_CustomerVisit lordJob, int pawnId, ComboData combo)
         {
             if (combo == null || combo.items.NullOrEmpty()) return 0f;
@@ -201,6 +215,38 @@ namespace SimManagementLib.SimAI
             }
 
             return score;
+        }
+
+        /// <summary>
+        /// 选择单次购买数量，负责让顾客稳定购买但避免一次搬空整柜库存。
+        /// </summary>
+        private static int PickPurchaseCount(int maxCount)
+        {
+            if (maxCount <= 1) return 1;
+
+            int softMax = Mathf.Min(maxCount, 4);
+            return Rand.RangeInclusive(1, softMax);
+        }
+
+        /// <summary>
+        /// 记录一次无进展货柜浏览，负责在连续空逛达到阈值后推进顾客结账。
+        /// </summary>
+        private bool RegisterNoProgressAndCheckoutIfNeeded(LordJob_CustomerVisit lordJob, ref bool noProgressRecorded)
+        {
+            if (lordJob == null || pawn == null) return false;
+            if (!noProgressRecorded)
+            {
+                lordJob.RegisterCurrentShopNoProgressBrowse(pawn);
+                noProgressRecorded = true;
+            }
+            if (!lordJob.HasCompletedCurrentShopMinimumBrowse(pawn)) return false;
+            if (!lordJob.HasReachedCurrentShopBrowseLimit(pawn) && !lordJob.HasReachedCurrentShopNoProgressLimit(pawn)) return false;
+
+            int pawnId = pawn.thingIDNumber;
+            if (!lordJob.cartValues.ContainsKey(pawnId))
+                lordJob.cartValues[pawnId] = 0f;
+            lordJob.MarkPawnReadyForCheckout(pawnId);
+            return true;
         }
     }
 }

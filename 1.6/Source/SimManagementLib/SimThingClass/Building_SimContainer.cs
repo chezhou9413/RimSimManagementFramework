@@ -99,6 +99,7 @@ namespace SimManagementLib.SimThingClass
             contentsDropped = false;
             if (virtualStorage == null)
                 virtualStorage = new ThingOwner<Thing>(this, oneStackOnly: false);
+            ReconcilePendingReservations();
         }
 
         public override void ExposeData()

@@ -37,16 +37,13 @@ namespace SimManagementLib.SimDialog
             });
 
             Rect outRect = new Rect(rect.x, headerRect.yMax, rect.width, rect.height - HeaderH);
-            float viewWidth = outRect.width - ScrW;
-            Widgets.BeginScrollView(outRect, ref listScroll, new Rect(0f, 0f, viewWidth, items.Count * RowH));
-
-            for (int i = 0; i < items.Count; i++)
+            DrawVirtualizedRows(outRect, items.Count, delegate(int i, Rect row)
             {
                 ShopItemStatus item = items[i];
-                Rect row = new Rect(0f, i * RowH, viewWidth, RowH);
                 DrawRowBg(row, i, false);
                 Widgets.DrawHighlightIfMouseover(row);
-                TooltipHandler.TipRegion(row, item.Def.description);
+                if (Mouse.IsOver(row) && !string.IsNullOrEmpty(item.Def.description))
+                    TooltipHandler.TipRegion(row, item.Def.description);
 
                 float midY = row.y + (RowH - IconSz) / 2f;
                 float x = row.x + RowPad;
@@ -98,9 +95,7 @@ namespace SimManagementLib.SimDialog
                 GUI.color = Color.white;
                 Widgets.Label(new Rect(x, row.y, rx - x, RowH), item.Def.LabelCap.Truncate(rx - x));
                 ResetText();
-            }
-
-            Widgets.EndScrollView();
+            });
         }
 
         private void DrawManagePanel(Rect rect)
@@ -177,13 +172,9 @@ namespace SimManagementLib.SimDialog
             });
 
             Rect outRect = new Rect(rect.x, headerRect.yMax, rect.width, rect.height - infoRect.height - 6f - HeaderH);
-            float viewWidth = outRect.width - ScrW;
-            Widgets.BeginScrollView(outRect, ref listScroll, new Rect(0f, 0f, viewWidth, list.Count * RowH));
-
-            for (int i = 0; i < list.Count; i++)
+            DrawVirtualizedRows(outRect, list.Count, delegate(int i, Rect row)
             {
                 ThingDef thingDef = list[i];
-                Rect row = new Rect(0f, i * RowH, viewWidth, RowH);
                 GoodsItemData config = comp.FindItemData(thingDef);
                 if (config == null && comp.itemData.TryGetValue(thingDef.defName, out GoodsItemData rawData))
                     config = rawData;
@@ -191,7 +182,8 @@ namespace SimManagementLib.SimDialog
 
                 DrawRowBg(row, i, enabled);
                 Widgets.DrawHighlightIfMouseover(row);
-                TooltipHandler.TipRegion(row, thingDef.description);
+                if (Mouse.IsOver(row) && !string.IsNullOrEmpty(thingDef.description))
+                    TooltipHandler.TipRegion(row, thingDef.description);
 
                 float midY = row.y + (RowH - IconSz) / 2f;
                 float x = row.x + RowPad;
@@ -228,9 +220,7 @@ namespace SimManagementLib.SimDialog
                 GUI.color = enabled ? Color.white : CTextDim;
                 Widgets.Label(new Rect(x, row.y, rx - x, RowH), thingDef.LabelCap.Truncate(rx - x));
                 ResetText();
-            }
-
-            Widgets.EndScrollView();
+            });
         }
 
         private void DrawComboPanel(Rect rect)
@@ -345,13 +335,10 @@ namespace SimManagementLib.SimDialog
             });
 
             Rect outRect = new Rect(rect.x, headerRect.yMax, rect.width, rect.height - topH - HeaderH - 8f);
-            float viewWidth = outRect.width - ScrW;
-            Widgets.BeginScrollView(outRect, ref listScroll, new Rect(0f, 0f, viewWidth, sellable.Count * RowH));
-            for (int i = 0; i < sellable.Count; i++)
+            DrawVirtualizedRows(outRect, sellable.Count, delegate(int i, Rect row)
             {
-                DrawComboItemRow(new Rect(0f, i * RowH, viewWidth, RowH), sellable[i], i % 2 == 0);
-            }
-            Widgets.EndScrollView();
+                DrawComboItemRow(row, sellable[i], i % 2 == 0);
+            });
         }
 
         private void DrawComboItemRow(Rect row, ThingDef thingDef, bool alt)

@@ -58,6 +58,8 @@ namespace SimManagementLib.SimAI
                 LordJob_CustomerVisit lordJob = pawn.Map?.lordManager?.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
                 int pawnId = pawn.thingIDNumber;
                 lordJob?.MarkCurrentShopBrowsed(pawn);
+                lordJob?.RegisterCurrentShopBrowseAttempt(pawn);
+                lordJob?.RegisterCurrentShopNoProgressBrowse(pawn);
                 CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.BrowseNoMatch);
                 ShopBubbleUtility.ShowTextBubble(pawn, SimTranslation.T("RSMF.Bubble.NoSuitableGoods"), new Color(0.88f, 0.88f, 0.88f));
 

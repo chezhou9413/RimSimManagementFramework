@@ -1,13 +1,12 @@
-using SimManagementLib.SimDef;
-using SimManagementLib.SimThingClass;
-using SimManagementLib.SimThingComp;
 using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
-using System.Collections.Generic;
 using Verse;
 
 namespace SimManagementLib.SimMapComp
 {
+    /// <summary>
+    /// 保存单个商店的顾客刷新上下文，负责按容量和目标商品服务判断是否能生成顾客。
+    /// </summary>
     internal sealed class CustomerArrivalShopContext
     {
         public Zone_Shop Shop;
@@ -34,52 +33,7 @@ namespace SimManagementLib.SimMapComp
         /// </summary>
         private bool MatchesShopGoodsOrServices(Pojo.RuntimeCustomerKind kind)
         {
-            if (kind == null)
-                return false;
-            bool acceptsAnyGoodsCategory = kind.GetTargetGoodsCategoryIds().NullOrEmpty();
-            List<string> serviceTargets = kind.GetTargetServiceCategoryIds();
-            bool acceptsAnyServiceCategory = serviceTargets.NullOrEmpty();
-            bool serviceOnlyCustomer = kind.GetTargetGoodsCategoryIds().NullOrEmpty() && !acceptsAnyServiceCategory;
-            bool hasGoodsMatch = false;
-
-            if (!serviceOnlyCustomer)
-            {
-                foreach (Building_SimContainer storage in ShopDataUtility.GetStoragesInZone(Shop))
-                {
-                    ThingComp_GoodsData comp = storage?.GetComp<ThingComp_GoodsData>();
-                    if (comp == null || string.IsNullOrEmpty(comp.ActiveGoodsDefName))
-                        continue;
-                    if (!acceptsAnyGoodsCategory && kind.GetInterestMultiplier(comp.ActiveGoodsDefName) <= 0f)
-                        continue;
-                    if (HasSellableStock(storage, comp))
-                    {
-                        hasGoodsMatch = true;
-                        break;
-                    }
-                }
-            }
-
-            if (hasGoodsMatch) return true;
-
-            // 服务建筑不按顾客偏好分类做硬过滤，任何顾客都有概率被任意可用服务吸引。
-            return ShopServiceUtility.HasUsableServiceProvider(Shop);
-        }
-
-        /// <summary>
-        /// 判断货柜当前分类下是否至少有一个启用并有库存的商品。
-        /// </summary>
-        private static bool HasSellableStock(Building_SimContainer storage, ThingComp_GoodsData comp)
-        {
-            if (storage == null || comp == null) return false;
-
-            foreach (ThingDef thingDef in storage.ActiveDefs)
-            {
-                GoodsItemData data = comp.FindItemData(thingDef);
-                if (data != null && storage.CountStored(thingDef) > 0)
-                    return true;
-            }
-
-            return false;
+            return CustomerShoppingMatchUtility.ShopHasMatchingSellableGoodsOrServices(Shop, kind, kind?.sourceDef);
         }
     }
 }

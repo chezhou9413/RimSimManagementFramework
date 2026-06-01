@@ -21,6 +21,9 @@ namespace SimManagementLib.SimAI
             if (lordJob == null) return null;
 
             int pawnId = pawn.thingIDNumber;
+            if (lordJob.IsPawnReadyForCheckout(pawnId))
+                return null;
+
             if (lordJob.HasReachedConsumptionLimit(pawnId))
             {
                 lordJob.TryMarkReadyForCheckoutAfterMinimumBrowse(pawn);

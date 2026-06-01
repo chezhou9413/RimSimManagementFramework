@@ -56,6 +56,7 @@ namespace SimManagementLib.SimWorkGiver
         public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
             if (!(t is Building_SimContainer storage)) return false;
+            storage.ReconcilePendingReservations();
             if (!NeedsRestock(storage, pawn)) return false;
             return FindBestSupplyCached(pawn, storage) != null;
         }
@@ -66,6 +67,7 @@ namespace SimManagementLib.SimWorkGiver
         public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
             if (!(t is Building_SimContainer storage)) return null;
+            storage.ReconcilePendingReservations();
             if (!NeedsRestock(storage, pawn)) return null;
 
             Thing supply = FindBestSupplyCached(pawn, storage);
@@ -88,6 +90,7 @@ namespace SimManagementLib.SimWorkGiver
                 storage);
             job.count = reserved;
             job.haulMode = HaulMode.ToCellStorage;
+            job.plantDefToSow = td;
             return job;
         }
 

@@ -113,6 +113,73 @@ namespace SimManagementLib.SimAI
         }
 
         /// <summary>
+        /// 记录一次当前店浏览尝试，负责让空逛也受到最多浏览次数限制。
+        /// </summary>
+        public void RegisterCurrentShopBrowseAttempt(Pawn pawn)
+        {
+            CustomerVisitState state = GetOrCreateVisitState(pawn);
+            if (state != null)
+                state.currentShopBrowseAttempts++;
+        }
+
+        /// <summary>
+        /// 记录一次无消费进展的浏览，负责在连续空逛后推进结账离店。
+        /// </summary>
+        public void RegisterCurrentShopNoProgressBrowse(Pawn pawn)
+        {
+            CustomerVisitState state = GetOrCreateVisitState(pawn);
+            if (state != null)
+                state.currentShopNoProgressBrowseAttempts++;
+        }
+
+        /// <summary>
+        /// 清除当前店无进展浏览次数，负责让成功消费后的顾客可以继续正常购物。
+        /// </summary>
+        public void ClearCurrentShopNoProgressBrowse(Pawn pawn)
+        {
+            CustomerVisitState state = GetOrCreateVisitState(pawn);
+            if (state != null)
+                state.currentShopNoProgressBrowseAttempts = 0;
+        }
+
+        /// <summary>
+        /// 判断当前店是否已经达到最多浏览次数，负责启用顾客配置中的 maxShelvesToVisit。
+        /// </summary>
+        public bool HasReachedCurrentShopBrowseLimit(Pawn pawn)
+        {
+            CustomerVisitState state = GetOrCreateVisitState(pawn);
+            if (state == null) return true;
+            return state.currentShopBrowseAttempts >= GetCurrentShopBrowseLimit();
+        }
+
+        /// <summary>
+        /// 判断当前店是否连续多次没有消费进展，负责避免顾客长时间重复浏览。
+        /// </summary>
+        public bool HasReachedCurrentShopNoProgressLimit(Pawn pawn)
+        {
+            CustomerVisitState state = GetOrCreateVisitState(pawn);
+            if (state == null) return true;
+            return state.currentShopNoProgressBrowseAttempts >= GetCurrentShopNoProgressBrowseLimit();
+        }
+
+        /// <summary>
+        /// 返回当前店最多浏览次数，负责为无效或缺失配置提供保守默认值。
+        /// </summary>
+        public int GetCurrentShopBrowseLimit()
+        {
+            return Mathf.Max(1, GetShoppingBehavior().maxShelvesToVisit);
+        }
+
+        /// <summary>
+        /// 返回连续无进展浏览退出阈值，负责按“两三次后走”的体验限制空逛。
+        /// </summary>
+        public int GetCurrentShopNoProgressBrowseLimit()
+        {
+            int browseLimit = GetCurrentShopBrowseLimit();
+            return Mathf.Min(3, Mathf.Max(2, browseLimit));
+        }
+
+        /// <summary>
         /// 返回顾客跨店剩余预算，负责让每家店独立结账但共享总预算。
         /// </summary>
         public float GetRemainingTripBudget(Pawn pawn, Zone_Shop shopZone)
@@ -120,9 +187,8 @@ namespace SimManagementLib.SimAI
             if (pawn == null) return 0f;
             CustomerVisitState state = GetOrCreateVisitState(pawn);
             int rawBudget = GetBudgetForPawn(pawn.thingIDNumber);
-            float effective = GetEffectiveBudgetForPawn(pawn, shopZone);
             float spent = state?.totalSpentAcrossShops ?? 0f;
-            return Mathf.Max(0f, Mathf.Min(rawBudget, effective) - spent);
+            return Mathf.Max(0f, rawBudget - spent);
         }
 
         /// <summary>
@@ -149,11 +215,16 @@ namespace SimManagementLib.SimAI
             if (GetRemainingTripBudget(pawn, shopZone) <= 0f) return true;
             if (HasReachedDesiredSpend(pawn, state)) return true;
             if (state.currentShopConsumptionActions >= behavior.maxConsumptionActionsPerShop) return true;
+            if (state.currentShopBrowseAttempts >= GetCurrentShopBrowseLimit()) return true;
             if (behavior.maxShopVisitTicks > 0 && now - state.currentShopVisitStartTick >= behavior.maxShopVisitTicks) return true;
             if (behavior.maxTotalVisitTicks > 0 && now - state.totalVisitStartTick >= behavior.maxTotalVisitTicks) return true;
             if (GetCheckoutQueueSize(pawn.Map, shopZone) >= behavior.crowdingQueueSoftLimit && Rand.Value > behavior.continueShopChance) return true;
             if (cartState.satisfactionMap.TryGetValue(pawn.thingIDNumber, out float satisfaction) && satisfaction >= behavior.satisfactionCheckoutThreshold) return true;
-            if (!string.IsNullOrEmpty(reason) && Rand.Value > behavior.continueShopChance) return true;
+            if (!string.IsNullOrEmpty(reason)
+                && state.currentShopConsumptionActions > 0
+                && state.currentShopBrowseAttempts >= Mathf.Max(2, GetCurrentShopBrowseLimit() - 1)
+                && Rand.Value > behavior.continueShopChance)
+                return true;
             return false;
         }
 
@@ -180,6 +251,8 @@ namespace SimManagementLib.SimAI
             state.currentShopCell = next.Cells.FirstOrDefault();
             state.currentShopVisitStartTick = Find.TickManager?.TicksGame ?? 0;
             state.currentShopConsumptionActions = 0;
+            state.currentShopBrowseAttempts = 0;
+            state.currentShopNoProgressBrowseAttempts = 0;
             state.currentShopMinimumBrowseDone = false;
             if (!state.visitedShopZoneIds.Contains(next.ID))
                 state.visitedShopZoneIds.Add(next.ID);
@@ -221,24 +294,7 @@ namespace SimManagementLib.SimAI
         {
             float remainingBudget = GetRemainingTripBudget(pawn, shop);
             if (remainingBudget <= 0f) return false;
-            if (ShopServiceUtility.TryFindServiceForCustomer(pawn, shop, remainingBudget, RuntimeCustomerKind?.GetTargetServiceCategoryIds(), out _, out _, out _))
-                return true;
-            return ShopDataUtility.GetStoragesInZone(shop).Any(storage => StorageHasAffordableItem(storage, remainingBudget));
-        }
-
-        /// <summary>
-        /// 判断货柜是否存在顾客买得起的商品。
-        /// </summary>
-        private static bool StorageHasAffordableItem(Building_SimContainer storage, float remainingBudget)
-        {
-            if (storage == null) return false;
-            foreach (ThingDef def in storage.ActiveDefs)
-            {
-                if (def == null || storage.CountStored(def) <= 0) continue;
-                if (ShopPricingUtility.GetUnitPrice(storage, def) <= remainingBudget)
-                    return true;
-            }
-            return false;
+            return CustomerShoppingMatchUtility.ShopHasMatchingAffordableGoodsOrServices(pawn, shop, this, remainingBudget);
         }
 
         /// <summary>

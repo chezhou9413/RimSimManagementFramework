@@ -160,7 +160,7 @@ namespace SimManagementLib.Tool
                     float unitPrice = def.Worker.GetPrice(pawn, candidateProvider, shop);
                     if (unitPrice > remainingBudget) continue;
                     if (!def.Worker.CanUse(pawn, candidateProvider, shop, out _)) continue;
-                    if (!def.Worker.TryReserve(pawn, candidateProvider, null)) continue;
+                    if (!CanAcceptMoreUsers(candidateProvider, def)) continue;
 
                     candidates.Add(new ServiceCandidate(candidateProvider, def, unitPrice));
                 }

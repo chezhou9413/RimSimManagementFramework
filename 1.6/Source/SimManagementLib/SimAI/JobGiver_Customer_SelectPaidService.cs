@@ -13,12 +13,18 @@ namespace SimManagementLib.SimAI
     /// </summary>
     public class JobGiver_Customer_SelectPaidService : ThinkNode_JobGiver
     {
+        /// <summary>
+        /// 尝试为顾客分配可用服务，负责按预算、目标服务分类和商品机会决定是否选择服务。
+        /// </summary>
         protected override Job TryGiveJob(Pawn pawn)
         {
             LordJob_CustomerVisit lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
             if (lordJob == null) return null;
 
             int pawnId = pawn.thingIDNumber;
+            if (lordJob.IsPawnReadyForCheckout(pawnId))
+                return null;
+
             if (lordJob.HasReachedConsumptionLimit(pawnId))
             {
                 lordJob.TryMarkReadyForCheckoutAfterMinimumBrowse(pawn);
@@ -35,14 +41,15 @@ namespace SimManagementLib.SimAI
                 return null;
             }
 
-            // 服务和商品共享浏览阶段，随机让出一部分机会给商品货柜，避免纯优先级导致顾客只选服务。
-            if (ShopDataUtility.GetInStockGoods(shopZone).Count > 0 && Rand.Value > 0.45f)
+            // 服务和商品共享浏览阶段，只有实际可购买的商品才会让出机会，避免买不起或拿不动的货物阻塞服务。
+            if (CustomerShoppingMatchUtility.ShopHasMatchingAffordableGoods(pawn, shopZone, lordJob, remainingBudget) && Rand.Value > 0.45f)
                 return null;
 
             if (!ShopServiceUtility.TryFindServiceForCustomer(
                     pawn,
                     shopZone,
                     remainingBudget,
+                    CustomerShoppingMatchUtility.GetTargetServiceCategoryIds(lordJob.RuntimeCustomerKind, lordJob.customerKind),
                     out Thing provider,
                     out ShopServiceDef serviceDef,
                     out float price))

@@ -352,16 +352,18 @@ namespace SimManagementLib.SimMapComp
                 return false;
             }
 
-            PawnGenerationRequest request = new PawnGenerationRequest(
-                selectedKind,
-                faction,
-                PawnGenerationContext.NonPlayer,
-                tile: -1,
-                forceGenerateNewPawn: false);
+            PawnGenerationRequest request = CreateCustomerPawnGenerationRequest(selectedKind, faction);
             Pawn pawn = PawnGenerator.GeneratePawn(request);
             if (pawn == null)
             {
                 failReason = "no pawn generated";
+                return false;
+            }
+
+            if (CustomerNeutralFactionUtility.IsProtectedFactionLeader(pawn))
+            {
+                Find.WorldPawns.PassToWorld(pawn);
+                failReason = "generated faction leader";
                 return false;
             }
 
@@ -439,15 +441,17 @@ namespace SimManagementLib.SimMapComp
                 return false;
             }
 
-            Pawn pawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(
-                selectedKind,
-                faction,
-                PawnGenerationContext.NonPlayer,
-                tile: -1,
-                forceGenerateNewPawn: false));
+            Pawn pawn = PawnGenerator.GeneratePawn(CreateCustomerPawnGenerationRequest(selectedKind, faction));
             if (pawn == null)
             {
                 failReason = "no pawn generated";
+                return false;
+            }
+
+            if (CustomerNeutralFactionUtility.IsProtectedFactionLeader(pawn))
+            {
+                Find.WorldPawns.PassToWorld(pawn);
+                failReason = "generated faction leader";
                 return false;
             }
 
@@ -488,6 +492,19 @@ namespace SimManagementLib.SimMapComp
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// 使用真实来源派系创建顾客生成请求，负责避免从世界 Pawn 池复用派系领袖。
+        /// </summary>
+        private static PawnGenerationRequest CreateCustomerPawnGenerationRequest(PawnKindDef selectedKind, Faction sourceFaction)
+        {
+            return new PawnGenerationRequest(
+                selectedKind,
+                sourceFaction,
+                PawnGenerationContext.NonPlayer,
+                tile: -1,
+                forceGenerateNewPawn: true);
         }
 
         /// <summary>

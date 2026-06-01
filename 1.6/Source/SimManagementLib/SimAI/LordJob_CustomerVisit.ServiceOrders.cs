@@ -67,12 +67,34 @@ namespace SimManagementLib.SimAI
             float total = 0f;
             if (cartValues != null && cartValues.TryGetValue(pawnId, out float cartValue) && cartValue > 0f)
                 total += cartValue;
+            float cartFallback = GetCartItemsEstimatedValue(pawnId);
+            if (cartFallback > total)
+                total = cartFallback;
             float pendingService = GetPendingServiceOrderAmount(pawnId);
             if (pendingService > total)
                 total = pendingService;
             float pendingFinance = GetPendingFinanceBillAmount(pawnId);
             if (pendingFinance > total)
                 total = pendingFinance;
+            return total;
+        }
+
+        /// <summary>
+        /// 按购物车内容估算待付款金额，负责在账单金额异常丢失时防止顾客免费离店。
+        /// </summary>
+        private float GetCartItemsEstimatedValue(int pawnId)
+        {
+            List<CustomerCartItem> items = GetCartItems(pawnId);
+            if (items.NullOrEmpty()) return 0f;
+
+            float total = 0f;
+            for (int i = 0; i < items.Count; i++)
+            {
+                CustomerCartItem item = items[i];
+                if (item == null || item.def == null || item.count <= 0) continue;
+                total += item.def.BaseMarketValue * item.count;
+            }
+
             return total;
         }
 

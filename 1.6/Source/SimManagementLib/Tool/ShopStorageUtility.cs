@@ -97,6 +97,7 @@ namespace SimManagementLib.Tool
         public static int FillConfiguredTargets(Building_SimContainer storage)
         {
             if (storage == null || storage.Destroyed) return 0;
+            storage.ReconcilePendingReservations();
 
             int totalAdded = 0;
             List<ThingDef> defs = storage.ActiveDefs.Where(def => def != null).ToList();
@@ -111,6 +112,7 @@ namespace SimManagementLib.Tool
                     break;
             }
 
+            storage.ReconcilePendingReservations();
             return totalAdded;
         }
 
