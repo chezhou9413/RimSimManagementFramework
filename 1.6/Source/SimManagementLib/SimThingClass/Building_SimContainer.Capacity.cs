@@ -18,16 +18,8 @@ namespace SimManagementLib.SimThingClass
         /// </summary>
         public int CountTotalStored()
         {
-            int total = 0;
-            if (virtualStorage == null) return 0;
-            for (int i = 0; i < virtualStorage.Count; i++)
-            {
-                Thing thing = virtualStorage[i];
-                if (thing == null || thing.Destroyed) continue;
-                total += UnityEngine.Mathf.Max(0, thing.stackCount);
-            }
-
-            return total;
+            RebuildStoredCountCacheIfNeeded();
+            return cachedTotalStored;
         }
 
         /// <summary>
@@ -35,7 +27,7 @@ namespace SimManagementLib.SimThingClass
         /// </summary>
         public int CountTotalPendingIn()
         {
-            ClearOrphanedPendingIn();
+            ReconcilePendingReservationsIfNeeded();
             int total = 0;
             if (pendingIn == null || pendingIn.Count == 0) return 0;
 
@@ -134,6 +126,7 @@ namespace SimManagementLib.SimThingClass
         {
             ClearOrphanedPendingIn();
             ClearOrphanedPendingOut();
+            lastPendingReservationReconcileTick = Find.TickManager?.TicksGame ?? 0;
         }
 
         /// <summary>
@@ -181,7 +174,7 @@ namespace SimManagementLib.SimThingClass
         /// </summary>
         public int GetRemainingCapacityForPending()
         {
-            ClearOrphanedPendingIn();
+            ReconcilePendingReservationsIfNeeded();
             int remain = MaxTotalCapacity - CountTotalStored() - CountTotalPendingIn();
             return UnityEngine.Mathf.Max(0, remain);
         }
@@ -230,7 +223,9 @@ namespace SimManagementLib.SimThingClass
         /// </summary>
         public int CountStored(ThingDef thingDef)
         {
-            return virtualStorage.TotalStackCountOfDef(thingDef);
+            if (thingDef == null) return 0;
+            RebuildStoredCountCacheIfNeeded();
+            return storedCountCache.TryGetValue(thingDef, out int value) ? value : 0;
         }
 
         /// <summary>
@@ -238,7 +233,7 @@ namespace SimManagementLib.SimThingClass
         /// </summary>
         public int CountPending(ThingDef thingDef)
         {
-            ClearOrphanedPendingIn();
+            ReconcilePendingReservationsIfNeeded();
             return pendingIn.TryGetValue(thingDef, out int value) ? value : 0;
         }
 

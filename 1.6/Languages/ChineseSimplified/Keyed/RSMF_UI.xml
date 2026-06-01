@@ -36,6 +36,7 @@
   <RSMF.Container.Inspect.VendingMachineType>类型: 自动售货机</RSMF.Container.Inspect.VendingMachineType>
   <RSMF.Container.Inspect.PendingIn>(+{pending} 途中)</RSMF.Container.Inspect.PendingIn>
   <RSMF.Container.Inspect.TargetTotal>目标总量: {target}</RSMF.Container.Inspect.TargetTotal>
+  <RSMF.Container.Inspect.HiddenGoods>……还有 {count} 种商品，打开货柜管理查看。</RSMF.Container.Inspect.HiddenGoods>
   <RSMF.Container.DefaultLabel>货柜</RSMF.Container.DefaultLabel>
   <RSMF.Service.ProviderFallback>服务建筑</RSMF.Service.ProviderFallback>
   <RSMF.Gizmo.RenameContainer.Label>重命名货柜</RSMF.Gizmo.RenameContainer.Label>
@@ -368,7 +369,8 @@
   <RSMF.GoodsManager.Header.Stock>当前库存</RSMF.GoodsManager.Header.Stock>
   <RSMF.GoodsManager.Header.Name>货品名称</RSMF.GoodsManager.Header.Name>
   <RSMF.GoodsManager.PriceTip>参考市价: {value} 银</RSMF.GoodsManager.PriceTip>
-  <RSMF.GoodsManager.PendingEvictWarning>⚠️ 注意：保存后以下物品将被移出仓库：{names}</RSMF.GoodsManager.PendingEvictWarning>
+  <RSMF.GoodsManager.PendingEvictWarning>⚠️ 注意：保存后 {count} 种物品将被移出仓库：{names}</RSMF.GoodsManager.PendingEvictWarning>
+  <RSMF.GoodsManager.PendingEvictMore>其余 {count} 种</RSMF.GoodsManager.PendingEvictMore>
   <RSMF.GoodsManager.CapacityText>容量: {current}/{max}</RSMF.GoodsManager.CapacityText>
   <RSMF.GoodsManager.SelectAllPage>全选当前页</RSMF.GoodsManager.SelectAllPage>
   <RSMF.GoodsManager.ClearAllPage>清空当前页</RSMF.GoodsManager.ClearAllPage>

@@ -17,8 +17,14 @@ namespace SimManagementLib.SimThingClass
         private ThingOwner<Thing> virtualStorage;
         private Dictionary<ThingDef, int> pendingIn = new Dictionary<ThingDef, int>();
         private Dictionary<ThingDef, int> pendingOut = new Dictionary<ThingDef, int>();
+        private Dictionary<ThingDef, int> storedCountCache = new Dictionary<ThingDef, int>();
         private string customName = "";
         private bool contentsDropped;
+        private int cachedTotalStored;
+        private bool storedCountCacheDirty = true;
+        private int storedCountVersion;
+        private int lastPendingReservationReconcileTick = int.MinValue;
+        private const int PendingReservationReconcileIntervalTicks = 120;
 
         private ThingComp_GoodsData GoodsComp => GetComp<ThingComp_GoodsData>();
         private ThingComp_ProgressStageGraphic ProgressStageGraphicComp => GetComp<ThingComp_ProgressStageGraphic>();
@@ -43,6 +49,7 @@ namespace SimManagementLib.SimThingClass
         }
 
         public override string LabelNoCount => StorageDisplayLabel;
+        public int StoredCountVersion => storedCountVersion;
 
         public int MaxTotalCapacity
         {
@@ -88,6 +95,71 @@ namespace SimManagementLib.SimThingClass
 
         public ThingOwner GetDirectlyHeldThings() => virtualStorage;
 
+        /// <summary>
+        /// 复制当前虚拟库存的按物品统计，负责让 UI 和统计逻辑不用直接枚举全部库存栈。
+        /// </summary>
+        public void CopyStoredCountsTo(Dictionary<ThingDef, int> target)
+        {
+            if (target == null) return;
+            RebuildStoredCountCacheIfNeeded();
+            target.Clear();
+            foreach (KeyValuePair<ThingDef, int> entry in storedCountCache)
+            {
+                if (entry.Key != null && entry.Value > 0)
+                    target[entry.Key] = entry.Value;
+            }
+        }
+
+        /// <summary>
+        /// 标记虚拟库存统计需要重建，负责在入库、出库、购买和清空后同步缓存状态。
+        /// </summary>
+        private void MarkStoredCountCacheDirty()
+        {
+            storedCountCacheDirty = true;
+            storedCountVersion++;
+        }
+
+        /// <summary>
+        /// 按需重建虚拟库存统计，负责把大量 Thing 栈聚合为按 ThingDef 查询的字典。
+        /// </summary>
+        private void RebuildStoredCountCacheIfNeeded()
+        {
+            if (!storedCountCacheDirty && storedCountCache != null)
+                return;
+
+            if (storedCountCache == null)
+                storedCountCache = new Dictionary<ThingDef, int>();
+            else
+                storedCountCache.Clear();
+
+            cachedTotalStored = 0;
+            if (virtualStorage != null)
+            {
+                for (int i = 0; i < virtualStorage.Count; i++)
+                {
+                    Thing thing = virtualStorage[i];
+                    if (thing == null || thing.Destroyed || thing.def == null || thing.stackCount <= 0) continue;
+                    cachedTotalStored += Mathf.Max(0, thing.stackCount);
+                    storedCountCache.TryGetValue(thing.def, out int current);
+                    storedCountCache[thing.def] = current + thing.stackCount;
+                }
+            }
+
+            storedCountCacheDirty = false;
+        }
+
+        /// <summary>
+        /// 按固定间隔同步补货和下架预约，负责避免 UI 每帧反复扫描地图 Pawn 任务。
+        /// </summary>
+        private void ReconcilePendingReservationsIfNeeded()
+        {
+            int ticks = Find.TickManager?.TicksGame ?? 0;
+            if (lastPendingReservationReconcileTick >= 0 && ticks - lastPendingReservationReconcileTick < PendingReservationReconcileIntervalTicks)
+                return;
+
+            ReconcilePendingReservations();
+        }
+
         public void GetChildHolders(List<IThingHolder> outChildren)
         {
             ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, GetDirectlyHeldThings());
@@ -99,6 +171,7 @@ namespace SimManagementLib.SimThingClass
             contentsDropped = false;
             if (virtualStorage == null)
                 virtualStorage = new ThingOwner<Thing>(this, oneStackOnly: false);
+            MarkStoredCountCacheDirty();
             ReconcilePendingReservations();
         }
 
@@ -117,6 +190,9 @@ namespace SimManagementLib.SimThingClass
                     pendingIn = new Dictionary<ThingDef, int>();
                 if (pendingOut == null)
                     pendingOut = new Dictionary<ThingDef, int>();
+                if (storedCountCache == null)
+                    storedCountCache = new Dictionary<ThingDef, int>();
+                MarkStoredCountCacheDirty();
             }
         }
     }

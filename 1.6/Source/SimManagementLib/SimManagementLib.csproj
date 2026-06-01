@@ -251,6 +251,7 @@
     <Compile Include="Patch\Patch_Gravship_ShopZoneTransport.cs" />
     <Compile Include="Patch\Patch_Frame_ShopBlueprintPlacement.cs" />
     <Compile Include="Patch\Patch_Pawn_GetInspectString_Customer.cs" />
+    <Compile Include="Patch\Patch_ContainingSelectionUtility_SimContainer.cs" />
     <Compile Include="Patch\Patch_ThingDef_CanOverlapZones.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimAI\JobDriver_DepositToMegaStorage.cs" />

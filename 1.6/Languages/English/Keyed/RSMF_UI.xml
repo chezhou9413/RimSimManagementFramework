@@ -36,6 +36,7 @@
   <RSMF.Container.Inspect.VendingMachineType>Type: vending machine</RSMF.Container.Inspect.VendingMachineType>
   <RSMF.Container.Inspect.PendingIn>(+{pending} incoming)</RSMF.Container.Inspect.PendingIn>
   <RSMF.Container.Inspect.TargetTotal>Total target: {target}</RSMF.Container.Inspect.TargetTotal>
+  <RSMF.Container.Inspect.HiddenGoods>...and {count} more goods. Open storage management to view them.</RSMF.Container.Inspect.HiddenGoods>
   <RSMF.Container.DefaultLabel>Storage</RSMF.Container.DefaultLabel>
   <RSMF.Service.ProviderFallback>Service building</RSMF.Service.ProviderFallback>
   <RSMF.Gizmo.RenameContainer.Label>Rename storage</RSMF.Gizmo.RenameContainer.Label>
@@ -368,7 +369,8 @@
   <RSMF.GoodsManager.Header.Stock>Stock</RSMF.GoodsManager.Header.Stock>
   <RSMF.GoodsManager.Header.Name>Item name</RSMF.GoodsManager.Header.Name>
   <RSMF.GoodsManager.PriceTip>Reference market value: {value} silver</RSMF.GoodsManager.PriceTip>
-  <RSMF.GoodsManager.PendingEvictWarning>⚠️ Warning: after saving, these items will be removed from storage: {names}</RSMF.GoodsManager.PendingEvictWarning>
+  <RSMF.GoodsManager.PendingEvictWarning>⚠️ Warning: after saving, {count} item types will be removed from storage: {names}</RSMF.GoodsManager.PendingEvictWarning>
+  <RSMF.GoodsManager.PendingEvictMore>{count} more</RSMF.GoodsManager.PendingEvictMore>
   <RSMF.GoodsManager.CapacityText>Capacity: {current}/{max}</RSMF.GoodsManager.CapacityText>
   <RSMF.GoodsManager.SelectAllPage>Select all page</RSMF.GoodsManager.SelectAllPage>
   <RSMF.GoodsManager.ClearAllPage>Clear page</RSMF.GoodsManager.ClearAllPage>

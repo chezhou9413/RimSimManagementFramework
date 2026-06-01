@@ -4,6 +4,7 @@ using SimManagementLib.SimThingComp;
 using SimManagementLib.Tool;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 using Verse;
 using RimWorld;
@@ -30,7 +31,7 @@ namespace SimManagementLib.SimDialog
         private const float BottomH = 74f;
         private const float SearchBarH = 30f;
         private const float ScrW = 16f;
-        private const int StockCacheRefreshTicks = 60;
+        private const int PendingEvictPreviewLimit = 6;
 
         // 配色方案。
         private static readonly Color CAccent = new Color(0.25f, 0.65f, 0.85f, 1f);
@@ -59,13 +60,17 @@ namespace SimManagementLib.SimDialog
         private string filteredSearchCache = "";
         private int filteredSourceCount = -1;
         private readonly Dictionary<ThingDef, int> storedCountCache = new Dictionary<ThingDef, int>();
-        private int storedCountCacheTick = int.MinValue;
         private int storedCountCacheVersion;
+        private int observedStorageCountVersion = -1;
         private bool storedCountCacheDirty = true;
         private readonly List<ThingDef> pendingEvictCache = new List<ThingDef>();
         private bool pendingEvictDirty = true;
         private string pendingEvictCategoryCacheId = "";
         private int pendingEvictStockVersion = -1;
+        private int pendingEvictResultVersion;
+        private int pendingEvictPreviewVersion = -1;
+        private int pendingEvictPreviewCount = -1;
+        private string pendingEvictPreviewNames = "";
         private bool draftTargetTotalDirty = true;
         private string draftTargetCategoryCacheId = "";
         private int cachedDraftTargetTotal;
@@ -411,9 +416,46 @@ namespace SimManagementLib.SimDialog
             Widgets.DrawBoxSolid(rect, new Color(0.8f, 0.4f, 0f, 0.2f));
             Text.Font = GameFont.Tiny; Text.Anchor = TextAnchor.MiddleCenter;
             GUI.color = new Color(1f, 0.8f, 0.4f);
-            string names = string.Join(", ", pendingEvict.Select(t => t.LabelCap));
-            Widgets.Label(rect, SimTranslation.T("RSMF.GoodsManager.PendingEvictWarning", names.Truncate(rect.width - 100f).Named("names")));
+            string names = GetPendingEvictPreviewNames(pendingEvict);
+            Widgets.Label(rect, SimTranslation.T("RSMF.GoodsManager.PendingEvictWarning",
+                pendingEvict.Count.Named("count"),
+                names.Truncate(rect.width - 100f).Named("names")));
             GUI.color = Color.white; Text.Font = GameFont.Small; Text.Anchor = TextAnchor.UpperLeft;
+        }
+
+        /// <summary>
+        /// 获取待清退物品的短预览文本，负责避免货柜内容很多时每帧拼接完整名称列表。
+        /// </summary>
+        private string GetPendingEvictPreviewNames(List<ThingDef> pendingEvict)
+        {
+            int count = pendingEvict?.Count ?? 0;
+            if (pendingEvictPreviewVersion == pendingEvictResultVersion && pendingEvictPreviewCount == count)
+                return pendingEvictPreviewNames;
+
+            StringBuilder builder = new StringBuilder();
+            int previewCount = Mathf.Min(PendingEvictPreviewLimit, count);
+            for (int i = 0; i < previewCount; i++)
+            {
+                ThingDef thingDef = pendingEvict[i];
+                if (thingDef == null) continue;
+
+                if (builder.Length > 0)
+                    builder.Append(", ");
+                builder.Append(thingDef.LabelCap.ToString());
+            }
+
+            int hiddenCount = count - previewCount;
+            if (hiddenCount > 0)
+            {
+                if (builder.Length > 0)
+                    builder.Append(", ");
+                builder.Append(SimTranslation.T("RSMF.GoodsManager.PendingEvictMore", hiddenCount.Named("count")));
+            }
+
+            pendingEvictPreviewVersion = pendingEvictResultVersion;
+            pendingEvictPreviewCount = count;
+            pendingEvictPreviewNames = builder.ToString();
+            return pendingEvictPreviewNames;
         }
 
         /// <summary>
@@ -740,6 +782,7 @@ namespace SimManagementLib.SimDialog
             pendingEvictCategoryCacheId = categoryId;
             pendingEvictStockVersion = storedCountCacheVersion;
             pendingEvictDirty = false;
+            pendingEvictResultVersion++;
             return pendingEvictCache;
         }
 
@@ -799,24 +842,12 @@ namespace SimManagementLib.SimDialog
         private void RefreshStoredCountCacheIfNeeded(bool force = false)
         {
             if (storage == null) return;
-            int ticks = Find.TickManager?.TicksGame ?? 0;
-            if (!force && !storedCountCacheDirty && ticks - storedCountCacheTick < StockCacheRefreshTicks)
+            int currentVersion = storage.StoredCountVersion;
+            if (!force && !storedCountCacheDirty && observedStorageCountVersion == currentVersion)
                 return;
 
-            storedCountCache.Clear();
-            ThingOwner holder = storage.GetDirectlyHeldThings();
-            if (holder != null)
-            {
-                for (int i = 0; i < holder.Count; i++)
-                {
-                    Thing thing = holder[i];
-                    if (thing == null || thing.Destroyed || thing.def == null || thing.stackCount <= 0) continue;
-                    storedCountCache.TryGetValue(thing.def, out int current);
-                    storedCountCache[thing.def] = current + thing.stackCount;
-                }
-            }
-
-            storedCountCacheTick = ticks;
+            storage.CopyStoredCountsTo(storedCountCache);
+            observedStorageCountVersion = currentVersion;
             storedCountCacheDirty = false;
             storedCountCacheVersion++;
             pendingEvictDirty = true;

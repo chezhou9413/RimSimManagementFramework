@@ -58,12 +58,14 @@ namespace SimManagementLib.SimThingClass
             if (canStore >= carried.stackCount)
             {
                 virtualStorage.TryAddOrTransfer(carried, carried.stackCount);
+                MarkStoredCountCacheDirty();
                 RefreshProgressStageGraphic();
                 return canStore;
             }
 
             Thing part = carried.SplitOff(canStore);
             virtualStorage.TryAddOrTransfer(part, part.stackCount);
+            MarkStoredCountCacheDirty();
 
             if (pawn.carryTracker?.CarriedThing != null && pawn.Spawned && pawn.MapHeld != null)
             {
@@ -88,12 +90,14 @@ namespace SimManagementLib.SimThingClass
             {
                 int all = thing.stackCount;
                 virtualStorage.TryAddOrTransfer(thing, thing.stackCount);
+                MarkStoredCountCacheDirty();
                 RefreshProgressStageGraphic();
                 return all;
             }
 
             Thing part = thing.SplitOff(canStore);
             virtualStorage.TryAddOrTransfer(part, part.stackCount);
+            MarkStoredCountCacheDirty();
             RefreshProgressStageGraphic();
             return canStore;
         }
@@ -212,7 +216,10 @@ namespace SimManagementLib.SimThingClass
             if (actual <= 0) return null;
             virtualStorage.TryDrop(stored, dropLoc, Map, ThingPlaceMode.Near, actual, out Thing result);
             if (result != null)
+            {
+                MarkStoredCountCacheDirty();
                 RefreshProgressStageGraphic();
+            }
             return result;
         }
 
@@ -249,6 +256,7 @@ namespace SimManagementLib.SimThingClass
                 if (thing.def != thingDef) continue;
                 int fromThis = System.Math.Min(remaining, thing.stackCount);
                 Thing taken = virtualStorage.Take(thing, fromThis);
+                MarkStoredCountCacheDirty();
                 if (result == null)
                 {
                     result = taken;
@@ -264,7 +272,10 @@ namespace SimManagementLib.SimThingClass
             }
 
             if (result != null)
+            {
+                MarkStoredCountCacheDirty();
                 RefreshProgressStageGraphic();
+            }
             return result;
         }
 
