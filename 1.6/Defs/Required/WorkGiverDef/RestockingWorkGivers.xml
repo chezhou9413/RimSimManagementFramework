@@ -7,7 +7,7 @@
     <workType>Restocking</workType>
     <priorityInType>100</priorityInType>
     <verb>restock</verb>
-    <gerund>restocking</gerund>
+    <gerund>补货</gerund>
     <requiredCapacities>
       <li>Manipulation</li>
     </requiredCapacities>
@@ -20,7 +20,7 @@
     <workType>Hauling</workType>
     <priorityInType>70</priorityInType>
     <verb>withdraw</verb>
-    <gerund>withdrawing excess goods</gerund>
+    <gerund>清理货柜多余商品</gerund>
     <requiredCapacities>
       <li>Manipulation</li>
     </requiredCapacities>
@@ -33,7 +33,7 @@
     <workType>Hauling</workType>
     <priorityInType>72</priorityInType>
     <verb>fill collectible display stand</verb>
-    <gerund>filling collectible display stand</gerund>
+    <gerund>布置收藏品展台</gerund>
     <requiredCapacities>
       <li>Manipulation</li>
     </requiredCapacities>
