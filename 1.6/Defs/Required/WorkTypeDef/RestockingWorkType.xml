@@ -5,7 +5,7 @@
     <defName>Restocking</defName>
     <labelShort>补货</labelShort>
     <pawnLabel>Restocker</pawnLabel>
-    <gerundLabel>restocking</gerundLabel>
+    <gerundLabel>补货</gerundLabel>
     <description>搬运物资到货柜，直到达到配置目标数量。</description>
     <verb>Restock</verb>
     <naturalPriority>450</naturalPriority>
