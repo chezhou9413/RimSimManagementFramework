@@ -112,10 +112,10 @@
 
   <SimManagementLib.SimDef.CollectibleExchangeListDef>
     <defName>RSMF_CollectibleExchange_MiguaShopTwo</defName>
-    <label>蜜瓜的小店</label>
-    <shopName>蜜瓜的小店</shopName>
-    <title>第二期</title>
-    <intro>可以查看当前物品切换进度，并进入本期收藏品兑换商店。</intro>
+    <label>蜜瓜的银行</label>
+    <shopName>蜜瓜的银行</shopName>
+    <title>支票兑换</title>
+    <intro>这是银行，专门兑换各种面值的支票。</intro>
     <priority>1000</priority>
     <visible>true</visible>
     <refreshIntervalTicks>60000</refreshIntervalTicks>
@@ -123,49 +123,130 @@
     <portraitScale>2</portraitScale>
     <portraitOffsetX>0</portraitOffsetX>
     <portraitOffsetY>0.5</portraitOffsetY>
-    <periodLabel>第二期</periodLabel>
-    <progressLabel>当前物品切换进度：第二期商品已全部解锁</progressLabel>
+    <periodLabel>支票兑换</periodLabel>
+    <progressLabel>钱在这不能生钱，但我能让海盗们不觊觎你的钱</progressLabel>
     <idleTextIntervalSeconds>10</idleTextIntervalSeconds>
     <welcomeTexts>
-      <li>欢迎光临蜜瓜的小店，本期东西不多，但都是精挑细选过的哦。</li>
-      <li>你来得正好，第二期货架刚整理完，可以慢慢看。</li>
-      <li>先进来吧，别站门口吹风，想换什么直接看右边就是。</li>
+      <li>欢迎来到银行</li>
+      <li>钱太多了？存起来吧。</li>
+      <li>支票的价值取决于信用。</li>
     </welcomeTexts>
     <browseTexts>
-      <li>这个买回去，马上就能派上用场。</li>
-      <li>你看中的这件库存有限，真需要的话别拖太久哦。</li>
-      <li>这批货我可没乱标价。</li>
-      <li>右边这些都是本期清单里的东西，下一期可能就不是这些了。</li>
+      <li>这个买回去绝对有利于财富流通。</li>
+      <li>这就是经济学。</li>
+      <li>支票可都是明码标价。</li>
     </browseTexts>
     <idleTexts>
-      <li>慢慢看，不急，反正货架现在还没被搬空。</li>
-      <li>有些东西看着普通，真缺的时候才知道麻烦。</li>
-      <li>如果只是路过的话，也可以看看本期还有多少库存。</li>
-      <li>我可是会定期更换货品的，不过这一期，先这样。</li>
+      <li>慢慢看，不急，我们的支票也是有特殊工艺的。</li>
+      <li>放心换，我们不会跑路。</li>
+      <li>每日发行的支票也是有限的。</li>
     </idleTexts>
     <purchaseTexts>
-      <li>成交，东西会送到你那边，记得留意空投哦。</li>
-      <li>好，已经记账了，这批货又卖出去一份。</li>
-      <li>感谢购买！</li>
-      <li>收到了，货会很快送过去。</li>
+      <li>记得留意空投，别被部落老哥捡走了。</li>
+      <li>好，已记账。</li>
+      <li>收到了，很快送过去。</li>
     </purchaseTexts>
     <notEnoughCurrencyTexts>
       <li>不行，钱不够啊。</li>
       <li>差一点钱，回去翻翻小金库再来吧。</li>
-      <li>钱不够就先别硬换，货是不会自己长腿跑掉的。</li>
+      <li>大面额的换不来的话就换点小的吧。</li>
     </notEnoughCurrencyTexts>
     <items>
       <li>
-        <id>meal_simple_02</id>
-        <thingDef>MealSimple</thingDef>
-        <price>25</price>
+        <id>item_cheque_01</id>
+        <thingDef>1000Cheque</thingDef>
+        <price>1050</price>
         <currencyDef>Silver</currencyDef>
-        <maxPurchases>5</maxPurchases>
-        <count>2</count>
+        <maxPurchases>10</maxPurchases>
+        <count>1</count>
         <canRefresh>true</canRefresh>
         <refreshChance>1</refreshChance>
-        <labelOverride>旅行简餐</labelOverride>
-        <descriptionOverride>适合临时补给的简单餐食。</descriptionOverride>
+        <labelOverride>支票</labelOverride>
+        <descriptionOverride>面值为1000银的支票，在普通人眼里与废纸无异，但却能在银行里兑换1000银</descriptionOverride>
+      </li>
+      <li>
+        <id>item_cheque_02</id>
+        <thingDef>10000Cheque</thingDef>
+        <price>10500</price>
+        <currencyDef>Silver</currencyDef>
+        <maxPurchases>10</maxPurchases>
+        <count>1</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>1</refreshChance>
+        <labelOverride>支票</labelOverride>
+        <descriptionOverride>面值为10000银的支票，在普通人眼里与废纸无异，但却能在银行里兑换10000银</descriptionOverride>
+      </li>
+      <li>
+        <id>item_cheque_03</id>
+        <thingDef>100000Cheque</thingDef>
+        <price>105000</price>
+        <currencyDef>Silver</currencyDef>
+        <maxPurchases>10</maxPurchases>
+        <count>1</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>1</refreshChance>
+        <labelOverride>支票</labelOverride>
+        <descriptionOverride>面值为100000银的支票，在普通人眼里与废纸无异，但却能在银行里兑换100000银</descriptionOverride>
+      </li>
+      <li>
+        <id>item_cheque_04</id>
+        <thingDef>1000000Cheque</thingDef>
+        <price>1050000</price>
+        <currencyDef>Silver</currencyDef>
+        <maxPurchases>2</maxPurchases>
+        <count>1</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>0</refreshChance>
+        <labelOverride>支票</labelOverride>
+        <descriptionOverride>一张面值为1000000银的支票，据说在整个边缘世界，也仅有2张流通</descriptionOverride>
+      </li>
+      <li>
+        <id>item_silver_01</id>
+        <thingDef>Silver</thingDef>
+        <price>1</price>
+        <currencyDef>1000Cheque</currencyDef>
+        <maxPurchases>100</maxPurchases>
+        <count>1000</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>1</refreshChance>
+        <labelOverride>换银</labelOverride>
+        <descriptionOverride>把支票换成少量白银</descriptionOverride>
+      </li>
+      <li>
+        <id>item_silver_02</id>
+        <thingDef>Silver</thingDef>
+        <price>1</price>
+        <currencyDef>10000Cheque</currencyDef>
+        <maxPurchases>100</maxPurchases>
+        <count>10000</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>1</refreshChance>
+        <labelOverride>换银</labelOverride>
+        <descriptionOverride>把支票换成白银</descriptionOverride>
+      </li>
+      <li>
+        <id>item_silver_03</id>
+        <thingDef>Silver</thingDef>
+        <price>1</price>
+        <currencyDef>100000Cheque</currencyDef>
+        <maxPurchases>100</maxPurchases>
+        <count>100000</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>1</refreshChance>
+        <labelOverride>换银</labelOverride>
+        <descriptionOverride>把支票换成大量白银</descriptionOverride>
+      </li>
+      <li>
+        <id>item_silver_04</id>
+        <thingDef>Silver</thingDef>
+        <price>1</price>
+        <currencyDef>1000000Cheque</currencyDef>
+        <maxPurchases>100</maxPurchases>
+        <count>1000000</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>1</refreshChance>
+        <labelOverride>换银</labelOverride>
+        <descriptionOverride>把支票换成巨量白银，但一定要当心卡顿！</descriptionOverride>
       </li>
     </items>
   </SimManagementLib.SimDef.CollectibleExchangeListDef>
