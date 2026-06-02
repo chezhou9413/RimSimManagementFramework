@@ -81,15 +81,14 @@ namespace SimManagementLib.SimAI
                 }
 
                 Thing result = storage.Withdraw(td, ReservedCount, pawn.Position, ReservedCount);
+                reservationReleased = true;
                 if (result == null)
                 {
-                    ReleaseReservation();
                     pawn.jobs.EndCurrentJob(JobCondition.Incompletable);
                     return;
                 }
 
                 withdrawSucceeded = true;
-                reservationReleased = true;
                 pawn.jobs.EndCurrentJob(JobCondition.Succeeded);
             };
             toil.defaultCompleteMode = ToilCompleteMode.Instant;

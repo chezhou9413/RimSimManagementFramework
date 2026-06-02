@@ -65,7 +65,7 @@ namespace SimManagementLib.SimThingClass
             sb.Append(SimTranslation.T("RSMF.Container.Inspect.TotalCapacity", CountTotalStored().Named("stored"), MaxTotalCapacity.Named("max")));
             if (Tool.VendingMachineUtility.IsVendingMachine(this))
                 sb.Append("\n").Append(SimTranslation.T("RSMF.Container.Inspect.VendingMachineType"));
-            int pending = CountTotalPendingIn();
+            int pending = CountTotalPendingIn(forceReconcile: true);
             if (pending > 0)
                 sb.Append(" ").Append(SimTranslation.T("RSMF.Container.Inspect.PendingIn", pending.Named("pending")));
             sb.Append("\n").Append(SimTranslation.T("RSMF.Container.Inspect.TargetTotal", CountConfiguredTargets().Named("target")));
@@ -80,7 +80,7 @@ namespace SimManagementLib.SimThingClass
                 {
                     sb.Append("\n");
                     sb.Append($"{thingDef.LabelCap}: {CountStored(thingDef)}/{target}");
-                    int reserved = CountPending(thingDef);
+                    int reserved = CountPending(thingDef, forceReconcile: false);
                     if (reserved > 0) sb.Append(" ").Append(SimTranslation.T("RSMF.Container.Inspect.PendingIn", reserved.Named("pending")));
                     shown++;
                 }
@@ -91,6 +91,9 @@ namespace SimManagementLib.SimThingClass
             }
             if (hidden > 0)
                 sb.Append("\n").Append(SimTranslation.T("RSMF.Container.Inspect.HiddenGoods", hidden.Named("count")));
+
+            if (Prefs.DevMode && !string.IsNullOrWhiteSpace(lastPendingReservationDebug))
+                sb.Append("\n").Append("补货调试: ").Append(lastPendingReservationDebug);
 
             if (string.IsNullOrEmpty(baseStr)) return sb.ToString();
             return baseStr + "\n" + sb;

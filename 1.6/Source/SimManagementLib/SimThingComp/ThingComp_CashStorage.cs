@@ -32,6 +32,7 @@ namespace SimManagementLib.SimThingComp
     /// </summary>
     public class ThingComp_CashStorage : ThingComp
     {
+        private static readonly bool EnableCashDebugLog = false;
         private int storedSilver;
         private int pendingWithdrawSilver;
         private int withdrawThreshold = -1;
@@ -178,7 +179,31 @@ namespace SimManagementLib.SimThingComp
         public void DepositSilver(int amount)
         {
             if (amount <= 0) return;
+            int before = storedSilver;
             storedSilver += amount;
+            if (storedSilver < before)
+                storedSilver = int.MaxValue;
+            SanitizeState();
+        }
+
+        /// <summary>
+        /// 为搬运工作开始一笔取银事务，并返回实际预约数量。
+        /// </summary>
+        public bool TryBeginWithdraw(int desiredCount, out int tokenAmount)
+        {
+            tokenAmount = 0;
+            SanitizeState();
+            if (desiredCount <= 0) return false;
+
+            int available = AvailableForWithdraw;
+            if (available <= 0) return false;
+
+            int actual = Math.Min(desiredCount, available);
+            pendingWithdrawSilver += actual;
+            SanitizeState();
+            tokenAmount = actual;
+            LogCashDebug("开始取银事务", actual, storedSilver, pendingWithdrawSilver);
+            return tokenAmount > 0;
         }
 
         /// <summary>
@@ -186,14 +211,18 @@ namespace SimManagementLib.SimThingComp
         /// </summary>
         public int ReserveWithdrawSilver(int desiredCount)
         {
-            if (desiredCount <= 0) return 0;
+            return TryBeginWithdraw(desiredCount, out int tokenAmount) ? tokenAmount : 0;
+        }
 
-            int available = AvailableForWithdraw;
-            if (available <= 0) return 0;
-
-            int actual = Math.Min(desiredCount, available);
-            pendingWithdrawSilver += actual;
-            return actual;
+        /// <summary>
+        /// 取消已经预约但没有完成的取现事务。
+        /// </summary>
+        public void CancelWithdraw(int tokenAmount)
+        {
+            if (tokenAmount <= 0) return;
+            pendingWithdrawSilver = Math.Max(0, pendingWithdrawSilver - tokenAmount);
+            SanitizeState();
+            LogCashDebug("取消取银事务", tokenAmount, storedSilver, pendingWithdrawSilver);
         }
 
         /// <summary>
@@ -201,8 +230,24 @@ namespace SimManagementLib.SimThingComp
         /// </summary>
         public void CancelWithdrawReservation(int reservedCount)
         {
-            if (reservedCount <= 0) return;
-            pendingWithdrawSilver = Math.Max(0, pendingWithdrawSilver - reservedCount);
+            CancelWithdraw(reservedCount);
+        }
+
+        /// <summary>
+        /// 完成取银事务并一次性扣减库存和预约，返回实际可生成的白银数量。
+        /// </summary>
+        public int CompleteWithdraw(int tokenAmount)
+        {
+            SanitizeState();
+            if (tokenAmount <= 0) return 0;
+            if (pendingWithdrawSilver <= 0 || storedSilver <= 0) return 0;
+
+            int actual = Math.Min(tokenAmount, Math.Min(pendingWithdrawSilver, storedSilver));
+            storedSilver -= actual;
+            pendingWithdrawSilver = Math.Max(0, pendingWithdrawSilver - actual);
+            SanitizeState();
+            LogCashDebug("完成取银事务", actual, storedSilver, pendingWithdrawSilver);
+            return actual;
         }
 
         /// <summary>
@@ -210,13 +255,21 @@ namespace SimManagementLib.SimThingComp
         /// </summary>
         public int WithdrawReservedSilver(int reservedCount)
         {
-            if (reservedCount <= 0) return 0;
-            if (pendingWithdrawSilver <= 0) return 0;
+            return CompleteWithdraw(reservedCount);
+        }
 
-            int actual = Math.Min(reservedCount, Math.Min(pendingWithdrawSilver, storedSilver));
-            storedSilver -= actual;
-            pendingWithdrawSilver = Math.Max(0, pendingWithdrawSilver - actual);
-            return actual;
+        /// <summary>
+        /// 回滚已经完成但尚未成功生成实物的一笔取银事务。
+        /// </summary>
+        public void RollbackCompletedWithdraw(int amount)
+        {
+            if (amount <= 0) return;
+            int before = storedSilver;
+            storedSilver += amount;
+            if (storedSilver < before)
+                storedSilver = int.MaxValue;
+            SanitizeState();
+            LogCashDebug("回滚取银事务", amount, storedSilver, pendingWithdrawSilver);
         }
 
         /// <summary>
@@ -282,6 +335,18 @@ namespace SimManagementLib.SimThingComp
             storedSilver = 0;
             pendingWithdrawSilver = 0;
             silverLeavingsHandled = true;
+        }
+
+        /// <summary>
+        /// 输出现金事务调试日志，负责排查概率性重复取银或库存不同步。
+        /// </summary>
+        private void LogCashDebug(string reason, int amount, int storedAfter, int pendingAfter)
+        {
+            if (!EnableCashDebugLog)
+                return;
+
+            string buildingId = parent?.ThingID ?? "null";
+            Log.Message($"[RSMF CashStorage] {reason} building={buildingId} amount={amount} stored={storedAfter} pending={pendingAfter}");
         }
     }
 }

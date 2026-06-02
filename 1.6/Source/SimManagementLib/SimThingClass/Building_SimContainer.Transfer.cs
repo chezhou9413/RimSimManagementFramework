@@ -15,12 +15,14 @@ namespace SimManagementLib.SimThingClass
         /// </summary>
         public int ReservePending(ThingDef thingDef, int count)
         {
-            ReconcilePendingReservations();
             if (count <= 0) return 0;
-            int needed = CountNeeded(thingDef);
+            int needed = CountNeededRaw(thingDef);
             if (needed <= 0) return 0;
             int actual = System.Math.Min(count, needed);
-            pendingIn[thingDef] = CountPending(thingDef) + actual;
+            pendingIn[thingDef] = CountPendingRaw(thingDef) + actual;
+            if (pendingInReservedAtTick == null)
+                pendingInReservedAtTick = new Dictionary<ThingDef, int>();
+            pendingInReservedAtTick[thingDef] = Find.TickManager?.TicksGame ?? 0;
             return actual;
         }
 
@@ -31,9 +33,16 @@ namespace SimManagementLib.SimThingClass
         {
             if (thingDef == null) return;
             if (reservedCount <= 0) return;
-            int next = CountPending(thingDef) - reservedCount;
-            if (next <= 0) pendingIn.Remove(thingDef);
-            else pendingIn[thingDef] = next;
+            int next = CountPendingRaw(thingDef) - reservedCount;
+            if (next <= 0)
+            {
+                pendingIn.Remove(thingDef);
+                pendingInReservedAtTick?.Remove(thingDef);
+            }
+            else
+            {
+                pendingIn[thingDef] = next;
+            }
         }
 
         /// <summary>

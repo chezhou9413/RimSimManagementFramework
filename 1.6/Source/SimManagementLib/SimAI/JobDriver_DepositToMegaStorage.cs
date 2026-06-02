@@ -116,15 +116,14 @@ namespace SimManagementLib.SimAI
                 }
 
                 int deposited = storage.Deposit(pawn, carried.def, ReservedCount);
+                reservationReleased = true;
                 if (deposited <= 0)
                 {
-                    ReleaseReservation();
                     pawn.jobs.EndCurrentJob(JobCondition.Incompletable);
                     return;
                 }
 
                 depositSucceeded = true;
-                reservationReleased = true;
                 pawn.jobs.EndCurrentJob(JobCondition.Succeeded);
             };
             toil.defaultCompleteMode = ToilCompleteMode.Instant;

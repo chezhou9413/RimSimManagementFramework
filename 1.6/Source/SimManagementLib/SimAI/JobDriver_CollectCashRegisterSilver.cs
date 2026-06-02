@@ -52,7 +52,7 @@ namespace SimManagementLib.SimAI
             AddFinishAction(_ =>
             {
                 if (reservationCleared || !silverReserved) return;
-                CashStorage?.CancelWithdrawReservation(reservedSilverCount);
+                CashStorage?.CancelWithdraw(reservedSilverCount);
                 reservationCleared = true;
                 silverReserved = false;
                 reservedSilverCount = 0;
@@ -111,8 +111,7 @@ namespace SimManagementLib.SimAI
                 }
 
                 int desired = job.count > 0 ? job.count : cash.AutoWithdrawAmount;
-                int reserved = cash.ReserveWithdrawSilver(desired);
-                if (reserved <= 0)
+                if (!cash.TryBeginWithdraw(desired, out int reserved))
                 {
                     pawn.jobs.EndCurrentJob(JobCondition.Incompletable);
                     return;
@@ -141,7 +140,7 @@ namespace SimManagementLib.SimAI
                     return;
                 }
 
-                int silverCount = cash.WithdrawReservedSilver(reservedSilverCount);
+                int silverCount = cash.CompleteWithdraw(reservedSilverCount);
                 reservationCleared = true;
                 silverReserved = false;
                 reservedSilverCount = 0;
@@ -156,7 +155,8 @@ namespace SimManagementLib.SimAI
                 silver.stackCount = silverCount;
                 if (!GenPlace.TryPlaceThing(silver, pawn.Position, pawn.Map, ThingPlaceMode.Near, out Thing placedSilver) || placedSilver == null)
                 {
-                    cash.DepositSilver(silverCount);
+                    cash.RollbackCompletedWithdraw(silverCount);
+                    DestroyDetachedSilver(silver);
                     pawn.jobs.EndCurrentJob(JobCondition.Incompletable);
                     return;
                 }
@@ -165,6 +165,17 @@ namespace SimManagementLib.SimAI
             };
             toil.defaultCompleteMode = ToilCompleteMode.Instant;
             return toil;
+        }
+
+        /// <summary>
+        /// 清理未能成功放置到地图的临时白银，负责避免回滚库存后仍残留实物。
+        /// </summary>
+        private static void DestroyDetachedSilver(Thing silver)
+        {
+            if (silver == null || silver.Destroyed || silver.Spawned)
+                return;
+
+            silver.Destroy(DestroyMode.Vanish);
         }
 
         /// <summary>

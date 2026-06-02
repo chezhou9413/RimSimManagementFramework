@@ -17,14 +17,17 @@ namespace SimManagementLib.SimThingClass
         private ThingOwner<Thing> virtualStorage;
         private Dictionary<ThingDef, int> pendingIn = new Dictionary<ThingDef, int>();
         private Dictionary<ThingDef, int> pendingOut = new Dictionary<ThingDef, int>();
+        private Dictionary<ThingDef, int> pendingInReservedAtTick = new Dictionary<ThingDef, int>();
         private Dictionary<ThingDef, int> storedCountCache = new Dictionary<ThingDef, int>();
         private string customName = "";
+        private string lastPendingReservationDebug = "";
         private bool contentsDropped;
         private int cachedTotalStored;
         private bool storedCountCacheDirty = true;
         private int storedCountVersion;
         private int lastPendingReservationReconcileTick = int.MinValue;
         private const int PendingReservationReconcileIntervalTicks = 120;
+        private const int PendingReservationGraceTicks = 180;
 
         private ThingComp_GoodsData GoodsComp => GetComp<ThingComp_GoodsData>();
         private ThingComp_ProgressStageGraphic ProgressStageGraphicComp => GetComp<ThingComp_ProgressStageGraphic>();
@@ -181,7 +184,9 @@ namespace SimManagementLib.SimThingClass
             Scribe_Deep.Look(ref virtualStorage, "virtualStorage", this);
             Scribe_Collections.Look(ref pendingIn, "pendingIn", LookMode.Def, LookMode.Value);
             Scribe_Collections.Look(ref pendingOut, "pendingOut", LookMode.Def, LookMode.Value);
+            Scribe_Collections.Look(ref pendingInReservedAtTick, "pendingInReservedAtTick", LookMode.Def, LookMode.Value);
             Scribe_Values.Look(ref customName, "customName", "");
+            Scribe_Values.Look(ref lastPendingReservationDebug, "lastPendingReservationDebug", "");
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
                 if (virtualStorage == null)
@@ -190,8 +195,12 @@ namespace SimManagementLib.SimThingClass
                     pendingIn = new Dictionary<ThingDef, int>();
                 if (pendingOut == null)
                     pendingOut = new Dictionary<ThingDef, int>();
+                if (pendingInReservedAtTick == null)
+                    pendingInReservedAtTick = new Dictionary<ThingDef, int>();
                 if (storedCountCache == null)
                     storedCountCache = new Dictionary<ThingDef, int>();
+                if (lastPendingReservationDebug == null)
+                    lastPendingReservationDebug = "";
                 MarkStoredCountCacheDirty();
             }
         }

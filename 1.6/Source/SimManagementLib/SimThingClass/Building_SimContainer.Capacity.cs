@@ -25,9 +25,12 @@ namespace SimManagementLib.SimThingClass
         /// <summary>
         /// 统计货柜当前仍在路上的补货数量。
         /// </summary>
-        public int CountTotalPendingIn()
+        public int CountTotalPendingIn(bool forceReconcile = false)
         {
-            ReconcilePendingReservationsIfNeeded();
+            if (forceReconcile)
+                ReconcilePendingReservations();
+            else
+                ReconcilePendingReservationsIfNeeded();
             int total = 0;
             if (pendingIn == null || pendingIn.Count == 0) return 0;
 
@@ -46,6 +49,7 @@ namespace SimManagementLib.SimThingClass
         {
             if (pendingIn == null || pendingIn.Count == 0) return;
 
+            int now = Find.TickManager?.TicksGame ?? 0;
             List<ThingDef> removeDefs = null;
             Dictionary<ThingDef, int> trimDefs = null;
             foreach (KeyValuePair<ThingDef, int> entry in pendingIn.ToList())
@@ -56,15 +60,20 @@ namespace SimManagementLib.SimThingClass
                 int allowed = System.Math.Min(activeCount, shortfall);
                 if (thingDef == null || entry.Value <= 0 || allowed <= 0)
                 {
+                    if (IsPendingInWithinGrace(thingDef, now) && shortfall > 0)
+                        continue;
+
                     if (removeDefs == null)
                         removeDefs = new List<ThingDef>();
                     removeDefs.Add(thingDef);
+                    RememberPendingReservationDebug(thingDef, entry.Value, allowed, activeCount, shortfall, "清理待入库预约");
                 }
                 else if (entry.Value > allowed)
                 {
                     if (trimDefs == null)
                         trimDefs = new Dictionary<ThingDef, int>();
                     trimDefs[thingDef] = allowed;
+                    RememberPendingReservationDebug(thingDef, entry.Value, allowed, activeCount, shortfall, "裁剪待入库预约");
                 }
             }
 
@@ -76,7 +85,10 @@ namespace SimManagementLib.SimThingClass
 
             if (removeDefs == null) return;
             for (int i = 0; i < removeDefs.Count; i++)
+            {
                 pendingIn.Remove(removeDefs[i]);
+                pendingInReservedAtTick?.Remove(removeDefs[i]);
+            }
         }
 
         /// <summary>
@@ -120,6 +132,29 @@ namespace SimManagementLib.SimThingClass
         }
 
         /// <summary>
+        /// 判断待入库预约是否还处于启动宽限期，负责避免 Job 刚开始时被校正过早清掉。
+        /// </summary>
+        private bool IsPendingInWithinGrace(ThingDef thingDef, int now)
+        {
+            if (thingDef == null || pendingInReservedAtTick == null)
+                return false;
+
+            if (!pendingInReservedAtTick.TryGetValue(thingDef, out int reservedAt) || reservedAt <= 0)
+                return false;
+
+            return now >= reservedAt && now - reservedAt <= PendingReservationGraceTicks;
+        }
+
+        /// <summary>
+        /// 记录最近一次预约校正原因，负责让调试文本能解释“途中”数量为什么变化。
+        /// </summary>
+        private void RememberPendingReservationDebug(ThingDef thingDef, int oldValue, int newValue, int activeCount, int shortfall, string reason)
+        {
+            string label = thingDef?.defName ?? "null";
+            lastPendingReservationDebug = $"{reason}: {label} {oldValue}->{newValue}, 当前任务={activeCount}, 缺口={shortfall}";
+        }
+
+        /// <summary>
         /// 同步所有补货和下架预约，负责在强制补货、改配置或读档后主动修正运行态。
         /// </summary>
         public void ReconcilePendingReservations()
@@ -145,9 +180,6 @@ namespace SimManagementLib.SimThingClass
                 Pawn pawn = pawns[i];
                 if (pawn == null) continue;
                 total += GetReservationCountFromJob(pawn.CurJob, pawn, thingDef, jobDefName, storageTarget, depositJob);
-                if (pawn.jobs?.jobQueue == null) continue;
-                foreach (QueuedJob queuedJob in pawn.jobs.jobQueue)
-                    total += GetReservationCountFromJob(queuedJob?.job, pawn, thingDef, jobDefName, storageTarget, depositJob);
             }
 
             return total;
@@ -160,13 +192,46 @@ namespace SimManagementLib.SimThingClass
         {
             if (job == null || job.def?.defName != jobDefName) return 0;
             if (job.GetTarget(storageTarget).Thing != this) return 0;
+            if (!IsPawnStillExecutingReservation(pawn)) return 0;
+            if (job.count <= 0) return 0;
 
             ThingDef jobThingDef = job.plantDefToSow;
             if (jobThingDef == null && depositJob)
                 jobThingDef = job.GetTarget(TargetIndex.A).Thing?.def ?? pawn?.carryTracker?.CarriedThing?.def;
             if (jobThingDef != thingDef) return 0;
+            if (depositJob && !HasValidDepositSource(job, pawn, thingDef)) return 0;
 
             return UnityEngine.Mathf.Max(0, job.count);
+        }
+
+        /// <summary>
+        /// 判断小人是否仍在执行预约任务，负责避免倒地、死亡或离图小人的旧任务保留“途中”数量。
+        /// </summary>
+        private static bool IsPawnStillExecutingReservation(Pawn pawn)
+        {
+            return pawn != null
+                && !pawn.Destroyed
+                && pawn.Spawned
+                && !pawn.Dead
+                && !pawn.Downed
+                && pawn.CurJob != null;
+        }
+
+        /// <summary>
+        /// 判断补货任务的货源是否仍有效，负责避免货源消失后待入库数量长期残留。
+        /// </summary>
+        private static bool HasValidDepositSource(Job job, Pawn pawn, ThingDef thingDef)
+        {
+            Thing carried = pawn?.carryTracker?.CarriedThing;
+            if (carried != null && !carried.Destroyed && carried.def == thingDef && carried.stackCount > 0)
+                return true;
+
+            Thing source = job?.GetTarget(TargetIndex.A).Thing;
+            return source != null
+                && !source.Destroyed
+                && source.Spawned
+                && source.def == thingDef
+                && source.stackCount > 0;
         }
 
         /// <summary>
@@ -231,10 +296,52 @@ namespace SimManagementLib.SimThingClass
         /// <summary>
         /// 返回指定商品仍在路上的补货数量。
         /// </summary>
-        public int CountPending(ThingDef thingDef)
+        public int CountPending(ThingDef thingDef, bool forceReconcile = false)
         {
-            ReconcilePendingReservationsIfNeeded();
+            if (forceReconcile)
+                ReconcilePendingReservations();
+            else
+                ReconcilePendingReservationsIfNeeded();
             return pendingIn.TryGetValue(thingDef, out int value) ? value : 0;
+        }
+
+        /// <summary>
+        /// 直接读取待入库预约数量，负责在预约读写内部避免再次触发校正。
+        /// </summary>
+        private int CountPendingRaw(ThingDef thingDef)
+        {
+            if (thingDef == null || pendingIn == null)
+                return 0;
+
+            return pendingIn.TryGetValue(thingDef, out int value) ? UnityEngine.Mathf.Max(0, value) : 0;
+        }
+
+        /// <summary>
+        /// 直接统计全部待入库预约数量，负责在预约读写内部避免再次触发校正。
+        /// </summary>
+        private int CountTotalPendingInRaw()
+        {
+            if (pendingIn == null || pendingIn.Count == 0)
+                return 0;
+
+            int total = 0;
+            foreach (int value in pendingIn.Values)
+                total += UnityEngine.Mathf.Max(0, value);
+            return total;
+        }
+
+        /// <summary>
+        /// 直接计算指定商品还需要补货的数量，负责让创建预约时不递归触发校正。
+        /// </summary>
+        private int CountNeededRaw(ThingDef thingDef)
+        {
+            int perDefNeed = System.Math.Max(0, GetTargetCount(thingDef) - CountStored(thingDef) - CountPendingRaw(thingDef));
+            if (perDefNeed <= 0) return 0;
+
+            int capacityRemain = MaxTotalCapacity - CountTotalStored() - CountTotalPendingInRaw();
+            if (capacityRemain <= 0) return 0;
+
+            return System.Math.Min(perDefNeed, capacityRemain);
         }
 
         /// <summary>
