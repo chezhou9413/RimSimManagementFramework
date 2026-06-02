@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <Operation Class="PatchOperationAdd" MayRequire="Ludeon.RimWorld.Royalty">
+    <xpath>/Defs/RoyalTitleDef[defName="Knight"]/throneRoomRequirements/li[@Class="RoomRequirement_ThingAnyOf"]/things</xpath>
+    <value>
+      <li>RSMF_Collections_Piano</li>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd" MayRequire="Ludeon.RimWorld.Royalty">
+    <xpath>/Defs/RoyalTitleDef[defName="Praetor"]/throneRoomRequirements/li[@Class="RoomRequirement_ThingAnyOf"]/things</xpath>
+    <value>
+      <li>RSMF_Collections_Piano</li>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd" MayRequire="Ludeon.RimWorld.Royalty">
+    <xpath>/Defs/RoyalTitleDef[defName="Baron"]/throneRoomRequirements/li[@Class="RoomRequirement_ThingAnyOf"]/things</xpath>
+    <value>
+      <li>RSMF_Collections_Piano</li>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd" MayRequire="Ludeon.RimWorld.Royalty">
+    <xpath>/Defs/RoyalTitleDef[defName="Baron"]/throneRoomRequirements/li[@Class="RoomRequirement_ThingAnyOf"]/things</xpath>
+    <value>
+      <li>RSMF_Collections_Piano</li>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationReplace" MayRequire="Ludeon.RimWorld.Royalty">
+    <xpath>/Defs/RoyalTitleDef[defName="Count"]/throneRoomRequirements/li[@Class="RoomRequirement_Thing"]</xpath>
+    <value>
+      <li Class="RoomRequirement_ThingAnyOf">
+        <things>
+          <li>Piano</li>
+          <li>RSMF_Collections_Piano</li>
+        </things>
+      </li>
+    </value>
+  </Operation>
+
+  <!--Operation Class="PatchOperationReplace" MayRequire="Ludeon.RimWorld.Royalty">
+    <xpath>/Defs/RoyalTitleDef[defName="Royal"]/throneRoomRequirements/li[@Class="RoomRequirement_Thing"]</xpath>
+    <value>
+      <li Class="RoomRequirement_ThingAnyOf">
+        <things>
+          <li>Piano</li>
+          <li>RSMF_Collections_Piano</li>
+        </things>
+      </li>
+    </value>
+  </Operation-->
+</Patch>
