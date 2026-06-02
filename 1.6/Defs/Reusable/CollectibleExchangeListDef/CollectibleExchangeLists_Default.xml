@@ -154,7 +154,7 @@
     <items>
       <li>
         <id>item_cheque_01</id>
-        <thingDef>1000Cheque</thingDef>
+        <thingDef>Sim_1000Cheque</thingDef>
         <price>1050</price>
         <currencyDef>Silver</currencyDef>
         <maxPurchases>10</maxPurchases>
@@ -166,7 +166,7 @@
       </li>
       <li>
         <id>item_cheque_02</id>
-        <thingDef>10000Cheque</thingDef>
+        <thingDef>Sim_10000Cheque</thingDef>
         <price>10500</price>
         <currencyDef>Silver</currencyDef>
         <maxPurchases>10</maxPurchases>
@@ -178,7 +178,7 @@
       </li>
       <li>
         <id>item_cheque_03</id>
-        <thingDef>100000Cheque</thingDef>
+        <thingDef>Sim_100000Cheque</thingDef>
         <price>105000</price>
         <currencyDef>Silver</currencyDef>
         <maxPurchases>10</maxPurchases>
@@ -190,7 +190,7 @@
       </li>
       <li>
         <id>item_cheque_04</id>
-        <thingDef>1000000Cheque</thingDef>
+        <thingDef>Sim_1000000Cheque</thingDef>
         <price>1050000</price>
         <currencyDef>Silver</currencyDef>
         <maxPurchases>2</maxPurchases>
@@ -204,7 +204,7 @@
         <id>item_silver_01</id>
         <thingDef>Silver</thingDef>
         <price>1</price>
-        <currencyDef>1000Cheque</currencyDef>
+        <currencyDef>Sim_1000Cheque</currencyDef>
         <maxPurchases>100</maxPurchases>
         <count>1000</count>
         <canRefresh>true</canRefresh>
@@ -216,7 +216,7 @@
         <id>item_silver_02</id>
         <thingDef>Silver</thingDef>
         <price>1</price>
-        <currencyDef>10000Cheque</currencyDef>
+        <currencyDef>Sim_10000Cheque</currencyDef>
         <maxPurchases>100</maxPurchases>
         <count>10000</count>
         <canRefresh>true</canRefresh>
@@ -228,7 +228,7 @@
         <id>item_silver_03</id>
         <thingDef>Silver</thingDef>
         <price>1</price>
-        <currencyDef>100000Cheque</currencyDef>
+        <currencyDef>Sim_100000Cheque</currencyDef>
         <maxPurchases>100</maxPurchases>
         <count>100000</count>
         <canRefresh>true</canRefresh>
@@ -240,7 +240,7 @@
         <id>item_silver_04</id>
         <thingDef>Silver</thingDef>
         <price>1</price>
-        <currencyDef>1000000Cheque</currencyDef>
+        <currencyDef>Sim_1000000Cheque</currencyDef>
         <maxPurchases>100</maxPurchases>
         <count>1000000</count>
         <canRefresh>true</canRefresh>
