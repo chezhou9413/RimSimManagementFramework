@@ -126,7 +126,7 @@ namespace SimManagementLib.SimAI
         }
 
         /// <summary>
-        /// 从收银台取出已预约数量的银币并放到店员脚下。
+        /// 从收银台取出已预约数量的银币并生成到店员附近地面，负责按实际落地数量提交取银事务。
         /// </summary>
         private Toil MakeWithdrawToil()
         {
@@ -151,24 +151,92 @@ namespace SimManagementLib.SimAI
                     return;
                 }
 
-                Thing silver = ThingMaker.MakeThing(ThingDefOf.Silver);
-                silver.stackCount = silverCount;
-                if (!GenPlace.TryPlaceThing(silver, pawn.Position, pawn.Map, ThingPlaceMode.Near, out Thing placedSilver) || placedSilver == null)
+                int placedCount = TryPlaceWithdrawnSilverOnGround(silverCount, out Thing placedSilver);
+                int notPlaced = silverCount - placedCount;
+                if (notPlaced > 0)
+                    cash.RollbackCompletedWithdraw(notPlaced);
+
+                if (placedCount <= 0)
                 {
-                    cash.RollbackCompletedWithdraw(silverCount);
-                    DestroyDetachedSilver(silver);
                     pawn.jobs.EndCurrentJob(JobCondition.Incompletable);
                     return;
                 }
 
+                if (!IsValidPlacedSilverTarget(placedSilver))
+                {
+                    pawn.jobs.EndCurrentJob(JobCondition.Succeeded);
+                    return;
+                }
+
                 job.SetTarget(SilverThingInd, placedSilver);
+                job.count = placedCount;
             };
             toil.defaultCompleteMode = ToilCompleteMode.Instant;
             return toil;
         }
 
         /// <summary>
-        /// 清理未能成功放置到地图的临时白银，负责避免回滚库存后仍残留实物。
+        /// 把已经扣除库存的白银生成到地图上，负责返回真实落地或合并进地面堆叠的数量。
+        /// </summary>
+        private int TryPlaceWithdrawnSilverOnGround(int silverCount, out Thing placedSilver)
+        {
+            placedSilver = null;
+            if (silverCount <= 0 || pawn?.Map == null)
+                return 0;
+
+            Thing silver = ThingMaker.MakeThing(ThingDefOf.Silver);
+            if (silver == null)
+                return 0;
+
+            silver.stackCount = silverCount;
+            int placedCount = 0;
+            Thing placedByAction = null;
+            GenPlace.TryPlaceThing(silver, pawn.Position, pawn.Map, ThingPlaceMode.Near, out Thing lastResultingThing, delegate (Thing placedThing, int count)
+            {
+                if (count <= 0)
+                    return;
+
+                placedCount += count;
+                if (placedThing != null && !placedThing.Destroyed)
+                    placedByAction = placedThing;
+            });
+
+            placedCount = Mathf.Clamp(placedCount, 0, silverCount);
+            placedSilver = SelectPlacedSilverTarget(placedByAction, lastResultingThing);
+
+            if (placedCount <= 0 && IsValidPlacedSilverTarget(placedSilver))
+                placedCount = Mathf.Min(silverCount, placedSilver.stackCount);
+
+            if (silver != null && !silver.Destroyed && !silver.Spawned && silver.stackCount > 0)
+                DestroyDetachedSilver(silver);
+
+            return Mathf.Clamp(placedCount, 0, silverCount);
+        }
+
+        /// <summary>
+        /// 从放置回调和最终结果中选择可以被店员搬运的地面白银。
+        /// </summary>
+        private static Thing SelectPlacedSilverTarget(Thing placedByAction, Thing lastResultingThing)
+        {
+            if (IsValidPlacedSilverTarget(placedByAction))
+                return placedByAction;
+
+            if (IsValidPlacedSilverTarget(lastResultingThing))
+                return lastResultingThing;
+
+            return null;
+        }
+
+        /// <summary>
+        /// 判断指定物品是否是已经生成到地图上、可以作为搬运目标的白银。
+        /// </summary>
+        private static bool IsValidPlacedSilverTarget(Thing silver)
+        {
+            return silver != null && !silver.Destroyed && silver.Spawned && silver.def == ThingDefOf.Silver;
+        }
+
+        /// <summary>
+        /// 清理未能成功落地的临时白银，负责避免回滚库存后仍残留实物。
         /// </summary>
         private static void DestroyDetachedSilver(Thing silver)
         {

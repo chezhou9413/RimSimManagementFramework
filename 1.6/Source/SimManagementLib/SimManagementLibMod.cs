@@ -260,6 +260,9 @@ namespace SimManagementLib
         /// </summary>
         public override void DoSettingsWindowContents(Rect inRect)
         {
+            if (Settings == null)
+                Settings = new SimManagementLibSettings();
+
             Rect outRect = inRect.ContractedBy(2f);
             Rect viewRect = new Rect(0f, 0f, outRect.width - 18f, Mathf.Max(settingsViewHeight, outRect.height));
             Widgets.BeginScrollView(outRect, ref settingsScrollPosition, viewRect);
@@ -339,7 +342,10 @@ namespace SimManagementLib
         private static void DrawDebugForcedCustomerKindSelector(Listing_Standard list)
         {
             CustomerCatalog.EnsureInitialized();
-            RuntimeCustomerKind selected = CustomerCatalog.GetKind(Settings.debugForcedCustomerKindId);
+            IReadOnlyCollection<RuntimeCustomerKind> kinds = CustomerCatalog.Kinds ?? new List<RuntimeCustomerKind>();
+            RuntimeCustomerKind selected = string.IsNullOrEmpty(Settings.debugForcedCustomerKindId)
+                ? null
+                : CustomerCatalog.GetKind(Settings.debugForcedCustomerKindId);
             string label = selected != null
                 ? $"{selected.label} / {selected.kindId}"
                 : (string.IsNullOrEmpty(Settings.debugForcedCustomerKindId)
@@ -354,7 +360,7 @@ namespace SimManagementLib
                     new FloatMenuOption(SimTranslation.T("RSMF.Common.Off"), () => Settings.debugForcedCustomerKindId = "")
                 };
 
-                foreach (RuntimeCustomerKind kind in CustomerCatalog.Kinds
+                foreach (RuntimeCustomerKind kind in kinds
                     .Where(k => k != null)
                     .OrderBy(k => k.sourceDef != null ? 0 : 1)
                     .ThenBy(k => k.label))

@@ -283,15 +283,33 @@ namespace SimManagementLib.SimZone
             return 6;
         }
 
+        /// <summary>
+        /// 返回指定岗位当前仍在本地图可工作的员工，负责给 WorkGiver 权限判断和工作分配使用。
+        /// </summary>
         public List<Pawn> GetAssignedPawns(string roleDefName)
         {
             if (roleAssignments.NullOrEmpty() || string.IsNullOrEmpty(roleDefName))
                 return new List<Pawn>();
 
+            NormalizeRoleAssignments();
             return roleAssignments
-                .Where(a => a != null && a.roleDefName == roleDefName && a.pawn != null && !a.pawn.Destroyed && !a.pawn.Dead)
+                .Where(a => a != null && a.roleDefName == roleDefName && a.HasUsablePawnOn(Map))
                 .Select(a => a.pawn)
                 .Distinct()
+                .ToList();
+        }
+
+        /// <summary>
+        /// 返回指定岗位的分配记录，负责让 UI 显示和移除已经离图或引用失效的历史员工。
+        /// </summary>
+        public List<ShopRoleAssignment> GetAssignedPawnRecords(string roleDefName, bool includeUnavailable)
+        {
+            if (roleAssignments.NullOrEmpty() || string.IsNullOrEmpty(roleDefName))
+                return new List<ShopRoleAssignment>();
+
+            NormalizeRoleAssignments();
+            return roleAssignments
+                .Where(a => a != null && a.roleDefName == roleDefName && (includeUnavailable || a.HasUsablePawnOn(Map)))
                 .ToList();
         }
 
@@ -302,16 +320,25 @@ namespace SimManagementLib.SimZone
         {
             if (string.IsNullOrEmpty(roleDefName) || pawn == null) return;
             if (roleAssignments == null) roleAssignments = new List<ShopRoleAssignment>();
+            NormalizeRoleAssignments();
 
             List<Pawn> current = GetAssignedPawns(roleDefName);
             if (current.Contains(pawn)) return;
+            ShopRoleAssignment existing = roleAssignments.FirstOrDefault(a => a != null && a.roleDefName == roleDefName && a.MatchesPawn(pawn));
+            if (existing != null)
+            {
+                existing.CapturePawn(pawn);
+                ActivateRoleWorkTypes(roleDefName, pawn);
+                return;
+            }
             if (maxCount > 0 && current.Count >= maxCount) return;
 
-            roleAssignments.Add(new ShopRoleAssignment
+            ShopRoleAssignment assignment = new ShopRoleAssignment
             {
-                roleDefName = roleDefName,
-                pawn = pawn
-            });
+                roleDefName = roleDefName
+            };
+            assignment.CapturePawn(pawn);
+            roleAssignments.Add(assignment);
             ActivateRoleWorkTypes(roleDefName, pawn);
         }
 
@@ -321,7 +348,16 @@ namespace SimManagementLib.SimZone
         public void RemoveAssignedPawn(string roleDefName, Pawn pawn)
         {
             if (string.IsNullOrEmpty(roleDefName) || pawn == null || roleAssignments == null) return;
-            roleAssignments.RemoveAll(a => a == null || (a.roleDefName == roleDefName && a.pawn == pawn));
+            roleAssignments.RemoveAll(a => a == null || (a.roleDefName == roleDefName && a.MatchesPawn(pawn)));
+        }
+
+        /// <summary>
+        /// 从指定岗位移除一条员工分配记录，负责处理 Pawn 已离图或引用失效时的清理入口。
+        /// </summary>
+        public void RemoveAssignedPawnRecord(string roleDefName, ShopRoleAssignment assignment)
+        {
+            if (string.IsNullOrEmpty(roleDefName) || assignment == null || roleAssignments == null) return;
+            roleAssignments.RemoveAll(a => a == null || (a.roleDefName == roleDefName && ReferenceEquals(a, assignment)));
         }
 
         /// <summary>
@@ -358,11 +394,32 @@ namespace SimManagementLib.SimZone
         private void ActivateAssignedRoleWorkTypes()
         {
             if (roleAssignments.NullOrEmpty()) return;
+            NormalizeRoleAssignments();
             for (int i = 0; i < roleAssignments.Count; i++)
             {
                 ShopRoleAssignment assignment = roleAssignments[i];
-                if (assignment?.pawn == null) continue;
+                if (assignment?.pawn == null || !assignment.HasUsablePawnOn(Map)) continue;
                 ActivateRoleWorkTypes(assignment.roleDefName, assignment.pawn);
+            }
+        }
+
+        /// <summary>
+        /// 整理岗位分配记录，负责移除空记录并为旧存档补齐员工显示快照。
+        /// </summary>
+        private void NormalizeRoleAssignments()
+        {
+            if (roleAssignments == null)
+            {
+                roleAssignments = new List<ShopRoleAssignment>();
+                return;
+            }
+
+            roleAssignments.RemoveAll(a => a == null || string.IsNullOrEmpty(a.roleDefName));
+            for (int i = 0; i < roleAssignments.Count; i++)
+            {
+                ShopRoleAssignment assignment = roleAssignments[i];
+                if (assignment?.pawn != null)
+                    assignment.CapturePawn(assignment.pawn);
             }
         }
 
@@ -376,11 +433,7 @@ namespace SimManagementLib.SimZone
                 cells = Cells?.ToList() ?? new List<IntVec3>(),
                 roleAssignments = roleAssignments?
                     .Where(a => a != null)
-                    .Select(a => new ShopRoleAssignment
-                    {
-                        roleDefName = a.roleDefName,
-                        pawn = a.pawn
-                    })
+                    .Select(a => a.Clone())
                     .ToList() ?? new List<ShopRoleAssignment>()
             };
         }
@@ -393,12 +446,9 @@ namespace SimManagementLib.SimZone
             color = snapshot.color;
             roleAssignments = snapshot.roleAssignments?
                 .Where(a => a != null)
-                .Select(a => new ShopRoleAssignment
-                {
-                    roleDefName = a.roleDefName,
-                    pawn = a.pawn
-                })
+                .Select(a => a.Clone())
                 .ToList() ?? new List<ShopRoleAssignment>();
+            NormalizeRoleAssignments();
         }
 
         public override string GetInspectString()
@@ -524,7 +574,10 @@ namespace SimManagementLib.SimZone
             if (schedule == null)
                 schedule = new ShopScheduleData();
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                NormalizeRoleAssignments();
                 ActivateAssignedRoleWorkTypes();
+            }
         }
     }
 }

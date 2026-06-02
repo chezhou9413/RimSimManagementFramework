@@ -355,6 +355,11 @@
   <RSMF.StaffManager.InactiveWorkType>Inactive work type: {workType}</RSMF.StaffManager.InactiveWorkType>
   <RSMF.StaffManager.MissingCapacity>Missing capacity: {capacity}</RSMF.StaffManager.MissingCapacity>
   <RSMF.StaffManager.NoUsableRoleWork>No usable role work</RSMF.StaffManager.NoUsableRoleWork>
+  <RSMF.StaffManager.AssignedUsable>Assigned and available on the current map</RSMF.StaffManager.AssignedUsable>
+  <RSMF.StaffManager.AssignedUnavailable>Assigned but currently unavailable</RSMF.StaffManager.AssignedUnavailable>
+  <RSMF.StaffManager.AssignedCurrentMap>This staff member is still on the current map and can work this role.</RSMF.StaffManager.AssignedCurrentMap>
+  <RSMF.StaffManager.AssignedUnavailableDetail>Source: {faction}; record id: {id}. This staff member may have left the map or can no longer work.</RSMF.StaffManager.AssignedUnavailableDetail>
+  <RSMF.StaffManager.AssignedSummaryUnavailable>{pawn} (unavailable)</RSMF.StaffManager.AssignedSummaryUnavailable>
   <RSMF.GoodsManager.AvailableCategories>Available categories</RSMF.GoodsManager.AvailableCategories>
   <RSMF.GoodsManager.CategoryNav>Category navigation</RSMF.GoodsManager.CategoryNav>
   <RSMF.GoodsManager.RestrictionTip>This storage only allows: {labels}</RSMF.GoodsManager.RestrictionTip>

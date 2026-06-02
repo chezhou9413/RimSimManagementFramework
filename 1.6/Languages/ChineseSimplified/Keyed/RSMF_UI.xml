@@ -355,6 +355,11 @@
   <RSMF.StaffManager.InactiveWorkType>未开启工作类型: {workType}</RSMF.StaffManager.InactiveWorkType>
   <RSMF.StaffManager.MissingCapacity>缺少能力: {capacity}</RSMF.StaffManager.MissingCapacity>
   <RSMF.StaffManager.NoUsableRoleWork>没有可用岗位工作</RSMF.StaffManager.NoUsableRoleWork>
+  <RSMF.StaffManager.AssignedUsable>已分配，可在当前地图工作</RSMF.StaffManager.AssignedUsable>
+  <RSMF.StaffManager.AssignedUnavailable>已分配，但当前不可用</RSMF.StaffManager.AssignedUnavailable>
+  <RSMF.StaffManager.AssignedCurrentMap>员工仍在当前地图，可执行该岗位工作。</RSMF.StaffManager.AssignedCurrentMap>
+  <RSMF.StaffManager.AssignedUnavailableDetail>来源: {faction}；记录编号: {id}。该员工可能已经离开地图或无法继续工作。</RSMF.StaffManager.AssignedUnavailableDetail>
+  <RSMF.StaffManager.AssignedSummaryUnavailable>{pawn}(不可用)</RSMF.StaffManager.AssignedSummaryUnavailable>
   <RSMF.GoodsManager.AvailableCategories>可售分类</RSMF.GoodsManager.AvailableCategories>
   <RSMF.GoodsManager.CategoryNav>分类导航</RSMF.GoodsManager.CategoryNav>
   <RSMF.GoodsManager.RestrictionTip>该货柜只允许选择：{labels}</RSMF.GoodsManager.RestrictionTip>
