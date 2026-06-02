@@ -372,6 +372,7 @@ namespace SimManagementLib.SimDialog
             copy.reviewPromptCustomNodes = settings.reviewPromptCustomNodes;
             copy.reviewConversationContextMaxChars = 0;
             copy.reviewAiEnabled = true;
+            copy.SanitizeReviewSettingsText();
             return copy;
         }
 

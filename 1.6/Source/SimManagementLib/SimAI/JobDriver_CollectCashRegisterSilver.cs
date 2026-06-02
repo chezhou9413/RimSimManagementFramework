@@ -20,9 +20,9 @@ namespace SimManagementLib.SimAI
 
         private Thing CashBuilding => job.GetTarget(CashBuildingInd).Thing;
         private ThingComp_CashStorage CashStorage => CashBuilding?.TryGetComp<ThingComp_CashStorage>();
-        private int ReservedCount => job.count;
         private bool reservationCleared;
         private bool silverReserved;
+        private int reservedSilverCount;
 
         /// <summary>
         /// 取现任务使用现金组件的金额预约，不独占收银台建筑，避免和值班收银员互相阻塞。
@@ -40,6 +40,7 @@ namespace SimManagementLib.SimAI
             base.Notify_Starting();
             reservationCleared = false;
             silverReserved = false;
+            reservedSilverCount = 0;
         }
 
         /// <summary>
@@ -51,9 +52,10 @@ namespace SimManagementLib.SimAI
             AddFinishAction(_ =>
             {
                 if (reservationCleared || !silverReserved) return;
-                CashStorage?.CancelWithdrawReservation(ReservedCount);
+                CashStorage?.CancelWithdrawReservation(reservedSilverCount);
                 reservationCleared = true;
                 silverReserved = false;
+                reservedSilverCount = 0;
             });
 
             yield return Toils_Goto.GotoThing(CashBuildingInd, PathEndMode.Touch)
@@ -108,7 +110,7 @@ namespace SimManagementLib.SimAI
                     return;
                 }
 
-                int desired = ReservedCount > 0 ? ReservedCount : cash.AutoWithdrawAmount;
+                int desired = job.count > 0 ? job.count : cash.AutoWithdrawAmount;
                 int reserved = cash.ReserveWithdrawSilver(desired);
                 if (reserved <= 0)
                 {
@@ -117,6 +119,7 @@ namespace SimManagementLib.SimAI
                 }
 
                 job.count = reserved;
+                reservedSilverCount = reserved;
                 silverReserved = true;
             };
             toil.defaultCompleteMode = ToilCompleteMode.Instant;
@@ -138,9 +141,10 @@ namespace SimManagementLib.SimAI
                     return;
                 }
 
-                int silverCount = cash.WithdrawReservedSilver(ReservedCount);
+                int silverCount = cash.WithdrawReservedSilver(reservedSilverCount);
                 reservationCleared = true;
                 silverReserved = false;
+                reservedSilverCount = 0;
 
                 if (silverCount <= 0)
                 {

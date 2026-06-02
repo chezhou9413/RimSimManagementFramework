@@ -27,7 +27,7 @@ namespace SimManagementLib.SimAI
         {
             Thing provider = Provider;
             if (provider == null) return false;
-            return pawn.Reserve(provider, job, 24, 0, null, errorOnFailed);
+            return pawn.Reserve(provider, job, ShopServiceUtility.CustomerServiceProviderReservationSlots, 0, null, false);
         }
 
         protected override IEnumerable<Toil> MakeNewToils()

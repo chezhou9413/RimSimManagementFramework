@@ -211,10 +211,11 @@ namespace SimManagementLib.SimThingComp
         public int WithdrawReservedSilver(int reservedCount)
         {
             if (reservedCount <= 0) return 0;
+            if (pendingWithdrawSilver <= 0) return 0;
 
-            int actual = Math.Min(reservedCount, storedSilver);
+            int actual = Math.Min(reservedCount, Math.Min(pendingWithdrawSilver, storedSilver));
             storedSilver -= actual;
-            pendingWithdrawSilver = Math.Max(0, pendingWithdrawSilver - reservedCount);
+            pendingWithdrawSilver = Math.Max(0, pendingWithdrawSilver - actual);
             return actual;
         }
 

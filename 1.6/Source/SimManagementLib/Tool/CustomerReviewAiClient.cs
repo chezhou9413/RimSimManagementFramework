@@ -1,9 +1,10 @@
 using SimManagementLib.Pojo;
 using System;
-using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.Networking;
 using Verse;
 
 namespace SimManagementLib.Tool
@@ -14,18 +15,21 @@ namespace SimManagementLib.Tool
     public static class CustomerReviewAiClient
     {
         private const int DefaultTimeoutSeconds = 90;
+        private const int RequestPollDelayMs = 100;
 
         /// <summary>
         /// 根据当前设置异步请求大模型，并返回解析后的点评结果。
         /// </summary>
         public static async Task<CustomerReviewAiResult> GenerateReviewAsync(CustomerReviewSnapshot snapshot, SimManagementLibSettings settings, CancellationToken token)
         {
+            SanitizeSettingsForRequest(settings);
             if (snapshot == null || settings == null || !settings.HasValidReviewAiConfig()) return null;
 
             string stablePromptPrefix = CustomerReviewPromptInjector.BuildStablePromptPrefix(settings);
             string antiRepeatContext = CustomerReviewDialogueStrategy.BuildAntiRepeatContext(settings);
             string dynamicPrompt = CustomerReviewPromptInjector.BuildDynamicPrompt(snapshot, settings, antiRepeatContext);
             CustomerReviewDialogueRequest request = CustomerReviewDialogueStrategy.Prepare(snapshot, settings, stablePromptPrefix, dynamicPrompt);
+            SanitizeDialogueRequest(request);
             int debugId = CustomerReviewAiDebugLog.AddStarted(snapshot, settings, request);
 
             try
@@ -81,6 +85,7 @@ namespace SimManagementLib.Tool
         /// </summary>
         public static async Task<CustomerReviewConnectionTestResult> TestConnectionDetailedAsync(SimManagementLibSettings settings, CancellationToken token)
         {
+            SanitizeSettingsForRequest(settings);
             CustomerReviewSnapshot snapshot = new CustomerReviewSnapshot
             {
                 reviewId = "test",
@@ -116,6 +121,7 @@ namespace SimManagementLib.Tool
         /// </summary>
         public static Task<CustomerReviewConnectionTestResult> TestBaseUrlAsync(SimManagementLibSettings settings, CancellationToken token)
         {
+            SanitizeSettingsForRequest(settings);
             return ProbeBaseUrlAsync(settings, token);
         }
 
@@ -124,26 +130,34 @@ namespace SimManagementLib.Tool
         /// </summary>
         private static async Task<string> CallOpenAiCompatibleAsync(SimManagementLibSettings settings, CustomerReviewDialogueRequest request, CancellationToken token, int debugId)
         {
-            using (HttpClient client = CreateClient(settings))
+            string endpoint = NormalizeOpenAiUrl(settings.openAiBaseUrl);
+            string body = BuildOpenAiBody(settings, request, true);
+            CustomerReviewHttpResult response = await SendJsonPostAsync(
+                endpoint,
+                body,
+                token,
+                settings,
+                "Authorization",
+                "Bearer " + StringEncodingUtility.SanitizeUtf16(settings.openAiApiKey));
+            string responseText = response.responseText;
+            string extracted = CustomerReviewJsonUtility.ExtractOpenAiMessageContent(responseText);
+            CustomerReviewAiDebugLog.UpdateHttpAttempt(debugId, SimTranslation.T("RSMF.CustomerReview.HttpAttempt.OpenAiJsonObject"), endpoint, body, response.statusCode, response.success, responseText, extracted);
+            if (!response.success && ShouldRetryWithoutResponseFormat(responseText))
             {
-                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", StringEncodingUtility.SanitizeUtf16(settings.openAiApiKey));
-                string endpoint = NormalizeOpenAiUrl(settings.openAiBaseUrl);
-                string body = BuildOpenAiBody(settings, request, true);
-                HttpResponseMessage response = await client.PostAsync(endpoint, new StringContent(body, Encoding.UTF8, "application/json"), token);
-                string responseText = StringEncodingUtility.SanitizeUtf16(await response.Content.ReadAsStringAsync());
-                string extracted = CustomerReviewJsonUtility.ExtractOpenAiMessageContent(responseText);
-                CustomerReviewAiDebugLog.UpdateHttpAttempt(debugId, SimTranslation.T("RSMF.CustomerReview.HttpAttempt.OpenAiJsonObject"), endpoint, body, (int)response.StatusCode, response.IsSuccessStatusCode, responseText, extracted);
-                if (!response.IsSuccessStatusCode && ShouldRetryWithoutResponseFormat(responseText))
-                {
-                    body = BuildOpenAiBody(settings, request, false);
-                    response = await client.PostAsync(endpoint, new StringContent(body, Encoding.UTF8, "application/json"), token);
-                    responseText = StringEncodingUtility.SanitizeUtf16(await response.Content.ReadAsStringAsync());
-                    extracted = CustomerReviewJsonUtility.ExtractOpenAiMessageContent(responseText);
-                    CustomerReviewAiDebugLog.UpdateHttpAttempt(debugId, SimTranslation.T("RSMF.CustomerReview.HttpAttempt.OpenAiNoResponseFormat"), endpoint, body, (int)response.StatusCode, response.IsSuccessStatusCode, responseText, extracted);
-                }
-                if (!response.IsSuccessStatusCode) return "";
-                return extracted;
+                body = BuildOpenAiBody(settings, request, false);
+                response = await SendJsonPostAsync(
+                    endpoint,
+                    body,
+                    token,
+                    settings,
+                    "Authorization",
+                    "Bearer " + StringEncodingUtility.SanitizeUtf16(settings.openAiApiKey));
+                responseText = response.responseText;
+                extracted = CustomerReviewJsonUtility.ExtractOpenAiMessageContent(responseText);
+                CustomerReviewAiDebugLog.UpdateHttpAttempt(debugId, SimTranslation.T("RSMF.CustomerReview.HttpAttempt.OpenAiNoResponseFormat"), endpoint, body, response.statusCode, response.success, responseText, extracted);
             }
+            if (!response.success) return "";
+            return extracted;
         }
 
         /// <summary>
@@ -151,27 +165,31 @@ namespace SimManagementLib.Tool
         /// </summary>
         private static async Task<string> CallAnthropicAsync(SimManagementLibSettings settings, CustomerReviewDialogueRequest request, CancellationToken token, int debugId)
         {
-            using (HttpClient client = CreateClient(settings))
-            {
-                client.DefaultRequestHeaders.Add("x-api-key", StringEncodingUtility.SanitizeUtf16(settings.anthropicApiKey));
-                client.DefaultRequestHeaders.Add("anthropic-version", "2023-06-01");
-                string body =
-                    "{" +
-                    "\"model\":" + CustomerReviewJsonUtility.Quote(settings.anthropicModel) + "," +
-                    "\"max_tokens\":500," +
-                    "\"temperature\":" + settings.reviewTemperature.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture) + "," +
-                    "\"system\":" + CustomerReviewJsonUtility.Quote(settings.reviewSystemPrompt) + "," +
-                    "\"messages\":" + BuildMessagesArray(request) +
-                    "}";
+            string endpoint = "https://api.anthropic.com/v1/messages";
+            string body =
+                "{" +
+                "\"model\":" + CustomerReviewJsonUtility.Quote(settings.anthropicModel) + "," +
+                "\"max_tokens\":500," +
+                "\"temperature\":" + settings.reviewTemperature.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture) + "," +
+                "\"system\":" + CustomerReviewJsonUtility.Quote(settings.reviewSystemPrompt) + "," +
+                "\"messages\":" + BuildMessagesArray(request) +
+                "}";
 
-                HttpResponseMessage response = await client.PostAsync("https://api.anthropic.com/v1/messages", new StringContent(body, Encoding.UTF8, "application/json"), token);
-                string responseText = StringEncodingUtility.SanitizeUtf16(await response.Content.ReadAsStringAsync());
-                string extracted = CustomerReviewJsonUtility.ExtractAnthropicMessageContent(responseText);
-                CustomerReviewAiDebugLog.UpdateHttpAttempt(debugId, SimTranslation.T("RSMF.CustomerReview.HttpAttempt.AnthropicMessages"), "https://api.anthropic.com/v1/messages", body, (int)response.StatusCode, response.IsSuccessStatusCode, responseText, extracted);
-                if (!response.IsSuccessStatusCode)
-                    return "";
-                return extracted;
-            }
+            CustomerReviewHttpResult response = await SendJsonPostAsync(
+                endpoint,
+                body,
+                token,
+                settings,
+                "x-api-key",
+                StringEncodingUtility.SanitizeUtf16(settings.anthropicApiKey),
+                "anthropic-version",
+                "2023-06-01");
+            string responseText = response.responseText;
+            string extracted = CustomerReviewJsonUtility.ExtractAnthropicMessageContent(responseText);
+            CustomerReviewAiDebugLog.UpdateHttpAttempt(debugId, SimTranslation.T("RSMF.CustomerReview.HttpAttempt.AnthropicMessages"), endpoint, body, response.statusCode, response.success, responseText, extracted);
+            if (!response.success)
+                return "";
+            return extracted;
         }
 
         /// <summary>
@@ -179,6 +197,7 @@ namespace SimManagementLib.Tool
         /// </summary>
         private static async Task<CustomerReviewConnectionTestResult> ProbeBaseUrlAsync(SimManagementLibSettings settings, CancellationToken token)
         {
+            SanitizeSettingsForRequest(settings);
             CustomerReviewConnectionTestResult result = new CustomerReviewConnectionTestResult();
             if (settings == null)
             {
@@ -189,23 +208,16 @@ namespace SimManagementLib.Tool
             string endpoint = settings.reviewProvider == CustomerReviewProvider.Anthropic
                 ? "https://api.anthropic.com/v1/messages"
                 : NormalizeOpenAiUrl(settings.openAiBaseUrl);
-            result.endpoint = endpoint;
+            result.endpoint = StringEncodingUtility.SanitizeUtf16(endpoint);
 
             try
             {
-                using (HttpClient client = CreateClient(settings))
-                using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Options, endpoint))
-                {
-                    HttpResponseMessage response = await client.SendAsync(request, token);
-                    result.statusCode = (int)response.StatusCode;
-                    result.baseUrlReachable = true;
-                    result.message = SimTranslation.T("RSMF.CustomerReview.Connection.BaseUrlReachable", result.statusCode.Named("statusCode"));
-                }
-            }
-            catch (HttpRequestException ex)
-            {
-                result.baseUrlReachable = false;
-                result.message = SimTranslation.T("RSMF.CustomerReview.Connection.BaseUrlFailed", StringEncodingUtility.SanitizeUtf16(ex.Message).Named("message"));
+                CustomerReviewHttpResult response = await SendProbeAsync(endpoint, token, settings);
+                result.statusCode = response.statusCode;
+                result.baseUrlReachable = response.reachedServer;
+                result.message = response.reachedServer
+                    ? SimTranslation.T("RSMF.CustomerReview.Connection.BaseUrlReachable", result.statusCode.Named("statusCode"))
+                    : SimTranslation.T("RSMF.CustomerReview.Connection.BaseUrlFailed", StringEncodingUtility.SanitizeUtf16(response.error).Named("message"));
             }
             catch (TaskCanceledException)
             {
@@ -287,19 +299,6 @@ namespace SimManagementLib.Tool
         }
 
         /// <summary>
-        /// 创建带超时的 HTTP 客户端，负责避免后台请求长期阻塞。
-        /// </summary>
-        private static HttpClient CreateClient(SimManagementLibSettings settings)
-        {
-            int timeoutSeconds = settings != null ? settings.reviewRequestTimeoutSeconds : DefaultTimeoutSeconds;
-            timeoutSeconds = Math.Max(20, Math.Min(180, timeoutSeconds));
-            return new HttpClient
-            {
-                Timeout = TimeSpan.FromSeconds(timeoutSeconds)
-            };
-        }
-
-        /// <summary>
         /// 规范化 OpenAI 兼容接口地址，负责兼容填写根地址、v1 地址或完整 chat/completions 地址。
         /// </summary>
         public static string NormalizeOpenAiUrl(string baseUrl)
@@ -310,5 +309,144 @@ namespace SimManagementLib.Tool
                 return url;
             return url + "/chat/completions";
         }
+
+        /// <summary>
+        /// 清理请求配置文本，负责让测试按钮和后台生成都先经过同一层编码兜底。
+        /// </summary>
+        private static void SanitizeSettingsForRequest(SimManagementLibSettings settings)
+        {
+            settings?.SanitizeReviewSettingsText();
+        }
+
+        /// <summary>
+        /// 清理对话请求中的运行时文本，负责避免顾客、商品或环境字段携带非法代理字符。
+        /// </summary>
+        private static void SanitizeDialogueRequest(CustomerReviewDialogueRequest request)
+        {
+            if (request == null)
+                return;
+
+            request.userPrompt = StringEncodingUtility.SanitizeUtf16(request.userPrompt);
+            request.stablePromptPrefix = StringEncodingUtility.SanitizeUtf16(request.stablePromptPrefix);
+            request.dynamicPrompt = StringEncodingUtility.SanitizeUtf16(request.dynamicPrompt);
+            if (request.messages == null)
+                return;
+
+            for (int i = 0; i < request.messages.Count; i++)
+            {
+                CustomerReviewChatMessage message = request.messages[i];
+                if (message == null)
+                    continue;
+
+                message.role = StringEncodingUtility.SanitizeUtf16(message.role);
+                message.content = StringEncodingUtility.SanitizeUtf16(message.content);
+            }
+        }
+
+        /// <summary>
+        /// 发送 JSON POST 请求，负责采用 RimTalk 同类的 UnityWebRequest 和 UTF-8 字节上传路径。
+        /// </summary>
+        private static async Task<CustomerReviewHttpResult> SendJsonPostAsync(string endpoint, string body, CancellationToken token, SimManagementLibSettings settings, params string[] headers)
+        {
+            endpoint = StringEncodingUtility.SanitizeUtf16(endpoint);
+            body = StringEncodingUtility.SanitizeUtf16(body);
+            byte[] payload = Encoding.UTF8.GetBytes(body ?? string.Empty);
+            using (UnityWebRequest request = new UnityWebRequest(endpoint, "POST"))
+            {
+                request.uploadHandler = new UploadHandlerRaw(payload);
+                request.downloadHandler = new DownloadHandlerBuffer();
+                request.SetRequestHeader("Content-Type", "application/json");
+                ApplyHeaders(request, headers);
+                return await SendUnityRequestAsync(request, token, GetTimeoutSeconds(settings));
+            }
+        }
+
+        /// <summary>
+        /// 探测接口地址，负责只判断服务端是否可达，不把 401、404 或 405 视为网络失败。
+        /// </summary>
+        private static async Task<CustomerReviewHttpResult> SendProbeAsync(string endpoint, CancellationToken token, SimManagementLibSettings settings)
+        {
+            endpoint = StringEncodingUtility.SanitizeUtf16(endpoint);
+            using (UnityWebRequest request = new UnityWebRequest(endpoint, "OPTIONS"))
+            {
+                request.downloadHandler = new DownloadHandlerBuffer();
+                return await SendUnityRequestAsync(request, token, GetTimeoutSeconds(settings));
+            }
+        }
+
+        /// <summary>
+        /// 驱动 UnityWebRequest 异步执行，负责统一超时、取消、响应文本清理和错误归类。
+        /// </summary>
+        private static async Task<CustomerReviewHttpResult> SendUnityRequestAsync(UnityWebRequest request, CancellationToken token, int timeoutSeconds)
+        {
+            UnityWebRequestAsyncOperation operation = request.SendWebRequest();
+            float elapsedSeconds = 0f;
+            while (!operation.isDone)
+            {
+                token.ThrowIfCancellationRequested();
+                await Task.Delay(RequestPollDelayMs, token);
+                elapsedSeconds += RequestPollDelayMs / 1000f;
+                if (elapsedSeconds > timeoutSeconds)
+                {
+                    request.Abort();
+                    throw new TaskCanceledException();
+                }
+            }
+
+            string responseText = StringEncodingUtility.SanitizeUtf16(request.downloadHandler?.text ?? string.Empty);
+            UnityWebRequest.Result requestResult = request.result;
+            bool networkError = requestResult == UnityWebRequest.Result.ConnectionError;
+            bool httpError = requestResult == UnityWebRequest.Result.ProtocolError;
+            int statusCode = (int)request.responseCode;
+            bool reachedServer = statusCode > 0 && !networkError;
+            return new CustomerReviewHttpResult
+            {
+                statusCode = statusCode,
+                responseText = responseText,
+                success = reachedServer && !httpError,
+                reachedServer = reachedServer,
+                error = StringEncodingUtility.SanitizeUtf16(request.error)
+            };
+        }
+
+        /// <summary>
+        /// 写入请求头，负责过滤空键并清理外部配置里的非法文本。
+        /// </summary>
+        private static void ApplyHeaders(UnityWebRequest request, string[] headers)
+        {
+            if (request == null || headers == null)
+                return;
+
+            for (int i = 0; i + 1 < headers.Length; i += 2)
+            {
+                string key = StringEncodingUtility.SanitizeUtf16(headers[i]);
+                string value = StringEncodingUtility.SanitizeUtf16(headers[i + 1]);
+                if (string.IsNullOrWhiteSpace(key) || string.IsNullOrEmpty(value))
+                    continue;
+
+                request.SetRequestHeader(key, value);
+            }
+        }
+
+        /// <summary>
+        /// 读取安全超时秒数，负责让设置值在合理范围内生效。
+        /// </summary>
+        private static int GetTimeoutSeconds(SimManagementLibSettings settings)
+        {
+            int timeoutSeconds = settings != null ? settings.reviewRequestTimeoutSeconds : DefaultTimeoutSeconds;
+            return Math.Max(20, Math.Min(180, timeoutSeconds));
+        }
+    }
+
+    /// <summary>
+    /// 保存一次 UnityWebRequest 返回结果，负责让调用方不直接依赖 Unity 网络对象生命周期。
+    /// </summary>
+    internal class CustomerReviewHttpResult
+    {
+        public int statusCode;
+        public string responseText = "";
+        public bool success;
+        public bool reachedServer;
+        public string error = "";
     }
 }

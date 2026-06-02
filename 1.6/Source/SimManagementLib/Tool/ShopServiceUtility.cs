@@ -17,6 +17,8 @@ namespace SimManagementLib.Tool
     /// </summary>
     public static class ShopServiceUtility
     {
+        public const int CustomerServiceProviderReservationSlots = 24;
+
         /// <summary>
         /// 获取商店区域内所有挂载服务组件的建筑。
         /// </summary>
@@ -151,6 +153,7 @@ namespace SimManagementLib.Tool
                 ThingComp_ServiceProvider comp = GetProviderComp(candidateProvider);
                 if (comp == null || !comp.enabled) continue;
                 if (!pawn.CanReach(candidateProvider, PathEndMode.Touch, Danger.Deadly)) continue;
+                if (!CanCustomerReserveServiceProvider(pawn, candidateProvider)) continue;
 
                 foreach (ServiceSlotData slot in comp.EnabledSlots)
                 {
@@ -222,6 +225,15 @@ namespace SimManagementLib.Tool
             Thing provider = FindProviderByOrder(pawn.Map, order);
             if (serviceDef == null || provider == null) return null;
             return serviceDef.Worker.MakeUseJob(pawn, provider, order);
+        }
+
+        /// <summary>
+        /// 判断顾客是否能用共享服务预约访问建筑，负责避开维修、拆除等独占预约中的服务建筑。
+        /// </summary>
+        public static bool CanCustomerReserveServiceProvider(Pawn pawn, Thing provider)
+        {
+            if (pawn == null || provider == null || provider.Destroyed || !provider.Spawned) return false;
+            return pawn.CanReserve(provider, CustomerServiceProviderReservationSlots, 0, null, false);
         }
 
         private sealed class ServiceCandidate

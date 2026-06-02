@@ -2,12 +2,13 @@ using SimManagementLib.Pojo;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net.Http;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.Networking;
 using Verse;
 
 namespace SimManagementLib.Tool
@@ -18,6 +19,8 @@ namespace SimManagementLib.Tool
     public static class BlueprintNetworkApiClient
     {
         private static readonly bool EnableDebugLog = false;
+        private const int TimeoutSeconds = 30;
+        private const int RequestPollDelayMs = 100;
         private static readonly DataContractJsonSerializerSettings JsonSettings = new DataContractJsonSerializerSettings
         {
             UseSimpleDictionaryFormat = true
@@ -68,12 +71,8 @@ namespace SimManagementLib.Tool
         public static async Task<bool> LikeAsync(string blueprintCode, string steamId, CancellationToken token)
         {
             string url = BuildUrl("/" + StringEncodingUtility.EscapeDataStringSafe(blueprintCode) + "/like?steamId=" + StringEncodingUtility.EscapeDataStringSafe(steamId));
-            using (HttpClient client = CreateClient())
-            using (StringContent content = new StringContent("", Encoding.UTF8, "application/json"))
-            using (HttpResponseMessage response = await SendAsync(client, HttpMethod.Post, url, token, content))
-            {
-                return response.IsSuccessStatusCode;
-            }
+            BlueprintNetworkHttpResult response = await SendJsonAsync("POST", url, "", token);
+            return response.success;
         }
 
         /// <summary>
@@ -98,54 +97,53 @@ namespace SimManagementLib.Tool
             if (!File.Exists(record.BlueprintPath))
                 throw new FileNotFoundException("未找到要上传的蓝图文件。", record.BlueprintPath);
 
-            using (HttpClient client = CreateClient())
+            WWWForm form = new WWWForm();
+            form.AddField("SteamId", StringEncodingUtility.SanitizeUtf16(steamId));
+            form.AddField("Name", StringEncodingUtility.SanitizeUtf16(record.Data.label));
+            form.AddField("Description", StringEncodingUtility.SanitizeUtf16(record.Data.description));
+            form.AddField("RequiredModsJson", SerializeJson(SanitizeRequiredMods(record.Data.requiredMods)));
+            form.AddField("ClientBlueprintSourceKind", StringEncodingUtility.SanitizeUtf16(record.Data.remoteBlueprintSourceKind));
+            if (BlueprintOwnershipUtility.CanUpdateExisting(record.Data, steamId))
+                form.AddField("ExistingBlueprintCode", StringEncodingUtility.SanitizeUtf16(record.Data.remoteBlueprintCode));
+
+            byte[] blueprintBytes = File.ReadAllBytes(record.BlueprintPath);
+            form.AddBinaryData(
+                "File",
+                blueprintBytes,
+                StringEncodingUtility.SanitizeUtf16(Path.GetFileName(record.BlueprintPath)),
+                "application/json");
+
+            if (!string.IsNullOrWhiteSpace(record.PreviewPath) && File.Exists(record.PreviewPath))
             {
-                MultipartFormDataContent form = new MultipartFormDataContent();
-                form.Add(new StringContent(StringEncodingUtility.SanitizeUtf16(steamId), Encoding.UTF8), "SteamId");
-                form.Add(new StringContent(StringEncodingUtility.SanitizeUtf16(record.Data.label), Encoding.UTF8), "Name");
-                form.Add(new StringContent(StringEncodingUtility.SanitizeUtf16(record.Data.description), Encoding.UTF8), "Description");
-                form.Add(new StringContent(SerializeJson(SanitizeRequiredMods(record.Data.requiredMods)), Encoding.UTF8), "RequiredModsJson");
-                form.Add(new StringContent(StringEncodingUtility.SanitizeUtf16(record.Data.remoteBlueprintSourceKind), Encoding.UTF8), "ClientBlueprintSourceKind");
-                if (BlueprintOwnershipUtility.CanUpdateExisting(record.Data, steamId))
-                    form.Add(new StringContent(StringEncodingUtility.SanitizeUtf16(record.Data.remoteBlueprintCode), Encoding.UTF8), "ExistingBlueprintCode");
-
-                byte[] blueprintBytes = File.ReadAllBytes(record.BlueprintPath);
-                ByteArrayContent blueprintContent = new ByteArrayContent(blueprintBytes);
-                blueprintContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-                form.Add(blueprintContent, "File", StringEncodingUtility.SanitizeUtf16(Path.GetFileName(record.BlueprintPath)));
-
-                if (!string.IsNullOrWhiteSpace(record.PreviewPath) && File.Exists(record.PreviewPath))
-                {
-                    byte[] previewBytes = File.ReadAllBytes(record.PreviewPath);
-                    ByteArrayContent previewContent = new ByteArrayContent(previewBytes);
-                    previewContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/png");
-                    form.Add(previewContent, "PreviewFile", StringEncodingUtility.SanitizeUtf16(Path.GetFileName(record.PreviewPath)));
-                }
-
-                string url = BuildUrl("");
-                using (HttpResponseMessage response = await SendAsync(client, HttpMethod.Post, url, token, form))
-                {
-                    await EnsureSuccessStatusCodeAsync(response, HttpMethod.Post, url);
-                    string body = StringEncodingUtility.SanitizeUtf16(await response.Content.ReadAsStringAsync());
-                    LogDebug("上传响应", null, response.StatusCode.ToString(), TrimForLog(body));
-                    BlueprintUploadResponse upload = DeserializeJson<BlueprintUploadResponse>(body);
-                    if (upload == null || string.IsNullOrWhiteSpace(upload.blueprintCode))
-                        throw new InvalidOperationException("服务端未返回蓝图码，无法继续读取详情。");
-
-                    try
-                    {
-                        BlueprintNetworkDetailData detail = await GetDetailAsync(upload.blueprintCode, token);
-                        if (detail != null)
-                            return detail;
-                    }
-                    catch (Exception ex)
-                    {
-                        LogDebug("上传后读取详情失败", null, ex.GetType().Name, TrimForLog(SanitizeMessage(ex.Message)));
-                    }
-
-                    return BuildFallbackDetail(record, steamId, upload.blueprintCode);
-                }
+                byte[] previewBytes = File.ReadAllBytes(record.PreviewPath);
+                form.AddBinaryData(
+                    "PreviewFile",
+                    previewBytes,
+                    StringEncodingUtility.SanitizeUtf16(Path.GetFileName(record.PreviewPath)),
+                    "image/png");
             }
+
+            string url = BuildUrl("");
+            BlueprintNetworkHttpResult response = await SendFormAsync("POST", url, form, token);
+            EnsureSuccessStatusCode(response, "POST", url);
+            string body = response.text;
+            LogDebug("上传响应", null, response.StatusCodeText, TrimForLog(body));
+            BlueprintUploadResponse upload = DeserializeJson<BlueprintUploadResponse>(body);
+            if (upload == null || string.IsNullOrWhiteSpace(upload.blueprintCode))
+                throw new InvalidOperationException("服务端未返回蓝图码，无法继续读取详情。");
+
+            try
+            {
+                BlueprintNetworkDetailData detail = await GetDetailAsync(upload.blueprintCode, token);
+                if (detail != null)
+                    return detail;
+            }
+            catch (Exception ex)
+            {
+                LogDebug("上传后读取详情失败", null, ex.GetType().Name, TrimForLog(SanitizeMessage(ex.Message)));
+            }
+
+            return BuildFallbackDetail(record, steamId, upload.blueprintCode);
         }
 
         /// <summary>
@@ -153,17 +151,12 @@ namespace SimManagementLib.Tool
         /// </summary>
         public static async Task<byte[]> DownloadBlueprintAsync(string blueprintCode, CancellationToken token)
         {
-            using (HttpClient client = CreateClient())
-            {
-                string url = BuildUrl("/" + StringEncodingUtility.EscapeDataStringSafe(blueprintCode) + "/download");
-                using (HttpResponseMessage response = await SendAsync(client, HttpMethod.Get, url, token))
-                {
-                    await EnsureSuccessStatusCodeAsync(response, HttpMethod.Get, url);
-                    byte[] bytes = await response.Content.ReadAsByteArrayAsync();
-                    LogDebug("下载蓝图成功", null, response.StatusCode.ToString(), "字节数=" + bytes.Length);
-                    return bytes;
-                }
-            }
+            string url = BuildUrl("/" + StringEncodingUtility.EscapeDataStringSafe(blueprintCode) + "/download");
+            BlueprintNetworkHttpResult response = await SendAsync("GET", url, token);
+            EnsureSuccessStatusCode(response, "GET", url);
+            byte[] bytes = response.bytes ?? new byte[0];
+            LogDebug("下载蓝图成功", null, response.StatusCodeText, "字节数=" + bytes.Length);
+            return bytes;
         }
 
         /// <summary>
@@ -171,17 +164,12 @@ namespace SimManagementLib.Tool
         /// </summary>
         public static async Task<byte[]> DownloadPreviewAsync(string blueprintCode, CancellationToken token)
         {
-            using (HttpClient client = CreateClient())
-            {
-                string url = BuildUrl("/" + StringEncodingUtility.EscapeDataStringSafe(blueprintCode) + "/preview");
-                using (HttpResponseMessage response = await SendAsync(client, HttpMethod.Get, url, token))
-                {
-                    await EnsureSuccessStatusCodeAsync(response, HttpMethod.Get, url);
-                    byte[] bytes = await response.Content.ReadAsByteArrayAsync();
-                    LogDebug("下载预览图成功", null, response.StatusCode.ToString(), "字节数=" + bytes.Length);
-                    return bytes;
-                }
-            }
+            string url = BuildUrl("/" + StringEncodingUtility.EscapeDataStringSafe(blueprintCode) + "/preview");
+            BlueprintNetworkHttpResult response = await SendAsync("GET", url, token);
+            EnsureSuccessStatusCode(response, "GET", url);
+            byte[] bytes = response.bytes ?? new byte[0];
+            LogDebug("下载预览图成功", null, response.StatusCodeText, "字节数=" + bytes.Length);
+            return bytes;
         }
 
         /// <summary>
@@ -189,50 +177,99 @@ namespace SimManagementLib.Tool
         /// </summary>
         public static async Task<bool> DeleteOwnBlueprintAsync(string blueprintCode, string steamId, CancellationToken token)
         {
-            using (HttpClient client = CreateClient())
-            {
-                string url = BuildUrl("/" + StringEncodingUtility.EscapeDataStringSafe(blueprintCode) + "?steamId=" + StringEncodingUtility.EscapeDataStringSafe(steamId));
-                using (HttpResponseMessage response = await SendAsync(client, HttpMethod.Delete, url, token))
-                {
-                    return response.IsSuccessStatusCode;
-                }
-            }
+            string url = BuildUrl("/" + StringEncodingUtility.EscapeDataStringSafe(blueprintCode) + "?steamId=" + StringEncodingUtility.EscapeDataStringSafe(steamId));
+            BlueprintNetworkHttpResult response = await SendAsync("DELETE", url, token);
+            return response.success;
         }
 
         /// <summary>
-        /// 负责发送请求并输出临时调试日志，帮助定位线上接口路径问题。
+        /// 发送 JSON 请求，负责使用 UnityWebRequest 的 UTF-8 字节上传路径。
         /// </summary>
-        private static async Task<HttpResponseMessage> SendAsync(HttpClient client, HttpMethod method, string url, CancellationToken token, HttpContent content = null)
+        private static Task<BlueprintNetworkHttpResult> SendJsonAsync(string method, string url, string body, CancellationToken token)
         {
             url = StringEncodingUtility.SanitizeUtf16(url);
-            LogDebug("发送请求", null, method.Method, null);
-            using (HttpRequestMessage request = new HttpRequestMessage(method, url))
+            body = StringEncodingUtility.SanitizeUtf16(body);
+            byte[] payload = Encoding.UTF8.GetBytes(body ?? string.Empty);
+            UnityWebRequest request = new UnityWebRequest(url, method)
             {
-                request.Content = content;
-                HttpResponseMessage response = await client.SendAsync(request, token);
-                LogDebug("收到响应", null, method.Method, ((int)response.StatusCode) + " " + response.StatusCode);
+                uploadHandler = new UploadHandlerRaw(payload),
+                downloadHandler = new DownloadHandlerBuffer()
+            };
+            request.SetRequestHeader("Content-Type", "application/json");
+            return SendUnityRequestAsync(request, method, url, token);
+        }
+
+        /// <summary>
+        /// 发送表单请求，负责上传蓝图 JSON 和预览图的 multipart/form-data。
+        /// </summary>
+        private static Task<BlueprintNetworkHttpResult> SendFormAsync(string method, string url, WWWForm form, CancellationToken token)
+        {
+            url = StringEncodingUtility.SanitizeUtf16(url);
+            UnityWebRequest request = UnityWebRequest.Post(url, form);
+            if (!string.Equals(method, "POST", StringComparison.OrdinalIgnoreCase))
+                request.method = method;
+
+            return SendUnityRequestAsync(request, method, url, token);
+        }
+
+        /// <summary>
+        /// 发送普通请求，负责 GET、DELETE 和二进制下载。
+        /// </summary>
+        private static Task<BlueprintNetworkHttpResult> SendAsync(string method, string url, CancellationToken token)
+        {
+            url = StringEncodingUtility.SanitizeUtf16(url);
+            UnityWebRequest request = new UnityWebRequest(url, method)
+            {
+                downloadHandler = new DownloadHandlerBuffer()
+            };
+            return SendUnityRequestAsync(request, method, url, token);
+        }
+
+        /// <summary>
+        /// 驱动 UnityWebRequest 执行，负责统一超时、取消、响应读取和调试日志。
+        /// </summary>
+        private static async Task<BlueprintNetworkHttpResult> SendUnityRequestAsync(UnityWebRequest request, string method, string url, CancellationToken token)
+        {
+            LogDebug("发送请求", null, method, null);
+            using (request)
+            {
+                UnityWebRequestAsyncOperation operation = request.SendWebRequest();
+                float elapsedSeconds = 0f;
+                while (!operation.isDone)
+                {
+                    token.ThrowIfCancellationRequested();
+                    await Task.Delay(RequestPollDelayMs, token);
+                    elapsedSeconds += RequestPollDelayMs / 1000f;
+                    if (elapsedSeconds > TimeoutSeconds)
+                    {
+                        request.Abort();
+                        throw new TaskCanceledException();
+                    }
+                }
+
+                UnityWebRequest.Result result = request.result;
+                bool networkError = result == UnityWebRequest.Result.ConnectionError;
+                bool httpError = result == UnityWebRequest.Result.ProtocolError;
+                BlueprintNetworkHttpResult response = new BlueprintNetworkHttpResult
+                {
+                    statusCode = (int)request.responseCode,
+                    text = StringEncodingUtility.SanitizeUtf16(request.downloadHandler?.text ?? string.Empty),
+                    bytes = request.downloadHandler?.data,
+                    success = request.responseCode > 0 && !networkError && !httpError,
+                    error = StringEncodingUtility.SanitizeUtf16(request.error)
+                };
+                LogDebug("收到响应", null, method, response.StatusCodeText);
                 return response;
             }
         }
 
         private static async Task<T> GetJsonAsync<T>(string url, CancellationToken token) where T : class
         {
-            using (HttpClient client = CreateClient())
-            using (HttpResponseMessage response = await SendAsync(client, HttpMethod.Get, url, token))
-            {
-                await EnsureSuccessStatusCodeAsync(response, HttpMethod.Get, url);
-                string body = StringEncodingUtility.SanitizeUtf16(await response.Content.ReadAsStringAsync());
-                LogDebug("读取 JSON 成功", null, response.StatusCode.ToString(), TrimForLog(body));
-                return NormalizeUrls(DeserializeJson<T>(body));
-            }
-        }
-
-        private static HttpClient CreateClient()
-        {
-            return new HttpClient
-            {
-                Timeout = TimeSpan.FromSeconds(30)
-            };
+            BlueprintNetworkHttpResult response = await SendAsync("GET", url, token);
+            EnsureSuccessStatusCode(response, "GET", url);
+            string body = response.text;
+            LogDebug("读取 JSON 成功", null, response.StatusCodeText, TrimForLog(body));
+            return NormalizeUrls(DeserializeJson<T>(body));
         }
 
         private static string BuildUrl(string path)
@@ -244,28 +281,32 @@ namespace SimManagementLib.Tool
         /// <summary>
         /// 负责在失败响应时记录返回体，并抛出可直接显示的错误。
         /// </summary>
-        private static async Task EnsureSuccessStatusCodeAsync(HttpResponseMessage response, HttpMethod method, string url)
+        private static void EnsureSuccessStatusCode(BlueprintNetworkHttpResult response, string method, string url)
         {
-            if (response.IsSuccessStatusCode)
+            if (response != null && response.success)
                 return;
 
-            string body = await ReadBodySafeAsync(response);
-            string detail = $"HTTP {(int)response.StatusCode} {response.StatusCode}";
+            string body = ReadBodySafe(response);
+            string detail = response != null && response.statusCode > 0
+                ? $"HTTP {response.statusCode}"
+                : "网络连接失败";
             if (!string.IsNullOrWhiteSpace(body))
                 detail += " | " + TrimForLog(body);
+            else if (!string.IsNullOrWhiteSpace(response?.error))
+                detail += " | " + response.error;
             string safeDetail = SanitizeMessage(detail);
-            LogDebug("请求失败", null, method.Method, safeDetail);
-            throw new HttpRequestException($"{method.Method} 请求失败：{safeDetail}");
+            LogDebug("请求失败", null, method, safeDetail);
+            throw new InvalidOperationException($"{method} 请求失败：{safeDetail}");
         }
 
         /// <summary>
         /// 负责安全读取失败响应内容，避免二次异常覆盖原始错误。
         /// </summary>
-        private static async Task<string> ReadBodySafeAsync(HttpResponseMessage response)
+        private static string ReadBodySafe(BlueprintNetworkHttpResult response)
         {
             try
             {
-                return StringEncodingUtility.SanitizeUtf16(await response.Content.ReadAsStringAsync());
+                return StringEncodingUtility.SanitizeUtf16(response?.text ?? string.Empty);
             }
             catch (Exception ex)
             {
@@ -459,6 +500,20 @@ namespace SimManagementLib.Tool
         private sealed class BlueprintUploadResponse
         {
             [DataMember] public string blueprintCode = "";
+        }
+
+        /// <summary>
+        /// 保存一次蓝图网络请求结果，负责在请求对象释放后继续读取状态、文本和字节。
+        /// </summary>
+        private sealed class BlueprintNetworkHttpResult
+        {
+            public int statusCode;
+            public string text = "";
+            public byte[] bytes;
+            public bool success;
+            public string error = "";
+
+            public string StatusCodeText => statusCode > 0 ? statusCode.ToString() : "无响应";
         }
     }
 }

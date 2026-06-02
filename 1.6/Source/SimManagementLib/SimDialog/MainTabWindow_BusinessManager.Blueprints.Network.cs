@@ -4,10 +4,10 @@ using SimManagementLib.Tool;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Networking;
 using Verse;
 
 namespace SimManagementLib.SimDialog
@@ -1463,10 +1463,27 @@ namespace SimManagementLib.SimDialog
         private async Task<byte[]> DownloadRemotePreviewAsync(string previewUrl)
         {
             previewUrl = StringEncodingUtility.SanitizeUtf16(previewUrl);
-            using (HttpClient client = new HttpClient())
+            using (UnityWebRequest request = new UnityWebRequest(previewUrl, "GET"))
             {
-                client.Timeout = TimeSpan.FromSeconds(10);
-                return await client.GetByteArrayAsync(previewUrl);
+                request.downloadHandler = new DownloadHandlerBuffer();
+                UnityWebRequestAsyncOperation operation = request.SendWebRequest();
+                float elapsedSeconds = 0f;
+                while (!operation.isDone)
+                {
+                    await Task.Delay(100);
+                    elapsedSeconds += 0.1f;
+                    if (elapsedSeconds > 10f)
+                    {
+                        request.Abort();
+                        throw new TaskCanceledException();
+                    }
+                }
+
+                UnityWebRequest.Result result = request.result;
+                if (result == UnityWebRequest.Result.ConnectionError || result == UnityWebRequest.Result.ProtocolError)
+                    throw new InvalidOperationException(StringEncodingUtility.SanitizeUtf16(request.error));
+
+                return request.downloadHandler?.data;
             }
         }
 

@@ -141,8 +141,34 @@ namespace SimManagementLib
             if (reviewPromptEnabledNodeIds == null) reviewPromptEnabledNodeIds = "";
             if (reviewPromptNodeOrder == null) reviewPromptNodeOrder = "";
             if (reviewPromptCustomNodes == null) reviewPromptCustomNodes = "";
+            SanitizeReviewSettingsText();
             UpgradeLegacyReviewForumDefaults();
             UpgradeLegacyReviewPromptDefaults();
+        }
+
+        /// <summary>
+        /// 清理 AI 点评设置里的非法 UTF-16 字符，负责避免 HTTP、JSON 和日志路径遇到孤立代理字符。
+        /// </summary>
+        public void SanitizeReviewSettingsText()
+        {
+            debugForcedCustomerKindId = StringEncodingUtility.SanitizeUtf16(debugForcedCustomerKindId);
+            openAiBaseUrl = StringEncodingUtility.SanitizeUtf16(openAiBaseUrl);
+            openAiApiKey = StringEncodingUtility.SanitizeUtf16(openAiApiKey);
+            openAiModel = StringEncodingUtility.SanitizeUtf16(openAiModel);
+            anthropicApiKey = StringEncodingUtility.SanitizeUtf16(anthropicApiKey);
+            anthropicModel = StringEncodingUtility.SanitizeUtf16(anthropicModel);
+            reviewSystemPrompt = StringEncodingUtility.SanitizeUtf16(reviewSystemPrompt);
+            reviewUserPrompt = StringEncodingUtility.SanitizeUtf16(reviewUserPrompt);
+            reviewNicknamePrefixes = StringEncodingUtility.SanitizeUtf16(reviewNicknamePrefixes);
+            reviewNicknameSuffixes = StringEncodingUtility.SanitizeUtf16(reviewNicknameSuffixes);
+            reviewToneWords = StringEncodingUtility.SanitizeUtf16(reviewToneWords);
+            reviewPositiveWords = StringEncodingUtility.SanitizeUtf16(reviewPositiveWords);
+            reviewNegativeWords = StringEncodingUtility.SanitizeUtf16(reviewNegativeWords);
+            reviewBannedWords = StringEncodingUtility.SanitizeUtf16(reviewBannedWords);
+            reviewPromptInputFormat = StringEncodingUtility.SanitizeUtf16(reviewPromptInputFormat);
+            reviewPromptEnabledNodeIds = StringEncodingUtility.SanitizeUtf16(reviewPromptEnabledNodeIds);
+            reviewPromptNodeOrder = StringEncodingUtility.SanitizeUtf16(reviewPromptNodeOrder);
+            reviewPromptCustomNodes = StringEncodingUtility.SanitizeUtf16(reviewPromptCustomNodes);
         }
 
         /// <summary>

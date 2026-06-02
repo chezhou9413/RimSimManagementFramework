@@ -20,7 +20,6 @@ namespace SimManagementLib.SimAI
     /// </summary>
     public class JobDriver_SelectPaidService : JobDriver
     {
-        private const int MaxProviderReservations = 24;
         private Thing Provider => job.GetTarget(TargetIndex.A).Thing;
 
         private ShopServiceDef selectedService;
@@ -32,7 +31,7 @@ namespace SimManagementLib.SimAI
         {
             Thing provider = Provider;
             if (provider == null) return false;
-            return pawn.Reserve(provider, job, MaxProviderReservations, 0, null, errorOnFailed);
+            return pawn.Reserve(provider, job, ShopServiceUtility.CustomerServiceProviderReservationSlots, 0, null, false);
         }
 
         protected override IEnumerable<Toil> MakeNewToils()

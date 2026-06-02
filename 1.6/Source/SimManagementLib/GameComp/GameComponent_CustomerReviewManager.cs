@@ -150,20 +150,24 @@ namespace SimManagementLib.GameComp
             int intervalTicks = MathfRoundTicksPerRequest(settings.reviewRequestsPerMinute);
             nextAllowedRequestTick = Find.TickManager.TicksGame + intervalTicks;
 
-            runningTask = Task.Run(async () =>
-            {
-                try
-                {
-                    CustomerReviewAiResult result = await CustomerReviewAiClient.GenerateReviewAsync(snapshot, settings, CancellationToken.None);
-                    if (result == null) return null;
-                    return BuildRecord(snapshot, result, settings.reviewProvider);
-                }
-                catch
-                {
-                    return null;
-                }
-            });
+            runningTask = StartRequestAsync(snapshot, settings);
+        }
 
+        /// <summary>
+        /// 在游戏主线程启动异步点评请求，负责兼容 UnityWebRequest 的运行时线程要求。
+        /// </summary>
+        private static async Task<CustomerReviewRecord> StartRequestAsync(CustomerReviewSnapshot snapshot, SimManagementLibSettings settings)
+        {
+            try
+            {
+                CustomerReviewAiResult result = await CustomerReviewAiClient.GenerateReviewAsync(snapshot, settings, CancellationToken.None);
+                if (result == null) return null;
+                return BuildRecord(snapshot, result, settings.reviewProvider);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         /// <summary>
@@ -668,6 +672,7 @@ namespace SimManagementLib.GameComp
             copy.reviewPromptEnabledNodeIds = source.reviewPromptEnabledNodeIds;
             copy.reviewPromptNodeOrder = source.reviewPromptNodeOrder;
             copy.reviewPromptCustomNodes = source.reviewPromptCustomNodes;
+            copy.SanitizeReviewSettingsText();
             return copy;
         }
 
