@@ -42,8 +42,8 @@
     <comps>
       <li Class="SimManagementLib.SimThingComp.CompProperties_CashStorage">
         <!-- 白银达到该数量后，服务工作类型的小人会自动取现。 -->
-        <defaultWithdrawThreshold>100</defaultWithdrawThreshold>
-        <maxWithdrawThreshold>1000</maxWithdrawThreshold>
+        <defaultWithdrawThreshold>1000</defaultWithdrawThreshold>
+        <maxWithdrawThreshold>50000</maxWithdrawThreshold>
       </li>
       <li Class="CompProperties_AffectedByFacilities">
         <linkableFacilities>
@@ -95,8 +95,8 @@
     <comps>
       <li Class="SimManagementLib.SimThingComp.CompProperties_CashStorage">
         <!-- 白银达到该数量后，服务工作类型的小人会自动取现。 -->
-        <defaultWithdrawThreshold>100</defaultWithdrawThreshold>
-        <maxWithdrawThreshold>1000</maxWithdrawThreshold>
+        <defaultWithdrawThreshold>1000</defaultWithdrawThreshold>
+        <maxWithdrawThreshold>10000</maxWithdrawThreshold>
       </li>
       <li Class="CompProperties_AffectedByFacilities">
         <linkableFacilities>
