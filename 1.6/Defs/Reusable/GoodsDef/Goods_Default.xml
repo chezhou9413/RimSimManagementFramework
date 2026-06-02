@@ -18,7 +18,7 @@
       <li>MealLavish</li>
       <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Salmon</li>
       <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Guppy</li>
-      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Toxfish</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey,Ludeon.RimWorld.Biotech">Fish_Toxfish</li>
       <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Flounder</li>
       <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Tilapia</li>
       <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Dogfish</li>
@@ -55,11 +55,11 @@
       <li>Meat_Thrumbo</li>
       <li>Meat_Squirrel</li>
       <li>Meat_Chinchilla</li>
-      <li>Meat_Toxalope</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Meat_Toxalope</li>
       <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Otter</li>
       <li>Meat_Capybara</li>
       <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Mink</li>
-      <li>Meat_WasteRat</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Meat_WasteRat</li>
       <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Hippo</li>
       <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_BogHound</li>
       <li>Meat_Raccoon</li>
@@ -250,77 +250,77 @@
     <label>基础服饰</label>
     <GoodsList>
       <li>Apparel_AdvancedHelmet</li>
-      <li>Apparel_AirwireHeadset</li>
-      <li>Apparel_ArmorCataphract</li>
-      <li>Apparel_ArmorCataphractPhoenix</li>
-      <li>Apparel_ArmorCataphractPrestige</li>
-      <li>Apparel_ArmorHelmetCataphract</li>
-      <li>Apparel_ArmorHelmetCataphractPrestige</li>
-      <li>Apparel_ArmorHelmetMechCommander</li>
-      <li>Apparel_ArmorHelmetMechlordHelmet</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_AirwireHeadset</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorCataphract</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorCataphractPhoenix</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorCataphractPrestige</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorHelmetCataphract</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorHelmetCataphractPrestige</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_ArmorHelmetMechCommander</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_ArmorHelmetMechlordHelmet</li>
       <li>Apparel_ArmorHelmetRecon</li>
-      <li>Apparel_ArmorHelmetReconPrestige</li>
-      <li>Apparel_ArmorLocust</li>
-      <li>Apparel_ArmorMarineGrenadier</li>
-      <li>Apparel_ArmorMarineHelmetPrestige</li>
-      <li>Apparel_ArmorMarinePrestige</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorHelmetReconPrestige</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorLocust</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorMarineGrenadier</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorMarineHelmetPrestige</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorMarinePrestige</li>
       <li>Apparel_ArmorRecon</li>
-      <li>Apparel_ArmorReconPrestige</li>
-      <li>Apparel_ArrayHeadset</li>
-      <li>Apparel_AuthorityCap</li>
-      <li>Apparel_Bandolier</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorReconPrestige</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_ArrayHeadset</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_AuthorityCap</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_Bandolier</li>
       <li>Apparel_BasicShirt</li>
-      <li>Apparel_Beret</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_Beret</li>
       <li MayRequire="Ludeon.RimWorld.Anomaly">Apparel_BiomutationLance</li>
-      <li>Apparel_Blindfold</li>
-      <li>Apparel_BodyStrap</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_Blindfold</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_BodyStrap</li>
       <li>Apparel_BowlerHat</li>
-      <li>Apparel_Broadwrap</li>
-      <li>Apparel_Burka</li>
-      <li>Apparel_Cape</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_Broadwrap</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_Burka</li>
+      <li MayRequireAnyOf="Ludeon.RimWorld.Royalty,Ludeon.RimWorld.Biotech">Apparel_Cape</li>
       <li MayRequire="Ludeon.RimWorld.Odyssey">Apparel_CerebrexNode</li>
       <li MayRequire="Ludeon.RimWorld.Anomaly">Apparel_CeremonialCultistMask</li>
       <li>Apparel_ClothMask</li>
-      <li>Apparel_Collar</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_Collar</li>
       <li>Apparel_CollarShirt</li>
-      <li>Apparel_Coronet</li>
-      <li>Apparel_Corset</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_Coronet</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_Corset</li>
       <li>Apparel_CowboyHat</li>
-      <li>Apparel_Crown</li>
-      <li>Apparel_CrownStellic</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_Crown</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_CrownStellic</li>
       <li MayRequire="Ludeon.RimWorld.Anomaly">Apparel_CultistMask</li>
       <li MayRequire="Ludeon.RimWorld.Anomaly">Apparel_DeadlifePack</li>
       <li MayRequire="Ludeon.RimWorld.Anomaly">Apparel_DisruptorFlarePack</li>
       <li>Apparel_Duster</li>
-      <li>Apparel_EltexSkullcap</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_EltexSkullcap</li>
       <li>Apparel_FirefoampopPack</li>
       <li>Apparel_FlakJacket</li>
       <li>Apparel_FlakPants</li>
       <li>Apparel_FlakVest</li>
-      <li>Apparel_Flophat</li>
-      <li>Apparel_GasMask</li>
-      <li>Apparel_Gunlink</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_Flophat</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_GasMask</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_Gunlink</li>
       <li>Apparel_HatHood</li>
-      <li>Apparel_HatLadies</li>
-      <li>Apparel_HatTop</li>
-      <li>Apparel_Headwrap</li>
-      <li>Apparel_HeavyShield</li>
-      <li>Apparel_IntegratorHeadset</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_HatLadies</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_HatTop</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_Headwrap</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_HeavyShield</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_IntegratorHeadset</li>
       <li>Apparel_Jacket</li>
-      <li>Apparel_KidHelmet</li>
-      <li>Apparel_KidPants</li>
-      <li>Apparel_KidParka</li>
-      <li>Apparel_KidRomper</li>
-      <li>Apparel_KidShirt</li>
-      <li>Apparel_KidTribal</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_KidHelmet</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_KidPants</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_KidParka</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_KidRomper</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_KidShirt</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_KidTribal</li>
       <li MayRequire="Ludeon.RimWorld.Anomaly">Apparel_LabCoat</li>
-      <li>Apparel_MechlordSuit</li>
-      <li>Apparel_PackBandwidth</li>
-      <li>Apparel_PackBroadshield</li>
-      <li>Apparel_PackControl</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_MechlordSuit</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_PackBandwidth</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_PackBroadshield</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_PackControl</li>
       <li MayRequire="Ludeon.RimWorld.Odyssey">Apparel_PackHunter</li>
-      <li>Apparel_PackJump</li>
-      <li>Apparel_PackTox</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_PackJump</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_PackTox</li>
       <li MayRequire="Ludeon.RimWorld.Anomaly">Apparel_PackTurret</li>
       <li>Apparel_Pants</li>
       <li>Apparel_Parka</li>
@@ -330,31 +330,31 @@
       <li>Apparel_PsychicFoilHelmet</li>
       <li>Apparel_PsychicInsanityLance</li>
       <li>Apparel_PsychicShockLance</li>
-      <li>Apparel_PsyfocusHelmet</li>
-      <li>Apparel_PsyfocusRobe</li>
-      <li>Apparel_PsyfocusShirt</li>
-      <li>Apparel_PsyfocusVest</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_PsyfocusHelmet</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_PsyfocusRobe</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_PsyfocusShirt</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_PsyfocusVest</li>
       <li>Apparel_Robe</li>
-      <li>Apparel_RobeRoyal</li>
-      <li>Apparel_Sash</li>
-      <li>Apparel_Shadecone</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_RobeRoyal</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_Sash</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_Shadecone</li>
       <li MayRequire="Ludeon.RimWorld.Anomaly">Apparel_ShardPsychicInsanityLance</li>
       <li MayRequire="Ludeon.RimWorld.Anomaly">Apparel_ShardPsychicShockLance</li>
       <li>Apparel_ShieldBelt</li>
-      <li>Apparel_ShirtRuffle</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ShirtRuffle</li>
       <li>Apparel_SimpleHelmet</li>
-      <li>Apparel_Slicecap</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_Slicecap</li>
       <li>Apparel_SmokepopBelt</li>
-      <li>Apparel_Tailcap</li>
-      <li>Apparel_TortureCrown</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_Tailcap</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_TortureCrown</li>
       <li>Apparel_TribalA</li>
       <li>Apparel_TribalHeaddress</li>
       <li>Apparel_Tuque</li>
       <li MayRequire="Ludeon.RimWorld.Odyssey">Apparel_Vacsuit</li>
-      <li MayRequire="Ludeon.RimWorld.Odyssey">Apparel_VacsuitChildren</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey,Ludeon.RimWorld.Biotech">Apparel_VacsuitChildren</li>
       <li MayRequire="Ludeon.RimWorld.Odyssey">Apparel_VacsuitHelmet</li>
-      <li>Apparel_VestRoyal</li>
-      <li>Apparel_VisageMask</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_VestRoyal</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_VisageMask</li>
       <li>Apparel_WarMask</li>
       <li>Apparel_WarVeil</li>
     </GoodsList>
@@ -435,76 +435,76 @@
     </GoodsList>
   </SimManagementLib.SimDef.GoodsDef>
 
-  <SimManagementLib.SimDef.GoodsDef MayRequire="Ludeon.RimWorld.Biotech">
+  <SimManagementLib.SimDef.GoodsDef>
     <defName>Goods_BodyParts</defName>
     <label>身体部件</label>
     <GoodsList>
-      <li>BionicHeart</li>
-      <li>BionicEye</li>
-      <li>BionicEar</li>
-      <li>BionicStomach</li>
-      <li>BionicSpine</li>
-      <li>BionicLeg</li>
-      <li>BionicArm</li>
-      <li>BionicTongue</li>
-      <li>CircadianHalfCycler</li>
-      <li>Immunoenhancer</li>
-      <li>Coagulator</li>
-      <li>LearningAssistant</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">BionicHeart</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">BionicEye</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">BionicEar</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">BionicStomach</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">BionicSpine</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">BionicLeg</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">BionicArm</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">BionicTongue</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">CircadianHalfCycler</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">Immunoenhancer</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">Coagulator</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">LearningAssistant</li>
       <li MayRequire="Ludeon.RimWorld.Anomaly">RevenantVertebrae</li>
-      <li>LoveEnhancer</li>
-      <li>HealingEnhancer</li>
-      <li>DetoxifierLung</li>
-      <li>DetoxifierKidney</li>
-      <li>DetoxifierStomach</li>
-      <li>NuclearStomach</li>
-      <li>CircadianAssistant</li>
-      <li>ArmorskinGland</li>
-      <li>StoneskinGland</li>
-      <li>Neurocalculator</li>
-      <li>AestheticShaper</li>
-      <li>AestheticNose</li>
-      <li>GastroAnalyzer</li>
-      <li MayRequire="Ludeon.RimWorld.Odyssey">VacskinGland</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">LoveEnhancer</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">HealingEnhancer</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">DetoxifierLung</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">DetoxifierKidney</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">DetoxifierStomach</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">NuclearStomach</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">CircadianAssistant</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">ArmorskinGland</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">StoneskinGland</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">Neurocalculator</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">AestheticShaper</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">AestheticNose</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">GastroAnalyzer</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey,Ludeon.RimWorld.Royalty">VacskinGland</li>
       <li>DeathAcidifier</li>
-      <li>ToughskinGland</li>
-      <li>ReprocessorStomach</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">ToughskinGland</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">ReprocessorStomach</li>
       <li MayRequire="Ludeon.RimWorld.Odyssey">PilotAssistant</li>
       <li>Joywire</li>
       <li>SimpleProstheticHeart</li>
       <li>SimpleProstheticLeg</li>
       <li>SimpleProstheticArm</li>
-      <li>FieldHand</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">FieldHand</li>
       <li>PowerClaw</li>
       <li>CochlearImplant</li>
-      <li>PsychicAmplifier</li>
-      <li>PsychicHarmonizer</li>
-      <li>PsychicSensitizer</li>
+      <li MayRequireAnyOf="Ludeon.RimWorld.Royalty,Ludeon.RimWorld.Biotech">PsychicAmplifier</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">PsychicHarmonizer</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">PsychicSensitizer</li>
       <li>Heart</li>
       <li>Lung</li>
       <li>Liver</li>
       <li>Kidney</li>
-      <li>HandTalon</li>
-      <li>DrillArm</li>
-      <li>ControlSublink</li>
-      <li>ControlSublinkHigh</li>
-      <li>Mechlink</li>
-      <li>MechFormfeeder</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">HandTalon</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">DrillArm</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">ControlSublink</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">ControlSublinkHigh</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Mechlink</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">MechFormfeeder</li>
       <li>Painstopper</li>
-      <li>VenomTalon</li>
-      <li>VenomFangs</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">VenomTalon</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">VenomFangs</li>
       <li MayRequire="Ludeon.RimWorld.Anomaly">AdrenalHeart</li>
-      <li>RepairProbe</li>
-      <li>ElbowBlade</li>
-      <li>KneeSpike</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">RepairProbe</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">ElbowBlade</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">KneeSpike</li>
       <li>ArchotechEye</li>
       <li>ArchotechArm</li>
       <li>ArchotechLeg</li>
-      <li>RemoteShielder</li>
-      <li>RemoteRepairer</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">RemoteShielder</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">RemoteRepairer</li>
       <li MayRequire="Ludeon.RimWorld.Anomaly">CorrosiveHeart</li>
       <li MayRequire="Ludeon.RimWorld.Anomaly">MetalbloodHeart</li>
-      <li>Mindscrew</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Mindscrew</li>
       <li MayRequire="Ludeon.RimWorld.Anomaly">GhoulPlating</li>
       <li MayRequire="Ludeon.RimWorld.Anomaly">GhoulBarbs</li>
     </GoodsList>

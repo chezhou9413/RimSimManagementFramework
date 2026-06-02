@@ -31,7 +31,7 @@
     -->
     <pawnKindDefs>
       <li>Villager</li>
-      <li>Villager_Child</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Villager_Child</li>
       <li>Town_Guard</li>
       <li>Town_Trader</li>
       <li>Town_Councilman</li>
