@@ -16,7 +16,7 @@
     </ThingDef>
 
     <ThingDef ParentName="ChequeBase">
-        <defName>1000Cheque</defName>
+        <defName>Sim_1000Cheque</defName>
         <label>1000银支票</label>
         <description>一张面值为1000银的支票，在普通人眼里与废纸无异，但却能在银行里兑换1000银</description>
         <graphicData>
@@ -25,7 +25,7 @@
     </ThingDef>
 
     <ThingDef ParentName="ChequeBase">
-        <defName>10000Cheque</defName>
+        <defName>Sim_10000Cheque</defName>
         <label>10000银支票</label>
         <description>一张面值为10000银的支票，在普通人眼里与废纸无异，但却能在银行里兑换10000银</description>
         <graphicData>
@@ -34,7 +34,7 @@
     </ThingDef>
 
     <ThingDef ParentName="ChequeBase">
-        <defName>100000Cheque</defName>
+        <defName>Sim_100000Cheque</defName>
         <label>100000银支票</label>
         <description>一张面值为100000银的支票，在普通人眼里与废纸无异，但却能在银行里兑换100000银</description>
         <graphicData>
@@ -43,7 +43,7 @@
     </ThingDef>
 
     <ThingDef ParentName="ChequeBase">
-        <defName>1000000Cheque</defName>
+        <defName>Sim_1000000Cheque</defName>
         <label>1000000银支票</label>
         <description>一张面值为1000000银的支票，据说在整个边缘世界，也仅有2张流通</description>
         <graphicData>
