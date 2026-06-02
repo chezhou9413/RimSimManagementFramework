@@ -1,8 +1,10 @@
 using SimManagementLib.Pojo;
 using SimManagementLib.SimAI;
+using SimManagementLib.SimAI.CustomerVisit;
 using SimManagementLib.SimDef;
 using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -16,10 +18,17 @@ namespace SimManagementLib.Api
     /// </summary>
     public static class SimShopCustomerApi
     {
+        private static readonly List<CustomerVisitExtension> VisitExtensions = new List<CustomerVisitExtension>();
+
         /// <summary>
         /// 返回当前运行时顾客类型目录。
         /// </summary>
         public static IReadOnlyCollection<RuntimeCustomerKind> CustomerKinds => CustomerCatalog.Kinds ?? new List<RuntimeCustomerKind>();
+
+        /// <summary>
+        /// 判断当前是否存在顾客访问扩展，负责让 Session 热路径跳过无意义的上下文构造。
+        /// </summary>
+        public static bool HasCustomerVisitExtensions => VisitExtensions.Count > 0;
 
         /// <summary>
         /// 按 ID 查找运行时顾客类型。
@@ -27,6 +36,159 @@ namespace SimManagementLib.Api
         public static RuntimeCustomerKind GetCustomerKind(string kindId)
         {
             return CustomerCatalog.GetKind(kindId);
+        }
+
+        /// <summary>
+        /// 查询顾客当前所属访问，负责让外部长期会话通过 Pawn 找回顾客状态。
+        /// </summary>
+        public static LordJob_CustomerVisit GetCustomerVisit(Pawn customer)
+        {
+            return customer?.Map?.lordManager?.LordOf(customer)?.LordJob as LordJob_CustomerVisit;
+        }
+
+        /// <summary>
+        /// 查询顾客当前 Session，负责让外部扩展读取统一顾客阶段。
+        /// </summary>
+        public static CustomerVisitSession GetCustomerSession(Pawn customer)
+        {
+            LordJob_CustomerVisit visit = GetCustomerVisit(customer);
+            return visit?.GetOrCreateSession(customer);
+        }
+
+        /// <summary>
+        /// 注册顾客访问扩展，负责让外部玩法接入明确的 Session 阶段节点。
+        /// </summary>
+        public static bool RegisterCustomerVisitExtension(CustomerVisitExtension extension)
+        {
+            if (extension == null || VisitExtensions.Contains(extension)) return false;
+            VisitExtensions.Add(extension);
+            return true;
+        }
+
+        /// <summary>
+        /// 取消注册顾客访问扩展。
+        /// </summary>
+        public static bool UnregisterCustomerVisitExtension(CustomerVisitExtension extension)
+        {
+            return extension != null && VisitExtensions.Remove(extension);
+        }
+
+        /// <summary>
+        /// 查询顾客当前商店，负责让外部长期会话不直接读取 LordJob 内部字段。
+        /// </summary>
+        public static Zone_Shop GetCurrentShop(Pawn customer)
+        {
+            LordJob_CustomerVisit visit = GetCustomerVisit(customer);
+            return visit?.GetCurrentShop(customer);
+        }
+
+        /// <summary>
+        /// 查询顾客在当前商店的剩余预算，负责让外部扩展不直接读取访问对象。
+        /// </summary>
+        public static float GetRemainingBudget(Pawn customer, Zone_Shop shop)
+        {
+            if (customer == null || shop == null) return 0f;
+            LordJob_CustomerVisit visit = GetCustomerVisit(customer);
+            return visit?.GetRemainingTripBudget(customer, shop) ?? 0f;
+        }
+
+        /// <summary>
+        /// 查询顾客当前待付款总额，负责让外部扩展不直接读取账单字典。
+        /// </summary>
+        public static float GetAmountOwed(Pawn customer)
+        {
+            if (customer == null) return 0f;
+            LordJob_CustomerVisit visit = GetCustomerVisit(customer);
+            return visit?.GetAmountOwedForCheckout(customer.thingIDNumber) ?? 0f;
+        }
+
+        /// <summary>
+        /// 向顾客当前待结账金额追加费用，负责让外部长期会话接入现有收银流程。
+        /// </summary>
+        public static SimApiResult AddCustomerBill(Pawn customer, float amount)
+        {
+            if (customer == null) return SimApiResult.Fail("顾客无效");
+            if (amount <= 0f) return SimApiResult.Fail("账单金额无效");
+            LordJob_CustomerVisit visit = GetCustomerVisit(customer);
+            if (visit == null) return SimApiResult.Fail("顾客访问状态不存在");
+            return visit.AddCustomerBill(customer.thingIDNumber, amount)
+                ? SimApiResult.Success()
+                : SimApiResult.Fail("账单追加失败");
+        }
+
+        /// <summary>
+        /// 确保顾客待付款金额至少达到指定值，负责让外部服务在多次收尾时避免重复追加账单。
+        /// </summary>
+        public static SimApiResult EnsureCustomerBillAtLeast(Pawn customer, float amount)
+        {
+            if (customer == null) return SimApiResult.Fail("顾客无效");
+            if (amount <= 0f) return SimApiResult.Fail("账单金额无效");
+            LordJob_CustomerVisit visit = GetCustomerVisit(customer);
+            if (visit == null) return SimApiResult.Fail("顾客访问状态不存在");
+            float current = visit.GetCartValue(customer.thingIDNumber);
+            if (current >= amount) return SimApiResult.Success();
+            return visit.AddCustomerBill(customer.thingIDNumber, amount - current)
+                ? SimApiResult.Success()
+                : SimApiResult.Fail("账单同步失败");
+        }
+
+        /// <summary>
+        /// 追加顾客服务订单，负责让外部服务型玩法同步服务票据和收银账单。
+        /// </summary>
+        public static SimApiResult AddCustomerServiceOrder(Pawn customer, CustomerServiceOrder order)
+        {
+            if (customer == null) return SimApiResult.Fail("顾客无效");
+            if (order == null) return SimApiResult.Fail("服务订单无效");
+            LordJob_CustomerVisit visit = GetCustomerVisit(customer);
+            if (visit == null) return SimApiResult.Fail("顾客访问状态不存在");
+            visit.AddServiceOrder(customer.thingIDNumber, order);
+            return SimApiResult.Success();
+        }
+
+        /// <summary>
+        /// 标记顾客准备进入结账阶段，负责让外部长期会话在到期时交还给默认收银流程。
+        /// </summary>
+        public static SimApiResult MarkCustomerReadyForCheckout(Pawn customer)
+        {
+            if (customer == null) return SimApiResult.Fail("顾客无效");
+            LordJob_CustomerVisit visit = GetCustomerVisit(customer);
+            if (visit == null) return SimApiResult.Fail("顾客访问状态不存在");
+            visit.MarkPawnReadyForCheckout(customer.thingIDNumber);
+            return SimApiResult.Success();
+        }
+
+        /// <summary>
+        /// 通知顾客 Session 阶段变化。
+        /// </summary>
+        public static void NotifyCustomerVisitStageChanged(CustomerVisitExtensionContext context)
+        {
+            InvokeVisitExtensions("阶段变化", extension => extension.OnStageChanged(context));
+        }
+
+        /// <summary>
+        /// 通知顾客 Session 周期 Tick。
+        /// </summary>
+        public static void NotifyCustomerVisitExtensionTick(CustomerVisitExtensionContext context)
+        {
+            InvokeVisitExtensions("周期 Tick", extension => extension.TickLongStay(context));
+        }
+
+        /// <summary>
+        /// 判断扩展是否延迟普通结账。
+        /// </summary>
+        public static bool ShouldDelayCustomerVisitCheckout(CustomerVisitExtensionContext context)
+        {
+            if (context == null) return false;
+            return AnyVisitExtension("延迟普通结账", extension => extension.ShouldDelayCheckout(context));
+        }
+
+        /// <summary>
+        /// 判断扩展是否延迟普通离店。
+        /// </summary>
+        public static bool ShouldDelayCustomerVisitLeave(CustomerVisitExtensionContext context)
+        {
+            if (context == null) return false;
+            return AnyVisitExtension("延迟普通离店", extension => extension.ShouldDelayLeave(context));
         }
 
         /// <summary>
@@ -39,7 +201,7 @@ namespace SimManagementLib.Api
             return new CustomerActionContext
             {
                 customer = customer,
-                visit = visit,
+                internalVisit = visit,
                 shop = shop,
                 pawnId = pawnId,
                 customerKind = visit.RuntimeCustomerKind,
@@ -259,7 +421,7 @@ namespace SimManagementLib.Api
             {
                 customer = source.customer,
                 shop = source.shop,
-                visit = source.visit,
+                internalVisit = source.internalVisit,
                 actionDef = actionDef,
                 customerKind = source.customerKind,
                 pawnId = source.pawnId,
@@ -339,6 +501,50 @@ namespace SimManagementLib.Api
                 order.staffThingIds = new List<int>();
             if (!order.staffThingIds.Contains(staff.thingIDNumber))
                 order.staffThingIds.Add(staff.thingIDNumber);
+        }
+
+        /// <summary>
+        /// 依次通知顾客访问扩展，负责隔离外部扩展异常。
+        /// </summary>
+        private static void InvokeVisitExtensions(string stage, Action<CustomerVisitExtension> action)
+        {
+            if (action == null || VisitExtensions.Count == 0) return;
+            for (int i = 0; i < VisitExtensions.Count; i++)
+            {
+                CustomerVisitExtension extension = VisitExtensions[i];
+                if (extension == null) continue;
+                try
+                {
+                    action(extension);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"[SimShop.CustomerApi] 顾客访问扩展在 {stage} 阶段执行失败: {ex}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 依次询问顾客访问扩展布尔决策，负责采用任一扩展同意即生效的规则。
+        /// </summary>
+        private static bool AnyVisitExtension(string stage, Func<CustomerVisitExtension, bool> predicate)
+        {
+            if (predicate == null || VisitExtensions.Count == 0) return false;
+            for (int i = 0; i < VisitExtensions.Count; i++)
+            {
+                CustomerVisitExtension extension = VisitExtensions[i];
+                if (extension == null) continue;
+                try
+                {
+                    if (predicate(extension))
+                        return true;
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"[SimShop.CustomerApi] 顾客访问扩展在 {stage} 阶段执行失败: {ex}");
+                }
+            }
+            return false;
         }
 
         /// <summary>

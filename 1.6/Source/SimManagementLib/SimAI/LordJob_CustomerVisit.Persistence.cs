@@ -4,11 +4,11 @@ namespace SimManagementLib.SimAI
 {
     public partial class LordJob_CustomerVisit
     {
-        private System.Collections.Generic.List<int> tmpVisitStateKeys;
-        private System.Collections.Generic.List<CustomerVisitState> tmpVisitStateValues;
+        private System.Collections.Generic.List<int> tmpVisitSessionKeys;
+        private System.Collections.Generic.List<CustomerVisit.CustomerVisitSession> tmpVisitSessionValues;
 
         /// <summary>
-        /// 读写顾客访问的群体状态和拆分后的运行状态，负责保持旧存档字段名兼容。
+        /// 读写顾客访问的群体状态和 Session 运行状态。
         /// </summary>
         public override void ExposeData()
         {
@@ -25,7 +25,7 @@ namespace SimManagementLib.SimAI
             serviceOrderState.ExposeData();
             pawnSettingsState.ExposeData();
             checkoutState.ExposeData();
-            Scribe_Collections.Look(ref visitStates, "visitStates", LookMode.Value, LookMode.Deep, ref tmpVisitStateKeys, ref tmpVisitStateValues);
+            Scribe_Collections.Look(ref visitSessions, "visitSessions", LookMode.Value, LookMode.Deep, ref tmpVisitSessionKeys, ref tmpVisitSessionValues);
             EnsureStateObjects();
         }
     }

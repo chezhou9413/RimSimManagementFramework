@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-  <RSMF.CustomerInspect.Header>=== 顾客面板 ===</RSMF.CustomerInspect.Header>
-  <RSMF.CustomerInspect.ProfilePrefix>档案: </RSMF.CustomerInspect.ProfilePrefix>
-  <RSMF.CustomerInspect.StatePrefix>状态: </RSMF.CustomerInspect.StatePrefix>
-  <RSMF.CustomerInspect.CurrentJobPrefix> / 当前行为: </RSMF.CustomerInspect.CurrentJobPrefix>
-  <RSMF.CustomerInspect.BudgetLine>预算: {budget} | 已花: {spent} | 剩余: {remaining} | 使用率: {spentPct}%</RSMF.CustomerInspect.BudgetLine>
-  <RSMF.CustomerInspect.QueuePatience>结账耐心: {ticks} ticks</RSMF.CustomerInspect.QueuePatience>
-  <RSMF.CustomerInspect.PreferredThingsPrefix>偏好物品: </RSMF.CustomerInspect.PreferredThingsPrefix>
-  <RSMF.CustomerInspect.PreferredCategoriesPrefix>偏好品类: </RSMF.CustomerInspect.PreferredCategoriesPrefix>
-  <RSMF.CustomerInspect.AllowedWeathersPrefix>出没天气: </RSMF.CustomerInspect.AllowedWeathersPrefix>
-  <RSMF.CustomerInspect.ActiveHoursPrefix>出没时间: </RSMF.CustomerInspect.ActiveHoursPrefix>
+  <RSMF.CustomerInspect.Header>顾客</RSMF.CustomerInspect.Header>
+  <RSMF.CustomerInspect.ProfileLine>类型：{profile}</RSMF.CustomerInspect.ProfileLine>
+  <RSMF.CustomerInspect.StateLine>意图：{state}（{shop}）</RSMF.CustomerInspect.StateLine>
+  <RSMF.CustomerInspect.SpendLine>消费：预算 {budget}，可用 {remaining}</RSMF.CustomerInspect.SpendLine>
+  <RSMF.CustomerInspect.SpendLineWithOwed>消费：待付 {owed}，可用 {remaining}</RSMF.CustomerInspect.SpendLineWithOwed>
+  <RSMF.CustomerInspect.PreferenceLine>想买：{preferences}</RSMF.CustomerInspect.PreferenceLine>
+  <RSMF.CustomerInspect.PreferenceNone>随便看看</RSMF.CustomerInspect.PreferenceNone>
+  <RSMF.CustomerInspect.DebugLine>调试：{stage} / {job} / 浏览 {browse}/{browseLimit} / 停留 {time}</RSMF.CustomerInspect.DebugLine>
+  <RSMF.CustomerInspect.DebugReasonLine>调试原因：{reason}</RSMF.CustomerInspect.DebugReasonLine>
+  <RSMF.CustomerInspect.DurationJustArrived>刚到</RSMF.CustomerInspect.DurationJustArrived>
+  <RSMF.CustomerInspect.DurationLessThanHour>不到 1 小时</RSMF.CustomerInspect.DurationLessThanHour>
+  <RSMF.CustomerInspect.Arriving>到店中</RSMF.CustomerInspect.Arriving>
+  <RSMF.CustomerInspect.SelectingService>选择服务</RSMF.CustomerInspect.SelectingService>
+  <RSMF.CustomerInspect.RunningExternalAction>体验服务</RSMF.CustomerInspect.RunningExternalAction>
+  <RSMF.CustomerInspect.Checkout>正在结账</RSMF.CustomerInspect.Checkout>
+  <RSMF.CustomerInspect.PostCheckout>领取或使用已购内容</RSMF.CustomerInspect.PostCheckout>
   <RSMF.CustomerInspect.ReadyForCheckout>已准备结账</RSMF.CustomerInspect.ReadyForCheckout>
   <RSMF.CustomerInspect.ReadyToLeave>准备离店</RSMF.CustomerInspect.ReadyToLeave>
   <RSMF.CustomerInspect.Browsing>浏览中</RSMF.CustomerInspect.Browsing>

@@ -3,6 +3,7 @@ using SimManagementLib.Api;
 using SimManagementLib.GameComp;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimDef;
+using SimManagementLib.SimAI.CustomerVisit;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
@@ -164,6 +165,7 @@ namespace SimManagementLib.SimAI
                     SimShopCheckoutApi.NotifyCheckoutFailed(timeoutContext);
                     CustomerReviewSnapshotBuilder.TryEnqueueReview(pawn, lordJob, shopZone, timeoutContext.billLines, 0, timeoutContext.failReason);
                     HandleCheckoutTimeout(lordJob, finance, pawnId, shopZone);
+                    lordJob.GetOrCreateSession(pawn)?.NotifyCheckoutFailed(lordJob, pawn, timeoutContext.failReason);
                     analytics?.RecordCheckoutResult(shopZone, totalWaitTicks, maxQueueWaitTicks, 0, budget, success: false, timeout: true);
                     lordJob.CheckAllCheckoutsDone();
                     return;
@@ -192,6 +194,7 @@ namespace SimManagementLib.SimAI
                     CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.CheckoutPaid);
                     ShopBubbleUtility.ShowSilverPayment(pawn, silverAmount);
                     lordJob.ClearCustomerCart(pawnId);
+                    lordJob.GetOrCreateSession(pawn)?.NotifyCheckoutPaid(lordJob, pawn, "付款完成");
                     analytics?.RecordCheckoutResult(shopZone, totalWaitTicks, maxQueueWaitTicks, silverAmount, budget, success: true, timeout: false);
                 }
                 else
@@ -209,6 +212,7 @@ namespace SimManagementLib.SimAI
                     SimShopCheckoutApi.NotifyCheckoutPaid(checkoutContext);
                     CustomerReviewSnapshotBuilder.TryEnqueueReview(pawn, lordJob, shopZone, checkoutContext.billLines, 0, "未消费离店");
                     lordJob.ClearCustomerCart(pawnId);
+                    lordJob.GetOrCreateSession(pawn)?.NotifyCheckoutPaid(lordJob, pawn, "未消费离店");
                     analytics?.RecordCheckoutResult(shopZone, totalWaitTicks, maxQueueWaitTicks, 0, budget, success: true, timeout: false);
                 }
 
@@ -355,7 +359,7 @@ namespace SimManagementLib.SimAI
                 customer = pawn,
                 shop = shopZone,
                 register = Register,
-                visit = lordJob,
+                internalVisit = lordJob,
                 billLines = billLines ?? new List<FinanceLineItem>(),
                 amountOwed = amountOwed,
                 paidSilver = paidSilver,

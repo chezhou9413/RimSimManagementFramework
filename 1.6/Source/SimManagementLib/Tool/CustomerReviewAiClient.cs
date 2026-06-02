@@ -49,7 +49,7 @@ namespace SimManagementLib.Tool
             }
             catch (Exception ex)
             {
-                CustomerReviewAiDebugLog.MarkFailed(debugId, SimTranslation.T("RSMF.CustomerReview.AiError.RequestException", ex.Message.Named("message")));
+                CustomerReviewAiDebugLog.MarkFailed(debugId, SimTranslation.T("RSMF.CustomerReview.AiError.RequestException", StringEncodingUtility.SanitizeUtf16(ex.Message).Named("message")));
                 if (ex is OperationCanceledException)
                     return null;
                 return null;
@@ -126,18 +126,18 @@ namespace SimManagementLib.Tool
         {
             using (HttpClient client = CreateClient(settings))
             {
-                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", settings.openAiApiKey);
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", StringEncodingUtility.SanitizeUtf16(settings.openAiApiKey));
                 string endpoint = NormalizeOpenAiUrl(settings.openAiBaseUrl);
                 string body = BuildOpenAiBody(settings, request, true);
                 HttpResponseMessage response = await client.PostAsync(endpoint, new StringContent(body, Encoding.UTF8, "application/json"), token);
-                string responseText = await response.Content.ReadAsStringAsync();
+                string responseText = StringEncodingUtility.SanitizeUtf16(await response.Content.ReadAsStringAsync());
                 string extracted = CustomerReviewJsonUtility.ExtractOpenAiMessageContent(responseText);
                 CustomerReviewAiDebugLog.UpdateHttpAttempt(debugId, SimTranslation.T("RSMF.CustomerReview.HttpAttempt.OpenAiJsonObject"), endpoint, body, (int)response.StatusCode, response.IsSuccessStatusCode, responseText, extracted);
                 if (!response.IsSuccessStatusCode && ShouldRetryWithoutResponseFormat(responseText))
                 {
                     body = BuildOpenAiBody(settings, request, false);
                     response = await client.PostAsync(endpoint, new StringContent(body, Encoding.UTF8, "application/json"), token);
-                    responseText = await response.Content.ReadAsStringAsync();
+                    responseText = StringEncodingUtility.SanitizeUtf16(await response.Content.ReadAsStringAsync());
                     extracted = CustomerReviewJsonUtility.ExtractOpenAiMessageContent(responseText);
                     CustomerReviewAiDebugLog.UpdateHttpAttempt(debugId, SimTranslation.T("RSMF.CustomerReview.HttpAttempt.OpenAiNoResponseFormat"), endpoint, body, (int)response.StatusCode, response.IsSuccessStatusCode, responseText, extracted);
                 }
@@ -153,7 +153,7 @@ namespace SimManagementLib.Tool
         {
             using (HttpClient client = CreateClient(settings))
             {
-                client.DefaultRequestHeaders.Add("x-api-key", settings.anthropicApiKey);
+                client.DefaultRequestHeaders.Add("x-api-key", StringEncodingUtility.SanitizeUtf16(settings.anthropicApiKey));
                 client.DefaultRequestHeaders.Add("anthropic-version", "2023-06-01");
                 string body =
                     "{" +
@@ -165,7 +165,7 @@ namespace SimManagementLib.Tool
                     "}";
 
                 HttpResponseMessage response = await client.PostAsync("https://api.anthropic.com/v1/messages", new StringContent(body, Encoding.UTF8, "application/json"), token);
-                string responseText = await response.Content.ReadAsStringAsync();
+                string responseText = StringEncodingUtility.SanitizeUtf16(await response.Content.ReadAsStringAsync());
                 string extracted = CustomerReviewJsonUtility.ExtractAnthropicMessageContent(responseText);
                 CustomerReviewAiDebugLog.UpdateHttpAttempt(debugId, SimTranslation.T("RSMF.CustomerReview.HttpAttempt.AnthropicMessages"), "https://api.anthropic.com/v1/messages", body, (int)response.StatusCode, response.IsSuccessStatusCode, responseText, extracted);
                 if (!response.IsSuccessStatusCode)
@@ -205,7 +205,7 @@ namespace SimManagementLib.Tool
             catch (HttpRequestException ex)
             {
                 result.baseUrlReachable = false;
-                result.message = SimTranslation.T("RSMF.CustomerReview.Connection.BaseUrlFailed", ex.Message.Named("message"));
+                result.message = SimTranslation.T("RSMF.CustomerReview.Connection.BaseUrlFailed", StringEncodingUtility.SanitizeUtf16(ex.Message).Named("message"));
             }
             catch (TaskCanceledException)
             {
@@ -215,7 +215,7 @@ namespace SimManagementLib.Tool
             catch (Exception ex)
             {
                 result.baseUrlReachable = false;
-                result.message = SimTranslation.T("RSMF.CustomerReview.Connection.BaseUrlException", ex.Message.Named("message"));
+                result.message = SimTranslation.T("RSMF.CustomerReview.Connection.BaseUrlException", StringEncodingUtility.SanitizeUtf16(ex.Message).Named("message"));
             }
 
             return result;
@@ -304,7 +304,7 @@ namespace SimManagementLib.Tool
         /// </summary>
         public static string NormalizeOpenAiUrl(string baseUrl)
         {
-            string url = string.IsNullOrWhiteSpace(baseUrl) ? "https://api.openai.com/v1" : baseUrl.Trim();
+            string url = string.IsNullOrWhiteSpace(baseUrl) ? "https://api.openai.com/v1" : StringEncodingUtility.SanitizeUtf16(baseUrl).Trim();
             url = url.TrimEnd('/');
             if (url.EndsWith("/chat/completions", StringComparison.OrdinalIgnoreCase))
                 return url;

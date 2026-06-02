@@ -24,9 +24,30 @@ namespace SimManagementLib.SimAI
         private bool reservationReleased;
         private bool depositSucceeded;
 
+        /// <summary>
+        /// 预约供货物品和货柜缺口，负责只在任务真正开始时占用“途中补货”数量。
+        /// </summary>
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
-            return pawn.Reserve(ToHaul, job, 1, ReservedCount, null, errorOnFailed);
+            Building_SimContainer storage = Storage;
+            Thing toHaul = ToHaul;
+            ThingDef thingDef = ReservedDef ?? toHaul?.def;
+            if (storage == null || storage.Destroyed || thingDef == null || toHaul == null)
+                return false;
+
+            storage.ReconcilePendingReservations();
+            int wanted = job.count > 0 ? job.count : toHaul.stackCount;
+            int reserved = storage.ReservePending(thingDef, wanted);
+            if (reserved <= 0)
+                return false;
+
+            job.count = reserved;
+            if (pawn.Reserve(toHaul, job, 1, ReservedCount, null, errorOnFailed))
+                return true;
+
+            storage.CancelPending(thingDef, reserved);
+            reservationReleased = true;
+            return false;
         }
 
         /// <summary>

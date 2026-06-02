@@ -15,6 +15,8 @@ namespace SimManagementLib.SimWorkGiver
     /// </summary>
     public class WorkGiver_RestockMegaStorage : WorkGiver_Scanner
     {
+        private const int CandidateCacheTicks = 53;
+        private static readonly Dictionary<int, RestockCandidateCache> candidateCaches = new Dictionary<int, RestockCandidateCache>();
         private int cachedSupplyTick = -1;
         private int cachedSupplyPawnId = -1;
         private int cachedSupplyStorageId = -1;
@@ -39,15 +41,9 @@ namespace SimManagementLib.SimWorkGiver
         /// </summary>
         public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn)
         {
-            if (pawn?.Map?.listerBuildings == null) yield break;
-
-            List<Building> buildings = pawn.Map.listerBuildings.allBuildingsColonist;
-            for (int i = 0; i < buildings.Count; i++)
-            {
-                Building_SimContainer storage = buildings[i] as Building_SimContainer;
-                if (storage != null && IsAllowedByBusinessState(storage))
-                    yield return storage;
-            }
+            List<Thing> candidates = GetCandidateStorages(pawn);
+            for (int i = 0; i < candidates.Count; i++)
+                yield return candidates[i];
         }
 
         /// <summary>
@@ -81,14 +77,11 @@ namespace SimManagementLib.SimWorkGiver
             int amount = System.Math.Min(needed, System.Math.Min(carryMax, supply.stackCount));
             if (amount <= 0) return null;
 
-            int reserved = storage.ReservePending(td, amount);
-            if (reserved <= 0) return null;
-
             Job job = JobMaker.MakeJob(
                 DefDatabase<JobDef>.GetNamed("DepositToMegaStorage"),
                 supply,
                 storage);
-            job.count = reserved;
+            job.count = amount;
             job.haulMode = HaulMode.ToCellStorage;
             job.plantDefToSow = td;
             return job;
@@ -121,6 +114,57 @@ namespace SimManagementLib.SimWorkGiver
             if (VendingMachineUtility.IsVendingMachine(storage))
                 return true;
             return ShopStaffUtility.IsShopOpenForWork(ShopStaffUtility.FindShopFor(storage));
+        }
+
+        /// <summary>
+        /// 返回短时间缓存的补货货柜候选，负责避免每个找工作的员工都重复全图扫描建筑。
+        /// </summary>
+        private static List<Thing> GetCandidateStorages(Pawn pawn)
+        {
+            if (pawn?.Map?.listerBuildings == null) return EmptyThingList;
+
+            int mapId = pawn.Map.uniqueID;
+            int now = Find.TickManager?.TicksGame ?? 0;
+            if (!candidateCaches.TryGetValue(mapId, out RestockCandidateCache cache) || cache == null)
+            {
+                cache = new RestockCandidateCache();
+                candidateCaches[mapId] = cache;
+            }
+
+            if (now < cache.nextRefreshTick)
+                return cache.candidates;
+
+            RefreshCandidateStorages(pawn.Map, cache, now);
+            return cache.candidates;
+        }
+
+        /// <summary>
+        /// 刷新当前地图的补货货柜候选，负责只保留营业状态允许扫描的货柜。
+        /// </summary>
+        private static void RefreshCandidateStorages(Map map, RestockCandidateCache cache, int now)
+        {
+            cache.candidates.Clear();
+            cache.nextRefreshTick = now + CandidateCacheTicks;
+
+            List<Building> buildings = map.listerBuildings.allBuildingsColonist;
+            for (int i = 0; i < buildings.Count; i++)
+            {
+                Building_SimContainer storage = buildings[i] as Building_SimContainer;
+                if (storage == null || storage.Destroyed || !storage.Spawned) continue;
+                if (!IsAllowedByBusinessState(storage)) continue;
+                cache.candidates.Add(storage);
+            }
+        }
+
+        private static readonly List<Thing> EmptyThingList = new List<Thing>(0);
+
+        /// <summary>
+        /// 保存单张地图的补货货柜候选缓存，负责降低 WorkGiver 高频扫描成本。
+        /// </summary>
+        private class RestockCandidateCache
+        {
+            public int nextRefreshTick = -1;
+            public readonly List<Thing> candidates = new List<Thing>();
         }
 
         /// <summary>

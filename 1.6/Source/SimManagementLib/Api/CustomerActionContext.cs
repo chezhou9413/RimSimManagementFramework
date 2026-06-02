@@ -1,5 +1,6 @@
 using SimManagementLib.Pojo;
 using SimManagementLib.SimAI;
+using SimManagementLib.SimAI.CustomerVisit;
 using SimManagementLib.SimDef;
 using SimManagementLib.SimZone;
 using Verse;
@@ -13,7 +14,7 @@ namespace SimManagementLib.Api
     {
         public Pawn customer;
         public Zone_Shop shop;
-        public LordJob_CustomerVisit visit;
+        internal LordJob_CustomerVisit internalVisit;
         public CustomerActionDef actionDef;
         public RuntimeCustomerKind customerKind;
         public CustomerActionOrder order;
@@ -23,11 +24,26 @@ namespace SimManagementLib.Api
         public int currentTick;
 
         /// <summary>
+        /// 返回顾客类型编号，负责让动作扩展不直接读取访问状态。
+        /// </summary>
+        public string customerKindId => customerKind?.kindId ?? internalVisit?.customerKindId ?? "";
+
+        /// <summary>
+        /// 返回顾客当前访问阶段，负责让动作扩展按 Session 状态做只读判断。
+        /// </summary>
+        public CustomerVisitStage stage => internalVisit?.GetOrCreateSession(customer)?.Stage ?? CustomerVisitStage.Ended;
+
+        /// <summary>
+        /// 判断上下文是否仍连接到有效访问，负责替代旧版公开访问对象判空。
+        /// </summary>
+        public bool HasValidVisit => internalVisit != null;
+
+        /// <summary>
         /// 标记顾客准备结账，负责让外部动作结束顾客浏览阶段。
         /// </summary>
         public void MarkReadyForCheckout()
         {
-            visit?.MarkPawnReadyForCheckout(pawnId);
+            internalVisit?.MarkPawnReadyForCheckout(pawnId);
         }
 
         /// <summary>
@@ -35,7 +51,7 @@ namespace SimManagementLib.Api
         /// </summary>
         public bool RegisterConsumptionActionAndShouldCheckout()
         {
-            return visit?.RegisterConsumptionActionAndShouldCheckout(pawnId) == true;
+            return internalVisit?.RegisterConsumptionActionAndShouldCheckout(pawnId) == true;
         }
 
         /// <summary>
@@ -43,7 +59,7 @@ namespace SimManagementLib.Api
         /// </summary>
         public bool ShouldCheckoutAfterAction(string reason)
         {
-            return visit?.ShouldCheckoutFromCurrentShop(customer, shop, reason) == true;
+            return internalVisit?.ShouldCheckoutFromCurrentShop(customer, shop, reason) == true;
         }
 
         /// <summary>
@@ -51,10 +67,8 @@ namespace SimManagementLib.Api
         /// </summary>
         public void AddBill(float amount)
         {
-            if (visit == null || amount <= 0f) return;
-            if (!visit.cartValues.ContainsKey(pawnId))
-                visit.cartValues[pawnId] = 0f;
-            visit.cartValues[pawnId] += amount;
+            if (internalVisit == null || amount <= 0f) return;
+            internalVisit.AddCustomerBill(pawnId, amount);
         }
 
         /// <summary>

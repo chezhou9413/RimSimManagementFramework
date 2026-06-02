@@ -1,6 +1,7 @@
 using SimManagementLib.GameComp;
 using SimManagementLib.Api;
 using SimManagementLib.Pojo;
+using SimManagementLib.SimAI.CustomerVisit;
 using SimManagementLib.SimService;
 using SimManagementLib.SimThingComp;
 using SimManagementLib.SimZone;
@@ -69,7 +70,7 @@ namespace SimManagementLib.SimAI
                     EndJobWith(JobCondition.Incompletable);
                     return;
                 }
-                lordJob.RegisterCurrentShopBrowseAttempt(pawn);
+                lordJob.GetOrCreateSession(pawn)?.NotifyBrowseStarted(lordJob, pawn);
                 SimDebugLogger.Journey("RSMF.SelectService", $"选择服务成功 service={selectedService.defName} price={selectedPrice} provider={Provider?.thingIDNumber ?? -1}", pawn, shopZone, activeOrder.orderId);
             };
             yield return init;
@@ -127,8 +128,7 @@ namespace SimManagementLib.SimAI
                 GameComponent_ShopFinanceManager finance = Current.Game?.GetComponent<GameComponent_ShopFinanceManager>();
                 int pawnId = pawn.thingIDNumber;
 
-                if (!lordJob.cartValues.ContainsKey(pawnId))
-                    lordJob.cartValues[pawnId] = 0f;
+                lordJob.EnsureCustomerBill(pawnId);
 
                 if (selectedService.billingMode == ServiceBillingMode.UseBeforePay)
                 {
@@ -146,12 +146,14 @@ namespace SimManagementLib.SimAI
                 lordJob.AddServiceOrder(pawnId, activeOrder);
                 lordJob.ClearCurrentShopNoProgressBrowse(pawn);
                 SimShopEvents.NotifyServiceOrderCreated(pawn, activeOrder, shopZone);
-                lordJob.cartValues[pawnId] += activeOrder.totalPrice;
+                lordJob.AddCustomerBill(pawnId, activeOrder.totalPrice);
                 finance?.QueueServiceSale(pawn, shopZone, activeOrder.serviceDefName, selectedService.DisplayLabel, activeOrder.count, activeOrder.totalPrice);
                 ShopBubbleUtility.ShowTextBubble(pawn, SimTranslation.T("RSMF.Bubble.SelectService", selectedService.DisplayLabel.Named("service")), new Color(0.55f, 0.85f, 1f));
 
-                if (lordJob.RegisterConsumptionActionAndShouldCheckout(pawnId) || lordJob.ShouldCheckoutFromCurrentShop(pawn, shopZone, "服务选择完成"))
-                    lordJob.MarkPawnReadyForCheckout(pawnId);
+                CustomerVisitSession session = lordJob.GetOrCreateSession(pawn);
+                session?.NotifyConsumptionCompleted(lordJob, pawn, "服务选择完成");
+                if (selectedService.checkoutAfterSelection)
+                    session?.MarkReadyForCheckout(lordJob, pawn, "服务要求选择后结账");
             };
             yield return finalize;
         }
@@ -192,8 +194,7 @@ namespace SimManagementLib.SimAI
             if (!lordJob.HasReachedCurrentShopBrowseLimit(pawn) && !lordJob.HasReachedCurrentShopNoProgressLimit(pawn)) return;
 
             int pawnId = pawn.thingIDNumber;
-            if (!lordJob.cartValues.ContainsKey(pawnId))
-                lordJob.cartValues[pawnId] = 0f;
+            lordJob.EnsureCustomerBill(pawnId);
             lordJob.MarkPawnReadyForCheckout(pawnId);
         }
     }

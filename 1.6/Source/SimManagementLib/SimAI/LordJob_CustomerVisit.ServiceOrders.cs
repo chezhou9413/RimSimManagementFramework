@@ -65,7 +65,8 @@ namespace SimManagementLib.SimAI
         public float GetAmountOwedForCheckout(int pawnId)
         {
             float total = 0f;
-            if (cartValues != null && cartValues.TryGetValue(pawnId, out float cartValue) && cartValue > 0f)
+            float cartValue = GetCartValue(pawnId);
+            if (cartValue > 0f)
                 total += cartValue;
             float cartFallback = GetCartItemsEstimatedValue(pawnId);
             if (cartFallback > total)

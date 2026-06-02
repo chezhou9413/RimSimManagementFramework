@@ -1,6 +1,7 @@
 using RimWorld;
 using SimManagementLib.GameComp;
 using SimManagementLib.Pojo;
+using SimManagementLib.SimAI.CustomerVisit;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimThingComp;
 using SimManagementLib.SimZone;
@@ -19,15 +20,14 @@ namespace SimManagementLib.SimAI
     /// </summary>
     public class JobDriver_BrowseAndPick : JobDriver
     {
-        private const int MaxShelfReservations = 24;
         private Building_SimContainer TargetShelf => (Building_SimContainer)job.GetTarget(TargetIndex.A).Thing;
 
         /// <summary>
-        /// 预约目标货柜，负责允许多名顾客同时浏览同一货柜但仍通过原版预约系统控制上限。
+        /// 跳过目标货柜预约，负责允许任意数量顾客同时浏览同一货柜。
         /// </summary>
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
-            return pawn.Reserve(TargetShelf, job, MaxShelfReservations, 0, null, errorOnFailed);
+            return true;
         }
 
         /// <summary>
@@ -42,8 +42,10 @@ namespace SimManagementLib.SimAI
             browse.initAction = () =>
             {
                 LordJob_CustomerVisit lordJob = pawn.Map?.lordManager?.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
+                CustomerVisitSession session = lordJob?.GetOrCreateSession(pawn);
+                session?.NotifyBrowseStarted(lordJob, pawn);
                 lordJob?.MarkCurrentShopBrowsed(pawn);
-                lordJob?.RegisterCurrentShopBrowseAttempt(pawn);
+                lordJob?.RecordCurrentShopStorageVisit(pawn, TargetShelf);
                 CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.BrowseStart);
             };
             browse.tickAction = () =>
@@ -62,8 +64,7 @@ namespace SimManagementLib.SimAI
                 GameComponent_ShopFinanceManager finance = Current.Game?.GetComponent<GameComponent_ShopFinanceManager>();
 
                 int pId = pawn.thingIDNumber;
-                if (!lordJob.cartValues.ContainsKey(pId))
-                    lordJob.cartValues[pId] = 0f;
+                lordJob.EnsureCustomerBill(pId);
 
                 Zone_Shop shopZone = lordJob.GetCurrentShop(pawn);
                 float remainingBudget = lordJob.GetRemainingTripBudget(pawn, shopZone);
@@ -72,7 +73,7 @@ namespace SimManagementLib.SimAI
                 if (remainingBudget <= 0f)
                 {
                     RegisterNoProgressAndCheckoutIfNeeded(lordJob, ref noProgressRecorded);
-                    lordJob.MarkPawnReadyForCheckout(pId);
+                    FinishWithoutBillOrCheckout(lordJob, pId, "顾客剩余预算不足，离店");
                     return;
                 }
 
@@ -96,11 +97,11 @@ namespace SimManagementLib.SimAI
                                 comboCost += Mathf.Max(0f, ci.def.BaseMarketValue * ci.count);
                             }
 
-                            lordJob.cartValues[pId] += comboPrice;
+                            lordJob.AddCustomerBill(pId, comboPrice);
                             lordJob.AddCartItemsFromCombo(pId, targetCombo.items);
                             lordJob.ClearCurrentShopNoProgressBrowse(pawn);
                             string comboName = string.IsNullOrEmpty(targetCombo.comboName) ? SimTranslation.T("RSMF.Common.UnnamedCombo") : targetCombo.comboName;
-                            finance?.QueueComboSale(pawn, shopZone, comboName, comboPrice, comboCost);
+                    finance?.QueueComboSale(pawn, shopZone, comboName, comboPrice, comboCost);
                             CustomerExpressionUtility.TryShowExpression(
                                 pawn,
                                 CustomerExpressionEvents.PurchaseCombo,
@@ -111,8 +112,7 @@ namespace SimManagementLib.SimAI
                                 SimTranslation.T("RSMF.Bubble.PickCombo", comboName.Named("comboName")),
                                 new Color(0.95f, 0.8f, 0.35f),
                                 Color.white);
-                            if (lordJob.RegisterConsumptionActionAndShouldCheckout(pId) || lordJob.ShouldCheckoutFromCurrentShop(pawn, shopZone, "套餐购买完成"))
-                                lordJob.MarkPawnReadyForCheckout(pId);
+                            lordJob.GetOrCreateSession(pawn)?.NotifyConsumptionCompleted(lordJob, pawn, "套餐购买完成");
                             return;
                         }
 
@@ -136,6 +136,13 @@ namespace SimManagementLib.SimAI
 
                 if (candidates.NullOrEmpty())
                 {
+                    if (ShouldLeaveBecauseShopHasNoMatch(lordJob, shopZone, remainingBudget))
+                    {
+                        RegisterNoProgressAndCheckoutIfNeeded(lordJob, ref noProgressRecorded);
+                        FinishWithoutBillOrCheckout(lordJob, pId, "货柜没有顾客想要的商品，离店");
+                        return;
+                    }
+
                     bool shouldCheckout = RegisterNoProgressAndCheckoutIfNeeded(lordJob, ref noProgressRecorded);
                     CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.BrowseNoMatch);
                     ShopBubbleUtility.ShowTextBubble(pawn, SimTranslation.T("RSMF.Bubble.NoSuitableGoods"), new Color(0.88f, 0.88f, 0.88f));
@@ -153,7 +160,7 @@ namespace SimManagementLib.SimAI
                 if (maxCount <= 0)
                 {
                     if (RegisterNoProgressAndCheckoutIfNeeded(lordJob, ref noProgressRecorded))
-                        lordJob.MarkPawnReadyForCheckout(pId);
+                        FinishWithoutBillOrCheckout(lordJob, pId, "顾客无法购买目标商品，离店");
                     return;
                 }
                 int buyCount = PickPurchaseCount(maxCount);
@@ -164,7 +171,7 @@ namespace SimManagementLib.SimAI
                     int actualCount = Mathf.Max(1, taken.stackCount);
                     float totalPrice = itemPrice * actualCount;
                     float totalCost = Mathf.Max(0f, itemToBuy.BaseMarketValue * actualCount);
-                    lordJob.cartValues[pId] += totalPrice;
+                    lordJob.AddCustomerBill(pId, totalPrice);
                     lordJob.AddCartItem(pId, itemToBuy, actualCount);
                     lordJob.ClearCurrentShopNoProgressBrowse(pawn);
                     finance?.QueueProductSale(pawn, shopZone, itemToBuy, actualCount, totalPrice, totalCost);
@@ -188,12 +195,11 @@ namespace SimManagementLib.SimAI
                 else
                 {
                     if (RegisterNoProgressAndCheckoutIfNeeded(lordJob, ref noProgressRecorded))
-                        lordJob.MarkPawnReadyForCheckout(pId);
+                        FinishWithoutBillOrCheckout(lordJob, pId, "顾客拿取商品失败，离店");
                     return;
                 }
 
-                if (lordJob.RegisterConsumptionActionAndShouldCheckout(pId) || lordJob.ShouldCheckoutFromCurrentShop(pawn, shopZone, "商品购买完成"))
-                    lordJob.MarkPawnReadyForCheckout(pId);
+                lordJob.GetOrCreateSession(pawn)?.NotifyConsumptionCompleted(lordJob, pawn, "商品购买完成");
             };
 
             yield return pickItem;
@@ -224,8 +230,30 @@ namespace SimManagementLib.SimAI
         {
             if (maxCount <= 1) return 1;
 
-            int softMax = Mathf.Min(maxCount, 4);
-            return Rand.RangeInclusive(1, softMax);
+            return Rand.Value < 0.7f ? 1 : Mathf.Min(2, maxCount);
+        }
+
+        /// <summary>
+        /// 判断当前商店是否已经没有顾客可购买的目标内容，负责让单人顾客快速结束无效浏览。
+        /// </summary>
+        private bool ShouldLeaveBecauseShopHasNoMatch(LordJob_CustomerVisit lordJob, Zone_Shop shopZone, float remainingBudget)
+        {
+            return lordJob != null
+                && pawn != null
+                && !CustomerShoppingMatchUtility.ShopHasMatchingAffordableGoodsOrServices(pawn, shopZone, lordJob, remainingBudget);
+        }
+
+        /// <summary>
+        /// 根据账单状态结束顾客流程，负责让零账单顾客离店、有账单顾客进入结账。
+        /// </summary>
+        private void FinishWithoutBillOrCheckout(LordJob_CustomerVisit lordJob, int pawnId, string reason)
+        {
+            if (lordJob == null || pawn == null) return;
+            lordJob.EnsureCustomerBill(pawnId);
+            if (!lordJob.HasAnyBill(pawnId))
+                lordJob.FinishZeroBillCustomerAndLeave(pawn, reason);
+            else
+                lordJob.MarkPawnReadyForCheckout(pawnId);
         }
 
         /// <summary>
@@ -243,9 +271,8 @@ namespace SimManagementLib.SimAI
             if (!lordJob.HasReachedCurrentShopBrowseLimit(pawn) && !lordJob.HasReachedCurrentShopNoProgressLimit(pawn)) return false;
 
             int pawnId = pawn.thingIDNumber;
-            if (!lordJob.cartValues.ContainsKey(pawnId))
-                lordJob.cartValues[pawnId] = 0f;
-            lordJob.MarkPawnReadyForCheckout(pawnId);
+            lordJob.EnsureCustomerBill(pawnId);
+            FinishWithoutBillOrCheckout(lordJob, pawnId, "顾客连续浏览无进展，离店");
             return true;
         }
     }

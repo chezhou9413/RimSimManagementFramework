@@ -1,9 +1,9 @@
 using RimWorld;
 using SimManagementLib.Api;
+using SimManagementLib.GameComp;
 using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
 using System.Collections.Generic;
-using System.Linq;
 using Verse;
 using Verse.AI;
 
@@ -14,6 +14,8 @@ namespace SimManagementLib.SimWorkGiver
     /// </summary>
     public class WorkGiver_PrepareShopOrder : WorkGiver_Scanner
     {
+        private const int CandidateCacheTicks = 37;
+        private static readonly Dictionary<int, PrepareOrderCandidateCache> candidateCaches = new Dictionary<int, PrepareOrderCandidateCache>();
         private static WorkGiverDef cachedWorkGiverDef;
 
         public override ThingRequest PotentialWorkThingRequest => ThingRequest.ForGroup(ThingRequestGroup.BuildingArtificial);
@@ -37,17 +39,9 @@ namespace SimManagementLib.SimWorkGiver
         /// </summary>
         public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn)
         {
-            if (pawn?.Map == null) return Enumerable.Empty<Thing>();
-            PreparedShopOrderQuery query = new PreparedShopOrderQuery
-            {
-                states = new List<PreparedShopOrderState> { PreparedShopOrderState.PaidWaitingPreparation },
-                includeTerminalOrders = false
-            };
-
-            return SimShopOrderApi.QueryOrders(query)
-                .Select(order => SimShopOrderApi.FindOrderProvider(pawn.Map, order))
-                .Where(thing => thing != null && !thing.Destroyed)
-                .Distinct();
+            List<Thing> candidates = GetCandidateProviders(pawn);
+            for (int i = 0; i < candidates.Count; i++)
+                yield return candidates[i];
         }
 
         /// <summary>
@@ -90,26 +84,135 @@ namespace SimManagementLib.SimWorkGiver
             if (CurrentWorkGiverDef != null && !ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, CurrentWorkGiverDef))
                 return null;
 
-            PreparedShopOrderQuery query = new PreparedShopOrderQuery
-            {
-                states = new List<PreparedShopOrderState> { PreparedShopOrderState.PaidWaitingPreparation },
-                includeTerminalOrders = false
-            };
+            GameComponent_PreparedShopOrderManager manager = SimShopApi.OrderManager;
+            IReadOnlyList<PreparedShopOrder> orders = manager?.Orders;
+            if (orders == null || orders.Count <= 0) return null;
 
-            List<PreparedShopOrder> orders = SimShopOrderApi.QueryOrders(query)
-                .Where(order => order.providerThingId == provider.thingIDNumber)
-                .OrderBy(order => order.paidTick > 0 ? order.paidTick : order.createdTick)
-                .ToList();
-
+            PreparedShopOrder selected = null;
+            int selectedSortTick = int.MaxValue;
             for (int i = 0; i < orders.Count; i++)
             {
                 PreparedShopOrder order = orders[i];
+                if (!IsWaitingPreparationOrderForProvider(order, provider.thingIDNumber)) continue;
                 PreparedShopOrderWorker worker = SimShopOrderApi.GetPreparedOrderWorker(order.serviceDefName);
-                if (worker != null && worker.CanStaffWork(pawn, order, out _) && pawn.CanReserve(provider, 1, -1, null, false))
-                    return order;
+                if (worker == null || !worker.CanStaffWork(pawn, order, out _)) continue;
+
+                int sortTick = GetOrderSortTick(order);
+                if (selected == null || sortTick < selectedSortTick)
+                {
+                    selected = order;
+                    selectedSortTick = sortTick;
+                }
             }
 
-            return null;
+            if (selected == null) return null;
+            return pawn.CanReserve(provider, 1, -1, null, false) ? selected : null;
+        }
+
+        /// <summary>
+        /// 返回短时间缓存的现做订单服务建筑候选，负责减少 WorkGiver 高频查询订单和反查建筑。
+        /// </summary>
+        private static List<Thing> GetCandidateProviders(Pawn pawn)
+        {
+            if (pawn?.Map == null) return EmptyThingList;
+
+            int mapId = pawn.Map.uniqueID;
+            int now = Find.TickManager?.TicksGame ?? 0;
+            if (!candidateCaches.TryGetValue(mapId, out PrepareOrderCandidateCache cache) || cache == null)
+            {
+                cache = new PrepareOrderCandidateCache();
+                candidateCaches[mapId] = cache;
+            }
+
+            if (now < cache.nextRefreshTick)
+                return cache.candidates;
+
+            RefreshCandidateProviders(pawn.Map, cache, now);
+            return cache.candidates;
+        }
+
+        /// <summary>
+        /// 刷新现做订单服务建筑候选，负责把待制作订单按提供者建筑去重。
+        /// </summary>
+        private static void RefreshCandidateProviders(Map map, PrepareOrderCandidateCache cache, int now)
+        {
+            cache.candidates.Clear();
+            cache.providerIds.Clear();
+            cache.nextRefreshTick = now + CandidateCacheTicks;
+
+            GameComponent_PreparedShopOrderManager manager = SimShopApi.OrderManager;
+            IReadOnlyList<PreparedShopOrder> orders = manager?.Orders;
+            if (orders == null || orders.Count <= 0) return;
+
+            Dictionary<int, Thing> thingById = BuildThingIdLookup(map);
+            for (int i = 0; i < orders.Count; i++)
+            {
+                PreparedShopOrder order = orders[i];
+                if (!IsWaitingPreparationOrder(order)) continue;
+                int providerId = order.providerThingId;
+                if (providerId < 0 || cache.providerIds.Contains(providerId)) continue;
+                if (!thingById.TryGetValue(providerId, out Thing provider)) continue;
+                if (provider == null || provider.Destroyed || !provider.Spawned) continue;
+
+                cache.providerIds.Add(providerId);
+                cache.candidates.Add(provider);
+            }
+        }
+
+        /// <summary>
+        /// 构建当前地图 Thing 编号索引，负责让候选刷新时避免每个订单都全图反查一次建筑。
+        /// </summary>
+        private static Dictionary<int, Thing> BuildThingIdLookup(Map map)
+        {
+            Dictionary<int, Thing> result = new Dictionary<int, Thing>();
+            IReadOnlyList<Thing> things = map?.listerThings?.AllThings;
+            if (things == null) return result;
+
+            for (int i = 0; i < things.Count; i++)
+            {
+                Thing thing = things[i];
+                if (thing == null) continue;
+                result[thing.thingIDNumber] = thing;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 判断订单是否正在等待员工制作。
+        /// </summary>
+        private static bool IsWaitingPreparationOrder(PreparedShopOrder order)
+        {
+            return order != null && order.state == PreparedShopOrderState.PaidWaitingPreparation;
+        }
+
+        /// <summary>
+        /// 判断订单是否属于指定服务建筑且正在等待员工制作。
+        /// </summary>
+        private static bool IsWaitingPreparationOrderForProvider(PreparedShopOrder order, int providerThingId)
+        {
+            return IsWaitingPreparationOrder(order) && order.providerThingId == providerThingId;
+        }
+
+        /// <summary>
+        /// 返回订单排序 Tick，负责让较早付款或创建的订单优先被员工处理。
+        /// </summary>
+        private static int GetOrderSortTick(PreparedShopOrder order)
+        {
+            if (order == null) return int.MaxValue;
+            if (order.paidTick > 0) return order.paidTick;
+            return order.createdTick > 0 ? order.createdTick : int.MaxValue;
+        }
+
+        private static readonly List<Thing> EmptyThingList = new List<Thing>(0);
+
+        /// <summary>
+        /// 保存单张地图的现做订单服务建筑候选缓存，负责降低高频工作扫描成本。
+        /// </summary>
+        private class PrepareOrderCandidateCache
+        {
+            public int nextRefreshTick = -1;
+            public readonly List<Thing> candidates = new List<Thing>();
+            public readonly HashSet<int> providerIds = new HashSet<int>();
         }
     }
 }

@@ -1,4 +1,6 @@
 using SimManagementLib.SimDef;
+using SimManagementLib.SimAI.CustomerVisit;
+using SimManagementLib.SimThingClass;
 using SimManagementLib.Tool;
 using System.Collections.Generic;
 using UnityEngine;
@@ -23,7 +25,7 @@ namespace SimManagementLib.SimAI
             LocalTargetInfo target = job.GetTarget(TargetIndex.A);
             if (!target.IsValid) return true;
             if (target.HasThing)
-                return pawn.Reserve(target.Thing, job, 24, 0, null, errorOnFailed);
+                return true;
             return pawn.Reserve(target.Cell, job, 1, -1, null, errorOnFailed);
         }
 
@@ -43,6 +45,9 @@ namespace SimManagementLib.SimAI
             Toil browse = Toils_General.Wait(browseTicks);
             browse.initAction = () =>
             {
+                LordJob_CustomerVisit lordJob = pawn.Map?.lordManager?.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
+                lordJob?.GetOrCreateSession(pawn)?.NotifyBrowseStarted(lordJob, pawn);
+                lordJob?.RecordCurrentShopStorageVisit(pawn, job.GetTarget(TargetIndex.A).Thing as Building_SimContainer);
                 CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.BrowseStart);
             };
             browse.tickAction = () =>
@@ -58,16 +63,17 @@ namespace SimManagementLib.SimAI
                 LordJob_CustomerVisit lordJob = pawn.Map?.lordManager?.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
                 int pawnId = pawn.thingIDNumber;
                 lordJob?.MarkCurrentShopBrowsed(pawn);
-                lordJob?.RegisterCurrentShopBrowseAttempt(pawn);
-                lordJob?.RegisterCurrentShopNoProgressBrowse(pawn);
+                lordJob?.GetOrCreateSession(pawn)?.NotifyNoProgressBrowse(lordJob, pawn, "橱窗浏览没有合适商品");
                 CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.BrowseNoMatch);
                 ShopBubbleUtility.ShowTextBubble(pawn, SimTranslation.T("RSMF.Bubble.NoSuitableGoods"), new Color(0.88f, 0.88f, 0.88f));
 
                 if (lordJob != null)
                 {
-                    if (!lordJob.cartValues.ContainsKey(pawnId))
-                        lordJob.cartValues[pawnId] = 0f;
-                    lordJob.MarkPawnReadyForCheckout(pawnId);
+                    lordJob.EnsureCustomerBill(pawnId);
+                    if (!lordJob.HasAnyBill(pawnId))
+                        lordJob.FinishZeroBillCustomerAndLeave(pawn, "橱窗浏览后没有合适商品，顾客离店");
+                    else
+                        lordJob.MarkPawnReadyForCheckout(pawnId);
                 }
             };
             yield return finish;
@@ -78,6 +84,9 @@ namespace SimManagementLib.SimAI
         /// </summary>
         private int GetBrowseTicks()
         {
+            if (job != null && job.count > 0)
+                return Mathf.Clamp(job.count, 60, 2500);
+
             LordJob_CustomerVisit lordJob = pawn.Map?.lordManager?.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
             ShoppingBehaviorProps behavior = lordJob?.GetShoppingBehavior();
             if (behavior == null) return DefaultBrowseTicks;

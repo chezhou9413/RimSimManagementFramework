@@ -1,6 +1,7 @@
 using SimManagementLib.Api;
 using SimManagementLib.GameComp;
 using SimManagementLib.Pojo;
+using SimManagementLib.SimAI.CustomerVisit;
 using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Linq;
 using UnityEngine;
 using Verse;
 using Verse.AI;
+using Verse.AI.Group;
 
 namespace SimManagementLib.SimAI
 {
@@ -18,12 +20,13 @@ namespace SimManagementLib.SimAI
         /// </summary>
         public void MarkPawnReadyForCheckout(int pawnId)
         {
-            Pawn pawn = lord?.ownedPawns?.FirstOrDefault(item => item != null && item.thingIDNumber == pawnId);
+            Pawn pawn = FindOwnedPawnById(pawnId);
+            CustomerVisitSession session = pawn != null ? GetOrCreateSession(pawn) : null;
             ShopCheckoutReadinessContext context = new ShopCheckoutReadinessContext
             {
                 customer = pawn,
                 shop = pawn != null ? GetCurrentShop(pawn) : null,
-                visit = this,
+                internalVisit = this,
                 pawnId = pawnId
             };
             if (!SimShopCheckoutApi.CanPawnEnterCheckout(context))
@@ -33,7 +36,8 @@ namespace SimManagementLib.SimAI
                 return;
             }
 
-            checkoutState.MarkPawnReadyForCheckout(pawnId);
+            session?.MarkReadyForCheckout(this, pawn, "顾客准备结账");
+            MarkPawnReadyForCheckoutFromSession(pawnId);
             Tool.SimDebugLogger.Journey("RSMF.Checkout", "顾客已标记准备结账", pawn, context.shop, -1);
 
             if (ShouldEnterCheckoutPhase())
@@ -41,6 +45,14 @@ namespace SimManagementLib.SimAI
                 Tool.SimDebugLogger.Journey("RSMF.Checkout", "顾客结账条件满足，发送 Customer_ReadyToCheckout", pawn, context.shop, -1);
                 lord?.ReceiveMemo("Customer_ReadyToCheckout");
             }
+        }
+
+        /// <summary>
+        /// 从 Session 同步准备结账标记，负责避免 MarkPawnReadyForCheckout 与 Session 互相递归。
+        /// </summary>
+        internal void MarkPawnReadyForCheckoutFromSession(int pawnId)
+        {
+            checkoutState.MarkPawnReadyForCheckout(pawnId);
         }
 
         /// <summary>
@@ -126,8 +138,7 @@ namespace SimManagementLib.SimAI
                 return false;
 
             int pawnId = pawn.thingIDNumber;
-            if (!cartValues.ContainsKey(pawnId))
-                cartValues[pawnId] = 0f;
+            EnsureCustomerBill(pawnId);
             MarkPawnReadyForCheckout(pawnId);
             return true;
         }
@@ -156,7 +167,7 @@ namespace SimManagementLib.SimAI
                 customer = pawn,
                 shop = shopZone,
                 register = null,
-                visit = this,
+                internalVisit = this,
                 billLines = billLines,
                 amountOwed = amountOwed,
                 paidSilver = 0,
@@ -175,6 +186,39 @@ namespace SimManagementLib.SimAI
             ShopBubbleUtility.ShowTextBubble(pawn, context.failReason, new Color(1f, 0.72f, 0.4f));
             analytics?.RecordCheckoutResult(shopZone, 0, GetQueuePatienceForPawn(pawnId), 0, budget, success: false, timeout: true);
             CheckAllCheckoutsDone();
+        }
+
+        /// <summary>
+        /// 让零账单顾客单独结束本次访问并离图，负责避免无匹配商品顾客等待整个顾客团导致长期停留。
+        /// </summary>
+        public void FinishZeroBillCustomerAndLeave(Pawn pawn, string reason)
+        {
+            if (pawn == null || lord == null) return;
+
+            int pawnId = pawn.thingIDNumber;
+            if (GetAmountOwedForCheckout(pawnId) > 0f)
+            {
+                MarkPawnReadyForCheckout(pawnId);
+                return;
+            }
+
+            Zone_Shop shopZone = GetCurrentShop(pawn);
+            CustomerVisitSession session = GetOrCreateSession(pawn);
+            session?.NotifyCheckoutFailed(this, pawn, reason ?? "顾客没有待付款，结束访问");
+            ClearCustomerCart(pawnId);
+            ClearCustomerServiceOrders(pawnId);
+            checkoutState.MarkPostCheckoutCompleted(pawnId);
+            checkoutState.ClearPawnReadyForCheckout(pawnId);
+            checkoutState.ClearCheckoutOrder(pawnId);
+            Tool.SimDebugLogger.Journey("RSMF.Checkout", reason ?? "零账单顾客离店", pawn, shopZone, -1);
+
+            Lord oldLord = lord;
+            oldLord.Notify_PawnLost(pawn, PawnLostCondition.LeftVoluntarily);
+            if (pawn.Spawned && !pawn.Dead && !pawn.Destroyed && pawn.Map != null)
+                LordMaker.MakeNewLord(pawn.Faction, new LordJob_ExitMapBest(LocomotionUrgency.Walk, canDig: false, canDefendSelf: false), pawn.Map, new[] { pawn });
+
+            if (!oldLord.ownedPawns.NullOrEmpty())
+                CheckAllCheckoutsDone();
         }
 
         /// <summary>
@@ -198,7 +242,7 @@ namespace SimManagementLib.SimAI
         /// <summary>
         /// 判断是否应进入结账阶段，负责让已有未付账单的顾客优先结账而不是继续浏览。
         /// </summary>
-        private bool ShouldEnterCheckoutPhase()
+        internal bool ShouldEnterCheckoutPhaseForSession()
         {
             if (AreAllActivePawnsReadyForCheckout())
                 return true;
@@ -214,6 +258,14 @@ namespace SimManagementLib.SimAI
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// 判断是否应进入结账阶段，负责让已有未付账单的顾客优先结账而不是继续浏览。
+        /// </summary>
+        private bool ShouldEnterCheckoutPhase()
+        {
+            return ShouldEnterCheckoutPhaseForSession();
         }
 
         /// <summary>
@@ -245,7 +297,7 @@ namespace SimManagementLib.SimAI
 
             if (allDone)
             {
-                Pawn pawn = lord.ownedPawns.FirstOrDefault(p => p != null && !p.Destroyed && !p.Dead && p.Spawned);
+                Pawn pawn = FirstActivePawn();
                 if (pawn != null && !ShouldForceLeaveGroupAfterCheckout() && TryMovePawnToNextShop(pawn))
                 {
                     Tool.SimDebugLogger.Journey("RSMF.Checkout", "结账完成，顾客前往下一家店", pawn, GetCurrentShop(pawn), -1);

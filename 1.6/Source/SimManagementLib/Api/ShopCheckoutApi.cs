@@ -1,5 +1,6 @@
 using SimManagementLib.Pojo;
 using SimManagementLib.SimAI;
+using SimManagementLib.SimAI.CustomerVisit;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimZone;
 using System;
@@ -17,7 +18,7 @@ namespace SimManagementLib.Api
         public Pawn customer;
         public Zone_Shop shop;
         public Building_CashRegister register;
-        public LordJob_CustomerVisit visit;
+        internal LordJob_CustomerVisit internalVisit;
         public List<FinanceLineItem> billLines = new List<FinanceLineItem>();
         public List<Job> postCheckoutJobs = new List<Job>();
         public float amountOwed;
@@ -25,6 +26,21 @@ namespace SimManagementLib.Api
         public bool timedOut;
         public bool success;
         public string failReason = "";
+
+        /// <summary>
+        /// 返回顾客类型编号，负责让结账扩展不直接读取访问状态。
+        /// </summary>
+        public string customerKindId => internalVisit?.customerKindId ?? "";
+
+        /// <summary>
+        /// 返回顾客当前访问阶段，负责给结账扩展提供只读 Session 信息。
+        /// </summary>
+        public CustomerVisitStage stage => internalVisit?.GetOrCreateSession(customer)?.Stage ?? CustomerVisitStage.Ended;
+
+        /// <summary>
+        /// 判断结账上下文是否仍连接到有效访问。
+        /// </summary>
+        public bool HasValidVisit => internalVisit != null;
 
         /// <summary>
         /// 追加付款后执行的 Job，负责让外部玩法接入结账后的顾客动作。
@@ -42,10 +58,25 @@ namespace SimManagementLib.Api
     {
         public Pawn customer;
         public Zone_Shop shop;
-        public LordJob_CustomerVisit visit;
+        internal LordJob_CustomerVisit internalVisit;
         public int pawnId;
         public bool allowed = true;
         public string reason = "";
+
+        /// <summary>
+        /// 返回顾客类型编号，负责让结账准备扩展不直接读取访问状态。
+        /// </summary>
+        public string customerKindId => internalVisit?.customerKindId ?? "";
+
+        /// <summary>
+        /// 返回顾客当前访问阶段，负责让准备结账扩展按只读阶段判断。
+        /// </summary>
+        public CustomerVisitStage stage => internalVisit?.GetOrCreateSession(customer)?.Stage ?? CustomerVisitStage.Ended;
+
+        /// <summary>
+        /// 判断准备结账上下文是否仍连接到有效访问。
+        /// </summary>
+        public bool HasValidVisit => internalVisit != null;
 
         /// <summary>
         /// 暂缓顾客进入结账阶段。

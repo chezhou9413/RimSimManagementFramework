@@ -1,5 +1,6 @@
 using SimManagementLib.Api;
 using SimManagementLib.Pojo;
+using SimManagementLib.SimAI.CustomerVisit;
 using SimManagementLib.SimService;
 using SimManagementLib.Tool;
 using SimManagementLib.SimZone;
@@ -86,6 +87,7 @@ namespace SimManagementLib.SimAI
                 SimShopEvents.NotifyServiceOrderCompleted(pawn, order, shopZone);
                 ShopBubbleUtility.ShowTextBubble(pawn, SimTranslation.T("RSMF.Bubble.ServiceCompleted", serviceDef.DisplayLabel.Named("service")), new Color(0.55f, 0.85f, 1f));
 
+                lordJob?.GetOrCreateSession(pawn)?.NotifyCheckoutPaid(lordJob, pawn, "购后服务完成");
                 lordJob?.CheckAllCheckoutsDone();
             };
             yield return finalize;

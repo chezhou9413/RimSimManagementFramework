@@ -60,8 +60,7 @@ namespace SimManagementLib.SimAI
             {
                 Pawn pawn = lord.ownedPawns[i];
                 if (pawn == null || pawn.Destroyed || pawn.Dead || !pawn.Spawned) continue;
-                IntVec3 dest = ResolveTravelTargetCell(pawn, visit);
-                if (!dest.IsValid || pawn.Position != dest)
+                if (!HasArrivedAtCurrentShop(pawn, visit))
                 {
                     allArrived = false;
                     break;
@@ -69,7 +68,15 @@ namespace SimManagementLib.SimAI
             }
 
             if (allArrived)
+            {
+                for (int i = 0; i < lord.ownedPawns.Count; i++)
+                {
+                    Pawn pawn = lord.ownedPawns[i];
+                    if (pawn == null || pawn.Destroyed || pawn.Dead || !pawn.Spawned) continue;
+                    visit.GetOrCreateSession(pawn)?.NotifyArrived(visit, pawn);
+                }
                 lord.ReceiveMemo("TravelArrived");
+            }
         }
 
         /// <summary>
@@ -95,6 +102,33 @@ namespace SimManagementLib.SimAI
             if (TryFindReachableShopCell(pawn, shop, out IntVec3 shopCell))
                 return shopCell;
             return visit.GetCurrentShopCell(pawn);
+        }
+
+        /// <summary>
+        /// 判断顾客是否已经到达当前商店，负责避免动态目标格或货柜交互格导致顾客长期卡在旅行阶段。
+        /// </summary>
+        private static bool HasArrivedAtCurrentShop(Pawn pawn, LordJob_CustomerVisit visit)
+        {
+            if (pawn?.Map == null || visit == null) return false;
+            Zone_Shop shop = visit.GetCurrentShop(pawn);
+            if (shop == null) return false;
+
+            if (shop.Cells.Contains(pawn.Position))
+                return true;
+
+            List<Building_SimContainer> storages = ShopDataUtility.GetStoragesInZone(shop)
+                .Where(item => item != null && !item.Destroyed && item.Spawned)
+                .Where(item => pawn.CanReach(item, PathEndMode.Touch, Danger.Deadly))
+                .ToList();
+            for (int i = 0; i < storages.Count; i++)
+            {
+                Building_SimContainer storage = storages[i];
+                if (storage.OccupiedRect().ExpandedBy(1).Contains(pawn.Position))
+                    return true;
+            }
+
+            IntVec3 dest = ResolveTravelTargetCell(pawn, visit);
+            return dest.IsValid && pawn.Position == dest;
         }
 
         /// <summary>

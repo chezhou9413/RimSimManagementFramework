@@ -18,6 +18,7 @@ namespace SimManagementLib.Tool
         public static string Quote(string value)
         {
             if (value == null) return "\"\"";
+            value = StringEncodingUtility.SanitizeUtf16(value);
             StringBuilder sb = new StringBuilder(value.Length + 8);
             sb.Append('"');
             for (int i = 0; i < value.Length; i++)

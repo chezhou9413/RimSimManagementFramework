@@ -19,6 +19,7 @@ namespace SimManagementLib.SimService
         public Type workerClass = typeof(ShopServiceWorker);
         public JobDef useJobDef;
         public string labelOverride = "";
+        public bool checkoutAfterSelection;
 
         [Unsaved] private ShopServiceWorker workerInt;
 

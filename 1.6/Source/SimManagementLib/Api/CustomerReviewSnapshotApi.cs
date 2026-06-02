@@ -1,5 +1,6 @@
 using SimManagementLib.Pojo;
 using SimManagementLib.SimAI;
+using SimManagementLib.SimAI.CustomerVisit;
 using SimManagementLib.SimZone;
 using System;
 using System.Collections.Generic;
@@ -13,12 +14,27 @@ namespace SimManagementLib.Api
     public class CustomerReviewSnapshotContext
     {
         public Pawn customer;
-        public LordJob_CustomerVisit visit;
+        internal LordJob_CustomerVisit internalVisit;
         public Zone_Shop shop;
         public List<FinanceLineItem> billLines;
         public int paidSilver;
         public string checkoutResult = "";
         public CustomerReviewSnapshot snapshot;
+
+        /// <summary>
+        /// 返回顾客类型编号，负责让评价扩展不直接读取访问状态。
+        /// </summary>
+        public string customerKindId => internalVisit?.customerKindId ?? "";
+
+        /// <summary>
+        /// 返回顾客当前访问阶段，负责让评价扩展按只读状态补充快照。
+        /// </summary>
+        public CustomerVisitStage stage => internalVisit?.GetOrCreateSession(customer)?.Stage ?? CustomerVisitStage.Ended;
+
+        /// <summary>
+        /// 判断评价快照是否仍连接到有效访问。
+        /// </summary>
+        public bool HasValidVisit => internalVisit != null;
     }
 
     /// <summary>

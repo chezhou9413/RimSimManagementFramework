@@ -1462,6 +1462,7 @@ namespace SimManagementLib.SimDialog
         /// </summary>
         private async Task<byte[]> DownloadRemotePreviewAsync(string previewUrl)
         {
+            previewUrl = StringEncodingUtility.SanitizeUtf16(previewUrl);
             using (HttpClient client = new HttpClient())
             {
                 client.Timeout = TimeSpan.FromSeconds(10);

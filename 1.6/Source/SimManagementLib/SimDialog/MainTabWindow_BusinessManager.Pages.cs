@@ -291,7 +291,7 @@ namespace SimManagementLib.SimDialog
             {
                 CustomerViewData c = customers[i];
                 int pawnId = c.Pawn.thingIDNumber;
-                float spent = c.Visit.cartValues.TryGetValue(pawnId, out float val) ? val : 0f;
+                float spent = c.Visit.GetCartValue(pawnId);
                 float budget = Mathf.Max(1f, c.Visit.GetBudgetForPawn(pawnId));
                 avgBudgetUse += Mathf.Clamp01(spent / budget);
             }
@@ -326,7 +326,7 @@ namespace SimManagementLib.SimDialog
                 int pawnId = pawn.thingIDNumber;
                 CustomerRuntimeSettings settings = visit.GetPawnSettings(pawnId);
                 int budget = visit.GetBudgetForPawn(pawnId);
-                float spent = visit.cartValues.TryGetValue(pawnId, out float val) ? val : 0f;
+                float spent = visit.GetCartValue(pawnId);
                 float budgetUse = Mathf.Clamp01(spent / Mathf.Max(1f, budget));
                 int patience = visit.GetQueuePatienceForPawn(pawnId);
                 string shopLabel = item.ShopZone?.label ?? SimTranslation.T("RSMF.Business.Customer.ShopFallback", visit.targetShopZoneId.Named("id"));

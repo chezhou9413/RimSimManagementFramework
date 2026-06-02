@@ -1,5 +1,6 @@
 using SimManagementLib.Pojo;
 using SimManagementLib.SimDef;
+using SimManagementLib.SimAI.CustomerVisit;
 using System.Collections.Generic;
 using System.Linq;
 using Verse;
@@ -18,44 +19,52 @@ namespace SimManagementLib.SimAI
         public int targetShopZoneId = -1;
         public IntVec3 targetShopCell;
         public int totalBudget;
-        public CustomerCartState cartState = new CustomerCartState();
-        public CustomerServiceOrderState serviceOrderState = new CustomerServiceOrderState();
-        public CustomerCheckoutState checkoutState = new CustomerCheckoutState();
-        public CustomerPawnSettingsState pawnSettingsState = new CustomerPawnSettingsState();
-        public Dictionary<int, CustomerVisitState> visitStates = new Dictionary<int, CustomerVisitState>();
+        internal CustomerCartState cartState = new CustomerCartState();
+        internal CustomerServiceOrderState serviceOrderState = new CustomerServiceOrderState();
+        internal CustomerCheckoutState checkoutState = new CustomerCheckoutState();
+        internal CustomerPawnSettingsState pawnSettingsState = new CustomerPawnSettingsState();
+        internal Dictionary<int, CustomerVisitSession> visitSessions = new Dictionary<int, CustomerVisitSession>();
 
-        public Dictionary<int, float> cartValues => cartState.cartValues;
-        public Dictionary<int, float> satisfactionMap => cartState.satisfactionMap;
-        public Dictionary<int, List<CustomerCartItem>> cartItems => cartState.cartItems;
-        public Dictionary<int, List<CustomerServiceOrder>> serviceOrders => serviceOrderState.serviceOrders;
-        public Dictionary<int, int> consumptionActionCounts => cartState.consumptionActionCounts;
-        public Dictionary<int, CustomerRuntimeSettings> pawnSettings => pawnSettingsState.pawnSettings;
-        public Dictionary<int, int> effectiveBudgetCaps => cartState.effectiveBudgetCaps;
-        public Dictionary<int, int> checkoutOrder => checkoutState.checkoutOrder;
-        public Dictionary<int, CustomerVisitState> customerVisitStates => visitStates;
-        public int nextServiceOrderId
+        internal Dictionary<int, float> cartValues => cartState.cartValues;
+        internal Dictionary<int, float> satisfactionMap => cartState.satisfactionMap;
+        internal Dictionary<int, List<CustomerCartItem>> cartItems => cartState.cartItems;
+        internal Dictionary<int, List<CustomerServiceOrder>> serviceOrders => serviceOrderState.serviceOrders;
+        internal Dictionary<int, int> consumptionActionCounts => cartState.consumptionActionCounts;
+        internal Dictionary<int, CustomerRuntimeSettings> pawnSettings => pawnSettingsState.pawnSettings;
+        internal Dictionary<int, int> effectiveBudgetCaps => cartState.effectiveBudgetCaps;
+        internal Dictionary<int, int> checkoutOrder => checkoutState.checkoutOrder;
+        internal Dictionary<int, CustomerVisitSession> customerVisitSessions => visitSessions;
+        internal int nextServiceOrderId
         {
             get => serviceOrderState.nextServiceOrderId;
             set => serviceOrderState.nextServiceOrderId = value;
         }
-        public int nextCheckoutOrder
+        internal int nextCheckoutOrder
         {
             get => checkoutState.nextCheckoutOrder;
             set => checkoutState.nextCheckoutOrder = value;
         }
-        public List<int> readyForCheckout => checkoutState.readyForCheckout;
-        public Dictionary<int, int> browseWaitStartTick => cartState.browseWaitStartTick;
+        internal List<int> readyForCheckout => checkoutState.readyForCheckout;
+        internal Dictionary<int, int> browseWaitStartTick => cartState.browseWaitStartTick;
 
         /// <summary>
-        /// 确保拆分后的状态对象均存在，负责兼容旧存档和运行时反序列化后的空引用。
+        /// 确保拆分后的状态对象均存在，负责处理运行时反序列化后的空引用。
         /// </summary>
-        private void EnsureStateObjects()
+        internal void EnsureStateObjectsForServices()
         {
             if (cartState == null) cartState = new CustomerCartState();
             if (serviceOrderState == null) serviceOrderState = new CustomerServiceOrderState();
             if (checkoutState == null) checkoutState = new CustomerCheckoutState();
             if (pawnSettingsState == null) pawnSettingsState = new CustomerPawnSettingsState();
-            if (visitStates == null) visitStates = new Dictionary<int, CustomerVisitState>();
+            if (visitSessions == null) visitSessions = new Dictionary<int, CustomerVisitSession>();
+        }
+
+        /// <summary>
+        /// 确保拆分后的状态对象均存在，负责处理运行时反序列化后的空引用。
+        /// </summary>
+        private void EnsureStateObjects()
+        {
+            EnsureStateObjectsForServices();
         }
 
         public LordJob_CustomerVisit()
@@ -122,6 +131,26 @@ namespace SimManagementLib.SimAI
         {
             return lord?.ownedPawns?
                 .FirstOrDefault(pawn => pawn != null && !pawn.Destroyed && !pawn.Dead && pawn.Spawned);
+        }
+
+        /// <summary>
+        /// 获取或创建指定顾客的 Session，负责让 Lord、JobGiver、JobDriver 和 API 使用统一状态入口。
+        /// </summary>
+        public CustomerVisitSession GetOrCreateSession(Pawn pawn)
+        {
+            int pawnId = pawn?.thingIDNumber ?? -1;
+            if (pawnId <= 0) return null;
+            EnsureStateObjects();
+            if (!visitSessions.TryGetValue(pawnId, out CustomerVisitSession session) || session == null)
+            {
+                session = new CustomerVisitSession
+                {
+                    pawnId = pawnId
+                };
+                visitSessions[pawnId] = session;
+            }
+            session.Initialize(this, pawn);
+            return session;
         }
     }
 }

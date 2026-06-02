@@ -8,11 +8,11 @@ namespace SimManagementLib.SimAI
     /// <summary>
     /// 保存顾客结账队列、准备结账标记和购后 Job 队列，负责结账阶段的运行状态。
     /// </summary>
-    public class CustomerCheckoutState
+    internal class CustomerCheckoutState
     {
-        public Dictionary<int, int> checkoutOrder = new Dictionary<int, int>();
-        public int nextCheckoutOrder = 1;
-        public List<int> readyForCheckout = new List<int>();
+        internal Dictionary<int, int> checkoutOrder = new Dictionary<int, int>();
+        internal int nextCheckoutOrder = 1;
+        internal List<int> readyForCheckout = new List<int>();
 
         // 购后 Job 队列只保留在运行时，避免把依赖地图实时对象的 Job 写入存档。
         [Unsaved] private readonly Dictionary<int, List<Job>> postCheckoutJobs = new Dictionary<int, List<Job>>();

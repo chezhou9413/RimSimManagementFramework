@@ -86,6 +86,9 @@ namespace SimManagementLib.SimAI
                 if (pawn == null || pawn.Destroyed || pawn.Dead || !pawn.Spawned) continue;
                 visit.MarkPawnReadyForCheckout(pawn.thingIDNumber);
             }
+
+            lord.ReceiveMemo("Customer_ReadyToCheckout");
+            visit.CheckAllCheckoutsDone();
         }
     }
 }

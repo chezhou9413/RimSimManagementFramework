@@ -1,5 +1,6 @@
 using RimWorld;
 using SimManagementLib.SimThingClass;
+using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
 using System.Collections.Generic;
 using UnityEngine;
@@ -35,6 +36,13 @@ namespace SimManagementLib.SimAI
             Toil work = new Toil();
             work.tickAction = delegate
             {
+                Zone_Shop shop = ShopStaffUtility.FindShopFor(Register);
+                if (!ShopStaffUtility.CanCashierWorkAt(shop))
+                {
+                    EndJobWith(JobCondition.InterruptForced);
+                    return;
+                }
+
                 pawn.rotationTracker.FaceTarget(Register);
                 CashierSocialUtility.TryLearnSocial(pawn, 0.05f);
                 pawn.GainComfortFromCellIfPossible(1);

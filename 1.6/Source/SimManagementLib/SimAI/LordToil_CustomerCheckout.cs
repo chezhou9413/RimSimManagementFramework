@@ -39,14 +39,15 @@ namespace SimManagementLib.SimAI
             foreach (Pawn pawn in lord.ownedPawns)
             {
                 IntVec3 focus = lordJob?.GetCurrentShopCell(pawn) ?? shopCenter;
-                // 如果这个人没有待付金额，直接让他闲逛等队友，不用去排队。
-                if (lordJob == null || lordJob.GetAmountOwedForCheckout(pawn.thingIDNumber) <= 0f)
+                bool needsPostCheckout = lordJob != null && lordJob.NeedsPostCheckoutCompletion(pawn.thingIDNumber);
+                // 如果这个人没有待付金额且没有购后行为，直接让他闲逛等队友，不用去排队。
+                if (lordJob == null || (lordJob.GetAmountOwedForCheckout(pawn.thingIDNumber) <= 0f && !needsPostCheckout))
                 {
                     pawn.mindState.duty = new PawnDuty(DutyDefOf.WanderClose) { focus = focus };
                 }
                 else
                 {
-                    // 有账单的人，下达排队结账的指令
+                    // 有账单或购后行为的人，下达结账阶段指令，让 JobGiver 继续处理。
                     pawn.mindState.duty = new PawnDuty(DefDatabase<DutyDef>.GetNamed("Customer_Checkout")) { focus = focus };
                 }
             }

@@ -1,5 +1,6 @@
 using SimManagementLib.Api;
 using SimManagementLib.SimDef;
+using SimManagementLib.SimAI.CustomerVisit;
 using System.Collections.Generic;
 using Verse;
 using Verse.AI;
@@ -73,6 +74,8 @@ namespace SimManagementLib.SimAI
         /// </summary>
         protected virtual void OnActionCompleted()
         {
+            LordJob_CustomerVisit visit = pawn?.Map?.lordManager?.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
+            visit?.GetOrCreateSession(pawn)?.NotifyConsumptionCompleted(visit, pawn, "外部动作完成");
         }
 
         /// <summary>
@@ -80,6 +83,8 @@ namespace SimManagementLib.SimAI
         /// </summary>
         protected virtual void OnActionFailed(string reason)
         {
+            LordJob_CustomerVisit visit = pawn?.Map?.lordManager?.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
+            visit?.GetOrCreateSession(pawn)?.NotifyNoProgressBrowse(visit, pawn, reason ?? "外部动作失败");
             if (order != null)
                 SimShopCustomerApi.CancelActionOrder(order, reason, true);
         }

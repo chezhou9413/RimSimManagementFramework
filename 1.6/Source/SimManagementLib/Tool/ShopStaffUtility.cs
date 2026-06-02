@@ -85,14 +85,14 @@ namespace SimManagementLib.Tool
         /// </summary>
         private static bool HasActivePawnWithPendingBill(Lord lord, LordJob_CustomerVisit visit, Zone_Shop zone)
         {
-            if (lord?.ownedPawns == null || visit?.cartValues == null) return false;
+            if (lord?.ownedPawns == null || visit == null) return false;
 
             for (int i = 0; i < lord.ownedPawns.Count; i++)
             {
                 Pawn pawn = lord.ownedPawns[i];
                 if (pawn == null || pawn.Destroyed || pawn.Dead || !pawn.Spawned) continue;
                 if (visit.GetCurrentShop(pawn) != zone) continue;
-                if (visit.GetAmountOwedForCheckout(pawn.thingIDNumber) > 0f)
+                if (visit.HasAnyBill(pawn.thingIDNumber))
                     return true;
             }
 

@@ -1,3 +1,4 @@
+using SimManagementLib.SimAI.CustomerVisit;
 using SimManagementLib.SimService;
 using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
@@ -20,6 +21,9 @@ namespace SimManagementLib.SimAI
         {
             LordJob_CustomerVisit lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
             if (lordJob == null) return null;
+            CustomerVisitSession session = lordJob.GetOrCreateSession(pawn);
+            if (session == null || !session.AllowsJobGiver(CustomerVisitStage.Browsing))
+                return null;
 
             int pawnId = pawn.thingIDNumber;
             if (lordJob.IsPawnReadyForCheckout(pawnId))

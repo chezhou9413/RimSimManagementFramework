@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-  <RSMF.CustomerInspect.Header>=== Customer panel ===</RSMF.CustomerInspect.Header>
-  <RSMF.CustomerInspect.ProfilePrefix>Profile: </RSMF.CustomerInspect.ProfilePrefix>
-  <RSMF.CustomerInspect.StatePrefix>State: </RSMF.CustomerInspect.StatePrefix>
-  <RSMF.CustomerInspect.CurrentJobPrefix> / Current job: </RSMF.CustomerInspect.CurrentJobPrefix>
-  <RSMF.CustomerInspect.BudgetLine>Budget: {budget} | Spent: {spent} | Remaining: {remaining} | Use: {spentPct}%</RSMF.CustomerInspect.BudgetLine>
-  <RSMF.CustomerInspect.QueuePatience>Checkout patience: {ticks} ticks</RSMF.CustomerInspect.QueuePatience>
-  <RSMF.CustomerInspect.PreferredThingsPrefix>Preferred items: </RSMF.CustomerInspect.PreferredThingsPrefix>
-  <RSMF.CustomerInspect.PreferredCategoriesPrefix>Preferred categories: </RSMF.CustomerInspect.PreferredCategoriesPrefix>
-  <RSMF.CustomerInspect.AllowedWeathersPrefix>Allowed weather: </RSMF.CustomerInspect.AllowedWeathersPrefix>
-  <RSMF.CustomerInspect.ActiveHoursPrefix>Active hours: </RSMF.CustomerInspect.ActiveHoursPrefix>
+  <RSMF.CustomerInspect.Header>Customer</RSMF.CustomerInspect.Header>
+  <RSMF.CustomerInspect.ProfileLine>Type: {profile}</RSMF.CustomerInspect.ProfileLine>
+  <RSMF.CustomerInspect.StateLine>Intent: {state} ({shop})</RSMF.CustomerInspect.StateLine>
+  <RSMF.CustomerInspect.SpendLine>Spending: budget {budget}, available {remaining}</RSMF.CustomerInspect.SpendLine>
+  <RSMF.CustomerInspect.SpendLineWithOwed>Spending: owed {owed}, available {remaining}</RSMF.CustomerInspect.SpendLineWithOwed>
+  <RSMF.CustomerInspect.PreferenceLine>Looking for: {preferences}</RSMF.CustomerInspect.PreferenceLine>
+  <RSMF.CustomerInspect.PreferenceNone>just browsing</RSMF.CustomerInspect.PreferenceNone>
+  <RSMF.CustomerInspect.DebugLine>Debug: {stage} / {job} / Browse {browse}/{browseLimit} / Staying {time}</RSMF.CustomerInspect.DebugLine>
+  <RSMF.CustomerInspect.DebugReasonLine>Debug reason: {reason}</RSMF.CustomerInspect.DebugReasonLine>
+  <RSMF.CustomerInspect.DurationJustArrived>just arrived</RSMF.CustomerInspect.DurationJustArrived>
+  <RSMF.CustomerInspect.DurationLessThanHour>less than 1 hour</RSMF.CustomerInspect.DurationLessThanHour>
+  <RSMF.CustomerInspect.Arriving>Arriving</RSMF.CustomerInspect.Arriving>
+  <RSMF.CustomerInspect.SelectingService>Selecting service</RSMF.CustomerInspect.SelectingService>
+  <RSMF.CustomerInspect.RunningExternalAction>Using service</RSMF.CustomerInspect.RunningExternalAction>
+  <RSMF.CustomerInspect.Checkout>Checking out</RSMF.CustomerInspect.Checkout>
+  <RSMF.CustomerInspect.PostCheckout>Using purchased content</RSMF.CustomerInspect.PostCheckout>
   <RSMF.CustomerInspect.ReadyForCheckout>Ready for checkout</RSMF.CustomerInspect.ReadyForCheckout>
   <RSMF.CustomerInspect.ReadyToLeave>Ready to leave</RSMF.CustomerInspect.ReadyToLeave>
   <RSMF.CustomerInspect.Browsing>Browsing</RSMF.CustomerInspect.Browsing>

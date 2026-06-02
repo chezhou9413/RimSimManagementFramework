@@ -7,14 +7,14 @@ namespace SimManagementLib.SimAI
     /// <summary>
     /// 保存顾客购物车、消费次数、满意度和浏览等待计时，负责把消费阶段的状态从 LordJob 中拆出。
     /// </summary>
-    public class CustomerCartState
+    internal class CustomerCartState
     {
-        public Dictionary<int, float> cartValues = new Dictionary<int, float>();
-        public Dictionary<int, float> satisfactionMap = new Dictionary<int, float>();
-        public Dictionary<int, List<CustomerCartItem>> cartItems = new Dictionary<int, List<CustomerCartItem>>();
-        public Dictionary<int, int> consumptionActionCounts = new Dictionary<int, int>();
-        public Dictionary<int, int> effectiveBudgetCaps = new Dictionary<int, int>();
-        public Dictionary<int, int> browseWaitStartTick = new Dictionary<int, int>();
+        internal Dictionary<int, float> cartValues = new Dictionary<int, float>();
+        internal Dictionary<int, float> satisfactionMap = new Dictionary<int, float>();
+        internal Dictionary<int, List<CustomerCartItem>> cartItems = new Dictionary<int, List<CustomerCartItem>>();
+        internal Dictionary<int, int> consumptionActionCounts = new Dictionary<int, int>();
+        internal Dictionary<int, int> effectiveBudgetCaps = new Dictionary<int, int>();
+        internal Dictionary<int, int> browseWaitStartTick = new Dictionary<int, int>();
 
         private List<int> tmpCartItemKeys;
         private List<List<CustomerCartItem>> tmpCartItemValues;

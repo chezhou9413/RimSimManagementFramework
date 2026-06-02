@@ -9,10 +9,10 @@ namespace SimManagementLib.SimAI
     /// <summary>
     /// 保存顾客服务订单和订单编号，负责管理服务型消费的持久状态。
     /// </summary>
-    public class CustomerServiceOrderState
+    internal class CustomerServiceOrderState
     {
-        public Dictionary<int, List<CustomerServiceOrder>> serviceOrders = new Dictionary<int, List<CustomerServiceOrder>>();
-        public int nextServiceOrderId = 1;
+        internal Dictionary<int, List<CustomerServiceOrder>> serviceOrders = new Dictionary<int, List<CustomerServiceOrder>>();
+        internal int nextServiceOrderId = 1;
 
         private List<int> tmpServiceOrderKeys;
         private List<List<CustomerServiceOrder>> tmpServiceOrderValues;

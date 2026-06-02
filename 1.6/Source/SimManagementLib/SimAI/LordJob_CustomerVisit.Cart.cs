@@ -1,11 +1,8 @@
-using SimManagementLib.GameComp;
 using SimManagementLib.Pojo;
-using SimManagementLib.SimDef;
+using SimManagementLib.SimAI.CustomerVisit;
 using SimManagementLib.SimZone;
-using SimManagementLib.Tool;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using Verse;
 
 namespace SimManagementLib.SimAI
@@ -37,6 +34,58 @@ namespace SimManagementLib.SimAI
         }
 
         /// <summary>
+        /// 查找指定编号的活跃顾客，负责让业务代码不直接遍历 Lord 成员列表。
+        /// </summary>
+        public Pawn FindOwnedPawnById(int pawnId)
+        {
+            if (pawnId <= 0 || lord?.ownedPawns == null) return null;
+            for (int i = 0; i < lord.ownedPawns.Count; i++)
+            {
+                Pawn pawn = lord.ownedPawns[i];
+                if (pawn != null && pawn.thingIDNumber == pawnId)
+                    return pawn;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// 确保顾客账单记录存在，负责替代外部代码直接写入购物车金额字典。
+        /// </summary>
+        public void EnsureCustomerBill(int pawnId)
+        {
+            if (pawnId <= 0) return;
+            if (!cartValues.ContainsKey(pawnId))
+                cartValues[pawnId] = 0f;
+        }
+
+        /// <summary>
+        /// 返回顾客当前购物车金额，负责给调试和 UI 提供只读账单入口。
+        /// </summary>
+        public float GetCartValue(int pawnId)
+        {
+            return pawnId > 0 && cartValues.TryGetValue(pawnId, out float value) ? value : 0f;
+        }
+
+        /// <summary>
+        /// 判断顾客是否存在任何账单金额，负责统一零账单判断。
+        /// </summary>
+        public bool HasAnyBill(int pawnId)
+        {
+            return GetAmountOwedForCheckout(pawnId) > 0f;
+        }
+
+        /// <summary>
+        /// 向顾客当前账单追加金额，负责集中维护外部动作和扩展费用入口。
+        /// </summary>
+        public bool AddCustomerBill(int pawnId, float amount)
+        {
+            if (pawnId <= 0 || amount <= 0f) return false;
+            EnsureCustomerBill(pawnId);
+            cartValues[pawnId] += amount;
+            return true;
+        }
+
+        /// <summary>
         /// 清除顾客的购物车、预算缓存、消费次数、结账顺序和浏览等待计时。
         /// </summary>
         public void ClearCustomerCart(int pawnId)
@@ -50,7 +99,7 @@ namespace SimManagementLib.SimAI
         /// </summary>
         public bool RegisterConsumptionActionAndShouldCheckout(int pawnId)
         {
-            Pawn pawn = lord?.ownedPawns?.FirstOrDefault(p => p != null && p.thingIDNumber == pawnId);
+            Pawn pawn = FindOwnedPawnById(pawnId);
             if (pawn != null)
                 return RegisterConsumptionActionForCurrentShop(pawn);
             return cartState.RegisterConsumptionActionAndShouldCheckout(pawnId, GetShoppingBehavior().maxConsumptionActionsPerShop);
@@ -61,7 +110,7 @@ namespace SimManagementLib.SimAI
         /// </summary>
         public bool HasReachedConsumptionLimit(int pawnId)
         {
-            Pawn pawn = lord?.ownedPawns?.FirstOrDefault(p => p != null && p.thingIDNumber == pawnId);
+            Pawn pawn = FindOwnedPawnById(pawnId);
             if (pawn != null)
                 return HasReachedCurrentShopConsumptionLimit(pawn);
             return cartState.HasReachedConsumptionLimit(pawnId, GetShoppingBehavior().maxConsumptionActionsPerShop);
@@ -88,9 +137,7 @@ namespace SimManagementLib.SimAI
         /// </summary>
         public int GetBudgetForPawn(int pawnId)
         {
-            if (pawnSettings.TryGetValue(pawnId, out CustomerRuntimeSettings settings) && settings != null && settings.budget > 0)
-                return settings.budget;
-            return totalBudget > 0 ? totalBudget : 1;
+            return CustomerBudgetPolicy.GetBudgetForPawn(this, pawnId);
         }
 
         /// <summary>
@@ -98,66 +145,7 @@ namespace SimManagementLib.SimAI
         /// </summary>
         public int GetEffectiveBudgetForPawn(Pawn pawn, Zone_Shop shopZone)
         {
-            if (pawn == null)
-                return 1;
-
-            int pawnId = pawn.thingIDNumber;
-            int rawBudget = GetBudgetForPawn(pawnId);
-            if (rawBudget <= 1)
-                return 1;
-
-            if (effectiveBudgetCaps.TryGetValue(pawnId, out int cached) && cached > 0)
-                return Mathf.Clamp(cached, 1, rawBudget);
-
-            float spendRatio = CalculateBudgetSpendRatio(pawn, shopZone);
-            int cap = Mathf.Clamp(Mathf.RoundToInt(rawBudget * spendRatio), 1, rawBudget);
-            effectiveBudgetCaps[pawnId] = cap;
-            return cap;
-        }
-
-        /// <summary>
-        /// 计算品质驱动的消费意愿比例，负责把商店评分、口碑和个人波动转成预算使用率。
-        /// </summary>
-        private float CalculateBudgetSpendRatio(Pawn pawn, Zone_Shop shopZone)
-        {
-            ShopTuningDef tuning = DefDatabase<ShopTuningDef>.AllDefsListForReading.FirstOrDefault() ?? new ShopTuningDef();
-            float qualityScore = 50f;
-            float reputation = 50f;
-
-            GameComponent_ShopAnalyticsManager analytics = Current.Game?.GetComponent<GameComponent_ShopAnalyticsManager>();
-            ShopMetricsSnapshot metrics = analytics?.GetOrEvaluateShopMetrics(shopZone);
-            if (metrics != null)
-            {
-                qualityScore = metrics.score;
-                reputation = metrics.reputation;
-            }
-
-            float quality01 = Mathf.InverseLerp(tuning.budgetSpendQualityRange.min, tuning.budgetSpendQualityRange.max, qualityScore);
-            float reputation01 = Mathf.Clamp01(reputation / 100f);
-            float confidence01 = Mathf.Clamp01(quality01 * 0.80f + reputation01 * 0.20f);
-            float ratio = Mathf.Lerp(tuning.budgetSpendRatioRange.min, tuning.budgetSpendRatioRange.max, confidence01);
-
-            float jitter = Mathf.Clamp(tuning.budgetSpendRandomJitter, 0f, 0.50f);
-            if (jitter > 0f && pawn != null)
-                ratio += RandByPawnAndShop(pawn, shopZone) * jitter * 2f - jitter;
-
-            return Mathf.Clamp(ratio, 0.05f, 1f);
-        }
-
-        /// <summary>
-        /// 生成顾客和商店稳定绑定的随机值，负责让同一位顾客本次访问的消费意愿保持一致。
-        /// </summary>
-        private static float RandByPawnAndShop(Pawn pawn, Zone_Shop shopZone)
-        {
-            unchecked
-            {
-                int hash = 17;
-                hash = hash * 31 + (pawn?.thingIDNumber ?? 0);
-                hash = hash * 31 + (shopZone?.ID ?? -1);
-                hash = hash * 31 + (Find.TickManager?.TicksGame / 60000 ?? 0);
-                int positive = hash & int.MaxValue;
-                return positive / (float)int.MaxValue;
-            }
+            return CustomerBudgetPolicy.GetEffectiveBudgetForPawn(this, pawn, shopZone);
         }
 
         /// <summary>
@@ -165,11 +153,7 @@ namespace SimManagementLib.SimAI
         /// </summary>
         public int GetQueuePatienceForPawn(int pawnId)
         {
-            if (pawnSettings.TryGetValue(pawnId, out CustomerRuntimeSettings settings) && settings != null && settings.queuePatienceTicks > 0)
-                return settings.queuePatienceTicks;
-            if (RuntimeCustomerKind?.shoppingBehavior != null && RuntimeCustomerKind.shoppingBehavior.queuePatience > 0)
-                return RuntimeCustomerKind.shoppingBehavior.queuePatience;
-            return 2500;
+            return CustomerBudgetPolicy.GetQueuePatienceForPawn(this, pawnId);
         }
 
         /// <summary>
@@ -177,15 +161,7 @@ namespace SimManagementLib.SimAI
         /// </summary>
         public float GetPreferenceMultiplier(int pawnId, ThingDef def)
         {
-            float multiplier = 1f;
-
-            if (pawnSettings.TryGetValue(pawnId, out CustomerRuntimeSettings settings) && settings != null)
-                multiplier *= settings.GetPreferenceMultiplier(def);
-
-            if (RuntimeCustomerKind != null)
-                multiplier *= RuntimeCustomerKind.GetPreferenceMultiplier(def);
-
-            return multiplier;
+            return CustomerPreferencePolicy.GetPreferenceMultiplier(this, pawnId, def);
         }
 
         /// <summary>

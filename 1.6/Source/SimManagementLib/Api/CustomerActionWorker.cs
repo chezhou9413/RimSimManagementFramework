@@ -26,7 +26,7 @@ namespace SimManagementLib.Api
                 reason = "动作未启用";
                 return false;
             }
-            if (context?.customer == null || context.shop == null || context.visit == null)
+            if (context?.customer == null || context.shop == null || !context.HasValidVisit)
             {
                 reason = "顾客上下文无效";
                 return false;
@@ -168,7 +168,7 @@ namespace SimManagementLib.Api
         protected virtual bool MatchesCustomerKind(CustomerActionContext context)
         {
             if (def.targetCustomerKindIds.NullOrEmpty()) return true;
-            string kindId = context?.customerKind?.kindId ?? context?.visit?.customerKindId ?? "";
+            string kindId = context?.customerKindId ?? "";
             return !string.IsNullOrEmpty(kindId) && def.targetCustomerKindIds.Contains(kindId);
         }
 

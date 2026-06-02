@@ -7,9 +7,9 @@ namespace SimManagementLib.SimAI
     /// <summary>
     /// 保存每个顾客的运行时设置，负责把预算、耐心和偏好配置从 LordJob 中拆出。
     /// </summary>
-    public class CustomerPawnSettingsState
+    internal class CustomerPawnSettingsState
     {
-        public Dictionary<int, CustomerRuntimeSettings> pawnSettings = new Dictionary<int, CustomerRuntimeSettings>();
+        internal Dictionary<int, CustomerRuntimeSettings> pawnSettings = new Dictionary<int, CustomerRuntimeSettings>();
 
         private List<int> tmpSettingKeys;
         private List<CustomerRuntimeSettings> tmpSettingValues;

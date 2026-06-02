@@ -36,7 +36,7 @@ namespace SimManagementLib.Tool
             SimShopReviewApi.NotifyBeforeEnqueue(new CustomerReviewSnapshotContext
             {
                 customer = pawn,
-                visit = lordJob,
+                internalVisit = lordJob,
                 shop = shopZone,
                 billLines = billLines,
                 paidSilver = paidSilver,
@@ -55,7 +55,7 @@ namespace SimManagementLib.Tool
             string reviewId = Find.TickManager.TicksAbs + "_" + pawnId + "_" + Rand.RangeInclusive(1000, 9999);
             List<CustomerServiceOrder> serviceOrders = lordJob.GetServiceOrders(pawnId);
             int budget = lordJob.GetBudgetForPawn(pawnId);
-            float cartValue = lordJob.cartValues.TryGetValue(pawnId, out float value) ? value : paidSilver;
+            float cartValue = lordJob.GetCartValue(pawnId) > 0f ? lordJob.GetCartValue(pawnId) : paidSilver;
             bool paid = paidSilver > 0;
             float spent = paid ? paidSilver : 0f;
             string publicCheckoutResult = BuildPublicCheckoutResult(checkoutResult, paid, cartValue);

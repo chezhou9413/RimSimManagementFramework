@@ -1,11 +1,12 @@
 using RimWorld;
+using SimManagementLib.Api;
 using SimManagementLib.GameComp;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimDef;
+using SimManagementLib.SimAI.CustomerVisit;
 using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Verse;
 using Verse.AI;
@@ -30,173 +31,39 @@ namespace SimManagementLib.SimAI
             if (Find.TickManager.TicksGame % VisitWatchdogIntervalTicks != 0) return;
             if (lord?.ownedPawns == null || lord.ownedPawns.Count == 0) return;
 
-            List<Pawn> pawns = lord.ownedPawns.ToList();
-            for (int i = 0; i < pawns.Count; i++)
+            for (int i = lord.ownedPawns.Count - 1; i >= 0; i--)
             {
-                Pawn pawn = pawns[i];
+                Pawn pawn = lord.ownedPawns[i];
                 if (pawn == null || pawn.Destroyed || pawn.Dead || !pawn.Spawned)
                     continue;
 
-                if (ShouldRemoveFromCustomerVisit(pawn, out string removeReason))
-                {
-                    EndVisitForPawn(pawn, removeReason, removeFromLord: true);
-                    continue;
-                }
-
-                if (ShouldSendUnpaidCustomerToCheckout(pawn))
-                {
-                    MarkPawnReadyForCheckout(pawn.thingIDNumber);
-                    continue;
-                }
-
-                if (ShouldLeaveCustomerVisit(pawn, out string leaveReason))
-                    EndVisitForPawn(pawn, leaveReason, removeFromLord: false);
+                CustomerVisitSession session = GetOrCreateSession(pawn);
+                CustomerVisitTickResult result = session != null ? session.Tick(this, pawn) : default(CustomerVisitTickResult);
+                ApplySessionTickResult(pawn, result);
             }
         }
 
         /// <summary>
-        /// 判断顾客是否已经无法继续作为顾客行动。
+        /// 应用 Session Tick 的状态机请求，负责让 Lord 只响应统一结果。
         /// </summary>
-        private static bool ShouldRemoveFromCustomerVisit(Pawn pawn, out string reason)
+        private void ApplySessionTickResult(Pawn pawn, CustomerVisitTickResult result)
         {
-            reason = "";
-            if (pawn == null) return false;
-            if (pawn.Downed)
-            {
-                reason = "顾客倒地，终止本次访问";
-                return true;
-            }
-
-            if (pawn.InMentalState)
-            {
-                reason = "顾客进入精神状态，终止本次访问";
-                return true;
-            }
-
-            if (pawn.health?.capacities != null && !pawn.health.capacities.CapableOf(PawnCapacityDefOf.Moving))
-            {
-                reason = "顾客无法移动，终止本次访问";
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// 判断有未付账单的顾客是否需要立刻进入结账阶段，负责避免拿货后继续浏览或被零账单离店兜底清理。
-        /// </summary>
-        private bool ShouldSendUnpaidCustomerToCheckout(Pawn pawn)
-        {
-            if (pawn == null) return false;
-            int pawnId = pawn.thingIDNumber;
-            if (IsPawnReadyForCheckout(pawnId)) return false;
-            if (GetAmountOwedForCheckout(pawnId) <= 0f) return false;
-
-            CustomerVisitState state = GetOrCreateVisitState(pawn);
-            if (state == null) return true;
-            if (HasReachedCurrentShopBrowseLimit(pawn)) return true;
-            if (HasReachedCurrentShopNoProgressLimit(pawn)) return true;
-
-            ShoppingBehaviorProps behavior = GetShoppingBehavior();
-            int now = Find.TickManager.TicksGame;
-            if (behavior.maxShopVisitTicks > 0 && now - state.currentShopVisitStartTick >= behavior.maxShopVisitTicks) return true;
-            if (behavior.maxTotalVisitTicks > 0 && now - state.totalVisitStartTick >= behavior.maxTotalVisitTicks) return true;
-            if (pawn.needs?.food != null && pawn.needs.food.CurCategory >= HungerCategory.UrgentlyHungry) return true;
-
-            Zone_Shop shop = GetCurrentShop(pawn);
-            if (shop == null || !shop.IsOpenNow()) return true;
-
-            float remainingBudget = GetRemainingTripBudget(pawn, shop);
-            return remainingBudget <= 0f
-                || !CustomerShoppingMatchUtility.ShopHasMatchingAffordableGoodsOrServices(pawn, shop, this, remainingBudget);
-        }
-
-        /// <summary>
-        /// 判断顾客是否应主动离店。
-        /// </summary>
-        private bool ShouldLeaveCustomerVisit(Pawn pawn, out string reason)
-        {
-            reason = "";
-            if (pawn == null) return false;
-
-            if (pawn.needs?.food != null && pawn.needs.food.CurCategory >= HungerCategory.UrgentlyHungry)
-            {
-                reason = "顾客饥饿过重，提前离店";
-                return true;
-            }
-
-            Zone_Shop shop = GetCurrentShop(pawn);
-            if (shop == null)
-            {
-                reason = "目标商店不存在，提前离店";
-                return true;
-            }
-
-            CustomerVisitState state = GetOrCreateVisitState(pawn);
-            ShoppingBehaviorProps behavior = GetShoppingBehavior();
-            int now = Find.TickManager.TicksGame;
-            if (state != null && behavior.maxShopVisitTicks > 0 && now - state.currentShopVisitStartTick >= behavior.maxShopVisitTicks)
-            {
-                reason = "当前商店停留过久，提前离店";
-                return true;
-            }
-
-            if (state != null && behavior.maxTotalVisitTicks > 0 && now - state.totalVisitStartTick >= behavior.maxTotalVisitTicks)
-            {
-                reason = "本次购物行程过久，提前离店";
-                return true;
-            }
-
-            int pawnId = pawn.thingIDNumber;
-            if (state != null && state.currentShopMinimumBrowseDone && GetAmountOwedForCheckout(pawnId) <= 0f && !NeedsPostCheckoutCompletion(pawnId))
-            {
-                if (HasReachedCurrentShopBrowseLimit(pawn) || HasReachedCurrentShopNoProgressLimit(pawn))
-                {
-                    reason = "顾客浏览多次仍没有合适商品，提前离店";
-                    return true;
-                }
-
-                float remainingBudget = GetRemainingTripBudget(pawn, shop);
-                if (!CustomerShoppingMatchUtility.ShopHasMatchingAffordableGoodsOrServices(pawn, shop, this, remainingBudget))
-                {
-                    reason = "商店没有顾客当前想买的商品或服务，提前离店";
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// 结束单个顾客访问，负责清理未付款状态并让可行动顾客进入结账完成流程。
-        /// </summary>
-        private void EndVisitForPawn(Pawn pawn, string reason, bool removeFromLord)
-        {
-            if (pawn == null) return;
-
-            CleanupUnpaidCustomerState(pawn, reason);
-            CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.BrowseNoMatch);
-            if (!pawn.Downed && pawn.Spawned && !pawn.Dead)
-                ShopBubbleUtility.ShowTextBubble(pawn, reason, new Color(1f, 0.72f, 0.4f));
-
-            if (removeFromLord)
+            if (result.removeFromLord)
             {
                 lord?.Notify_PawnLost(pawn, PawnLostCondition.Incapped);
                 return;
             }
 
-            forceLeaveAfterCheckout.Add(pawn.thingIDNumber);
-            checkoutState.MarkPawnReadyForCheckout(pawn.thingIDNumber);
-            lord?.ReceiveMemo("Customer_ReadyToCheckout");
-            CheckAllCheckoutsDone();
-        }
-
-        /// <summary>
-        /// 判断顾客是否因看门狗收尾而必须离图，负责避免紧急离店后继续跨店购物。
-        /// </summary>
-        private bool ShouldForceLeaveAfterCheckout(Pawn pawn)
-        {
-            return pawn != null && forceLeaveAfterCheckout.Contains(pawn.thingIDNumber);
+            if (result.requestCheckoutMemo)
+                lord?.ReceiveMemo("Customer_ReadyToCheckout");
+            if (result.requestNextShopMemo)
+                lord?.ReceiveMemo("Customer_GoToNextShop");
+            if (result.requestCheckoutCompletedMemo)
+            {
+                forceLeaveAfterCheckout.Add(pawn.thingIDNumber);
+                checkoutState.MarkPawnReadyForCheckout(pawn.thingIDNumber);
+                CheckAllCheckoutsDone();
+            }
         }
 
         /// <summary>
@@ -243,6 +110,14 @@ namespace SimManagementLib.SimAI
             checkoutState.ClearPawnReadyForCheckout(pawnId);
             checkoutState.ClearCheckoutOrder(pawnId);
             SimDebugLogger.Journey("RSMF.CustomerWatchdog", reason, pawn, shopZone, -1);
+        }
+
+        /// <summary>
+        /// 供 Session 安全兜底调用的未付款清理入口，负责集中复用原有退货和清账逻辑。
+        /// </summary>
+        internal void CleanupUnpaidCustomerStateForSession(Pawn pawn, string reason)
+        {
+            CleanupUnpaidCustomerState(pawn, reason);
         }
     }
 }

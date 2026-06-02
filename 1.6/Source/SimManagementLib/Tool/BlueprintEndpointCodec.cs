@@ -39,7 +39,7 @@ namespace SimManagementLib.Tool
             if (string.IsNullOrWhiteSpace(rawUrl))
                 return string.Empty;
 
-            string url = rawUrl.Trim();
+            string url = StringEncodingUtility.SanitizeUtf16(rawUrl).Trim();
             if (Uri.TryCreate(url, UriKind.Absolute, out Uri absoluteUri))
             {
                 string pathAndQuery = absoluteUri.PathAndQuery + absoluteUri.Fragment;

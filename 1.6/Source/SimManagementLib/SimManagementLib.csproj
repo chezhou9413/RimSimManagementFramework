@@ -113,6 +113,7 @@
     <Compile Include="Api\CustomerActionContext.cs" />
     <Compile Include="Api\CustomerActionWorker.cs" />
     <Compile Include="Api\CustomerActionSessionWorker.cs" />
+    <Compile Include="Api\CustomerVisitExtension.cs" />
     <Compile Include="Api\CustomerReviewSnapshotApi.cs" />
     <Compile Include="Api\SimShopApi.cs" />
     <Compile Include="Api\SimShopCustomerApi.cs" />
@@ -127,6 +128,8 @@
     <Compile Include="Api\ShopUiWorkers.cs" />
     <Compile Include="Api\SimShopUiApi.cs" />
     <Compile Include="Debug\\DebugActions_SimShop.cs" />
+    <Compile Include="Debug\CustomerVisitDebugReportBuilder.cs" />
+    <Compile Include="Debug\DebugActions_SimShop.CustomerSession.cs" />
     <Compile Include="Debug\\DebugActions_SimShop.Tools.cs" />
     <Compile Include="GameComp\\GameComponent_ShopComboManager.cs" />
     <Compile Include="GameComp\\GameComponent_ShopAnalyticsManager.cs" />
@@ -187,12 +190,18 @@
     <Compile Include="SimAI\JobGiver_Customer_UseVendingMachine.cs" />
     <Compile Include="SimAI\CustomerCartState.cs" />
     <Compile Include="SimAI\CustomerCheckoutState.cs" />
+    <Compile Include="SimAI\CustomerVisit\CustomerBudgetPolicy.cs" />
+    <Compile Include="SimAI\CustomerVisit\CustomerNextShopSelector.cs" />
+    <Compile Include="SimAI\CustomerVisit\CustomerPreferencePolicy.cs" />
+    <Compile Include="SimAI\CustomerVisit\CustomerVisitSession.cs" />
+    <Compile Include="SimAI\CustomerVisit\CustomerVisitStage.cs" />
+    <Compile Include="SimAI\CustomerVisit\CustomerVisitTickResult.cs" />
     <Compile Include="SimAI\CustomerPawnSettingsState.cs" />
     <Compile Include="SimAI\CustomerServiceOrderState.cs" />
-    <Compile Include="SimAI\CustomerVisitState.cs" />
     <Compile Include="SimAI\LordJob_CustomerVisit.cs" />
     <Compile Include="SimAI\LordJob_CustomerVisit.Cart.cs" />
     <Compile Include="SimAI\LordJob_CustomerVisit.Checkout.cs" />
+    <Compile Include="SimAI\LordJob_CustomerVisit.Gizmos.cs" />
     <Compile Include="SimAI\LordJob_CustomerVisit.Persistence.cs" />
     <Compile Include="SimAI\LordJob_CustomerVisit.Runtime.cs" />
     <Compile Include="SimAI\LordJob_CustomerVisit.Shops.cs" />
@@ -359,6 +368,7 @@
     <Compile Include="Tool\ShopStaffUtility.cs" />
     <Compile Include="Tool\ShopStorageUtility.cs" />
     <Compile Include="Tool\SimTranslation.cs" />
+    <Compile Include="Tool\StringEncodingUtility.cs" />
     <Compile Include="Tool\SignImageLibrary.cs" />
     <Compile Include="Tool\SignTextureCache.cs" />
     <Compile Include="Tool\SteamSessionResolver.cs" />

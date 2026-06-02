@@ -1,10 +1,9 @@
 using RimWorld;
+using SimManagementLib.SimAI.CustomerVisit;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
 using Verse;
 using Verse.AI;
 using Verse.AI.Group;
@@ -24,6 +23,12 @@ namespace SimManagementLib.SimAI
             Lord lord = pawn.Map.lordManager.LordOf(pawn);
             LordJob_CustomerVisit lordJob = lord?.LordJob as LordJob_CustomerVisit;
             if (lordJob == null) return null;
+            CustomerVisitSession session = lordJob.GetOrCreateSession(pawn);
+            bool isPostCheckout = session?.stage == CustomerVisitStage.PostCheckout;
+            if (session == null || (!isPostCheckout && !session.AllowsJobGiver(CustomerVisitStage.Checkout)))
+                return null;
+            if (!isPostCheckout)
+                session.NotifyCheckoutStarted(lordJob, pawn);
 
             int pawnId = pawn.thingIDNumber;
             float owed = lordJob.GetAmountOwedForCheckout(pawnId);
@@ -37,6 +42,7 @@ namespace SimManagementLib.SimAI
                 if (lordJob.NeedsPostCheckoutCompletion(pawnId))
                 {
                     lordJob.MarkPostCheckoutCompleted(pawnId);
+                    session.NotifyPostCheckoutCompleted(lordJob, pawn, "购后行为完成");
                     lordJob.CheckAllCheckoutsDone();
                 }
 
@@ -44,16 +50,8 @@ namespace SimManagementLib.SimAI
             }
 
             Zone_Shop targetShop = lordJob.GetCurrentShop(pawn);
-            List<Building_CashRegister> registers = pawn.Map.listerBuildings.allBuildingsNonColonist
-                .Concat(pawn.Map.listerBuildings.allBuildingsColonist)
-                .OfType<Building_CashRegister>()
-                .Where(r => r != null && !r.Destroyed && r.Spawned)
-                .Where(r => RegisterBelongsToShop(r, targetShop))
-                .Where(r => pawn.CanReach(r, PathEndMode.Touch, Danger.Deadly))
-                .Distinct()
-                .ToList();
-
-            if (registers.NullOrEmpty())
+            Building_CashRegister register = FindBestRegister(pawn, targetShop);
+            if (register == null)
             {
                 SimDebugLogger.Journey("RSMF.Checkout", $"没有找到可用收银台，取消本次结账 owed={owed}", pawn, targetShop, -1);
                 lordJob.FailCheckoutAndLeave(pawn, SimTranslation.T("RSMF.Checkout.NoReachableRegister"));
@@ -62,13 +60,6 @@ namespace SimManagementLib.SimAI
 
             // 顾客进入结账阶段就分配固定排队顺序，保证先到先结。
             int myOrder = lordJob.EnsureCheckoutOrder(pawnId);
-
-            Building_CashRegister register = registers
-                .OrderByDescending(r => r.IsManned)
-                .ThenBy(r => GetQueueSizeForRegister(pawn.Map, r))
-                .ThenBy(r => (r.Position - pawn.Position).LengthHorizontalSquared)
-                .FirstOrDefault();
-            if (register == null) return null;
 
             int queueIndex = GetQueueIndexForPawn(pawn.Map, register, lordJob, pawnId, myOrder);
             IntVec3 serviceCell = CheckoutQueueCellUtility.FindServiceCell(register, pawn);
@@ -93,6 +84,55 @@ namespace SimManagementLib.SimAI
                 if (shop.Cells.Contains(cell)) return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// 选择当前最合适的可达收银台，负责避免在职责树热路径中创建临时列表和排序枚举器。
+        /// </summary>
+        private static Building_CashRegister FindBestRegister(Pawn pawn, Zone_Shop targetShop)
+        {
+            if (pawn?.Map == null || targetShop == null) return null;
+            Building_CashRegister best = null;
+            int bestQueue = int.MaxValue;
+            int bestDistance = int.MaxValue;
+            ConsiderRegisterList(pawn, targetShop, pawn.Map.listerBuildings.allBuildingsNonColonist, ref best, ref bestQueue, ref bestDistance);
+            ConsiderRegisterList(pawn, targetShop, pawn.Map.listerBuildings.allBuildingsColonist, ref best, ref bestQueue, ref bestDistance);
+            return best;
+        }
+
+        /// <summary>
+        /// 遍历一组建筑并更新最佳收银台候选。
+        /// </summary>
+        private static void ConsiderRegisterList(Pawn pawn, Zone_Shop targetShop, List<Building> buildings, ref Building_CashRegister best, ref int bestQueue, ref int bestDistance)
+        {
+            if (buildings == null) return;
+            for (int i = 0; i < buildings.Count; i++)
+            {
+                Building_CashRegister register = buildings[i] as Building_CashRegister;
+                if (register == null || register.Destroyed || !register.Spawned) continue;
+                if (!RegisterBelongsToShop(register, targetShop)) continue;
+                if (!pawn.CanReach(register, PathEndMode.Touch, Danger.Deadly)) continue;
+
+                int queue = GetQueueSizeForRegister(pawn.Map, register);
+                int distance = (register.Position - pawn.Position).LengthHorizontalSquared;
+                if (IsBetterRegister(register, queue, distance, best, bestQueue, bestDistance))
+                {
+                    best = register;
+                    bestQueue = queue;
+                    bestDistance = distance;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 判断候选收银台是否优于当前最佳收银台。
+        /// </summary>
+        private static bool IsBetterRegister(Building_CashRegister candidate, int queue, int distance, Building_CashRegister best, int bestQueue, int bestDistance)
+        {
+            if (best == null) return true;
+            if (candidate.IsManned != best.IsManned) return candidate.IsManned;
+            if (queue != bestQueue) return queue < bestQueue;
+            return distance < bestDistance;
         }
 
         /// <summary>

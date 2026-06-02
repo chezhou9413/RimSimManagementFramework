@@ -41,13 +41,14 @@ namespace SimManagementLib.Tool
             url.Append("&page=").Append(Math.Max(1, page));
             url.Append("&pageSize=").Append(Math.Max(1, pageSize));
 
+            steamId = StringEncodingUtility.SanitizeUtf16(steamId);
             if (sortMode == BlueprintNetworkSortMode.Mine && !string.IsNullOrWhiteSpace(steamId))
-                url.Append("&steamId=").Append(Uri.EscapeDataString(steamId));
+                url.Append("&steamId=").Append(StringEncodingUtility.EscapeDataStringSafe(steamId));
 
             if (sortMode == BlueprintNetworkSortMode.Compatible && activePackageIds != null)
             {
-                string joined = string.Join(",", activePackageIds);
-                url.Append("&activePackageIds=").Append(Uri.EscapeDataString(joined));
+                string joined = string.Join(",", CleanUtf16Items(activePackageIds));
+                url.Append("&activePackageIds=").Append(StringEncodingUtility.EscapeDataStringSafe(joined));
             }
 
             return GetJsonAsync<BlueprintNetworkPagedListData>(url.ToString(), token);
@@ -58,7 +59,7 @@ namespace SimManagementLib.Tool
         /// </summary>
         public static Task<BlueprintNetworkDetailData> GetDetailAsync(string blueprintCode, CancellationToken token)
         {
-            return GetJsonAsync<BlueprintNetworkDetailData>(BuildUrl("/" + Uri.EscapeDataString(blueprintCode)), token);
+            return GetJsonAsync<BlueprintNetworkDetailData>(BuildUrl("/" + StringEncodingUtility.EscapeDataStringSafe(blueprintCode)), token);
         }
 
         /// <summary>
@@ -66,7 +67,7 @@ namespace SimManagementLib.Tool
         /// </summary>
         public static async Task<bool> LikeAsync(string blueprintCode, string steamId, CancellationToken token)
         {
-            string url = BuildUrl("/" + Uri.EscapeDataString(blueprintCode) + "/like?steamId=" + Uri.EscapeDataString(steamId));
+            string url = BuildUrl("/" + StringEncodingUtility.EscapeDataStringSafe(blueprintCode) + "/like?steamId=" + StringEncodingUtility.EscapeDataStringSafe(steamId));
             using (HttpClient client = CreateClient())
             using (StringContent content = new StringContent("", Encoding.UTF8, "application/json"))
             using (HttpResponseMessage response = await SendAsync(client, HttpMethod.Post, url, token, content))
@@ -100,32 +101,32 @@ namespace SimManagementLib.Tool
             using (HttpClient client = CreateClient())
             {
                 MultipartFormDataContent form = new MultipartFormDataContent();
-                form.Add(new StringContent(steamId, Encoding.UTF8), "SteamId");
-                form.Add(new StringContent(record.Data.label ?? "", Encoding.UTF8), "Name");
-                form.Add(new StringContent(record.Data.description ?? "", Encoding.UTF8), "Description");
-                form.Add(new StringContent(SerializeJson(record.Data.requiredMods), Encoding.UTF8), "RequiredModsJson");
-                form.Add(new StringContent(record.Data.remoteBlueprintSourceKind ?? "", Encoding.UTF8), "ClientBlueprintSourceKind");
+                form.Add(new StringContent(StringEncodingUtility.SanitizeUtf16(steamId), Encoding.UTF8), "SteamId");
+                form.Add(new StringContent(StringEncodingUtility.SanitizeUtf16(record.Data.label), Encoding.UTF8), "Name");
+                form.Add(new StringContent(StringEncodingUtility.SanitizeUtf16(record.Data.description), Encoding.UTF8), "Description");
+                form.Add(new StringContent(SerializeJson(SanitizeRequiredMods(record.Data.requiredMods)), Encoding.UTF8), "RequiredModsJson");
+                form.Add(new StringContent(StringEncodingUtility.SanitizeUtf16(record.Data.remoteBlueprintSourceKind), Encoding.UTF8), "ClientBlueprintSourceKind");
                 if (BlueprintOwnershipUtility.CanUpdateExisting(record.Data, steamId))
-                    form.Add(new StringContent(record.Data.remoteBlueprintCode, Encoding.UTF8), "ExistingBlueprintCode");
+                    form.Add(new StringContent(StringEncodingUtility.SanitizeUtf16(record.Data.remoteBlueprintCode), Encoding.UTF8), "ExistingBlueprintCode");
 
                 byte[] blueprintBytes = File.ReadAllBytes(record.BlueprintPath);
                 ByteArrayContent blueprintContent = new ByteArrayContent(blueprintBytes);
                 blueprintContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-                form.Add(blueprintContent, "File", Path.GetFileName(record.BlueprintPath));
+                form.Add(blueprintContent, "File", StringEncodingUtility.SanitizeUtf16(Path.GetFileName(record.BlueprintPath)));
 
                 if (!string.IsNullOrWhiteSpace(record.PreviewPath) && File.Exists(record.PreviewPath))
                 {
                     byte[] previewBytes = File.ReadAllBytes(record.PreviewPath);
                     ByteArrayContent previewContent = new ByteArrayContent(previewBytes);
                     previewContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/png");
-                    form.Add(previewContent, "PreviewFile", Path.GetFileName(record.PreviewPath));
+                    form.Add(previewContent, "PreviewFile", StringEncodingUtility.SanitizeUtf16(Path.GetFileName(record.PreviewPath)));
                 }
 
                 string url = BuildUrl("");
                 using (HttpResponseMessage response = await SendAsync(client, HttpMethod.Post, url, token, form))
                 {
                     await EnsureSuccessStatusCodeAsync(response, HttpMethod.Post, url);
-                    string body = await response.Content.ReadAsStringAsync();
+                    string body = StringEncodingUtility.SanitizeUtf16(await response.Content.ReadAsStringAsync());
                     LogDebug("上传响应", null, response.StatusCode.ToString(), TrimForLog(body));
                     BlueprintUploadResponse upload = DeserializeJson<BlueprintUploadResponse>(body);
                     if (upload == null || string.IsNullOrWhiteSpace(upload.blueprintCode))
@@ -154,7 +155,7 @@ namespace SimManagementLib.Tool
         {
             using (HttpClient client = CreateClient())
             {
-                string url = BuildUrl("/" + Uri.EscapeDataString(blueprintCode) + "/download");
+                string url = BuildUrl("/" + StringEncodingUtility.EscapeDataStringSafe(blueprintCode) + "/download");
                 using (HttpResponseMessage response = await SendAsync(client, HttpMethod.Get, url, token))
                 {
                     await EnsureSuccessStatusCodeAsync(response, HttpMethod.Get, url);
@@ -172,7 +173,7 @@ namespace SimManagementLib.Tool
         {
             using (HttpClient client = CreateClient())
             {
-                string url = BuildUrl("/" + Uri.EscapeDataString(blueprintCode) + "/preview");
+                string url = BuildUrl("/" + StringEncodingUtility.EscapeDataStringSafe(blueprintCode) + "/preview");
                 using (HttpResponseMessage response = await SendAsync(client, HttpMethod.Get, url, token))
                 {
                     await EnsureSuccessStatusCodeAsync(response, HttpMethod.Get, url);
@@ -190,7 +191,7 @@ namespace SimManagementLib.Tool
         {
             using (HttpClient client = CreateClient())
             {
-                string url = BuildUrl("/" + Uri.EscapeDataString(blueprintCode) + "?steamId=" + Uri.EscapeDataString(steamId));
+                string url = BuildUrl("/" + StringEncodingUtility.EscapeDataStringSafe(blueprintCode) + "?steamId=" + StringEncodingUtility.EscapeDataStringSafe(steamId));
                 using (HttpResponseMessage response = await SendAsync(client, HttpMethod.Delete, url, token))
                 {
                     return response.IsSuccessStatusCode;
@@ -203,6 +204,7 @@ namespace SimManagementLib.Tool
         /// </summary>
         private static async Task<HttpResponseMessage> SendAsync(HttpClient client, HttpMethod method, string url, CancellationToken token, HttpContent content = null)
         {
+            url = StringEncodingUtility.SanitizeUtf16(url);
             LogDebug("发送请求", null, method.Method, null);
             using (HttpRequestMessage request = new HttpRequestMessage(method, url))
             {
@@ -219,7 +221,7 @@ namespace SimManagementLib.Tool
             using (HttpResponseMessage response = await SendAsync(client, HttpMethod.Get, url, token))
             {
                 await EnsureSuccessStatusCodeAsync(response, HttpMethod.Get, url);
-                string body = await response.Content.ReadAsStringAsync();
+                string body = StringEncodingUtility.SanitizeUtf16(await response.Content.ReadAsStringAsync());
                 LogDebug("读取 JSON 成功", null, response.StatusCode.ToString(), TrimForLog(body));
                 return NormalizeUrls(DeserializeJson<T>(body));
             }
@@ -236,7 +238,7 @@ namespace SimManagementLib.Tool
         private static string BuildUrl(string path)
         {
             string baseUrl = BlueprintEndpointCodec.GetBlueprintApiBaseUrl().TrimEnd('/');
-            return baseUrl + path;
+            return StringEncodingUtility.SanitizeUtf16(baseUrl + StringEncodingUtility.SanitizeUtf16(path));
         }
 
         /// <summary>
@@ -263,11 +265,11 @@ namespace SimManagementLib.Tool
         {
             try
             {
-                return await response.Content.ReadAsStringAsync();
+                return StringEncodingUtility.SanitizeUtf16(await response.Content.ReadAsStringAsync());
             }
             catch (Exception ex)
             {
-                return "读取失败响应内容时出错: " + ex.Message;
+                return "读取失败响应内容时出错: " + StringEncodingUtility.SanitizeUtf16(ex.Message);
             }
         }
 
@@ -279,7 +281,7 @@ namespace SimManagementLib.Tool
             if (string.IsNullOrWhiteSpace(text))
                 return string.Empty;
 
-            string normalized = text.Replace("\r", " ").Replace("\n", " ").Trim();
+            string normalized = StringEncodingUtility.SanitizeUtf16(text).Replace("\r", " ").Replace("\n", " ").Trim();
             const int maxLength = 320;
             return normalized.Length <= maxLength ? normalized : normalized.Substring(0, maxLength) + "...";
         }
@@ -292,7 +294,7 @@ namespace SimManagementLib.Tool
             if (string.IsNullOrWhiteSpace(text))
                 return string.Empty;
 
-            string sanitized = text;
+            string sanitized = StringEncodingUtility.SanitizeUtf16(text);
             string baseUrl = BlueprintEndpointCodec.GetBlueprintApiBaseUrl();
             if (!string.IsNullOrWhiteSpace(baseUrl))
                 sanitized = sanitized.Replace(baseUrl, "网络蓝图服务");
@@ -334,14 +336,14 @@ namespace SimManagementLib.Tool
 
             if (data is BlueprintNetworkDetailData detail)
             {
-                detail.blueprintCode = detail.blueprintCode ?? "";
-                detail.steamId = detail.steamId ?? "";
-                detail.name = detail.name ?? "";
-                detail.description = detail.description ?? "";
-                detail.originalFileName = detail.originalFileName ?? "";
-                detail.contentType = detail.contentType ?? "";
-                detail.createdAt = detail.createdAt ?? "";
-                detail.requiredMods = detail.requiredMods ?? new List<ShopBlueprintRequiredModData>();
+                detail.blueprintCode = StringEncodingUtility.SanitizeUtf16(detail.blueprintCode);
+                detail.steamId = StringEncodingUtility.SanitizeUtf16(detail.steamId);
+                detail.name = StringEncodingUtility.SanitizeUtf16(detail.name);
+                detail.description = StringEncodingUtility.SanitizeUtf16(detail.description);
+                detail.originalFileName = StringEncodingUtility.SanitizeUtf16(detail.originalFileName);
+                detail.contentType = StringEncodingUtility.SanitizeUtf16(detail.contentType);
+                detail.createdAt = StringEncodingUtility.SanitizeUtf16(detail.createdAt);
+                detail.requiredMods = SanitizeRequiredMods(detail.requiredMods);
                 detail.previewUrl = BlueprintEndpointCodec.NormalizePublicUrl(detail.previewUrl);
                 detail.detailUrl = BlueprintEndpointCodec.NormalizePublicUrl(detail.detailUrl);
                 detail.downloadUrl = BlueprintEndpointCodec.NormalizePublicUrl(detail.downloadUrl);
@@ -359,11 +361,11 @@ namespace SimManagementLib.Tool
             if (item == null)
                 return;
 
-            item.blueprintCode = item.blueprintCode ?? "";
-            item.steamId = item.steamId ?? "";
-            item.name = item.name ?? "";
-            item.description = item.description ?? "";
-            item.createdAt = item.createdAt ?? "";
+            item.blueprintCode = StringEncodingUtility.SanitizeUtf16(item.blueprintCode);
+            item.steamId = StringEncodingUtility.SanitizeUtf16(item.steamId);
+            item.name = StringEncodingUtility.SanitizeUtf16(item.name);
+            item.description = StringEncodingUtility.SanitizeUtf16(item.description);
+            item.createdAt = StringEncodingUtility.SanitizeUtf16(item.createdAt);
             item.previewUrl = BlueprintEndpointCodec.NormalizePublicUrl(item.previewUrl);
             item.detailUrl = BlueprintEndpointCodec.NormalizePublicUrl(item.detailUrl);
             item.downloadUrl = BlueprintEndpointCodec.NormalizePublicUrl(item.downloadUrl);
@@ -375,18 +377,18 @@ namespace SimManagementLib.Tool
         private static BlueprintNetworkDetailData BuildFallbackDetail(ShopBlueprintLocalRecord record, string steamId, string blueprintCode)
         {
             ShopBlueprintData data = record?.Data ?? new ShopBlueprintData();
-            string escapedCode = Uri.EscapeDataString(blueprintCode ?? "");
+            string escapedCode = StringEncodingUtility.EscapeDataStringSafe(blueprintCode);
             return NormalizeUrls(new BlueprintNetworkDetailData
             {
-                blueprintCode = blueprintCode ?? "",
-                steamId = steamId ?? "",
-                name = data.label ?? "",
-                description = data.description ?? "",
+                blueprintCode = StringEncodingUtility.SanitizeUtf16(blueprintCode),
+                steamId = StringEncodingUtility.SanitizeUtf16(steamId),
+                name = StringEncodingUtility.SanitizeUtf16(data.label),
+                description = StringEncodingUtility.SanitizeUtf16(data.description),
                 createdAt = DateTimeOffset.UtcNow.ToString("O"),
                 detailUrl = BuildUrl("/" + escapedCode),
                 previewUrl = BuildUrl("/" + escapedCode + "/preview"),
                 downloadUrl = BuildUrl("/" + escapedCode + "/download"),
-                requiredMods = data.requiredMods ?? new List<ShopBlueprintRequiredModData>()
+                requiredMods = SanitizeRequiredMods(data.requiredMods)
             });
         }
 
@@ -402,6 +404,35 @@ namespace SimManagementLib.Tool
             }
         }
 
+        /// <summary>
+        /// 清理字符串集合中的非法文本，负责让兼容性查询参数不会因为单个包名损坏而失败。
+        /// </summary>
+        private static IEnumerable<string> CleanUtf16Items(IEnumerable<string> values)
+        {
+            foreach (string value in values)
+                yield return StringEncodingUtility.SanitizeUtf16(value);
+        }
+
+        /// <summary>
+        /// 清理蓝图依赖模组文本字段，负责避免上传和展示远端数据时携带非法 UTF-16。
+        /// </summary>
+        private static List<ShopBlueprintRequiredModData> SanitizeRequiredMods(List<ShopBlueprintRequiredModData> source)
+        {
+            List<ShopBlueprintRequiredModData> result = source ?? new List<ShopBlueprintRequiredModData>();
+            for (int i = 0; i < result.Count; i++)
+            {
+                ShopBlueprintRequiredModData mod = result[i];
+                if (mod == null)
+                    continue;
+
+                mod.packageId = StringEncodingUtility.SanitizeUtf16(mod.packageId);
+                mod.displayName = StringEncodingUtility.SanitizeUtf16(mod.displayName);
+                mod.steamWorkshopUrl = StringEncodingUtility.SanitizeUtf16(mod.steamWorkshopUrl);
+            }
+
+            return result;
+        }
+
         private static string SerializeJson<T>(T data)
         {
             DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(T), JsonSettings);
@@ -415,7 +446,7 @@ namespace SimManagementLib.Tool
         private static T DeserializeJson<T>(string json) where T : class
         {
             DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(T), JsonSettings);
-            using (MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(json ?? "")))
+            using (MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(StringEncodingUtility.SanitizeUtf16(json))))
             {
                 return serializer.ReadObject(stream) as T;
             }
