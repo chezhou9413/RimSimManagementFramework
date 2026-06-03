@@ -151,7 +151,15 @@ namespace SimManagementLib.SimThingClass
         /// </summary>
         public int CountExcess(ThingDef thingDef)
         {
-            ClearOrphanedPendingOut();
+            ReconcilePendingReservationsForWorkScan();
+            return CountExcessAfterReconcile(thingDef);
+        }
+
+        /// <summary>
+        /// 在外层已完成预约同步后统计可下架数量，负责避免批量扫描中重复校正全图任务。
+        /// </summary>
+        private int CountExcessAfterReconcile(ThingDef thingDef)
+        {
             int stored = CountStored(thingDef);
             int target = GetTargetCount(thingDef);
             int alreadyPendingOut = pendingOut.TryGetValue(thingDef, out int value) ? value : 0;
@@ -163,13 +171,13 @@ namespace SimManagementLib.SimThingClass
         /// </summary>
         public IEnumerable<(ThingDef td, int excess)> GetExcessItems()
         {
-            HashSet<ThingDef> storedDefs = new HashSet<ThingDef>();
-            foreach (Thing thing in virtualStorage)
-                storedDefs.Add(thing.def);
+            ReconcilePendingReservationsForWorkScan();
+            List<ThingDef> storedDefs = GetStoredThingDefsSnapshot();
 
-            foreach (ThingDef thingDef in storedDefs)
+            for (int i = 0; i < storedDefs.Count; i++)
             {
-                int excess = CountExcess(thingDef);
+                ThingDef thingDef = storedDefs[i];
+                int excess = CountExcessAfterReconcile(thingDef);
                 if (excess > 0) yield return (thingDef, excess);
             }
         }

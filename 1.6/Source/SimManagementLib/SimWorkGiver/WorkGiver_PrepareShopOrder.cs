@@ -14,11 +14,15 @@ namespace SimManagementLib.SimWorkGiver
     /// </summary>
     public class WorkGiver_PrepareShopOrder : WorkGiver_Scanner
     {
-        private const int CandidateCacheTicks = 37;
+        private const int CandidateCacheTicks = 97;
+        private const int CandidateCacheJitterTicks = 29;
+        private const int CandidateWindowTicks = 7;
+        private const int CandidateWindowSize = 12;
+        private const int CacheStaggerSalt = 307;
+        private const int ProviderReserveCacheTicks = 11;
         private static readonly Dictionary<int, PrepareOrderCandidateCache> candidateCaches = new Dictionary<int, PrepareOrderCandidateCache>();
         private static WorkGiverDef cachedWorkGiverDef;
 
-        public override ThingRequest PotentialWorkThingRequest => ThingRequest.ForGroup(ThingRequestGroup.BuildingArtificial);
         public override PathEndMode PathEndMode => PathEndMode.Touch;
 
         /// <summary>
@@ -49,7 +53,7 @@ namespace SimManagementLib.SimWorkGiver
         /// </summary>
         public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
-            return FindOrderFor(pawn, t) != null;
+            return FindOrderFor(pawn, t, GetExistingCache(pawn?.Map), true) != null;
         }
 
         /// <summary>
@@ -57,7 +61,7 @@ namespace SimManagementLib.SimWorkGiver
         /// </summary>
         public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
-            PreparedShopOrder order = FindOrderFor(pawn, t);
+            PreparedShopOrder order = FindOrderFor(pawn, t, GetExistingCache(pawn?.Map), false);
             if (order == null) return null;
 
             PreparedShopOrderResult assigned = SimShopOrderApi.TryAssignOrder(pawn, order);
@@ -76,7 +80,7 @@ namespace SimManagementLib.SimWorkGiver
         /// <summary>
         /// 为员工和服务建筑查找一个可制作订单。
         /// </summary>
-        private static PreparedShopOrder FindOrderFor(Pawn pawn, Thing provider)
+        private static PreparedShopOrder FindOrderFor(Pawn pawn, Thing provider, PrepareOrderCandidateCache cache, bool useCachedReserve)
         {
             if (pawn?.Map == null || provider == null || provider.Destroyed) return null;
             Zone_Shop shop = ShopDataUtility.FindShopZone(provider.Map, provider.Position);
@@ -84,8 +88,7 @@ namespace SimManagementLib.SimWorkGiver
             if (CurrentWorkGiverDef != null && !ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, CurrentWorkGiverDef))
                 return null;
 
-            GameComponent_PreparedShopOrderManager manager = SimShopApi.OrderManager;
-            IReadOnlyList<PreparedShopOrder> orders = manager?.Orders;
+            IReadOnlyList<PreparedShopOrder> orders = GetOrdersForProvider(pawn.Map, provider, cache);
             if (orders == null || orders.Count <= 0) return null;
 
             PreparedShopOrder selected = null;
@@ -106,7 +109,10 @@ namespace SimManagementLib.SimWorkGiver
             }
 
             if (selected == null) return null;
-            return pawn.CanReserve(provider, 1, -1, null, false) ? selected : null;
+            bool canReserve = useCachedReserve
+                ? WorkGiverThingQueryCache.CanReserveThingCached(pawn, provider, 1, -1, false, ProviderReserveCacheTicks)
+                : pawn.CanReserve(provider, 1, -1, null, false);
+            return canReserve ? selected : null;
         }
 
         /// <summary>
@@ -125,10 +131,14 @@ namespace SimManagementLib.SimWorkGiver
             }
 
             if (now < cache.nextRefreshTick)
-                return cache.candidates;
+            {
+                if (now >= cache.nextWindowTick)
+                    RefreshCandidateWindow(cache, now);
+                return cache.windowCandidates;
+            }
 
             RefreshCandidateProviders(pawn.Map, cache, now);
-            return cache.candidates;
+            return cache.windowCandidates;
         }
 
         /// <summary>
@@ -136,44 +146,117 @@ namespace SimManagementLib.SimWorkGiver
         /// </summary>
         private static void RefreshCandidateProviders(Map map, PrepareOrderCandidateCache cache, int now)
         {
-            cache.candidates.Clear();
+            cache.allCandidates.Clear();
+            cache.windowCandidates.Clear();
             cache.providerIds.Clear();
-            cache.nextRefreshTick = now + CandidateCacheTicks;
+            cache.ordersByProviderId.Clear();
+            cache.nextRefreshTick = WorkGiverScanUtility.NextStaggeredTick(now, CandidateCacheTicks, map.uniqueID, CacheStaggerSalt, CandidateCacheJitterTicks);
+            cache.nextWindowTick = now;
 
             GameComponent_PreparedShopOrderManager manager = SimShopApi.OrderManager;
             IReadOnlyList<PreparedShopOrder> orders = manager?.Orders;
             if (orders == null || orders.Count <= 0) return;
 
-            Dictionary<int, Thing> thingById = BuildThingIdLookup(map);
-            for (int i = 0; i < orders.Count; i++)
+            Dictionary<int, List<PreparedShopOrder>> groupedOrders = PrepareOrderGroupingUtility.BuildGroups(orders);
+            foreach (KeyValuePair<int, List<PreparedShopOrder>> entry in groupedOrders)
+                cache.ordersByProviderId[entry.Key] = entry.Value;
+
+            Dictionary<int, Thing> thingById = BuildBuildingIdLookup(map);
+            foreach (int providerId in cache.ordersByProviderId.Keys)
             {
-                PreparedShopOrder order = orders[i];
-                if (!IsWaitingPreparationOrder(order)) continue;
-                int providerId = order.providerThingId;
                 if (providerId < 0 || cache.providerIds.Contains(providerId)) continue;
-                if (!thingById.TryGetValue(providerId, out Thing provider)) continue;
+                if (!thingById.TryGetValue(providerId, out Thing provider))
+                {
+                    provider = FindThingByIdFallback(map, providerId);
+                    if (provider != null)
+                        thingById[providerId] = provider;
+                }
                 if (provider == null || provider.Destroyed || !provider.Spawned) continue;
 
                 cache.providerIds.Add(providerId);
-                cache.candidates.Add(provider);
+                cache.allCandidates.Add(provider);
             }
+
+            RefreshCandidateWindow(cache, now);
         }
 
         /// <summary>
-        /// 构建当前地图 Thing 编号索引，负责让候选刷新时避免每个订单都全图反查一次建筑。
+        /// 刷新现做订单候选窗口，负责把服务建筑扫描错峰拆成较小批次。
         /// </summary>
-        private static Dictionary<int, Thing> BuildThingIdLookup(Map map)
+        private static void RefreshCandidateWindow(PrepareOrderCandidateCache cache, int now)
+        {
+            WorkGiverScanUtility.BuildThingWindow(cache.allCandidates, cache.windowCandidates, ref cache.windowCursor, CandidateWindowSize);
+            cache.nextWindowTick = now + CandidateWindowTicks;
+        }
+
+        /// <summary>
+        /// 构建当前地图建筑编号索引，负责让候选刷新时避免每个订单都全图反查一次建筑。
+        /// </summary>
+        private static Dictionary<int, Thing> BuildBuildingIdLookup(Map map)
         {
             Dictionary<int, Thing> result = new Dictionary<int, Thing>();
+            List<Building> buildings = map?.listerBuildings?.allBuildingsColonist;
+            if (buildings == null) return result;
+
+            for (int i = 0; i < buildings.Count; i++)
+            {
+                Building building = buildings[i];
+                if (building == null) continue;
+                result[building.thingIDNumber] = building;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 按编号从全图 Thing 中兜底查找订单提供者，负责兼容外部 API 创建的非殖民地建筑订单。
+        /// </summary>
+        private static Thing FindThingByIdFallback(Map map, int thingId)
+        {
             IReadOnlyList<Thing> things = map?.listerThings?.AllThings;
-            if (things == null) return result;
+            if (things == null) return null;
 
             for (int i = 0; i < things.Count; i++)
             {
                 Thing thing = things[i];
-                if (thing == null) continue;
-                result[thing.thingIDNumber] = thing;
+                if (thing != null && thing.thingIDNumber == thingId)
+                    return thing;
             }
+            return null;
+        }
+
+        /// <summary>
+        /// 获取当前地图已有订单候选缓存，负责让 HasJobOnThing 和 JobOnThing 复用候选刷新阶段的分组结果。
+        /// </summary>
+        private static PrepareOrderCandidateCache GetExistingCache(Map map)
+        {
+            if (map == null) return null;
+            candidateCaches.TryGetValue(map.uniqueID, out PrepareOrderCandidateCache cache);
+            return cache;
+        }
+
+        /// <summary>
+        /// 返回服务建筑对应的等待订单列表，负责在缺少缓存时回退到公开订单管理器。
+        /// </summary>
+        private static IReadOnlyList<PreparedShopOrder> GetOrdersForProvider(Map map, Thing provider, PrepareOrderCandidateCache cache)
+        {
+            if (provider == null)
+                return null;
+            if (cache != null && cache.ordersByProviderId.TryGetValue(provider.thingIDNumber, out List<PreparedShopOrder> cachedOrders))
+                return cachedOrders;
+            if (cache != null)
+                return null;
+            GameComponent_PreparedShopOrderManager manager = SimShopApi.OrderManager;
+            IReadOnlyList<PreparedShopOrder> orders = manager?.Orders;
+            if (orders == null || orders.Count <= 0)
+                return null;
+            List<PreparedShopOrder> result = new List<PreparedShopOrder>();
+            for (int i = 0; i < orders.Count; i++)
+            {
+                PreparedShopOrder order = orders[i];
+                if (IsWaitingPreparationOrderForProvider(order, provider.thingIDNumber))
+                    result.Add(order);
+            }
+
             return result;
         }
 
@@ -211,8 +294,12 @@ namespace SimManagementLib.SimWorkGiver
         private class PrepareOrderCandidateCache
         {
             public int nextRefreshTick = -1;
-            public readonly List<Thing> candidates = new List<Thing>();
+            public int nextWindowTick = -1;
+            public int windowCursor;
+            public readonly List<Thing> allCandidates = new List<Thing>();
+            public readonly List<Thing> windowCandidates = new List<Thing>();
             public readonly HashSet<int> providerIds = new HashSet<int>();
+            public readonly Dictionary<int, List<PreparedShopOrder>> ordersByProviderId = new Dictionary<int, List<PreparedShopOrder>>();
         }
     }
 }

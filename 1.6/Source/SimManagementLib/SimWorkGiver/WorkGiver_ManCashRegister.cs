@@ -15,7 +15,6 @@ namespace SimManagementLib.SimWorkGiver
         private const int CandidateCacheTicks = 61;
         private static readonly Dictionary<int, RegisterCandidateCache> candidateCaches = new Dictionary<int, RegisterCandidateCache>();
 
-        public override ThingRequest PotentialWorkThingRequest => ThingRequest.ForGroup(ThingRequestGroup.BuildingArtificial);
         public override PathEndMode PathEndMode => PathEndMode.InteractionCell;
 
         /// <summary>

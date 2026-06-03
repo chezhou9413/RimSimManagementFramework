@@ -94,11 +94,20 @@ namespace SimManagementLib.Tool
         /// </summary>
         public static Zone_Shop FindShopZone(Map map, IntVec3 targetShopCell)
         {
-            if (map == null) return null;
+            if (map == null || !targetShopCell.IsValid || !targetShopCell.InBounds(map)) return null;
 
-            return map.zoneManager.AllZones
-                .OfType<Zone_Shop>()
-                .FirstOrDefault(z => z.Cells.Contains(targetShopCell));
+            Zone zone = map.zoneManager.ZoneAt(targetShopCell);
+            if (zone is Zone_Shop directShop)
+                return directShop;
+
+            List<Zone> zones = map.zoneManager.AllZones;
+            for (int i = 0; i < zones.Count; i++)
+            {
+                if (zones[i] is Zone_Shop shop && shop.Cells.Contains(targetShopCell))
+                    return shop;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -110,10 +119,12 @@ namespace SimManagementLib.Tool
 
             if (targetShopZoneId >= 0)
             {
-                Zone_Shop byId = map.zoneManager.AllZones
-                    .OfType<Zone_Shop>()
-                    .FirstOrDefault(z => z.ID == targetShopZoneId);
-                if (byId != null) return byId;
+                List<Zone> zones = map.zoneManager.AllZones;
+                for (int i = 0; i < zones.Count; i++)
+                {
+                    if (zones[i] is Zone_Shop byId && byId.ID == targetShopZoneId)
+                        return byId;
+                }
             }
 
             return FindShopZone(map, targetShopCell);

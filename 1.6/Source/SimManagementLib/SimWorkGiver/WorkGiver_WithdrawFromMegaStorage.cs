@@ -15,6 +15,13 @@ namespace SimManagementLib.SimWorkGiver
     /// </summary>
     public class WorkGiver_WithdrawFromMegaStorage : WorkGiver_Scanner
     {
+        private const int CandidateCacheTicks = 191;
+        private const int CandidateCacheJitterTicks = 47;
+        private const int CandidateWindowTicks = 13;
+        private const int CandidateWindowSize = 24;
+        private const int CacheStaggerSalt = 211;
+        private const int StorageReachCacheTicks = 17;
+        private static readonly Dictionary<int, WithdrawCandidateCache> candidateCaches = new Dictionary<int, WithdrawCandidateCache>();
         private static WorkGiverDef cachedWorkGiverDef;
 
         /// <summary>
@@ -35,15 +42,9 @@ namespace SimManagementLib.SimWorkGiver
         /// </summary>
         public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn)
         {
-            if (pawn?.Map?.listerBuildings == null) yield break;
-
-            List<Building> buildings = pawn.Map.listerBuildings.allBuildingsColonist;
-            for (int i = 0; i < buildings.Count; i++)
-            {
-                Building_SimContainer storage = buildings[i] as Building_SimContainer;
-                if (storage != null && IsAllowedByBusinessState(storage))
-                    yield return storage;
-            }
+            List<Thing> candidates = GetCandidateStorages(pawn);
+            for (int i = 0; i < candidates.Count; i++)
+                yield return candidates[i];
         }
 
         /// <summary>
@@ -52,9 +53,9 @@ namespace SimManagementLib.SimWorkGiver
         public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
             if (!(t is Building_SimContainer storage)) return false;
-            storage.ReconcilePendingReservations();
+            storage.ReconcilePendingReservationsForWorkScan();
             if (!HasExcess(storage, pawn)) return false;
-            if (!pawn.CanReach(storage, PathEndMode.Touch, Danger.Deadly)) return false;
+            if (!WorkGiverThingQueryCache.CanReachThingCached(pawn, storage, PathEndMode.Touch, Danger.Deadly, StorageReachCacheTicks)) return false;
             return true;
         }
 
@@ -110,6 +111,91 @@ namespace SimManagementLib.SimWorkGiver
             if (VendingMachineUtility.IsVendingMachine(storage))
                 return true;
             return ShopStaffUtility.IsShopOpenForWork(ShopStaffUtility.FindShopFor(storage));
+        }
+
+        /// <summary>
+        /// 返回短时间缓存的清理货柜候选，负责避免每个搬运者重复枚举全部殖民地建筑。
+        /// </summary>
+        private static List<Thing> GetCandidateStorages(Pawn pawn)
+        {
+            if (pawn?.Map?.listerBuildings == null) return EmptyThingList;
+
+            int mapId = pawn.Map.uniqueID;
+            int now = Find.TickManager?.TicksGame ?? 0;
+            if (!candidateCaches.TryGetValue(mapId, out WithdrawCandidateCache cache) || cache == null)
+            {
+                cache = new WithdrawCandidateCache();
+                candidateCaches[mapId] = cache;
+            }
+
+            if (now < cache.nextRefreshTick)
+            {
+                if (now >= cache.nextWindowTick)
+                    RefreshCandidateWindow(cache, now);
+                return cache.windowCandidates;
+            }
+
+            RefreshCandidateStorages(pawn.Map, cache, now);
+            return cache.windowCandidates;
+        }
+
+        /// <summary>
+        /// 刷新当前地图的清理货柜候选，负责只保留营业状态允许扫描的货柜。
+        /// </summary>
+        private static void RefreshCandidateStorages(Map map, WithdrawCandidateCache cache, int now)
+        {
+            cache.allCandidates.Clear();
+            cache.nextRefreshTick = WorkGiverScanUtility.NextStaggeredTick(now, CandidateCacheTicks, map.uniqueID, CacheStaggerSalt, CandidateCacheJitterTicks);
+            cache.nextWindowTick = now;
+
+            List<Building> buildings = map.listerBuildings.allBuildingsColonist;
+            for (int i = 0; i < buildings.Count; i++)
+            {
+                Building_SimContainer storage = buildings[i] as Building_SimContainer;
+                if (storage == null || storage.Destroyed || !storage.Spawned) continue;
+                if (!IsAllowedByBusinessState(storage)) continue;
+                if (!HasAnyExcess(storage)) continue;
+                cache.allCandidates.Add(storage);
+            }
+
+            RefreshCandidateWindow(cache, now);
+        }
+
+        /// <summary>
+        /// 刷新清理货柜候选窗口，负责把全量货柜扫描错峰拆成较小批次。
+        /// </summary>
+        private static void RefreshCandidateWindow(WithdrawCandidateCache cache, int now)
+        {
+            WorkGiverScanUtility.BuildThingWindow(cache.allCandidates, cache.windowCandidates, ref cache.windowCursor, CandidateWindowSize);
+            cache.nextWindowTick = now + CandidateWindowTicks;
+        }
+
+        private static readonly List<Thing> EmptyThingList = new List<Thing>(0);
+
+        /// <summary>
+        /// 判断货柜是否存在任意多余库存，负责在候选刷新阶段提前排除空转货柜。
+        /// </summary>
+        private static bool HasAnyExcess(Building_SimContainer storage)
+        {
+            foreach ((ThingDef _, int excess) in storage.GetExcessItems())
+            {
+                if (excess > 0)
+                    return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 保存单张地图的清理货柜候选缓存，负责降低 WorkGiver 高频扫描成本。
+        /// </summary>
+        private class WithdrawCandidateCache
+        {
+            public int nextRefreshTick = -1;
+            public int nextWindowTick = -1;
+            public int windowCursor;
+            public readonly List<Thing> allCandidates = new List<Thing>();
+            public readonly List<Thing> windowCandidates = new List<Thing>();
         }
     }
 }

@@ -14,7 +14,7 @@ namespace SimManagementLib.Tool
     /// <summary>
     /// 提供商店员工岗位、资格和工作许可判断，负责把店铺配置转换为原版 WorkGiver 可用规则。
     /// </summary>
-    public static class ShopStaffUtility
+    public static partial class ShopStaffUtility
     {
         /// <summary>
         /// 保存员工岗位资格结果，负责同时返回是否可分配和不可分配原因。
@@ -104,8 +104,7 @@ namespace SimManagementLib.Tool
         /// </summary>
         public static List<ShopStaffRoleDef> GetVisibleRoles(Zone_Shop zone)
         {
-            if (zone?.Map == null) return new List<ShopStaffRoleDef>();
-            return Roles.Where(r => RoleMatchesShop(zone, r)).OrderBy(r => r.index).ThenBy(r => r.defName).ToList();
+            return new List<ShopStaffRoleDef>(GetCachedVisibleRoles(zone));
         }
 
         /// <summary>
@@ -134,18 +133,17 @@ namespace SimManagementLib.Tool
             if (pawn == null) return false;
             if (zone == null || workGiverDef == null) return true;
 
-            List<ShopStaffRoleDef> matchingRoles = GetVisibleRoles(zone)
-                .Where(r => !r.workGivers.NullOrEmpty() && r.workGivers.Contains(workGiverDef))
-                .ToList();
-            if (matchingRoles.Count <= 0) return true;
-
             bool hasAnyAssignment = false;
-            for (int i = 0; i < matchingRoles.Count; i++)
+            List<ShopStaffRoleDef> visibleRoles = GetCachedVisibleRoles(zone);
+            for (int i = 0; i < visibleRoles.Count; i++)
             {
-                List<Pawn> assigned = zone.GetAssignedPawns(matchingRoles[i].defName);
-                if (assigned.Count <= 0) continue;
+                ShopStaffRoleDef role = visibleRoles[i];
+                if (!RoleContainsWorkGiver(role, workGiverDef)) continue;
+                if (!zone.HasAssignedPawnsForRole(role.defName)) continue;
+
                 hasAnyAssignment = true;
-                if (assigned.Contains(pawn) && matchingRoles[i].Worker.AllowsPawnForWorkGiver(zone, pawn, workGiverDef)) return true;
+                if (zone.IsPawnAssignedToRole(role.defName, pawn) && role.Worker.AllowsPawnForWorkGiver(zone, pawn, workGiverDef))
+                    return true;
             }
 
             return !hasAnyAssignment;
@@ -158,13 +156,12 @@ namespace SimManagementLib.Tool
         {
             if (zone == null || pawn == null || workGiverDef == null) return false;
 
-            List<ShopStaffRoleDef> matchingRoles = GetVisibleRoles(zone)
-                .Where(r => !r.workGivers.NullOrEmpty() && r.workGivers.Contains(workGiverDef))
-                .ToList();
-
-            for (int i = 0; i < matchingRoles.Count; i++)
+            List<ShopStaffRoleDef> visibleRoles = GetCachedVisibleRoles(zone);
+            for (int i = 0; i < visibleRoles.Count; i++)
             {
-                if (zone.GetAssignedPawns(matchingRoles[i].defName).Contains(pawn))
+                ShopStaffRoleDef role = visibleRoles[i];
+                if (!RoleContainsWorkGiver(role, workGiverDef)) continue;
+                if (zone.IsPawnAssignedToRole(role.defName, pawn))
                     return true;
             }
 

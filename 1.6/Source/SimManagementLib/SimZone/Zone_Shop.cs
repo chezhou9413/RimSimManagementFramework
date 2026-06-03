@@ -16,7 +16,7 @@ namespace SimManagementLib.SimZone
     /// <summary>
     /// 表示玩家划定的商店区域，负责营业条件验证、店员岗位绑定和商店管理入口。
     /// </summary>
-    public class Zone_Shop : Zone
+    public partial class Zone_Shop : Zone
     {
         private static readonly FieldInfo ZoneGridField = AccessTools.Field(typeof(ZoneManager), "zoneGrid");
         private static readonly FieldInfo CellsShuffledField = AccessTools.Field(typeof(Zone), "cellsShuffled");
@@ -39,7 +39,7 @@ namespace SimManagementLib.SimZone
         /// </summary>
         public bool IsValidShop()
         {
-            return ComputeValidShopNow(out _);
+            return GetCachedValidShopNow(out _);
         }
 
         /// <summary>
@@ -47,8 +47,7 @@ namespace SimManagementLib.SimZone
         /// </summary>
         public bool IsOpenNow()
         {
-            if (!IsValidShop()) return false;
-            return GetSchedule().IsOpenNow(Map);
+            return GetCachedOpenNow();
         }
 
         /// <summary>
@@ -84,6 +83,7 @@ namespace SimManagementLib.SimZone
         public void ApplySchedule(ShopScheduleData newSchedule)
         {
             GetSchedule().CopyFrom(newSchedule);
+            InvalidateShopRuntimeCache();
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace SimManagementLib.SimZone
         /// </summary>
         public string GetValidationMessage()
         {
-            ComputeValidShopNow(out string message);
+            GetCachedValidShopNow(out string message);
             return message;
         }
 
@@ -457,6 +457,8 @@ namespace SimManagementLib.SimZone
                 .ToList() ?? new List<ShopRoleAssignment>();
             schedule = snapshot.schedule?.Clone() ?? new ShopScheduleData();
             NormalizeRoleAssignments();
+            InvalidateShopRuntimeCache();
+            ShopStaffUtility.NotifyShopChanged(this);
         }
 
         public override string GetInspectString()
@@ -502,6 +504,12 @@ namespace SimManagementLib.SimZone
             if (addedToCells)
                 CellsShuffledField?.SetValue(this, false);
 
+            if (addedToCells || gridChanged)
+            {
+                InvalidateShopRuntimeCache();
+                ShopStaffUtility.NotifyShopChanged(this);
+            }
+
             return addedToCells || gridChanged;
         }
 
@@ -528,6 +536,8 @@ namespace SimManagementLib.SimZone
         public override void RemoveCell(IntVec3 c)
         {
             base.RemoveCell(c);
+            InvalidateShopRuntimeCache();
+            ShopStaffUtility.NotifyShopChanged(this);
         }
 
         public override IEnumerable<Gizmo> GetGizmos()

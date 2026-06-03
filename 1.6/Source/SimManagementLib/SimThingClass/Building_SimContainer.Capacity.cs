@@ -165,6 +165,14 @@ namespace SimManagementLib.SimThingClass
         }
 
         /// <summary>
+        /// 按固定间隔同步补货和下架预约，负责供高频工作扫描使用，避免每个候选货柜都全图扫描 Pawn 任务。
+        /// </summary>
+        public void ReconcilePendingReservationsForWorkScan()
+        {
+            ReconcilePendingReservationsIfNeeded();
+        }
+
+        /// <summary>
         /// 统计当前地图上仍然有效的补货或下架任务预约数量。
         /// </summary>
         private int CountActiveReservationJobs(ThingDef thingDef, string jobDefName, TargetIndex storageTarget, bool depositJob)
@@ -291,6 +299,21 @@ namespace SimManagementLib.SimThingClass
             if (thingDef == null) return 0;
             RebuildStoredCountCacheIfNeeded();
             return storedCountCache.TryGetValue(thingDef, out int value) ? value : 0;
+        }
+
+        /// <summary>
+        /// 返回当前有实际库存的商品定义快照，负责让高频扫描不用枚举虚拟库存中的每个物品栈。
+        /// </summary>
+        public List<ThingDef> GetStoredThingDefsSnapshot()
+        {
+            RebuildStoredCountCacheIfNeeded();
+            List<ThingDef> result = new List<ThingDef>();
+            foreach (KeyValuePair<ThingDef, int> entry in storedCountCache)
+            {
+                if (entry.Key != null && entry.Value > 0)
+                    result.Add(entry.Key);
+            }
+            return result;
         }
 
         /// <summary>
