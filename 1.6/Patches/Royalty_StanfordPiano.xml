@@ -28,7 +28,7 @@
     </value>
   </Operation>
 
-  <Operation Class="PatchOperationReplace" MayRequire="Ludeon.RimWorld.Royalty">
+  <!--Operation Class="PatchOperationReplace" MayRequire="Ludeon.RimWorld.Royalty">
     <xpath>/Defs/RoyalTitleDef[defName="Count"]/throneRoomRequirements//li[@Class="RoomRequirement_Thing" and thingDef="Piano"]</xpath>
     <value>
       <li Class="RoomRequirement_ThingAnyOf">
@@ -38,7 +38,7 @@
         </things>
       </li>
     </value>
-  </Operation>
+  </Operation-->
 
   <!--Operation Class="PatchOperationReplace" MayRequire="Ludeon.RimWorld.Royalty">
     <xpath>/Defs/RoyalTitleDef[defName="Royal"]/throneRoomRequirements/li[@Class="RoomRequirement_Thing"]</xpath>
