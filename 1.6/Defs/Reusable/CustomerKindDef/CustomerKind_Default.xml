@@ -38,6 +38,23 @@
     </pawnKindDefs>
 
     <!--
+      价格敏感度参数：
+      discountWeightMultiplier：低于市价时的最高购买权重加成。
+      softMarkupRatio：小幅溢价上限，超过后购买权重明显降低。
+      rejectMarkupRatio：超过该市价倍率时顾客直接拒买。
+      overpricedMinWeight：软溢价到拒买区间内的最低购买权重。
+      complainMarkupRatio：超过该倍率时，拒买或无消费评价会记录价格偏高原因。
+    -->
+    
+    <!--priceSensitivity>
+      <discountWeightMultiplier>1.15</discountWeightMultiplier>
+      <softMarkupRatio>2.0</softMarkupRatio>
+      <rejectMarkupRatio>4.0</rejectMarkupRatio>
+      <overpricedMinWeight>0.03</overpricedMinWeight>
+      <complainMarkupRatio>1.4</complainMarkupRatio>
+    </priceSensitivity-->
+
+    <!--
       到访时段曲线（0~24 小时）。
       示例含义：中午和傍晚更容易来客，深夜较少。
       y 值是权重，不是百分比，可大于 1。
