@@ -440,6 +440,9 @@
   <RSMF.ShopManager.Usage>Occupied</RSMF.ShopManager.Usage>
   <RSMF.ShopManager.Capacity>Capacity</RSMF.ShopManager.Capacity>
   <RSMF.ShopManager.OverridePrice>Override price</RSMF.ShopManager.OverridePrice>
+  <RSMF.ShopManager.OverrideEnabled>Override</RSMF.ShopManager.OverrideEnabled>
+  <RSMF.ShopManager.OverrideEnabledTip>When enabled, this service uses the override price. Set it to 0 for a free service.</RSMF.ShopManager.OverrideEnabledTip>
+  <RSMF.ShopManager.OverridePriceDisabledTip>When override is disabled, this service uses its default or dynamic price.</RSMF.ShopManager.OverridePriceDisabledTip>
   <RSMF.ShopManager.Enabled>Enabled</RSMF.ShopManager.Enabled>
   <RSMF.ShopManager.ServiceBuilding>Service building</RSMF.ShopManager.ServiceBuilding>
   <RSMF.ShopManager.ServiceName>Service name</RSMF.ShopManager.ServiceName>
@@ -594,6 +597,13 @@
   <RSMF.CustomCustomer.EndHour>End hour</RSMF.CustomCustomer.EndHour>
   <RSMF.CustomCustomer.ReadOnlyBudget>MTB {mtb} days    budget {min}-{max}    queue patience {patienceMin}-{patienceMax}</RSMF.CustomCustomer.ReadOnlyBudget>
   <RSMF.CustomCustomer.ReadOnlyTime>Active hours {start}-{end}    min reputation {minReputation}</RSMF.CustomCustomer.ReadOnlyTime>
+  <RSMF.CustomCustomer.Section.PriceSensitivity>Price sensitivity</RSMF.CustomCustomer.Section.PriceSensitivity>
+  <RSMF.CustomCustomer.PriceDiscount>Discount</RSMF.CustomCustomer.PriceDiscount>
+  <RSMF.CustomCustomer.PriceSoft>Soft</RSMF.CustomCustomer.PriceSoft>
+  <RSMF.CustomCustomer.PriceReject>Reject</RSMF.CustomCustomer.PriceReject>
+  <RSMF.CustomCustomer.PriceMinWeight>Min wt</RSMF.CustomCustomer.PriceMinWeight>
+  <RSMF.CustomCustomer.PriceComplain>Complain</RSMF.CustomCustomer.PriceComplain>
+  <RSMF.CustomCustomer.ReadOnlyPriceSensitivity>discount weight {discount}    soft markup {soft}x    reject {reject}x    complain {complain}x</RSMF.CustomCustomer.ReadOnlyPriceSensitivity>
   <RSMF.CustomCustomer.Section.PawnKind>PawnKind</RSMF.CustomCustomer.Section.PawnKind>
   <RSMF.CustomCustomer.SelectedPawnKinds>Selected PawnKinds, use the right side to append more.</RSMF.CustomCustomer.SelectedPawnKinds>
   <RSMF.CustomCustomer.BuiltInPawnKinds>Configured PawnKinds in the Def.</RSMF.CustomCustomer.BuiltInPawnKinds>
@@ -994,10 +1004,27 @@
   <RSMF.ShopUi.Page.Main.CollectibleExchange.Description>Business manager page for collectible exchange lists.</RSMF.ShopUi.Page.Main.CollectibleExchange.Description>
   <RSMF.ShopUi.Page.Main.Blueprints.Label>Blueprints</RSMF.ShopUi.Page.Main.Blueprints.Label>
   <RSMF.ShopUi.Page.Main.Blueprints.Description>Business manager page for shop blueprints.</RSMF.ShopUi.Page.Main.Blueprints.Description>
+  <RSMF.ShopUi.Page.Main.Extensions.Label>Extensions</RSMF.ShopUi.Page.Main.Extensions.Label>
+  <RSMF.ShopUi.Page.Main.Extensions.Description>View recommended business extensions and open their Steam pages.</RSMF.ShopUi.Page.Main.Extensions.Description>
   <RSMF.ShopUi.Page.Main.Customers.Label>Customers</RSMF.ShopUi.Page.Main.Customers.Label>
   <RSMF.ShopUi.Page.Main.Customers.Description>Business manager page for active customers.</RSMF.ShopUi.Page.Main.Customers.Description>
   <RSMF.ShopUi.Page.Main.Staff.Label>Staff</RSMF.ShopUi.Page.Main.Staff.Label>
   <RSMF.ShopUi.Page.Main.Staff.Description>Business manager page for shop staff.</RSMF.ShopUi.Page.Main.Staff.Description>
+  <RSMF.Business.Extensions.Title>Recommended extensions</RSMF.Business.Extensions.Title>
+  <RSMF.Business.Extensions.Summary>{checked}/{total} recommended extensions completed. Open the Steam page and subscribe in Workshop; restart the game for the status to update.</RSMF.Business.Extensions.Summary>
+  <RSMF.Business.Extensions.Empty>No recommended extensions are configured.</RSMF.Business.Extensions.Empty>
+  <RSMF.Business.Extensions.OpenSteam>Steam page</RSMF.Business.Extensions.OpenSteam>
+  <RSMF.Business.Extensions.NoPreview>No preview</RSMF.Business.Extensions.NoPreview>
+  <RSMF.Business.Extensions.Checked>Done</RSMF.Business.Extensions.Checked>
+  <RSMF.Business.Extensions.NotInstalled>Missing</RSMF.Business.Extensions.NotInstalled>
+  <RSMF.Business.Extensions.Active>Active</RSMF.Business.Extensions.Active>
+  <RSMF.Business.Extensions.Subscribed>Subscribed</RSMF.Business.Extensions.Subscribed>
+  <RSMF.Business.Extensions.Item.HAR.Label>RSMF: HAR extension</RSMF.Business.Extensions.Item.HAR.Label>
+  <RSMF.Business.Extensions.Item.HAR.Description>Adds RimSim business compatibility for Humanoid Alien Races related races and customers.</RSMF.Business.Extensions.Item.HAR.Description>
+  <RSMF.Business.Extensions.Item.Milira.Label>RSMF: Milira extension</RSMF.Business.Extensions.Item.Milira.Label>
+  <RSMF.Business.Extensions.Item.Milira.Description>Adds RimSim business compatibility for Milira-themed customers, shops, and Milian staff content.</RSMF.Business.Extensions.Item.Milira.Description>
+  <RSMF.Business.Extensions.Item.Woffen.Label>RSMF: Woffen extension</RSMF.Business.Extensions.Item.Woffen.Label>
+  <RSMF.Business.Extensions.Item.Woffen.Description>Adds RimSim business compatibility for Woffen-themed business content.</RSMF.Business.Extensions.Item.Woffen.Description>
   <RSMF.ShopUi.Page.Shop.Overview.Label>Overview</RSMF.ShopUi.Page.Shop.Overview.Label>
   <RSMF.ShopUi.Page.Shop.Overview.Description>Shop manager overview page.</RSMF.ShopUi.Page.Shop.Overview.Description>
   <RSMF.ShopUi.Page.Shop.BusinessHours.Label>Business hours</RSMF.ShopUi.Page.Shop.BusinessHours.Label>

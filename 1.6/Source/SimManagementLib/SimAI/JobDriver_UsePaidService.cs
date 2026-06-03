@@ -87,6 +87,8 @@ namespace SimManagementLib.SimAI
                 SimShopEvents.NotifyServiceOrderCompleted(pawn, order, shopZone);
                 ShopBubbleUtility.ShowTextBubble(pawn, SimTranslation.T("RSMF.Bubble.ServiceCompleted", serviceDef.DisplayLabel.Named("service")), new Color(0.55f, 0.85f, 1f));
 
+                if (order.totalPrice <= 0f)
+                    lordJob?.TryEnqueueFreeCompletedServiceReview(pawn, shopZone, "完成免费服务");
                 lordJob?.GetOrCreateSession(pawn)?.NotifyCheckoutPaid(lordJob, pawn, "购后服务完成");
                 lordJob?.CheckAllCheckoutsDone();
             };

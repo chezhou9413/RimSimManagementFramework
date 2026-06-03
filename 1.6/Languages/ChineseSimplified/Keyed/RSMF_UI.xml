@@ -440,6 +440,9 @@
   <RSMF.ShopManager.Usage>占用</RSMF.ShopManager.Usage>
   <RSMF.ShopManager.Capacity>并发</RSMF.ShopManager.Capacity>
   <RSMF.ShopManager.OverridePrice>覆盖价</RSMF.ShopManager.OverridePrice>
+  <RSMF.ShopManager.OverrideEnabled>改价</RSMF.ShopManager.OverrideEnabled>
+  <RSMF.ShopManager.OverrideEnabledTip>开启后使用覆盖价；覆盖价可以为 0，表示免费服务。</RSMF.ShopManager.OverrideEnabledTip>
+  <RSMF.ShopManager.OverridePriceDisabledTip>未开启改价时，此服务使用默认价格或动态价格。</RSMF.ShopManager.OverridePriceDisabledTip>
   <RSMF.ShopManager.Enabled>启用</RSMF.ShopManager.Enabled>
   <RSMF.ShopManager.ServiceBuilding>服务建筑</RSMF.ShopManager.ServiceBuilding>
   <RSMF.ShopManager.ServiceName>服务名称</RSMF.ShopManager.ServiceName>
@@ -594,6 +597,13 @@
   <RSMF.CustomCustomer.EndHour>结束小时</RSMF.CustomCustomer.EndHour>
   <RSMF.CustomCustomer.ReadOnlyBudget>MTB {mtb} 天    预算 {min}-{max}    排队耐心 {patienceMin}-{patienceMax}</RSMF.CustomCustomer.ReadOnlyBudget>
   <RSMF.CustomCustomer.ReadOnlyTime>活跃时段 {start}-{end}    最低口碑 {minReputation}</RSMF.CustomCustomer.ReadOnlyTime>
+  <RSMF.CustomCustomer.Section.PriceSensitivity>价格敏感度</RSMF.CustomCustomer.Section.PriceSensitivity>
+  <RSMF.CustomCustomer.PriceDiscount>折扣权</RSMF.CustomCustomer.PriceDiscount>
+  <RSMF.CustomCustomer.PriceSoft>软溢价</RSMF.CustomCustomer.PriceSoft>
+  <RSMF.CustomCustomer.PriceReject>拒买</RSMF.CustomCustomer.PriceReject>
+  <RSMF.CustomCustomer.PriceMinWeight>低权重</RSMF.CustomCustomer.PriceMinWeight>
+  <RSMF.CustomCustomer.PriceComplain>抱怨</RSMF.CustomCustomer.PriceComplain>
+  <RSMF.CustomCustomer.ReadOnlyPriceSensitivity>折扣权重 {discount}    软溢价 {soft}x    拒买 {reject}x    抱怨 {complain}x</RSMF.CustomCustomer.ReadOnlyPriceSensitivity>
   <RSMF.CustomCustomer.Section.PawnKind>PawnKind</RSMF.CustomCustomer.Section.PawnKind>
   <RSMF.CustomCustomer.SelectedPawnKinds>已选 PawnKind，可用右侧追加。</RSMF.CustomCustomer.SelectedPawnKinds>
   <RSMF.CustomCustomer.BuiltInPawnKinds>Def 中配置的 PawnKind。</RSMF.CustomCustomer.BuiltInPawnKinds>
@@ -994,10 +1004,27 @@
   <RSMF.ShopUi.Page.Main.CollectibleExchange.Description>经商管理主界面的收藏品兑换页。</RSMF.ShopUi.Page.Main.CollectibleExchange.Description>
   <RSMF.ShopUi.Page.Main.Blueprints.Label>蓝图管理</RSMF.ShopUi.Page.Main.Blueprints.Label>
   <RSMF.ShopUi.Page.Main.Blueprints.Description>经商管理主界面的蓝图页。</RSMF.ShopUi.Page.Main.Blueprints.Description>
+  <RSMF.ShopUi.Page.Main.Extensions.Label>扩展推荐</RSMF.ShopUi.Page.Main.Extensions.Label>
+  <RSMF.ShopUi.Page.Main.Extensions.Description>查看推荐的经商扩展并打开对应 Steam 页面。</RSMF.ShopUi.Page.Main.Extensions.Description>
   <RSMF.ShopUi.Page.Main.Customers.Label>顾客</RSMF.ShopUi.Page.Main.Customers.Label>
   <RSMF.ShopUi.Page.Main.Customers.Description>经商管理主界面的顾客页。</RSMF.ShopUi.Page.Main.Customers.Description>
   <RSMF.ShopUi.Page.Main.Staff.Label>店员</RSMF.ShopUi.Page.Main.Staff.Label>
   <RSMF.ShopUi.Page.Main.Staff.Description>经商管理主界面的店员页。</RSMF.ShopUi.Page.Main.Staff.Description>
+  <RSMF.Business.Extensions.Title>推荐扩展</RSMF.Business.Extensions.Title>
+  <RSMF.Business.Extensions.Summary>已完成 {checked}/{total} 个推荐扩展。点击 Steam 页面按钮后在创意工坊订阅；重启游戏后状态会刷新。</RSMF.Business.Extensions.Summary>
+  <RSMF.Business.Extensions.Empty>没有配置推荐扩展。</RSMF.Business.Extensions.Empty>
+  <RSMF.Business.Extensions.OpenSteam>Steam 页面</RSMF.Business.Extensions.OpenSteam>
+  <RSMF.Business.Extensions.NoPreview>无封面</RSMF.Business.Extensions.NoPreview>
+  <RSMF.Business.Extensions.Checked>已完成</RSMF.Business.Extensions.Checked>
+  <RSMF.Business.Extensions.NotInstalled>未安装</RSMF.Business.Extensions.NotInstalled>
+  <RSMF.Business.Extensions.Active>已启用</RSMF.Business.Extensions.Active>
+  <RSMF.Business.Extensions.Subscribed>已订阅</RSMF.Business.Extensions.Subscribed>
+  <RSMF.Business.Extensions.Item.HAR.Label>RSMF：HAR 扩展</RSMF.Business.Extensions.Item.HAR.Label>
+  <RSMF.Business.Extensions.Item.HAR.Description>为 Humanoid Alien Races 相关种族与顾客内容提供经商管理兼容入口。</RSMF.Business.Extensions.Item.HAR.Description>
+  <RSMF.Business.Extensions.Item.Milira.Label>RSMF：米莉拉扩展</RSMF.Business.Extensions.Item.Milira.Label>
+  <RSMF.Business.Extensions.Item.Milira.Description>为米莉拉相关顾客、特色商店和米莉安店员内容提供经商管理兼容入口。</RSMF.Business.Extensions.Item.Milira.Description>
+  <RSMF.Business.Extensions.Item.Woffen.Label>RSMF：沃芬扩展</RSMF.Business.Extensions.Item.Woffen.Label>
+  <RSMF.Business.Extensions.Item.Woffen.Description>为沃芬主题经营内容提供经商管理兼容入口。</RSMF.Business.Extensions.Item.Woffen.Description>
   <RSMF.ShopUi.Page.Shop.Overview.Label>概览</RSMF.ShopUi.Page.Shop.Overview.Label>
   <RSMF.ShopUi.Page.Shop.Overview.Description>单店铺管理窗口的概览页。</RSMF.ShopUi.Page.Shop.Overview.Description>
   <RSMF.ShopUi.Page.Shop.BusinessHours.Label>营业时间</RSMF.ShopUi.Page.Shop.BusinessHours.Label>

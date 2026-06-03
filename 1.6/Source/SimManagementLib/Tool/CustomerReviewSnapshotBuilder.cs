@@ -56,11 +56,15 @@ namespace SimManagementLib.Tool
             List<CustomerServiceOrder> serviceOrders = lordJob.GetServiceOrders(pawnId);
             int budget = lordJob.GetBudgetForPawn(pawnId);
             float cartValue = lordJob.GetCartValue(pawnId) > 0f ? lordJob.GetCartValue(pawnId) : paidSilver;
-            bool paid = paidSilver > 0;
+            bool hasCompletedService = HasCompletedService(serviceOrders);
+            bool hasServiceFailure = HasFailedService(serviceOrders);
+            bool hasFreeCompletedService = paidSilver <= 0 && hasCompletedService;
+            bool paid = paidSilver > 0 || hasFreeCompletedService;
             float spent = paid ? paidSilver : 0f;
-            string publicCheckoutResult = BuildPublicCheckoutResult(checkoutResult, paid, cartValue);
+            string priceRejectionReason = lordJob.GetPriceRejectionReason(pawnId);
+            string publicCheckoutResult = BuildPublicCheckoutResult(checkoutResult, paidSilver > 0, cartValue, hasFreeCompletedService);
             List<ReviewFeaturedItem> featuredItems = paid ? BuildFeaturedItems(billLines) : new List<ReviewFeaturedItem>();
-            string purchasedSummary = BuildPurchasedSummary(billLines, spent, paid, cartValue);
+            string purchasedSummary = BuildPurchasedSummary(billLines, spent, paid, cartValue, hasFreeCompletedService);
             string serviceSummary = BuildServiceSummary(serviceOrders, publicCheckoutResult);
             string avatarId = CustomerReviewAvatarCache.SaveAvatar(pawn, reviewId);
 
@@ -84,10 +88,10 @@ namespace SimManagementLib.Tool
                 traitSummary = BuildTraitSummary(pawn),
                 xenotypeSummary = BuildXenotypeSummary(pawn),
                 geneSummary = BuildGeneSummary(pawn),
-                personalityBiasSummary = BuildPersonalityBiasSummary(pawn, publicCheckoutResult, spent, serviceSummary),
+                personalityBiasSummary = BuildPersonalityBiasSummary(pawn, publicCheckoutResult, spent, serviceSummary, hasCompletedService, hasServiceFailure),
                 moodSummary = BuildMoodSummary(pawn),
                 healthSummary = BuildHealthSummary(pawn),
-                budgetSummary = BuildBudgetSummary(budget, spent, cartValue, publicCheckoutResult, paid),
+                budgetSummary = BuildBudgetSummary(budget, spent, cartValue, publicCheckoutResult, paid, hasFreeCompletedService, priceRejectionReason),
                 purchasedSummary = purchasedSummary,
                 serviceSummary = serviceSummary,
                 shopEnvironmentSummary = BuildEnvironmentSummary(shopZone),
@@ -129,8 +133,11 @@ namespace SimManagementLib.Tool
             return result;
         }
 
-        private static string BuildPurchasedSummary(List<FinanceLineItem> billLines, float spent, bool paid, float cartValue)
+        private static string BuildPurchasedSummary(List<FinanceLineItem> billLines, float spent, bool paid, float cartValue, bool hasFreeCompletedService)
         {
+            if (hasFreeCompletedService && (billLines == null || billLines.Count == 0))
+                return SimTranslation.T("RSMF.CustomerReview.Snapshot.FreeServiceOnly");
+
             if (!paid)
             {
                 return cartValue > 0f
@@ -173,6 +180,42 @@ namespace SimManagementLib.Tool
                     BuildServiceDescription(order).Named("description")));
             }
             return string.Join(SimTranslation.T("RSMF.Common.SemicolonSeparator"), parts);
+        }
+
+        /// <summary>
+        /// 判断是否存在成功完成的服务订单，负责区分免费服务成功和未消费离店。
+        /// </summary>
+        private static bool HasCompletedService(List<CustomerServiceOrder> orders)
+        {
+            if (orders.NullOrEmpty())
+                return false;
+
+            for (int i = 0; i < orders.Count; i++)
+            {
+                CustomerServiceOrder order = orders[i];
+                if (order != null && order.state == ServiceOrderState.Completed)
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 判断服务订单是否存在失败或取消，负责只在真实负面流程中引导差评倾向。
+        /// </summary>
+        private static bool HasFailedService(List<CustomerServiceOrder> orders)
+        {
+            if (orders.NullOrEmpty())
+                return false;
+
+            for (int i = 0; i < orders.Count; i++)
+            {
+                CustomerServiceOrder order = orders[i];
+                if (order == null)
+                    continue;
+                if (order.state == ServiceOrderState.Canceled || order.state == ServiceOrderState.CheckoutFailed)
+                    return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -285,8 +328,11 @@ namespace SimManagementLib.Tool
         /// <summary>
         /// 构造面向点评模型的结账结果，负责把程序状态转成顾客能理解的自然描述。
         /// </summary>
-        private static string BuildPublicCheckoutResult(string checkoutResult, bool paid, float cartValue)
+        private static string BuildPublicCheckoutResult(string checkoutResult, bool paid, float cartValue, bool hasFreeCompletedService)
         {
+            if (hasFreeCompletedService)
+                return "完成了免费服务，没有产生付款。";
+
             if (paid)
                 return string.IsNullOrWhiteSpace(checkoutResult) ? "已付款并完成结账" : checkoutResult;
 
@@ -306,12 +352,16 @@ namespace SimManagementLib.Tool
         /// <summary>
         /// 构造预算与付款摘要，负责区分真实付款和未付款购物车金额。
         /// </summary>
-        private static string BuildBudgetSummary(int budget, float spent, float cartValue, string publicCheckoutResult, bool paid)
+        private static string BuildBudgetSummary(int budget, float spent, float cartValue, string publicCheckoutResult, bool paid, bool hasFreeCompletedService, string priceRejectionReason)
         {
-            if (paid)
-                return $"预算 {budget} 银，实际付款 {spent:F0} 银，结账结果：{publicCheckoutResult}";
+            string pricePart = string.IsNullOrWhiteSpace(priceRejectionReason) ? "" : $"，价格观察：{priceRejectionReason}";
+            if (hasFreeCompletedService)
+                return $"预算 {budget} 银，实际付款 0 银，完成了免费服务，结账结果：{publicCheckoutResult}{pricePart}";
 
-            return $"预算 {budget} 银，实际付款 0 银，未付款购物车约 {Math.Max(0f, cartValue):F0} 银，结账结果：{publicCheckoutResult}";
+            if (paid)
+                return $"预算 {budget} 银，实际付款 {spent:F0} 银，结账结果：{publicCheckoutResult}{pricePart}";
+
+            return $"预算 {budget} 银，实际付款 0 银，未付款购物车约 {Math.Max(0f, cartValue):F0} 银，结账结果：{publicCheckoutResult}{pricePart}";
         }
 
         private static string BuildAgeSummary(Pawn pawn)
@@ -521,7 +571,7 @@ namespace SimManagementLib.Tool
         /// <summary>
         /// 构造顾客评价倾向，负责让坏特性、坏心情或糟糕流程更可能产生激进差评。
         /// </summary>
-        private static string BuildPersonalityBiasSummary(Pawn pawn, string checkoutResult, float spent, string serviceSummary)
+        private static string BuildPersonalityBiasSummary(Pawn pawn, string checkoutResult, float spent, string serviceSummary, bool hasCompletedService, bool hasServiceFailure)
         {
             List<string> parts = new List<string>();
             float mood = pawn.needs?.mood?.CurLevelPercentage ?? 0.5f;
@@ -535,7 +585,7 @@ namespace SimManagementLib.Tool
             if (ContainsAny(traits, "乐观", "善良", "勤劳", "禁欲", "铁人意志"))
                 parts.Add("特性偏克制或坚韧，即使不满也可能讲具体原因");
 
-            if (spent <= 0f || ContainsAny(checkoutResult, "失败", "取消", "超时") || ContainsAny(serviceSummary, "取消", "失败", "等待"))
+            if ((!hasCompletedService && spent <= 0f) || hasServiceFailure || ContainsAny(checkoutResult, "失败", "取消", "超时") || ContainsAny(serviceSummary, "取消", "失败", "等待过久"))
                 parts.Add("购物或服务流程有问题，可以出现故意差评、迁怒或尖锐吐槽");
 
             return parts.Count > 0 ? string.Join("；", parts) : "按实际体验自然评价";

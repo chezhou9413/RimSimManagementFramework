@@ -115,16 +115,24 @@ namespace SimManagementLib.Tool
             int budget = visit.GetBudgetForPawn(pawnId);
             if (budget <= 0) return false;
 
-            List<ThingDef> candidates = machine.ActiveDefs
-                .Where(def => def != null && machine.CountStored(def) > 0 && ShopPricingUtility.GetUnitPrice(machine, def) <= budget)
+            CustomerPriceSensitivityProps sensitivity = visit.GetPriceSensitivity(pawnId);
+            List<(ThingDef def, float unitPrice, CustomerPriceEvaluation price)> candidates = machine.ActiveDefs
+                .Where(def => def != null && machine.CountStored(def) > 0)
+                .Select(def =>
+                {
+                    float candidateUnitPrice = ShopPricingUtility.GetUnitPrice(machine, def);
+                    CustomerPriceEvaluation price = CustomerPriceUtility.Evaluate(def, candidateUnitPrice, sensitivity);
+                    return (def, unitPrice: candidateUnitPrice, price);
+                })
+                .Where(candidate => candidate.unitPrice <= budget && !candidate.price.rejected)
                 .ToList();
             if (candidates.NullOrEmpty()) return false;
 
-            ThingDef selected = candidates.RandomElementByWeight(def => Mathf.Max(0.1f, visit.GetPreferenceMultiplier(pawnId, def)));
-            float unitPrice = ShopPricingUtility.GetUnitPrice(machine, selected);
+            (ThingDef selected, float unitPrice, CustomerPriceEvaluation priceEvaluation) = candidates.RandomElementByWeight(candidate =>
+                Mathf.Max(0.001f, visit.GetPreferenceMultiplier(pawnId, candidate.def) * candidate.price.purchaseWeight));
             int maxByBudget = Mathf.FloorToInt(budget / unitPrice);
             int maxByStock = machine.CountStored(selected);
-            int buyCount = Mathf.Clamp(maxByBudget > 1 ? Rand.RangeInclusive(1, maxByBudget) : 1, 1, maxByStock);
+            int buyCount = PickPurchaseCount(maxByBudget, maxByStock, priceEvaluation);
 
             Thing taken = machine.TryVirtualBuy(selected, buyCount, out _);
             if (taken == null || taken.stackCount <= 0) return false;
@@ -135,6 +143,21 @@ namespace SimManagementLib.Tool
             cost = Mathf.Max(0f, selected.BaseMarketValue * count);
             taken.Destroy(DestroyMode.Vanish);
             return paid > 0f;
+        }
+
+        /// <summary>
+        /// 按价格意愿选择售货机购买数量，负责让折扣商品更容易多买、高溢价商品更少买。
+        /// </summary>
+        private static int PickPurchaseCount(int maxByBudget, int maxByStock, CustomerPriceEvaluation price)
+        {
+            int maxCount = Mathf.Min(maxByBudget, maxByStock);
+            if (maxCount <= 1)
+                return 1;
+            if (price.ratio <= 0.9f)
+                return Mathf.Clamp(Rand.RangeInclusive(1, Mathf.Min(3, maxCount)), 1, maxCount);
+            if (price.ratio > 1.5f)
+                return 1;
+            return Mathf.Clamp(maxByBudget > 1 ? Rand.RangeInclusive(1, maxByBudget) : 1, 1, maxByStock);
         }
 
         /// <summary>

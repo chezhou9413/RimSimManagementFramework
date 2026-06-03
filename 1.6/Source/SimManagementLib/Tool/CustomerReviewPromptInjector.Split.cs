@@ -403,6 +403,12 @@ namespace SimManagementLib.Tool
             if (snapshot == null)
                 return SimTranslation.T("RSMF.Common.None");
 
+            if (ContainsAny(snapshot.serviceSummary, "完成了免费服务", "fee 0", "费用 0"))
+                return SimTranslation.TOrFallback("RSMF.CustomerReview.Split.BudgetSignalFreeService", "完成了免费服务，没有花钱；免费本身不是差评理由，按等待、完成状态和服务内容判断。");
+
+            if (ContainsAny(snapshot.budgetSummary, "价格观察", "价格远高于市价", "拒绝购买"))
+                return SimTranslation.TOrFallback("RSMF.CustomerReview.Split.BudgetSignalPriceRejected", "顾客发现目标商品价格远高于市价并拒绝购买；这是真实负面体验，可以结合预算和是否买到其他东西评价。");
+
             if (snapshot.spentSilver <= 0f)
                 return SimTranslation.TOrFallback("RSMF.CustomerReview.Split.BudgetSignalNoSpend", "没有成功花钱或没有记录到花费。");
 
@@ -458,6 +464,23 @@ namespace SimManagementLib.Tool
             }
 
             return text.Length > 220 ? text.Substring(0, 220) : text;
+        }
+
+        /// <summary>
+        /// 判断文本是否包含任意片段，负责识别免费服务等评价提示信号。
+        /// </summary>
+        private static bool ContainsAny(string text, params string[] words)
+        {
+            if (string.IsNullOrEmpty(text) || words == null)
+                return false;
+
+            for (int i = 0; i < words.Length; i++)
+            {
+                string word = words[i];
+                if (!string.IsNullOrEmpty(word) && text.IndexOf(word, StringComparison.OrdinalIgnoreCase) >= 0)
+                    return true;
+            }
+            return false;
         }
     }
 }

@@ -423,6 +423,9 @@ namespace SimManagementLib.SimZone
             }
         }
 
+        /// <summary>
+        /// 创建商店区域搬迁快照，负责保存区划格、员工分配和营业日程。
+        /// </summary>
         public MoveableShopZone CreateMoveableZoneSnapshot()
         {
             return new MoveableShopZone
@@ -434,10 +437,14 @@ namespace SimManagementLib.SimZone
                 roleAssignments = roleAssignments?
                     .Where(a => a != null)
                     .Select(a => a.Clone())
-                    .ToList() ?? new List<ShopRoleAssignment>()
+                    .ToList() ?? new List<ShopRoleAssignment>(),
+                schedule = schedule?.Clone() ?? new ShopScheduleData()
             };
         }
 
+        /// <summary>
+        /// 应用商店区域搬迁快照，负责恢复区划显示、员工分配和营业日程。
+        /// </summary>
         public void ApplyMoveableZoneSnapshot(MoveableShopZone snapshot)
         {
             if (snapshot == null) return;
@@ -448,6 +455,7 @@ namespace SimManagementLib.SimZone
                 .Where(a => a != null)
                 .Select(a => a.Clone())
                 .ToList() ?? new List<ShopRoleAssignment>();
+            schedule = snapshot.schedule?.Clone() ?? new ShopScheduleData();
             NormalizeRoleAssignments();
         }
 

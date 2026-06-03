@@ -76,8 +76,13 @@ namespace SimManagementLib.SimAI
             Scribe_Values.Look(ref totalBudget, "totalBudget", 0);
             Scribe_Collections.Look(ref pawnSettings, "pawnSettings", LookMode.Value, LookMode.Deep, ref tmpSettingKeys, ref tmpSettingValues);
 
-            if (Scribe.mode == LoadSaveMode.PostLoadInit && pawnSettings == null)
-                pawnSettings = new Dictionary<int, CustomerRuntimeSettings>();
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                if (pawnSettings == null)
+                    pawnSettings = new Dictionary<int, CustomerRuntimeSettings>();
+                foreach (CustomerRuntimeSettings settings in pawnSettings.Values)
+                    settings?.EnsureDefaults();
+            }
         }
 
         /// <summary>
@@ -86,6 +91,7 @@ namespace SimManagementLib.SimAI
         public void SetPawnSettings(int pawnId, CustomerRuntimeSettings settings)
         {
             if (pawnId <= 0 || settings == null) return;
+            settings.EnsureDefaults();
             pawnSettings[pawnId] = settings;
         }
 
@@ -113,6 +119,21 @@ namespace SimManagementLib.SimAI
                 multiplier *= runtime.GetPreferenceMultiplier(def);
 
             return multiplier;
+        }
+
+        /// <summary>
+        /// 返回指定顾客的价格敏感度，负责让自动售货机购物使用同一套默认兼容参数。
+        /// </summary>
+        public CustomerPriceSensitivityProps GetPriceSensitivity(int pawnId)
+        {
+            if (pawnSettings.TryGetValue(pawnId, out CustomerRuntimeSettings settings) && settings != null)
+            {
+                settings.EnsureDefaults();
+                return CustomerPriceSensitivityProps.Resolve(settings.priceSensitivity);
+            }
+
+            RuntimeCustomerKind runtime = Tool.CustomerCatalog.GetKind(customerKindId);
+            return CustomerPriceSensitivityProps.Resolve(runtime?.priceSensitivity);
         }
 
         /// <summary>

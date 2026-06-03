@@ -315,9 +315,11 @@ namespace SimManagementLib.GameComp
 
             int score = 0;
             if (snapshot.spentSilver > 0f) score++;
+            if (ContainsAnyReviewSignal(snapshot.serviceSummary, "已完成", "完成了免费服务")) score++;
             if (ContainsAnyReviewSignal(snapshot.purchasedSummary, "没有购买", "没有付款", "没有付款成功", "未付款")) score -= 2;
-            if (ContainsAnyReviewSignal(snapshot.serviceSummary, "取消", "失败", "等待过久")) score -= 2;
+            if (ContainsAnyReviewSignal(snapshot.serviceSummary, "取消", "失败", "等待过久", "结账失败")) score -= 2;
             if (ContainsAnyReviewSignal(snapshot.budgetSummary, "没有付款", "未付款购物车")) score -= 2;
+            if (ContainsAnyReviewSignal(snapshot.budgetSummary, "价格远高于市价", "拒绝购买")) score -= 2;
             if (ContainsAnyReviewSignal(snapshot.personalityBiasSummary, "心情很差", "故意给低分", "差评", "迁怒")) score -= 1;
             if (ContainsAnyReviewSignal(snapshot.healthSummary, "疼痛", "严重度", "伤")) score -= 1;
             if (ContainsAnyReviewSignal(result.reviewText, "满意", "值", "不错", "舒服", "顺", "还会", "救急")) score += 1;

@@ -207,6 +207,28 @@ namespace SimManagementLib.SimAI
                     Job job = ShopServiceUtility.MakeServiceUseJob(pawn, order);
                     if (job != null) followUps.Add(job);
                 }
+                else if (order.totalPrice <= 0f && (order.state == ServiceOrderState.ReadyToUse || order.state == ServiceOrderState.TicketIssued))
+                {
+                    order.paidTick = Find.TickManager.TicksGame;
+                    serviceDef?.Worker.NotifyServicePaid(pawn, provider, order);
+                    SimShopEvents.NotifyServiceOrderPaid(pawn, order, shopZone);
+                    Tool.SimDebugLogger.Journey("RSMF.ServiceOrder", $"免费服务开始后续使用 serviceOrder={order.orderId} state={order.state} service={order.serviceDefName}", pawn, shopZone, order.orderId);
+
+                    if (serviceDef != null && SimShopOrderApi.HasPreparedOrderWorker(serviceDef.defName))
+                    {
+                        PreparedShopOrderResult prepared = SimShopOrderApi.CreatePreparedOrder(pawn, provider, shopZone, serviceDef, order.totalPrice);
+                        if (prepared.success)
+                        {
+                            prepared.order.sourceServiceOrderId = order.orderId;
+                            SimShopOrderApi.MarkPaid(prepared.order.orderId);
+                            order.state = ServiceOrderState.Completed;
+                            continue;
+                        }
+                    }
+
+                    Job job = ShopServiceUtility.MakeServiceUseJob(pawn, order);
+                    if (job != null) followUps.Add(job);
+                }
                 else if (order.state == ServiceOrderState.UsedAwaitingPayment)
                 {
                     order.paidTick = Find.TickManager.TicksGame;
@@ -218,6 +240,72 @@ namespace SimManagementLib.SimAI
             }
 
             QueuePostCheckoutJobs(pawnId, followUps);
+        }
+
+        /// <summary>
+        /// 为已完成的免费服务提交一次顾客评价快照，负责避免免费服务被零账单流程误判为未消费。
+        /// </summary>
+        public bool TryEnqueueFreeCompletedServiceReview(Pawn pawn, Zone_Shop shopZone, string reason)
+        {
+            if (pawn == null)
+                return false;
+
+            int pawnId = pawn.thingIDNumber;
+            List<CustomerServiceOrder> list = GetServiceOrders(pawnId);
+            if (list.NullOrEmpty())
+                return false;
+
+            bool hasPendingFreeUse = false;
+            bool hasReviewableCompletedFreeService = false;
+            for (int i = 0; i < list.Count; i++)
+            {
+                CustomerServiceOrder order = list[i];
+                if (order == null || order.totalPrice > 0f)
+                    continue;
+
+                if (order.state == ServiceOrderState.ReadyToUse
+                    || order.state == ServiceOrderState.TicketIssued
+                    || order.state == ServiceOrderState.InUse)
+                {
+                    hasPendingFreeUse = true;
+                    continue;
+                }
+
+                if (order.state == ServiceOrderState.Completed && !order.reviewEnqueued)
+                    hasReviewableCompletedFreeService = true;
+            }
+
+            if (!hasReviewableCompletedFreeService || hasPendingFreeUse)
+                return false;
+
+            CustomerReviewSnapshotBuilder.TryEnqueueReview(pawn, this, shopZone, new List<FinanceLineItem>(), 0, reason ?? "完成免费服务");
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                CustomerServiceOrder order = list[i];
+                if (order != null && order.totalPrice <= 0f && order.state == ServiceOrderState.Completed)
+                    order.reviewEnqueued = true;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 判断顾客是否已有完成的免费服务，负责让零账单收尾使用成功服务语义。
+        /// </summary>
+        public bool HasCompletedFreeServiceOrder(int pawnId)
+        {
+            List<CustomerServiceOrder> list = GetServiceOrders(pawnId);
+            if (list.NullOrEmpty())
+                return false;
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                CustomerServiceOrder order = list[i];
+                if (order != null && order.totalPrice <= 0f && order.state == ServiceOrderState.Completed)
+                    return true;
+            }
+            return false;
         }
 
         /// <summary>

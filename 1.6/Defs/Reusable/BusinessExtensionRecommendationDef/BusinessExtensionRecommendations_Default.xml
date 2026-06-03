@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+    <defName>RSMF_ExtensionRecommendation_HAR</defName>
+    <label>RSMF HAR extension</label>
+    <description>Compatibility extension for Humanoid Alien Races shops and customers.</description>
+    <labelKey>RSMF.Business.Extensions.Item.HAR.Label</labelKey>
+    <descriptionKey>RSMF.Business.Extensions.Item.HAR.Description</descriptionKey>
+    <order>100</order>
+    <publishedFileId>3736684046</publishedFileId>
+    <workshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3736684046</workshopUrl>
+    <previewImageUrl>https://images.steamusercontent.com/ugc/13658989607528122332/9F30B9AF825086800E5BC96E16ADDA6AB3727FE6/</previewImageUrl>
+  </SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+
+  <SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+    <defName>RSMF_ExtensionRecommendation_Milira</defName>
+    <label>RSMF Milira extension</label>
+    <description>Compatibility extension for Milira-themed business content.</description>
+    <labelKey>RSMF.Business.Extensions.Item.Milira.Label</labelKey>
+    <descriptionKey>RSMF.Business.Extensions.Item.Milira.Description</descriptionKey>
+    <order>150</order>
+    <publishedFileId>3736604730</publishedFileId>
+    <workshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3736604730</workshopUrl>
+    <previewImageUrl>https://images.steamusercontent.com/ugc/13029575387958291371/9B3C94FD45EDC1D230A94450E0311CACE72075C0/</previewImageUrl>
+  </SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+
+  <SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+    <defName>RSMF_ExtensionRecommendation_Woffen</defName>
+    <label>RSMF Woffen extension</label>
+    <description>Compatibility extension for Woffen-themed business content.</description>
+    <labelKey>RSMF.Business.Extensions.Item.Woffen.Label</labelKey>
+    <descriptionKey>RSMF.Business.Extensions.Item.Woffen.Description</descriptionKey>
+    <order>200</order>
+    <publishedFileId>3737464034</publishedFileId>
+    <workshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3737464034</workshopUrl>
+    <previewImageUrl>https://images.steamusercontent.com/ugc/15080978195341314381/8893B033CC0F20FB45CA182EEF8270866CAD4A14/</previewImageUrl>
+  </SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+</Defs>

@@ -151,6 +151,9 @@ namespace SimManagementLib.Patch
 
             if (!string.IsNullOrEmpty(session.LastReason))
                 sb.AppendLine(SimTranslation.T("RSMF.CustomerInspect.DebugReasonLine", session.LastReason.Named("reason")));
+            string priceReason = customerLord.GetPriceRejectionReason(pawn.thingIDNumber);
+            if (!string.IsNullOrEmpty(priceReason))
+                sb.AppendLine(SimTranslation.T("RSMF.CustomerInspect.DebugReasonLine", priceReason.Named("reason")));
         }
 
         /// <summary>

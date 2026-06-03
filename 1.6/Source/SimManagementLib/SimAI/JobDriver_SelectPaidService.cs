@@ -131,26 +131,58 @@ namespace SimManagementLib.SimAI
 
                 if (selectedService.billingMode == ServiceBillingMode.UseBeforePay)
                 {
-                    activeOrder.state = ServiceOrderState.UsedAwaitingPayment;
+                    if (activeOrder.totalPrice <= 0f)
+                    {
+                        activeOrder.state = ServiceOrderState.Completed;
+                        activeOrder.paidTick = Find.TickManager.TicksGame;
+                        SimDebugLogger.Journey("RSMF.SelectService", $"免费先用后付服务完成 service={selectedService.defName}", pawn, shopZone, activeOrder.orderId);
+                        selectedService.Worker.NotifyServicePaid(pawn, Provider, activeOrder);
+                        SimShopEvents.NotifyServiceOrderPaid(pawn, activeOrder, shopZone);
+                    }
+                    else
+                    {
+                        activeOrder.state = ServiceOrderState.UsedAwaitingPayment;
+                    }
                     activeOrder.completedTick = Find.TickManager.TicksGame;
                     SimDebugLogger.Journey("RSMF.SelectService", $"先用后付服务完成，等待付款 service={selectedService.defName}", pawn, shopZone, activeOrder.orderId);
                     selectedService.Worker.NotifyServiceCompleted(pawn, Provider, activeOrder);
                 }
                 else
                 {
-                    activeOrder.state = ServiceOrderState.AwaitingPayment;
-                    SimDebugLogger.Journey("RSMF.SelectService", $"服务票据生成，等待付款 service={selectedService.defName}", pawn, shopZone, activeOrder.orderId);
+                    if (activeOrder.totalPrice <= 0f)
+                    {
+                        activeOrder.paidTick = Find.TickManager.TicksGame;
+                        activeOrder.state = selectedService.billingMode == ServiceBillingMode.TicketBeforeUse
+                            ? ServiceOrderState.TicketIssued
+                            : ServiceOrderState.ReadyToUse;
+                        SimDebugLogger.Journey("RSMF.SelectService", $"免费服务资格生成 service={selectedService.defName} state={activeOrder.state}", pawn, shopZone, activeOrder.orderId);
+                    }
+                    else
+                    {
+                        activeOrder.state = ServiceOrderState.AwaitingPayment;
+                        SimDebugLogger.Journey("RSMF.SelectService", $"服务票据生成，等待付款 service={selectedService.defName}", pawn, shopZone, activeOrder.orderId);
+                    }
                 }
 
                 lordJob.AddServiceOrder(pawnId, activeOrder);
                 lordJob.ClearCurrentShopNoProgressBrowse(pawn);
                 SimShopEvents.NotifyServiceOrderCreated(pawn, activeOrder, shopZone);
-                lordJob.AddCustomerBill(pawnId, activeOrder.totalPrice);
-                finance?.QueueServiceSale(pawn, shopZone, activeOrder.serviceDefName, selectedService.DisplayLabel, activeOrder.count, activeOrder.totalPrice);
+                if (activeOrder.totalPrice > 0f)
+                {
+                    lordJob.AddCustomerBill(pawnId, activeOrder.totalPrice);
+                    finance?.QueueServiceSale(pawn, shopZone, activeOrder.serviceDefName, selectedService.DisplayLabel, activeOrder.count, activeOrder.totalPrice);
+                }
                 ShopBubbleUtility.ShowTextBubble(pawn, SimTranslation.T("RSMF.Bubble.SelectService", selectedService.DisplayLabel.Named("service")), new Color(0.55f, 0.85f, 1f));
 
                 CustomerVisitSession session = lordJob.GetOrCreateSession(pawn);
                 session?.NotifyConsumptionCompleted(lordJob, pawn, "服务选择完成");
+                if (activeOrder.totalPrice <= 0f && selectedService.billingMode != ServiceBillingMode.UseBeforePay)
+                {
+                    lordJob.ResolveServiceOrdersOnCheckoutPaid(pawn, shopZone);
+                    lordJob.TryEnqueueFreeCompletedServiceReview(pawn, shopZone, "完成免费服务");
+                }
+                if (activeOrder.totalPrice <= 0f && selectedService.billingMode == ServiceBillingMode.UseBeforePay)
+                    lordJob.TryEnqueueFreeCompletedServiceReview(pawn, shopZone, "完成免费服务");
                 if (selectedService.checkoutAfterSelection)
                     session?.MarkReadyForCheckout(lordJob, pawn, "服务要求选择后结账");
             };
@@ -165,7 +197,7 @@ namespace SimManagementLib.SimAI
             serviceDef = null;
             price = 0f;
             ThingComp_ServiceProvider comp = ShopServiceUtility.GetProviderComp(Provider);
-            if (comp == null || !comp.enabled || remainingBudget <= 0f) return false;
+            if (comp == null || !comp.enabled || remainingBudget < 0f) return false;
 
             List<ShopServiceDef> candidates = comp.EnabledSlots
                 .Select(s => s.ServiceDef)

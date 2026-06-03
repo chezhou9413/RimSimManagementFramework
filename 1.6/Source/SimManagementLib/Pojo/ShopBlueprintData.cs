@@ -187,6 +187,7 @@ namespace SimManagementLib.Pojo
     {
         [DataMember] public string serviceDefName = "";
         [DataMember] public bool enabled = true;
+        [DataMember] public bool priceOverrideEnabled;
         [DataMember] public float priceOverride;
         [DataMember] public int maxSimultaneousUsers = 1;
     }

@@ -92,6 +92,7 @@ namespace SimManagementLib.SimAI
         {
             cartState.ClearCustomerCart(pawnId);
             checkoutState.ClearCheckoutOrder(pawnId);
+            ClearPriceRejectionReason(pawnId);
         }
 
         /// <summary>
@@ -162,6 +163,44 @@ namespace SimManagementLib.SimAI
         public float GetPreferenceMultiplier(int pawnId, ThingDef def)
         {
             return CustomerPreferencePolicy.GetPreferenceMultiplier(this, pawnId, def);
+        }
+
+        /// <summary>
+        /// 返回指定顾客最终价格敏感度，负责让未配置顾客和旧存档顾客使用默认参数。
+        /// </summary>
+        public CustomerPriceSensitivityProps GetPriceSensitivity(int pawnId)
+        {
+            CustomerRuntimeSettings settings = GetPawnSettings(pawnId);
+            settings?.EnsureDefaults();
+            return CustomerPriceSensitivityProps.Resolve(settings?.priceSensitivity);
+        }
+
+        /// <summary>
+        /// 记录顾客最近一次因高溢价拒买的原因，负责提供评价和调试上下文。
+        /// </summary>
+        public void RecordPriceRejection(int pawnId, string reason)
+        {
+            if (pawnId <= 0 || string.IsNullOrWhiteSpace(reason))
+                return;
+            priceRejectionReasons[pawnId] = reason;
+        }
+
+        /// <summary>
+        /// 返回顾客最近一次因高溢价拒买的原因。
+        /// </summary>
+        public string GetPriceRejectionReason(int pawnId)
+        {
+            return pawnId > 0 && priceRejectionReasons.TryGetValue(pawnId, out string reason) ? reason : "";
+        }
+
+        /// <summary>
+        /// 清除顾客高溢价拒买原因，负责在成功购物或清理购物车时移除过期负面信号。
+        /// </summary>
+        public void ClearPriceRejectionReason(int pawnId)
+        {
+            if (pawnId <= 0)
+                return;
+            priceRejectionReasons.Remove(pawnId);
         }
 
         /// <summary>

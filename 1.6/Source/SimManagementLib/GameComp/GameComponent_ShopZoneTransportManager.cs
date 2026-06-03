@@ -42,7 +42,7 @@ namespace SimManagementLib.GameComp
         {
             if (gravship == null || oldMap?.zoneManager == null || engineFloors == null || engineFloors.Count == 0) return;
 
-            string gravshipId = gravship.GetUniqueLoadID();
+            string gravshipId = GetStableGravshipKey(gravship);
             if (string.IsNullOrEmpty(gravshipId)) return;
 
             List<MoveableShopZone> movedZones = new List<MoveableShopZone>();
@@ -86,9 +86,9 @@ namespace SimManagementLib.GameComp
         {
             if (gravship == null || map?.zoneManager == null) return;
 
-            string gravshipId = gravship.GetUniqueLoadID();
+            string gravshipId = GetStableGravshipKey(gravship);
             if (string.IsNullOrEmpty(gravshipId)) return;
-            if (!zonesByGravshipId.TryGetValue(gravshipId, out List<MoveableShopZone> movedZones) || movedZones.NullOrEmpty()) return;
+            if (!TryGetMovedZones(gravship, gravshipId, out List<MoveableShopZone> movedZones, out string matchedKey) || movedZones.NullOrEmpty()) return;
 
             foreach (MoveableShopZone movedZone in movedZones)
             {
@@ -113,7 +113,47 @@ namespace SimManagementLib.GameComp
                     zone.Deregister();
             }
 
-            zonesByGravshipId.Remove(gravshipId);
+            zonesByGravshipId.Remove(matchedKey);
+        }
+
+        /// <summary>
+        /// 生成重力舰搬迁缓存键，负责避开构造期 WorldObject 尚未分配正式 ID 的问题。
+        /// </summary>
+        private static string GetStableGravshipKey(Gravship gravship)
+        {
+            if (gravship?.Engine != null)
+                return "GravEngine_" + gravship.Engine.thingIDNumber;
+
+            return gravship?.GetUniqueLoadID();
+        }
+
+        /// <summary>
+        /// 读取重力舰商店区搬迁快照，负责兼容旧逻辑使用 WorldObject ID 保存的缓存。
+        /// </summary>
+        private bool TryGetMovedZones(Gravship gravship, string gravshipId, out List<MoveableShopZone> movedZones, out string matchedKey)
+        {
+            if (zonesByGravshipId.TryGetValue(gravshipId, out movedZones))
+            {
+                matchedKey = gravshipId;
+                return true;
+            }
+
+            string loadId = gravship?.GetUniqueLoadID();
+            if (!string.IsNullOrEmpty(loadId) && zonesByGravshipId.TryGetValue(loadId, out movedZones))
+            {
+                matchedKey = loadId;
+                return true;
+            }
+
+            if (zonesByGravshipId.TryGetValue("WorldObject_-1", out movedZones))
+            {
+                matchedKey = "WorldObject_-1";
+                return true;
+            }
+
+            movedZones = null;
+            matchedKey = null;
+            return false;
         }
     }
 }

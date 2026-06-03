@@ -146,6 +146,7 @@
     <Compile Include="Pojo\CustomGoodsDatabaseData.cs" />
     <Compile Include="Pojo\CustomCustomerDatabaseData.cs" />
     <Compile Include="Pojo\CustomerCartItem.cs" />
+    <Compile Include="Pojo\CustomerPriceSensitivityProps.cs" />
     <Compile Include="Pojo\CustomerReviewModels.cs" />
     <Compile Include="Pojo\CustomerRuntimeSettings.cs" />
     <Compile Include="Pojo\CustomerServiceOrder.cs" />
@@ -214,6 +215,7 @@
     <Compile Include="SimDef\CustomerKindDef.cs" />
     <Compile Include="SimDef\CustomerActionDef.cs" />
     <Compile Include="SimDef\CollectibleExchangeListDef.cs" />
+    <Compile Include="SimDef\BusinessExtensionRecommendationDef.cs" />
     <Compile Include="SimDef\CustomerExpressionSetDef.cs" />
     <Compile Include="SimDef\PurchaseOutcomeDef.cs" />
     <Compile Include="SimDef\PurchaseOutcomeDef.Workers.cs" />
@@ -240,6 +242,7 @@
     <Compile Include="SimDialog\Dialog_EditShopBlueprint.Icons.cs" />
     <Compile Include="SimDialog\Designator_PlaceShopBlueprint.cs" />
     <Compile Include="SimDialog\Designator_SaveShopBlueprintRect.cs" />
+    <Compile Include="SimDialog\BusinessPageWorker_Extensions.cs" />
     <Compile Include="SimDialog\MainTabWindow_BusinessManager.cs" />
     <Compile Include="SimDialog\MainTabWindow_BusinessManager.Api.cs" />
     <Compile Include="SimDialog\MainTabWindow_BusinessManager.Blueprints.cs" />
@@ -320,6 +323,7 @@
     <Compile Include="Tool\CustomerCombatSafetyUtility.cs" />
     <Compile Include="Tool\CustomerExpressionUtility.cs" />
     <Compile Include="Tool\CustomerNeutralFactionUtility.cs" />
+    <Compile Include="Tool\CustomerPriceUtility.cs" />
     <Compile Include="Tool\CustomerPurchaseDeliveryUtility.cs" />
     <Compile Include="Tool\CustomerShoppingMatchUtility.cs" />
     <Compile Include="Tool\CustomerReviewAiClient.cs" />
@@ -348,6 +352,7 @@
     <Compile Include="Tool\BlueprintNetworkApiClient.cs" />
     <Compile Include="Tool\BlueprintNetworkImportService.cs" />
     <Compile Include="Tool\BlueprintPreviewTextureCache.cs" />
+    <Compile Include="Tool\BusinessExtensionRecommendationUtility.cs" />
     <Compile Include="Tool\RimTalkConfigBridge.cs" />
     <Compile Include="Tool\ShopBlueprintPreviewCaptureUtility.cs" />
     <Compile Include="Tool\ShopBubbleUtility.cs" />

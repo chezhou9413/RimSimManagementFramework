@@ -106,6 +106,7 @@ namespace SimManagementLib.SimDialog
             SimShopUiApi.ClearContext(uiContext);
             CancelBlueprintNetworkRequests();
             BlueprintPreviewTextureCache.Clear();
+            BusinessPageWorker_Extensions.ClearPreviewCache();
         }
 
         public override void DoWindowContents(Rect inRect)

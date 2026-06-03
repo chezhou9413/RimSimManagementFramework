@@ -72,7 +72,7 @@ namespace SimManagementLib.SimAI
                 return MakeWindowShopOrCheckout(pawn, lordJob, shopZone, pId);
             }
 
-            List<ComboData> affordableCombos = CustomerShoppingMatchUtility.GetMatchingAffordableInStockCombos(shopZone, lordJob, remainingBudget);
+            List<ComboData> affordableCombos = CustomerShoppingMatchUtility.GetMatchingAffordableInStockCombos(shopZone, lordJob, pawn, remainingBudget);
             Building_SimContainer targetShelf = FindRandomReachableStockedStorage(pawn, lordJob, shopZone, remainingBudget, affordableCombos);
 
             // 没有任何买得起的货时，先保证顾客完成最低浏览体验。
@@ -100,7 +100,7 @@ namespace SimManagementLib.SimAI
             int fallbackSeen = 0;
             foreach (Building_SimContainer storage in ShopDataUtility.GetStoragesInZone(shopZone))
             {
-                if (!StorageHasAffordableContent(storage, lordJob, remainingBudget, affordableCombos)) continue;
+                if (!StorageHasAffordableContent(storage, pawn, lordJob, remainingBudget, affordableCombos)) continue;
                 if (!pawn.CanReach(storage, PathEndMode.Touch, Danger.Deadly)) continue;
 
                 fallbackSeen++;
@@ -119,7 +119,7 @@ namespace SimManagementLib.SimAI
         /// <summary>
         /// 判断货柜是否存在当前顾客可购买的商品或套餐项。
         /// </summary>
-        private static bool StorageHasAffordableContent(Building_SimContainer storage, LordJob_CustomerVisit lordJob, float remainingBudget, List<ComboData> affordableCombos)
+        private static bool StorageHasAffordableContent(Building_SimContainer storage, Pawn pawn, LordJob_CustomerVisit lordJob, float remainingBudget, List<ComboData> affordableCombos)
         {
             if (storage == null || storage.Destroyed || !storage.Spawned) return false;
             foreach (ThingDef def in storage.ActiveDefs)
@@ -127,7 +127,8 @@ namespace SimManagementLib.SimAI
                 if (storage.CountStored(def) <= 0) continue;
                 if (!CustomerShoppingMatchUtility.ThingMatchesCustomer(lordJob, def)) continue;
                 float unitPrice = ShopPricingUtility.GetUnitPrice(storage, def);
-                if (unitPrice <= remainingBudget)
+                CustomerPriceEvaluation price = CustomerPriceUtility.Evaluate(def, unitPrice, lordJob.GetPriceSensitivity(pawn.thingIDNumber));
+                if (unitPrice <= remainingBudget && !price.rejected)
                     return true;
             }
             return !affordableCombos.NullOrEmpty() && CustomerShoppingMatchUtility.StorageHasComboItem(storage, affordableCombos);

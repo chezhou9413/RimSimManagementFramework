@@ -6,6 +6,8 @@
   <RSMF.Settings.ShowCustomerArrivalMessageTip>When disabled, the message that customers are heading to a shop will no longer be shown.</RSMF.Settings.ShowCustomerArrivalMessageTip>
   <RSMF.Settings.ShowCustomerInspectDetails>Show customer inspect details</RSMF.Settings.ShowCustomerInspectDetails>
   <RSMF.Settings.ShowCustomerInspectDetailsTip>When disabled, customer runtime parameters will not be appended to the pawn inspect panel.</RSMF.Settings.ShowCustomerInspectDetailsTip>
+  <RSMF.Settings.ShowExtensionRecommendationPage>Show extension recommendations page</RSMF.Settings.ShowExtensionRecommendationPage>
+  <RSMF.Settings.ShowExtensionRecommendationPageTip>When disabled, the business manager will not show the recommended extensions page.</RSMF.Settings.ShowExtensionRecommendationPageTip>
   <RSMF.Settings.CustomerArrivalCheckInterval>Customer arrival check interval: {ticks} ticks</RSMF.Settings.CustomerArrivalCheckInterval>
   <RSMF.Settings.FinanceAndLogs>Finance and logs</RSMF.Settings.FinanceAndLogs>
   <RSMF.Settings.MaxFinanceBillRecords>Max finance log records: {count}</RSMF.Settings.MaxFinanceBillRecords>

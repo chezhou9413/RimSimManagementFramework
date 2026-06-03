@@ -280,6 +280,8 @@ namespace SimManagementLib.SimDialog
             y += SectionGap;
             y = DrawNumericSettings(new Rect(0f, y, viewRect.width, 138f), selected);
             y += SectionGap;
+            y = DrawPriceSensitivitySettings(new Rect(0f, y, viewRect.width, 112f), selected);
+            y += SectionGap;
             y = DrawPawnKinds(new Rect(0f, y, viewRect.width, 310f), selected);
             y += SectionGap;
             y = DrawTargetsAndWeather(new Rect(0f, y, viewRect.width, 250f), selected);
@@ -296,7 +298,7 @@ namespace SimManagementLib.SimDialog
         /// </summary>
         private float EstimateContentHeight(RuntimeCustomerKind selected)
         {
-            return 126f + 138f + 310f + 250f + 340f + EstimateProfilesHeight(selected) + SectionGap * 5f + 24f;
+            return 126f + 138f + 112f + 310f + 250f + 340f + EstimateProfilesHeight(selected) + SectionGap * 6f + 24f;
         }
 
         /// <summary>
@@ -305,7 +307,7 @@ namespace SimManagementLib.SimDialog
         private float EstimateProfilesHeight(RuntimeCustomerKind selected)
         {
             int profileCount = GetDraftRecord(selected.kindId)?.spawnProfiles?.Count ?? selected.spawnProfiles.Count;
-            return Mathf.Max(260f, 104f + profileCount * 138f);
+            return Mathf.Max(296f, 104f + profileCount * 174f);
         }
 
         /// <summary>
@@ -340,6 +342,37 @@ namespace SimManagementLib.SimDialog
             Widgets.Label(new Rect(rect.x + 14f, rect.y + 94f, rect.width - 28f, Text.LineHeightOf(GameFont.Tiny) + 2f), editable ? SimTranslation.T("RSMF.CustomCustomer.SourceCustom") : SimTranslation.T("RSMF.CustomCustomer.SourceDef"));
 
             GUI.color = Color.white;
+            return rect.yMax;
+        }
+
+        /// <summary>
+        /// 绘制顾客价格敏感度设置，负责控制折扣加权、溢价降权和拒买阈值。
+        /// </summary>
+        private float DrawPriceSensitivitySettings(Rect rect, RuntimeCustomerKind kind)
+        {
+            DrawSection(rect, SimTranslation.T("RSMF.CustomCustomer.Section.PriceSensitivity"));
+            CustomCustomerKindRecord record = GetDraftRecord(kind.kindId);
+            bool editable = record != null;
+
+            CustomerPriceSensitivityProps props = editable
+                ? EnsurePriceSensitivity(record)
+                : CustomerPriceSensitivityProps.Resolve(kind.priceSensitivity);
+
+            if (editable)
+            {
+                DrawPriceSensitivityFields(rect, props);
+            }
+            else
+            {
+                DrawReadOnlyLine(new Rect(rect.x + 14f, rect.y + 42f, rect.width - 28f, Text.LineHeightOf(GameFont.Tiny) + 2f),
+                    SimTranslation.T(
+                        "RSMF.CustomCustomer.ReadOnlyPriceSensitivity",
+                        props.discountWeightMultiplier.ToString("F2").Named("discount"),
+                        props.softMarkupRatio.ToString("F2").Named("soft"),
+                        props.rejectMarkupRatio.ToString("F2").Named("reject"),
+                        props.complainMarkupRatio.ToString("F2").Named("complain")));
+            }
+
             return rect.yMax;
         }
 
@@ -483,9 +516,9 @@ namespace SimManagementLib.SimDialog
             for (int i = 0; i < record.spawnProfiles.Count; i++)
             {
                 CustomCustomerProfileRecord profile = record.spawnProfiles[i];
-                Rect rowRect = new Rect(listRect.x + 10f, y, listRect.width - 20f, 128f);
+                Rect rowRect = new Rect(listRect.x + 10f, y, listRect.width - 20f, 164f);
                 DrawProfileRow(rowRect, record, profile, i);
-                y += 136f;
+                y += 174f;
             }
 
             Rect inputRect = new Rect(listRect.x + 10f, listRect.yMax - 36f, listRect.width - 100f, 28f);
@@ -516,16 +549,17 @@ namespace SimManagementLib.SimDialog
             DrawIntField(new Rect(rowRect.x + 168f, rowRect.y + 44f, 150f, 28f), SimTranslation.T("RSMF.CustomCustomer.PatienceUpper"), ref profile.queuePatienceMax, 60, 120000);
             DrawFloatField(new Rect(rowRect.x + 328f, rowRect.y + 44f, 136f, 28f), SimTranslation.T("RSMF.CustomCustomer.Start"), ref profile.activeHourMin, 0f, 24f);
             DrawFloatField(new Rect(rowRect.x + 474f, rowRect.y + 44f, 136f, 28f), SimTranslation.T("RSMF.CustomCustomer.End"), ref profile.activeHourMax, 0f, 24f);
+            DrawPriceSensitivityFields(new Rect(rowRect.x + 8f, rowRect.y, rowRect.width - 16f, 28f), EnsurePriceSensitivity(profile), rowRect.y + 80f);
 
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
-            Widgets.Label(new Rect(rowRect.x + 8f, rowRect.y + 84f, rowRect.width - 330f, Text.LineHeightOf(GameFont.Tiny) + 2f),
+            Widgets.Label(new Rect(rowRect.x + 8f, rowRect.y + 132f, rowRect.width - 330f, Text.LineHeightOf(GameFont.Tiny) + 2f),
                 SimTranslation.T("RSMF.CustomCustomer.ProfileWeatherCount",
                     profile.allowedWeatherDefNames.Count.Named("weather"),
                     profile.preferredGoodsCategoryIds.Count.Named("types"),
                     profile.preferredThingDefNames.Count.Named("items")));
 
-            float actionY = rowRect.y + 80f;
+            float actionY = rowRect.y + 134f;
             if (SimUiStyle.DrawSecondaryButton(new Rect(rowRect.xMax - 318f, actionY, 76f, 28f), SimTranslation.T("RSMF.CustomCustomer.SyncWeather"), true, GameFont.Tiny))
             {
                 profile.allowedWeatherDefNames = parentRecord.allowedWeatherDefNames.ToList();
@@ -659,6 +693,76 @@ namespace SimManagementLib.SimDialog
                 }
             }
             GUI.color = Color.white;
+        }
+
+        /// <summary>
+        /// 绘制价格敏感度字段组，负责用紧凑布局编辑折扣、溢价和拒买参数。
+        /// </summary>
+        private void DrawPriceSensitivityFields(Rect rect, CustomerPriceSensitivityProps props)
+        {
+            DrawPriceSensitivityFields(rect, props, rect.y + 42f);
+        }
+
+        /// <summary>
+        /// 绘制价格敏感度字段组，负责支持分区和档案行共用同一套控件。
+        /// </summary>
+        private void DrawPriceSensitivityFields(Rect rect, CustomerPriceSensitivityProps props, float fieldY)
+        {
+            if (props == null)
+                return;
+
+            float fieldW = Mathf.Max(112f, (rect.width - 56f) / 5f);
+            DrawCompactFloatField(new Rect(rect.x + 14f, fieldY, fieldW, 44f), SimTranslation.T("RSMF.CustomCustomer.PriceDiscount"), ref props.discountWeightMultiplier, 0.1f, 10f);
+            DrawCompactFloatField(new Rect(rect.x + 28f + fieldW, fieldY, fieldW, 44f), SimTranslation.T("RSMF.CustomCustomer.PriceSoft"), ref props.softMarkupRatio, 1f, 20f);
+            DrawCompactFloatField(new Rect(rect.x + 42f + fieldW * 2f, fieldY, fieldW, 44f), SimTranslation.T("RSMF.CustomCustomer.PriceReject"), ref props.rejectMarkupRatio, 1.01f, 50f);
+            DrawCompactFloatField(new Rect(rect.x + 56f + fieldW * 3f, fieldY, fieldW, 44f), SimTranslation.T("RSMF.CustomCustomer.PriceMinWeight"), ref props.overpricedMinWeight, 0.001f, 1f);
+            DrawCompactFloatField(new Rect(rect.x + 70f + fieldW * 4f, fieldY, fieldW, 44f), SimTranslation.T("RSMF.CustomCustomer.PriceComplain"), ref props.complainMarkupRatio, 1f, 50f);
+            props.EnsureDefaults();
+        }
+
+        /// <summary>
+        /// 绘制紧凑浮点输入框，负责在横向字段较多时避免中文标签挤压输入区域。
+        /// </summary>
+        private void DrawCompactFloatField(Rect rect, string label, ref float value, float min, float max)
+        {
+            Text.Font = GameFont.Tiny;
+            GUI.color = MutedText;
+            float labelHeight = Text.LineHeightOf(GameFont.Tiny) + 2f;
+            Widgets.Label(new Rect(rect.x, rect.y, rect.width, labelHeight), label.Truncate(rect.width));
+            GUI.color = Color.white;
+            string buffer = Widgets.TextField(new Rect(rect.x, rect.y + labelHeight + 2f, rect.width, 24f), value.ToString("0.##"));
+            if (float.TryParse(buffer, out float parsed))
+            {
+                float clamped = Mathf.Clamp(parsed, min, max);
+                if (Math.Abs(clamped - value) > 0.001f)
+                {
+                    value = clamped;
+                    dirty = true;
+                }
+            }
+            GUI.color = Color.white;
+        }
+
+        /// <summary>
+        /// 确保自定义顾客类型存在价格敏感度配置，负责兼容旧 JSON。
+        /// </summary>
+        private static CustomerPriceSensitivityProps EnsurePriceSensitivity(CustomCustomerKindRecord record)
+        {
+            if (record.priceSensitivity == null)
+                record.priceSensitivity = CustomerPriceSensitivityProps.Default();
+            record.priceSensitivity.EnsureDefaults();
+            return record.priceSensitivity;
+        }
+
+        /// <summary>
+        /// 确保自定义顾客档案存在价格敏感度配置，负责兼容旧 JSON。
+        /// </summary>
+        private static CustomerPriceSensitivityProps EnsurePriceSensitivity(CustomCustomerProfileRecord record)
+        {
+            if (record.priceSensitivity == null)
+                record.priceSensitivity = CustomerPriceSensitivityProps.Default();
+            record.priceSensitivity.EnsureDefaults();
+            return record.priceSensitivity;
         }
 
         /// <summary>
@@ -1099,7 +1203,8 @@ namespace SimManagementLib.SimDialog
                 queuePatienceMin = record.queuePatienceMin,
                 queuePatienceMax = record.queuePatienceMax,
                 activeHourMin = record.activeHourMin,
-                activeHourMax = record.activeHourMax
+                activeHourMax = record.activeHourMax,
+                priceSensitivity = EnsurePriceSensitivity(record).Clone()
             });
             profileLabelBuffer = string.Empty;
             MarkDirtyAndRebuild();

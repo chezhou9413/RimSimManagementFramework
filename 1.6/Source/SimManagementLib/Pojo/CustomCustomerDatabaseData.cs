@@ -68,6 +68,9 @@ namespace SimManagementLib.Pojo
         public List<CustomCustomerPreferenceRecord> itemPreferences = new List<CustomCustomerPreferenceRecord>();
 
         [DataMember]
+        public CustomerPriceSensitivityProps priceSensitivity = CustomerPriceSensitivityProps.Default();
+
+        [DataMember]
         public List<CustomCustomerProfileRecord> spawnProfiles = new List<CustomCustomerProfileRecord>();
     }
 
@@ -128,5 +131,8 @@ namespace SimManagementLib.Pojo
 
         [DataMember]
         public List<string> preferredGoodsCategoryIds = new List<string>();
+
+        [DataMember]
+        public CustomerPriceSensitivityProps priceSensitivity;
     }
 }

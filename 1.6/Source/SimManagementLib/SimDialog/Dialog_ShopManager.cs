@@ -117,6 +117,7 @@ namespace SimManagementLib.SimDialog
                     {
                         serviceDefName = s.serviceDefName,
                         enabled = s.enabled,
+                        priceOverrideEnabled = s.priceOverrideEnabled,
                         priceOverride = s.priceOverride,
                         maxSimultaneousUsers = s.maxSimultaneousUsers
                     })

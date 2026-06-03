@@ -67,6 +67,17 @@
   </SimManagementLib.SimDef.ShopUiPageDef>
 
   <SimManagementLib.SimDef.ShopUiPageDef>
+    <defName>Sim_BusinessUi_Main_Extensions</defName>
+    <label>Extension recommendations</label>
+    <description>Business manager page for recommended extensions.</description>
+    <labelKey>RSMF.ShopUi.Page.Main.Extensions.Label</labelKey>
+    <descriptionKey>RSMF.ShopUi.Page.Main.Extensions.Description</descriptionKey>
+    <scope>BusinessManager</scope>
+    <order>900</order>
+    <workerClass>SimManagementLib.SimDialog.BusinessPageWorker_Extensions</workerClass>
+  </SimManagementLib.SimDef.ShopUiPageDef>
+
+  <SimManagementLib.SimDef.ShopUiPageDef>
     <defName>Sim_BusinessUi_Main_Customers</defName>
     <label>Customers</label>
     <description>Business manager page for active customers.</description>

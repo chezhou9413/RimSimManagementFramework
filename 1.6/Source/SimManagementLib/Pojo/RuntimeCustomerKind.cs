@@ -7,6 +7,9 @@ using Verse;
 
 namespace SimManagementLib.Pojo
 {
+    /// <summary>
+    /// 保存 Def 顾客和玩家自定义顾客的运行时合并结果，负责生成顾客访问参数并提供偏好查询。
+    /// </summary>
     public sealed class RuntimeCustomerKind
     {
         public string kindId;
@@ -24,8 +27,12 @@ namespace SimManagementLib.Pojo
         public List<string> targetServiceCategoryIds = new List<string>();
         public List<RuntimeItemPreference> itemPreferences = new List<RuntimeItemPreference>();
         public ShoppingBehaviorProps shoppingBehavior = new ShoppingBehaviorProps();
+        public CustomerPriceSensitivityProps priceSensitivity = CustomerPriceSensitivityProps.Default();
         public List<RuntimeCustomerProfile> spawnProfiles = new List<RuntimeCustomerProfile>();
 
+        /// <summary>
+        /// 判断当前地图时间和天气是否允许该顾客类型出现。
+        /// </summary>
         public bool CanAppearNow(Map map)
         {
             float hour = GenLocalDate.HourFloat(map);
@@ -33,17 +40,26 @@ namespace SimManagementLib.Pojo
             return IsHourAllowed(activeHourRange, hour) && IsWeatherAllowed(allowedWeathers, curWeather);
         }
 
+        /// <summary>
+        /// 计算指定小时的到访权重，负责兼容未配置到访曲线的顾客。
+        /// </summary>
         public float EvaluateArrivalWeight(float hour)
         {
             return Mathf.Max(0.01f, arrivalCurve != null ? arrivalCurve.Evaluate(hour) : 1f);
         }
 
+        /// <summary>
+        /// 计算该顾客对商店当前商品分类的兴趣倍率，负责让目标分类商店更容易吸引顾客。
+        /// </summary>
         public float GetInterestMultiplier(string shopActiveCategoryId)
         {
             if (targetGoodsCategoryIds.NullOrEmpty()) return 1f;
             return !string.IsNullOrEmpty(shopActiveCategoryId) && targetGoodsCategoryIds.Contains(shopActiveCategoryId) ? 1.5f : 0f;
         }
 
+        /// <summary>
+        /// 返回运行时顾客明确感兴趣的商品分类，空列表表示不限制商品分类。
+        /// </summary>
         public List<string> GetTargetGoodsCategoryIds()
         {
             return targetGoodsCategoryIds?
@@ -63,18 +79,25 @@ namespace SimManagementLib.Pojo
                 .ToList() ?? new List<string>();
         }
 
+        /// <summary>
+        /// 构建单次访问的顾客参数，负责选择档案并补齐默认价格敏感度。
+        /// </summary>
         public CustomerRuntimeSettings BuildRuntimeSettings(Map map)
         {
             RuntimeCustomerProfile profile = PickProfile(map);
             CustomerRuntimeSettings settings = profile != null
-                ? profile.BuildSettings(label)
+                ? profile.BuildSettings(label, priceSensitivity)
                 : BuildFallbackSettings();
 
             if (settings.budget <= 0) settings.budget = 1;
             if (settings.queuePatienceTicks <= 0) settings.queuePatienceTicks = GetFallbackQueuePatience();
+            settings.EnsureDefaults();
             return settings;
         }
 
+        /// <summary>
+        /// 返回指定商品对该顾客类型的偏好倍率，负责在没有档案偏好时提供基础偏好。
+        /// </summary>
         public float GetPreferenceMultiplier(ThingDef item)
         {
             float mul = 1f;
@@ -90,6 +113,9 @@ namespace SimManagementLib.Pojo
             return mul;
         }
 
+        /// <summary>
+        /// 按当前地图条件选择一个生成档案。
+        /// </summary>
         private RuntimeCustomerProfile PickProfile(Map map)
         {
             if (spawnProfiles.NullOrEmpty()) return null;
@@ -98,6 +124,9 @@ namespace SimManagementLib.Pojo
             return candidates.RandomElementByWeight(p => Mathf.Max(0.01f, p.weight));
         }
 
+        /// <summary>
+        /// 构建无档案命中时的访问参数，负责使用顾客类型本身的预算、偏好和价格配置。
+        /// </summary>
         private CustomerRuntimeSettings BuildFallbackSettings()
         {
             return new CustomerRuntimeSettings
@@ -108,10 +137,14 @@ namespace SimManagementLib.Pojo
                 activeHourRange = activeHourRange,
                 allowedWeathers = allowedWeathers?.ToList() ?? new List<WeatherDef>(),
                 preferredThings = itemPreferences.Where(p => p?.preferredThing != null).Select(p => p.preferredThing).Distinct().ToList(),
-                preferredGoodsCategoryIds = itemPreferences.Select(p => p?.preferredGoodsCategoryId).Where(id => !string.IsNullOrEmpty(id)).Distinct().ToList()
+                preferredGoodsCategoryIds = itemPreferences.Select(p => p?.preferredGoodsCategoryId).Where(id => !string.IsNullOrEmpty(id)).Distinct().ToList(),
+                priceSensitivity = CustomerPriceSensitivityProps.Resolve(null, priceSensitivity)
             };
         }
 
+        /// <summary>
+        /// 返回无档案时的排队耐心，负责兼容旧购物行为配置。
+        /// </summary>
         private int GetFallbackQueuePatience()
         {
             if (queuePatienceRange.max > 0) return queuePatienceRange.RandomInRange;
@@ -119,6 +152,9 @@ namespace SimManagementLib.Pojo
             return 2500;
         }
 
+        /// <summary>
+        /// 从 Def 顾客构建运行时顾客类型。
+        /// </summary>
         public static RuntimeCustomerKind FromDef(CustomerKindDef def)
         {
             if (def == null) return null;
@@ -139,6 +175,7 @@ namespace SimManagementLib.Pojo
                 targetServiceCategoryIds = def.GetTargetServiceCategoryIds(),
                 itemPreferences = RuntimeItemPreference.FromDefs(def.itemPreferences),
                 shoppingBehavior = def.shoppingBehavior ?? new ShoppingBehaviorProps(),
+                priceSensitivity = CustomerPriceSensitivityProps.Resolve(def.priceSensitivity),
                 spawnProfiles = RuntimeCustomerProfile.FromDefs(def.spawnProfiles)
             };
         }
@@ -184,10 +221,14 @@ namespace SimManagementLib.Pojo
                     .ToList() ?? new List<string>(),
                 itemPreferences = RuntimeItemPreference.FromCustomRecords(record.itemPreferences),
                 shoppingBehavior = new ShoppingBehaviorProps(),
+                priceSensitivity = CustomerPriceSensitivityProps.Resolve(record.priceSensitivity),
                 spawnProfiles = RuntimeCustomerProfile.FromCustomRecords(record.spawnProfiles)
             };
         }
 
+        /// <summary>
+        /// 判断指定小时是否位于允许活动时间段内，负责支持跨午夜时间段。
+        /// </summary>
         private static bool IsHourAllowed(FloatRange range, float hour)
         {
             if (range.TrueMin <= range.TrueMax)
@@ -195,6 +236,9 @@ namespace SimManagementLib.Pojo
             return hour >= range.TrueMin || hour <= range.TrueMax;
         }
 
+        /// <summary>
+        /// 判断当前天气是否允许该顾客类型出现，空列表表示不限制天气。
+        /// </summary>
         private static bool IsWeatherAllowed(List<WeatherDef> allowed, WeatherDef current)
         {
             if (allowed.NullOrEmpty()) return true;

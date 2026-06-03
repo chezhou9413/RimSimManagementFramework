@@ -124,6 +124,9 @@ namespace SimManagementLib.SimAI
         /// </summary>
         public void MarkPostCheckoutCompleted(int pawnId)
         {
+            Pawn pawn = FindOwnedPawnById(pawnId);
+            if (pawn != null)
+                TryEnqueueFreeCompletedServiceReview(pawn, GetCurrentShop(pawn), "完成免费服务");
             checkoutState.MarkPostCheckoutCompleted(pawnId);
             ClearCustomerServiceOrders(pawnId);
         }
@@ -204,7 +207,19 @@ namespace SimManagementLib.SimAI
 
             Zone_Shop shopZone = GetCurrentShop(pawn);
             CustomerVisitSession session = GetOrCreateSession(pawn);
-            session?.NotifyCheckoutFailed(this, pawn, reason ?? "顾客没有待付款，结束访问");
+            ResolveServiceOrdersOnCheckoutPaid(pawn, shopZone);
+            if (NeedsPostCheckoutCompletion(pawnId))
+            {
+                session?.NotifyCheckoutPaid(this, pawn, reason ?? "免费服务等待使用");
+                CheckAllCheckoutsDone();
+                return;
+            }
+
+            TryEnqueueFreeCompletedServiceReview(pawn, shopZone, reason ?? "完成免费服务");
+            if (HasCompletedFreeServiceOrder(pawnId))
+                session?.NotifyCheckoutPaid(this, pawn, reason ?? "完成免费服务");
+            else
+                session?.NotifyCheckoutFailed(this, pawn, reason ?? "顾客没有待付款，结束访问");
             ClearCustomerCart(pawnId);
             ClearCustomerServiceOrders(pawnId);
             checkoutState.MarkPostCheckoutCompleted(pawnId);

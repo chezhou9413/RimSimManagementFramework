@@ -25,6 +25,7 @@ namespace SimManagementLib.SimDef
         public List<string> targetServiceCategoryIds = new List<string>();
         public List<ItemPreference> itemPreferences = new List<ItemPreference>();
         public ShoppingBehaviorProps shoppingBehavior = new ShoppingBehaviorProps();
+        public CustomerPriceSensitivityProps priceSensitivity;
 
         // 扩展配置：一类顾客下可定义多个“顾客档案”。
         public List<CustomerSpawnProfile> spawnProfiles = new List<CustomerSpawnProfile>();
@@ -76,6 +77,7 @@ namespace SimManagementLib.SimDef
                 settings.allowedWeathers = profile.allowedWeathers?.ToList() ?? new List<WeatherDef>();
                 settings.preferredThings = profile.preferredThings?.Where(t => t != null).Distinct().ToList() ?? new List<ThingDef>();
                 settings.preferredGoodsCategoryIds = profile.GetPreferredGoodsCategoryIds();
+                settings.priceSensitivity = CustomerPriceSensitivityProps.Resolve(profile.priceSensitivity, priceSensitivity);
             }
             else
             {
@@ -90,10 +92,12 @@ namespace SimManagementLib.SimDef
                     .Where(id => !string.IsNullOrEmpty(id))
                     .Distinct()
                     .ToList();
+                settings.priceSensitivity = CustomerPriceSensitivityProps.Resolve(null, priceSensitivity);
             }
 
             if (settings.budget <= 0) settings.budget = 1;
             if (settings.queuePatienceTicks <= 0) settings.queuePatienceTicks = 2500;
+            settings.EnsureDefaults();
             return settings;
         }
 
@@ -185,6 +189,7 @@ namespace SimManagementLib.SimDef
         public List<ThingDef> preferredThings = new List<ThingDef>();
         public List<GoodsDef> preferredGoodsCategories = new List<GoodsDef>();
         public List<string> preferredGoodsCategoryIds = new List<string>();
+        public CustomerPriceSensitivityProps priceSensitivity;
 
         public bool CanAppearNow(Map map)
         {

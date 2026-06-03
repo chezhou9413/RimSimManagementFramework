@@ -253,6 +253,7 @@ namespace SimManagementLib.Tool
                     minShopReputation = Mathf.Clamp(source?.minShopReputation ?? 0f, 0f, 100f),
                     targetGoodsCategoryIds = NormalizeGoodsCategoryIds(source?.targetGoodsCategoryIds),
                     itemPreferences = NormalizePreferences(source?.itemPreferences),
+                    priceSensitivity = NormalizePriceSensitivity(source?.priceSensitivity),
                     spawnProfiles = NormalizeProfiles(source?.spawnProfiles)
                 };
 
@@ -350,9 +351,32 @@ namespace SimManagementLib.Tool
                     activeHourMax = Mathf.Clamp(profile?.activeHourMax ?? 24f, 0f, 24f),
                     allowedWeatherDefNames = NormalizeWeatherDefs(profile?.allowedWeatherDefNames),
                     preferredThingDefNames = NormalizePreferenceThings(profile?.preferredThingDefNames),
-                    preferredGoodsCategoryIds = NormalizeGoodsCategoryIds(profile?.preferredGoodsCategoryIds)
+                    preferredGoodsCategoryIds = NormalizeGoodsCategoryIds(profile?.preferredGoodsCategoryIds),
+                    priceSensitivity = NormalizeOptionalPriceSensitivity(profile?.priceSensitivity)
                 });
             }
+            return result;
+        }
+
+        /// <summary>
+        /// 规范化顾客价格敏感度配置，负责让旧 JSON 和缺省字段使用默认参数。
+        /// </summary>
+        private static CustomerPriceSensitivityProps NormalizePriceSensitivity(CustomerPriceSensitivityProps source)
+        {
+            CustomerPriceSensitivityProps result = CustomerPriceSensitivityProps.Resolve(source);
+            result.EnsureDefaults();
+            return result;
+        }
+
+        /// <summary>
+        /// 规范化可继承的顾客价格敏感度配置，负责让档案缺省时继续继承顾客类型参数。
+        /// </summary>
+        private static CustomerPriceSensitivityProps NormalizeOptionalPriceSensitivity(CustomerPriceSensitivityProps source)
+        {
+            if (source == null)
+                return null;
+            CustomerPriceSensitivityProps result = source.Clone();
+            result.EnsureDefaults();
             return result;
         }
 
@@ -402,6 +426,7 @@ namespace SimManagementLib.Tool
                 minShopReputation = record?.minShopReputation ?? 0f,
                 targetGoodsCategoryIds = record?.targetGoodsCategoryIds?.ToList() ?? new List<string>(),
                 itemPreferences = record?.itemPreferences?.Select(ClonePreference).ToList() ?? new List<CustomCustomerPreferenceRecord>(),
+                priceSensitivity = NormalizePriceSensitivity(record?.priceSensitivity),
                 spawnProfiles = record?.spawnProfiles?.Select(CloneProfile).ToList() ?? new List<CustomCustomerProfileRecord>()
             };
         }
@@ -431,7 +456,8 @@ namespace SimManagementLib.Tool
                 activeHourMax = profile?.activeHourMax ?? 24f,
                 allowedWeatherDefNames = profile?.allowedWeatherDefNames?.ToList() ?? new List<string>(),
                 preferredThingDefNames = profile?.preferredThingDefNames?.ToList() ?? new List<string>(),
-                preferredGoodsCategoryIds = profile?.preferredGoodsCategoryIds?.ToList() ?? new List<string>()
+                preferredGoodsCategoryIds = profile?.preferredGoodsCategoryIds?.ToList() ?? new List<string>(),
+                priceSensitivity = NormalizeOptionalPriceSensitivity(profile?.priceSensitivity)
             };
         }
 

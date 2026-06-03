@@ -118,6 +118,7 @@ namespace SimManagementLib.SimDialog
                     {
                         serviceDefName = s.serviceDefName,
                         enabled = s.enabled,
+                        priceOverrideEnabled = s.priceOverrideEnabled,
                         priceOverride = Mathf.Max(0f, s.priceOverride),
                         maxSimultaneousUsers = Mathf.Max(1, s.maxSimultaneousUsers)
                     })

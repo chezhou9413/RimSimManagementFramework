@@ -474,6 +474,7 @@ namespace SimManagementLib.Tool
                 {
                     serviceDefName = slot.serviceDefName ?? "",
                     enabled = slot.enabled,
+                    priceOverrideEnabled = slot.priceOverrideEnabled,
                     priceOverride = slot.priceOverride,
                     maxSimultaneousUsers = slot.maxSimultaneousUsers
                 });
@@ -708,6 +709,9 @@ namespace SimManagementLib.Tool
                     }
 
                     slot.serviceDefName = slot.serviceDefName ?? "";
+                    if (!slot.priceOverrideEnabled && slot.priceOverride > 0f)
+                        slot.priceOverrideEnabled = true;
+                    slot.priceOverride = Math.Max(0f, slot.priceOverride);
                 }
             }
 

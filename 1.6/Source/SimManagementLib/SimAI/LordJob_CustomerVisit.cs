@@ -24,6 +24,7 @@ namespace SimManagementLib.SimAI
         internal CustomerCheckoutState checkoutState = new CustomerCheckoutState();
         internal CustomerPawnSettingsState pawnSettingsState = new CustomerPawnSettingsState();
         internal Dictionary<int, CustomerVisitSession> visitSessions = new Dictionary<int, CustomerVisitSession>();
+        internal Dictionary<int, string> priceRejectionReasons = new Dictionary<int, string>();
 
         internal Dictionary<int, float> cartValues => cartState.cartValues;
         internal Dictionary<int, float> satisfactionMap => cartState.satisfactionMap;
@@ -57,6 +58,7 @@ namespace SimManagementLib.SimAI
             if (checkoutState == null) checkoutState = new CustomerCheckoutState();
             if (pawnSettingsState == null) pawnSettingsState = new CustomerPawnSettingsState();
             if (visitSessions == null) visitSessions = new Dictionary<int, CustomerVisitSession>();
+            if (priceRejectionReasons == null) priceRejectionReasons = new Dictionary<int, string>();
         }
 
         /// <summary>

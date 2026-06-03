@@ -210,9 +210,16 @@ namespace SimManagementLib.SimAI
                     if (!checkoutContext.postCheckoutJobs.NullOrEmpty())
                         lordJob.QueuePostCheckoutJobs(pawnId, checkoutContext.postCheckoutJobs);
                     SimShopCheckoutApi.NotifyCheckoutPaid(checkoutContext);
-                    CustomerReviewSnapshotBuilder.TryEnqueueReview(pawn, lordJob, shopZone, checkoutContext.billLines, 0, "未消费离店");
+                    bool needsPostCheckout = lordJob.NeedsPostCheckoutCompletion(pawnId);
+                    bool hasCompletedFreeService = lordJob.HasCompletedFreeServiceOrder(pawnId);
+                    string reviewReason = needsPostCheckout ? "免费服务等待使用" : hasCompletedFreeService ? "完成免费服务" : "未消费离店";
+                    if (!needsPostCheckout
+                        && !lordJob.TryEnqueueFreeCompletedServiceReview(pawn, shopZone, "完成免费服务"))
+                    {
+                        CustomerReviewSnapshotBuilder.TryEnqueueReview(pawn, lordJob, shopZone, checkoutContext.billLines, 0, reviewReason);
+                    }
                     lordJob.ClearCustomerCart(pawnId);
-                    lordJob.GetOrCreateSession(pawn)?.NotifyCheckoutPaid(lordJob, pawn, "未消费离店");
+                    lordJob.GetOrCreateSession(pawn)?.NotifyCheckoutPaid(lordJob, pawn, reviewReason);
                     analytics?.RecordCheckoutResult(shopZone, totalWaitTicks, maxQueueWaitTicks, 0, budget, success: true, timeout: false);
                 }
 

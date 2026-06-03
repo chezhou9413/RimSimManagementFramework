@@ -26,6 +26,7 @@ namespace SimManagementLib
         public bool mirrorJourneyDebugLogToGameLog;
         public int journeyDebugLogMaxBytes = 4194304;
         public string debugForcedCustomerKindId = "";
+        public bool showExtensionRecommendationPage = true;
         public bool reviewAiEnabled;
         public CustomerReviewProvider reviewProvider = CustomerReviewProvider.OpenAICompatible;
         public string openAiBaseUrl = "https://api.openai.com/v1";
@@ -71,6 +72,7 @@ namespace SimManagementLib
             Scribe_Values.Look(ref mirrorJourneyDebugLogToGameLog, "mirrorJourneyDebugLogToGameLog", false);
             Scribe_Values.Look(ref journeyDebugLogMaxBytes, "journeyDebugLogMaxBytes", 4194304);
             Scribe_Values.Look(ref debugForcedCustomerKindId, "debugForcedCustomerKindId", "");
+            Scribe_Values.Look(ref showExtensionRecommendationPage, "showExtensionRecommendationPage", true);
             Scribe_Values.Look(ref reviewAiEnabled, "reviewAiEnabled", false);
             Scribe_Values.Look(ref reviewProvider, "reviewProvider", CustomerReviewProvider.OpenAICompatible);
             Scribe_Values.Look(ref openAiBaseUrl, "openAiBaseUrl", "https://api.openai.com/v1");
@@ -274,6 +276,10 @@ namespace SimManagementLib
             list.Label(SimTranslation.T("RSMF.Settings.CustomerSystem"));
             list.CheckboxLabeled(SimTranslation.T("RSMF.Settings.ShowCustomerArrivalMessage"), ref Settings.showCustomerArrivalMessage, SimTranslation.T("RSMF.Settings.ShowCustomerArrivalMessageTip"));
             list.CheckboxLabeled(SimTranslation.T("RSMF.Settings.ShowCustomerInspectDetails"), ref Settings.showCustomerInspectDetails, SimTranslation.T("RSMF.Settings.ShowCustomerInspectDetailsTip"));
+            bool oldShowExtensionRecommendationPage = Settings.showExtensionRecommendationPage;
+            list.CheckboxLabeled(SimTranslation.T("RSMF.Settings.ShowExtensionRecommendationPage"), ref Settings.showExtensionRecommendationPage, SimTranslation.T("RSMF.Settings.ShowExtensionRecommendationPageTip"));
+            if (oldShowExtensionRecommendationPage != Settings.showExtensionRecommendationPage)
+                Api.SimShopUiApi.RequestRefresh();
             list.Label(SimTranslation.T("RSMF.Settings.CustomerArrivalCheckInterval", Settings.customerArrivalCheckIntervalTicks.Named("ticks")));
             Settings.customerArrivalCheckIntervalTicks = (int)list.Slider(Settings.customerArrivalCheckIntervalTicks, 120f, 5000f);
             DrawDebugForcedCustomerKindSelector(list);
@@ -328,6 +334,8 @@ namespace SimManagementLib
                 Settings.mirrorJourneyDebugLogToGameLog = false;
                 Settings.journeyDebugLogMaxBytes = 4194304;
                 Settings.debugForcedCustomerKindId = "";
+                Settings.showExtensionRecommendationPage = true;
+                Api.SimShopUiApi.RequestRefresh();
             }
 
             list.End();

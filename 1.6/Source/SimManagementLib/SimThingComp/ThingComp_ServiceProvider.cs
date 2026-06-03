@@ -104,6 +104,7 @@ namespace SimManagementLib.SimThingComp
                     {
                         serviceDefName = defName,
                         enabled = p.enabledByDefault,
+                        priceOverrideEnabled = false,
                         priceOverride = 0f,
                         maxSimultaneousUsers = Mathf.Max(1, p.defaultMaxSimultaneousUsers)
                     });
@@ -119,6 +120,7 @@ namespace SimManagementLib.SimThingComp
     {
         public string serviceDefName = "";
         public bool enabled = true;
+        public bool priceOverrideEnabled;
         public float priceOverride;
         public int maxSimultaneousUsers = 1;
 
@@ -137,10 +139,16 @@ namespace SimManagementLib.SimThingComp
         {
             Scribe_Values.Look(ref serviceDefName, "serviceDefName", "");
             Scribe_Values.Look(ref enabled, "enabled", true);
+            Scribe_Values.Look(ref priceOverrideEnabled, "priceOverrideEnabled", false);
             Scribe_Values.Look(ref priceOverride, "priceOverride", 0f);
             Scribe_Values.Look(ref maxSimultaneousUsers, "maxSimultaneousUsers", 1);
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                if (priceOverride > 0f)
+                    priceOverrideEnabled = true;
+                priceOverride = Math.Max(0f, priceOverride);
                 maxSimultaneousUsers = Math.Max(1, maxSimultaneousUsers);
+            }
         }
     }
 }

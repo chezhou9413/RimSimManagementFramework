@@ -277,7 +277,6 @@
       <li>Apparel_BowlerHat</li>
       <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_Broadwrap</li>
       <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_Burka</li>
-      <li MayRequireAnyOf="Ludeon.RimWorld.Royalty,Ludeon.RimWorld.Biotech">Apparel_Cape</li>
       <li MayRequire="Ludeon.RimWorld.Odyssey">Apparel_CerebrexNode</li>
       <li MayRequire="Ludeon.RimWorld.Anomaly">Apparel_CeremonialCultistMask</li>
       <li>Apparel_ClothMask</li>
@@ -357,6 +356,7 @@
       <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_VisageMask</li>
       <li>Apparel_WarMask</li>
       <li>Apparel_WarVeil</li>
+      <li MayRequireAnyOf="Ludeon.RimWorld.Royalty,Ludeon.RimWorld.Biotech">Apparel_Cape</li>
     </GoodsList>
   </SimManagementLib.SimDef.GoodsDef>
 
@@ -477,7 +477,6 @@
       <li MayRequire="Ludeon.RimWorld.Royalty">FieldHand</li>
       <li>PowerClaw</li>
       <li>CochlearImplant</li>
-      <li MayRequireAnyOf="Ludeon.RimWorld.Royalty,Ludeon.RimWorld.Biotech">PsychicAmplifier</li>
       <li MayRequire="Ludeon.RimWorld.Royalty">PsychicHarmonizer</li>
       <li MayRequire="Ludeon.RimWorld.Royalty">PsychicSensitizer</li>
       <li>Heart</li>
@@ -507,6 +506,7 @@
       <li MayRequire="Ludeon.RimWorld.Royalty">Mindscrew</li>
       <li MayRequire="Ludeon.RimWorld.Anomaly">GhoulPlating</li>
       <li MayRequire="Ludeon.RimWorld.Anomaly">GhoulBarbs</li>
+      <li MayRequireAnyOf="Ludeon.RimWorld.Royalty,Ludeon.RimWorld.Biotech">PsychicAmplifier</li>
     </GoodsList>
   </SimManagementLib.SimDef.GoodsDef>
 

@@ -111,7 +111,8 @@ namespace SimManagementLib.Tool
                     return true;
             }
 
-            return !GetMatchingAffordableInStockCombos(shop, kind, fallbackDef, remainingBudget).NullOrEmpty();
+            CustomerPriceSensitivityProps sensitivity = GetPriceSensitivity(pawn);
+            return !GetMatchingAffordableInStockCombos(shop, kind, fallbackDef, remainingBudget, sensitivity).NullOrEmpty();
         }
 
         /// <summary>
@@ -140,7 +141,18 @@ namespace SimManagementLib.Tool
         /// </summary>
         public static List<ComboData> GetMatchingAffordableInStockCombos(Zone_Shop shop, LordJob_CustomerVisit visit, float remainingBudget)
         {
-            return GetMatchingAffordableInStockCombos(shop, visit?.RuntimeCustomerKind, visit?.customerKind, remainingBudget);
+            return GetMatchingAffordableInStockCombos(shop, visit?.RuntimeCustomerKind, visit?.customerKind, remainingBudget, null);
+        }
+
+        /// <summary>
+        /// 返回指定顾客当前买得起且至少含有一个目标商品的套餐。
+        /// </summary>
+        public static List<ComboData> GetMatchingAffordableInStockCombos(Zone_Shop shop, LordJob_CustomerVisit visit, Pawn pawn, float remainingBudget)
+        {
+            CustomerPriceSensitivityProps sensitivity = visit != null && pawn != null
+                ? visit.GetPriceSensitivity(pawn.thingIDNumber)
+                : CustomerPriceSensitivityProps.Default();
+            return GetMatchingAffordableInStockCombos(shop, visit?.RuntimeCustomerKind, visit?.customerKind, remainingBudget, sensitivity);
         }
 
         /// <summary>
@@ -148,10 +160,18 @@ namespace SimManagementLib.Tool
         /// </summary>
         public static List<ComboData> GetMatchingAffordableInStockCombos(Zone_Shop shop, RuntimeCustomerKind kind, CustomerKindDef fallbackDef, float remainingBudget)
         {
+            return GetMatchingAffordableInStockCombos(shop, kind, fallbackDef, remainingBudget, null);
+        }
+
+        /// <summary>
+        /// 返回顾客当前买得起、价格未被拒绝且至少含有一个目标商品的套餐。
+        /// </summary>
+        public static List<ComboData> GetMatchingAffordableInStockCombos(Zone_Shop shop, RuntimeCustomerKind kind, CustomerKindDef fallbackDef, float remainingBudget, CustomerPriceSensitivityProps sensitivity)
+        {
             if (shop == null || remainingBudget <= 0f || !AllowsGoods(kind, fallbackDef))
                 return new List<ComboData>();
 
-            return ShopDataUtility.GetAffordableInStockCombos(shop, remainingBudget)
+            return ShopDataUtility.GetAffordableInStockCombos(shop, remainingBudget, sensitivity)
                 .Where(combo => ComboMatchesCustomer(kind, fallbackDef, combo))
                 .ToList();
         }
@@ -230,11 +250,22 @@ namespace SimManagementLib.Tool
             {
                 if (def == null || storage.CountStored(def) <= 0) continue;
                 if (!ThingMatchesCustomer(kind, fallbackDef, def)) continue;
-                if (ShopPricingUtility.GetUnitPrice(storage, def) <= remainingBudget)
+                float unitPrice = ShopPricingUtility.GetUnitPrice(storage, def);
+                CustomerPriceSensitivityProps sensitivity = GetPriceSensitivity(pawn);
+                if (unitPrice <= remainingBudget && !CustomerPriceUtility.Evaluate(def, unitPrice, sensitivity).rejected)
                     return true;
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// 返回顾客运行时价格敏感度，负责让缺少 LordJob 上下文的旧调用仍使用默认参数。
+        /// </summary>
+        private static CustomerPriceSensitivityProps GetPriceSensitivity(Pawn pawn)
+        {
+            LordJob_CustomerVisit visit = pawn?.Map?.lordManager?.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
+            return visit?.GetPriceSensitivity(pawn.thingIDNumber) ?? CustomerPriceSensitivityProps.Default();
         }
 
         /// <summary>

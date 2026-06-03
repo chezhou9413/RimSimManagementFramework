@@ -214,19 +214,22 @@ namespace SimManagementLib.Debug
             if (storage == null) return "无";
             bool reachable = pawn.CanReach(storage, PathEndMode.Touch, Danger.Deadly);
             bool hasAffordable = CustomerShoppingMatchUtility.StorageHasMatchingAffordableStock(storage, pawn, visit, remaining);
+            string priceRejection = visit.GetPriceRejectionReason(pawn.thingIDNumber);
             List<string> items = new List<string>();
             foreach (ThingDef def in storage.ActiveDefs.Take(12))
             {
                 int count = storage.CountStored(def);
                 bool match = CustomerShoppingMatchUtility.ThingMatchesCustomer(visit, def);
                 float price = ShopPricingUtility.GetUnitPrice(storage, def);
-                items.Add(def.defName + " count=" + count + " match=" + match + " price=" + price.ToString("F1"));
+                CustomerPriceEvaluation evaluation = CustomerPriceUtility.Evaluate(def, price, visit.GetPriceSensitivity(pawn.thingIDNumber));
+                items.Add(def.defName + " count=" + count + " match=" + match + " price=" + price.ToString("F1") + " ratio=" + evaluation.ratio.ToString("F2") + " rejected=" + evaluation.rejected);
             }
 
             return storage.LabelShortCap
                 + " id=" + storage.thingIDNumber
                 + " reachable=" + reachable
                 + " hasAffordable=" + hasAffordable
+                + " priceRejection=" + priceRejection
                 + " items=[" + string.Join("; ", items) + "]";
         }
     }

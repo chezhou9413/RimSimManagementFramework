@@ -79,13 +79,13 @@ namespace SimManagementLib.SimAI
 
                 if (shopZone != null)
                 {
-                    List<ComboData> combos = CustomerShoppingMatchUtility.GetMatchingAffordableInStockCombos(shopZone, lordJob, remainingBudget);
+                    List<ComboData> combos = CustomerShoppingMatchUtility.GetMatchingAffordableInStockCombos(shopZone, lordJob, pawn, remainingBudget);
                     List<CustomerCartItem> currentCart = lordJob.GetCartItems(pId);
                     if (!combos.NullOrEmpty())
                     {
                         ComboData targetCombo = combos
-                            .OrderByDescending(c => GetComboPreferenceScore(lordJob, pId, c))
-                            .ThenByDescending(c => c.totalPrice)
+                            .OrderByDescending(c => GetComboPurchaseScore(lordJob, pId, c))
+                            .ThenByDescending(c => GetComboEffectivePrice(c))
                             .FirstOrDefault();
                         if (targetCombo != null && ShopDataUtility.TryPurchaseCombo(shopZone, targetCombo, out float comboPrice))
                         {
@@ -100,6 +100,7 @@ namespace SimManagementLib.SimAI
                             lordJob.AddCustomerBill(pId, comboPrice);
                             lordJob.AddCartItemsFromCombo(pId, targetCombo.items);
                             lordJob.ClearCurrentShopNoProgressBrowse(pawn);
+                            lordJob.ClearPriceRejectionReason(pId);
                             string comboName = string.IsNullOrEmpty(targetCombo.comboName) ? SimTranslation.T("RSMF.Common.UnnamedCombo") : targetCombo.comboName;
                     finance?.QueueComboSale(pawn, shopZone, comboName, comboPrice, comboCost);
                             CustomerExpressionUtility.TryShowExpression(
@@ -119,18 +120,33 @@ namespace SimManagementLib.SimAI
                         if (RegisterNoProgressAndCheckoutIfNeeded(lordJob, ref noProgressRecorded))
                             return;
                     }
+                    else if (ShopDataUtility.TryFindRejectedComboPriceReason(
+                        shopZone,
+                        lordJob.GetPriceSensitivity(pId),
+                        combo => CustomerShoppingMatchUtility.ComboMatchesCustomer(lordJob.RuntimeCustomerKind, lordJob.customerKind, combo),
+                        out string comboRejectedReason))
+                    {
+                        lordJob.RecordPriceRejection(pId, comboRejectedReason);
+                    }
                 }
 
-                List<(ThingDef def, float unitPrice)> candidates = new List<(ThingDef def, float unitPrice)>();
+                List<(ThingDef def, float unitPrice, CustomerPriceEvaluation price)> candidates = new List<(ThingDef def, float unitPrice, CustomerPriceEvaluation price)>();
+                string rejectedReason = "";
                 foreach (ThingDef def in TargetShelf.ActiveDefs)
                 {
                     if (TargetShelf.CountStored(def) <= 0) continue;
                     if (!CustomerShoppingMatchUtility.ThingMatchesCustomer(lordJob, def)) continue;
 
                     float unitPrice = ShopPricingUtility.GetUnitPrice(TargetShelf, def);
+                    CustomerPriceEvaluation price = CustomerPriceUtility.Evaluate(def, unitPrice, lordJob.GetPriceSensitivity(pId));
+                    if (price.rejected)
+                    {
+                        rejectedReason = BuildPriceRejectionReason(def, price);
+                        continue;
+                    }
                     if (unitPrice <= remainingBudget)
                     {
-                        candidates.Add((def, unitPrice));
+                        candidates.Add((def, unitPrice, price));
                     }
                 }
 
@@ -144,6 +160,8 @@ namespace SimManagementLib.SimAI
                     }
 
                     bool shouldCheckout = RegisterNoProgressAndCheckoutIfNeeded(lordJob, ref noProgressRecorded);
+                    if (!string.IsNullOrEmpty(rejectedReason))
+                        lordJob.RecordPriceRejection(pId, rejectedReason);
                     CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.BrowseNoMatch);
                     ShopBubbleUtility.ShowTextBubble(pawn, SimTranslation.T("RSMF.Bubble.NoSuitableGoods"), new Color(0.88f, 0.88f, 0.88f));
                     if (shouldCheckout)
@@ -151,8 +169,8 @@ namespace SimManagementLib.SimAI
                     return;
                 }
 
-                (ThingDef itemToBuy, float itemPrice) = candidates.RandomElementByWeight(c =>
-                    Mathf.Max(0.1f, lordJob.GetPreferenceMultiplier(pId, c.def)));
+                (ThingDef itemToBuy, float itemPrice, CustomerPriceEvaluation itemPriceEvaluation) = candidates.RandomElementByWeight(c =>
+                    Mathf.Max(0.001f, lordJob.GetPreferenceMultiplier(pId, c.def) * c.price.purchaseWeight));
 
                 int maxByBudget = Mathf.FloorToInt(remainingBudget / itemPrice);
                 int maxByStock = TargetShelf.CountStored(itemToBuy);
@@ -163,7 +181,7 @@ namespace SimManagementLib.SimAI
                         FinishWithoutBillOrCheckout(lordJob, pId, "顾客无法购买目标商品，离店");
                     return;
                 }
-                int buyCount = PickPurchaseCount(maxCount);
+                int buyCount = PickPurchaseCount(maxCount, itemPriceEvaluation);
 
                 Thing taken = TargetShelf.TryVirtualBuy(itemToBuy, buyCount, out _);
                 if (taken != null)
@@ -174,6 +192,7 @@ namespace SimManagementLib.SimAI
                     lordJob.AddCustomerBill(pId, totalPrice);
                     lordJob.AddCartItem(pId, itemToBuy, actualCount);
                     lordJob.ClearCurrentShopNoProgressBrowse(pawn);
+                    lordJob.ClearPriceRejectionReason(pId);
                     finance?.QueueProductSale(pawn, shopZone, itemToBuy, actualCount, totalPrice, totalCost);
                     taken.Destroy(DestroyMode.Vanish);
                     float preferenceMultiplier = lordJob.GetPreferenceMultiplier(pId, itemToBuy);
@@ -208,7 +227,7 @@ namespace SimManagementLib.SimAI
         /// <summary>
         /// 计算套餐对指定顾客的偏好得分，负责让更符合偏好的套餐优先被购买。
         /// </summary>
-        private static float GetComboPreferenceScore(LordJob_CustomerVisit lordJob, int pawnId, ComboData combo)
+        private static float GetComboPurchaseScore(LordJob_CustomerVisit lordJob, int pawnId, ComboData combo)
         {
             if (combo == null || combo.items.NullOrEmpty()) return 0f;
 
@@ -220,17 +239,41 @@ namespace SimManagementLib.SimAI
                 score += lordJob.GetPreferenceMultiplier(pawnId, item.def) * item.count;
             }
 
-            return score;
+            CustomerPriceEvaluation price = CustomerPriceUtility.EvaluateCombo(GetComboEffectivePrice(combo), ShopDataUtility.GetComboReferenceValue(combo), lordJob.GetPriceSensitivity(pawnId));
+            return score * Mathf.Max(0.001f, price.purchaseWeight);
         }
 
         /// <summary>
         /// 选择单次购买数量，负责让顾客稳定购买但避免一次搬空整柜库存。
         /// </summary>
-        private static int PickPurchaseCount(int maxCount)
+        private static int PickPurchaseCount(int maxCount, CustomerPriceEvaluation price)
         {
             if (maxCount <= 1) return 1;
 
+            if (price.ratio <= 0.9f)
+                return Rand.Value < 0.45f ? 1 : Mathf.Min(Rand.RangeInclusive(2, 3), maxCount);
+            if (price.ratio > 1.5f)
+                return 1;
             return Rand.Value < 0.7f ? 1 : Mathf.Min(2, maxCount);
+        }
+
+        /// <summary>
+        /// 构建价格拒买原因，负责让评价和调试说明顾客为什么没有购买目标商品。
+        /// </summary>
+        private static string BuildPriceRejectionReason(ThingDef def, CustomerPriceEvaluation price)
+        {
+            string label = def?.label ?? def?.defName ?? "未知商品";
+            return $"商品 {label} 售价约为市价 {price.ratio:F1} 倍，顾客认为价格远高于市价而拒绝购买";
+        }
+
+        /// <summary>
+        /// 返回套餐实际售价，负责给排序和价格评估使用。
+        /// </summary>
+        private static float GetComboEffectivePrice(ComboData combo)
+        {
+            if (combo == null) return 0f;
+            if (combo.totalPrice > 0f) return combo.totalPrice;
+            return ShopDataUtility.GetComboReferenceValue(combo);
         }
 
         /// <summary>

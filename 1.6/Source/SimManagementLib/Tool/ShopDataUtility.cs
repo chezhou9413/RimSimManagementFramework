@@ -124,6 +124,14 @@ namespace SimManagementLib.Tool
         /// </summary>
         public static List<ComboData> GetAffordableInStockCombos(Zone zone, float budget)
         {
+            return GetAffordableInStockCombos(zone, budget, null);
+        }
+
+        /// <summary>
+        /// 获取指定预算内、价格未被顾客拒绝且当前库存可满足的套餐，按价格从高到低排序。
+        /// </summary>
+        public static List<ComboData> GetAffordableInStockCombos(Zone zone, float budget, CustomerPriceSensitivityProps sensitivity)
+        {
             if (zone == null || zone.Map == null || budget <= 0f)
                 return new List<ComboData>();
 
@@ -136,9 +144,43 @@ namespace SimManagementLib.Tool
             return combos
                 .Where(c => c != null && !c.items.NullOrEmpty())
                 .Where(c => GetComboEffectivePrice(c) <= budget)
+                .Where(c => !CustomerPriceUtility.EvaluateCombo(GetComboEffectivePrice(c), GetComboReferenceValue(c), sensitivity).rejected)
                 .Where(c => HasEnoughStockForCombo(zone, c))
                 .OrderByDescending(GetComboEffectivePrice)
                 .ToList();
+        }
+
+        /// <summary>
+        /// 尝试查找因高溢价被顾客拒绝的套餐，负责给无消费评价提供价格原因。
+        /// </summary>
+        public static bool TryFindRejectedComboPriceReason(Zone zone, CustomerPriceSensitivityProps sensitivity, System.Func<ComboData, bool> matchesCustomer, out string reason)
+        {
+            reason = "";
+            if (zone == null || zone.Map == null)
+                return false;
+
+            GameComponent_ShopComboManager comboManager = Current.Game?.GetComponent<GameComponent_ShopComboManager>();
+            List<ComboData> combos = comboManager?.GetCombosForZone(zone);
+            if (combos.NullOrEmpty())
+                return false;
+
+            for (int i = 0; i < combos.Count; i++)
+            {
+                ComboData combo = combos[i];
+                if (combo == null || combo.items.NullOrEmpty()) continue;
+                if (matchesCustomer != null && !matchesCustomer(combo)) continue;
+                if (!HasEnoughStockForCombo(zone, combo)) continue;
+
+                float price = GetComboEffectivePrice(combo);
+                CustomerPriceEvaluation evaluation = CustomerPriceUtility.EvaluateCombo(price, GetComboReferenceValue(combo), sensitivity);
+                if (!evaluation.rejected) continue;
+
+                string label = string.IsNullOrEmpty(combo.comboName) ? "未命名套餐" : combo.comboName;
+                reason = $"套餐 {label} 售价约为市价 {evaluation.ratio:F1} 倍，顾客认为价格远高于市价而拒绝购买";
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -228,6 +270,14 @@ namespace SimManagementLib.Tool
             }
 
             return estimated > 0f ? estimated : 1f;
+        }
+
+        /// <summary>
+        /// 返回套餐按商品市价计算的参考价值。
+        /// </summary>
+        public static float GetComboReferenceValue(ComboData combo)
+        {
+            return CustomerPriceUtility.GetComboReferenceValue(combo);
         }
 
         private static void RollbackComboExtract(List<ComboExtractEntry> extracted)

@@ -142,9 +142,12 @@ namespace SimManagementLib.SimService
         /// </summary>
         public override float GetPrice(Pawn customer, Thing provider, SimZone.Zone_Shop shop)
         {
+            if (ShopServiceUtility.TryGetExplicitServicePrice(provider, def, out float overridePrice))
+                return overridePrice;
+
             Building_CollectibleDisplayStand stand = provider as Building_CollectibleDisplayStand;
             int count = Mathf.Max(0, stand?.DisplayedCollectibleCount ?? 0);
-            return Mathf.Max(1f, count * SilverPerDisplayedCollectible);
+            return Mathf.Max(0f, count * SilverPerDisplayedCollectible);
         }
 
         /// <summary>

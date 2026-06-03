@@ -200,6 +200,7 @@ namespace SimManagementLib.SimMapComp
                 {
                     serviceDefName = slot.serviceDefName ?? "",
                     enabled = slot.enabled,
+                    priceOverrideEnabled = slot.priceOverrideEnabled || slot.priceOverride > 0f,
                     priceOverride = Math.Max(0f, slot.priceOverride),
                     maxSimultaneousUsers = Math.Max(1, slot.maxSimultaneousUsers)
                 })

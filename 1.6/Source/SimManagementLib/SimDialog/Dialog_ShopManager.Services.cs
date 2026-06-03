@@ -21,6 +21,7 @@ namespace SimManagementLib.SimDialog
 
             const float providerW = 150f;
             const float enabledW = 52f;
+            const float priceOverrideW = 58f;
             const float capacityW = 80f;
             const float usersW = 86f;
 
@@ -36,6 +37,9 @@ namespace SimManagementLib.SimDialog
                 cx -= ColGap;
                 cx -= FieldW;
                 DrawHdrLabel(new Rect(cx, headerRect.y, FieldW, headerRect.height), SimTranslation.T("RSMF.ShopManager.OverridePrice"));
+                cx -= ColGap;
+                cx -= priceOverrideW;
+                DrawHdrLabel(new Rect(cx, headerRect.y, priceOverrideW, headerRect.height), SimTranslation.T("RSMF.ShopManager.OverrideEnabled"), TextAnchor.MiddleCenter);
                 cx -= ColGap;
                 cx -= enabledW;
                 DrawHdrLabel(new Rect(cx, headerRect.y, enabledW, headerRect.height), SimTranslation.T("RSMF.ShopManager.Enabled"), TextAnchor.MiddleCenter);
@@ -60,6 +64,7 @@ namespace SimManagementLib.SimDialog
         {
             const float providerW = 150f;
             const float enabledW = 52f;
+            const float priceOverrideW = 58f;
             const float capacityW = 80f;
             const float usersW = 86f;
 
@@ -85,7 +90,17 @@ namespace SimManagementLib.SimDialog
             rx -= ColGap;
             rx -= FieldW;
             if (slot.priceBuffer == null) slot.priceBuffer = slot.priceOverride.ToString("F0");
-            Widgets.TextFieldNumeric(new Rect(rx, ctrlY, FieldW, 24f), ref slot.priceOverride, ref slot.priceBuffer, 0f, 99999f);
+            Rect priceRect = new Rect(rx, ctrlY, FieldW, 24f);
+            GUI.color = slot.priceOverrideEnabled ? Color.white : CTextDim;
+            Widgets.TextFieldNumeric(priceRect, ref slot.priceOverride, ref slot.priceBuffer, 0f, 99999f);
+            if (!slot.priceOverrideEnabled)
+                TooltipHandler.TipRegion(priceRect, SimTranslation.T("RSMF.ShopManager.OverridePriceDisabledTip"));
+            GUI.color = Color.white;
+
+            rx -= ColGap;
+            rx -= priceOverrideW;
+            Widgets.Checkbox(rx + (priceOverrideW - CheckSz) / 2f, row.y + (RowH - CheckSz) / 2f, ref slot.priceOverrideEnabled, CheckSz, paintable: true);
+            TooltipHandler.TipRegion(new Rect(rx, row.y, priceOverrideW, RowH), SimTranslation.T("RSMF.ShopManager.OverrideEnabledTip"));
 
             rx -= ColGap;
             rx -= enabledW;

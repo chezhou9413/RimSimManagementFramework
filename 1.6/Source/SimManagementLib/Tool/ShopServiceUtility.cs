@@ -77,21 +77,39 @@ namespace SimManagementLib.Tool
         }
 
         /// <summary>
-        /// 获取服务单价，优先读取建筑槽位覆盖价，再读取服务基础价，最低为 1。
+        /// 获取服务单价，优先读取显式覆盖价，再读取服务基础价，最低为 0。
         /// </summary>
         public static float GetServicePrice(Thing provider, ShopServiceDef serviceDef)
         {
-            if (serviceDef == null) return 1f;
+            if (serviceDef == null) return 0f;
 
             ThingComp_ServiceProvider comp = GetProviderComp(provider);
             ServiceSlotData slot = comp?.FindSlot(serviceDef);
-            if (slot != null && slot.priceOverride > 0f)
-                return Mathf.Max(1f, slot.priceOverride);
+            if (slot != null && slot.priceOverrideEnabled)
+                return Mathf.Max(0f, slot.priceOverride);
 
             if (serviceDef.basePrice > 0f)
-                return Mathf.Max(1f, serviceDef.basePrice);
+                return Mathf.Max(0f, serviceDef.basePrice);
 
-            return 1f;
+            return 0f;
+        }
+
+        /// <summary>
+        /// 判断服务建筑槽位是否显式覆盖价格，负责让动态服务决定是否跳过自身计价公式。
+        /// </summary>
+        public static bool TryGetExplicitServicePrice(Thing provider, ShopServiceDef serviceDef, out float price)
+        {
+            price = 0f;
+            if (serviceDef == null)
+                return false;
+
+            ThingComp_ServiceProvider comp = GetProviderComp(provider);
+            ServiceSlotData slot = comp?.FindSlot(serviceDef);
+            if (slot == null || !slot.priceOverrideEnabled)
+                return false;
+
+            price = Mathf.Max(0f, slot.priceOverride);
+            return true;
         }
 
         /// <summary>
@@ -145,7 +163,7 @@ namespace SimManagementLib.Tool
             provider = null;
             serviceDef = null;
             price = 0f;
-            if (pawn == null || shop == null || remainingBudget <= 0f) return false;
+            if (pawn == null || shop == null || remainingBudget < 0f) return false;
 
             List<ServiceCandidate> candidates = new List<ServiceCandidate>();
             foreach (Thing candidateProvider in GetServiceProvidersInZone(shop))
@@ -190,8 +208,8 @@ namespace SimManagementLib.Tool
                 providerThingId = provider?.thingIDNumber ?? -1,
                 providerLabel = provider?.LabelCap ?? SimTranslation.T("RSMF.Service.ProviderFallback"),
                 count = 1,
-                unitPrice = Mathf.Max(1f, price),
-                totalPrice = Mathf.Max(1f, price),
+                unitPrice = Mathf.Max(0f, price),
+                totalPrice = Mathf.Max(0f, price),
                 billingMode = serviceDef?.billingMode ?? ServiceBillingMode.PayBeforeUse,
                 state = ServiceOrderState.Draft,
                 reservedTick = Find.TickManager?.TicksGame ?? 0
