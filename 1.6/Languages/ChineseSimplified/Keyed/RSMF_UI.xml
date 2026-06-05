@@ -43,13 +43,25 @@
   <RSMF.Gizmo.RenameContainer.Desc>为该货柜设置一个便于快速识别和定位的名称。</RSMF.Gizmo.RenameContainer.Desc>
   <RSMF.Gizmo.ContainerManagement.Label>货柜管理</RSMF.Gizmo.ContainerManagement.Label>
   <RSMF.Gizmo.ContainerManagement.Desc>打开货柜管理面板，配置上架商品、目标库存与价格。</RSMF.Gizmo.ContainerManagement.Desc>
-  <RSMF.ReviewSettings.Title>顾客评价配置</RSMF.ReviewSettings.Title>
-  <RSMF.ReviewSettings.Tab.Api>接口配置</RSMF.ReviewSettings.Tab.Api>
+  <RSMF.LlmSettings.Title>通用 LLM 设置</RSMF.LlmSettings.Title>
+  <RSMF.LlmSettings.Tab.Api>LLM 设置</RSMF.LlmSettings.Tab.Api>
+  <RSMF.LlmSettings.Tab.Reviews>顾客评价</RSMF.LlmSettings.Tab.Reviews>
+  <RSMF.LlmSettings.Enable>启用通用 LLM</RSMF.LlmSettings.Enable>
+  <RSMF.LlmSettings.EnableTip>开启后，套餐取名、顾客评价和后续经营 AI 功能可以调用同一套模型接口。</RSMF.LlmSettings.EnableTip>
+  <RSMF.ReviewSettings.Title>通用 LLM 设置</RSMF.ReviewSettings.Title>
+  <RSMF.ReviewSettings.Tab.General>基础</RSMF.ReviewSettings.Tab.General>
+  <RSMF.ReviewSettings.Tab.Api>LLM 设置</RSMF.ReviewSettings.Tab.Api>
   <RSMF.ReviewSettings.Tab.Prompt>提示词</RSMF.ReviewSettings.Tab.Prompt>
   <RSMF.ReviewSettings.Tab.Injector>注入器</RSMF.ReviewSettings.Tab.Injector>
   <RSMF.ReviewSettings.Tab.Lexicon>词库</RSMF.ReviewSettings.Tab.Lexicon>
   <RSMF.ReviewSettings.EnableReviews>启用顾客评价</RSMF.ReviewSettings.EnableReviews>
   <RSMF.ReviewSettings.EnableReviewsTip>未启用时不会记录点评快照。</RSMF.ReviewSettings.EnableReviewsTip>
+  <RSMF.ReviewSettings.HeavyMode>重型评价模式（特别耗 token）</RSMF.ReviewSettings.HeavyMode>
+  <RSMF.ReviewSettings.HeavyModeTip>开启后每条评价会使用独立初稿上下文和独立润色上下文，重型评价还允许玩家在评价页回复申诉。</RSMF.ReviewSettings.HeavyModeTip>
+  <RSMF.ReviewSettings.HeavyModeWarning>重型模式会明显增加 token 消耗：一次评价至少两次模型调用，玩家每次回复还会额外调用模型。</RSMF.ReviewSettings.HeavyModeWarning>
+  <RSMF.ReviewSettings.InfluenceSpawn>评价影响顾客刷新概率</RSMF.ReviewSettings.InfluenceSpawn>
+  <RSMF.ReviewSettings.InfluenceSpawnTip>默认关闭。开启后店铺评价均分会影响真实顾客刷新概率：高分更容易来客，低分会降低来客。</RSMF.ReviewSettings.InfluenceSpawnTip>
+  <RSMF.ReviewSettings.InfluenceSpawnDetail>至少 3 条有效主评价后生效；撤回评价和楼中楼回复不会参与计算。</RSMF.ReviewSettings.InfluenceSpawnDetail>
   <RSMF.ReviewSettings.ImportRimTalkConfig>导入 RimTalk 接口配置</RSMF.ReviewSettings.ImportRimTalkConfig>
   <RSMF.ReviewSettings.RimTalkDetected>已检测到 RimTalk，可导入它当前正在使用的 API、模型和密钥。</RSMF.ReviewSettings.RimTalkDetected>
   <RSMF.ReviewSettings.RimTalkNotDetected>未检测到 RimTalk，安装并启用 RimTalk 后才能导入。</RSMF.ReviewSettings.RimTalkNotDetected>
@@ -413,6 +425,13 @@
   <RSMF.ShopManager.TargetGoodsHeader>商品名称  （勾选即上架）</RSMF.ShopManager.TargetGoodsHeader>
   <RSMF.ShopManager.ComboItemCount>{kindCount} 种 · {totalItems} 件</RSMF.ShopManager.ComboItemCount>
   <RSMF.ShopManager.ComboName>套餐名称</RSMF.ShopManager.ComboName>
+  <RSMF.ShopManager.AiNameCombo>AI取名</RSMF.ShopManager.AiNameCombo>
+  <RSMF.ShopManager.AiNamingRunning>取名中</RSMF.ShopManager.AiNamingRunning>
+  <RSMF.ShopManager.AiNameComboTip>根据当前套餐商品调用已配置的大模型生成名称。</RSMF.ShopManager.AiNameComboTip>
+  <RSMF.ShopManager.AiNameNeedsConfig>需要先在模组设置中启用并配置通用 LLM。</RSMF.ShopManager.AiNameNeedsConfig>
+  <RSMF.ShopManager.AiNameNeedsItems>需要先给套餐选择至少一个商品。</RSMF.ShopManager.AiNameNeedsItems>
+  <RSMF.ShopManager.AiNameSucceeded>AI 已生成套餐名。</RSMF.ShopManager.AiNameSucceeded>
+  <RSMF.ShopManager.AiNameFailed>AI 取名失败，请检查接口配置或稍后重试。</RSMF.ShopManager.AiNameFailed>
   <RSMF.ShopManager.RandomName>🎲 随机取名</RSMF.ShopManager.RandomName>
   <RSMF.ShopManager.ComboPrice>套餐售价</RSMF.ShopManager.ComboPrice>
   <RSMF.ShopManager.EstimateByItem>按单品估算</RSMF.ShopManager.EstimateByItem>
@@ -889,6 +908,15 @@
   <RSMF.Blueprint.Error.DeleteFailed>删除蓝图失败：{message}</RSMF.Blueprint.Error.DeleteFailed>
   <RSMF.Blueprint.Error.DeleteFailedUnknown>删除蓝图失败。</RSMF.Blueprint.Error.DeleteFailedUnknown>
   <RSMF.Blueprint.Place.Error.OutOfBounds>店铺蓝图超出地图边界。</RSMF.Blueprint.Place.Error.OutOfBounds>
+  <RSMF.Blueprint.Place.Error.MissingBuildings>当前缺少蓝图中的建筑，无法放置：{items}</RSMF.Blueprint.Place.Error.MissingBuildings>
+  <RSMF.Blueprint.Place.Error.MissingStuffNoReplacement>当前缺少蓝图中的材料，并且这些建筑没有可用的原版替代材料，无法放置：{items}</RSMF.Blueprint.Place.Error.MissingStuffNoReplacement>
+  <RSMF.Blueprint.Place.Error.MissingStuffNeedsChoice>蓝图包含缺失材料，请点击放置位置并选择原版替代材料。</RSMF.Blueprint.Place.Error.MissingStuffNeedsChoice>
+  <RSMF.Blueprint.Place.MissingStuff.Title>选择替代材料</RSMF.Blueprint.Place.MissingStuff.Title>
+  <RSMF.Blueprint.Place.MissingStuff.Entry>{building} 需要缺失材料 {stuff}</RSMF.Blueprint.Place.MissingStuff.Entry>
+  <RSMF.Blueprint.Place.MissingStuff.Option>{missing}，改用 {replacement}</RSMF.Blueprint.Place.MissingStuff.Option>
+  <RSMF.Blueprint.Place.ForcePlaceAvailable>强制放置可用部分</RSMF.Blueprint.Place.ForcePlaceAvailable>
+  <RSMF.Blueprint.Place.ForceSuccess>已强制放置店铺蓝图可用部分，共 {count} 项。</RSMF.Blueprint.Place.ForceSuccess>
+  <RSMF.Blueprint.Place.Error.ForceNoParts>没有任何可放置的蓝图内容。</RSMF.Blueprint.Place.Error.ForceNoParts>
   <RSMF.Blueprint.Place.Error.Unknown>放置店铺蓝图失败。</RSMF.Blueprint.Place.Error.Unknown>
   <RSMF.Blueprint.Edit.Title>编辑店铺蓝图</RSMF.Blueprint.Edit.Title>
   <RSMF.Blueprint.Edit.Name>蓝图名称</RSMF.Blueprint.Edit.Name>
@@ -936,6 +964,29 @@
   <RSMF.Business.Reviews.CollapseReplies>收起回复({count})</RSMF.Business.Reviews.CollapseReplies>
   <RSMF.Business.Reviews.ExpandReplies>展开回复({count})</RSMF.Business.Reviews.ExpandReplies>
   <RSMF.Business.Reviews.VoteLine>#{id}  赞 {upvotes}  踩 {downvotes}</RSMF.Business.Reviews.VoteLine>
+  <RSMF.Business.Reviews.Withdrawn>已撤回：这条评价不再计入平均星级。</RSMF.Business.Reviews.Withdrawn>
+  <RSMF.Business.Reviews.WithdrawnShort>已撤回</RSMF.Business.Reviews.WithdrawnShort>
+  <RSMF.Business.Reviews.WithdrawnStars>撤回</RSMF.Business.Reviews.WithdrawnStars>
+  <RSMF.Business.Reviews.Negotiation.Reply>申诉</RSMF.Business.Reviews.Negotiation.Reply>
+  <RSMF.Business.Reviews.Negotiation.InputHint>向顾客解释或反驳这条评价，最多 300 字。说好话可能提星，骂人可能降星。顾客可能坚持、修改或撤回评价。</RSMF.Business.Reviews.Negotiation.InputHint>
+  <RSMF.Business.Reviews.Negotiation.Submit>提交申诉</RSMF.Business.Reviews.Negotiation.Submit>
+  <RSMF.Business.Reviews.Negotiation.EmptyInput>申诉内容不能为空。</RSMF.Business.Reviews.Negotiation.EmptyInput>
+  <RSMF.Business.Reviews.Negotiation.Unavailable>这条评价不能回复申诉。</RSMF.Business.Reviews.Negotiation.Unavailable>
+  <RSMF.Business.Reviews.Negotiation.Pending>等待顾客回复申诉。</RSMF.Business.Reviews.Negotiation.Pending>
+  <RSMF.Business.Reviews.Negotiation.NoLlm>当前 LLM 或评价 AI 配置不可用。</RSMF.Business.Reviews.Negotiation.NoLlm>
+  <RSMF.Business.Reviews.Negotiation.Submitted>已发送申诉，等待顾客回复。</RSMF.Business.Reviews.Negotiation.Submitted>
+  <RSMF.Business.Reviews.Negotiation.FailedAiText>顾客暂时没有回应，这次先不改评价。</RSMF.Business.Reviews.Negotiation.FailedAiText>
+  <RSMF.Business.Reviews.Negotiation.HistoryBadge>申诉记录</RSMF.Business.Reviews.Negotiation.HistoryBadge>
+  <RSMF.Business.Reviews.Negotiation.CollapseHistory>收起申诉记录</RSMF.Business.Reviews.Negotiation.CollapseHistory>
+  <RSMF.Business.Reviews.Negotiation.ExpandHistory>申诉记录({count})</RSMF.Business.Reviews.Negotiation.ExpandHistory>
+  <RSMF.Business.Reviews.Negotiation.PlayerLine>店主：{text}</RSMF.Business.Reviews.Negotiation.PlayerLine>
+  <RSMF.Business.Reviews.Negotiation.CustomerLine>顾客：{text}</RSMF.Business.Reviews.Negotiation.CustomerLine>
+  <RSMF.Business.Reviews.Negotiation.TurnTitle>申诉结果：{action} · {stars}</RSMF.Business.Reviews.Negotiation.TurnTitle>
+  <RSMF.Business.Reviews.Negotiation.Action.keep>坚持原评</RSMF.Business.Reviews.Negotiation.Action.keep>
+  <RSMF.Business.Reviews.Negotiation.Action.revise>修改评价</RSMF.Business.Reviews.Negotiation.Action.revise>
+  <RSMF.Business.Reviews.Negotiation.Action.withdraw>撤回评价</RSMF.Business.Reviews.Negotiation.Action.withdraw>
+  <RSMF.Business.Reviews.Negotiation.DialogTitle>向顾客申诉评价</RSMF.Business.Reviews.Negotiation.DialogTitle>
+  <RSMF.Business.Reviews.Negotiation.DialogSummary>顾客 {name} 的评价：{text}</RSMF.Business.Reviews.Negotiation.DialogSummary>
   <RSMF.Business.Reviews.BundleIcon>套</RSMF.Business.Reviews.BundleIcon>
   <RSMF.Business.Reviews.ReplyPrevious>回复上一条讨论</RSMF.Business.Reviews.ReplyPrevious>
   <RSMF.Business.Reviews.ReplyTarget>回复 {target}</RSMF.Business.Reviews.ReplyTarget>

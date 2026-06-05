@@ -68,6 +68,14 @@ namespace SimManagementLib.SimDialog
         private ShopScheduleData draftSchedule;
         private string comboPriceBuf = "";
         private bool priceJustCalculated;
+        private ComboData cachedCombo;
+        private string comboSearchCacheKey = "";
+        private int comboStorageCacheSignature = int.MinValue;
+        private int comboItemsCacheSignature = int.MinValue;
+        private readonly List<ThingDef> comboSellableCache = new List<ThingDef>();
+        private readonly Dictionary<ThingDef, ComboItem> comboItemByDefCache = new Dictionary<ThingDef, ComboItem>();
+        private readonly Dictionary<string, string> comboItemCountBuffers = new Dictionary<string, string>();
+        private readonly Dictionary<ThingDef, float> comboReferencePriceCache = new Dictionary<ThingDef, float>();
 
         public override Vector2 InitialSize => new Vector2(880f, 660f);
 
@@ -207,6 +215,8 @@ namespace SimManagementLib.SimDialog
 
         public override void DoWindowContents(Rect inRect)
         {
+            PollComboAiNameTask();
+
             if (shopZone == null || !shopZone.Map.zoneManager.AllZones.Contains(shopZone))
             {
                 Close();
@@ -312,10 +322,11 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// 关闭窗口前清理 UI API 上下文。
+        /// 关闭窗口前清理 UI API 上下文和异步请求。
         /// </summary>
         public override void PreClose()
         {
+            CancelComboAiNameRequest();
             base.PreClose();
             SimShopUiApi.ClearContext(uiContext);
         }

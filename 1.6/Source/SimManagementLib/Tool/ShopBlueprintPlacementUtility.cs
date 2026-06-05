@@ -22,9 +22,10 @@ namespace SimManagementLib.Tool
         {
             public int createdBlueprintCount;
             public int reusedExistingCount;
+            public int createdZoneCount;
             public string error;
 
-            public int totalSatisfiedCount => createdBlueprintCount + reusedExistingCount;
+            public int totalSatisfiedCount => createdBlueprintCount + reusedExistingCount + createdZoneCount;
         }
 
         /// <summary>
@@ -40,6 +41,53 @@ namespace SimManagementLib.Tool
         /// </summary>
         public static AcceptanceReport CanPlaceAt(Map map, IntVec3 origin, ShopBlueprintData data, Rot4 blueprintRot)
         {
+            return CanPlaceAt(map, origin, data, blueprintRot, null);
+        }
+
+        /// <summary>
+        /// 判断蓝图是否可以按指定旋转和材料替换选择放置在指定锚点。
+        /// </summary>
+        public static AcceptanceReport CanPlaceAt(Map map, IntVec3 origin, ShopBlueprintData data, Rot4 blueprintRot, ShopBlueprintPlacementOptions options)
+        {
+            if (map == null)
+                return SimTranslation.T("RSMF.Blueprint.Error.NoMap");
+            if (data == null)
+                return SimTranslation.T("RSMF.Blueprint.Error.RecordMissing");
+
+            ShopBlueprintPlacementPrecheckResult precheck = ShopBlueprintPlacementPrecheckUtility.Check(data, options);
+            if (precheck.HasMissingBuildings)
+                return ShopBlueprintPlacementPrecheckUtility.BuildMissingBuildingsMessage(precheck);
+            if (precheck.HasUnreplaceableStuffs)
+                return ShopBlueprintPlacementPrecheckUtility.BuildUnreplaceableStuffsMessage(precheck);
+            if (precheck.HasReplaceableStuffs)
+                return SimTranslation.T("RSMF.Blueprint.Place.Error.MissingStuffNeedsChoice");
+
+            AcceptanceReport targetReport = CanTargetCellForPlacement(map, origin, data, blueprintRot, options);
+            if (!targetReport.Accepted)
+                return targetReport;
+
+            string firstError = GetFirstPlacementError(map, origin, data, blueprintRot, options);
+            return string.IsNullOrEmpty(firstError) ? AcceptanceReport.WasAccepted : firstError;
+        }
+
+        /// <summary>
+        /// 判断蓝图预览是否应显示为可放置，职责是忽略缺失 Def 和待选择材料，只反映地图边界与真实占位冲突。
+        /// </summary>
+        public static AcceptanceReport CanPreviewAt(Map map, IntVec3 origin, ShopBlueprintData data, Rot4 blueprintRot, ShopBlueprintPlacementOptions options)
+        {
+            AcceptanceReport targetReport = CanTargetCellForPlacement(map, origin, data, blueprintRot, options);
+            if (!targetReport.Accepted)
+                return targetReport;
+
+            string firstError = GetFirstPlacementError(map, origin, data, blueprintRot, options);
+            return string.IsNullOrEmpty(firstError) ? AcceptanceReport.WasAccepted : firstError;
+        }
+
+        /// <summary>
+        /// 判断目标格是否允许玩家点击放置工具，职责是只处理地图和边界这类不依赖 Def 的基础条件。
+        /// </summary>
+        public static AcceptanceReport CanTargetCellForPlacement(Map map, IntVec3 origin, ShopBlueprintData data, Rot4 blueprintRot, ShopBlueprintPlacementOptions options)
+        {
             if (map == null)
                 return SimTranslation.T("RSMF.Blueprint.Error.NoMap");
             if (data == null)
@@ -49,8 +97,7 @@ namespace SimManagementLib.Tool
             if (!bounds.InBounds(map))
                 return SimTranslation.T("RSMF.Blueprint.Place.Error.OutOfBounds");
 
-            string firstError = GetFirstPlacementError(map, origin, data, blueprintRot);
-            return string.IsNullOrEmpty(firstError) ? AcceptanceReport.WasAccepted : firstError;
+            return AcceptanceReport.WasAccepted;
         }
 
         /// <summary>
@@ -66,7 +113,15 @@ namespace SimManagementLib.Tool
         /// </summary>
         public static bool TryPlaceAt(Map map, IntVec3 origin, ShopBlueprintData data, Rot4 blueprintRot, out int plannedCount, out string error)
         {
-            BlueprintPlacementResult result = EvaluatePlacement(map, origin, data, blueprintRot);
+            return TryPlaceAt(map, origin, data, blueprintRot, null, out plannedCount, out error);
+        }
+
+        /// <summary>
+        /// 将蓝图按指定旋转和材料替换选择放置到指定锚点，成功后返回创建的施工蓝图和商店区域数量。
+        /// </summary>
+        public static bool TryPlaceAt(Map map, IntVec3 origin, ShopBlueprintData data, Rot4 blueprintRot, ShopBlueprintPlacementOptions options, out int plannedCount, out string error)
+        {
+            BlueprintPlacementResult result = EvaluatePlacement(map, origin, data, blueprintRot, options);
             plannedCount = result?.totalSatisfiedCount ?? 0;
             error = result?.error;
 
@@ -77,8 +132,42 @@ namespace SimManagementLib.Tool
 
             MapComponent_ShopBlueprintPlacement component = map.GetComponent<MapComponent_ShopBlueprintPlacement>();
             PlaceTerrainBlueprints(map, origin, data, blueprintRot, ref result.createdBlueprintCount);
-            PlaceBuildingBlueprints(map, origin, data, blueprintRot, component, ref result.createdBlueprintCount, ref result.reusedExistingCount);
-            CreateShopZone(map, origin, data, blueprintRot);
+            PlaceBuildingBlueprints(map, origin, data, blueprintRot, options, component, ref result.createdBlueprintCount, ref result.reusedExistingCount);
+            if (CreateShopZone(map, origin, data, blueprintRot))
+                result.createdZoneCount++;
+
+            plannedCount = result.totalSatisfiedCount;
+            return true;
+        }
+
+        /// <summary>
+        /// 强制放置蓝图中当前可用的地板、建筑和可复用建筑，跳过缺失 Def、未确认材料和原版规则拒绝的单项。
+        /// </summary>
+        public static bool TryForcePlaceAvailableAt(Map map, IntVec3 origin, ShopBlueprintData data, Rot4 blueprintRot, ShopBlueprintPlacementOptions options, out int plannedCount, out string error)
+        {
+            plannedCount = 0;
+            error = null;
+
+            AcceptanceReport targetReport = CanTargetCellForPlacement(map, origin, data, blueprintRot, options);
+            if (!targetReport.Accepted)
+            {
+                error = targetReport.Reason;
+                return false;
+            }
+
+            BlueprintPlacementResult result = new BlueprintPlacementResult();
+            MapComponent_ShopBlueprintPlacement component = map.GetComponent<MapComponent_ShopBlueprintPlacement>();
+            PlaceTerrainBlueprints(map, origin, data, blueprintRot, ref result.createdBlueprintCount);
+            PlaceBuildingBlueprints(map, origin, data, blueprintRot, options, component, ref result.createdBlueprintCount, ref result.reusedExistingCount, true);
+            if (CreateShopZone(map, origin, data, blueprintRot))
+                result.createdZoneCount++;
+
+            if (result.totalSatisfiedCount <= 0)
+            {
+                error = SimTranslation.T("RSMF.Blueprint.Place.Error.ForceNoParts");
+                return false;
+            }
+
             plannedCount = result.totalSatisfiedCount;
             return true;
         }
@@ -137,7 +226,7 @@ namespace SimManagementLib.Tool
         /// <summary>
         /// 返回首个阻止蓝图放置的原版建筑或地形错误。
         /// </summary>
-        private static string GetFirstPlacementError(Map map, IntVec3 origin, ShopBlueprintData data, Rot4 blueprintRot)
+        private static string GetFirstPlacementError(Map map, IntVec3 origin, ShopBlueprintData data, Rot4 blueprintRot, ShopBlueprintPlacementOptions options)
         {
             if (data.terrains != null)
             {
@@ -168,7 +257,7 @@ namespace SimManagementLib.Tool
                     if (TryFindReusableExistingBuilding(map, cell, buildingData, def, out _))
                         continue;
 
-                    ThingDef stuff = GetStuffDef(buildingData, def);
+                    ThingDef stuff = GetStuffDef(buildingData, def, options);
                     Rot4 rotation = RotateBuildingRotation(ParseRotation(buildingData.rotation), blueprintRot);
                     AcceptanceReport report = CanPlaceBuildingOrBlueprintAt(def, cell, rotation, map, stuff, data, origin, blueprintRot);
                     if (!report.Accepted)
@@ -211,12 +300,12 @@ namespace SimManagementLib.Tool
         }
 
         /// <summary>
-        /// 按蓝图中的相对商店格创建新的商店区域。
+        /// 按蓝图中的相对商店格创建新的商店区域，并返回是否实际创建了可用区域。
         /// </summary>
-        private static void CreateShopZone(Map map, IntVec3 origin, ShopBlueprintData data, Rot4 blueprintRot)
+        private static bool CreateShopZone(Map map, IntVec3 origin, ShopBlueprintData data, Rot4 blueprintRot)
         {
             if (data.zoneCells.NullOrEmpty())
-                return;
+                return false;
 
             Zone_Shop zone = new Zone_Shop(map.zoneManager)
             {
@@ -238,7 +327,12 @@ namespace SimManagementLib.Tool
             }
 
             if (zone.Cells.NullOrEmpty())
+            {
                 zone.Deregister();
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -285,14 +379,49 @@ namespace SimManagementLib.Tool
         /// </summary>
         private static ThingDef GetStuffDef(ShopBlueprintBuildingData data, ThingDef def)
         {
+            return GetStuffDef(data, def, null);
+        }
+
+        /// <summary>
+        /// 返回蓝图建筑真正可使用的材料 Def，并优先使用玩家确认的替代材料。
+        /// </summary>
+        private static ThingDef GetStuffDef(ShopBlueprintBuildingData data, ThingDef def, ShopBlueprintPlacementOptions options)
+        {
+            TryGetStuffDefForPlacement(data, def, options, true, out ThingDef stuff);
+            return stuff;
+        }
+
+        /// <summary>
+        /// 尝试解析建筑本次放置可用的材料，并在强制放置时禁止把缺失材料静默替换成默认材料。
+        /// </summary>
+        private static bool TryGetStuffDefForPlacement(ShopBlueprintBuildingData data, ThingDef def, ShopBlueprintPlacementOptions options, bool allowDefaultStuffFallback, out ThingDef stuff)
+        {
+            stuff = null;
             if (def == null || !def.MadeFromStuff)
-                return null;
+                return true;
 
-            ThingDef stuff = GetStuffDef(data);
-            if (stuff != null && stuff.IsStuff)
-                return stuff;
+            if (options != null && options.TryGetStuffReplacement(data, def, out ThingDef replacementStuff))
+            {
+                stuff = replacementStuff;
+                return true;
+            }
 
-            return GenStuff.DefaultStuffFor(def);
+            ThingDef savedStuff = GetStuffDef(data);
+            if (ShopBlueprintPlacementPrecheckUtility.IsUsableStuffFor(savedStuff, def))
+            {
+                stuff = savedStuff;
+                return true;
+            }
+
+            if (!allowDefaultStuffFallback && !string.IsNullOrEmpty(data?.stuffDefName))
+                return false;
+
+            ThingDef defaultStuff = GenStuff.DefaultStuffFor(def);
+            if (!ShopBlueprintPlacementPrecheckUtility.IsUsableStuffFor(defaultStuff, def))
+                return false;
+
+            stuff = defaultStuff;
+            return true;
         }
 
         /// <summary>
@@ -392,7 +521,15 @@ namespace SimManagementLib.Tool
         /// </summary>
         private static BlueprintPlacementResult EvaluatePlacement(Map map, IntVec3 origin, ShopBlueprintData data, Rot4 blueprintRot)
         {
-            AcceptanceReport report = CanPlaceAt(map, origin, data, blueprintRot);
+            return EvaluatePlacement(map, origin, data, blueprintRot, null);
+        }
+
+        /// <summary>
+        /// 按玩家确认的材料替换选择预先评估当前蓝图放置是否成功。
+        /// </summary>
+        private static BlueprintPlacementResult EvaluatePlacement(Map map, IntVec3 origin, ShopBlueprintData data, Rot4 blueprintRot, ShopBlueprintPlacementOptions options)
+        {
+            AcceptanceReport report = CanPlaceAt(map, origin, data, blueprintRot, options);
             return new BlueprintPlacementResult
             {
                 error = report.Accepted ? null : report.Reason
@@ -407,9 +544,11 @@ namespace SimManagementLib.Tool
             IntVec3 origin,
             ShopBlueprintData data,
             Rot4 blueprintRot,
+            ShopBlueprintPlacementOptions options,
             MapComponent_ShopBlueprintPlacement component,
             ref int createdBlueprintCount,
-            ref int reusedExistingCount)
+            ref int reusedExistingCount,
+            bool forceAvailableParts = false)
         {
             if (data.buildings == null)
                 return;
@@ -436,7 +575,9 @@ namespace SimManagementLib.Tool
                     continue;
                 }
 
-                ThingDef stuff = GetStuffDef(buildingData, def);
+                if (!TryGetStuffDefForPlacement(buildingData, def, options, !forceAvailableParts, out ThingDef stuff))
+                    continue;
+
                 ThingStyleDef styleDef = GetStyleDef(buildingData);
                 if (!CanPlaceBuildingOrBlueprintAt(def, cell, rotation, map, stuff, data, origin, blueprintRot).Accepted)
                     continue;

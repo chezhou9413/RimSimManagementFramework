@@ -26,6 +26,7 @@ namespace SimManagementLib.GameComp
         private bool requestInFlight;
         private Task<CustomerReviewRecord> runningTask;
         private string runningAvatarImageId = "";
+        private Dictionary<string, CustomerReviewNegotiationRequest> negotiationRequests = new Dictionary<string, CustomerReviewNegotiationRequest>();
 
         public IReadOnlyList<CustomerReviewRecord> Records => records;
         public int PendingCount => pendingSnapshots?.Count ?? 0;
@@ -50,6 +51,7 @@ namespace SimManagementLib.GameComp
             Scribe_Values.Look(ref nextAvatarCleanupTick, "customerReviewNextAvatarCleanupTick", 0);
             if (records == null) records = new List<CustomerReviewRecord>();
             if (pendingSnapshots == null) pendingSnapshots = new List<CustomerReviewSnapshot>();
+            if (negotiationRequests == null) negotiationRequests = new Dictionary<string, CustomerReviewNegotiationRequest>();
             if (nextAvatarCleanupTick <= 0)
                 nextAvatarCleanupTick = AvatarCleanupInitialDelayTicks;
         }
@@ -61,6 +63,7 @@ namespace SimManagementLib.GameComp
         {
             base.GameComponentTick();
             MergeCompletedRecords();
+            MergeCompletedNegotiations();
             TrimRecords();
             TryCleanupUnusedAvatars();
             if (!CanStartRequest()) return;
@@ -93,7 +96,7 @@ namespace SimManagementLib.GameComp
             for (int i = 0; i < records.Count; i++)
             {
                 CustomerReviewRecord record = records[i];
-                if (record == null || record.zoneId != zoneId || record.stars <= 0 || IsReplyRecord(record)) continue;
+                if (record == null || record.zoneId != zoneId || record.stars <= 0 || record.isWithdrawn || IsReplyRecord(record)) continue;
                 total += record.stars;
                 count++;
             }
@@ -112,7 +115,7 @@ namespace SimManagementLib.GameComp
             float total = 0f;
             for (int i = 0; i < records.Count; i++)
             {
-                if (records[i] == null || records[i].stars <= 0 || IsReplyRecord(records[i])) continue;
+                if (records[i] == null || records[i].stars <= 0 || records[i].isWithdrawn || IsReplyRecord(records[i])) continue;
                 total += records[i].stars;
                 count++;
             }
@@ -162,7 +165,7 @@ namespace SimManagementLib.GameComp
             {
                 CustomerReviewAiResult result = await CustomerReviewAiClient.GenerateReviewAsync(snapshot, settings, CancellationToken.None);
                 if (result == null) return null;
-                return BuildRecord(snapshot, result, settings.reviewProvider);
+                return BuildRecord(snapshot, result, ToReviewProvider(settings.llmProvider));
             }
             catch
             {
@@ -299,9 +302,223 @@ namespace SimManagementLib.GameComp
                 recentReviewContextSummary = snapshot.recentReviewContextSummary,
                 featuredItems = CloneItems(snapshot.featuredItems),
                 avatarImageId = snapshot.avatarImageId,
+                isHeavyMode = result.heavyMode,
                 provider = provider,
                 generationStatus = CustomerReviewGenerationStatus.Completed
             };
+        }
+
+        /// <summary>
+        /// 判断指定评价是否正在等待顾客处理玩家申诉。
+        /// </summary>
+        public bool IsNegotiationInFlight(string reviewId)
+        {
+            return !string.IsNullOrEmpty(reviewId) && negotiationRequests != null && negotiationRequests.ContainsKey(reviewId);
+        }
+
+        /// <summary>
+        /// 提交玩家对重型主评价的申诉，负责校验状态并启动独立后台顾客回复请求。
+        /// </summary>
+        public bool TrySubmitPlayerReply(string reviewId, string playerText, out string message)
+        {
+            message = "";
+            string cleaned = CustomerReviewNegotiationUtility.SanitizePlayerReply(playerText);
+            if (string.IsNullOrWhiteSpace(cleaned))
+            {
+                message = SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.EmptyInput", "回复内容不能为空。");
+                return false;
+            }
+
+            CustomerReviewRecord record = FindRecord(reviewId);
+            if (record == null || !record.isHeavyMode || record.isWithdrawn || IsReplyRecord(record))
+            {
+                message = SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.Unavailable", "这条评价不能回复申诉。");
+                return false;
+            }
+
+            if (IsNegotiationInFlight(reviewId))
+            {
+                message = SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.Pending", "等待顾客回复申诉。");
+                return false;
+            }
+
+            SimManagementLibSettings settings = CopySettings(SimManagementLibMod.Settings);
+            if (settings == null || !settings.HasValidReviewAiConfig())
+            {
+                message = SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.NoLlm", "当前 LLM 或评价 AI 配置不可用。");
+                return false;
+            }
+
+            if (negotiationRequests == null)
+                negotiationRequests = new Dictionary<string, CustomerReviewNegotiationRequest>();
+
+            CustomerReviewRecord snapshot = CloneRecordForNegotiation(record);
+            negotiationRequests[reviewId] = new CustomerReviewNegotiationRequest
+            {
+                reviewId = reviewId,
+                playerText = cleaned,
+                task = StartNegotiationAsync(snapshot, cleaned, settings)
+            };
+            message = SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.Submitted", "已发送申诉，等待顾客回复。");
+            return true;
+        }
+
+        /// <summary>
+        /// 启动玩家申诉后台请求，负责避免 UI 绘制阶段阻塞顾客回复生成。
+        /// </summary>
+        private static Task<CustomerReviewNegotiationResult> StartNegotiationAsync(CustomerReviewRecord record, string playerText, SimManagementLibSettings settings)
+        {
+            return CustomerReviewAiClient.GenerateNegotiationAsync(record, playerText, settings, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// 合并已完成的玩家申诉请求，负责在主线程修改评价和追加历史。
+        /// </summary>
+        private void MergeCompletedNegotiations()
+        {
+            if (negotiationRequests == null || negotiationRequests.Count == 0)
+                return;
+
+            List<string> completed = new List<string>();
+            foreach (KeyValuePair<string, CustomerReviewNegotiationRequest> pair in negotiationRequests)
+            {
+                CustomerReviewNegotiationRequest request = pair.Value;
+                if (request?.task == null || !request.task.IsCompleted)
+                    continue;
+
+                completed.Add(pair.Key);
+                CustomerReviewRecord record = FindRecord(pair.Key);
+                if (record == null)
+                    continue;
+
+                CustomerReviewNegotiationResult result = request.task.Status == TaskStatus.RanToCompletion ? request.task.Result : null;
+                ApplyNegotiationResult(record, request.playerText, result);
+            }
+
+            for (int i = 0; i < completed.Count; i++)
+                negotiationRequests.Remove(completed[i]);
+        }
+
+        /// <summary>
+        /// 应用玩家申诉结果，负责按 keep、revise、withdraw 修改评价并保存可见历史。
+        /// </summary>
+        private static void ApplyNegotiationResult(CustomerReviewRecord record, string playerText, CustomerReviewNegotiationResult result)
+        {
+            if (record == null)
+                return;
+
+            if (record.negotiationTurns == null)
+                record.negotiationTurns = new List<CustomerReviewNegotiationTurn>();
+
+            int oldStars = record.stars;
+            string oldText = record.reviewText ?? "";
+            string action = result?.action ?? "keep";
+            string aiText = result?.aiText ?? SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.FailedAiText", "刚才没组织好语言，这次先不改评价。");
+            int newStars = oldStars;
+            string newText = oldText;
+
+            if (result != null && action == "revise")
+            {
+                newStars = Mathf.Clamp(result.stars, 1, 5);
+                newText = string.IsNullOrWhiteSpace(result.reviewText) ? oldText : result.reviewText;
+                record.stars = newStars;
+                record.reviewText = newText;
+            }
+            else if (result != null && action == "withdraw")
+            {
+                record.isWithdrawn = true;
+            }
+            else
+            {
+                action = "keep";
+            }
+
+            record.negotiationTurns.Add(new CustomerReviewNegotiationTurn
+            {
+                tickAbs = Find.TickManager?.TicksAbs ?? 0,
+                playerText = playerText,
+                aiText = aiText,
+                action = action,
+                oldStars = oldStars,
+                newStars = newStars,
+                oldReviewText = oldText,
+                newReviewText = newText
+            });
+        }
+
+        /// <summary>
+        /// 查找指定评价记录，负责给申诉队列和 UI 状态查询复用。
+        /// </summary>
+        private CustomerReviewRecord FindRecord(string reviewId)
+        {
+            if (string.IsNullOrEmpty(reviewId) || records.NullOrEmpty())
+                return null;
+
+            return records.FirstOrDefault(r => r != null && r.reviewId == reviewId);
+        }
+
+        /// <summary>
+        /// 复制评价记录给后台申诉提示词，负责避免后台任务读取主线程正在修改的存档对象。
+        /// </summary>
+        private static CustomerReviewRecord CloneRecordForNegotiation(CustomerReviewRecord source)
+        {
+            if (source == null)
+                return null;
+
+            return new CustomerReviewRecord
+            {
+                reviewId = source.reviewId,
+                tickAbs = source.tickAbs,
+                gameDay = source.gameDay,
+                zoneId = source.zoneId,
+                zoneLabel = source.zoneLabel,
+                customerDisplayName = source.customerDisplayName,
+                aiNickname = source.aiNickname,
+                stars = source.stars,
+                reviewText = source.reviewText,
+                spentSilver = source.spentSilver,
+                kindDescription = source.kindDescription,
+                raceLabel = source.raceLabel,
+                ageSummary = source.ageSummary,
+                traitSummary = source.traitSummary,
+                moodSummary = source.moodSummary,
+                healthSummary = source.healthSummary,
+                purchasedSummary = source.purchasedSummary,
+                serviceSummary = source.serviceSummary,
+                cashierSummary = source.cashierSummary,
+                roomSummary = source.roomSummary,
+                weatherSummary = source.weatherSummary,
+                negotiationTurns = source.negotiationTurns?.Select(CloneNegotiationTurn).ToList() ?? new List<CustomerReviewNegotiationTurn>()
+            };
+        }
+
+        /// <summary>
+        /// 复制单轮申诉历史，负责让后台提示词使用不可变快照。
+        /// </summary>
+        private static CustomerReviewNegotiationTurn CloneNegotiationTurn(CustomerReviewNegotiationTurn turn)
+        {
+            if (turn == null)
+                return null;
+
+            return new CustomerReviewNegotiationTurn
+            {
+                tickAbs = turn.tickAbs,
+                playerText = turn.playerText,
+                aiText = turn.aiText,
+                action = turn.action,
+                oldStars = turn.oldStars,
+                newStars = turn.newStars,
+                oldReviewText = turn.oldReviewText,
+                newReviewText = turn.newReviewText
+            };
+        }
+
+        /// <summary>
+        /// 将通用 LLM 供应商映射为评价记录存档供应商，负责保持旧评价记录结构稳定。
+        /// </summary>
+        private static CustomerReviewProvider ToReviewProvider(SimLlmProvider provider)
+        {
+            return provider == SimLlmProvider.Anthropic ? CustomerReviewProvider.Anthropic : CustomerReviewProvider.OpenAICompatible;
         }
 
         /// <summary>
@@ -648,18 +865,21 @@ namespace SimManagementLib.GameComp
         {
             SimManagementLibSettings copy = new SimManagementLibSettings();
             if (source == null) return copy;
+            copy.llmEnabled = source.llmEnabled;
+            copy.llmProvider = source.llmProvider;
+            copy.llmOpenAiBaseUrl = source.llmOpenAiBaseUrl;
+            copy.llmOpenAiApiKey = source.llmOpenAiApiKey;
+            copy.llmOpenAiModel = source.llmOpenAiModel;
+            copy.llmAnthropicApiKey = source.llmAnthropicApiKey;
+            copy.llmAnthropicModel = source.llmAnthropicModel;
             copy.reviewAiEnabled = source.reviewAiEnabled;
-            copy.reviewProvider = source.reviewProvider;
-            copy.openAiBaseUrl = source.openAiBaseUrl;
-            copy.openAiApiKey = source.openAiApiKey;
-            copy.openAiModel = source.openAiModel;
-            copy.anthropicApiKey = source.anthropicApiKey;
-            copy.anthropicModel = source.anthropicModel;
             copy.reviewRequestsPerMinute = source.reviewRequestsPerMinute;
             copy.reviewRequestTimeoutSeconds = source.reviewRequestTimeoutSeconds;
             copy.reviewTemperature = source.reviewTemperature;
             copy.reviewForumReactionChance = source.reviewForumReactionChance;
             copy.reviewForumReplyChance = source.reviewForumReplyChance;
+            copy.reviewHeavyModeEnabled = source.reviewHeavyModeEnabled;
+            copy.reviewInfluencesCustomerSpawn = source.reviewInfluencesCustomerSpawn;
             copy.reviewAbsurdNitpickEnabled = source.reviewAbsurdNitpickEnabled;
             copy.reviewAbsurdNitpickChance = source.reviewAbsurdNitpickChance;
             copy.reviewSystemPrompt = source.reviewSystemPrompt;
@@ -674,6 +894,7 @@ namespace SimManagementLib.GameComp
             copy.reviewPromptEnabledNodeIds = source.reviewPromptEnabledNodeIds;
             copy.reviewPromptNodeOrder = source.reviewPromptNodeOrder;
             copy.reviewPromptCustomNodes = source.reviewPromptCustomNodes;
+            copy.SyncLegacyReviewAiConnectionFields();
             copy.SanitizeReviewSettingsText();
             return copy;
         }
@@ -714,6 +935,16 @@ namespace SimManagementLib.GameComp
         {
             int safe = Math.Max(1, requestsPerMinute);
             return Math.Max(60, (int)Math.Round(3600f / safe));
+        }
+
+        /// <summary>
+        /// 保存一条正在后台处理的玩家评价申诉，负责把任务和玩家原文绑定到评价编号。
+        /// </summary>
+        private class CustomerReviewNegotiationRequest
+        {
+            public string reviewId = "";
+            public string playerText = "";
+            public Task<CustomerReviewNegotiationResult> task;
         }
     }
 }

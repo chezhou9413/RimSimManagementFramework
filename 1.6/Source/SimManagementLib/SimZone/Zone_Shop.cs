@@ -569,6 +569,17 @@ namespace SimManagementLib.SimZone
                 }
             };
 
+            yield return new Command_Action
+            {
+                defaultLabel = "套餐传输",
+                defaultDesc = "导出或导入当前商店区域的套餐 Base64。",
+                icon = ContentFinder<Texture2D>.Get("UI/Buttons/Copy", true),
+                action = delegate
+                {
+                    Dialog_ShopManager.OpenShopMenuTransferOptions(this);
+                }
+            };
+
             yield return new Command_Toggle
             {
                 defaultLabel = SimTranslation.T("RSMF.Gizmo.ToggleZoneVisibility.Label"),

@@ -23,6 +23,8 @@ namespace SimManagementLib.Tool
     /// </summary>
     public class CustomerReviewDialogueRequest
     {
+        public string systemPromptOverride = "";
+        public bool useJsonResponseFormat = true;
         public string userPrompt = "";
         public string stablePromptPrefix = "";
         public string dynamicPrompt = "";
@@ -392,9 +394,9 @@ namespace SimManagementLib.Tool
             if (settings == null)
                 return "";
 
-            return settings.reviewProvider == CustomerReviewProvider.Anthropic
-                ? settings.anthropicModel ?? ""
-                : settings.openAiModel ?? "";
+            return settings.llmProvider == SimLlmProvider.Anthropic
+                ? settings.llmAnthropicModel ?? ""
+                : settings.llmOpenAiModel ?? "";
         }
 
         /// <summary>

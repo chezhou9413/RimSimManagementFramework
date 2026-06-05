@@ -12,13 +12,13 @@
   <RSMF.Settings.FinanceAndLogs>Finance and logs</RSMF.Settings.FinanceAndLogs>
   <RSMF.Settings.MaxFinanceBillRecords>Max finance log records: {count}</RSMF.Settings.MaxFinanceBillRecords>
   <RSMF.Settings.FinanceLogPageSize>Records per statistics page: {count}</RSMF.Settings.FinanceLogPageSize>
-  <RSMF.Settings.CustomerReviews>Customer reviews</RSMF.Settings.CustomerReviews>
+  <RSMF.Settings.CustomerReviews>LLM settings</RSMF.Settings.CustomerReviews>
   <RSMF.Settings.EnableCustomerReviews>Enable customer reviews</RSMF.Settings.EnableCustomerReviews>
   <RSMF.Settings.EnableCustomerReviewsTip>Reviews are generated on customer departure by sample rate only after a valid API connection is configured.</RSMF.Settings.EnableCustomerReviewsTip>
   <RSMF.Settings.ReviewStateValid>Valid</RSMF.Settings.ReviewStateValid>
-  <RSMF.Settings.ReviewStateInvalid>Not configured or disabled</RSMF.Settings.ReviewStateInvalid>
-  <RSMF.Settings.ReviewStatusLine>Status: {state}   Sample: {sampleRate}%   Rate limit: {rpm}/min   Timeout: {timeout}s   Context budget: {chars} chars</RSMF.Settings.ReviewStatusLine>
-  <RSMF.Settings.OpenCustomerReviewSettings>Open customer review settings</RSMF.Settings.OpenCustomerReviewSettings>
+  <RSMF.Settings.ReviewStateInvalid>LLM not configured or disabled</RSMF.Settings.ReviewStateInvalid>
+  <RSMF.Settings.ReviewStatusLine>LLM status: {state}   Review sample: {sampleRate}%   Rate limit: {rpm}/min   Timeout: {timeout}s   Context budget: {chars} chars</RSMF.Settings.ReviewStatusLine>
+  <RSMF.Settings.OpenCustomerReviewSettings>Open LLM settings</RSMF.Settings.OpenCustomerReviewSettings>
   <RSMF.Settings.OpenCustomGoodsRegistry>Open custom goods registry</RSMF.Settings.OpenCustomGoodsRegistry>
   <RSMF.Settings.OpenCustomCustomerRegistry>Open custom customer registry</RSMF.Settings.OpenCustomCustomerRegistry>
   <RSMF.Settings.ResetDefaults>Reset defaults</RSMF.Settings.ResetDefaults>

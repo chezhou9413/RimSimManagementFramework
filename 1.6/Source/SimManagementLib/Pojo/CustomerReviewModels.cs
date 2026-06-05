@@ -101,6 +101,9 @@ namespace SimManagementLib.Pojo
         public string recentReviewContextSummary = "";
         public List<ReviewFeaturedItem> featuredItems = new List<ReviewFeaturedItem>();
         public string avatarImageId = "";
+        public bool isHeavyMode;
+        public bool isWithdrawn;
+        public List<CustomerReviewNegotiationTurn> negotiationTurns = new List<CustomerReviewNegotiationTurn>();
         public CustomerReviewProvider provider = CustomerReviewProvider.OpenAICompatible;
         public CustomerReviewGenerationStatus generationStatus = CustomerReviewGenerationStatus.Completed;
 
@@ -156,9 +159,43 @@ namespace SimManagementLib.Pojo
             Scribe_Values.Look(ref recentReviewContextSummary, "recentReviewContextSummary", "");
             Scribe_Collections.Look(ref featuredItems, "featuredItems", LookMode.Deep);
             Scribe_Values.Look(ref avatarImageId, "avatarImageId", "");
+            Scribe_Values.Look(ref isHeavyMode, "isHeavyMode", false);
+            Scribe_Values.Look(ref isWithdrawn, "isWithdrawn", false);
+            Scribe_Collections.Look(ref negotiationTurns, "negotiationTurns", LookMode.Deep);
             Scribe_Values.Look(ref provider, "provider", CustomerReviewProvider.OpenAICompatible);
             Scribe_Values.Look(ref generationStatus, "generationStatus", CustomerReviewGenerationStatus.Completed);
             if (featuredItems == null) featuredItems = new List<ReviewFeaturedItem>();
+            if (negotiationTurns == null) negotiationTurns = new List<CustomerReviewNegotiationTurn>();
+        }
+    }
+
+    /// <summary>
+    /// 保存玩家与 AI 围绕单条重型评价的申诉往返，负责追踪评价被保留、修订或撤回的原因。
+    /// </summary>
+    public class CustomerReviewNegotiationTurn : IExposable
+    {
+        public int tickAbs;
+        public string playerText = "";
+        public string aiText = "";
+        public string action = "";
+        public int oldStars;
+        public int newStars;
+        public string oldReviewText = "";
+        public string newReviewText = "";
+
+        /// <summary>
+        /// 将单轮申诉往返读写到存档。
+        /// </summary>
+        public void ExposeData()
+        {
+            Scribe_Values.Look(ref tickAbs, "tickAbs", 0);
+            Scribe_Values.Look(ref playerText, "playerText", "");
+            Scribe_Values.Look(ref aiText, "aiText", "");
+            Scribe_Values.Look(ref action, "action", "");
+            Scribe_Values.Look(ref oldStars, "oldStars", 0);
+            Scribe_Values.Look(ref newStars, "newStars", 0);
+            Scribe_Values.Look(ref oldReviewText, "oldReviewText", "");
+            Scribe_Values.Look(ref newReviewText, "newReviewText", "");
         }
     }
 
@@ -269,5 +306,17 @@ namespace SimManagementLib.Pojo
         public string replyText = "";
         public string replyStance = "";
         public List<string> tags = new List<string>();
+        public bool heavyMode;
+    }
+
+    /// <summary>
+    /// 保存玩家申诉后模型返回的结构化处理结果，负责驱动评价保留、修订或撤回。
+    /// </summary>
+    public class CustomerReviewNegotiationResult
+    {
+        public string action = "";
+        public string aiText = "";
+        public int stars;
+        public string reviewText = "";
     }
 }

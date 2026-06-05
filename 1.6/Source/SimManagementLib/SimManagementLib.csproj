@@ -148,6 +148,7 @@
     <Compile Include="Pojo\CustomerCartItem.cs" />
     <Compile Include="Pojo\CustomerPriceSensitivityProps.cs" />
     <Compile Include="Pojo\CustomerReviewModels.cs" />
+    <Compile Include="Pojo\SimLlmModels.cs" />
     <Compile Include="Pojo\CustomerRuntimeSettings.cs" />
     <Compile Include="Pojo\CustomerServiceOrder.cs" />
     <Compile Include="Pojo\CollectibleDisplaySlotData.cs" />
@@ -231,6 +232,9 @@
     <Compile Include="SimDialog\Dialog_ShopManager.cs" />
     <Compile Include="SimDialog\Dialog_ShopManager.Api.cs" />
     <Compile Include="SimDialog\Dialog_ShopManager.Helpers.cs" />
+    <Compile Include="SimDialog\Dialog_ShopManager.ComboAiName.cs" />
+    <Compile Include="SimDialog\Dialog_ShopManager.ComboCache.cs" />
+    <Compile Include="SimDialog\Dialog_ShopManager.MenuTransfer.cs" />
     <Compile Include="SimDialog\Dialog_ShopManager.Panels.cs" />
     <Compile Include="SimDialog\Dialog_ShopManager.Schedule.cs" />
     <Compile Include="SimDialog\Dialog_ShopManager.Services.cs" />
@@ -240,6 +244,8 @@
     <Compile Include="SimDialog\Dialog_EditShopBlueprint.Canvas.cs" />
     <Compile Include="SimDialog\Dialog_EditShopBlueprint.Elements.cs" />
     <Compile Include="SimDialog\Dialog_EditShopBlueprint.Icons.cs" />
+    <Compile Include="SimDialog\Dialog_BusinessPageManager.cs" />
+    <Compile Include="SimDialog\Dialog_BusinessPageManager.Layout.cs" />
     <Compile Include="SimDialog\Designator_PlaceShopBlueprint.cs" />
     <Compile Include="SimDialog\Designator_SaveShopBlueprintRect.cs" />
     <Compile Include="SimDialog\BusinessPageWorker_Extensions.cs" />
@@ -277,6 +283,7 @@
     <Compile Include="SimDialog\Dialog_CollectibleDisplayStandDebug.cs" />
     <Compile Include="SimDialog\Dialog_CollectibleExchangeShop.cs" />
     <Compile Include="SimDialog\Dialog_CustomerReviewAiTerminal.cs" />
+    <Compile Include="SimDialog\Dialog_CustomerReviewNegotiation.cs" />
     <Compile Include="SimDialog\Dialog_CustomerReviewPromptPreview.cs" />
     <Compile Include="SimDialog\Dialog_CustomerReviewAiSettings.Injector.cs" />
     <Compile Include="SimDialog\Dialog_CustomerReviewAiSettings.cs" />
@@ -320,6 +327,7 @@
     <Compile Include="SimZone\Zone_Shop.cs" />
     <Compile Include="SimZone\Zone_Shop.RuntimeCache.cs" />
     <Compile Include="Tool\ComboNameGenerator.cs" />
+    <Compile Include="Tool\ComboAiNameUtility.cs" />
     <Compile Include="Tool\CollectibleDisplayStandUtility.cs" />
     <Compile Include="Tool\CollectibleExchangePurchaseUtility.cs" />
     <Compile Include="Tool\ComboPosterRenderer.cs" />
@@ -338,6 +346,7 @@
     <Compile Include="Tool\CustomerReviewAvatarCache.cs" />
     <Compile Include="Tool\CustomerReviewDialogueStrategy.cs" />
     <Compile Include="Tool\CustomerReviewJsonUtility.cs" />
+    <Compile Include="Tool\CustomerReviewNegotiationUtility.cs" />
     <Compile Include="Tool\CustomerReviewPromptInjector.cs" />
     <Compile Include="Tool\CustomerReviewPromptInjector.Split.cs" />
     <Compile Include="Tool\CustomerReviewPromptDefaults.cs" />
@@ -363,6 +372,8 @@
     <Compile Include="Tool\ShopBlueprintPreviewCaptureUtility.cs" />
     <Compile Include="Tool\ShopBubbleUtility.cs" />
     <Compile Include="Tool\ShopBlueprintLibrary.cs" />
+    <Compile Include="Tool\ShopBlueprintPlacementOptions.cs" />
+    <Compile Include="Tool\ShopBlueprintPlacementPrecheckUtility.cs" />
     <Compile Include="Tool\ShopBlueprintPlacementUtility.cs" />
     <Compile Include="Tool\ShopBlueprintSignPayloadUtility.cs" />
     <Compile Include="Tool\ShopBlueprintTextureAdjustmentBridge.cs" />
@@ -371,6 +382,7 @@
     <Compile Include="Tool\ShopDemandCurveUtility.cs" />
     <Compile Include="Tool\ShopFinanceLineTypeUtility.cs" />
     <Compile Include="Tool\ShopPricingUtility.cs" />
+    <Compile Include="Tool\ShopMenuTransferUtility.cs" />
     <Compile Include="Tool\ShopProgressBarUtility.cs" />
     <Compile Include="Tool\QuickGoodsRegistrationUtility.cs" />
     <Compile Include="Tool\SimDebugLogger.cs" />
@@ -378,6 +390,7 @@
     <Compile Include="Tool\ShopStaffUtility.RoleCache.cs" />
     <Compile Include="Tool\ShopStaffUtility.cs" />
     <Compile Include="Tool\ShopStorageUtility.cs" />
+    <Compile Include="Tool\SimLlmUtility.cs" />
     <Compile Include="Tool\SimTranslation.cs" />
     <Compile Include="Tool\StringEncodingUtility.cs" />
     <Compile Include="Tool\SignImageLibrary.cs" />

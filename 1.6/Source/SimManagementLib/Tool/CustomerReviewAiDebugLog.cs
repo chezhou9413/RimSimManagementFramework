@@ -33,7 +33,7 @@ namespace SimManagementLib.Tool
                 createdAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
                 tickAbs = snapshot.tickAbs,
                 gameDay = snapshot.gameDay,
-                provider = settings.reviewProvider.ToString(),
+                provider = settings.llmProvider.ToString(),
                 model = GetModelName(settings),
                 endpoint = GetEndpoint(settings),
                 reviewId = snapshot.reviewId ?? "",
@@ -282,7 +282,7 @@ namespace SimManagementLib.Tool
         {
             if (settings == null)
                 return "";
-            return settings.reviewProvider == CustomerReviewProvider.Anthropic ? settings.anthropicModel ?? "" : settings.openAiModel ?? "";
+            return settings.llmProvider == SimLlmProvider.Anthropic ? settings.llmAnthropicModel ?? "" : settings.llmOpenAiModel ?? "";
         }
 
         /// <summary>
@@ -292,9 +292,9 @@ namespace SimManagementLib.Tool
         {
             if (settings == null)
                 return "";
-            return settings.reviewProvider == CustomerReviewProvider.Anthropic
+            return settings.llmProvider == SimLlmProvider.Anthropic
                 ? "https://api.anthropic.com/v1/messages"
-                : CustomerReviewAiClient.NormalizeOpenAiUrl(settings.openAiBaseUrl);
+                : CustomerReviewAiClient.NormalizeOpenAiUrl(settings.llmOpenAiBaseUrl);
         }
 
         /// <summary>

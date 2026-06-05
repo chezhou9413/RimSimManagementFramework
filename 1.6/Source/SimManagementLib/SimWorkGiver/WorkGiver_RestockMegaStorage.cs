@@ -243,6 +243,7 @@ namespace SimManagementLib.SimWorkGiver
         {
             if (pawn == null || storage == null || thing == null) return false;
             if (thing.Destroyed || !thing.Spawned || thing.stackCount <= 0) return false;
+            if (IsInsideAnyStorageContainer(thing)) return false;
             if (thing.IsForbidden(pawn)) return false;
             if (storage.CountNeeded(thing.def) <= 0) return false;
             if (!pawn.CanReserve(thing)) return false;
@@ -298,7 +299,10 @@ namespace SimManagementLib.SimWorkGiver
 
         private static bool IsInsideAnyStorageContainer(Thing t)
         {
-            return !t.Spawned;
+            if (t == null || !t.Spawned) return true;
+
+            // 普通仓库区的物品允许补货使用；建筑作为 SlotGroup 父级时，通常表示冷柜、展示柜或槽位存储正在持有该物品。
+            return t.GetSlotGroup()?.parent is Thing;
         }
     }
 }

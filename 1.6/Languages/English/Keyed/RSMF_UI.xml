@@ -43,13 +43,25 @@
   <RSMF.Gizmo.RenameContainer.Desc>Set a name for this storage building so it is easier to identify and locate.</RSMF.Gizmo.RenameContainer.Desc>
   <RSMF.Gizmo.ContainerManagement.Label>Storage management</RSMF.Gizmo.ContainerManagement.Label>
   <RSMF.Gizmo.ContainerManagement.Desc>Open the storage management panel to configure sale goods, target stock, and prices.</RSMF.Gizmo.ContainerManagement.Desc>
-  <RSMF.ReviewSettings.Title>Customer review settings</RSMF.ReviewSettings.Title>
-  <RSMF.ReviewSettings.Tab.Api>API</RSMF.ReviewSettings.Tab.Api>
+  <RSMF.LlmSettings.Title>General LLM settings</RSMF.LlmSettings.Title>
+  <RSMF.LlmSettings.Tab.Api>LLM settings</RSMF.LlmSettings.Tab.Api>
+  <RSMF.LlmSettings.Tab.Reviews>Customer reviews</RSMF.LlmSettings.Tab.Reviews>
+  <RSMF.LlmSettings.Enable>Enable general LLM</RSMF.LlmSettings.Enable>
+  <RSMF.LlmSettings.EnableTip>When enabled, bundle naming, customer reviews, and future business AI features can use the same model API.</RSMF.LlmSettings.EnableTip>
+  <RSMF.ReviewSettings.Title>General LLM settings</RSMF.ReviewSettings.Title>
+  <RSMF.ReviewSettings.Tab.General>General</RSMF.ReviewSettings.Tab.General>
+  <RSMF.ReviewSettings.Tab.Api>LLM settings</RSMF.ReviewSettings.Tab.Api>
   <RSMF.ReviewSettings.Tab.Prompt>Prompt</RSMF.ReviewSettings.Tab.Prompt>
   <RSMF.ReviewSettings.Tab.Injector>Injector</RSMF.ReviewSettings.Tab.Injector>
   <RSMF.ReviewSettings.Tab.Lexicon>Lexicon</RSMF.ReviewSettings.Tab.Lexicon>
   <RSMF.ReviewSettings.EnableReviews>Enable customer reviews</RSMF.ReviewSettings.EnableReviews>
   <RSMF.ReviewSettings.EnableReviewsTip>No review snapshots are recorded while disabled.</RSMF.ReviewSettings.EnableReviewsTip>
+  <RSMF.ReviewSettings.HeavyMode>Heavy review mode (very token-heavy)</RSMF.ReviewSettings.HeavyMode>
+  <RSMF.ReviewSettings.HeavyModeTip>Each review uses an independent draft context and an independent polish context. Heavy reviews can also receive player appeal replies.</RSMF.ReviewSettings.HeavyModeTip>
+  <RSMF.ReviewSettings.HeavyModeWarning>Heavy mode greatly increases token usage: each review uses at least two model calls, and every player reply triggers another call.</RSMF.ReviewSettings.HeavyModeWarning>
+  <RSMF.ReviewSettings.InfluenceSpawn>Reviews affect customer spawn chance</RSMF.ReviewSettings.InfluenceSpawn>
+  <RSMF.ReviewSettings.InfluenceSpawnTip>Off by default. When enabled, a shop's average review score affects real customer spawn chance: high scores attract more customers, low scores reduce traffic.</RSMF.ReviewSettings.InfluenceSpawnTip>
+  <RSMF.ReviewSettings.InfluenceSpawnDetail>Applies after at least 3 valid root reviews. Withdrawn reviews and thread replies are ignored.</RSMF.ReviewSettings.InfluenceSpawnDetail>
   <RSMF.ReviewSettings.ImportRimTalkConfig>Import RimTalk API config</RSMF.ReviewSettings.ImportRimTalkConfig>
   <RSMF.ReviewSettings.RimTalkDetected>RimTalk detected. You can import its current API, model, and key.</RSMF.ReviewSettings.RimTalkDetected>
   <RSMF.ReviewSettings.RimTalkNotDetected>RimTalk is not detected. Install and enable RimTalk before importing.</RSMF.ReviewSettings.RimTalkNotDetected>
@@ -413,6 +425,13 @@
   <RSMF.ShopManager.TargetGoodsHeader>Item name  (check to stock)</RSMF.ShopManager.TargetGoodsHeader>
   <RSMF.ShopManager.ComboItemCount>{kindCount} kinds · {totalItems} items</RSMF.ShopManager.ComboItemCount>
   <RSMF.ShopManager.ComboName>Bundle name</RSMF.ShopManager.ComboName>
+  <RSMF.ShopManager.AiNameCombo>AI name</RSMF.ShopManager.AiNameCombo>
+  <RSMF.ShopManager.AiNamingRunning>Naming</RSMF.ShopManager.AiNamingRunning>
+  <RSMF.ShopManager.AiNameComboTip>Generate a name from the current bundle items using the configured LLM.</RSMF.ShopManager.AiNameComboTip>
+  <RSMF.ShopManager.AiNameNeedsConfig>Enable and configure the general LLM in mod settings first.</RSMF.ShopManager.AiNameNeedsConfig>
+  <RSMF.ShopManager.AiNameNeedsItems>Select at least one item for the bundle first.</RSMF.ShopManager.AiNameNeedsItems>
+  <RSMF.ShopManager.AiNameSucceeded>AI generated a bundle name.</RSMF.ShopManager.AiNameSucceeded>
+  <RSMF.ShopManager.AiNameFailed>AI naming failed. Check the API config or try again later.</RSMF.ShopManager.AiNameFailed>
   <RSMF.ShopManager.RandomName>🎲 Random name</RSMF.ShopManager.RandomName>
   <RSMF.ShopManager.ComboPrice>Bundle price</RSMF.ShopManager.ComboPrice>
   <RSMF.ShopManager.EstimateByItem>Estimate by item</RSMF.ShopManager.EstimateByItem>
@@ -889,6 +908,15 @@
   <RSMF.Blueprint.Error.DeleteFailed>Blueprint delete failed: {message}</RSMF.Blueprint.Error.DeleteFailed>
   <RSMF.Blueprint.Error.DeleteFailedUnknown>Blueprint delete failed.</RSMF.Blueprint.Error.DeleteFailedUnknown>
   <RSMF.Blueprint.Place.Error.OutOfBounds>The shop blueprint would exceed the map bounds.</RSMF.Blueprint.Place.Error.OutOfBounds>
+  <RSMF.Blueprint.Place.Error.MissingBuildings>This blueprint cannot be placed because these buildings are missing: {items}</RSMF.Blueprint.Place.Error.MissingBuildings>
+  <RSMF.Blueprint.Place.Error.MissingStuffNoReplacement>This blueprint cannot be placed because these materials are missing and the affected buildings have no usable Core replacement material: {items}</RSMF.Blueprint.Place.Error.MissingStuffNoReplacement>
+  <RSMF.Blueprint.Place.Error.MissingStuffNeedsChoice>This blueprint contains missing materials. Click a placement cell and choose Core replacement materials.</RSMF.Blueprint.Place.Error.MissingStuffNeedsChoice>
+  <RSMF.Blueprint.Place.MissingStuff.Title>Choose replacement material</RSMF.Blueprint.Place.MissingStuff.Title>
+  <RSMF.Blueprint.Place.MissingStuff.Entry>{building} requires missing material {stuff}</RSMF.Blueprint.Place.MissingStuff.Entry>
+  <RSMF.Blueprint.Place.MissingStuff.Option>{missing}; use {replacement}</RSMF.Blueprint.Place.MissingStuff.Option>
+  <RSMF.Blueprint.Place.ForcePlaceAvailable>Force place available parts</RSMF.Blueprint.Place.ForcePlaceAvailable>
+  <RSMF.Blueprint.Place.ForceSuccess>Force-placed available shop blueprint parts: {count} items.</RSMF.Blueprint.Place.ForceSuccess>
+  <RSMF.Blueprint.Place.Error.ForceNoParts>No blueprint parts can be placed.</RSMF.Blueprint.Place.Error.ForceNoParts>
   <RSMF.Blueprint.Place.Error.Unknown>Shop blueprint placement failed.</RSMF.Blueprint.Place.Error.Unknown>
   <RSMF.Blueprint.Edit.Title>Edit shop blueprint</RSMF.Blueprint.Edit.Title>
   <RSMF.Blueprint.Edit.Name>Blueprint name</RSMF.Blueprint.Edit.Name>
@@ -936,6 +964,29 @@
   <RSMF.Business.Reviews.CollapseReplies>Hide replies ({count})</RSMF.Business.Reviews.CollapseReplies>
   <RSMF.Business.Reviews.ExpandReplies>Show replies ({count})</RSMF.Business.Reviews.ExpandReplies>
   <RSMF.Business.Reviews.VoteLine>#{id}  up {upvotes}  down {downvotes}</RSMF.Business.Reviews.VoteLine>
+  <RSMF.Business.Reviews.Withdrawn>Withdrawn: this review no longer counts toward average stars.</RSMF.Business.Reviews.Withdrawn>
+  <RSMF.Business.Reviews.WithdrawnShort>withdrawn</RSMF.Business.Reviews.WithdrawnShort>
+  <RSMF.Business.Reviews.WithdrawnStars>withdrawn</RSMF.Business.Reviews.WithdrawnStars>
+  <RSMF.Business.Reviews.Negotiation.Reply>Appeal</RSMF.Business.Reviews.Negotiation.Reply>
+  <RSMF.Business.Reviews.Negotiation.InputHint>Explain or dispute this review to the customer, up to 300 characters. Kind words may raise stars, insults may lower them. The customer may keep, revise, or withdraw it.</RSMF.Business.Reviews.Negotiation.InputHint>
+  <RSMF.Business.Reviews.Negotiation.Submit>Submit appeal</RSMF.Business.Reviews.Negotiation.Submit>
+  <RSMF.Business.Reviews.Negotiation.EmptyInput>Appeal text cannot be empty.</RSMF.Business.Reviews.Negotiation.EmptyInput>
+  <RSMF.Business.Reviews.Negotiation.Unavailable>This review cannot be appealed.</RSMF.Business.Reviews.Negotiation.Unavailable>
+  <RSMF.Business.Reviews.Negotiation.Pending>Waiting for the customer to answer the appeal.</RSMF.Business.Reviews.Negotiation.Pending>
+  <RSMF.Business.Reviews.Negotiation.NoLlm>The current LLM or review AI config is unavailable.</RSMF.Business.Reviews.Negotiation.NoLlm>
+  <RSMF.Business.Reviews.Negotiation.Submitted>Appeal sent. Waiting for the customer.</RSMF.Business.Reviews.Negotiation.Submitted>
+  <RSMF.Business.Reviews.Negotiation.FailedAiText>The customer did not answer cleanly, so the review is unchanged.</RSMF.Business.Reviews.Negotiation.FailedAiText>
+  <RSMF.Business.Reviews.Negotiation.HistoryBadge>Appeal history</RSMF.Business.Reviews.Negotiation.HistoryBadge>
+  <RSMF.Business.Reviews.Negotiation.CollapseHistory>Hide appeal history</RSMF.Business.Reviews.Negotiation.CollapseHistory>
+  <RSMF.Business.Reviews.Negotiation.ExpandHistory>Appeal history ({count})</RSMF.Business.Reviews.Negotiation.ExpandHistory>
+  <RSMF.Business.Reviews.Negotiation.PlayerLine>Owner: {text}</RSMF.Business.Reviews.Negotiation.PlayerLine>
+  <RSMF.Business.Reviews.Negotiation.CustomerLine>Customer: {text}</RSMF.Business.Reviews.Negotiation.CustomerLine>
+  <RSMF.Business.Reviews.Negotiation.TurnTitle>Appeal result: {action} · {stars}</RSMF.Business.Reviews.Negotiation.TurnTitle>
+  <RSMF.Business.Reviews.Negotiation.Action.keep>kept</RSMF.Business.Reviews.Negotiation.Action.keep>
+  <RSMF.Business.Reviews.Negotiation.Action.revise>revised</RSMF.Business.Reviews.Negotiation.Action.revise>
+  <RSMF.Business.Reviews.Negotiation.Action.withdraw>withdrawn</RSMF.Business.Reviews.Negotiation.Action.withdraw>
+  <RSMF.Business.Reviews.Negotiation.DialogTitle>Appeal to customer</RSMF.Business.Reviews.Negotiation.DialogTitle>
+  <RSMF.Business.Reviews.Negotiation.DialogSummary>{name}'s review: {text}</RSMF.Business.Reviews.Negotiation.DialogSummary>
   <RSMF.Business.Reviews.BundleIcon>B</RSMF.Business.Reviews.BundleIcon>
   <RSMF.Business.Reviews.ReplyPrevious>Replying to previous discussion</RSMF.Business.Reviews.ReplyPrevious>
   <RSMF.Business.Reviews.ReplyTarget>Replying to {target}</RSMF.Business.Reviews.ReplyTarget>

@@ -27,6 +27,15 @@ namespace SimManagementLib
         public int journeyDebugLogMaxBytes = 4194304;
         public string debugForcedCustomerKindId = "";
         public bool showExtensionRecommendationPage = true;
+        public List<string> businessManagerPageOrder = new List<string>();
+        public List<string> businessManagerHiddenPages = new List<string>();
+        public bool llmEnabled;
+        public SimLlmProvider llmProvider = SimLlmProvider.OpenAICompatible;
+        public string llmOpenAiBaseUrl = "https://api.openai.com/v1";
+        public string llmOpenAiApiKey = "";
+        public string llmOpenAiModel = "gpt-4o-mini";
+        public string llmAnthropicApiKey = "";
+        public string llmAnthropicModel = "claude-3-5-haiku-latest";
         public bool reviewAiEnabled;
         public CustomerReviewProvider reviewProvider = CustomerReviewProvider.OpenAICompatible;
         public string openAiBaseUrl = "https://api.openai.com/v1";
@@ -41,6 +50,8 @@ namespace SimManagementLib
         public float reviewForumReactionChance = 0.95f;
         public float reviewForumReplyChance = 0.75f;
         public int reviewRequestTimeoutSeconds = 90;
+        public bool reviewHeavyModeEnabled;
+        public bool reviewInfluencesCustomerSpawn;
         public bool reviewAbsurdNitpickEnabled;
         public float reviewAbsurdNitpickChance = 0.12f;
         public string reviewSystemPrompt = CustomerReviewPromptDefaults.SystemPrompt;
@@ -73,6 +84,15 @@ namespace SimManagementLib
             Scribe_Values.Look(ref journeyDebugLogMaxBytes, "journeyDebugLogMaxBytes", 4194304);
             Scribe_Values.Look(ref debugForcedCustomerKindId, "debugForcedCustomerKindId", "");
             Scribe_Values.Look(ref showExtensionRecommendationPage, "showExtensionRecommendationPage", true);
+            Scribe_Collections.Look(ref businessManagerPageOrder, "businessManagerPageOrder", LookMode.Value);
+            Scribe_Collections.Look(ref businessManagerHiddenPages, "businessManagerHiddenPages", LookMode.Value);
+            Scribe_Values.Look(ref llmEnabled, "llmEnabled", false);
+            Scribe_Values.Look(ref llmProvider, "llmProvider", SimLlmProvider.OpenAICompatible);
+            Scribe_Values.Look(ref llmOpenAiBaseUrl, "llmOpenAiBaseUrl", "https://api.openai.com/v1");
+            Scribe_Values.Look(ref llmOpenAiApiKey, "llmOpenAiApiKey", "");
+            Scribe_Values.Look(ref llmOpenAiModel, "llmOpenAiModel", "gpt-4o-mini");
+            Scribe_Values.Look(ref llmAnthropicApiKey, "llmAnthropicApiKey", "");
+            Scribe_Values.Look(ref llmAnthropicModel, "llmAnthropicModel", "claude-3-5-haiku-latest");
             Scribe_Values.Look(ref reviewAiEnabled, "reviewAiEnabled", false);
             Scribe_Values.Look(ref reviewProvider, "reviewProvider", CustomerReviewProvider.OpenAICompatible);
             Scribe_Values.Look(ref openAiBaseUrl, "openAiBaseUrl", "https://api.openai.com/v1");
@@ -87,6 +107,8 @@ namespace SimManagementLib
             Scribe_Values.Look(ref reviewForumReactionChance, "reviewForumReactionChance", 0.95f);
             Scribe_Values.Look(ref reviewForumReplyChance, "reviewForumReplyChance", 0.75f);
             Scribe_Values.Look(ref reviewRequestTimeoutSeconds, "reviewRequestTimeoutSeconds", 90);
+            Scribe_Values.Look(ref reviewHeavyModeEnabled, "reviewHeavyModeEnabled", false);
+            Scribe_Values.Look(ref reviewInfluencesCustomerSpawn, "reviewInfluencesCustomerSpawn", false);
             Scribe_Values.Look(ref reviewAbsurdNitpickEnabled, "reviewAbsurdNitpickEnabled", false);
             Scribe_Values.Look(ref reviewAbsurdNitpickChance, "reviewAbsurdNitpickChance", 0.12f);
             Scribe_Values.Look(ref reviewSystemPrompt, "reviewSystemPrompt", CustomerReviewPromptDefaults.DefaultSystemPrompt);
@@ -118,7 +140,101 @@ namespace SimManagementLib
             reviewConversationContextMaxChars = Mathf.Clamp(reviewConversationContextMaxChars, 0, 64000);
             if (debugForcedCustomerKindId == null)
                 debugForcedCustomerKindId = "";
+            NormalizeBusinessManagerPageSettings();
+            NormalizeLlmSettingsText();
+            MigrateLegacyReviewAiConnectionSettings();
+            SyncLegacyReviewAiConnectionFields();
             NormalizeReviewSettingsText();
+        }
+
+        /// <summary>
+        /// 规范化经商管理页面配置，负责移除空白和重复的页面标识。
+        /// </summary>
+        private void NormalizeBusinessManagerPageSettings()
+        {
+            businessManagerPageOrder = NormalizeStringList(businessManagerPageOrder);
+            businessManagerHiddenPages = NormalizeStringList(businessManagerHiddenPages);
+        }
+
+        /// <summary>
+        /// 规范化字符串列表，负责保证持久化的页面标识稳定且没有重复项。
+        /// </summary>
+        private static List<string> NormalizeStringList(List<string> values)
+        {
+            List<string> result = new List<string>();
+            if (values == null)
+                return result;
+
+            HashSet<string> seen = new HashSet<string>();
+            for (int i = 0; i < values.Count; i++)
+            {
+                string value = StringEncodingUtility.SanitizeUtf16(values[i]);
+                if (string.IsNullOrWhiteSpace(value) || !seen.Add(value))
+                    continue;
+
+                result.Add(value);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 规范化通用 LLM 设置文本，负责旧存档缺失字段时补齐安全默认值。
+        /// </summary>
+        private void NormalizeLlmSettingsText()
+        {
+            if (llmOpenAiBaseUrl == null) llmOpenAiBaseUrl = "https://api.openai.com/v1";
+            if (llmOpenAiApiKey == null) llmOpenAiApiKey = "";
+            if (llmOpenAiModel == null) llmOpenAiModel = "gpt-4o-mini";
+            if (llmAnthropicApiKey == null) llmAnthropicApiKey = "";
+            if (llmAnthropicModel == null) llmAnthropicModel = "claude-3-5-haiku-latest";
+            SanitizeLlmSettingsText();
+        }
+
+        /// <summary>
+        /// 清理通用 LLM 设置里的非法 UTF-16 字符，负责避免 HTTP、JSON 和日志路径遇到孤立代理字符。
+        /// </summary>
+        public void SanitizeLlmSettingsText()
+        {
+            llmOpenAiBaseUrl = StringEncodingUtility.SanitizeUtf16(llmOpenAiBaseUrl);
+            llmOpenAiApiKey = StringEncodingUtility.SanitizeUtf16(llmOpenAiApiKey);
+            llmOpenAiModel = StringEncodingUtility.SanitizeUtf16(llmOpenAiModel);
+            llmAnthropicApiKey = StringEncodingUtility.SanitizeUtf16(llmAnthropicApiKey);
+            llmAnthropicModel = StringEncodingUtility.SanitizeUtf16(llmAnthropicModel);
+        }
+
+        /// <summary>
+        /// 从旧评价 AI 连接字段迁移通用 LLM 配置，负责让旧设置无需重新填写密钥。
+        /// </summary>
+        private void MigrateLegacyReviewAiConnectionSettings()
+        {
+            bool hasNewCredential = !string.IsNullOrWhiteSpace(llmOpenAiApiKey) || !string.IsNullOrWhiteSpace(llmAnthropicApiKey);
+            bool hasLegacyOpenAi = !string.IsNullOrWhiteSpace(openAiApiKey) || !string.IsNullOrWhiteSpace(openAiModel) || !string.IsNullOrWhiteSpace(openAiBaseUrl);
+            bool hasLegacyAnthropic = !string.IsNullOrWhiteSpace(anthropicApiKey) || !string.IsNullOrWhiteSpace(anthropicModel);
+            if (hasNewCredential || (!hasLegacyOpenAi && !hasLegacyAnthropic))
+                return;
+
+            llmEnabled = reviewAiEnabled;
+            llmProvider = reviewProvider == CustomerReviewProvider.Anthropic ? SimLlmProvider.Anthropic : SimLlmProvider.OpenAICompatible;
+            llmOpenAiBaseUrl = openAiBaseUrl;
+            llmOpenAiApiKey = openAiApiKey;
+            llmOpenAiModel = openAiModel;
+            llmAnthropicApiKey = anthropicApiKey;
+            llmAnthropicModel = anthropicModel;
+            SanitizeLlmSettingsText();
+        }
+
+        /// <summary>
+        /// 将通用 LLM 连接字段同步给旧评价字段，负责兼容仍读取旧字段的调试和存档路径。
+        /// </summary>
+        public void SyncLegacyReviewAiConnectionFields()
+        {
+            reviewProvider = llmProvider == SimLlmProvider.Anthropic ? CustomerReviewProvider.Anthropic : CustomerReviewProvider.OpenAICompatible;
+            openAiBaseUrl = llmOpenAiBaseUrl;
+            openAiApiKey = llmOpenAiApiKey;
+            openAiModel = llmOpenAiModel;
+            anthropicApiKey = llmAnthropicApiKey;
+            anthropicModel = llmAnthropicModel;
         }
 
         /// <summary>
@@ -154,6 +270,7 @@ namespace SimManagementLib
         public void SanitizeReviewSettingsText()
         {
             debugForcedCustomerKindId = StringEncodingUtility.SanitizeUtf16(debugForcedCustomerKindId);
+            SanitizeLlmSettingsText();
             openAiBaseUrl = StringEncodingUtility.SanitizeUtf16(openAiBaseUrl);
             openAiApiKey = StringEncodingUtility.SanitizeUtf16(openAiApiKey);
             openAiModel = StringEncodingUtility.SanitizeUtf16(openAiModel);
@@ -207,12 +324,34 @@ namespace SimManagementLib
         }
 
         /// <summary>
+        /// 判断当前通用 LLM 配置是否具备发起请求的必要字段。
+        /// </summary>
+        public bool HasValidLlmConfig()
+        {
+            if (!llmEnabled) return false;
+            return HasLlmConnectionFields();
+        }
+
+        /// <summary>
+        /// 判断当前通用 LLM 供应商的连接字段是否齐全，负责让测试按钮不依赖功能启用开关。
+        /// </summary>
+        public bool HasLlmConnectionFields()
+        {
+            if (llmProvider == SimLlmProvider.Anthropic)
+                return !string.IsNullOrEmpty(llmAnthropicApiKey) && !string.IsNullOrEmpty(llmAnthropicModel);
+
+            return !string.IsNullOrEmpty(llmOpenAiBaseUrl)
+                && !string.IsNullOrEmpty(llmOpenAiApiKey)
+                && !string.IsNullOrEmpty(llmOpenAiModel);
+        }
+
+        /// <summary>
         /// 判断当前 AI 点评配置是否具备发起请求的必要字段。
         /// </summary>
         public bool HasValidReviewAiConfig()
         {
             if (!reviewAiEnabled) return false;
-            return HasReviewAiConnectionFields();
+            return HasValidLlmConfig();
         }
 
         /// <summary>
@@ -220,12 +359,7 @@ namespace SimManagementLib
         /// </summary>
         public bool HasReviewAiConnectionFields()
         {
-            if (reviewProvider == CustomerReviewProvider.Anthropic)
-                return !string.IsNullOrEmpty(anthropicApiKey) && !string.IsNullOrEmpty(anthropicModel);
-
-            return !string.IsNullOrEmpty(openAiBaseUrl)
-                && !string.IsNullOrEmpty(openAiApiKey)
-                && !string.IsNullOrEmpty(openAiModel);
+            return HasLlmConnectionFields();
         }
     }
 
@@ -301,7 +435,7 @@ namespace SimManagementLib
             list.GapLine();
             list.Label(SimTranslation.T("RSMF.Settings.CustomerReviews"));
             list.CheckboxLabeled(SimTranslation.T("RSMF.Settings.EnableCustomerReviews"), ref Settings.reviewAiEnabled, SimTranslation.T("RSMF.Settings.EnableCustomerReviewsTip"));
-            string reviewState = Settings.HasValidReviewAiConfig() ? SimTranslation.T("RSMF.Settings.ReviewStateValid") : SimTranslation.T("RSMF.Settings.ReviewStateInvalid");
+            string reviewState = Settings.HasValidLlmConfig() ? SimTranslation.T("RSMF.Settings.ReviewStateValid") : SimTranslation.T("RSMF.Settings.ReviewStateInvalid");
             list.Label(SimTranslation.T(
                 "RSMF.Settings.ReviewStatusLine",
                 reviewState.Named("state"),

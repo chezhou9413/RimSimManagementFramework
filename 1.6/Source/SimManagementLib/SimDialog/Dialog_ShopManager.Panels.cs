@@ -226,6 +226,7 @@ namespace SimManagementLib.SimDialog
         private void DrawComboPanel(Rect rect)
         {
             if (curCombo == null) return;
+            EnsureComboUiCache();
 
             float topH = 200f;
             float posterW = 140f;
@@ -258,7 +259,11 @@ namespace SimManagementLib.SimDialog
 
             DrawFieldLabel(new Rect(editX, y, editW, labelH), SimTranslation.T("RSMF.ShopManager.ComboName"));
             y += labelH + 2f;
-            curCombo.comboName = Widgets.TextField(new Rect(editX, y, editW, fieldH), curCombo.comboName);
+            float aiNameButtonW = 82f;
+            float aiNameGap = 8f;
+            float nameFieldW = Mathf.Max(120f, editW - aiNameButtonW - aiNameGap);
+            curCombo.comboName = Widgets.TextField(new Rect(editX, y, nameFieldW, fieldH), curCombo.comboName);
+            DrawComboAiNameButton(new Rect(editX + nameFieldW + aiNameGap, y, aiNameButtonW, fieldH));
             y += fieldH + 4f;
             if (SimUiStyle.DrawSecondaryButton(new Rect(editX, y, 120f, 26f), SimTranslation.T("RSMF.ShopManager.RandomName"), true, GameFont.Tiny))
                 curCombo.comboName = ComboNameGenerator.GenerateName(curCombo);
@@ -269,7 +274,7 @@ namespace SimManagementLib.SimDialog
 
             if (SimUiStyle.DrawSecondaryButton(new Rect(editX + 108f, y, 120f, fieldH), SimTranslation.T("RSMF.ShopManager.EstimateByItem"), true, GameFont.Tiny))
             {
-                float cost = curCombo.items.Sum(ci => GetReferencePriceForCombo(ci.def) * ci.count);
+                float cost = curCombo.items.Sum(ci => GetCachedReferencePriceForCombo(ci.def) * ci.count);
                 curCombo.totalPrice = (float)System.Math.Round(cost * 0.9f, 1);
                 comboPriceBuf = curCombo.totalPrice.ToString("F0");
                 priceJustCalculated = true;
@@ -310,15 +315,12 @@ namespace SimManagementLib.SimDialog
             if (SimUiStyle.DrawDangerButton(deleteRect, SimTranslation.T("RSMF.ShopManager.DeleteCombo"), true, GameFont.Tiny))
             {
                 zoneCombos.Remove(curCombo);
+                InvalidateComboUiCache();
                 curCombo = null;
                 curPageDefName = PageOverview;
                 ResetText();
                 return;
             }
-
-            List<ThingDef> sellable = availableGoodsDefs
-                .Where(t => HasAnyStorageSellingThing(t) && MatchSearch(t.label))
-                .ToList();
 
             Rect headerRect = new Rect(rect.x, topRect.yMax + 8f, rect.width, HeaderH);
             DrawTableHeader(headerRect, delegate
@@ -335,15 +337,15 @@ namespace SimManagementLib.SimDialog
             });
 
             Rect outRect = new Rect(rect.x, headerRect.yMax, rect.width, rect.height - topH - HeaderH - 8f);
-            DrawVirtualizedRows(outRect, sellable.Count, delegate(int i, Rect row)
+            DrawVirtualizedRows(outRect, comboSellableCache.Count, delegate(int i, Rect row)
             {
-                DrawComboItemRow(row, sellable[i], i % 2 == 0);
+                DrawComboItemRow(row, comboSellableCache[i], i % 2 == 0);
             });
         }
 
         private void DrawComboItemRow(Rect row, ThingDef thingDef, bool alt)
         {
-            ComboItem comboItem = curCombo.items.FirstOrDefault(ci => ci.def == thingDef);
+            ComboItem comboItem = GetCachedComboItem(thingDef);
             bool inCombo = comboItem != null;
 
             DrawRowBg(row, alt ? 1 : 0, inCombo);
@@ -355,8 +357,22 @@ namespace SimManagementLib.SimDialog
 
             bool check = inCombo;
             Widgets.Checkbox(x, row.y + (RowH - CheckSz) / 2f, ref check, CheckSz, paintable: true);
-            if (check && !inCombo) curCombo.items.Add(new ComboItem { def = thingDef, count = 1 });
-            else if (!check && inCombo) curCombo.items.Remove(comboItem);
+            if (check && !inCombo)
+            {
+                comboItem = new ComboItem { def = thingDef, count = 1 };
+                curCombo.items.Add(comboItem);
+                comboItemByDefCache[thingDef] = comboItem;
+                InvalidateComboItemCache();
+                inCombo = true;
+            }
+            else if (!check && inCombo)
+            {
+                curCombo.items.Remove(comboItem);
+                comboItemByDefCache.Remove(thingDef);
+                comboItemCountBuffers.Remove(thingDef.defName);
+                InvalidateComboItemCache();
+                inCombo = false;
+            }
             x += CheckSz + ColGap;
 
             Widgets.ThingIcon(new Rect(x, midY, IconSz, IconSz), thingDef);
@@ -374,11 +390,18 @@ namespace SimManagementLib.SimDialog
             rx -= FieldW;
             if (inCombo)
             {
-                string buffer = comboItem.count.ToString();
+                int oldCount = comboItem.count;
+                string buffer = GetComboCountBuffer(thingDef, comboItem.count);
                 Widgets.TextFieldNumeric(new Rect(rx, ctrlY, FieldW, 24f), ref comboItem.count, ref buffer, 1, 999);
+                SetComboCountBuffer(thingDef, buffer);
                 rx -= ColGap;
                 rx -= SliderW;
                 comboItem.count = (int)Widgets.HorizontalSlider(new Rect(rx, row.y + (RowH - 16f) / 2f, SliderW, 16f), comboItem.count, 1f, 50f, true);
+                if (comboItem.count != oldCount)
+                {
+                    SetComboCountBuffer(thingDef, comboItem.count.ToString());
+                    InvalidateComboItemCache();
+                }
             }
 
             ResetText();

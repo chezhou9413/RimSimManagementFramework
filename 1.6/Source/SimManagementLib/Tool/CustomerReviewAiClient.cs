@@ -24,6 +24,8 @@ namespace SimManagementLib.Tool
         {
             SanitizeSettingsForRequest(settings);
             if (snapshot == null || settings == null || !settings.HasValidReviewAiConfig()) return null;
+            if (settings.reviewHeavyModeEnabled)
+                return await GenerateHeavyReviewAsync(snapshot, settings, token);
 
             string stablePromptPrefix = CustomerReviewPromptInjector.BuildStablePromptPrefix(settings);
             string antiRepeatContext = CustomerReviewDialogueStrategy.BuildAntiRepeatContext(settings);
@@ -61,11 +63,164 @@ namespace SimManagementLib.Tool
         }
 
         /// <summary>
+        /// 使用重型模式生成评价，负责让初稿生成和润色修复运行在两个互不复用的上下文中。
+        /// </summary>
+        private static async Task<CustomerReviewAiResult> GenerateHeavyReviewAsync(CustomerReviewSnapshot snapshot, SimManagementLibSettings settings, CancellationToken token)
+        {
+            CustomerReviewDialogueRequest initialRequest = BuildIndependentReviewRequest(snapshot, settings, CustomerReviewPromptInjector.BuildDynamicPrompt(snapshot, settings, ""));
+            SanitizeDialogueRequest(initialRequest);
+            int debugId = CustomerReviewAiDebugLog.AddStarted(snapshot, settings, initialRequest);
+
+            try
+            {
+                string raw = await CallProviderAsync(settings, initialRequest, token, debugId);
+                if (!CustomerReviewJsonUtility.TryParseReviewResult(raw, settings, out CustomerReviewAiResult initialResult))
+                {
+                    CustomerReviewAiDebugLog.MarkFailed(debugId, SimTranslation.T("RSMF.CustomerReview.AiError.FirstParseFailedRetrying"));
+                    CustomerReviewDialogueRequest retryRequest = CustomerReviewDialogueStrategy.BuildRetryRequest(initialRequest, raw);
+                    raw = await CallProviderAsync(settings, retryRequest, token, debugId);
+                    if (!CustomerReviewJsonUtility.TryParseReviewResult(raw, settings, out initialResult))
+                    {
+                        CustomerReviewAiDebugLog.MarkFailed(debugId, SimTranslation.T("RSMF.CustomerReview.AiError.ParseFailedFinal"));
+                        return null;
+                    }
+                }
+
+                CustomerReviewAiResult finalResult = await TryPolishHeavyReviewAsync(snapshot, settings, initialResult, token, debugId) ?? initialResult;
+                finalResult.heavyMode = true;
+                CustomerReviewAiDebugLog.MarkParsed(debugId, finalResult, raw);
+                return finalResult;
+            }
+            catch (Exception ex)
+            {
+                CustomerReviewAiDebugLog.MarkFailed(debugId, SimTranslation.T("RSMF.CustomerReview.AiError.RequestException", StringEncodingUtility.SanitizeUtf16(ex.Message).Named("message")));
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 构造独立评价请求，负责绕开滚动对话策略并只发送本次快照资料。
+        /// </summary>
+        private static CustomerReviewDialogueRequest BuildIndependentReviewRequest(CustomerReviewSnapshot snapshot, SimManagementLibSettings settings, string dynamicPrompt)
+        {
+            string stablePromptPrefix = CustomerReviewPromptInjector.BuildStablePromptPrefix(settings);
+            string userPrompt = stablePromptPrefix + "\n\n" + dynamicPrompt;
+            return new CustomerReviewDialogueRequest
+            {
+                stablePromptPrefix = stablePromptPrefix,
+                dynamicPrompt = dynamicPrompt,
+                userPrompt = userPrompt,
+                useJsonResponseFormat = true,
+                messages = new System.Collections.Generic.List<CustomerReviewChatMessage>
+                {
+                    new CustomerReviewChatMessage
+                    {
+                        role = "user",
+                        content = userPrompt
+                    }
+                }
+            };
+        }
+
+        /// <summary>
+        /// 对重型评价初稿执行二次润色，负责在新的上下文中修复 JSON、星级和正文表达。
+        /// </summary>
+        private static async Task<CustomerReviewAiResult> TryPolishHeavyReviewAsync(CustomerReviewSnapshot snapshot, SimManagementLibSettings settings, CustomerReviewAiResult initialResult, CancellationToken token, int debugId)
+        {
+            string polishPrompt = BuildHeavyPolishPrompt(snapshot, initialResult);
+            CustomerReviewDialogueRequest polishRequest = new CustomerReviewDialogueRequest
+            {
+                systemPromptOverride = settings.reviewSystemPrompt,
+                useJsonResponseFormat = true,
+                dynamicPrompt = polishPrompt,
+                userPrompt = polishPrompt,
+                messages = new System.Collections.Generic.List<CustomerReviewChatMessage>
+                {
+                    new CustomerReviewChatMessage
+                    {
+                        role = "user",
+                        content = polishPrompt
+                    }
+                }
+            };
+            SanitizeDialogueRequest(polishRequest);
+            string raw = await CallProviderAsync(settings, polishRequest, token, debugId);
+            return CustomerReviewJsonUtility.TryParseReviewResult(raw, settings, out CustomerReviewAiResult polished) ? polished : null;
+        }
+
+        /// <summary>
+        /// 构造重型模式润色请求，负责把初稿和关键体验参数交给模型做格式修复。
+        /// </summary>
+        private static string BuildHeavyPolishPrompt(CustomerReviewSnapshot snapshot, CustomerReviewAiResult initialResult)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("请在全新上下文中润色并修复下面的顾客评价 JSON。只返回 JSON，不要解释。");
+            sb.AppendLine("必须包含字段 nickname、stars、reviewText、upvoteReviewId、downvoteReviewId、replyToReviewId、replyText、replyStance、tags。");
+            sb.AppendLine("规则: 保留真人论坛口吻；星级必须符合本次体验；reviewText 不超过 180 字；不要编造未提供的购买和服务。");
+            sb.AppendLine("店铺与体验参数:");
+            sb.AppendLine("店铺: " + (snapshot?.zoneLabel ?? ""));
+            sb.AppendLine("消费: " + (snapshot == null ? "" : snapshot.spentSilver.ToString("F0")));
+            sb.AppendLine("购买: " + (snapshot?.purchasedSummary ?? ""));
+            sb.AppendLine("服务: " + (snapshot?.serviceSummary ?? ""));
+            sb.AppendLine("环境: " + (snapshot?.shopEnvironmentSummary ?? ""));
+            sb.AppendLine("顾客: " + (snapshot?.kindDescription ?? "") + "；" + (snapshot?.moodSummary ?? "") + "；" + (snapshot?.healthSummary ?? ""));
+            sb.AppendLine("初稿 JSON:");
+            sb.Append("{\"nickname\":").Append(CustomerReviewJsonUtility.Quote(initialResult?.nickname))
+                .Append(",\"stars\":").Append(Math.Max(1, Math.Min(5, initialResult?.stars ?? 3)))
+                .Append(",\"reviewText\":").Append(CustomerReviewJsonUtility.Quote(initialResult?.reviewText))
+                .Append(",\"upvoteReviewId\":").Append(CustomerReviewJsonUtility.Quote(initialResult?.upvoteReviewId))
+                .Append(",\"downvoteReviewId\":").Append(CustomerReviewJsonUtility.Quote(initialResult?.downvoteReviewId))
+                .Append(",\"replyToReviewId\":").Append(CustomerReviewJsonUtility.Quote(initialResult?.replyToReviewId))
+                .Append(",\"replyText\":").Append(CustomerReviewJsonUtility.Quote(initialResult?.replyText))
+                .Append(",\"replyStance\":").Append(CustomerReviewJsonUtility.Quote(initialResult?.replyStance))
+                .Append(",\"tags\":[]}");
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// 根据玩家申诉生成顾客处理结果，负责决定坚持、修订或撤回重型评价。
+        /// </summary>
+        public static async Task<CustomerReviewNegotiationResult> GenerateNegotiationAsync(CustomerReviewRecord record, string playerText, SimManagementLibSettings settings, CancellationToken token)
+        {
+            SanitizeSettingsForRequest(settings);
+            if (record == null || settings == null || !settings.HasValidReviewAiConfig())
+                return null;
+
+            string userPrompt = CustomerReviewNegotiationUtility.BuildUserPrompt(record, playerText);
+            CustomerReviewDialogueRequest request = new CustomerReviewDialogueRequest
+            {
+                systemPromptOverride = CustomerReviewNegotiationUtility.BuildSystemPrompt(),
+                useJsonResponseFormat = true,
+                userPrompt = userPrompt,
+                dynamicPrompt = userPrompt,
+                messages = new System.Collections.Generic.List<CustomerReviewChatMessage>
+                {
+                    new CustomerReviewChatMessage
+                    {
+                        role = "user",
+                        content = userPrompt
+                    }
+                }
+            };
+            SanitizeDialogueRequest(request);
+
+            try
+            {
+                string raw = await CallProviderAsync(settings, request, token, 0);
+                return CustomerReviewJsonUtility.TryParseNegotiationResult(raw, settings, out CustomerReviewNegotiationResult result) ? result : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
         /// 按当前供应商发送请求，负责让首次生成和修正重试复用同一条调用路径。
         /// </summary>
         private static async Task<string> CallProviderAsync(SimManagementLibSettings settings, CustomerReviewDialogueRequest request, CancellationToken token, int debugId)
         {
-            if (settings.reviewProvider == CustomerReviewProvider.Anthropic)
+            if (settings.llmProvider == SimLlmProvider.Anthropic)
                 return await CallAnthropicAsync(settings, request, token, debugId);
 
             return await CallOpenAiCompatibleAsync(settings, request, token, debugId);
@@ -126,23 +281,64 @@ namespace SimManagementLib.Tool
         }
 
         /// <summary>
+        /// 使用当前 AI 连接配置生成一段短文本，负责给非点评功能复用同一套大模型供应商设置。
+        /// </summary>
+        public static async Task<string> GenerateShortTextAsync(string systemPrompt, string userPrompt, SimManagementLibSettings settings, CancellationToken token)
+        {
+            SanitizeSettingsForRequest(settings);
+            if (settings == null || !settings.HasValidLlmConfig())
+                return "";
+
+            CustomerReviewDialogueRequest request = new CustomerReviewDialogueRequest
+            {
+                systemPromptOverride = StringEncodingUtility.SanitizeUtf16(systemPrompt ?? ""),
+                useJsonResponseFormat = false,
+                userPrompt = StringEncodingUtility.SanitizeUtf16(userPrompt ?? ""),
+                dynamicPrompt = StringEncodingUtility.SanitizeUtf16(userPrompt ?? ""),
+                messages = new System.Collections.Generic.List<CustomerReviewChatMessage>
+                {
+                    new CustomerReviewChatMessage
+                    {
+                        role = "user",
+                        content = StringEncodingUtility.SanitizeUtf16(userPrompt ?? "")
+                    }
+                }
+            };
+
+            try
+            {
+                return StringEncodingUtility.SanitizeUtf16(await CallProviderAsync(settings, request, token, 0));
+            }
+            catch (OperationCanceledException)
+            {
+                return "";
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"[SimShop.AI] 短文本生成失败: {StringEncodingUtility.SanitizeUtf16(ex.Message)}");
+                return "";
+            }
+        }
+
+        /// <summary>
         /// 调用 OpenAI 兼容接口，负责在 JSON 输出约束不被网关支持时退化为普通 JSON 提示。
         /// </summary>
         private static async Task<string> CallOpenAiCompatibleAsync(SimManagementLibSettings settings, CustomerReviewDialogueRequest request, CancellationToken token, int debugId)
         {
-            string endpoint = NormalizeOpenAiUrl(settings.openAiBaseUrl);
-            string body = BuildOpenAiBody(settings, request, true);
+            string endpoint = NormalizeOpenAiUrl(settings.llmOpenAiBaseUrl);
+            bool useJsonResponseFormat = request?.useJsonResponseFormat != false;
+            string body = BuildOpenAiBody(settings, request, useJsonResponseFormat);
             CustomerReviewHttpResult response = await SendJsonPostAsync(
                 endpoint,
                 body,
                 token,
                 settings,
                 "Authorization",
-                "Bearer " + StringEncodingUtility.SanitizeUtf16(settings.openAiApiKey));
+                "Bearer " + StringEncodingUtility.SanitizeUtf16(settings.llmOpenAiApiKey));
             string responseText = response.responseText;
             string extracted = CustomerReviewJsonUtility.ExtractOpenAiMessageContent(responseText);
             CustomerReviewAiDebugLog.UpdateHttpAttempt(debugId, SimTranslation.T("RSMF.CustomerReview.HttpAttempt.OpenAiJsonObject"), endpoint, body, response.statusCode, response.success, responseText, extracted);
-            if (!response.success && ShouldRetryWithoutResponseFormat(responseText))
+            if (useJsonResponseFormat && !response.success && ShouldRetryWithoutResponseFormat(responseText))
             {
                 body = BuildOpenAiBody(settings, request, false);
                 response = await SendJsonPostAsync(
@@ -151,7 +347,7 @@ namespace SimManagementLib.Tool
                     token,
                     settings,
                     "Authorization",
-                    "Bearer " + StringEncodingUtility.SanitizeUtf16(settings.openAiApiKey));
+                    "Bearer " + StringEncodingUtility.SanitizeUtf16(settings.llmOpenAiApiKey));
                 responseText = response.responseText;
                 extracted = CustomerReviewJsonUtility.ExtractOpenAiMessageContent(responseText);
                 CustomerReviewAiDebugLog.UpdateHttpAttempt(debugId, SimTranslation.T("RSMF.CustomerReview.HttpAttempt.OpenAiNoResponseFormat"), endpoint, body, response.statusCode, response.success, responseText, extracted);
@@ -166,12 +362,15 @@ namespace SimManagementLib.Tool
         private static async Task<string> CallAnthropicAsync(SimManagementLibSettings settings, CustomerReviewDialogueRequest request, CancellationToken token, int debugId)
         {
             string endpoint = "https://api.anthropic.com/v1/messages";
+            string systemPrompt = !string.IsNullOrEmpty(request?.systemPromptOverride)
+                ? request.systemPromptOverride
+                : settings.reviewSystemPrompt;
             string body =
                 "{" +
-                "\"model\":" + CustomerReviewJsonUtility.Quote(settings.anthropicModel) + "," +
+                "\"model\":" + CustomerReviewJsonUtility.Quote(settings.llmAnthropicModel) + "," +
                 "\"max_tokens\":500," +
                 "\"temperature\":" + settings.reviewTemperature.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture) + "," +
-                "\"system\":" + CustomerReviewJsonUtility.Quote(settings.reviewSystemPrompt) + "," +
+                "\"system\":" + CustomerReviewJsonUtility.Quote(systemPrompt) + "," +
                 "\"messages\":" + BuildMessagesArray(request) +
                 "}";
 
@@ -181,7 +380,7 @@ namespace SimManagementLib.Tool
                 token,
                 settings,
                 "x-api-key",
-                StringEncodingUtility.SanitizeUtf16(settings.anthropicApiKey),
+                StringEncodingUtility.SanitizeUtf16(settings.llmAnthropicApiKey),
                 "anthropic-version",
                 "2023-06-01");
             string responseText = response.responseText;
@@ -205,9 +404,9 @@ namespace SimManagementLib.Tool
                 return result;
             }
 
-            string endpoint = settings.reviewProvider == CustomerReviewProvider.Anthropic
+            string endpoint = settings.llmProvider == SimLlmProvider.Anthropic
                 ? "https://api.anthropic.com/v1/messages"
-                : NormalizeOpenAiUrl(settings.openAiBaseUrl);
+                : NormalizeOpenAiUrl(settings.llmOpenAiBaseUrl);
             result.endpoint = StringEncodingUtility.SanitizeUtf16(endpoint);
 
             try
@@ -238,10 +437,13 @@ namespace SimManagementLib.Tool
         /// </summary>
         private static string BuildOpenAiBody(SimManagementLibSettings settings, CustomerReviewDialogueRequest request, bool withResponseFormat)
         {
+            string systemPrompt = !string.IsNullOrEmpty(request?.systemPromptOverride)
+                ? request.systemPromptOverride
+                : settings.reviewSystemPrompt;
             string body =
                 "{" +
-                "\"model\":" + CustomerReviewJsonUtility.Quote(settings.openAiModel) + "," +
-                "\"messages\":[{\"role\":\"system\",\"content\":" + CustomerReviewJsonUtility.Quote(settings.reviewSystemPrompt) + "}," + BuildMessagesArrayItems(request) + "]," +
+                "\"model\":" + CustomerReviewJsonUtility.Quote(settings.llmOpenAiModel) + "," +
+                "\"messages\":[{\"role\":\"system\",\"content\":" + CustomerReviewJsonUtility.Quote(systemPrompt) + "}," + BuildMessagesArrayItems(request) + "]," +
                 "\"temperature\":" + settings.reviewTemperature.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture) + "," +
                 "\"presence_penalty\":0.35," +
                 "\"frequency_penalty\":0.45";

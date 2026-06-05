@@ -101,6 +101,40 @@ namespace SimManagementLib.Tool
         }
 
         /// <summary>
+        /// 将玩家申诉后的模型返回文本解析为处理结果，负责只接受固定动作和可展示文本。
+        /// </summary>
+        public static bool TryParseNegotiationResult(string raw, SimManagementLibSettings settings, out CustomerReviewNegotiationResult result)
+        {
+            result = null;
+            string json = RepairJsonObject(raw);
+            if (string.IsNullOrEmpty(json)) return false;
+
+            string action = CleanText(ExtractString(json, "action"), 16).ToLowerInvariant();
+            string aiText = CleanText(ExtractString(json, "aiText"), 260);
+            string reviewText = CleanText(ExtractString(json, "reviewText"), 180);
+            int stars = ExtractInt(json, "stars");
+
+            if (action != "keep" && action != "revise" && action != "withdraw")
+                return false;
+            if (string.IsNullOrWhiteSpace(aiText))
+                return false;
+            if (action == "revise" && (stars <= 0 || string.IsNullOrWhiteSpace(reviewText)))
+                return false;
+
+            if (ContainsBannedWord(aiText, settings) || ContainsBannedWord(reviewText, settings))
+                return false;
+
+            result = new CustomerReviewNegotiationResult
+            {
+                action = action,
+                aiText = aiText,
+                stars = Math.Max(1, Math.Min(5, stars)),
+                reviewText = reviewText
+            };
+            return true;
+        }
+
+        /// <summary>
         /// 从 OpenAI Chat Completions 响应中提取助手消息内容。
         /// </summary>
         public static string ExtractOpenAiMessageContent(string responseJson)

@@ -69,11 +69,13 @@ namespace SimManagementLib.Tool
                 return false;
             }
 
-            settings.reviewProvider = CustomerReviewProvider.OpenAICompatible;
-            settings.openAiBaseUrl = endpoint;
-            settings.openAiApiKey = apiKey ?? "";
-            settings.openAiModel = model;
+            settings.llmProvider = SimLlmProvider.OpenAICompatible;
+            settings.llmOpenAiBaseUrl = endpoint;
+            settings.llmOpenAiApiKey = apiKey ?? "";
+            settings.llmOpenAiModel = model;
+            settings.llmEnabled = true;
             settings.reviewAiEnabled = true;
+            settings.SyncLegacyReviewAiConnectionFields();
             settings.Write();
 
             message = SimTranslation.T("RSMF.ReviewSettings.RimTalkImport.Success", provider.Named("provider"), model.Named("model"));

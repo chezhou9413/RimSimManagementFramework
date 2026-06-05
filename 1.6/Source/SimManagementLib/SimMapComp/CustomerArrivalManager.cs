@@ -21,6 +21,9 @@ namespace SimManagementLib.SimMapComp
     public class CustomerArrivalManager : MapComponent
     {
         private const int DefaultCheckInterval = 500;
+        private const int ReviewInfluenceMinCount = 3;
+        private const float ReviewInfluenceMinMultiplier = 0.70f;
+        private const float ReviewInfluenceMaxMultiplier = 1.30f;
 
         public CustomerArrivalManager(Map map) : base(map)
         {
@@ -227,8 +230,29 @@ namespace SimManagementLib.SimMapComp
                 Shop = shop,
                 CurrentCustomers = CountCustomersForShop(shop),
                 Capacity = analytics != null ? analytics.GetDynamicCustomerCapacity(shop) : CalculateShopCustomerCapacity(shop),
-                DemandFactor = analytics != null ? analytics.GetSpawnDemandFactor(shop, map) : 1f
+                DemandFactor = ApplyReviewDemandInfluence(shop, analytics != null ? analytics.GetSpawnDemandFactor(shop, map) : 1f)
             };
+        }
+
+        /// <summary>
+        /// 根据店铺评价调整刷客需求倍率，负责让玩家可选地把口碑反馈接入真实来客概率。
+        /// </summary>
+        private static float ApplyReviewDemandInfluence(Zone_Shop shop, float demandFactor)
+        {
+            if (shop == null || SimManagementLibMod.Settings?.reviewInfluencesCustomerSpawn != true)
+                return demandFactor;
+
+            GameComponent_CustomerReviewManager reviewManager = Current.Game?.GetComponent<GameComponent_CustomerReviewManager>();
+            if (reviewManager == null)
+                return demandFactor;
+
+            reviewManager.GetShopReviewStats(shop.ID, out float averageStars, out int count);
+            if (count < ReviewInfluenceMinCount || averageStars <= 0f)
+                return demandFactor;
+
+            float normalized = Mathf.InverseLerp(1f, 5f, averageStars);
+            float multiplier = Mathf.Lerp(ReviewInfluenceMinMultiplier, ReviewInfluenceMaxMultiplier, normalized);
+            return Mathf.Max(0.01f, demandFactor * multiplier);
         }
 
         private bool CanSpawnWave(CustomerArrivalShopContext context, RuntimeCustomerKind kind)

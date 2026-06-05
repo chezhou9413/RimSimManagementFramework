@@ -82,9 +82,9 @@ namespace SimManagementLib.SimDialog
             DrawBorder(rect, new Color(1f, 1f, 1f, 0.12f));
             int today = GenDate.DaysPassed;
             List<CustomerReviewRecord> allRecords = manager.Records?.Where(r => r != null).ToList() ?? new List<CustomerReviewRecord>();
-            int rootCount = CountRootReviews(allRecords);
+            int rootCount = CountRootReviews(allRecords.Where(r => !r.isWithdrawn));
             int replyCount = CountForumReplies(allRecords);
-            int todayCount = CountRootReviews(allRecords.Where(r => r.gameDay == today));
+            int todayCount = CountRootReviews(allRecords.Where(r => r.gameDay == today && !r.isWithdrawn));
             string[] titles =
             {
                 SimTranslation.T("RSMF.Business.Reviews.AverageStars"),
@@ -295,7 +295,8 @@ namespace SimManagementLib.SimDialog
                 float metaH = Mathf.Max(Text.LineHeight, Text.CalcHeight(BuildForumMeta(record), textWidth));
                 float replyH = includeOwnReply && !string.IsNullOrWhiteSpace(record.replyText) ? Mathf.Max(Text.LineHeight, Text.CalcHeight(record.replyText, Mathf.Max(220f, textWidth - 28f))) + 32f : 0f;
                 float attachmentH = record.featuredItems.NullOrEmpty() ? 0f : 46f;
-                return Mathf.Max(ReviewAvatarSize + 34f, 54f + reviewH + metaH + attachmentH + replyH + 22f);
+                float negotiationH = CalcReviewNegotiationHeight(record, textWidth);
+                return Mathf.Max(ReviewAvatarSize + 34f, 54f + reviewH + metaH + attachmentH + replyH + negotiationH + 22f);
             }
             finally
             {
@@ -357,9 +358,12 @@ namespace SimManagementLib.SimDialog
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.MiddleLeft;
             GUI.color = Color.white;
-            Widgets.Label(new Rect(row.x + ReviewTextLeftPadding, row.y + 8f, 240f, Mathf.Max(24f, Text.LineHeightOf(GameFont.Small) + 2f)), record.aiNickname.Truncate(220f));
+            string authorLabel = record.aiNickname;
+            if (record.isWithdrawn)
+                authorLabel += " · " + SimTranslation.TOrFallback("RSMF.Business.Reviews.WithdrawnShort", "已撤回");
+            Widgets.Label(new Rect(row.x + ReviewTextLeftPadding, row.y + 8f, 240f, Mathf.Max(24f, Text.LineHeightOf(GameFont.Small) + 2f)), authorLabel.Truncate(220f));
             GUI.color = new Color(0.95f, 0.78f, 0.20f, 1f);
-            Widgets.Label(new Rect(row.x + ReviewTextLeftPadding + 246f, row.y + 8f, 120f, Mathf.Max(24f, Text.LineHeightOf(GameFont.Small) + 2f)), BuildStars(record.stars));
+            Widgets.Label(new Rect(row.x + ReviewTextLeftPadding + 246f, row.y + 8f, 120f, Mathf.Max(24f, Text.LineHeightOf(GameFont.Small) + 2f)), record.isWithdrawn ? SimTranslation.TOrFallback("RSMF.Business.Reviews.WithdrawnStars", "撤回") : BuildStars(record.stars));
             GUI.color = CDim;
             Text.Font = GameFont.Tiny;
             Text.Anchor = TextAnchor.MiddleRight;
@@ -393,7 +397,10 @@ namespace SimManagementLib.SimDialog
             if (includeOwnReply && !string.IsNullOrWhiteSpace(record.replyText))
             {
                 DrawForumReply(new Rect(row.x + ReviewTextLeftPadding, y, textWidth, row.yMax - y - 8f), record);
+                y = row.yMax - 8f;
             }
+
+            DrawReviewNegotiationArea(new Rect(row.x + ReviewTextLeftPadding, y, textWidth, Mathf.Max(0f, row.yMax - y - 8f)), record);
             }
             finally
             {
@@ -402,6 +409,168 @@ namespace SimManagementLib.SimDialog
                 Text.WordWrap = oldWordWrap;
                 GUI.color = oldColor;
             }
+        }
+
+        /// <summary>
+        /// 计算玩家申诉区域高度，负责让评价卡片按按钮和历史记录动态增高。
+        /// </summary>
+        private float CalcReviewNegotiationHeight(CustomerReviewRecord record, float width)
+        {
+            if (record == null || (!record.isHeavyMode && record.negotiationTurns.NullOrEmpty()))
+                return 0f;
+
+            GameFont oldFont = Text.Font;
+            bool oldWordWrap = Text.WordWrap;
+            try
+            {
+                Text.Font = GameFont.Tiny;
+                Text.WordWrap = true;
+                float total = 32f;
+                if (record.isWithdrawn)
+                {
+                    string withdrawn = SimTranslation.TOrFallback("RSMF.Business.Reviews.Withdrawn", "已撤回：这条评价不再计入平均星级。");
+                    total += Mathf.Max(Text.LineHeight, Text.CalcHeight(withdrawn, width - 20f)) + 8f;
+                }
+
+                if (!record.negotiationTurns.NullOrEmpty())
+                {
+                    bool expandedHistory = IsReviewNegotiationHistoryExpanded(record.reviewId);
+                    int count = expandedHistory ? record.negotiationTurns.Count : 1;
+                    int start = Mathf.Max(0, record.negotiationTurns.Count - count);
+                    for (int i = start; i < record.negotiationTurns.Count; i++)
+                        total += CalcNegotiationTurnHeight(record.negotiationTurns[i], width - 20f) + 6f;
+                    total += 30f;
+                }
+
+                return total;
+            }
+            finally
+            {
+                Text.Font = oldFont;
+                Text.WordWrap = oldWordWrap;
+            }
+        }
+
+        /// <summary>
+        /// 计算单轮申诉历史高度，负责让店主和顾客文本完整显示。
+        /// </summary>
+        private static float CalcNegotiationTurnHeight(CustomerReviewNegotiationTurn turn, float width)
+        {
+            if (turn == null) return 0f;
+            GameFont oldFont = Text.Font;
+            bool oldWordWrap = Text.WordWrap;
+            try
+            {
+                Text.Font = GameFont.Tiny;
+                Text.WordWrap = true;
+                string title = BuildNegotiationTurnTitle(turn);
+                float titleH = Mathf.Max(Text.LineHeight, Text.CalcHeight(title, width));
+                string body = SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.PlayerLine", "店主：{text}").Replace("{text}", turn.playerText ?? "")
+                    + "\n" + SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.CustomerLine", "顾客：{text}").Replace("{text}", turn.aiText ?? "");
+                float bodyH = Mathf.Max(Text.LineHeight, Text.CalcHeight(body, width));
+                return titleH + bodyH + 18f;
+            }
+            finally
+            {
+                Text.Font = oldFont;
+                Text.WordWrap = oldWordWrap;
+            }
+        }
+
+        /// <summary>
+        /// 绘制玩家申诉区域，负责显示申诉入口、处理状态和历史记录。
+        /// </summary>
+        private void DrawReviewNegotiationArea(Rect rect, CustomerReviewRecord record)
+        {
+            if (rect.height <= 24f || record == null || (!record.isHeavyMode && record.negotiationTurns.NullOrEmpty()))
+                return;
+
+            GameComponent_CustomerReviewManager manager = Current.Game?.GetComponent<GameComponent_CustomerReviewManager>();
+            float y = rect.y;
+            Widgets.DrawBoxSolid(rect, new Color(0f, 0f, 0f, 0.14f));
+            DrawBorder(rect, new Color(1f, 1f, 1f, 0.07f));
+
+            if (record.isWithdrawn)
+            {
+                Text.Font = GameFont.Tiny;
+                Text.WordWrap = true;
+                GUI.color = new Color(1f, 0.66f, 0.38f, 1f);
+                string withdrawn = SimTranslation.TOrFallback("RSMF.Business.Reviews.Withdrawn", "已撤回：这条评价不再计入平均星级。");
+                float withdrawnH = Mathf.Max(Text.LineHeight, Text.CalcHeight(withdrawn, rect.width - 20f));
+                Widgets.Label(new Rect(rect.x + 10f, y, rect.width - 20f, withdrawnH), withdrawn);
+                y += withdrawnH + 8f;
+                ResetText();
+            }
+
+            if (!record.negotiationTurns.NullOrEmpty())
+                DrawNegotiationHistory(new Rect(rect.x + 8f, y, rect.width - 16f, Mathf.Max(0f, rect.yMax - y - 8f)), record, ref y);
+
+            if (!CanShowNegotiationInput(record))
+                return;
+
+            bool pending = manager != null && manager.IsNegotiationInFlight(record.reviewId);
+            Rect buttonRect = new Rect(rect.x + 8f, y, 96f, Mathf.Max(26f, Text.LineHeightOf(GameFont.Tiny) + 8f));
+            if (SimUiStyle.DrawSecondaryButton(buttonRect, SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.Reply", "申诉"), !pending, GameFont.Tiny))
+                Find.WindowStack.Add(new Dialog_CustomerReviewNegotiation(record.reviewId, record.aiNickname, record.reviewText));
+
+            if (pending)
+            {
+                Text.Font = GameFont.Tiny;
+                GUI.color = CDim;
+                Widgets.Label(new Rect(buttonRect.xMax + 8f, buttonRect.y, rect.width - buttonRect.width - 24f, buttonRect.height), SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.Pending", "等待顾客回复申诉。"));
+                ResetText();
+            }
+        }
+
+        /// <summary>
+        /// 绘制申诉历史，负责默认只显示最近一轮并允许展开全部历史。
+        /// </summary>
+        private void DrawNegotiationHistory(Rect rect, CustomerReviewRecord record, ref float y)
+        {
+            if (record?.negotiationTurns == null || record.negotiationTurns.Count == 0)
+                return;
+
+            bool expanded = IsReviewNegotiationHistoryExpanded(record.reviewId);
+            Rect toggleRect = new Rect(rect.x, y, 138f, Mathf.Max(26f, Text.LineHeightOf(GameFont.Tiny) + 8f));
+            string label = expanded
+                ? SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.CollapseHistory", "收起申诉记录")
+                : SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.ExpandHistory", "申诉记录({count})").Replace("{count}", record.negotiationTurns.Count.ToString());
+            if (SimUiStyle.DrawSecondaryButton(toggleRect, label, true, GameFont.Tiny))
+                ToggleReviewNegotiationHistory(record.reviewId);
+
+            y = toggleRect.yMax + 4f;
+            int count = expanded ? record.negotiationTurns.Count : 1;
+            int start = Mathf.Max(0, record.negotiationTurns.Count - count);
+            for (int i = start; i < record.negotiationTurns.Count; i++)
+            {
+                CustomerReviewNegotiationTurn turn = record.negotiationTurns[i];
+                float h = CalcNegotiationTurnHeight(turn, rect.width - 20f);
+                DrawNegotiationTurn(new Rect(rect.x, y, rect.width, h), turn);
+                y += h + 6f;
+            }
+        }
+
+        /// <summary>
+        /// 绘制单轮申诉历史，负责展示店主申诉、顾客回应和评价处理动作。
+        /// </summary>
+        private void DrawNegotiationTurn(Rect rect, CustomerReviewNegotiationTurn turn)
+        {
+            if (turn == null || rect.height <= 18f)
+                return;
+
+            Widgets.DrawBoxSolid(rect, new Color(0f, 0f, 0f, 0.18f));
+            DrawBorder(rect, new Color(1f, 1f, 1f, 0.07f));
+            Text.WordWrap = true;
+            Text.Font = GameFont.Tiny;
+            GUI.color = CDim;
+            string title = BuildNegotiationTurnTitle(turn);
+            float titleH = Mathf.Max(Text.LineHeight, Text.CalcHeight(title, rect.width - 20f));
+            Widgets.Label(new Rect(rect.x + 10f, rect.y + 6f, rect.width - 20f, titleH), title);
+            GUI.color = Color.white;
+            string body = SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.PlayerLine", "店主：{text}").Replace("{text}", turn.playerText ?? "")
+                + "\n" + SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.CustomerLine", "顾客：{text}").Replace("{text}", turn.aiText ?? "");
+            Widgets.Label(new Rect(rect.x + 10f, rect.y + 8f + titleH, rect.width - 20f, Mathf.Max(Text.LineHeight, rect.yMax - rect.y - titleH - 14f)), body);
+            ResetText();
         }
 
         /// <summary>
@@ -664,6 +833,49 @@ namespace SimManagementLib.SimDialog
                 expandedReviewReplyIds.Remove(reviewId);
             else
                 expandedReviewReplyIds.Add(reviewId);
+        }
+
+        /// <summary>
+        /// 判断申诉历史是否展开，负责默认只显示最近一轮历史。
+        /// </summary>
+        private bool IsReviewNegotiationHistoryExpanded(string reviewId)
+        {
+            return !string.IsNullOrEmpty(reviewId) && expandedReviewNegotiationHistoryIds.Contains(reviewId);
+        }
+
+        /// <summary>
+        /// 切换申诉历史展开状态，负责控制无限轮数历史在界面中的占用高度。
+        /// </summary>
+        private void ToggleReviewNegotiationHistory(string reviewId)
+        {
+            if (string.IsNullOrEmpty(reviewId)) return;
+            if (expandedReviewNegotiationHistoryIds.Contains(reviewId))
+                expandedReviewNegotiationHistoryIds.Remove(reviewId);
+            else
+                expandedReviewNegotiationHistoryIds.Add(reviewId);
+        }
+
+        /// <summary>
+        /// 判断评价是否可以显示玩家申诉入口，负责限制入口只出现在可申诉主评上。
+        /// </summary>
+        private static bool CanShowNegotiationInput(CustomerReviewRecord record)
+        {
+            return record != null
+                && record.isHeavyMode
+                && !record.isWithdrawn
+                && string.IsNullOrWhiteSpace(record.replyToReviewId);
+        }
+
+        /// <summary>
+        /// 构造申诉历史标题，负责展示顾客本轮处理动作和星级变化。
+        /// </summary>
+        private static string BuildNegotiationTurnTitle(CustomerReviewNegotiationTurn turn)
+        {
+            string actionLabel = SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.Action." + (turn?.action ?? "keep"), turn?.action ?? "keep");
+            string stars = turn == null ? "" : turn.oldStars + "★ -> " + turn.newStars + "★";
+            return SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.TurnTitle", "申诉结果：{action} · {stars}")
+                .Replace("{action}", actionLabel)
+                .Replace("{stars}", stars);
         }
 
         /// <summary>

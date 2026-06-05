@@ -12,13 +12,13 @@
   <RSMF.Settings.FinanceAndLogs>财务与日志</RSMF.Settings.FinanceAndLogs>
   <RSMF.Settings.MaxFinanceBillRecords>财务日志最大保留条数: {count}</RSMF.Settings.MaxFinanceBillRecords>
   <RSMF.Settings.FinanceLogPageSize>统计面板每页条数: {count}</RSMF.Settings.FinanceLogPageSize>
-  <RSMF.Settings.CustomerReviews>顾客评价</RSMF.Settings.CustomerReviews>
+  <RSMF.Settings.CustomerReviews>LLM 设置</RSMF.Settings.CustomerReviews>
   <RSMF.Settings.EnableCustomerReviews>启用顾客评价</RSMF.Settings.EnableCustomerReviews>
   <RSMF.Settings.EnableCustomerReviewsTip>只有配置有效接口后才会在顾客离店时按抽样率生成点评。</RSMF.Settings.EnableCustomerReviewsTip>
   <RSMF.Settings.ReviewStateValid>配置有效</RSMF.Settings.ReviewStateValid>
-  <RSMF.Settings.ReviewStateInvalid>未配置或未启用</RSMF.Settings.ReviewStateInvalid>
-  <RSMF.Settings.ReviewStatusLine>当前状态: {state}   抽样率: {sampleRate}%   限速: {rpm}/分钟   超时: {timeout}秒   对话预算: {chars} 字符</RSMF.Settings.ReviewStatusLine>
-  <RSMF.Settings.OpenCustomerReviewSettings>打开顾客评价配置</RSMF.Settings.OpenCustomerReviewSettings>
+  <RSMF.Settings.ReviewStateInvalid>LLM 未配置或未启用</RSMF.Settings.ReviewStateInvalid>
+  <RSMF.Settings.ReviewStatusLine>LLM 状态: {state}   评价抽样率: {sampleRate}%   限速: {rpm}/分钟   超时: {timeout}秒   对话预算: {chars} 字符</RSMF.Settings.ReviewStatusLine>
+  <RSMF.Settings.OpenCustomerReviewSettings>打开 LLM 设置</RSMF.Settings.OpenCustomerReviewSettings>
   <RSMF.Settings.OpenCustomGoodsRegistry>打开自定义商品注册面板</RSMF.Settings.OpenCustomGoodsRegistry>
   <RSMF.Settings.OpenCustomCustomerRegistry>打开自定义顾客注册面板</RSMF.Settings.OpenCustomCustomerRegistry>
   <RSMF.Settings.ResetDefaults>恢复默认设置</RSMF.Settings.ResetDefaults>
