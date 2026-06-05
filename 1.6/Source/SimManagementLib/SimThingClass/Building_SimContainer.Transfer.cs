@@ -66,14 +66,16 @@ namespace SimManagementLib.SimThingClass
 
             if (canStore >= carried.stackCount)
             {
-                virtualStorage.TryAddOrTransfer(carried, carried.stackCount);
+                // 带组件状态的特殊物品不能只按 Def 合并，否则出库拆栈时可能丢失单件状态。
+                virtualStorage.TryAddOrTransfer(carried, carried.stackCount, canMergeWithExistingStacks: false);
                 MarkStoredCountCacheDirty();
                 RefreshProgressStageGraphic();
                 return canStore;
             }
 
             Thing part = carried.SplitOff(canStore);
-            virtualStorage.TryAddOrTransfer(part, part.stackCount);
+            // 保留入库物品的独立 Thing 实例，避免特殊食品、容器或带 Comp 数据的物品被错误并栈。
+            virtualStorage.TryAddOrTransfer(part, part.stackCount, canMergeWithExistingStacks: false);
             MarkStoredCountCacheDirty();
 
             if (pawn.carryTracker?.CarriedThing != null && pawn.Spawned && pawn.MapHeld != null)
@@ -98,14 +100,16 @@ namespace SimManagementLib.SimThingClass
             if (canStore >= thing.stackCount)
             {
                 int all = thing.stackCount;
-                virtualStorage.TryAddOrTransfer(thing, thing.stackCount);
+                // 退回物品同样不并栈，保证取出失败回滚和特殊物品状态一致。
+                virtualStorage.TryAddOrTransfer(thing, thing.stackCount, canMergeWithExistingStacks: false);
                 MarkStoredCountCacheDirty();
                 RefreshProgressStageGraphic();
                 return all;
             }
 
             Thing part = thing.SplitOff(canStore);
-            virtualStorage.TryAddOrTransfer(part, part.stackCount);
+            // 部分退回时保留拆出的真实 Thing，避免与已有特殊栈混合。
+            virtualStorage.TryAddOrTransfer(part, part.stackCount, canMergeWithExistingStacks: false);
             MarkStoredCountCacheDirty();
             RefreshProgressStageGraphic();
             return canStore;
@@ -231,12 +235,23 @@ namespace SimManagementLib.SimThingClass
 
             int actual = System.Math.Min(currentExcess, System.Math.Min(count, stored.stackCount));
             if (actual <= 0) return null;
-            virtualStorage.TryDrop(stored, dropLoc, Map, ThingPlaceMode.Near, actual, out Thing result);
-            if (result != null)
+            Thing result = virtualStorage.Take(stored, actual);
+            if (result == null)
+                return null;
+
+            if (!GenPlace.TryPlaceThing(result, dropLoc, Map, ThingPlaceMode.Near))
             {
+                // 放置失败时把真实 Thing 放回虚拟库存，避免下架失败直接吞物品。
+                virtualStorage.TryAdd(result, canMergeWithExistingStacks: false);
                 MarkStoredCountCacheDirty();
+                ReconcilePendingReservations();
                 RefreshProgressStageGraphic();
+                return null;
             }
+
+            MarkStoredCountCacheDirty();
+            ReconcilePendingReservations();
+            RefreshProgressStageGraphic();
             return result;
         }
 

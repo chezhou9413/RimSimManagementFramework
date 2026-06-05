@@ -169,7 +169,6 @@ namespace SimManagementLib.SimWorkGiver
                 Building_SimContainer storage = buildings[i] as Building_SimContainer;
                 if (storage == null || storage.Destroyed || !storage.Spawned) continue;
                 if (!IsAllowedByBusinessState(storage)) continue;
-                if (!HasAnyRestockNeed(storage)) continue;
                 cache.allCandidates.Add(storage);
             }
 
@@ -188,7 +187,7 @@ namespace SimManagementLib.SimWorkGiver
         private static readonly List<Thing> EmptyThingList = new List<Thing>(0);
 
         /// <summary>
-        /// 判断货柜是否存在任何补货缺口，负责在候选刷新阶段提前排除空转货柜。
+        /// 判断货柜是否存在任何补货缺口，负责保留调试和未来批量预筛选入口。
         /// </summary>
         private static bool HasAnyRestockNeed(Building_SimContainer storage)
         {
@@ -301,8 +300,8 @@ namespace SimManagementLib.SimWorkGiver
         {
             if (t == null || !t.Spawned) return true;
 
-            // 普通仓库区的物品允许补货使用；建筑作为 SlotGroup 父级时，通常表示冷柜、展示柜或槽位存储正在持有该物品。
-            return t.GetSlotGroup()?.parent is Thing;
+            // 普通置物架、冷柜和仓库区上的物品可以作为货源，只排除本框架货柜，避免货柜之间互相抽库存。
+            return t.GetSlotGroup()?.parent is Building_SimContainer;
         }
     }
 }
