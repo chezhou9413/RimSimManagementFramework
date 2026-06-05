@@ -8,25 +8,22 @@ namespace SimManagementLib.SimThingClass
     /// </summary>
     public class Building_CashRegister : Building
     {
-        private int storedSilverLegacy;
-        private int pendingWithdrawSilverLegacy;
-
         private ThingComp_CashStorage CashStorage => this.GetComp<ThingComp_CashStorage>();
 
         /// <summary>
         /// 返回收银台内部已经收取但尚未取出的白银数量。
         /// </summary>
-        public int StoredSilver => CashStorage?.StoredSilver ?? storedSilverLegacy;
+        public int StoredSilver => CashStorage?.StoredSilver ?? 0;
 
         /// <summary>
         /// 返回已经被搬运工作预约但尚未实际取出的白银数量。
         /// </summary>
-        public int PendingWithdrawSilver => CashStorage?.PendingWithdrawSilver ?? pendingWithdrawSilverLegacy;
+        public int PendingWithdrawSilver => CashStorage?.PendingWithdrawSilver ?? 0;
 
         /// <summary>
         /// 返回当前还可以被新工作预约取出的白银数量。
         /// </summary>
-        public int AvailableForWithdraw => CashStorage?.AvailableForWithdraw ?? System.Math.Max(0, storedSilverLegacy - pendingWithdrawSilverLegacy);
+        public int AvailableForWithdraw => CashStorage?.AvailableForWithdraw ?? 0;
 
         /// <summary>
         /// 获取当前正在这个收银台工作的殖民者。
@@ -84,23 +81,6 @@ namespace SimManagementLib.SimThingClass
         public int WithdrawReservedSilver(int reservedCount)
         {
             return CashStorage?.WithdrawReservedSilver(reservedCount) ?? 0;
-        }
-
-        /// <summary>
-        /// 保存旧字段并在读档后把旧现金迁入现金库存组件。
-        /// </summary>
-        public override void ExposeData()
-        {
-            base.ExposeData();
-            Scribe_Values.Look(ref storedSilverLegacy, "storedSilver", 0);
-            Scribe_Values.Look(ref pendingWithdrawSilverLegacy, "pendingWithdrawSilver", 0);
-
-            if (Scribe.mode == LoadSaveMode.PostLoadInit && storedSilverLegacy > 0)
-            {
-                CashStorage?.DepositSilver(storedSilverLegacy);
-                storedSilverLegacy = 0;
-                pendingWithdrawSilverLegacy = 0;
-            }
         }
     }
 }
