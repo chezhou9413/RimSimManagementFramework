@@ -162,7 +162,7 @@
         <canRefresh>true</canRefresh>
         <refreshChance>1</refreshChance>
         <labelOverride>支票</labelOverride>
-        <descriptionOverride>面值为1000银的支票，在普通人眼里与废纸无异，但却能在银行里兑换1000银</descriptionOverride>
+        <descriptionOverride>面值为1,000银的支票，在普通人眼里与废纸无异，但却能在银行里兑换1,000银</descriptionOverride>
       </li>
       <li>
         <id>item_cheque_02</id>
@@ -174,7 +174,7 @@
         <canRefresh>true</canRefresh>
         <refreshChance>1</refreshChance>
         <labelOverride>支票</labelOverride>
-        <descriptionOverride>面值为10000银的支票，在普通人眼里与废纸无异，但却能在银行里兑换10000银</descriptionOverride>
+        <descriptionOverride>面值为10,000银的支票，在普通人眼里与废纸无异，但却能在银行里兑换10,000银</descriptionOverride>
       </li>
       <li>
         <id>item_cheque_03</id>
@@ -186,7 +186,7 @@
         <canRefresh>true</canRefresh>
         <refreshChance>1</refreshChance>
         <labelOverride>支票</labelOverride>
-        <descriptionOverride>面值为100000银的支票，在普通人眼里与废纸无异，但却能在银行里兑换100000银</descriptionOverride>
+        <descriptionOverride>面值为100,000银的支票，在普通人眼里与废纸无异，但却能在银行里兑换100,000银</descriptionOverride>
       </li>
       <li>
         <id>item_cheque_04</id>
@@ -198,7 +198,7 @@
         <canRefresh>true</canRefresh>
         <refreshChance>0</refreshChance>
         <labelOverride>支票</labelOverride>
-        <descriptionOverride>一张面值为1000000银的支票，据说在整个边缘世界，也仅有2张流通</descriptionOverride>
+        <descriptionOverride>一张面值为1,000,000银的支票，据说在整个边缘世界，也仅有2张流通</descriptionOverride>
       </li>
       <li>
         <id>item_silver_01</id>
