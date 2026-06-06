@@ -35,4 +35,16 @@
     <workshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3737464034</workshopUrl>
     <previewImageUrl>https://images.steamusercontent.com/ugc/15080978195341314381/8893B033CC0F20FB45CA182EEF8270866CAD4A14/</previewImageUrl>
   </SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+
+  <SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+    <defName>RSMF_ExtensionRecommendation_Takeout</defName>
+    <label>RSMF takeout extension</label>
+    <description>Compatibility extension for takeout-themed business content.</description>
+    <labelKey>RSMF.Business.Extensions.Item.Takeout.Label</labelKey>
+    <descriptionKey>RSMF.Business.Extensions.Item.Takeout.Description</descriptionKey>
+    <order>250</order>
+    <publishedFileId>3738454505</publishedFileId>
+    <workshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3738454505</workshopUrl>
+    <previewImageUrl>https://images.steamusercontent.com/ugc/15080978195341314381/8893B033CC0F20FB45CA182EEF8270866CAD4A14/</previewImageUrl>
+  </SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
 </Defs>

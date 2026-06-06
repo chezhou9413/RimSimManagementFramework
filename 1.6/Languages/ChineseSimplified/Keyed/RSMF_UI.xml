@@ -1076,6 +1076,8 @@
   <RSMF.Business.Extensions.Item.Milira.Description>为米莉拉相关顾客、特色商店和米莉安店员内容提供经商管理兼容入口。</RSMF.Business.Extensions.Item.Milira.Description>
   <RSMF.Business.Extensions.Item.Woffen.Label>RSMF：沃芬扩展</RSMF.Business.Extensions.Item.Woffen.Label>
   <RSMF.Business.Extensions.Item.Woffen.Description>为沃芬主题经营内容提供经商管理兼容入口。</RSMF.Business.Extensions.Item.Woffen.Description>
+  <RSMF.Business.Extensions.Item.Takeout.Label>RSMF：外卖扩展</RSMF.Business.Extensions.Item.Takeout.Label>
+  <RSMF.Business.Extensions.Item.Takeout.Description>模拟经营外卖主体拓展。</RSMF.Business.Extensions.Item.Takeout.Description>
   <RSMF.ShopUi.Page.Shop.Overview.Label>概览</RSMF.ShopUi.Page.Shop.Overview.Label>
   <RSMF.ShopUi.Page.Shop.Overview.Description>单店铺管理窗口的概览页。</RSMF.ShopUi.Page.Shop.Overview.Description>
   <RSMF.ShopUi.Page.Shop.BusinessHours.Label>营业时间</RSMF.ShopUi.Page.Shop.BusinessHours.Label>
