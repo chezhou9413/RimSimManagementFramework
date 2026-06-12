@@ -101,7 +101,7 @@ namespace SimManagementLib.SimAI
             foreach (Building_SimContainer storage in ShopDataUtility.GetStoragesInZone(shopZone))
             {
                 if (!StorageHasAffordableContent(storage, pawn, lordJob, remainingBudget, affordableCombos)) continue;
-                if (!pawn.CanReach(storage, PathEndMode.Touch, Danger.Deadly)) continue;
+                if (!CustomerSafetyUtility.CanCustomerReach(pawn, storage, PathEndMode.Touch, Danger.Deadly)) continue;
 
                 fallbackSeen++;
                 if (Rand.RangeInclusive(1, fallbackSeen) == 1)
@@ -216,7 +216,7 @@ namespace SimManagementLib.SimAI
             foreach (Building_SimContainer storage in ShopDataUtility.GetStoragesInZone(shopZone))
             {
                 if (storage == null || storage.Destroyed || !storage.Spawned) continue;
-                if (!pawn.CanReach(storage, PathEndMode.Touch, Danger.Deadly)) continue;
+                if (!CustomerSafetyUtility.CanCustomerReach(pawn, storage, PathEndMode.Touch, Danger.Deadly)) continue;
 
                 fallbackSeen++;
                 if (Rand.RangeInclusive(1, fallbackSeen) == 1)
@@ -242,7 +242,7 @@ namespace SimManagementLib.SimAI
             foreach (IntVec3 cell in shopZone.Cells)
             {
                 if (!cell.IsValid || !cell.Standable(pawn.Map)) continue;
-                if (!pawn.CanReach(cell, PathEndMode.OnCell, Danger.Deadly)) continue;
+                if (!CustomerSafetyUtility.CanCustomerReach(pawn, cell, PathEndMode.OnCell, Danger.Deadly)) continue;
 
                 seen++;
                 if (Rand.RangeInclusive(1, seen) == 1)

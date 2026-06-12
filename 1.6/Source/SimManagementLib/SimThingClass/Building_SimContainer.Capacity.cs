@@ -291,6 +291,18 @@ namespace SimManagementLib.SimThingClass
             return UnityEngine.Mathf.Max(0, item.count);
         }
 
+        //返回指定商品触发自动补货的库存阈值。
+        public int GetRestockThreshold(ThingDef thingDef)
+        {
+            ThingComp_GoodsData comp = GoodsComp;
+            if (comp == null || string.IsNullOrEmpty(comp.ActiveGoodsDefName)) return 0;
+            if (!comp.AllowsGoodsCategory(comp.ActiveGoodsDefName)) return 0;
+            if (!GoodsCatalog.Contains(comp.ActiveGoodsDefName, thingDef)) return 0;
+            GoodsItemData item = comp.FindItemData(thingDef);
+            if (item == null || !item.enabled) return 0;
+            return item.EffectiveRestockThreshold;
+        }
+
         /// <summary>
         /// 返回指定商品的实际库存数量。
         /// </summary>
@@ -358,7 +370,10 @@ namespace SimManagementLib.SimThingClass
         /// </summary>
         private int CountNeededRaw(ThingDef thingDef)
         {
-            int perDefNeed = System.Math.Max(0, GetTargetCount(thingDef) - CountStored(thingDef) - CountPendingRaw(thingDef));
+            int storedAndPending = CountStored(thingDef) + CountPendingRaw(thingDef);
+            if (storedAndPending > GetRestockThreshold(thingDef)) return 0;
+
+            int perDefNeed = System.Math.Max(0, GetTargetCount(thingDef) - storedAndPending);
             if (perDefNeed <= 0) return 0;
 
             int capacityRemain = MaxTotalCapacity - CountTotalStored() - CountTotalPendingInRaw();
@@ -372,7 +387,10 @@ namespace SimManagementLib.SimThingClass
         /// </summary>
         public int CountNeeded(ThingDef thingDef)
         {
-            int perDefNeed = System.Math.Max(0, GetTargetCount(thingDef) - CountStored(thingDef) - CountPending(thingDef));
+            int storedAndPending = CountStored(thingDef) + CountPending(thingDef);
+            if (storedAndPending > GetRestockThreshold(thingDef)) return 0;
+
+            int perDefNeed = System.Math.Max(0, GetTargetCount(thingDef) - storedAndPending);
             if (perDefNeed <= 0) return 0;
 
             int capacityRemain = GetRemainingCapacityForPending();
@@ -447,6 +465,7 @@ namespace SimManagementLib.SimThingClass
                 {
                     data.enabled = false;
                     data.count = 0;
+                    data.restockThreshold = 0;
                     continue;
                 }
 
@@ -456,6 +475,7 @@ namespace SimManagementLib.SimThingClass
                     trimmedCount += data.count;
                     data.enabled = false;
                     data.count = 0;
+                    data.restockThreshold = 0;
                     continue;
                 }
 
@@ -465,6 +485,7 @@ namespace SimManagementLib.SimThingClass
                     data.count = allow;
                 }
 
+                data.restockThreshold = GoodsItemData.NormalizeRestockThreshold(data.restockThreshold, data.count);
                 used += data.count;
             }
 
@@ -486,7 +507,8 @@ namespace SimManagementLib.SimThingClass
                 {
                     enabled = item?.enabled ?? false,
                     count = UnityEngine.Mathf.Max(0, item?.count ?? 0),
-                    price = UnityEngine.Mathf.Max(0f, item?.price ?? 0f)
+                    price = UnityEngine.Mathf.Max(0f, item?.price ?? 0f),
+                    restockThreshold = GoodsItemData.NormalizeRestockThreshold(item?.restockThreshold ?? -1, UnityEngine.Mathf.Max(0, item?.count ?? 0))
                 };
             }
 

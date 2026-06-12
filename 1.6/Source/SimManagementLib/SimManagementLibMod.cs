@@ -29,6 +29,7 @@ namespace SimManagementLib
         public bool showExtensionRecommendationPage = true;
         public List<string> businessManagerPageOrder = new List<string>();
         public List<string> businessManagerHiddenPages = new List<string>();
+        public List<AnnouncementReadRecord> announcementReadRecords = new List<AnnouncementReadRecord>();
         public bool llmEnabled;
         public SimLlmProvider llmProvider = SimLlmProvider.OpenAICompatible;
         public string llmOpenAiBaseUrl = "https://api.openai.com/v1";
@@ -86,6 +87,7 @@ namespace SimManagementLib
             Scribe_Values.Look(ref showExtensionRecommendationPage, "showExtensionRecommendationPage", true);
             Scribe_Collections.Look(ref businessManagerPageOrder, "businessManagerPageOrder", LookMode.Value);
             Scribe_Collections.Look(ref businessManagerHiddenPages, "businessManagerHiddenPages", LookMode.Value);
+            Scribe_Collections.Look(ref announcementReadRecords, "announcementReadRecords", LookMode.Deep);
             Scribe_Values.Look(ref llmEnabled, "llmEnabled", false);
             Scribe_Values.Look(ref llmProvider, "llmProvider", SimLlmProvider.OpenAICompatible);
             Scribe_Values.Look(ref llmOpenAiBaseUrl, "llmOpenAiBaseUrl", "https://api.openai.com/v1");
@@ -141,6 +143,7 @@ namespace SimManagementLib
             if (debugForcedCustomerKindId == null)
                 debugForcedCustomerKindId = "";
             NormalizeBusinessManagerPageSettings();
+            AnnouncementClientState.NormalizeHistory(this);
             NormalizeLlmSettingsText();
             MigrateLegacyReviewAiConnectionSettings();
             SyncLegacyReviewAiConnectionFields();

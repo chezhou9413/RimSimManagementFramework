@@ -123,7 +123,7 @@ namespace SimManagementLib.SimService
                 failReason = SimTranslation.T("RSMF.ShopService.Fail.UseCellNotStandable");
                 return false;
             }
-            if (!customer.CanReach(cell, PathEndMode.OnCell, Danger.Deadly))
+            if (!CustomerSafetyUtility.CanCustomerReach(customer, cell, PathEndMode.OnCell, Danger.Deadly))
             {
                 failReason = SimTranslation.T("RSMF.ShopService.Fail.CustomerCannotReach");
                 return false;

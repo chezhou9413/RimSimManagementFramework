@@ -33,6 +33,24 @@ namespace SimManagementLib.SimAI
             return cartState.GetCartItems(pawnId);
         }
 
+        // 记录已经交付到顾客身上的购买物，负责在紧急离店时丢弃商品。
+        public void RecordDeliveredItems(int pawnId, List<CustomerCartItem> items)
+        {
+            cartState.RecordDeliveredItems(pawnId, items);
+        }
+
+        // 返回指定顾客已交付购买物记录。
+        public List<CustomerCartItem> GetDeliveredItems(int pawnId)
+        {
+            return cartState.GetDeliveredItems(pawnId);
+        }
+
+        // 清除指定顾客已交付购买物记录。
+        public void ClearDeliveredItems(int pawnId)
+        {
+            cartState.ClearDeliveredItems(pawnId);
+        }
+
         /// <summary>
         /// 查找指定编号的活跃顾客，负责让业务代码不直接遍历 Lord 成员列表。
         /// </summary>

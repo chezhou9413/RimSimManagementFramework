@@ -1,4 +1,5 @@
 using SimManagementLib.SimZone;
+using SimManagementLib.Tool;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -86,7 +87,7 @@ namespace SimManagementLib.SimDef
 
                 if (seatCell.InBounds(customer.Map)
                     && seatCell.Standable(customer.Map)
-                    && customer.CanReach(seatCell, PathEndMode.OnCell, Danger.Deadly))
+                    && CustomerSafetyUtility.CanCustomerReach(customer, seatCell, PathEndMode.OnCell, Danger.Deadly))
                 {
                     seatTarget = seatCell;
                 }
@@ -120,7 +121,7 @@ namespace SimManagementLib.SimDef
                         continue;
                     if (!predicate(building.def))
                         continue;
-                    if (!customer.CanReach(building, PathEndMode.Touch, Danger.Deadly))
+                    if (!CustomerSafetyUtility.CanCustomerReach(customer, building, PathEndMode.Touch, Danger.Deadly))
                         continue;
 
                     float dist = (building.Position - customer.Position).LengthHorizontalSquared;
@@ -153,7 +154,7 @@ namespace SimManagementLib.SimDef
                     continue;
                 if (!cell.Standable(customer.Map))
                     continue;
-                if (!customer.CanReach(cell, PathEndMode.OnCell, Danger.Deadly))
+                if (!CustomerSafetyUtility.CanCustomerReach(customer, cell, PathEndMode.OnCell, Danger.Deadly))
                     continue;
 
                 result = cell;

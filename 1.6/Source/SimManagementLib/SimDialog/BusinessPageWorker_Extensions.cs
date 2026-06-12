@@ -38,10 +38,7 @@ namespace SimManagementLib.SimDialog
         public override void DrawBusinessPage(Rect rect, BusinessManagerUiContext context)
         {
             PollRemotePreviewTasks();
-            List<BusinessExtensionRecommendationDef> rows = DefDatabase<BusinessExtensionRecommendationDef>.AllDefsListForReading
-                .OrderBy(def => def.order)
-                .ThenBy(def => def.defName)
-                .ToList();
+            List<IBusinessExtensionRecommendation> rows = BusinessExtensionRecommendationSource.GetRows();
 
             Rect headerRect = new Rect(rect.x, rect.y, rect.width, HeaderHeight);
             DrawHeader(headerRect, rows);
@@ -86,7 +83,7 @@ namespace SimManagementLib.SimDialog
         /// <summary>
         /// 绘制推荐页顶部摘要。
         /// </summary>
-        private static void DrawHeader(Rect rect, List<BusinessExtensionRecommendationDef> rows)
+        private static void DrawHeader(Rect rect, List<IBusinessExtensionRecommendation> rows)
         {
             Widgets.DrawBoxSolid(rect, new Color(0f, 0f, 0f, 0.22f));
             SimUiStyle.DrawBorder(rect, new Color(1f, 1f, 1f, 0.12f));
@@ -113,15 +110,15 @@ namespace SimManagementLib.SimDialog
         /// <summary>
         /// 绘制一条推荐扩展。
         /// </summary>
-        private static void DrawRecommendationRow(Rect row, BusinessExtensionRecommendationDef def, int index)
+        private static void DrawRecommendationRow(Rect row, IBusinessExtensionRecommendation recommendation, int index)
         {
             Widgets.DrawBoxSolid(row, index % 2 == 0 ? new Color(1f, 1f, 1f, 0.03f) : new Color(0f, 0f, 0f, 0.08f));
             SimUiStyle.DrawBorder(row, new Color(1f, 1f, 1f, 0.10f));
 
             Rect previewRect = new Rect(row.x + 10f, row.y + 14f, PreviewSize, PreviewSize);
-            DrawPreview(previewRect, def);
+            DrawPreview(previewRect, recommendation);
 
-            BusinessExtensionRecommendationStatus status = BusinessExtensionRecommendationUtility.GetStatus(def);
+            BusinessExtensionRecommendationStatus status = BusinessExtensionRecommendationUtility.GetStatus(recommendation);
             float actionWidth = 134f;
             float textX = previewRect.xMax + 12f;
             float textWidth = Mathf.Max(160f, row.width - PreviewSize - actionWidth - 44f);
@@ -132,18 +129,18 @@ namespace SimManagementLib.SimDialog
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.MiddleLeft;
             GUI.color = Color.white;
-            Widgets.Label(titleRect, def.DisplayLabel);
+            Widgets.Label(titleRect, recommendation.DisplayLabel);
 
             Text.Font = GameFont.Tiny;
             GUI.color = new Color(0.72f, 0.72f, 0.72f, 1f);
-            Widgets.Label(descRect, def.DisplayDescription.Truncate(descRect.width * 2.15f));
+            Widgets.Label(descRect, recommendation.DisplayDescription.Truncate(descRect.width * 2.15f));
             DrawStatusBadges(statusRect, status);
 
             float buttonY = row.y + 24f;
             Rect openRect = new Rect(row.xMax - actionWidth - 10f, buttonY, actionWidth, 30f);
-            bool canOpen = !string.IsNullOrWhiteSpace(def.workshopUrl);
+            bool canOpen = !string.IsNullOrWhiteSpace(recommendation.WorkshopUrl);
             if (SimUiStyle.DrawPrimaryButton(openRect, SimTranslation.T("RSMF.Business.Extensions.OpenSteam"), canOpen, GameFont.Tiny))
-                BusinessExtensionRecommendationUtility.OpenWorkshopUrl(def.workshopUrl);
+                BusinessExtensionRecommendationUtility.OpenWorkshopUrl(recommendation.WorkshopUrl);
 
             ResetTextState();
         }
@@ -151,16 +148,16 @@ namespace SimManagementLib.SimDialog
         /// <summary>
         /// 绘制推荐扩展封面，负责优先使用本地贴图并按需异步拉取远端图。
         /// </summary>
-        private static void DrawPreview(Rect rect, BusinessExtensionRecommendationDef def)
+        private static void DrawPreview(Rect rect, IBusinessExtensionRecommendation recommendation)
         {
             Widgets.DrawBoxSolid(rect, new Color(0f, 0f, 0f, 0.35f));
             SimUiStyle.DrawBorder(rect, new Color(1f, 1f, 1f, 0.14f));
 
             Texture2D texture = null;
-            if (!string.IsNullOrWhiteSpace(def.previewTexturePath))
-                texture = ContentFinder<Texture2D>.Get(def.previewTexturePath, false);
+            if (!string.IsNullOrWhiteSpace(recommendation.PreviewTexturePath))
+                texture = ContentFinder<Texture2D>.Get(recommendation.PreviewTexturePath, false);
             if (texture == null)
-                texture = TryGetRemotePreview(def.previewImageUrl);
+                texture = TryGetRemotePreview(recommendation.PreviewImageUrl);
 
             if (texture != null)
             {

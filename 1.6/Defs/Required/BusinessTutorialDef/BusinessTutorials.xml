@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <SimManagementLib.SimDef.BusinessTutorialDef>
+    <defName>Sim_BusinessTutorial_StartBusiness</defName>
+    <label>How to start business</label>
+    <order>100</order>
+    <titleKey>RSMF.Business.Tutorial.StartBusiness.Title</titleKey>
+    <title>怎么开始经营</title>
+    <textBeforeImageKey>RSMF.Business.Tutorial.StartBusiness.BeforeImage</textBeforeImageKey>
+    <textBeforeImage>先划定一个室内商店区，并在区域里放置至少一个货柜和一个收银台。</textBeforeImage>
+    <imagePath>Things/Building/CashRegister/Sim_CashRegister_south</imagePath>
+    <imageMaxHeight>180</imageMaxHeight>
+    <textAfterImageKey>RSMF.Business.Tutorial.StartBusiness.AfterImage</textAfterImageKey>
+    <textAfterImage>打开货柜管理配置上架商品、目标库存和售价，再到商店管理里设置营业时间与店员。设施有效、商店处于营业时间并且没有手动停业时，顾客就会开始来店购物。</textAfterImage>
+  </SimManagementLib.SimDef.BusinessTutorialDef>
+
+  <SimManagementLib.SimDef.BusinessTutorialDef>
+    <defName>Sim_BusinessTutorial_CloseUi</defName>
+    <label>How to close UI</label>
+    <order>200</order>
+    <titleKey>RSMF.Business.Tutorial.CloseUi.Title</titleKey>
+    <title>怎么关闭 UI</title>
+    <textBeforeImageKey>RSMF.Business.Tutorial.CloseUi.BeforeImage</textBeforeImageKey>
+    <textBeforeImage>经商管理主界面可以按 Esc 关闭，也可以再次点击底部的经商管理主标签关闭。</textBeforeImage>
+    <textAfterImageKey>RSMF.Business.Tutorial.CloseUi.AfterImage</textAfterImageKey>
+    <textAfterImage>商店、货柜、店员、招牌等弹窗可以按右上角 X 关闭，也可以按 Esc 关闭。部分配置窗口带有保存按钮，关闭前请先保存需要保留的设置。</textAfterImage>
+  </SimManagementLib.SimDef.BusinessTutorialDef>
+</Defs>

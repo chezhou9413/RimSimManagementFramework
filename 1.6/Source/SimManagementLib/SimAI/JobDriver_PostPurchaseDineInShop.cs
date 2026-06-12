@@ -87,7 +87,7 @@ namespace SimManagementLib.SimAI
             if (!cell.IsValid || pawn.Map == null) return false;
             if (!cell.InBounds(pawn.Map)) return false;
             if (!cell.Standable(pawn.Map)) return false;
-            if (!pawn.CanReach(cell, PathEndMode.OnCell, Danger.Deadly)) return false;
+            if (!CustomerSafetyUtility.CanCustomerReach(pawn, cell, PathEndMode.OnCell, Danger.Deadly)) return false;
             return true;
         }
     }

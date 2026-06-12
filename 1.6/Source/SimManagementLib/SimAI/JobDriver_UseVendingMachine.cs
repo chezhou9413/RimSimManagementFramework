@@ -1,5 +1,6 @@
 using RimWorld;
 using SimManagementLib.GameComp;
+using SimManagementLib.Pojo;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimThingComp;
 using SimManagementLib.Tool;
@@ -91,6 +92,11 @@ namespace SimManagementLib.SimAI
                 machine.GetComp<ThingComp_CashStorage>()?.DepositSilver(silver);
                 GameComponent_ShopFinanceManager finance = Current.Game?.GetComponent<GameComponent_ShopFinanceManager>();
                 finance?.CommitVendingMachineSale(pawn, machine, boughtDef, count, silver, cost);
+                CustomerPurchaseDeliveryUtility.DeliverPurchasedItems(pawn, new List<CustomerCartItem>
+                {
+                    new CustomerCartItem { def = boughtDef, count = count }
+                });
+                lordJob.RecordDeliveredItem(pawn.thingIDNumber, boughtDef, count);
                 CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.PurchaseItem);
                 ShopBubbleUtility.ShowThingBubble(
                     pawn,

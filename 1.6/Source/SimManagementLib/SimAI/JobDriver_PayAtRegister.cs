@@ -84,7 +84,7 @@ namespace SimManagementLib.SimAI
                 if (pawn.IsHashIntervalTick(90))
                 {
                     UpdateQueueCell(lordJob);
-                    if (QueueCell.IsValid && pawn.Position != QueueCell && pawn.CanReach(QueueCell, PathEndMode.OnCell, Danger.Deadly))
+                    if (QueueCell.IsValid && pawn.Position != QueueCell && CustomerSafetyUtility.CanCustomerReach(pawn, QueueCell, PathEndMode.OnCell, Danger.Deadly))
                     {
                         pawn.pather.StartPath(QueueCell, PathEndMode.OnCell);
                     }
@@ -186,6 +186,7 @@ namespace SimManagementLib.SimAI
                     lordJob.RecordShopPayment(pawn, silverAmount);
                     lordJob.ResolveServiceOrdersOnCheckoutPaid(pawn, shopZone);
                     CustomerPurchaseDeliveryUtility.DeliverPurchasedItems(pawn, purchasedItems);
+                    lordJob.RecordDeliveredItems(pawnId, purchasedItems);
                     PurchaseOutcomeResolver.TryQueuePostPurchaseJobs(pawn, lordJob, pawnId, shopZone, purchasedItems);
                     if (!checkoutContext.postCheckoutJobs.NullOrEmpty())
                         lordJob.QueuePostCheckoutJobs(pawnId, checkoutContext.postCheckoutJobs);
@@ -206,6 +207,7 @@ namespace SimManagementLib.SimAI
                     finance?.ClearPendingBill(pawn);
                     lordJob.ResolveServiceOrdersOnCheckoutPaid(pawn, shopZone);
                     CustomerPurchaseDeliveryUtility.DeliverPurchasedItems(pawn, purchasedItems);
+                    lordJob.RecordDeliveredItems(pawnId, purchasedItems);
                     PurchaseOutcomeResolver.TryQueuePostPurchaseJobs(pawn, lordJob, pawnId, shopZone, purchasedItems);
                     if (!checkoutContext.postCheckoutJobs.NullOrEmpty())
                         lordJob.QueuePostCheckoutJobs(pawnId, checkoutContext.postCheckoutJobs);

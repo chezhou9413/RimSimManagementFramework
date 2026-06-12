@@ -20,15 +20,15 @@ namespace SimManagementLib.Tool
         /// <summary>
         /// 获取推荐扩展当前状态，负责在 Steam 不可用时安全降级为本地检测。
         /// </summary>
-        public static BusinessExtensionRecommendationStatus GetStatus(BusinessExtensionRecommendationDef def)
+        public static BusinessExtensionRecommendationStatus GetStatus(IBusinessExtensionRecommendation recommendation)
         {
             BusinessExtensionRecommendationStatus status = new BusinessExtensionRecommendationStatus();
-            if (def == null)
+            if (recommendation == null)
                 return status;
 
-            status.IsActive = IsActive(def);
-            status.IsInstalled = status.IsActive || IsInstalled(def);
-            status.IsSubscribed = IsSubscribed(def);
+            status.IsActive = IsActive(recommendation);
+            status.IsInstalled = status.IsActive || IsInstalled(recommendation);
+            status.IsSubscribed = IsSubscribed(recommendation);
             return status;
         }
 
@@ -53,19 +53,19 @@ namespace SimManagementLib.Tool
         /// <summary>
         /// 判断扩展是否已在当前运行中的模组列表启用。
         /// </summary>
-        private static bool IsActive(BusinessExtensionRecommendationDef def)
+        private static bool IsActive(IBusinessExtensionRecommendation recommendation)
         {
-            if (!def.packageIds.NullOrEmpty())
+            if (!recommendation.PackageIds.NullOrEmpty())
             {
-                for (int i = 0; i < def.packageIds.Count; i++)
+                for (int i = 0; i < recommendation.PackageIds.Count; i++)
                 {
-                    string packageId = def.packageIds[i];
+                    string packageId = recommendation.PackageIds[i];
                     if (!string.IsNullOrWhiteSpace(packageId) && ModLister.GetActiveModWithIdentifier(packageId, true) != null)
                         return true;
                 }
             }
 
-            string publishedId = NormalizePublishedFileId(def.publishedFileId);
+            string publishedId = NormalizePublishedFileId(recommendation.PublishedFileId);
             if (string.IsNullOrWhiteSpace(publishedId))
                 return false;
 
@@ -81,19 +81,19 @@ namespace SimManagementLib.Tool
         /// <summary>
         /// 判断扩展是否存在于本地已安装模组列表。
         /// </summary>
-        private static bool IsInstalled(BusinessExtensionRecommendationDef def)
+        private static bool IsInstalled(IBusinessExtensionRecommendation recommendation)
         {
-            if (!def.packageIds.NullOrEmpty())
+            if (!recommendation.PackageIds.NullOrEmpty())
             {
-                for (int i = 0; i < def.packageIds.Count; i++)
+                for (int i = 0; i < recommendation.PackageIds.Count; i++)
                 {
-                    string packageId = def.packageIds[i];
+                    string packageId = recommendation.PackageIds[i];
                     if (!string.IsNullOrWhiteSpace(packageId) && ModLister.GetModWithIdentifier(packageId, true) != null)
                         return true;
                 }
             }
 
-            string publishedId = NormalizePublishedFileId(def.publishedFileId);
+            string publishedId = NormalizePublishedFileId(recommendation.PublishedFileId);
             if (string.IsNullOrWhiteSpace(publishedId))
                 return false;
 
@@ -109,9 +109,9 @@ namespace SimManagementLib.Tool
         /// <summary>
         /// 判断扩展是否在 Steam 当前订阅列表中。
         /// </summary>
-        private static bool IsSubscribed(BusinessExtensionRecommendationDef def)
+        private static bool IsSubscribed(IBusinessExtensionRecommendation recommendation)
         {
-            string publishedId = NormalizePublishedFileId(def?.publishedFileId);
+            string publishedId = NormalizePublishedFileId(recommendation?.PublishedFileId);
             if (string.IsNullOrWhiteSpace(publishedId))
                 return false;
 

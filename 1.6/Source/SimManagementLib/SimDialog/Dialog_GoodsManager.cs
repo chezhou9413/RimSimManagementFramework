@@ -23,8 +23,9 @@ namespace SimManagementLib.SimDialog
         private const float IconSz = 28f;
         private const float CheckSz = 24f;
         private const float FieldW = 65f;
+        private const float ThresholdFieldW = 76f;
         private const float StockW = 60f;
-        private const float SliderW = 110f;
+        private const float SliderW = 150f;
         private const float ColGap = 10f;
         private const float RowPad = 8f;
         private const float HeaderH = 30f;
@@ -75,7 +76,7 @@ namespace SimManagementLib.SimDialog
         private string draftTargetCategoryCacheId = "";
         private int cachedDraftTargetTotal;
 
-        public override Vector2 InitialSize => new Vector2(800f, 620f);
+        public override Vector2 InitialSize => new Vector2(1080f, 680f);
 
         public Dialog_GoodsManager(ThingComp_GoodsData comp)
         {
@@ -85,8 +86,8 @@ namespace SimManagementLib.SimDialog
             doCloseX = true;
             forcePause = false;
             absorbInputAroundWindow = false;
-            resizeable = true;
-            draggable = true;
+            resizeable = false;
+            draggable = false;
 
             GoodsCatalog.EnsureInitialized();
             allDefs = (GoodsCatalog.Categories ?? Enumerable.Empty<Pojo.RuntimeGoodsCategory>())
@@ -265,8 +266,9 @@ namespace SimManagementLib.SimDialog
             float curX = rect.xMax - RowPad;
 
             curX -= FieldW; Widgets.Label(new Rect(curX, rect.y, FieldW, rect.height), SimTranslation.T("RSMF.GoodsManager.Header.Price")); curX -= ColGap;
+            curX -= ThresholdFieldW; Widgets.Label(new Rect(curX, rect.y, ThresholdFieldW, rect.height), SimTranslation.T("RSMF.GoodsManager.Header.RestockThreshold")); curX -= ColGap;
             curX -= FieldW; Widgets.Label(new Rect(curX, rect.y, FieldW, rect.height), SimTranslation.T("RSMF.GoodsManager.Header.Target")); curX -= ColGap;
-            curX -= SliderW; Widgets.Label(new Rect(curX, rect.y, SliderW, rect.height), SimTranslation.T("RSMF.GoodsManager.Header.Slider")); curX -= ColGap;
+            curX -= SliderW; Widgets.Label(new Rect(curX, rect.y, SliderW, rect.height), SimTranslation.T("RSMF.GoodsManager.Header.TargetSlider")); curX -= ColGap;
             curX -= StockW; Widgets.Label(new Rect(curX, rect.y, StockW, rect.height), SimTranslation.T("RSMF.GoodsManager.Header.Stock")); curX -= ColGap;
 
             float leftStart = rect.x + RowPad + CheckSz + ColGap + IconSz + ColGap;
@@ -309,6 +311,8 @@ namespace SimManagementLib.SimDialog
                 {
                     d.count = 1;
                     d.countBuffer = "1";
+                    d.restockThreshold = GoodsItemData.NormalizeRestockThreshold(d.restockThreshold, d.count);
+                    d.restockThresholdBuffer = d.restockThreshold.ToString();
                 }
                 // 首次勾选商品时补齐默认价格，避免保存出 0 价商品。
                 if (d.enabled && d.price <= 0f)
@@ -344,6 +348,23 @@ namespace SimManagementLib.SimDialog
             else { DrawDisabledDash(new Rect(rightX, row.y, FieldW, RowH)); }
             rightX -= ColGap;
 
+            // 补货阈值输入框。
+            rightX -= ThresholdFieldW;
+            if (nowEnabled)
+            {
+                d = d ?? GetDraftItem(td);
+                EnsureRestockThresholdBuffer(d);
+                int prevThreshold = d.restockThreshold;
+                Widgets.TextFieldNumeric(new Rect(rightX, ctrlY, ThresholdFieldW, 24f), ref d.restockThreshold, ref d.restockThresholdBuffer, 0, Mathf.Max(0, d.count));
+                d.restockThreshold = GoodsItemData.NormalizeRestockThreshold(d.restockThreshold, d.count);
+                d.restockThresholdBuffer = d.restockThreshold.ToString();
+                if (d.restockThreshold != prevThreshold)
+                    MarkDraftInventoryViewDirty();
+                TooltipHandler.TipRegion(new Rect(rightX, ctrlY, ThresholdFieldW, 24f), SimTranslation.T("RSMF.GoodsManager.RestockThresholdTip"));
+            }
+            else { DrawDisabledDash(new Rect(rightX, row.y, ThresholdFieldW, RowH)); }
+            rightX -= ColGap;
+
             // 数量输入框。
             rightX -= FieldW;
             if (nowEnabled)
@@ -351,9 +372,11 @@ namespace SimManagementLib.SimDialog
                 d = d ?? GetDraftItem(td);
                 if (d.countBuffer == null) d.countBuffer = d.count.ToString();
                 int prevCount = d.count;
-                Widgets.TextFieldNumeric(new Rect(rightX, ctrlY, FieldW, 24f), ref d.count, ref d.countBuffer, 0, 999999);
+                Widgets.TextFieldNumeric(new Rect(rightX, ctrlY, FieldW, 24f), ref d.count, ref d.countBuffer, 0, GetSliderMaxCount());
                 if (d.count != prevCount)
                 {
+                    d.restockThreshold = GoodsItemData.NormalizeRestockThreshold(d.restockThreshold, d.count);
+                    d.restockThresholdBuffer = d.restockThreshold.ToString();
                     d.countBuffer = d.count.ToString();
                     MarkDraftInventoryViewDirty();
                 }
@@ -366,10 +389,13 @@ namespace SimManagementLib.SimDialog
             if (nowEnabled)
             {
                 d = d ?? GetDraftItem(td);
-                int newCount = (int)Widgets.HorizontalSlider(new Rect(rightX, row.y + (RowH - 16f) / 2f, SliderW, 16f), d.count, 0f, 999f, true);
+                int sliderMax = GetSliderMaxCount();
+                int newCount = Mathf.RoundToInt(Widgets.HorizontalSlider(new Rect(rightX, row.y + (RowH - 22f) / 2f, SliderW, 22f), d.count, 0f, sliderMax, true, null, "0", sliderMax.ToString(), 1f));
                 if (newCount != d.count)
                 {
                     d.count = newCount;
+                    d.restockThreshold = GoodsItemData.NormalizeRestockThreshold(d.restockThreshold, d.count);
+                    d.restockThresholdBuffer = d.restockThreshold.ToString();
                     d.countBuffer = newCount.ToString();
                     MarkDraftInventoryViewDirty();
                 }
@@ -381,7 +407,8 @@ namespace SimManagementLib.SimDialog
             rightX -= StockW;
             int stk = GetStored(td);
             int targetCount = nowEnabled && d != null ? d.count : 0;
-            Color stockColor = stk == 0 ? CStockNo : (nowEnabled && stk < targetCount) ? CStockLow : CStockOk;
+            int restockThreshold = nowEnabled && d != null ? d.EffectiveRestockThreshold : 0;
+            Color stockColor = stk == 0 ? CStockNo : (nowEnabled && stk <= restockThreshold && stk < targetCount) ? CStockLow : CStockOk;
             Text.Anchor = TextAnchor.MiddleCenter; Text.Font = GameFont.Small;
             GUI.color = nowEnabled ? stockColor : new Color(0.5f, 0.5f, 0.5f);
             Widgets.Label(new Rect(rightX, row.y, StockW, RowH), stk.ToString());
@@ -394,6 +421,21 @@ namespace SimManagementLib.SimDialog
             Widgets.Label(new Rect(x, row.y, nameW, RowH), label.Truncate(nameW));
 
             Text.Anchor = TextAnchor.UpperLeft; GUI.color = Color.white;
+        }
+
+        //返回目标量滑条上限，负责让滑条匹配货柜容量而不是固定在小范围内。
+        private int GetSliderMaxCount()
+        {
+            return Mathf.Max(1, storage?.MaxTotalCapacity ?? 999);
+        }
+
+        //确保补货阈值输入缓存存在，负责让 UI 显示和保存值保持一致。
+        private static void EnsureRestockThresholdBuffer(GoodsItemData data)
+        {
+            if (data == null) return;
+            data.restockThreshold = GoodsItemData.NormalizeRestockThreshold(data.restockThreshold, data.count);
+            if (data.restockThresholdBuffer == null)
+                data.restockThresholdBuffer = data.restockThreshold.ToString();
         }
 
         /// <summary>
@@ -568,6 +610,7 @@ namespace SimManagementLib.SimDialog
                 if (item == null) continue;
                 item.countBuffer = null;
                 item.priceBuffer = null;
+                item.restockThresholdBuffer = null;
             }
         }
 
@@ -586,7 +629,8 @@ namespace SimManagementLib.SimDialog
                 {
                     enabled = item?.enabled ?? false,
                     count = Mathf.Max(0, item?.count ?? 0),
-                    price = Mathf.Max(0f, item?.price ?? 0f)
+                    price = Mathf.Max(0f, item?.price ?? 0f),
+                    restockThreshold = GoodsItemData.NormalizeRestockThreshold(item?.restockThreshold ?? -1, Mathf.Max(0, item?.count ?? 0))
                 };
             }
 
@@ -637,6 +681,11 @@ namespace SimManagementLib.SimDialog
                 var d = GetDraftItem(td);
                 d.enabled = enable;
                 if (enable && d.count <= 0) { d.count = 1; d.countBuffer = "1"; }
+                if (enable)
+                {
+                    d.restockThreshold = GoodsItemData.NormalizeRestockThreshold(d.restockThreshold, d.count);
+                    d.restockThresholdBuffer = d.restockThreshold.ToString();
+                }
                 // 全选时同步补齐未设置价格的商品，避免后续保存出 0 价。
                 if (enable && d.price <= 0f)
                 {
@@ -701,6 +750,8 @@ namespace SimManagementLib.SimDialog
                     d.enabled = false;
                     d.count = 0;
                     d.countBuffer = "0";
+                    d.restockThreshold = 0;
+                    d.restockThresholdBuffer = "0";
                     continue;
                 }
 
@@ -711,6 +762,8 @@ namespace SimManagementLib.SimDialog
                     d.enabled = false;
                     d.count = 0;
                     d.countBuffer = "0";
+                    d.restockThreshold = 0;
+                    d.restockThresholdBuffer = "0";
                     continue;
                 }
 
@@ -720,6 +773,8 @@ namespace SimManagementLib.SimDialog
                     d.count = allow;
                 }
 
+                d.restockThreshold = GoodsItemData.NormalizeRestockThreshold(d.restockThreshold, d.count);
+                d.restockThresholdBuffer = d.restockThreshold.ToString();
                 d.countBuffer = d.count.ToString();
                 used += d.count;
             }

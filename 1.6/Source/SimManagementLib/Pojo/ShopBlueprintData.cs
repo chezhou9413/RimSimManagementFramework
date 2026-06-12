@@ -116,7 +116,7 @@ namespace SimManagementLib.Pojo
     }
 
     /// <summary>
-    /// 负责保存货柜中单个商品的启用、目标数量和售价。
+    /// 负责保存货柜中单个商品的启用、目标数量、补货阈值和售价。
     /// </summary>
     [DataContract]
     public sealed class ShopBlueprintGoodsItemConfig
@@ -124,6 +124,7 @@ namespace SimManagementLib.Pojo
         [DataMember] public string thingDefName = "";
         [DataMember] public bool enabled;
         [DataMember] public int count;
+        [DataMember] public int restockThreshold = -1;
         [DataMember] public float price;
     }
 

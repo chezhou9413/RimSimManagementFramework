@@ -12,12 +12,15 @@ namespace SimManagementLib.SimAI
         internal Dictionary<int, float> cartValues = new Dictionary<int, float>();
         internal Dictionary<int, float> satisfactionMap = new Dictionary<int, float>();
         internal Dictionary<int, List<CustomerCartItem>> cartItems = new Dictionary<int, List<CustomerCartItem>>();
+        internal Dictionary<int, List<CustomerCartItem>> deliveredItems = new Dictionary<int, List<CustomerCartItem>>();
         internal Dictionary<int, int> consumptionActionCounts = new Dictionary<int, int>();
         internal Dictionary<int, int> effectiveBudgetCaps = new Dictionary<int, int>();
         internal Dictionary<int, int> browseWaitStartTick = new Dictionary<int, int>();
 
         private List<int> tmpCartItemKeys;
         private List<List<CustomerCartItem>> tmpCartItemValues;
+        private List<int> tmpDeliveredItemKeys;
+        private List<List<CustomerCartItem>> tmpDeliveredItemValues;
         private List<int> tmpEffectiveBudgetCapKeys;
         private List<int> tmpEffectiveBudgetCapValues;
 
@@ -29,6 +32,7 @@ namespace SimManagementLib.SimAI
             Scribe_Collections.Look(ref cartValues, "cartValues", LookMode.Value, LookMode.Value);
             Scribe_Collections.Look(ref satisfactionMap, "satisfactionMap", LookMode.Value, LookMode.Value);
             Scribe_Collections.Look(ref cartItems, "cartItems", LookMode.Value, LookMode.Deep, ref tmpCartItemKeys, ref tmpCartItemValues);
+            Scribe_Collections.Look(ref deliveredItems, "deliveredItems", LookMode.Value, LookMode.Deep, ref tmpDeliveredItemKeys, ref tmpDeliveredItemValues);
             Scribe_Collections.Look(ref consumptionActionCounts, "consumptionActionCounts", LookMode.Value, LookMode.Value);
             Scribe_Collections.Look(ref effectiveBudgetCaps, "effectiveBudgetCaps", LookMode.Value, LookMode.Value, ref tmpEffectiveBudgetCapKeys, ref tmpEffectiveBudgetCapValues);
             Scribe_Collections.Look(ref browseWaitStartTick, "browseWaitStartTick", LookMode.Value, LookMode.Value);
@@ -81,6 +85,42 @@ namespace SimManagementLib.SimAI
         public List<CustomerCartItem> GetCartItems(int pawnId)
         {
             return cartItems.TryGetValue(pawnId, out List<CustomerCartItem> list) ? list : null;
+        }
+
+        // 记录已经交付到顾客身上的购买物，负责在紧急离店时把商品找回并丢下。
+        public void RecordDeliveredItems(int pawnId, List<CustomerCartItem> items)
+        {
+            if (pawnId <= 0 || items.NullOrEmpty())
+                return;
+
+            if (!deliveredItems.TryGetValue(pawnId, out List<CustomerCartItem> list))
+            {
+                list = new List<CustomerCartItem>();
+                deliveredItems[pawnId] = list;
+            }
+
+            for (int i = 0; i < items.Count; i++)
+            {
+                CustomerCartItem item = items[i];
+                if (item == null || item.def == null || item.count <= 0)
+                    continue;
+
+                AddDeliveredItem(list, item.def, item.count);
+            }
+        }
+
+        // 返回指定顾客已交付购买物记录。
+        public List<CustomerCartItem> GetDeliveredItems(int pawnId)
+        {
+            return deliveredItems.TryGetValue(pawnId, out List<CustomerCartItem> list) ? list : null;
+        }
+
+        // 清除指定顾客的已交付购买物记录。
+        public void ClearDeliveredItems(int pawnId)
+        {
+            if (pawnId <= 0)
+                return;
+            deliveredItems.Remove(pawnId);
         }
 
         /// <summary>
@@ -148,9 +188,29 @@ namespace SimManagementLib.SimAI
             if (cartValues == null) cartValues = new Dictionary<int, float>();
             if (satisfactionMap == null) satisfactionMap = new Dictionary<int, float>();
             if (cartItems == null) cartItems = new Dictionary<int, List<CustomerCartItem>>();
+            if (deliveredItems == null) deliveredItems = new Dictionary<int, List<CustomerCartItem>>();
             if (consumptionActionCounts == null) consumptionActionCounts = new Dictionary<int, int>();
             if (effectiveBudgetCaps == null) effectiveBudgetCaps = new Dictionary<int, int>();
             if (browseWaitStartTick == null) browseWaitStartTick = new Dictionary<int, int>();
+        }
+
+        // 合并一条已交付购买物记录。
+        private static void AddDeliveredItem(List<CustomerCartItem> list, ThingDef def, int count)
+        {
+            if (list == null || def == null || count <= 0)
+                return;
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                CustomerCartItem item = list[i];
+                if (item == null || item.def != def)
+                    continue;
+
+                item.count += count;
+                return;
+            }
+
+            list.Add(new CustomerCartItem { def = def, count = count });
         }
     }
 }

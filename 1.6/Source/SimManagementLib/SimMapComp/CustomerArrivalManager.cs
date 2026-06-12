@@ -1,4 +1,5 @@
 using RimWorld;
+using SimManagementLib.Api;
 using SimManagementLib.GameComp;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimAI;
@@ -35,6 +36,7 @@ namespace SimManagementLib.SimMapComp
             int checkInterval = GetCheckIntervalTicks();
             if (checkInterval <= 0) checkInterval = DefaultCheckInterval;
             if (Find.TickManager.TicksGame % checkInterval != 0) return;
+            if (CustomerSafetyUtility.IsLargeHostileRaidActive(map)) return;
 
             List<CustomerArrivalShopContext> contexts = CollectActiveShopContexts();
             if (!contexts.NullOrEmpty())
@@ -48,8 +50,22 @@ namespace SimManagementLib.SimMapComp
             TrySpawnOneCustomerForVendingMachines(checkInterval);
         }
 
+        // 强制刷新一波顾客，负责保留旧版外部调用签名。
         public bool ForceSpawnOneWave(bool ignoreConditions, out string resultMessage)
         {
+            return ForceSpawnOneWave(ignoreConditions, out resultMessage, out _);
+        }
+
+        // 强制刷新一波顾客，负责在成功时把生成的 Pawn 引用返回给外部调用方。
+        public bool ForceSpawnOneWave(bool ignoreConditions, out string resultMessage, out Pawn spawnedPawn)
+        {
+            spawnedPawn = null;
+            if (CustomerSafetyUtility.IsLargeHostileRaidActive(map))
+            {
+                resultMessage = "强制刷新失败：当前地图存在超过 1000 点战斗力的敌对袭击，顾客不会到访。";
+                return false;
+            }
+
             List<CustomerArrivalShopContext> contexts = CollectActiveShopContexts();
             List<Building_SimContainer> vendingMachines = VendingMachineUtility.GetAllVendingMachines(map)
                 .Where(VendingMachineUtility.IsUsableVendingMachine)
@@ -97,8 +113,9 @@ namespace SimManagementLib.SimMapComp
                         continue;
                     }
 
-                    if (TrySpawnCustomerWave(context.Shop, kind, false, out int spawnedCount, out string failReason))
+                    if (TrySpawnCustomerWave(context.Shop, kind, false, out int spawnedCount, out string failReason, out Pawn pawn))
                     {
+                        spawnedPawn = pawn;
                         resultMessage = SimTranslation.T("RSMF.CustomerArrival.ForceSpawnShopSuccess", context.Shop.label.Named("shop"), spawnedCount.Named("count"));
                         return true;
                     }
@@ -114,8 +131,9 @@ namespace SimManagementLib.SimMapComp
                 {
                     if (!VendingMachineUtility.MatchesCustomerKind(machine, kind)) continue;
                     if (!ignoreConditions && !kind.CanAppearNow(map)) continue;
-                    if (TrySpawnVendingMachineCustomer(machine, kind, true, out int spawnedCount, out string failReason))
+                    if (TrySpawnVendingMachineCustomer(machine, kind, true, out int spawnedCount, out string failReason, out Pawn pawn))
                     {
+                        spawnedPawn = pawn;
                         resultMessage = SimTranslation.T("RSMF.CustomerArrival.ForceSpawnVendingSuccess", machine.StorageDisplayLabel.Named("machine"), spawnedCount.Named("count"));
                         return true;
                     }
@@ -145,7 +163,7 @@ namespace SimManagementLib.SimMapComp
             RuntimeCustomerKind selected = candidates.RandomElementByWeight(k => k.EvaluateArrivalWeight(hour));
             if (selected == null) return;
 
-            TrySpawnCustomerWave(context.Shop, selected, true, out _, out _);
+            TrySpawnCustomerWave(context.Shop, selected, true, out _, out _, out _);
         }
 
         private List<CustomerArrivalShopContext> CollectActiveShopContexts()
@@ -201,7 +219,7 @@ namespace SimManagementLib.SimMapComp
                 float mtbDays = comp.BaseMtbDays / Mathf.Max(selected.EvaluateArrivalWeight(hour), 0.05f);
                 if (!Rand.MTBEventOccurs(mtbDays, 60000f, checkInterval)) continue;
 
-                TrySpawnVendingMachineCustomer(machine, selected, false, out _, out _);
+                TrySpawnVendingMachineCustomer(machine, selected, false, out _, out _, out _);
             }
         }
 
@@ -364,10 +382,11 @@ namespace SimManagementLib.SimMapComp
         /// <summary>
         /// 为指定商店生成一位顾客并绑定顾客 Lord，失败时返回具体原因。
         /// </summary>
-        private bool TrySpawnCustomerWave(Zone_Shop shop, RuntimeCustomerKind kind, bool showArrivalMessage, out int spawnedCount, out string failReason)
+        private bool TrySpawnCustomerWave(Zone_Shop shop, RuntimeCustomerKind kind, bool showArrivalMessage, out int spawnedCount, out string failReason, out Pawn spawnedPawn)
         {
             spawnedCount = 0;
             failReason = string.Empty;
+            spawnedPawn = null;
 
             PawnKindDef selectedKind = SelectPawnKindWithCompatibleFaction(kind, out Faction faction);
             if (selectedKind == null)
@@ -405,11 +424,7 @@ namespace SimManagementLib.SimMapComp
                 return false;
             }
 
-            if (!CellFinder.TryFindRandomEdgeCellWith(
-                c => !c.Fogged(map) && map.reachability.CanReach(c, shopTargetCell, PathEndMode.OnCell, TraverseParms.For(TraverseMode.PassDoors)),
-                map,
-                CellFinder.EdgeRoadChance_Neutral,
-                out IntVec3 spawnSpot))
+            if (!TryFindCustomerEdgeSpawnCell(shopTargetCell, PathEndMode.OnCell, out IntVec3 spawnSpot))
             {
                 Find.WorldPawns.PassToWorld(pawn);
                 failReason = "no edge spawn cell";
@@ -426,7 +441,9 @@ namespace SimManagementLib.SimMapComp
             // 顾客 Pawn 和 Lord 都使用商店专用中立派系，避免敌对来源派系残留为红名或触发战斗 AI。
             LordMaker.MakeNewLord(customerFaction, lordJob, map, new List<Pawn> { pawn });
             spawnedCount = 1;
+            spawnedPawn = pawn;
             CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.Arrival);
+            SimShopEvents.NotifyCustomerArrived(pawn);
 
             if (showArrivalMessage)
             {
@@ -448,10 +465,11 @@ namespace SimManagementLib.SimMapComp
         /// <summary>
         /// 为指定自动售货机生成一位顾客并绑定独立的自动售货机访问 Lord。
         /// </summary>
-        private bool TrySpawnVendingMachineCustomer(Building_SimContainer machine, RuntimeCustomerKind kind, bool showArrivalMessage, out int spawnedCount, out string failReason)
+        private bool TrySpawnVendingMachineCustomer(Building_SimContainer machine, RuntimeCustomerKind kind, bool showArrivalMessage, out int spawnedCount, out string failReason, out Pawn spawnedPawn)
         {
             spawnedCount = 0;
             failReason = string.Empty;
+            spawnedPawn = null;
             if (machine == null || kind == null || !VendingMachineUtility.IsUsableVendingMachine(machine))
             {
                 failReason = "invalid vending machine";
@@ -486,11 +504,7 @@ namespace SimManagementLib.SimMapComp
                 return false;
             }
 
-            if (!CellFinder.TryFindRandomEdgeCellWith(
-                c => map.reachability.CanReach(c, machine.Position, PathEndMode.Touch, TraverseParms.For(TraverseMode.PassDoors)) && !c.Fogged(map),
-                map,
-                CellFinder.EdgeRoadChance_Neutral,
-                out IntVec3 spawnSpot))
+            if (!TryFindCustomerEdgeSpawnCell(machine.Position, PathEndMode.Touch, out IntVec3 spawnSpot))
             {
                 Find.WorldPawns.PassToWorld(pawn);
                 failReason = "no edge spawn cell";
@@ -504,7 +518,9 @@ namespace SimManagementLib.SimMapComp
             lordJob.SetPawnSettings(pawn.thingIDNumber, kind.BuildRuntimeSettings(map));
             LordMaker.MakeNewLord(customerFaction, lordJob, map, new List<Pawn> { pawn });
             spawnedCount = 1;
+            spawnedPawn = pawn;
             CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.Arrival);
+            SimShopEvents.NotifyCustomerArrived(pawn);
 
             if (showArrivalMessage && (SimManagementLibMod.Settings?.showCustomerArrivalMessage ?? true))
             {
@@ -529,6 +545,54 @@ namespace SimManagementLib.SimMapComp
                 PawnGenerationContext.NonPlayer,
                 tile: -1,
                 forceGenerateNewPawn: true);
+        }
+
+        // 查找顾客可用的地图边缘生成点，负责在顾客入图前筛掉无法走到目标的位置。
+        private bool TryFindCustomerEdgeSpawnCell(LocalTargetInfo target, PathEndMode pathEndMode, out IntVec3 spawnSpot)
+        {
+            spawnSpot = IntVec3.Invalid;
+            if (map == null || !target.IsValid)
+                return false;
+
+            if (!CellFinder.TryFindRandomEdgeCellWith(
+                c => !c.Fogged(map) && CanReachFromCellWithoutForbiddenPlayerDoor(c, target, pathEndMode),
+                map,
+                CellFinder.EdgeRoadChance_Neutral,
+                out IntVec3 found))
+            {
+                return false;
+            }
+
+            spawnSpot = found;
+            return true;
+        }
+
+        // 从指定起点检查目标可达性，负责在顾客未入图前避免使用绑定 Pawn 的寻路参数。
+        private bool CanReachFromCellWithoutForbiddenPlayerDoor(IntVec3 start, LocalTargetInfo target, PathEndMode pathEndMode)
+        {
+            if (map == null || !start.IsValid || !target.IsValid)
+                return false;
+
+            using (PawnPath path = map.pathFinder.FindPathNow(
+                start,
+                target,
+                TraverseParms.For(TraverseMode.PassDoors, Danger.Deadly),
+                null,
+                pathEndMode))
+            {
+                if (path == null || !path.Found)
+                    return false;
+
+                List<IntVec3> nodes = path.NodesReversed;
+                for (int i = 0; i < nodes.Count; i++)
+                {
+                    Building_Door door = nodes[i].GetDoor(map);
+                    if (door != null && door.Faction == Faction.OfPlayer && door.IsForbidden(Faction.OfPlayer))
+                        return false;
+                }
+            }
+
+            return true;
         }
 
         /// <summary>

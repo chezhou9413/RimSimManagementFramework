@@ -216,6 +216,7 @@ namespace SimManagementLib.Tool
                 {
                     enabled = true,
                     count = count,
+                    restockThreshold = GoodsItemData.NormalizeRestockThreshold(-1, count),
                     price = Mathf.Max(1f, Mathf.Round(thingDef.BaseMarketValue))
                 };
             }

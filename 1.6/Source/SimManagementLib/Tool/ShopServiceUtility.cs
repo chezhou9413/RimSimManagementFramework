@@ -170,7 +170,7 @@ namespace SimManagementLib.Tool
             {
                 ThingComp_ServiceProvider comp = GetProviderComp(candidateProvider);
                 if (comp == null || !comp.enabled) continue;
-                if (!pawn.CanReach(candidateProvider, PathEndMode.Touch, Danger.Deadly)) continue;
+                if (!CustomerSafetyUtility.CanCustomerReach(pawn, candidateProvider, PathEndMode.Touch, Danger.Deadly)) continue;
                 if (!CanCustomerReserveServiceProvider(pawn, candidateProvider)) continue;
 
                 foreach (ServiceSlotData slot in comp.EnabledSlots)

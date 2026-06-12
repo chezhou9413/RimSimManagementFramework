@@ -26,7 +26,7 @@ namespace SimManagementLib.SimAI
                 return null;
             }
 
-            if (!pawn.CanReach(machine, PathEndMode.Touch, Danger.Deadly))
+            if (!CustomerSafetyUtility.CanCustomerReach(pawn, machine, PathEndMode.Touch, Danger.Deadly))
             {
                 lordJob.NotifyDone();
                 return null;

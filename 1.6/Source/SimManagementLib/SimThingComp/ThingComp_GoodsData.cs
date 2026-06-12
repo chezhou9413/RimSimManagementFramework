@@ -42,6 +42,7 @@ namespace SimManagementLib.SimThingComp
 
         [NonSerialized] public Dictionary<string, string> countBuffers = new Dictionary<string, string>();
         [NonSerialized] public Dictionary<string, string> priceBuffers = new Dictionary<string, string>();
+        [NonSerialized] public Dictionary<string, string> restockThresholdBuffers = new Dictionary<string, string>();
 
         private ThingCompProperties_GoodsData GoodsProps => props as ThingCompProperties_GoodsData;
 
@@ -167,7 +168,8 @@ namespace SimManagementLib.SimThingComp
                 {
                     enabled = kv.Value.enabled,
                     count = kv.Value.count,
-                    price = kv.Value.price
+                    price = kv.Value.price,
+                    restockThreshold = GoodsItemData.NormalizeRestockThreshold(kv.Value.restockThreshold, kv.Value.count)
                 };
             }
             return dict;
@@ -185,6 +187,7 @@ namespace SimManagementLib.SimThingComp
                 itemData = new Dictionary<string, GoodsItemData>();
                 countBuffers.Clear();
                 priceBuffers.Clear();
+                restockThresholdBuffers.Clear();
                 return;
             }
 
@@ -199,6 +202,7 @@ namespace SimManagementLib.SimThingComp
 
             countBuffers.Clear();
             priceBuffers.Clear();
+            restockThresholdBuffers.Clear();
         }
 
         /// <summary>
@@ -216,7 +220,8 @@ namespace SimManagementLib.SimThingComp
                 {
                     enabled = s?.enabled ?? false,
                     count = Math.Max(0, s?.count ?? 0),
-                    price = Math.Max(0f, s?.price ?? 0f)
+                    price = Math.Max(0f, s?.price ?? 0f),
+                    restockThreshold = GoodsItemData.NormalizeRestockThreshold(s?.restockThreshold ?? -1, Math.Max(0, s?.count ?? 0))
                 };
             }
 
@@ -246,16 +251,36 @@ namespace SimManagementLib.SimThingComp
     }
 
     /// <summary>
-    /// 保存单个商品的启用状态、目标数量和售价配置。
+    /// 保存单个商品的启用状态、目标数量、补货阈值和售价配置。
     /// </summary>
     public class GoodsItemData : IExposable
     {
         public bool enabled = false;
         public int count = 1;
         public float price = 0f;
+        public int restockThreshold = -1;
 
         [NonSerialized] public string countBuffer;
         [NonSerialized] public string priceBuffer;
+        [NonSerialized] public string restockThresholdBuffer;
+
+        //返回实际生效的补货触发阈值，负责让旧配置默认保持低于目标量就补货。
+        public int EffectiveRestockThreshold => GetEffectiveRestockThreshold(count, restockThreshold);
+
+        //根据目标量和保存值计算有效阈值，负责兼容旧存档未保存阈值的情况。
+        public static int GetEffectiveRestockThreshold(int targetCount, int configuredThreshold)
+        {
+            int target = Math.Max(0, targetCount);
+            if (target <= 0) return 0;
+            int fallback = Math.Max(0, target - 1);
+            return Math.Max(0, Math.Min(target, configuredThreshold < 0 ? fallback : configuredThreshold));
+        }
+
+        //规范化保存的补货阈值，负责避免阈值超过目标量或出现非法负数。
+        public static int NormalizeRestockThreshold(int configuredThreshold, int targetCount)
+        {
+            return GetEffectiveRestockThreshold(targetCount, configuredThreshold);
+        }
 
         /// <summary>
         /// 保存或读取单个商品的货柜配置。
@@ -265,6 +290,14 @@ namespace SimManagementLib.SimThingComp
             Scribe_Values.Look(ref enabled, "enabled", false);
             Scribe_Values.Look(ref count, "count", 1);
             Scribe_Values.Look(ref price, "price", 0f);
+            Scribe_Values.Look(ref restockThreshold, "restockThreshold", -1);
+
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                count = Math.Max(0, count);
+                price = Math.Max(0f, price);
+                restockThreshold = NormalizeRestockThreshold(restockThreshold, count);
+            }
         }
     }
 }

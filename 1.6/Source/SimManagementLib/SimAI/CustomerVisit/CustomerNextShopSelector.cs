@@ -100,7 +100,7 @@ namespace SimManagementLib.SimAI.CustomerVisit
             foreach (IntVec3 candidate in shop.Cells)
             {
                 if (!candidate.IsValid) continue;
-                if (!pawn.CanReach(candidate, PathEndMode.ClosestTouch, Danger.Deadly)) continue;
+                if (!CustomerSafetyUtility.CanCustomerReach(pawn, candidate, PathEndMode.ClosestTouch, Danger.Deadly)) continue;
                 cell = candidate;
                 return true;
             }

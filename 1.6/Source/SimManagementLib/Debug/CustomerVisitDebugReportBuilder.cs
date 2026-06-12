@@ -53,6 +53,7 @@ namespace SimManagementLib.Debug
             sb.AppendLine("readyForCheckout: " + visit.IsPawnReadyForCheckout(pawnId));
             sb.AppendLine("owed: " + owed.ToString("F2"));
             sb.AppendLine("cartValue: " + visit.GetCartValue(pawnId).ToString("F2"));
+            sb.AppendLine("totalSpentWithCurrentBill: " + visit.GetTotalSpentIncludingCurrentBill(pawn).ToString("F2"));
             sb.AppendLine("remainingBudget: " + remaining.ToString("F2"));
             sb.AppendLine("needsPostCheckout: " + visit.NeedsPostCheckoutCompletion(pawnId));
             sb.AppendLine();

@@ -154,6 +154,7 @@
     <Compile Include="Pojo\CollectibleDisplaySlotData.cs" />
     <Compile Include="Pojo\SignImageData.cs" />
     <Compile Include="Pojo\ShopAnalyticsState.cs" />
+    <Compile Include="Pojo\AnnouncementNetworkModels.cs" />
     <Compile Include="Pojo\BlueprintNetworkModels.cs" />
     <Compile Include="Pojo\ShopScheduleData.cs" />
     <Compile Include="Pojo\ShopBlueprintData.cs" />
@@ -168,6 +169,7 @@
     <Compile Include="Pojo\RuntimeItemPreference.cs" />
     <Compile Include="Pojo\RuntimeGoodsItem.cs" />
     <Compile Include="Pojo\RuntimePurchaseOutcomeRule.cs" />
+    <Compile Include="Pojo\RecommendedModNetworkModels.cs" />
     <Compile Include="Pojo\MoveableShopZone.cs" />
     <Compile Include="SimAI\JobDriver_BrowseAndPick.cs" />
     <Compile Include="SimAI\JobDriver_CollectCashRegisterSilver.cs" />
@@ -217,6 +219,7 @@
     <Compile Include="SimDef\CustomerActionDef.cs" />
     <Compile Include="SimDef\CollectibleExchangeListDef.cs" />
     <Compile Include="SimDef\BusinessExtensionRecommendationDef.cs" />
+    <Compile Include="SimDef\BusinessTutorialDef.cs" />
     <Compile Include="SimDef\CustomerExpressionSetDef.cs" />
     <Compile Include="SimDef\PurchaseOutcomeDef.cs" />
     <Compile Include="SimDef\PurchaseOutcomeDef.Workers.cs" />
@@ -249,8 +252,10 @@
     <Compile Include="SimDialog\Designator_PlaceShopBlueprint.cs" />
     <Compile Include="SimDialog\Designator_SaveShopBlueprintRect.cs" />
     <Compile Include="SimDialog\BusinessPageWorker_Extensions.cs" />
+    <Compile Include="SimDialog\BusinessPageWorker_Tutorial.cs" />
     <Compile Include="SimDialog\MainTabWindow_BusinessManager.cs" />
     <Compile Include="SimDialog\MainTabWindow_BusinessManager.Api.cs" />
+    <Compile Include="SimDialog\MainTabWindow_BusinessManager.Announcements.cs" />
     <Compile Include="SimDialog\MainTabWindow_BusinessManager.Blueprints.cs" />
     <Compile Include="SimDialog\MainTabWindow_BusinessManager.Blueprints.Network.cs" />
     <Compile Include="SimDialog\MainTabWindow_BusinessManager.Data.cs" />
@@ -264,6 +269,7 @@
     <Compile Include="SimManagementLibMod.cs" />
     <Compile Include="Debug\DebugActions_SimShop.CrossShop.cs" />
     <Compile Include="Patch\Patch_CustomerCombatSafety.cs" />
+    <Compile Include="Patch\Patch_CustomerDoorSafety.cs" />
     <Compile Include="Patch\Patch_CustomerFactionRelationInit.cs" />
     <Compile Include="Patch\Patch_Gravship_ShopZoneTransport.cs" />
     <Compile Include="Patch\Patch_Frame_ShopBlueprintPlacement.cs" />
@@ -287,6 +293,7 @@
     <Compile Include="SimDialog\Dialog_CustomerReviewPromptPreview.cs" />
     <Compile Include="SimDialog\Dialog_CustomerReviewAiSettings.Injector.cs" />
     <Compile Include="SimDialog\Dialog_CustomerReviewAiSettings.cs" />
+    <Compile Include="SimDialog\Dialog_Announcements.cs" />
     <Compile Include="SimDialog\Dialog_RegisterSelectedGoodsCategory.cs" />
     <Compile Include="SimDialog\Dialog_CustomSignEditor.cs" />
     <Compile Include="SimDialog\Dialog_CustomSignTransfer.cs" />
@@ -307,6 +314,7 @@
     <Compile Include="SimThingComp\ThingComp_CollectibleDisplayStand.cs" />
     <Compile Include="SimThingComp\ThingComp_CustomSign.cs" />
     <Compile Include="SimThingComp\ThingComp_CashStorage.cs" />
+    <Compile Include="SimThingComp\ThingComp_DisplayStandCollectible.cs" />
     <Compile Include="SimThingComp\ThingComp_GoodsData.cs" />
     <Compile Include="SimThingComp\ThingComp_ProgressStageGraphic.cs" />
     <Compile Include="SimThingComp\ThingComp_ServiceProvider.cs" />
@@ -339,6 +347,7 @@
     <Compile Include="Tool\CustomerNeutralFactionUtility.cs" />
     <Compile Include="Tool\CustomerPriceUtility.cs" />
     <Compile Include="Tool\CustomerPurchaseDeliveryUtility.cs" />
+    <Compile Include="Tool\CustomerSafetyUtility.cs" />
     <Compile Include="Tool\CustomerShoppingMatchUtility.cs" />
     <Compile Include="Tool\CustomerReviewAiClient.cs" />
     <Compile Include="Tool\CustomerReviewAiDebugLog.cs" />
@@ -355,6 +364,9 @@
     <Compile Include="Tool\GoodsCatalog.cs" />
     <Compile Include="Tool\Mote_ShopPopup.cs" />
     <Compile Include="Tool\PurchaseOutcomeCatalog.cs" />
+    <Compile Include="Tool\AnnouncementClientState.cs" />
+    <Compile Include="Tool\AnnouncementDisplayUtility.cs" />
+    <Compile Include="Tool\AnnouncementNetworkApiClient.cs" />
     <Compile Include="Tool\BlueprintDependencyCollector.cs" />
     <Compile Include="Tool\BlueprintEndpointCodec.cs" />
     <Compile Include="Tool\BlueprintExternalConfigBridge.cs" />
@@ -368,6 +380,8 @@
     <Compile Include="Tool\BlueprintNetworkImportService.cs" />
     <Compile Include="Tool\BlueprintPreviewTextureCache.cs" />
     <Compile Include="Tool\BusinessExtensionRecommendationUtility.cs" />
+    <Compile Include="Tool\BusinessExtensionRecommendationSource.cs" />
+    <Compile Include="Tool\RecommendedModNetworkApiClient.cs" />
     <Compile Include="Tool\RimTalkConfigBridge.cs" />
     <Compile Include="Tool\ShopBlueprintPreviewCaptureUtility.cs" />
     <Compile Include="Tool\ShopBubbleUtility.cs" />

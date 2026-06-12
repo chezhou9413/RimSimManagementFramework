@@ -42,9 +42,7 @@ namespace SimManagementLib.Tool
             {
                 SignImageLayerData layer = orderedLayers[i];
                 Texture2D texture = SignTextureCache.GetTexture(layer.imageId);
-                Vector2 layerSize = KeepAspectSize(new Vector2(
-                    baseSize.x * Mathf.Max(0.01f, layerWidthRatio) * Mathf.Max(0.05f, layer.scaleX),
-                    baseSize.y * Mathf.Max(0.01f, layerHeightRatio) * Mathf.Max(0.05f, layer.scaleY)), texture);
+                Vector2 layerSize = CalculateLayerSize(baseSize, layerWidthRatio, layerHeightRatio, layer, texture);
                 Vector3 localOffset = new Vector3(layer.x * baseSize.x * 0.5f, 0f, -layer.y * baseSize.y * 0.5f);
                 Vector3 worldOffset = RotateOffset(localOffset, thing.Rotation, mirror);
                 Vector3 loc = drawLoc + worldOffset;
@@ -84,9 +82,7 @@ namespace SimManagementLib.Tool
             {
                 SignImageLayerData layer = orderedLayers[i];
                 Texture2D texture = SignTextureCache.GetTexture(layer.imageId);
-                Vector2 imageSize = KeepAspectSize(new Vector2(
-                    signRect.width * Mathf.Max(0.01f, layerWidthRatio) * Mathf.Max(0.05f, layer.scaleX),
-                    signRect.height * Mathf.Max(0.01f, layerHeightRatio) * Mathf.Max(0.05f, layer.scaleY)), texture);
+                Vector2 imageSize = CalculateLayerSize(new Vector2(signRect.width, signRect.height), layerWidthRatio, layerHeightRatio, layer, texture);
                 float x = mirror ? -layer.x : layer.x;
                 Vector2 logicalCenter = new Vector2(
                     signRect.center.x + x * signRect.width * 0.5f,
@@ -125,6 +121,17 @@ namespace SimManagementLib.Tool
                 targetSize.y = targetSize.x / textureAspect;
 
             return targetSize;
+        }
+
+        //计算图层最终尺寸，负责让默认尺寸保持图片比例，同时让 X/Y 拉伸滑条都能真实生效。
+        private static Vector2 CalculateLayerSize(Vector2 baseSize, float layerWidthRatio, float layerHeightRatio, SignImageLayerData layer, Texture2D texture)
+        {
+            Vector2 aspectSize = KeepAspectSize(new Vector2(
+                baseSize.x * Mathf.Max(0.01f, layerWidthRatio),
+                baseSize.y * Mathf.Max(0.01f, layerHeightRatio)), texture);
+            return new Vector2(
+                Mathf.Max(0.001f, aspectSize.x * Mathf.Max(0.05f, layer?.scaleX ?? 1f)),
+                Mathf.Max(0.001f, aspectSize.y * Mathf.Max(0.05f, layer?.scaleY ?? 1f)));
         }
 
         /// <summary>

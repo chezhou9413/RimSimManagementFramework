@@ -111,7 +111,7 @@ namespace SimManagementLib.SimAI
                 Building_CashRegister register = buildings[i] as Building_CashRegister;
                 if (register == null || register.Destroyed || !register.Spawned) continue;
                 if (!RegisterBelongsToShop(register, targetShop)) continue;
-                if (!pawn.CanReach(register, PathEndMode.Touch, Danger.Deadly)) continue;
+                if (!CustomerSafetyUtility.CanCustomerReach(pawn, register, PathEndMode.Touch, Danger.Deadly)) continue;
 
                 int queue = GetQueueSizeForRegister(pawn.Map, register);
                 int distance = (register.Position - pawn.Position).LengthHorizontalSquared;

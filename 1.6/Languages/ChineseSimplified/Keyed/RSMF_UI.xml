@@ -383,9 +383,13 @@
   <RSMF.GoodsManager.Header.Price>单价(银)</RSMF.GoodsManager.Header.Price>
   <RSMF.GoodsManager.Header.Target>目标量</RSMF.GoodsManager.Header.Target>
   <RSMF.GoodsManager.Header.Slider>快速调节</RSMF.GoodsManager.Header.Slider>
+  <RSMF.GoodsManager.Header.TargetSlider>目标滑条</RSMF.GoodsManager.Header.TargetSlider>
+  <RSMF.GoodsManager.Header.RestockThreshold>补货阈值</RSMF.GoodsManager.Header.RestockThreshold>
   <RSMF.GoodsManager.Header.Stock>当前库存</RSMF.GoodsManager.Header.Stock>
   <RSMF.GoodsManager.Header.Name>货品名称</RSMF.GoodsManager.Header.Name>
   <RSMF.GoodsManager.PriceTip>参考市价: {value} 银</RSMF.GoodsManager.PriceTip>
+  <RSMF.GoodsManager.RestockThresholdTip>当前库存加途中补货数量小于或等于该值时，补货员会补到目标量。</RSMF.GoodsManager.RestockThresholdTip>
+  <RSMF.GoodsManager.StockThresholdTip>显示格式：当前库存 / 补货阈值 / 目标量。</RSMF.GoodsManager.StockThresholdTip>
   <RSMF.GoodsManager.PendingEvictWarning>⚠️ 注意：保存后 {count} 种物品将被移出仓库：{names}</RSMF.GoodsManager.PendingEvictWarning>
   <RSMF.GoodsManager.PendingEvictMore>其余 {count} 种</RSMF.GoodsManager.PendingEvictMore>
   <RSMF.GoodsManager.CapacityText>容量: {current}/{max}</RSMF.GoodsManager.CapacityText>
@@ -1043,6 +1047,8 @@
   <RSMF.ShopUi.Empty.NoRows>无可显示项目。</RSMF.ShopUi.Empty.NoRows>
   <RSMF.ShopUi.Empty.NoPages>没有可用页面。</RSMF.ShopUi.Empty.NoPages>
   <RSMF.ShopUi.Error.PageDrawFailed>页面绘制失败。</RSMF.ShopUi.Error.PageDrawFailed>
+  <RSMF.ShopUi.Page.Main.Tutorial.Label>教程</RSMF.ShopUi.Page.Main.Tutorial.Label>
+  <RSMF.ShopUi.Page.Main.Tutorial.Description>经商管理主界面的教程页。</RSMF.ShopUi.Page.Main.Tutorial.Description>
   <RSMF.ShopUi.Page.Main.Shops.Label>商店管理</RSMF.ShopUi.Page.Main.Shops.Label>
   <RSMF.ShopUi.Page.Main.Shops.Description>经商管理主界面的商店管理页。</RSMF.ShopUi.Page.Main.Shops.Description>
   <RSMF.ShopUi.Page.Main.Vending.Label>自动售卖</RSMF.ShopUi.Page.Main.Vending.Label>
@@ -1055,12 +1061,37 @@
   <RSMF.ShopUi.Page.Main.CollectibleExchange.Description>经商管理主界面的收藏品兑换页。</RSMF.ShopUi.Page.Main.CollectibleExchange.Description>
   <RSMF.ShopUi.Page.Main.Blueprints.Label>蓝图管理</RSMF.ShopUi.Page.Main.Blueprints.Label>
   <RSMF.ShopUi.Page.Main.Blueprints.Description>经商管理主界面的蓝图页。</RSMF.ShopUi.Page.Main.Blueprints.Description>
+  <RSMF.ShopUi.Page.Main.Announcements.Label>公告</RSMF.ShopUi.Page.Main.Announcements.Label>
+  <RSMF.ShopUi.Page.Main.Announcements.Description>查看已读公告历史并检查新公告。</RSMF.ShopUi.Page.Main.Announcements.Description>
   <RSMF.ShopUi.Page.Main.Extensions.Label>扩展推荐</RSMF.ShopUi.Page.Main.Extensions.Label>
   <RSMF.ShopUi.Page.Main.Extensions.Description>查看推荐的经商扩展并打开对应 Steam 页面。</RSMF.ShopUi.Page.Main.Extensions.Description>
   <RSMF.ShopUi.Page.Main.Customers.Label>顾客</RSMF.ShopUi.Page.Main.Customers.Label>
   <RSMF.ShopUi.Page.Main.Customers.Description>经商管理主界面的顾客页。</RSMF.ShopUi.Page.Main.Customers.Description>
   <RSMF.ShopUi.Page.Main.Staff.Label>店员</RSMF.ShopUi.Page.Main.Staff.Label>
   <RSMF.ShopUi.Page.Main.Staff.Description>经商管理主界面的店员页。</RSMF.ShopUi.Page.Main.Staff.Description>
+  <RSMF.Announcement.PopupTitle>经商公告</RSMF.Announcement.PopupTitle>
+  <RSMF.Announcement.CheckNow>检查新公告</RSMF.Announcement.CheckNow>
+  <RSMF.Announcement.HistoryEmpty>暂无已读公告。联网检查到新公告后，会保存到这里供离线查看。</RSMF.Announcement.HistoryEmpty>
+  <RSMF.Announcement.EmptyUnread>暂无新公告。</RSMF.Announcement.EmptyUnread>
+  <RSMF.Announcement.Untitled>未命名公告</RSMF.Announcement.Untitled>
+  <RSMF.Announcement.EmptyBody>公告正文为空。</RSMF.Announcement.EmptyBody>
+  <RSMF.Announcement.Meta.NoTime>公告</RSMF.Announcement.Meta.NoTime>
+  <RSMF.Announcement.Meta.Published>发布时间：{time}</RSMF.Announcement.Meta.Published>
+  <RSMF.Announcement.Meta.Read>已读时间：{time}</RSMF.Announcement.Meta.Read>
+  <RSMF.Announcement.Meta.PublishedAndRead>发布时间：{published} · 已读：{read}</RSMF.Announcement.Meta.PublishedAndRead>
+  <RSMF.Announcement.Status.Idle>公告会在打开经商管理时自动检查一次。</RSMF.Announcement.Status.Idle>
+  <RSMF.Announcement.Status.Checking>正在检查新公告...</RSMF.Announcement.Status.Checking>
+  <RSMF.Announcement.Status.Waiting>暂时无法检查公告，稍后可再次尝试。</RSMF.Announcement.Status.Waiting>
+  <RSMF.Announcement.Status.NoNew>没有新的未读公告。</RSMF.Announcement.Status.NoNew>
+  <RSMF.Announcement.Status.NewRead>新公告已加入已读历史。</RSMF.Announcement.Status.NewRead>
+  <RSMF.Business.Tutorial.Empty>没有配置教程。</RSMF.Business.Tutorial.Empty>
+  <RSMF.Business.Tutorial.ImageMissing>图片未找到</RSMF.Business.Tutorial.ImageMissing>
+  <RSMF.Business.Tutorial.StartBusiness.Title>怎么开始经营</RSMF.Business.Tutorial.StartBusiness.Title>
+  <RSMF.Business.Tutorial.StartBusiness.BeforeImage>先划定一个室内商店区，并在区域里放置至少一个货柜和一个收银台。商店区域为空、在室外，或缺少核心设施时，商店不会进入有效经营状态。</RSMF.Business.Tutorial.StartBusiness.BeforeImage>
+  <RSMF.Business.Tutorial.StartBusiness.AfterImage>打开货柜管理配置上架商品、目标库存和售价，再到商店管理里设置营业时间与店员。设施有效、商店处于营业时间并且没有手动停业时，顾客就会开始来店购物。</RSMF.Business.Tutorial.StartBusiness.AfterImage>
+  <RSMF.Business.Tutorial.CloseUi.Title>怎么关闭 UI</RSMF.Business.Tutorial.CloseUi.Title>
+  <RSMF.Business.Tutorial.CloseUi.BeforeImage>经商管理主界面可以按 Esc 关闭，也可以再次点击底部的经商管理主标签关闭。</RSMF.Business.Tutorial.CloseUi.BeforeImage>
+  <RSMF.Business.Tutorial.CloseUi.AfterImage>商店、货柜、店员、招牌等弹窗可以按右上角 X 关闭，也可以按 Esc 关闭。部分配置窗口带有保存按钮，关闭前请先保存需要保留的设置。</RSMF.Business.Tutorial.CloseUi.AfterImage>
   <RSMF.Business.Extensions.Title>推荐扩展</RSMF.Business.Extensions.Title>
   <RSMF.Business.Extensions.Summary>已完成 {checked}/{total} 个推荐扩展。点击 Steam 页面按钮后在创意工坊订阅；重启游戏后状态会刷新。</RSMF.Business.Extensions.Summary>
   <RSMF.Business.Extensions.Empty>没有配置推荐扩展。</RSMF.Business.Extensions.Empty>

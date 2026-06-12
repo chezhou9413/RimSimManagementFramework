@@ -102,7 +102,6 @@ namespace SimManagementLib.SimWorkGiver
         {
             if (storage.Destroyed || !storage.Spawned) return false;
             Zone_Shop shop = ShopStaffUtility.FindShopFor(storage);
-            if (!VendingMachineUtility.IsVendingMachine(storage) && !ShopStaffUtility.IsShopOpenForWork(shop)) return false;
             if (!VendingMachineUtility.IsVendingMachine(storage) && CurrentWorkGiverDef != null && !ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, CurrentWorkGiverDef))
                 return false;
             if (useCachedReach)
@@ -116,16 +115,6 @@ namespace SimManagementLib.SimWorkGiver
                 if (storage.CountNeeded(td) > 0) return true;
             }
             return false;
-        }
-
-        /// <summary>
-        /// 判断货柜是否允许被补货扫描，自动售货机不依赖商店营业状态。
-        /// </summary>
-        private static bool IsAllowedByBusinessState(Building_SimContainer storage)
-        {
-            if (VendingMachineUtility.IsVendingMachine(storage))
-                return true;
-            return ShopStaffUtility.IsShopOpenForWork(ShopStaffUtility.FindShopFor(storage));
         }
 
         /// <summary>
@@ -155,7 +144,7 @@ namespace SimManagementLib.SimWorkGiver
         }
 
         /// <summary>
-        /// 刷新当前地图的补货货柜候选，负责只保留营业状态允许扫描的货柜。
+        /// 刷新当前地图的补货货柜候选，负责保留可由补货任务进一步判断的货柜。
         /// </summary>
         private static void RefreshCandidateStorages(Map map, RestockCandidateCache cache, int now)
         {
@@ -168,7 +157,6 @@ namespace SimManagementLib.SimWorkGiver
             {
                 Building_SimContainer storage = buildings[i] as Building_SimContainer;
                 if (storage == null || storage.Destroyed || !storage.Spawned) continue;
-                if (!IsAllowedByBusinessState(storage)) continue;
                 cache.allCandidates.Add(storage);
             }
 

@@ -1,4 +1,5 @@
 using RimWorld;
+using SimManagementLib.Tool;
 using SimManagementLib.SimThingClass;
 using System.Collections.Generic;
 using UnityEngine;
@@ -65,7 +66,7 @@ namespace SimManagementLib.SimAI
             if (!cell.InBounds(map)) return false;
             if (!cell.Standable(map)) return false;
             if (cell.IsForbidden(pawn)) return false;
-            if (!pawn.CanReach(cell, PathEndMode.OnCell, Danger.Deadly)) return false;
+            if (!CustomerSafetyUtility.CanCustomerReach(pawn, cell, PathEndMode.OnCell, Danger.Deadly)) return false;
             return true;
         }
 

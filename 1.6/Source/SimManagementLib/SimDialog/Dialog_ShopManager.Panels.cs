@@ -195,15 +195,13 @@ namespace SimManagementLib.SimDialog
                 rx -= StockW;
                 int currentStock = storage.CountStored(thingDef);
                 int targetCount = enabled ? Mathf.Max(0, config?.count ?? 0) : 0;
-                Color stockColor = currentStock <= 0 ? CStockNo : currentStock < targetCount ? CStockLow : CStockOk;
+                int threshold = enabled ? GoodsItemData.GetEffectiveRestockThreshold(targetCount, config?.restockThreshold ?? -1) : 0;
+                Color stockColor = currentStock <= 0 ? CStockNo : currentStock <= threshold && currentStock < targetCount ? CStockLow : CStockOk;
                 Text.Anchor = TextAnchor.MiddleLeft;
                 Text.Font = GameFont.Small;
                 GUI.color = stockColor;
-                Widgets.Label(new Rect(rx, row.y, 35f, RowH), currentStock.ToString());
-                GUI.color = CTextDim;
-                Widgets.Label(new Rect(rx + 35f, row.y, 10f, RowH), "/");
-                GUI.color = Color.white;
-                Widgets.Label(new Rect(rx + 45f, row.y, StockW - 45f, RowH), targetCount.ToString());
+                Widgets.Label(new Rect(rx, row.y, StockW, RowH), enabled ? $"{currentStock}/{threshold}/{targetCount}" : currentStock.ToString());
+                TooltipHandler.TipRegion(new Rect(rx, row.y, StockW, RowH), SimTranslation.T("RSMF.GoodsManager.StockThresholdTip"));
 
                 rx -= ColGap;
                 rx -= FieldW;

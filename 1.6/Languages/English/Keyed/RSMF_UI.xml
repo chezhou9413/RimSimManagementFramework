@@ -383,9 +383,13 @@
   <RSMF.GoodsManager.Header.Price>Price (silver)</RSMF.GoodsManager.Header.Price>
   <RSMF.GoodsManager.Header.Target>Target</RSMF.GoodsManager.Header.Target>
   <RSMF.GoodsManager.Header.Slider>Quick adjust</RSMF.GoodsManager.Header.Slider>
+  <RSMF.GoodsManager.Header.TargetSlider>Target slider</RSMF.GoodsManager.Header.TargetSlider>
+  <RSMF.GoodsManager.Header.RestockThreshold>Restock at</RSMF.GoodsManager.Header.RestockThreshold>
   <RSMF.GoodsManager.Header.Stock>Stock</RSMF.GoodsManager.Header.Stock>
   <RSMF.GoodsManager.Header.Name>Item name</RSMF.GoodsManager.Header.Name>
   <RSMF.GoodsManager.PriceTip>Reference market value: {value} silver</RSMF.GoodsManager.PriceTip>
+  <RSMF.GoodsManager.RestockThresholdTip>When current stock plus incoming restock is at or below this value, restockers refill to the target amount.</RSMF.GoodsManager.RestockThresholdTip>
+  <RSMF.GoodsManager.StockThresholdTip>Format: current stock / restock threshold / target amount.</RSMF.GoodsManager.StockThresholdTip>
   <RSMF.GoodsManager.PendingEvictWarning>⚠️ Warning: after saving, {count} item types will be removed from storage: {names}</RSMF.GoodsManager.PendingEvictWarning>
   <RSMF.GoodsManager.PendingEvictMore>{count} more</RSMF.GoodsManager.PendingEvictMore>
   <RSMF.GoodsManager.CapacityText>Capacity: {current}/{max}</RSMF.GoodsManager.CapacityText>
@@ -1043,6 +1047,8 @@
   <RSMF.ShopUi.Empty.NoRows>No items to display.</RSMF.ShopUi.Empty.NoRows>
   <RSMF.ShopUi.Empty.NoPages>No available pages.</RSMF.ShopUi.Empty.NoPages>
   <RSMF.ShopUi.Error.PageDrawFailed>Page drawing failed.</RSMF.ShopUi.Error.PageDrawFailed>
+  <RSMF.ShopUi.Page.Main.Tutorial.Label>Tutorial</RSMF.ShopUi.Page.Main.Tutorial.Label>
+  <RSMF.ShopUi.Page.Main.Tutorial.Description>Business manager tutorial page.</RSMF.ShopUi.Page.Main.Tutorial.Description>
   <RSMF.ShopUi.Page.Main.Shops.Label>Shop management</RSMF.ShopUi.Page.Main.Shops.Label>
   <RSMF.ShopUi.Page.Main.Shops.Description>Business manager page for shop management.</RSMF.ShopUi.Page.Main.Shops.Description>
   <RSMF.ShopUi.Page.Main.Vending.Label>Vending</RSMF.ShopUi.Page.Main.Vending.Label>
@@ -1055,12 +1061,37 @@
   <RSMF.ShopUi.Page.Main.CollectibleExchange.Description>Business manager page for collectible exchange lists.</RSMF.ShopUi.Page.Main.CollectibleExchange.Description>
   <RSMF.ShopUi.Page.Main.Blueprints.Label>Blueprints</RSMF.ShopUi.Page.Main.Blueprints.Label>
   <RSMF.ShopUi.Page.Main.Blueprints.Description>Business manager page for shop blueprints.</RSMF.ShopUi.Page.Main.Blueprints.Description>
+  <RSMF.ShopUi.Page.Main.Announcements.Label>Announcements</RSMF.ShopUi.Page.Main.Announcements.Label>
+  <RSMF.ShopUi.Page.Main.Announcements.Description>View read announcement history and check for new announcements.</RSMF.ShopUi.Page.Main.Announcements.Description>
   <RSMF.ShopUi.Page.Main.Extensions.Label>Extensions</RSMF.ShopUi.Page.Main.Extensions.Label>
   <RSMF.ShopUi.Page.Main.Extensions.Description>View recommended business extensions and open their Steam pages.</RSMF.ShopUi.Page.Main.Extensions.Description>
   <RSMF.ShopUi.Page.Main.Customers.Label>Customers</RSMF.ShopUi.Page.Main.Customers.Label>
   <RSMF.ShopUi.Page.Main.Customers.Description>Business manager page for active customers.</RSMF.ShopUi.Page.Main.Customers.Description>
   <RSMF.ShopUi.Page.Main.Staff.Label>Staff</RSMF.ShopUi.Page.Main.Staff.Label>
   <RSMF.ShopUi.Page.Main.Staff.Description>Business manager page for shop staff.</RSMF.ShopUi.Page.Main.Staff.Description>
+  <RSMF.Announcement.PopupTitle>Business announcements</RSMF.Announcement.PopupTitle>
+  <RSMF.Announcement.CheckNow>Check now</RSMF.Announcement.CheckNow>
+  <RSMF.Announcement.HistoryEmpty>No read announcements yet. New announcements found online are saved here for offline viewing.</RSMF.Announcement.HistoryEmpty>
+  <RSMF.Announcement.EmptyUnread>No new announcements.</RSMF.Announcement.EmptyUnread>
+  <RSMF.Announcement.Untitled>Untitled announcement</RSMF.Announcement.Untitled>
+  <RSMF.Announcement.EmptyBody>This announcement has no content.</RSMF.Announcement.EmptyBody>
+  <RSMF.Announcement.Meta.NoTime>Announcement</RSMF.Announcement.Meta.NoTime>
+  <RSMF.Announcement.Meta.Published>Published: {time}</RSMF.Announcement.Meta.Published>
+  <RSMF.Announcement.Meta.Read>Read: {time}</RSMF.Announcement.Meta.Read>
+  <RSMF.Announcement.Meta.PublishedAndRead>Published: {published} · read: {read}</RSMF.Announcement.Meta.PublishedAndRead>
+  <RSMF.Announcement.Status.Idle>Announcements are checked once when the business manager opens.</RSMF.Announcement.Status.Idle>
+  <RSMF.Announcement.Status.Checking>Checking for new announcements...</RSMF.Announcement.Status.Checking>
+  <RSMF.Announcement.Status.Waiting>Announcements cannot be checked right now. Try again later.</RSMF.Announcement.Status.Waiting>
+  <RSMF.Announcement.Status.NoNew>No unread announcements.</RSMF.Announcement.Status.NoNew>
+  <RSMF.Announcement.Status.NewRead>New announcements were added to read history.</RSMF.Announcement.Status.NewRead>
+  <RSMF.Business.Tutorial.Empty>No tutorials are configured.</RSMF.Business.Tutorial.Empty>
+  <RSMF.Business.Tutorial.ImageMissing>Image not found</RSMF.Business.Tutorial.ImageMissing>
+  <RSMF.Business.Tutorial.StartBusiness.Title>How to start business</RSMF.Business.Tutorial.StartBusiness.Title>
+  <RSMF.Business.Tutorial.StartBusiness.BeforeImage>First designate an indoor shop area, then place at least one storage building and one cash register inside it. A shop will not become valid if the area is empty, outdoors, or missing core facilities.</RSMF.Business.Tutorial.StartBusiness.BeforeImage>
+  <RSMF.Business.Tutorial.StartBusiness.AfterImage>Open storage management to configure sale goods, target stock, and prices, then use shop management to set business hours and staff. When the facilities are valid, the shop is within business hours, and it is not manually closed, customers will start visiting.</RSMF.Business.Tutorial.StartBusiness.AfterImage>
+  <RSMF.Business.Tutorial.CloseUi.Title>How to close UI</RSMF.Business.Tutorial.CloseUi.Title>
+  <RSMF.Business.Tutorial.CloseUi.BeforeImage>The business manager main window can be closed with Esc, or by clicking the business manager main tab at the bottom again.</RSMF.Business.Tutorial.CloseUi.BeforeImage>
+  <RSMF.Business.Tutorial.CloseUi.AfterImage>Shop, storage, staff, sign, and other dialogs can be closed with the top-right X or Esc. Some configuration windows have save buttons, so save changes first if you want to keep them.</RSMF.Business.Tutorial.CloseUi.AfterImage>
   <RSMF.Business.Extensions.Title>Recommended extensions</RSMF.Business.Extensions.Title>
   <RSMF.Business.Extensions.Summary>{checked}/{total} recommended extensions completed. Open the Steam page and subscribe in Workshop; restart the game for the status to update.</RSMF.Business.Extensions.Summary>
   <RSMF.Business.Extensions.Empty>No recommended extensions are configured.</RSMF.Business.Extensions.Empty>

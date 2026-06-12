@@ -20,6 +20,7 @@ namespace SimManagementLib.SimAI
     public partial class LordJob_CustomerVisit
     {
         private const int VisitWatchdogIntervalTicks = 250;
+        private const int LargeRaidWatchdogIntervalTicks = 60;
         private readonly HashSet<int> forceLeaveAfterCheckout = new HashSet<int>();
 
         /// <summary>
@@ -28,13 +29,25 @@ namespace SimManagementLib.SimAI
         public override void LordJobTick()
         {
             base.LordJobTick();
-            if (Find.TickManager.TicksGame % VisitWatchdogIntervalTicks != 0) return;
+            bool checkLargeRaid = Find.TickManager.TicksGame % LargeRaidWatchdogIntervalTicks == 0;
+            bool checkVisitState = Find.TickManager.TicksGame % VisitWatchdogIntervalTicks == 0;
+            if (!checkLargeRaid && !checkVisitState) return;
             if (lord?.ownedPawns == null || lord.ownedPawns.Count == 0) return;
+            bool largeRaidActive = checkLargeRaid && CustomerSafetyUtility.IsLargeHostileRaidActive(lord.Map);
 
             for (int i = lord.ownedPawns.Count - 1; i >= 0; i--)
             {
                 Pawn pawn = lord.ownedPawns[i];
                 if (pawn == null || pawn.Destroyed || pawn.Dead || !pawn.Spawned)
+                    continue;
+
+                if (largeRaidActive)
+                {
+                    ForceCustomerFleeLargeRaid(pawn);
+                    continue;
+                }
+
+                if (!checkVisitState)
                     continue;
 
                 CustomerVisitSession session = GetOrCreateSession(pawn);
@@ -105,6 +118,7 @@ namespace SimManagementLib.SimAI
             finance?.ClearPendingBill(pawn);
             ResolveServiceOrdersOnCheckoutFailure(pawnId);
             ClearCustomerCart(pawnId);
+            ClearDeliveredItems(pawnId);
             ClearCustomerServiceOrders(pawnId);
             checkoutState.MarkPostCheckoutCompleted(pawnId);
             checkoutState.ClearPawnReadyForCheckout(pawnId);
@@ -118,6 +132,44 @@ namespace SimManagementLib.SimAI
         internal void CleanupUnpaidCustomerStateForSession(Pawn pawn, string reason)
         {
             CleanupUnpaidCustomerState(pawn, reason);
+        }
+
+        // 强制顾客放弃购物并快速离开地图，负责响应超过 1000 战斗力的敌对袭击。
+        private void ForceCustomerFleeLargeRaid(Pawn pawn)
+        {
+            if (pawn == null || pawn.Map == null || lord == null)
+                return;
+
+            int pawnId = pawn.thingIDNumber;
+            string reason = "地图发生大规模敌对袭击，顾客放弃购物并逃离";
+            List<CustomerCartItem> delivered = GetDeliveredItems(pawnId);
+            CleanupUnpaidCustomerState(pawn, reason);
+            CustomerSafetyUtility.DropDeliveredItems(pawn, delivered);
+            ClearDeliveredItems(pawnId);
+
+            PawnExitAfterRaid(pawn, reason);
+        }
+
+        // 把顾客从当前访问 Lord 中移出并创建冲刺离图 Lord。
+        private void PawnExitAfterRaid(Pawn pawn, string reason)
+        {
+            if (pawn == null || pawn.Map == null || lord == null)
+                return;
+
+            Lord oldLord = lord;
+            if (pawn.jobs != null)
+                pawn.jobs.EndCurrentJob(JobCondition.InterruptForced, false, true);
+            oldLord.Notify_PawnLost(pawn, PawnLostCondition.LeftVoluntarily);
+            if (pawn.Spawned && !pawn.Dead && !pawn.Destroyed && pawn.Map != null)
+            {
+                LordMaker.MakeNewLord(
+                    pawn.Faction,
+                    new LordJob_ExitMapBest(LocomotionUrgency.Sprint, canDig: false, canDefendSelf: false),
+                    pawn.Map,
+                    new[] { pawn });
+            }
+
+            SimDebugLogger.Journey("RSMF.CustomerWatchdog", reason, pawn, null, -1);
         }
     }
 }

@@ -159,6 +159,7 @@ namespace SimManagementLib.SimMapComp
                     {
                         enabled = item.enabled,
                         count = Math.Max(0, item.count),
+                        restockThreshold = GoodsItemData.NormalizeRestockThreshold(item.restockThreshold, Math.Max(0, item.count)),
                         price = Math.Max(0f, item.price)
                     };
                 }

@@ -1,7 +1,7 @@
-using System;
 using System.Collections.Generic;
 using RimWorld;
 using SimManagementLib.Pojo;
+using SimManagementLib.SimThingComp;
 using SimManagementLib.SimThingClass;
 using UnityEngine;
 using Verse;
@@ -14,14 +14,12 @@ namespace SimManagementLib.Tool
     /// </summary>
     public static class CollectibleDisplayStandUtility
     {
-        private const string CollectiblePrefix = "RSMF_Collections_";
-
         /// <summary>
-        /// 判断 ThingDef 是否属于模拟经营框架收藏品。
+        /// 判断 ThingDef 是否声明为可被收藏品展台展示。
         /// </summary>
         public static bool IsCollectibleDef(ThingDef def)
         {
-            return def != null && def.defName.StartsWith(CollectiblePrefix, StringComparison.OrdinalIgnoreCase);
+            return def != null && def.HasComp<ThingComp_DisplayStandCollectible>();
         }
 
         /// <summary>

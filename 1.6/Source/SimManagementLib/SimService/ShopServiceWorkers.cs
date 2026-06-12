@@ -41,7 +41,7 @@ namespace SimManagementLib.SimService
                 failReason = SimTranslation.T("RSMF.ShopService.Fail.ToiletCellNotStandable");
                 return false;
             }
-            if (!customer.CanReach(cell, PathEndMode.OnCell, Danger.Deadly))
+            if (!CustomerSafetyUtility.CanCustomerReach(customer, cell, PathEndMode.OnCell, Danger.Deadly))
             {
                 failReason = SimTranslation.T("RSMF.ShopService.Fail.CustomerCannotReachToilet");
                 return false;
@@ -212,7 +212,7 @@ namespace SimManagementLib.SimService
                 && cell.InBounds(map)
                 && cell.Standable(map)
                 && !cell.IsForbidden(customer)
-                && customer.CanReach(cell, PathEndMode.OnCell, Danger.Deadly);
+                && CustomerSafetyUtility.CanCustomerReach(customer, cell, PathEndMode.OnCell, Danger.Deadly);
         }
     }
 }

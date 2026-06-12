@@ -53,6 +53,7 @@ namespace SimManagementLib.SimDialog
         private Vector2 blueprintScrollPos;
         private Vector2 blueprintNetworkScrollPos;
         private Vector2 blueprintNetworkDetailScrollPos;
+        private Vector2 announcementScrollPos;
         private int financeSubPageIndex;
         private int financeLogPageIndex;
         private int reviewSortMode;
@@ -96,6 +97,7 @@ namespace SimManagementLib.SimDialog
             base.PreOpen();
             uiContext.Window = this;
             EnsurePages();
+            AnnouncementClientState.TryCheckOnBusinessManagerOpen();
         }
 
         /// <summary>
@@ -123,6 +125,7 @@ namespace SimManagementLib.SimDialog
                     return;
 
                 EnsurePages();
+                AnnouncementClientState.Tick();
                 uiContext.Window = this;
                 uiContext.WindowRect = inRect;
 
@@ -263,6 +266,7 @@ namespace SimManagementLib.SimDialog
             staffScrollPos = Vector2.zero;
             vendingScrollPos = Vector2.zero;
             blueprintScrollPos = Vector2.zero;
+            announcementScrollPos = Vector2.zero;
             NotifyPageOpened(page);
         }
 

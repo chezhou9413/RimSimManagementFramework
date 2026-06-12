@@ -28,6 +28,7 @@ namespace SimManagementLib.Api
         public static event Action<ShopCheckoutContext> CheckoutBeforeCommit;
         public static event Action<ShopCheckoutContext> CheckoutPaid;
         public static event Action<ShopCheckoutContext> CheckoutFailed;
+        public static event Action<Pawn> CustomerArrived;
 
         /// <summary>
         /// 安全触发服务订单创建事件。
@@ -171,6 +172,12 @@ namespace SimManagementLib.Api
         public static void NotifyCheckoutFailed(ShopCheckoutContext context)
         {
             InvokeSafe(CheckoutFailed, context, "结账失败");
+        }
+
+        // 安全触发顾客到达事件，负责让外部模组拿到刚生成的顾客 Pawn。
+        public static void NotifyCustomerArrived(Pawn customer)
+        {
+            InvokeSafe(CustomerArrived, customer, "顾客到达");
         }
 
         /// <summary>

@@ -52,6 +52,7 @@
                 <velocityX>0.3~0.7</velocityX>
                 <velocityY>0.7~1.0</velocityY>
             </li>
+            <li Class="SimManagementLib.SimThingComp.CompProperties_DisplayStandCollectible" />
         </comps>
         <placeWorkers>
             <li>PlaceWorker_ShowInstrumentAoE</li>
@@ -83,6 +84,9 @@
         <passability>PassThroughOnly</passability>
         <pathCost>50</pathCost>
         <minifiedDef>MinifiedThing</minifiedDef>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.CompProperties_DisplayStandCollectible" />
+        </comps>
     </ThingDef>
 
     <ThingDef ParentName="BuildingBase">
@@ -110,6 +114,9 @@
         <passability>PassThroughOnly</passability>
         <pathCost>50</pathCost>
         <minifiedDef>MinifiedThing</minifiedDef>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.CompProperties_DisplayStandCollectible" />
+        </comps>
     </ThingDef>
 
     <ThingDef ParentName="BuildingBase">
@@ -137,6 +144,9 @@
         <passability>PassThroughOnly</passability>
         <pathCost>50</pathCost>
         <minifiedDef>MinifiedThing</minifiedDef>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.CompProperties_DisplayStandCollectible" />
+        </comps>
     </ThingDef>
 
     <ThingDef ParentName="BuildingBase">
@@ -164,6 +174,9 @@
         <passability>PassThroughOnly</passability>
         <pathCost>50</pathCost>
         <minifiedDef>MinifiedThing</minifiedDef>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.CompProperties_DisplayStandCollectible" />
+        </comps>
     </ThingDef>
 
     <ThingDef ParentName="BuildingBase">
@@ -191,6 +204,9 @@
         <passability>PassThroughOnly</passability>
         <pathCost>50</pathCost>
         <minifiedDef>MinifiedThing</minifiedDef>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.CompProperties_DisplayStandCollectible" />
+        </comps>
     </ThingDef>
 
     <ThingDef ParentName="BuildingBase">
@@ -218,6 +234,9 @@
         <passability>PassThroughOnly</passability>
         <pathCost>50</pathCost>
         <minifiedDef>MinifiedThing</minifiedDef>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.CompProperties_DisplayStandCollectible" />
+        </comps>
     </ThingDef>
 
     <ThingDef ParentName="BuildingBase">
@@ -245,6 +264,9 @@
         <passability>PassThroughOnly</passability>
         <pathCost>50</pathCost>
         <minifiedDef>MinifiedThing</minifiedDef>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.CompProperties_DisplayStandCollectible" />
+        </comps>
     </ThingDef>
 
     <ThingDef ParentName="BuildingBase">
@@ -277,6 +299,8 @@
         <pathCost>50</pathCost>
         <minifiedDef>MinifiedThing</minifiedDef>
         <defaultPlacingRot>South</defaultPlacingRot>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.CompProperties_DisplayStandCollectible" />
+        </comps>
     </ThingDef>
 </Defs>
-    

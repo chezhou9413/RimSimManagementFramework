@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
   <SimManagementLib.SimDef.ShopUiPageDef>
+    <defName>Sim_BusinessUi_Main_Tutorial</defName>
+    <label>Tutorial</label>
+    <description>Business manager tutorial page.</description>
+    <labelKey>RSMF.ShopUi.Page.Main.Tutorial.Label</labelKey>
+    <descriptionKey>RSMF.ShopUi.Page.Main.Tutorial.Description</descriptionKey>
+    <scope>BusinessManager</scope>
+    <order>50</order>
+    <workerClass>SimManagementLib.SimDialog.BusinessPageWorker_Tutorial</workerClass>
+  </SimManagementLib.SimDef.ShopUiPageDef>
+
+  <SimManagementLib.SimDef.ShopUiPageDef>
     <defName>Sim_BusinessUi_Main_Shops</defName>
     <label>Shop management</label>
     <description>Business manager page for shop management.</description>
@@ -64,6 +75,17 @@
     <scope>BusinessManager</scope>
     <order>600</order>
     <workerClass>SimManagementLib.SimDialog.BusinessPageWorker_Blueprints</workerClass>
+  </SimManagementLib.SimDef.ShopUiPageDef>
+
+  <SimManagementLib.SimDef.ShopUiPageDef>
+    <defName>Sim_BusinessUi_Main_Announcements</defName>
+    <label>Announcements</label>
+    <description>Business manager page for announcements.</description>
+    <labelKey>RSMF.ShopUi.Page.Main.Announcements.Label</labelKey>
+    <descriptionKey>RSMF.ShopUi.Page.Main.Announcements.Description</descriptionKey>
+    <scope>BusinessManager</scope>
+    <order>650</order>
+    <workerClass>SimManagementLib.SimDialog.BusinessPageWorker_Announcements</workerClass>
   </SimManagementLib.SimDef.ShopUiPageDef>
 
   <SimManagementLib.SimDef.ShopUiPageDef>

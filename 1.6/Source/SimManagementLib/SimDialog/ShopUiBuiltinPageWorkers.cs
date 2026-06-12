@@ -99,6 +99,20 @@ namespace SimManagementLib.SimDialog
     }
 
     /// <summary>
+    /// 绘制内置公告页，负责把 Def 页面适配到原经商管理窗口逻辑。
+    /// </summary>
+    public class BusinessPageWorker_Announcements : BusinessManagerPageWorker
+    {
+        /// <summary>
+        /// 绘制公告页主体。
+        /// </summary>
+        public override void DrawBusinessPage(Rect rect, BusinessManagerUiContext context)
+        {
+            context?.Window?.ApiDrawAnnouncementsPage(rect);
+        }
+    }
+
+    /// <summary>
     /// 绘制内置顾客页，负责把 Def 页面适配到原经商管理窗口逻辑。
     /// </summary>
     public class BusinessPageWorker_Customers : BusinessManagerPageWorker

@@ -64,6 +64,14 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
+        /// 绘制内置公告页，负责让内置 Worker 复用原窗口实现。
+        /// </summary>
+        public void ApiDrawAnnouncementsPage(Rect rect)
+        {
+            DrawAnnouncementsPage(rect);
+        }
+
+        /// <summary>
         /// 绘制内置顾客页，负责让内置 Worker 复用原窗口实现。
         /// </summary>
         public void ApiDrawCustomerPage(Rect rect)

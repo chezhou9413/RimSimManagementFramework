@@ -162,6 +162,17 @@ namespace SimManagementLib.SimAI
             return session?.GetRemainingTripBudget(this, pawn) ?? 0f;
         }
 
+        // 返回顾客本次行程已消耗金额，负责给顾客页面同时统计已付款和当前待付款账单。
+        public float GetTotalSpentIncludingCurrentBill(Pawn pawn)
+        {
+            int pawnId = pawn?.thingIDNumber ?? -1;
+            if (pawnId <= 0) return 0f;
+
+            CustomerVisitSession session = GetOrCreateSession(pawn);
+            float paid = session?.TotalSpentAcrossShops ?? 0f;
+            return UnityEngine.Mathf.Max(0f, paid + GetCartValue(pawnId));
+        }
+
         /// <summary>
         /// 记录当前店已支付金额，负责跨店预算累计。
         /// </summary>

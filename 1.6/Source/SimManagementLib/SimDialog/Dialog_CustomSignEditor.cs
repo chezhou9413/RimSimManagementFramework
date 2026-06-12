@@ -560,7 +560,7 @@ namespace SimManagementLib.SimDialog
             Rect textureRect = LogicalRectForRotation(signRect, rot);
             Matrix4x4 oldMatrix = GUI.matrix;
             GUIUtility.RotateAroundPivot(AngleForRotation(rot), signRect.center);
-            GUI.DrawTexture(textureRect, texture, ScaleMode.ScaleToFit, true);
+            GUI.DrawTexture(textureRect, texture, ScaleMode.StretchToFill, true);
             GUI.matrix = oldMatrix;
         }
 

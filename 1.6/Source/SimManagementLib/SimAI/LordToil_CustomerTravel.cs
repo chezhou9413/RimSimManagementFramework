@@ -118,7 +118,7 @@ namespace SimManagementLib.SimAI
 
             List<Building_SimContainer> storages = ShopDataUtility.GetStoragesInZone(shop)
                 .Where(item => item != null && !item.Destroyed && item.Spawned)
-                .Where(item => pawn.CanReach(item, PathEndMode.Touch, Danger.Deadly))
+                .Where(item => CustomerSafetyUtility.CanCustomerReach(pawn, item, PathEndMode.Touch, Danger.Deadly))
                 .ToList();
             for (int i = 0; i < storages.Count; i++)
             {
@@ -139,7 +139,7 @@ namespace SimManagementLib.SimAI
             cell = IntVec3.Invalid;
             List<Building_SimContainer> storages = ShopDataUtility.GetStoragesInZone(shop)
                 .Where(item => item != null && !item.Destroyed && item.Spawned)
-                .Where(item => pawn.CanReach(item, PathEndMode.Touch, Danger.Deadly))
+                .Where(item => CustomerSafetyUtility.CanCustomerReach(pawn, item, PathEndMode.Touch, Danger.Deadly))
                 .ToList();
             if (storages.NullOrEmpty()) return false;
 
@@ -147,7 +147,7 @@ namespace SimManagementLib.SimAI
                 .OrderBy(item => (item.Position - pawn.Position).LengthHorizontalSquared)
                 .FirstOrDefault();
             cell = selectedStorage?.InteractionCell ?? IntVec3.Invalid;
-            if (cell.IsValid && pawn.CanReach(cell, PathEndMode.OnCell, Danger.Deadly))
+            if (cell.IsValid && CustomerSafetyUtility.CanCustomerReach(pawn, cell, PathEndMode.OnCell, Danger.Deadly))
                 return true;
 
             cell = IntVec3.Invalid;
@@ -162,7 +162,7 @@ namespace SimManagementLib.SimAI
             cell = IntVec3.Invalid;
             List<IntVec3> cells = shop.Cells
                 .Where(c => c.IsValid && c.Standable(pawn.Map))
-                .Where(c => pawn.CanReach(c, PathEndMode.OnCell, Danger.Deadly))
+                .Where(c => CustomerSafetyUtility.CanCustomerReach(pawn, c, PathEndMode.OnCell, Danger.Deadly))
                 .OrderBy(c => (c - pawn.Position).LengthHorizontalSquared)
                 .ToList();
             if (cells.NullOrEmpty()) return false;

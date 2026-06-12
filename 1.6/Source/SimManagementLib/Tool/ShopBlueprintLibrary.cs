@@ -394,6 +394,7 @@ namespace SimManagementLib.Tool
                     thingDefName = pair.Key,
                     enabled = item.enabled,
                     count = item.count,
+                    restockThreshold = item.EffectiveRestockThreshold,
                     price = item.price
                 });
             }
@@ -681,6 +682,9 @@ namespace SimManagementLib.Tool
                     }
 
                     item.thingDefName = item.thingDefName ?? "";
+                    item.count = Math.Max(0, item.count);
+                    item.restockThreshold = GoodsItemData.NormalizeRestockThreshold(item.restockThreshold, item.count);
+                    item.price = Math.Max(0f, item.price);
                 }
             }
 
