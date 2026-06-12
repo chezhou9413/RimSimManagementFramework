@@ -212,4 +212,47 @@
   <RSMF_CollectibleExchange_GeneralBrashDebtBond.items.9.descriptionOverride>Heavy, expensive, and reassuring. Put it on and you are not merely a colonist. You are a mobile procurement approval result.</RSMF_CollectibleExchange_GeneralBrashDebtBond.items.9.descriptionOverride>
   <RSMF_CollectibleExchange_GeneralBrashDebtBond.items.10.labelOverride>PH-66 "Loyalty-Sealed" Marine Helmet</RSMF_CollectibleExchange_GeneralBrashDebtBond.items.10.labelOverride>
   <RSMF_CollectibleExchange_GeneralBrashDebtBond.items.10.descriptionOverride>Reduces shrapnel, noise, and unnecessary doubt entering the head. A transparent visor is not included. Faith does not require a wide field of view.</RSMF_CollectibleExchange_GeneralBrashDebtBond.items.10.descriptionOverride>
+
+  <RSMF_CollectibleExchange_MiguaShopWholesale.label>Migua's Wholesale Shop</RSMF_CollectibleExchange_MiguaShopWholesale.label>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.shopName>Migua's Wholesale Shop</RSMF_CollectibleExchange_MiguaShopWholesale.shopName>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.title>First Edition</RSMF_CollectibleExchange_MiguaShopWholesale.title>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.intro>Check the current item rotation progress and enter this edition's collectible exchange shop.</RSMF_CollectibleExchange_MiguaShopWholesale.intro>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.periodLabel>First Edition</RSMF_CollectibleExchange_MiguaShopWholesale.periodLabel>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.progressLabel>Current item rotation progress: all first-edition goods have been unlocked.</RSMF_CollectibleExchange_MiguaShopWholesale.progressLabel>
+
+  <RSMF_CollectibleExchange_MiguaShopWholesale.welcomeTexts.0>Welcome to the wholesale warehouse!</RSMF_CollectibleExchange_MiguaShopWholesale.welcomeTexts.0>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.welcomeTexts.1>There's so much of this stuff, we really need a forklift!</RSMF_CollectibleExchange_MiguaShopWholesale.welcomeTexts.1>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.welcomeTexts.2>Come in already. Do not stand in the doorway. If you want to exchange for something, check the right side.</RSMF_CollectibleExchange_MiguaShopWholesale.welcomeTexts.2>
+
+  <RSMF_CollectibleExchange_MiguaShopWholesale.browseTexts.0>Bring this home and it can be useful right away.</RSMF_CollectibleExchange_MiguaShopWholesale.browseTexts.0>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.browseTexts.1>The stock on that one is limited. If you really need it, do not wait too long.</RSMF_CollectibleExchange_MiguaShopWholesale.browseTexts.1>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.browseTexts.2>I did not just make up these prices.</RSMF_CollectibleExchange_MiguaShopWholesale.browseTexts.2>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.browseTexts.3>Everything on the right is part of this edition's list. Next edition may be different.</RSMF_CollectibleExchange_MiguaShopWholesale.browseTexts.3>
+
+  <RSMF_CollectibleExchange_MiguaShopWholesale.idleTexts.0>Take your time. The shelves have not been emptied yet.</RSMF_CollectibleExchange_MiguaShopWholesale.idleTexts.0>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.idleTexts.1>Some things look ordinary until you suddenly need them.</RSMF_CollectibleExchange_MiguaShopWholesale.idleTexts.1>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.idleTexts.2>If you are just passing by, you can still see how much stock this edition has left.</RSMF_CollectibleExchange_MiguaShopWholesale.idleTexts.2>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.idleTexts.3>I do rotate the goods regularly, but for this edition, this is the lineup.</RSMF_CollectibleExchange_MiguaShopWholesale.idleTexts.3>
+
+  <RSMF_CollectibleExchange_MiguaShopWholesale.purchaseTexts.0>Large number of drop pods are incoming!</RSMF_CollectibleExchange_MiguaShopWholesale.purchaseTexts.0>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.purchaseTexts.1>All right, it is on the books. One more batch sold.</RSMF_CollectibleExchange_MiguaShopWholesale.purchaseTexts.1>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.purchaseTexts.2>Thanks for the purchase!</RSMF_CollectibleExchange_MiguaShopWholesale.purchaseTexts.2>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.purchaseTexts.3>Received. The goods will be delivered soon.</RSMF_CollectibleExchange_MiguaShopWholesale.purchaseTexts.3>
+
+  <RSMF_CollectibleExchange_MiguaShopWholesale.notEnoughCurrencyTexts.0>No good. You do not have enough money.</RSMF_CollectibleExchange_MiguaShopWholesale.notEnoughCurrencyTexts.0>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.notEnoughCurrencyTexts.1>You are a little short. Go check the little treasury and come back.</RSMF_CollectibleExchange_MiguaShopWholesale.notEnoughCurrencyTexts.1>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.notEnoughCurrencyTexts.2>If you do not have enough money, do not force the exchange. The goods are not going to grow legs and run away.</RSMF_CollectibleExchange_MiguaShopWholesale.notEnoughCurrencyTexts.2>
+
+  <RSMF_CollectibleExchange_MiguaShopWholesale.items.0.labelOverride>Chemfuel</RSMF_CollectibleExchange_MiguaShopWholesale.items.0.labelOverride>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.items.0.descriptionOverride>Industrial fuel for various applications, plenty in stock.</RSMF_CollectibleExchange_MiguaShopWholesale.items.0.descriptionOverride>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.items.1.labelOverride>WoodLog Supply</RSMF_CollectibleExchange_MiguaShopWholesale.items.1.labelOverride>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.items.1.descriptionOverride>Wood logs for construction and maintenance, can found lots of it in rimworld.</RSMF_CollectibleExchange_MiguaShopWholesale.items.1.descriptionOverride>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.items.2.labelOverride>Emergency ingredients</RSMF_CollectibleExchange_MiguaShopWholesale.items.2.labelOverride>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.items.2.descriptionOverride>A certain amount of potatoes can help alleviate the food shortage problem in the colony.</RSMF_CollectibleExchange_MiguaShopWholesale.items.2.descriptionOverride>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.items.3.labelOverride>Uranium-teresting</RSMF_CollectibleExchange_MiguaShopWholesale.items.3.labelOverride>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.items.3.descriptionOverride>Uranium-teresting, use with caution due to radiation exposure risks!</RSMF_CollectibleExchange_MiguaShopWholesale.items.3.descriptionOverride>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.items.4.labelOverride>Plasteel</RSMF_CollectibleExchange_MiguaShopWholesale.items.4.labelOverride>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.items.4.descriptionOverride>Bulk-purchased Plasteel, delivered straight to your door.</RSMF_CollectibleExchange_MiguaShopWholesale.items.4.descriptionOverride>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.items.5.labelOverride>AIPersonaCore</RSMF_CollectibleExchange_MiguaShopWholesale.items.5.labelOverride>
+  <RSMF_CollectibleExchange_MiguaShopWholesale.items.5.descriptionOverride>Precious AI persona core, scarce and hard to come by.</RSMF_CollectibleExchange_MiguaShopWholesale.items.5.descriptionOverride>
 </LanguageData>

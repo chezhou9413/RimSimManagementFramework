@@ -604,4 +604,124 @@
       </li>
     </items>
   </SimManagementLib.SimDef.CollectibleExchangeListDef>
+
+  <SimManagementLib.SimDef.CollectibleExchangeListDef>
+    <defName>RSMF_CollectibleExchange_MiguaShopWholesale</defName>
+    <label>蜜瓜的批发店</label>
+    <shopName>蜜瓜的批发店</shopName>
+    <title>第一期</title>
+    <intro>可以查看当前物品切换进度，并进入本期批发仓库。</intro>
+    <priority>1000</priority>
+    <visible>true</visible>
+    <refreshIntervalTicks>60000</refreshIntervalTicks>
+    <portraitTexPath>UI/CollectibleExchange/Migua</portraitTexPath>
+    <portraitScale>2</portraitScale>
+    <portraitOffsetX>0</portraitOffsetX>
+    <portraitOffsetY>0.5</portraitOffsetY>
+    <periodLabel>第一期</periodLabel>
+    <progressLabel>当前物品切换进度：第一期商品已全部解锁</progressLabel>
+    <idleTextIntervalSeconds>10</idleTextIntervalSeconds>
+    <welcomeTexts>
+      <li>欢迎来到批发仓库！</li>
+      <li>这东西这么多真得上叉车了！</li>
+      <li>先进来吧，别站门口吹风，想换什么直接看右边就是。</li>
+    </welcomeTexts>
+    <browseTexts>
+      <li>这个买回去，马上就能派上用场。</li>
+      <li>你看中的这件库存有限，真需要的话别拖太久哦。</li>
+      <li>这批货我可没乱标价。</li>
+      <li>右边这些都是本期清单里的东西，下一期可能就不是这些了。</li>
+    </browseTexts>
+    <idleTexts>
+      <li>慢慢看，不急，反正货架现在还没被搬空。</li>
+      <li>有些东西看着普通，真缺的时候才知道麻烦。</li>
+      <li>如果只是路过的话，也可以看看本期还有多少库存。</li>
+      <li>我可是会定期更换货品的，不过这一期，先这样。</li>
+    </idleTexts>
+    <purchaseTexts>
+      <li>大量空投仓即将来袭！</li>
+      <li>好，已经记账了，这批货又卖出去一份。</li>
+      <li>感谢购买！</li>
+      <li>收到了，货会很快送过去。</li>
+    </purchaseTexts>
+    <notEnoughCurrencyTexts>
+      <li>不行，钱不够啊。</li>
+      <li>差一点钱，回去翻翻小金库再来吧。</li>
+      <li>钱不够就先别硬换，货是不会自己长腿跑掉的。</li>
+    </notEnoughCurrencyTexts>
+    <items>
+      <li>
+        <id>Chemfuel_01</id>
+        <thingDef>Chemfuel</thingDef>
+        <price>1</price>
+        <currencyDef>Sim_1000Cheque</currencyDef>
+        <maxPurchases>3</maxPurchases>    <!-- 可购买次数 -->
+        <count>150</count>    <!-- 单次数量 -->
+        <canRefresh>true</canRefresh>   <!-- 是否刷新 -->
+        <refreshChance>0.5</refreshChance>    <!-- 刷新概率 -->
+        <labelOverride>化合燃料</labelOverride>
+        <descriptionOverride>用于工业用途的化合燃料，库存充足。</descriptionOverride>
+      </li>
+      <li>
+        <id>WoodLog_01</id>
+        <thingDef>WoodLog</thingDef>
+        <price>1</price>
+        <currencyDef>Sim_1000Cheque</currencyDef>
+        <maxPurchases>4</maxPurchases>
+        <count>450</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>0.5</refreshChance>
+        <labelOverride>原木供应</labelOverride>
+        <descriptionOverride>用于建造和维修的原木供应，能在边缘世界找到大量货源。</descriptionOverride>
+      </li>
+      <li>
+        <id>RawPotatoes_01</id>
+        <thingDef>RawPotatoes</thingDef>
+        <price>1</price>
+        <currencyDef>Sim_1000Cheque</currencyDef>
+        <maxPurchases>1</maxPurchases>
+        <count>450</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>0.5</refreshChance>
+        <labelOverride>应急食材</labelOverride>
+        <descriptionOverride>一定量的土豆，能有助于缓解殖民地食物短缺的问题。</descriptionOverride>
+      </li>
+      <li>
+        <id>Uranium_01</id>
+        <thingDef>Uranium</thingDef>
+        <price>1</price>
+        <currencyDef>Sim_1000Cheque</currencyDef>
+        <maxPurchases>2</maxPurchases>
+        <count>125</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>0.5</refreshChance>
+        <labelOverride>铀点意思</labelOverride>
+        <descriptionOverride>铀点意思，使用起来小心辐射超标！</descriptionOverride>
+      </li>
+      <li>
+        <id>Plasteel_01</id>
+        <thingDef>Plasteel</thingDef>
+        <price>2</price>
+        <currencyDef>Sim_1000Cheque</currencyDef>
+        <maxPurchases>4</maxPurchases>    <!-- 可购买次数 -->
+        <count>225</count>    <!-- 单次数量 -->
+        <canRefresh>true</canRefresh>    <!-- 是否刷新 -->
+        <refreshChance>0.5</refreshChance>    <!-- 刷新概率 -->
+        <labelOverride>玻璃钢材</labelOverride>
+        <descriptionOverride>大量购买，送货上门的玻璃钢材。</descriptionOverride>
+      </li>
+      <li>
+        <id>AIPersonaCore_01</id>
+        <thingDef>AIPersonaCore</thingDef>
+        <price>1</price>
+        <currencyDef>Sim_10000Cheque</currencyDef>
+        <maxPurchases>1</maxPurchases>
+        <count>1</count>
+        <canRefresh>true</canRefresh>
+        <refreshChance>0.01</refreshChance>
+        <labelOverride>人格核心</labelOverride>
+        <descriptionOverride>珍贵的AI人格核心，由于货源稀少，所以只能碰碰运气。</descriptionOverride>
+      </li>
+    </items>
+  </SimManagementLib.SimDef.CollectibleExchangeListDef>
 </Defs>
