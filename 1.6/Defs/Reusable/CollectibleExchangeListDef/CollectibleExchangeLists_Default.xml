@@ -299,8 +299,8 @@
       <li>
         <id>The_Piano</id>
         <thingDef>RSMF_Collections_Piano</thingDef>
-        <price>1800000</price>
-        <currencyDef>Silver</currencyDef>
+        <price>18</price>
+        <currencyDef>Sim_100000Cheque</currencyDef>
         <maxPurchases>1</maxPurchases>
         <count>1</count>
         <labelOverride>斯坦福钢琴</labelOverride>
@@ -349,8 +349,8 @@
       <li>
         <id>The_TynanSHeart</id>
         <thingDef>RSMF_Collections_TynanSHeart</thingDef>
-        <price>14000000</price>
-        <currencyDef>Silver</currencyDef>
+        <price>140</price>
+        <currencyDef>Sim_100000Cheque</currencyDef>
         <maxPurchases>1</maxPurchases>
         <count>1</count>
         <labelOverride>“泰南之心”</labelOverride>
@@ -359,8 +359,8 @@
       <li>
         <id>The_RandySTear</id>
         <thingDef>RSMF_Collections_RandySTear</thingDef>
-        <price>30000000</price>
-        <currencyDef>Silver</currencyDef>
+        <price>300</price>
+        <currencyDef>Sim_100000Cheque</currencyDef>
         <maxPurchases>1</maxPurchases>
         <count>1</count>
         <labelOverride>“兰迪之泪”</labelOverride>
@@ -369,8 +369,8 @@
       <li>
         <id>The_GoldCube</id>
         <thingDef>RSMF_Collections_GoldCube</thingDef>
-        <price>5000000</price>
-        <currencyDef>Silver</currencyDef>
+        <price>50</price>
+        <currencyDef>Sim_100000Cheque</currencyDef>
         <maxPurchases>1</maxPurchases>
         <count>1</count>
         <labelOverride>金色魔方</labelOverride>
@@ -379,8 +379,8 @@
       <li>
         <id>The_GoldenToilet</id>
         <thingDef>RSMF_Collections_GoldenToilet</thingDef>
-        <price>5000000</price>
-        <currencyDef>Silver</currencyDef>
+        <price>50</price>
+        <currencyDef>Sim_100000Cheque</currencyDef>
         <maxPurchases>1</maxPurchases>
         <count>1</count>
         <labelOverride>黄金马桶</labelOverride>
