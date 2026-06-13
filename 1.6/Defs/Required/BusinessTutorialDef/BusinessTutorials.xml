@@ -45,11 +45,9 @@
     <titleKey>RSMF.Business.Tutorial.HotRegisteringItems.Title</titleKey>
     <title>怎么快速注册商品</title>
     <textBeforeImageKey>RSMF.Business.Tutorial.HotRegisteringItems.BeforeImage</textBeforeImageKey>
-    <textBeforeImage>如果您想要上架其他MOD物品但又苦于暂时没有兼容补丁，那么可以选择物品热注册功能。</textBeforeImage>
+    <textBeforeImage>如果您想要上架其他MOD物品但又苦于暂时没有兼容补丁，那么可以选择物品热注册功能。\n点选模拟经营框架建筑菜单，选择快捷注册商品按钮，点击或框选您所希望注册的MOD物品，再为其选择一个对应的分类，最后点击注册到此类按钮，即可将您所选择的物品注册进对应的商品分类中。</textBeforeImage>
     <textAfterImageKey>RSMF.Business.Tutorial.HotRegisteringItems.AfterImage</textAfterImageKey>
-    <textAfterImage>点选模拟经营框架建筑菜单，选择快捷注册商品按钮，点击或框选您所希望注册的MOD物品，再为其选择一个对应的分类，最后点击注册到此类按钮，即可将您所选择的物品注册进对应的商品分类中。</textAfterImage>
-    <textThreeImageKey>RSMF.Business.Tutorial.HotRegisteringItems.ThreeImage</textThreeImageKey>
-    <textThreeImage>在MOD设置界面同样可以进行物品热注册，您也可以选择将您的注册信息一键转换成base64格式，并将其分享给他人，使得其他人可以获取您已经热注册过的商品列表。</textThreeImage>
+    <textAfterImage>在MOD设置界面同样可以进行物品热注册，您也可以选择将您的注册信息一键转换成base64格式，并将其分享给他人，使得其他人可以获取您已经热注册过的商品列表。</textAfterImage>
   </SimManagementLib.SimDef.BusinessTutorialDef>
 
   <SimManagementLib.SimDef.BusinessTutorialDef>
@@ -69,11 +67,9 @@
     <titleKey>RSMF.Business.Tutorial.CustomerReviewFeature.Title</titleKey>
     <title>怎么使用顾客评价功能</title>
     <textBeforeImageKey>RSMF.Business.Tutorial.CustomerReviewFeature.BeforeImage</textBeforeImageKey>
-    <textBeforeImage>进入MOD设置界面，勾选启用顾客选项功能，并调试接入好API，并重启游戏。</textBeforeImage>
-    <textTwoImageKey>RSMF.Business.Tutorial.CustomerReviewFeature.TwoImage</textTwoImageKey>
-    <textTwoImage>选择最下方导航栏中的经商管理，即可发现UI中多出有顾客评价选单，点击进入即可查看开启本功能之后您的顾客给予的评价。</textTwoImage>
-    <textThreeImageKey>RSMF.Business.Tutorial.CustomerReviewFeature.ThreeImage</textThreeImageKey>
-    <textThreeImage>如果勾选启用重型模式，则会在大幅度增加TOKEN消耗并提升性能表现的同时，新增一项可以回怼顾客评论的功能。</textThreeImage>
+    <textBeforeImage>进入MOD设置界面，勾选启用顾客选项功能，并调试接入好API，并重启游戏。\n选择最下方导航栏中的经商管理，即可发现UI中多出有顾客评价选单，点击进入即可查看开启本功能之后您的顾客给予的评价。</textBeforeImage>
+    <textAfterImageKey>RSMF.Business.Tutorial.CustomerReviewFeature.AfterImage</textAfterImageKey>
+    <textAfterImage>如果勾选启用重型模式，则会在大幅度增加TOKEN消耗并提升性能表现的同时，新增一项可以回怼顾客评论的功能。</textAfterImage>
   </SimManagementLib.SimDef.BusinessTutorialDef>
 
   <SimManagementLib.SimDef.BusinessTutorialDef>
