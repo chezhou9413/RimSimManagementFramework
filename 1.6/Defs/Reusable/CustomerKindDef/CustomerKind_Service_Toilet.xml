@@ -22,7 +22,7 @@
       </points>
     </arrivalCurve>
 
-    <baseMtbDays>0.18</baseMtbDays>
+    <baseMtbDays>0.03</baseMtbDays>
     <budgetRange>40~120</budgetRange>
     <queuePatienceRange>900~2200</queuePatienceRange>
     <activeHourRange>0~24</activeHourRange>

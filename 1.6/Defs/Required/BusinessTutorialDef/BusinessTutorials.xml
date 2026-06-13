@@ -25,4 +25,65 @@
     <textAfterImageKey>RSMF.Business.Tutorial.CloseUi.AfterImage</textAfterImageKey>
     <textAfterImage>商店、货柜、店员、招牌等弹窗可以按右上角 X 关闭，也可以按 Esc 关闭。部分配置窗口带有保存按钮，关闭前请先保存需要保留的设置。</textAfterImage>
   </SimManagementLib.SimDef.BusinessTutorialDef>
+
+  <SimManagementLib.SimDef.BusinessTutorialDef>
+    <defName>Sim_BusinessTutorial_StorageManagement</defName>
+    <label>How to manage storage</label>
+    <order>300</order>
+    <titleKey>RSMF.Business.Tutorial.StorageManagement.Title</titleKey>
+    <title>怎么管理货柜</title>
+    <textBeforeImageKey>RSMF.Business.Tutorial.StorageManagement.BeforeImage</textBeforeImageKey>
+    <textBeforeImage>选择某一货架，点击下方的货架管理即可上架物品，可以从左侧切换不同的商品种类，但每个货架只能放同种类的商品。</textBeforeImage>
+    <textAfterImageKey>RSMF.Business.Tutorial.StorageManagement.AfterImage</textAfterImageKey>
+    <textAfterImage>下方可以复制当前货柜的配置以快速同时配置多个相同的货柜。</textAfterImage>
+  </SimManagementLib.SimDef.BusinessTutorialDef>
+
+  <SimManagementLib.SimDef.BusinessTutorialDef>
+    <defName>Sim_BusinessTutorial_HotRegisteringItems</defName>
+    <label>How to Hot Registering Items</label>
+    <order>400</order>
+    <titleKey>RSMF.Business.Tutorial.HotRegisteringItems.Title</titleKey>
+    <title>怎么快速注册商品</title>
+    <textBeforeImageKey>RSMF.Business.Tutorial.HotRegisteringItems.BeforeImage</textBeforeImageKey>
+    <textBeforeImage>如果您想要上架其他MOD物品但又苦于暂时没有兼容补丁，那么可以选择物品热注册功能。</textBeforeImage>
+    <textAfterImageKey>RSMF.Business.Tutorial.HotRegisteringItems.AfterImage</textAfterImageKey>
+    <textAfterImage>点选模拟经营框架建筑菜单，选择快捷注册商品按钮，点击或框选您所希望注册的MOD物品，再为其选择一个对应的分类，最后点击注册到此类按钮，即可将您所选择的物品注册进对应的商品分类中。</textAfterImage>
+    <textThreeImageKey>RSMF.Business.Tutorial.HotRegisteringItems.ThreeImage</textThreeImageKey>
+    <textThreeImage>在MOD设置界面同样可以进行物品热注册，您也可以选择将您的注册信息一键转换成base64格式，并将其分享给他人，使得其他人可以获取您已经热注册过的商品列表。</textThreeImage>
+  </SimManagementLib.SimDef.BusinessTutorialDef>
+
+  <SimManagementLib.SimDef.BusinessTutorialDef>
+    <defName>Sim_BusinessTutorial_OperatingHours</defName>
+    <label>How to Set Operating Hours</label>
+    <order>500</order>
+    <titleKey>RSMF.Business.Tutorial.OperatingHours.Title</titleKey>
+    <title>怎么设置营业时间</title>
+    <textBeforeImageKey>RSMF.Business.Tutorial.OperatingHours.BeforeImage</textBeforeImageKey>
+    <textBeforeImage>选择已划定的商店区域，点击下方的商店管理，再点选左侧的营业时间即可对营业日程进行管理，默认为全天营业。</textBeforeImage>
+  </SimManagementLib.SimDef.BusinessTutorialDef>
+
+  <SimManagementLib.SimDef.BusinessTutorialDef>
+    <defName>Sim_BusinessTutorial_CustomerReviewFeature</defName>
+    <label>How to Use Customer Review Feature</label>
+    <order>600</order>
+    <titleKey>RSMF.Business.Tutorial.CustomerReviewFeature.Title</titleKey>
+    <title>怎么使用顾客评价功能</title>
+    <textBeforeImageKey>RSMF.Business.Tutorial.CustomerReviewFeature.BeforeImage</textBeforeImageKey>
+    <textBeforeImage>进入MOD设置界面，勾选启用顾客选项功能，并调试接入好API，并重启游戏。</textBeforeImage>
+    <textTwoImageKey>RSMF.Business.Tutorial.CustomerReviewFeature.TwoImage</textTwoImageKey>
+    <textTwoImage>选择最下方导航栏中的经商管理，即可发现UI中多出有顾客评价选单，点击进入即可查看开启本功能之后您的顾客给予的评价。</textTwoImage>
+    <textThreeImageKey>RSMF.Business.Tutorial.CustomerReviewFeature.ThreeImage</textThreeImageKey>
+    <textThreeImage>如果勾选启用重型模式，则会在大幅度增加TOKEN消耗并提升性能表现的同时，新增一项可以回怼顾客评论的功能。</textThreeImage>
+  </SimManagementLib.SimDef.BusinessTutorialDef>
+
+  <SimManagementLib.SimDef.BusinessTutorialDef>
+    <defName>Sim_BusinessTutorial_CustomizableItemsAndCustomerTypes</defName>
+    <label>How to Use Customizable Items and Customer Types</label>
+    <order>700</order>
+    <titleKey>RSMF.Business.Tutorial.CustomizableItemsAndCustomerTypes.Title</titleKey>
+    <title>怎么使用可定制商品和顾客类型</title>
+    <textBeforeImageKey>RSMF.Business.Tutorial.CustomizableItemsAndCustomerTypes.BeforeImage</textBeforeImageKey>
+    <textBeforeImage>进入MOD设置界面，下滑可见打开自定义商品/顾客注册面板，切记一定要在编辑之后保存！</textBeforeImage>
+  </SimManagementLib.SimDef.BusinessTutorialDef>
+
 </Defs>

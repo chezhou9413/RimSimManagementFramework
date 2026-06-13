@@ -157,7 +157,7 @@
         <thingDef>Sim_1000Cheque</thingDef>
         <price>1050</price>
         <currencyDef>Silver</currencyDef>
-        <maxPurchases>10</maxPurchases>
+        <maxPurchases>100</maxPurchases>
         <count>1</count>
         <canRefresh>true</canRefresh>
         <refreshChance>1</refreshChance>
@@ -169,7 +169,7 @@
         <thingDef>Sim_10000Cheque</thingDef>
         <price>10500</price>
         <currencyDef>Silver</currencyDef>
-        <maxPurchases>10</maxPurchases>
+        <maxPurchases>100</maxPurchases>
         <count>1</count>
         <canRefresh>true</canRefresh>
         <refreshChance>1</refreshChance>
@@ -181,7 +181,7 @@
         <thingDef>Sim_100000Cheque</thingDef>
         <price>105000</price>
         <currencyDef>Silver</currencyDef>
-        <maxPurchases>10</maxPurchases>
+        <maxPurchases>100</maxPurchases>
         <count>1</count>
         <canRefresh>true</canRefresh>
         <refreshChance>1</refreshChance>
@@ -655,7 +655,7 @@
         <thingDef>Chemfuel</thingDef>
         <price>1</price>
         <currencyDef>Sim_1000Cheque</currencyDef>
-        <maxPurchases>3</maxPurchases>    <!-- 可购买次数 -->
+        <maxPurchases>1</maxPurchases>    <!-- 可购买次数 -->
         <count>150</count>    <!-- 单次数量 -->
         <canRefresh>true</canRefresh>   <!-- 是否刷新 -->
         <refreshChance>0.5</refreshChance>    <!-- 刷新概率 -->
@@ -667,7 +667,7 @@
         <thingDef>WoodLog</thingDef>
         <price>1</price>
         <currencyDef>Sim_1000Cheque</currencyDef>
-        <maxPurchases>4</maxPurchases>
+        <maxPurchases>1</maxPurchases>
         <count>450</count>
         <canRefresh>true</canRefresh>
         <refreshChance>0.5</refreshChance>
@@ -691,7 +691,7 @@
         <thingDef>Uranium</thingDef>
         <price>1</price>
         <currencyDef>Sim_1000Cheque</currencyDef>
-        <maxPurchases>2</maxPurchases>
+        <maxPurchases>1</maxPurchases>
         <count>125</count>
         <canRefresh>true</canRefresh>
         <refreshChance>0.5</refreshChance>
@@ -703,7 +703,7 @@
         <thingDef>Plasteel</thingDef>
         <price>2</price>
         <currencyDef>Sim_1000Cheque</currencyDef>
-        <maxPurchases>4</maxPurchases>    <!-- 可购买次数 -->
+        <maxPurchases>1</maxPurchases>    <!-- 可购买次数 -->
         <count>225</count>    <!-- 单次数量 -->
         <canRefresh>true</canRefresh>    <!-- 是否刷新 -->
         <refreshChance>0.5</refreshChance>    <!-- 刷新概率 -->

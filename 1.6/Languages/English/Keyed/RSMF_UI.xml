@@ -1084,14 +1084,37 @@
   <RSMF.Announcement.Status.Waiting>Announcements cannot be checked right now. Try again later.</RSMF.Announcement.Status.Waiting>
   <RSMF.Announcement.Status.NoNew>No unread announcements.</RSMF.Announcement.Status.NoNew>
   <RSMF.Announcement.Status.NewRead>New announcements were added to read history.</RSMF.Announcement.Status.NewRead>
+
   <RSMF.Business.Tutorial.Empty>No tutorials are configured.</RSMF.Business.Tutorial.Empty>
   <RSMF.Business.Tutorial.ImageMissing>Image not found</RSMF.Business.Tutorial.ImageMissing>
   <RSMF.Business.Tutorial.StartBusiness.Title>How to start business</RSMF.Business.Tutorial.StartBusiness.Title>
   <RSMF.Business.Tutorial.StartBusiness.BeforeImage>First designate an indoor shop area, then place at least one storage building and one cash register inside it. A shop will not become valid if the area is empty, outdoors, or missing core facilities.</RSMF.Business.Tutorial.StartBusiness.BeforeImage>
   <RSMF.Business.Tutorial.StartBusiness.AfterImage>Open storage management to configure sale goods, target stock, and prices, then use shop management to set business hours and staff. When the facilities are valid, the shop is within business hours, and it is not manually closed, customers will start visiting.</RSMF.Business.Tutorial.StartBusiness.AfterImage>
+
   <RSMF.Business.Tutorial.CloseUi.Title>How to close UI</RSMF.Business.Tutorial.CloseUi.Title>
   <RSMF.Business.Tutorial.CloseUi.BeforeImage>The business manager main window can be closed with Esc, or by clicking the business manager main tab at the bottom again.</RSMF.Business.Tutorial.CloseUi.BeforeImage>
   <RSMF.Business.Tutorial.CloseUi.AfterImage>Shop, storage, staff, sign, and other dialogs can be closed with the top-right X or Esc. Some configuration windows have save buttons, so save changes first if you want to keep them.</RSMF.Business.Tutorial.CloseUi.AfterImage>
+
+  <RSMF.Business.Tutorial.Storage.Title>How to manage storage</RSMF.Business.Tutorial.Storage.Title>
+  <RSMF.Business.Tutorial.Storage.BeforeImage>Select a shelf and click 'Shelf Management' below to stock items. You can switch between different product categories on the left, but each shelf can only hold items of the same category.</RSMF.Business.Tutorial.Storage.BeforeImage>
+  <RSMF.Business.Tutorial.Storage.AfterImage>Below, you can copy the current shelf's configuration to quickly set up multiple identical shelves at once.</RSMF.Business.Tutorial.Storage.AfterImage>
+
+  <RSMF.Business.Tutorial.HotRegisteringItems.Title>How to hot register items</RSMF.Business.Tutorial.HotRegisteringItems.Title>
+  <RSMF.Business.Tutorial.HotRegisteringItems.BeforeImage>If you want to stock items from other mods but are troubled by the temporary lack of compatibility patches, you can use the item hot-registration feature.</RSMF.Business.Tutorial.HotRegisteringItems.BeforeImage>
+  <RSMF.Business.Tutorial.HotRegisteringItems.AfterImage>Select the Simulation Management Framework building menu, choose the Quick Register Item button, click or drag to select the MOD items you wish to register, then pick a corresponding category for them, and finally click the 'Register to this Category' button. This will register the items you selected into the corresponding product category.</RSMF.Business.Tutorial.HotRegisteringItems.AfterImage>
+  <RSMF.Business.Tutorial.HotRegisteringItems.ThreeImage>In the MOD settings menu, you can also perform item hot-registration. You can choose to convert your registration information into base64 format with one click and share it with others, allowing them to obtain the list of items you have hot-registered.</RSMF.Business.Tutorial.HotRegisteringItems.ThreeImage>
+
+  <RSMF.Business.Tutorial.OperatingHours.Title>How to set operating hours</RSMF.Business.Tutorial.OperatingHours.Title>
+  <RSMF.Business.Tutorial.OperatingHours.BeforeImage>Select the designated shop area, click the shop management below, then click the operating hours on the left to manage the business schedule. The default is 24-hour operation.</RSMF.Business.Tutorial.OperatingHours.BeforeImage>
+
+  <RSMF.Business.Tutorial.CustomerReviewFeature.Title>How to use customer review feature</RSMF.Business.Tutorial.CustomerReviewFeature.Title>
+  <RSMF.Business.Tutorial.CustomerReviewFeature.BeforeImage>Enter the MOD settings interface, check the 'Enable Customer Review Feature' option, debug and connect the API, then restart the game.</RSMF.Business.Tutorial.CustomerReviewFeature.BeforeImage>
+  <RSMF.Business.Tutorial.CustomerReviewFeature.TwoImage>Select the 'Business Management' option at the bottom navigation bar to find the customer review menu. Click to enter and view the reviews given by customers after enabling this feature.</RSMF.Business.Tutorial.CustomerReviewFeature.TwoImage>
+  <RSMF.Business.Tutorial.CustomerReviewFeature.ThreeImage>If you check the 'Enable Heavy Mode' option, it will significantly increase TOKEN consumption and improve performance, while adding a feature to respond to customer reviews.</RSMF.Business.Tutorial.CustomerReviewFeature.ThreeImage>
+
+  <RSMF.Business.Tutorial.CustomizableItemsAndCustomerTypes.Title>How to use customizable items and customer types</RSMF.Business.Tutorial.CustomizableItemsAndCustomerTypes.Title>
+  <RSMF.Business.Tutorial.CustomizableItemsAndCustomerTypes.BeforeImage>Enter the MOD settings interface, scroll down to find the customizable item/customer registration panel. Remember to save your changes after editing!</RSMF.Business.Tutorial.CustomizableItemsAndCustomerTypes.BeforeImage>
+
   <RSMF.Business.Extensions.Title>Recommended extensions</RSMF.Business.Extensions.Title>
   <RSMF.Business.Extensions.Summary>{checked}/{total} recommended extensions completed. Open the Steam page and subscribe in Workshop; restart the game for the status to update.</RSMF.Business.Extensions.Summary>
   <RSMF.Business.Extensions.Empty>No recommended extensions are configured.</RSMF.Business.Extensions.Empty>

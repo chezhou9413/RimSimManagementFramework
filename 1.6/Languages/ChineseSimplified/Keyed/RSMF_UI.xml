@@ -1084,14 +1084,18 @@
   <RSMF.Announcement.Status.Waiting>暂时无法检查公告，稍后可再次尝试。</RSMF.Announcement.Status.Waiting>
   <RSMF.Announcement.Status.NoNew>没有新的未读公告。</RSMF.Announcement.Status.NoNew>
   <RSMF.Announcement.Status.NewRead>新公告已加入已读历史。</RSMF.Announcement.Status.NewRead>
+
   <RSMF.Business.Tutorial.Empty>没有配置教程。</RSMF.Business.Tutorial.Empty>
   <RSMF.Business.Tutorial.ImageMissing>图片未找到</RSMF.Business.Tutorial.ImageMissing>
+
   <RSMF.Business.Tutorial.StartBusiness.Title>怎么开始经营</RSMF.Business.Tutorial.StartBusiness.Title>
   <RSMF.Business.Tutorial.StartBusiness.BeforeImage>先划定一个室内商店区，并在区域里放置至少一个货柜和一个收银台。商店区域为空、在室外，或缺少核心设施时，商店不会进入有效经营状态。</RSMF.Business.Tutorial.StartBusiness.BeforeImage>
   <RSMF.Business.Tutorial.StartBusiness.AfterImage>打开货柜管理配置上架商品、目标库存和售价，再到商店管理里设置营业时间与店员。设施有效、商店处于营业时间并且没有手动停业时，顾客就会开始来店购物。</RSMF.Business.Tutorial.StartBusiness.AfterImage>
+
   <RSMF.Business.Tutorial.CloseUi.Title>怎么关闭 UI</RSMF.Business.Tutorial.CloseUi.Title>
   <RSMF.Business.Tutorial.CloseUi.BeforeImage>经商管理主界面可以按 Esc 关闭，也可以再次点击底部的经商管理主标签关闭。</RSMF.Business.Tutorial.CloseUi.BeforeImage>
   <RSMF.Business.Tutorial.CloseUi.AfterImage>商店、货柜、店员、招牌等弹窗可以按右上角 X 关闭，也可以按 Esc 关闭。部分配置窗口带有保存按钮，关闭前请先保存需要保留的设置。</RSMF.Business.Tutorial.CloseUi.AfterImage>
+
   <RSMF.Business.Extensions.Title>推荐扩展</RSMF.Business.Extensions.Title>
   <RSMF.Business.Extensions.Summary>已完成 {checked}/{total} 个推荐扩展。点击 Steam 页面按钮后在创意工坊订阅；重启游戏后状态会刷新。</RSMF.Business.Extensions.Summary>
   <RSMF.Business.Extensions.Empty>没有配置推荐扩展。</RSMF.Business.Extensions.Empty>
@@ -1109,6 +1113,7 @@
   <RSMF.Business.Extensions.Item.Woffen.Description>为沃芬主题经营内容提供经商管理兼容入口。</RSMF.Business.Extensions.Item.Woffen.Description>
   <RSMF.Business.Extensions.Item.Takeout.Label>RSMF：外卖扩展</RSMF.Business.Extensions.Item.Takeout.Label>
   <RSMF.Business.Extensions.Item.Takeout.Description>模拟经营外卖主体拓展。</RSMF.Business.Extensions.Item.Takeout.Description>
+
   <RSMF.ShopUi.Page.Shop.Overview.Label>概览</RSMF.ShopUi.Page.Shop.Overview.Label>
   <RSMF.ShopUi.Page.Shop.Overview.Description>单店铺管理窗口的概览页。</RSMF.ShopUi.Page.Shop.Overview.Description>
   <RSMF.ShopUi.Page.Shop.BusinessHours.Label>营业时间</RSMF.ShopUi.Page.Shop.BusinessHours.Label>
