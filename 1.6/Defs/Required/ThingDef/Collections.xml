@@ -52,7 +52,6 @@
                 <velocityX>0.3~0.7</velocityX>
                 <velocityY>0.7~1.0</velocityY>
             </li>
-            <li Class="SimManagementLib.SimThingComp.CompProperties_DisplayStandCollectible" />
         </comps>
         <placeWorkers>
             <li>PlaceWorker_ShowInstrumentAoE</li>
@@ -299,8 +298,5 @@
         <pathCost>50</pathCost>
         <minifiedDef>MinifiedThing</minifiedDef>
         <defaultPlacingRot>South</defaultPlacingRot>
-        <comps>
-            <li Class="SimManagementLib.SimThingComp.CompProperties_DisplayStandCollectible" />
-        </comps>
     </ThingDef>
 </Defs>
