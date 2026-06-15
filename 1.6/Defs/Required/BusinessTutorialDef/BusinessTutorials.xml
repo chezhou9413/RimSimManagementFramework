@@ -35,7 +35,7 @@
     <textBeforeImageKey>RSMF.Business.Tutorial.StorageManagement.BeforeImage</textBeforeImageKey>
     <textBeforeImage>选择某一货架，点击下方的货架管理即可上架物品，可以从左侧切换不同的商品种类，但每个货架只能放同种类的商品。</textBeforeImage>
     <textAfterImageKey>RSMF.Business.Tutorial.StorageManagement.AfterImage</textAfterImageKey>
-    <textAfterImage>下方可以复制当前货柜的配置以快速同时配置多个相同的货柜。</textAfterImage>
+    <textAfterImage>下方可以复制当前货柜的配置以快速同时配置多个相同的货柜。\n请注意，货柜的商品补货阈值默认为0，即店员只会在商品售罄时进行补货！</textAfterImage>
   </SimManagementLib.SimDef.BusinessTutorialDef>
 
   <SimManagementLib.SimDef.BusinessTutorialDef>

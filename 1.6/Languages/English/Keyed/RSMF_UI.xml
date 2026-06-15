@@ -1097,7 +1097,7 @@
 
   <RSMF.Business.Tutorial.Storage.Title>How to manage storage</RSMF.Business.Tutorial.Storage.Title>
   <RSMF.Business.Tutorial.Storage.BeforeImage>Select a shelf and click 'Shelf Management' below to stock items. You can switch between different product categories on the left, but each shelf can only hold items of the same category.</RSMF.Business.Tutorial.Storage.BeforeImage>
-  <RSMF.Business.Tutorial.Storage.AfterImage>Below, you can copy the current shelf's configuration to quickly set up multiple identical shelves at once.</RSMF.Business.Tutorial.Storage.AfterImage>
+  <RSMF.Business.Tutorial.Storage.AfterImage>Below, you can copy the current shelf's configuration to quickly set up multiple identical shelves at once.\nPlease note that the stock replenishment threshold for shelves defaults to 0, meaning staff will only restock items when they are sold out!</RSMF.Business.Tutorial.Storage.AfterImage>
 
   <RSMF.Business.Tutorial.HotRegisteringItems.Title>How to hot register items</RSMF.Business.Tutorial.HotRegisteringItems.Title>
   <RSMF.Business.Tutorial.HotRegisteringItems.BeforeImage>If you want to stock items from other mods but are troubled by the temporary lack of compatibility patches, you can use the item hot-registration feature.\nSelect the Simulation Management Framework building menu, choose the Quick Register Item button, click or drag to select the MOD items you wish to register, then pick a corresponding category for them, and finally click the 'Register to this Category' button. This will register the items you selected into the corresponding product category.</RSMF.Business.Tutorial.HotRegisteringItems.BeforeImage>
