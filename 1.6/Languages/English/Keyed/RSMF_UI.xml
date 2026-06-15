@@ -1089,7 +1089,7 @@
   <RSMF.Business.Tutorial.ImageMissing>Image not found</RSMF.Business.Tutorial.ImageMissing>
   <RSMF.Business.Tutorial.StartBusiness.Title>How to start business</RSMF.Business.Tutorial.StartBusiness.Title>
   <RSMF.Business.Tutorial.StartBusiness.BeforeImage>First designate an indoor shop area, then place at least one storage building and one cash register inside it. A shop will not become valid if the area is empty, outdoors, or missing core facilities.</RSMF.Business.Tutorial.StartBusiness.BeforeImage>
-  <RSMF.Business.Tutorial.StartBusiness.AfterImage>Open storage management to configure sale goods, target stock, and prices, then use shop management to set business hours and staff. When the facilities are valid, the shop is within business hours, and it is not manually closed, customers will start visiting.</RSMF.Business.Tutorial.StartBusiness.AfterImage>
+  <RSMF.Business.Tutorial.StartBusiness.AfterImage>Open storage management to configure sale goods, target stock, and prices, then use shop management to set business hours and staff. When the facilities are valid, the shop is within business hours, and it is not manually closed, customers will start visiting.\nPlease note that if there are any hostile objects or assaults exceeding 1000 points in your current map, including those in the fog of war, the shop will be unable to operate normally.</RSMF.Business.Tutorial.StartBusiness.AfterImage>
 
   <RSMF.Business.Tutorial.CloseUi.Title>How to close UI</RSMF.Business.Tutorial.CloseUi.Title>
   <RSMF.Business.Tutorial.CloseUi.BeforeImage>The business manager main window can be closed with Esc, or by clicking the business manager main tab at the bottom again.</RSMF.Business.Tutorial.CloseUi.BeforeImage>

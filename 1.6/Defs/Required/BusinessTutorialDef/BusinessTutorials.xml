@@ -11,7 +11,7 @@
     <imagePath>Things/Building/CashRegister/Sim_CashRegister_south</imagePath>
     <imageMaxHeight>180</imageMaxHeight>
     <textAfterImageKey>RSMF.Business.Tutorial.StartBusiness.AfterImage</textAfterImageKey>
-    <textAfterImage>打开货柜管理配置上架商品、目标库存和售价，再到商店管理里设置营业时间与店员。设施有效、商店处于营业时间并且没有手动停业时，顾客就会开始来店购物。</textAfterImage>
+    <textAfterImage>打开货柜管理配置上架商品、目标库存和售价，再到商店管理里设置营业时间与店员。设施有效、商店处于营业时间并且没有手动停业时，顾客就会开始来店购物。\n请注意，如果您当前的地图内，包括处于迷雾中的，存在任意敌对物体或超过1000点的袭击，商店将无法正常营业。</textAfterImage>
   </SimManagementLib.SimDef.BusinessTutorialDef>
 
   <SimManagementLib.SimDef.BusinessTutorialDef>
