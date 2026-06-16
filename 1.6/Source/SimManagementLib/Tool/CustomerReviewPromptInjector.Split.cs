@@ -37,6 +37,8 @@ namespace SimManagementLib.Tool
         private static string BuildStablePlainPrefix(SimManagementLibSettings settings)
         {
             StringBuilder sb = new StringBuilder();
+            sb.AppendLine(settings?.reviewRootPrompt ?? CustomerReviewPromptDefaults.RootPrompt);
+            sb.AppendLine();
             sb.AppendLine(settings?.reviewUserPrompt ?? CustomerReviewPromptDefaults.UserPrompt);
             sb.AppendLine();
             AppendLanguageContext(sb);
@@ -63,7 +65,8 @@ namespace SimManagementLib.Tool
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("<customerReviewStablePrefix>");
-            AppendXmlTextElement(sb, 1, "rootPrompt", settings?.reviewUserPrompt ?? CustomerReviewPromptDefaults.UserPrompt);
+            AppendXmlTextElement(sb, 1, "rootPrompt", settings?.reviewRootPrompt ?? CustomerReviewPromptDefaults.RootPrompt);
+            AppendXmlTextElement(sb, 1, "userPromptTemplate", settings?.reviewUserPrompt ?? CustomerReviewPromptDefaults.UserPrompt);
             AppendXmlTextElement(sb, 1, "inputStructureNote", SimTranslation.T("RSMF.CustomerReview.InputStructureNote"));
             AppendXmlOpen(sb, 1, "languageContext", 0);
             AppendXmlTextElement(sb, 2, "rimworldLanguageFolder", SimTranslation.ActiveLanguageFolderName);
@@ -294,7 +297,7 @@ namespace SimManagementLib.Tool
             sb.AppendLine(SimTranslation.T("RSMF.CustomerReview.Plain.ShopLine", snapshot.zoneLabel.Named("value")));
             sb.AppendLine(SimTranslation.T("RSMF.CustomerReview.Plain.BudgetLine", snapshot.budgetSummary.Named("value")));
             sb.AppendLine(SimTranslation.T("RSMF.CustomerReview.Plain.SpentSilverLine", snapshot.spentSilver.ToString("F0", System.Globalization.CultureInfo.InvariantCulture).Named("value")));
-            sb.AppendLine(SimTranslation.T("RSMF.CustomerReview.Plain.PurchasedLine", StripDescriptionDetails(snapshot.purchasedSummary).Named("value")));
+            sb.AppendLine(SimTranslation.T("RSMF.CustomerReview.Plain.PurchasedLine", EmptyAsNone(snapshot.purchasedSummary).Named("value")));
             sb.AppendLine(SimTranslation.T("RSMF.CustomerReview.Plain.ServiceLine", snapshot.serviceSummary.Named("value")));
             sb.AppendLine(SimTranslation.T("RSMF.CustomerReview.Plain.PostPurchaseLine", EmptyAsNone(snapshot.postPurchaseSummary).Named("value")));
             sb.AppendLine();
@@ -310,7 +313,7 @@ namespace SimManagementLib.Tool
             AppendXmlTextElement(sb, 2, "shop", snapshot?.zoneLabel);
             AppendXmlTextElement(sb, 2, "budget", snapshot?.budgetSummary);
             AppendXmlTextElement(sb, 2, "spentSilver", snapshot == null ? "" : SimTranslation.T("RSMF.CustomerReview.SilverAmount", snapshot.spentSilver.ToString("F0", System.Globalization.CultureInfo.InvariantCulture).Named("value")));
-            AppendXmlTextElement(sb, 2, "purchasedItems", StripDescriptionDetails(snapshot?.purchasedSummary));
+            AppendXmlTextElement(sb, 2, "purchasedItems", snapshot?.purchasedSummary);
             AppendXmlTextElement(sb, 2, "service", snapshot?.serviceSummary);
             AppendXmlTextElement(sb, 2, "postPurchase", snapshot?.postPurchaseSummary);
             AppendXmlClose(sb, 1, "shoppingExperience");
@@ -325,7 +328,7 @@ namespace SimManagementLib.Tool
             sb.AppendLine(SimTranslation.TOrFallback("RSMF.CustomerReview.Split.GoodsSignalLine", "- goodsSignal: {value}").Replace("{value}", BuildGoodsSignal(snapshot)));
             sb.AppendLine(SimTranslation.TOrFallback("RSMF.CustomerReview.Split.BudgetSignalLine", "- budgetSignal: {value}").Replace("{value}", BuildBudgetSignal(snapshot)));
             sb.AppendLine(SimTranslation.TOrFallback("RSMF.CustomerReview.Split.ItemNamesLine", "- itemNames: {value}").Replace("{value}", BuildFeaturedItemNames(snapshot)));
-            sb.AppendLine(SimTranslation.TOrFallback("RSMF.CustomerReview.Split.RawPurchaseLine", "- rawPurchasedItems: {value}").Replace("{value}", StripDescriptionDetails(snapshot?.purchasedSummary)));
+            sb.AppendLine(SimTranslation.TOrFallback("RSMF.CustomerReview.Split.RawPurchaseLine", "- rawPurchasedItems: {value}").Replace("{value}", snapshot?.purchasedSummary ?? SimTranslation.T("RSMF.Common.None")));
             sb.AppendLine();
         }
 
@@ -338,7 +341,7 @@ namespace SimManagementLib.Tool
             AppendXmlTextElement(sb, 2, "goodsSignal", BuildGoodsSignal(snapshot));
             AppendXmlTextElement(sb, 2, "budgetSignal", BuildBudgetSignal(snapshot));
             AppendXmlTextElement(sb, 2, "itemNames", BuildFeaturedItemNames(snapshot));
-            AppendXmlTextElement(sb, 2, "rawPurchasedItems", StripDescriptionDetails(snapshot?.purchasedSummary));
+            AppendXmlTextElement(sb, 2, "rawPurchasedItems", snapshot?.purchasedSummary);
             AppendXmlClose(sb, 1, "optionalFacts");
         }
 

@@ -184,12 +184,24 @@ namespace SimManagementLib.Tool
             if (thingDef == null || count <= 0)
                 return result;
 
+            if (thingDef.Minifiable)
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    Thing thing = MakeDeliveryThing(thingDef);
+                    if (thing == null)
+                        break;
+                    result.Add(thing);
+                }
+                return result;
+            }
+
             int remaining = count;
             int stackLimit = thingDef.stackLimit > 0 ? thingDef.stackLimit : count;
             while (remaining > 0)
             {
                 int chunk = System.Math.Min(remaining, stackLimit);
-                Thing thing = ThingMaker.MakeThing(thingDef, thingDef.MadeFromStuff ? GenStuff.DefaultStuffFor(thingDef) : null);
+                Thing thing = MakeDeliveryThing(thingDef);
                 if (thing == null)
                     break;
 
@@ -199,6 +211,28 @@ namespace SimManagementLib.Tool
             }
 
             return result;
+        }
+
+        //负责按 ThingDef 类型创建单个可发货实体，建筑型商品会先包装成缩小物。
+        private static Thing MakeDeliveryThing(ThingDef thingDef)
+        {
+            Thing thing = ThingMaker.MakeThing(thingDef, thingDef.MadeFromStuff ? GenStuff.DefaultStuffFor(thingDef) : null);
+            if (thing == null)
+                return null;
+
+            if (!thingDef.Minifiable)
+                return thing;
+
+            MinifiedThing minified = thing.MakeMinified();
+            if (minified == null)
+            {
+                if (!thing.Destroyed)
+                    thing.Destroy(DestroyMode.Vanish);
+                return null;
+            }
+
+            minified.stackCount = 1;
+            return minified;
         }
 
         /// <summary>

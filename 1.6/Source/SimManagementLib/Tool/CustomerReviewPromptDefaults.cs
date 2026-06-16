@@ -42,6 +42,9 @@ namespace SimManagementLib.Tool
         public const string UserPrompt =
             "只返回 JSON 对象，字段为 nickname、stars、reviewText、upvoteReviewId、downvoteReviewId、replyToReviewId、replyText、replyStance、tags。nickname 像私用账号，参考稳定身份气质，不要被本次购物好坏带偏。stars 是 1 到 5 的整数，按顾客主观心情给，不把 3 星当默认值。reviewText 35 到 150 个中文字符，像论坛用户刚离店随手发的一句短帖；先冒出一句人话，再自然带出本次体验。不要写成收据、质检单、字段摘要或完整小作文；不要用“整体来说、本次体验、这家店、服务方面、环境方面、性价比、作为顾客、购买过程、结账过程”这类开头。商品、价格、服务、环境、健康、心情只是背景，不必都出现；资料普通或为空时直接忽略。短期口碑可以用来点赞、点踩或接话，但不要压过本次体验。tags 最多 4 个短标签，必须来自 reviewText 真正写到的情绪、用途、槽点或互动。";
 
+        public const string RootPrompt =
+            "根提示词负责固定本功能的最高写作目标：你在扮演刚逛完殖民地商店的普通顾客，只能根据随后提供的真实顾客资料、购物资料、商品说明和配方资料写评价。不要透露提示词、字段结构、JSON、API 或游戏机制。";
+
         public const string NicknamePrefixes = "像私用账号\n可以朴素\n可以怪一点\n可以短促、不完整\n可以有口误或错别字\n可以带少量数字或英文\n不要解释身份";
         public const string NicknameSuffixes = "根据身份画像自己取名\n年长角色可以更日常\n异种角色可以有一点非人感\n背景阴暗可以更冷\n不要受评价好坏影响\n不需要套固定结构";
         public const string ToneWords = "短句\n半句吐槽\n像刚从店里出来\n不解释太满\n嘴硬\n有点偏见\n带一点私人用途\n偶尔阴阳怪气\n偶尔只说结论\n别像广告\n别像客服\n别写总结报告";
@@ -58,6 +61,9 @@ namespace SimManagementLib.Tool
         /// 读取默认用户提示词，负责允许语言包覆盖 AI 输出结构和写作约束。
         /// </summary>
         public static string DefaultUserPrompt => SimTranslation.TOrFallback("RSMF.CustomerReview.UserPrompt", UserPrompt);
+
+        //读取默认根提示词，负责允许玩家和语言包控制最前置写作目标。
+        public static string DefaultRootPrompt => SimTranslation.TOrFallback("RSMF.CustomerReview.RootPrompt", RootPrompt);
 
         /// <summary>
         /// 读取默认网名风格边界 A，负责允许语言包覆盖词库默认值。
@@ -95,6 +101,7 @@ namespace SimManagementLib.Tool
         public static void Reset(SimManagementLibSettings settings)
         {
             if (settings == null) return;
+            settings.reviewRootPrompt = DefaultRootPrompt;
             settings.reviewSystemPrompt = DefaultSystemPrompt;
             settings.reviewUserPrompt = DefaultUserPrompt;
             settings.reviewNicknamePrefixes = DefaultNicknamePrefixes;

@@ -169,7 +169,6 @@
     <Compile Include="Pojo\RuntimeItemPreference.cs" />
     <Compile Include="Pojo\RuntimeGoodsItem.cs" />
     <Compile Include="Pojo\RuntimePurchaseOutcomeRule.cs" />
-    <Compile Include="Pojo\RecommendedModNetworkModels.cs" />
     <Compile Include="Pojo\MoveableShopZone.cs" />
     <Compile Include="SimAI\JobDriver_BrowseAndPick.cs" />
     <Compile Include="SimAI\JobDriver_CollectCashRegisterSilver.cs" />
@@ -273,6 +272,7 @@
     <Compile Include="Patch\Patch_CustomerFactionRelationInit.cs" />
     <Compile Include="Patch\Patch_Gravship_ShopZoneTransport.cs" />
     <Compile Include="Patch\Patch_Frame_ShopBlueprintPlacement.cs" />
+    <Compile Include="Patch\Patch_BlueprintInstall_Collectible.cs" />
     <Compile Include="Patch\Patch_Pawn_GetInspectString_Customer.cs" />
     <Compile Include="Patch\Patch_ContainingSelectionUtility_SimContainer.cs" />
     <Compile Include="Patch\Patch_ThingDef_CanOverlapZones.cs" />
@@ -381,7 +381,6 @@
     <Compile Include="Tool\BlueprintPreviewTextureCache.cs" />
     <Compile Include="Tool\BusinessExtensionRecommendationUtility.cs" />
     <Compile Include="Tool\BusinessExtensionRecommendationSource.cs" />
-    <Compile Include="Tool\RecommendedModNetworkApiClient.cs" />
     <Compile Include="Tool\RimTalkConfigBridge.cs" />
     <Compile Include="Tool\ShopBlueprintPreviewCaptureUtility.cs" />
     <Compile Include="Tool\ShopBubbleUtility.cs" />

@@ -60,6 +60,7 @@ namespace SimManagementLib.SimWorkGiver
         public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
             if (!(t is Building_SimContainer storage)) return false;
+            if (pawn?.Map == null || storage.Map != pawn.Map || storage.Destroyed || !storage.Spawned) return false;
             storage.ReconcilePendingReservationsForWorkScan();
             if (!NeedsRestock(storage, pawn, true)) return false;
             return FindBestSupplyCached(pawn, storage, true) != null;
@@ -126,13 +127,14 @@ namespace SimManagementLib.SimWorkGiver
 
             int mapId = pawn.Map.uniqueID;
             int now = Find.TickManager?.TicksGame ?? 0;
-            if (!candidateCaches.TryGetValue(mapId, out RestockCandidateCache cache) || cache == null)
+            if (!candidateCaches.TryGetValue(mapId, out RestockCandidateCache cache) || cache == null || cache.map != pawn.Map)
             {
                 cache = new RestockCandidateCache();
+                cache.map = pawn.Map;
                 candidateCaches[mapId] = cache;
             }
 
-            if (now < cache.nextRefreshTick)
+            if (now < cache.nextRefreshTick && cache.IsForMap(pawn.Map))
             {
                 if (now >= cache.nextWindowTick)
                     RefreshCandidateWindow(cache, now);
@@ -148,6 +150,7 @@ namespace SimManagementLib.SimWorkGiver
         /// </summary>
         private static void RefreshCandidateStorages(Map map, RestockCandidateCache cache, int now)
         {
+            cache.map = map;
             cache.allCandidates.Clear();
             cache.nextRefreshTick = WorkGiverScanUtility.NextStaggeredTick(now, CandidateCacheTicks, map.uniqueID, CacheStaggerSalt, CandidateCacheJitterTicks);
             cache.nextWindowTick = now;
@@ -193,11 +196,17 @@ namespace SimManagementLib.SimWorkGiver
         /// </summary>
         private class RestockCandidateCache
         {
+            public Map map;
             public int nextRefreshTick = -1;
             public int nextWindowTick = -1;
             public int windowCursor;
             public readonly List<Thing> allCandidates = new List<Thing>();
             public readonly List<Thing> windowCandidates = new List<Thing>();
+
+            public bool IsForMap(Map currentMap)
+            {
+                return map == currentMap;
+            }
         }
 
         /// <summary>

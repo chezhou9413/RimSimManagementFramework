@@ -11,6 +11,7 @@ namespace SimManagementLib.SimWorkGiver
     {
         private const int MaxCacheEntries = 2048;
         private static readonly Dictionary<ThingQueryKey, BoolCacheEntry> boolCache = new Dictionary<ThingQueryKey, BoolCacheEntry>();
+        private static int lastSeenTick = -1;
 
         /// <summary>
         /// 短时间缓存 pawn 到目标 Thing 的可达性，负责降低 HasJobOnThing 阶段的原版寻路查询频率。
@@ -65,6 +66,7 @@ namespace SimManagementLib.SimWorkGiver
         private static bool TryGetCachedValue(ThingQueryKey key, out bool value)
         {
             int now = Find.TickManager?.TicksGame ?? 0;
+            ClearCacheIfTickRewound(now);
             if (boolCache.TryGetValue(key, out BoolCacheEntry entry) && now <= entry.expireTick)
             {
                 value = entry.value;
@@ -81,6 +83,7 @@ namespace SimManagementLib.SimWorkGiver
         private static void StoreCachedValue(ThingQueryKey key, bool value, int cacheTicks)
         {
             int now = Find.TickManager?.TicksGame ?? 0;
+            ClearCacheIfTickRewound(now);
             boolCache[key] = new BoolCacheEntry
             {
                 value = value,
@@ -89,6 +92,14 @@ namespace SimManagementLib.SimWorkGiver
 
             if (boolCache.Count > MaxCacheEntries)
                 RemoveExpiredEntries(now);
+        }
+
+        // 在游戏 Tick 回退时清空静态缓存，负责防止跨存档复用旧地图查询结果。
+        private static void ClearCacheIfTickRewound(int now)
+        {
+            if (lastSeenTick >= 0 && now < lastSeenTick)
+                boolCache.Clear();
+            lastSeenTick = now;
         }
 
         /// <summary>

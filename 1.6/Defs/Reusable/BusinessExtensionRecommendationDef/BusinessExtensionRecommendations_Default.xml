@@ -42,7 +42,7 @@
     <description>Compatibility extension for takeout-themed business content.</description>
     <labelKey>RSMF.Business.Extensions.Item.Takeout.Label</labelKey>
     <descriptionKey>RSMF.Business.Extensions.Item.Takeout.Description</descriptionKey>
-    <order>250</order>
+    <order>300</order>
     <publishedFileId>3738454505</publishedFileId>
     <workshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3738454505</workshopUrl>
     <previewImageUrl>https://images.steamusercontent.com/ugc/9528026292726803886/AD26F371A832050BF460056E8C051A433E25B744/</previewImageUrl>
@@ -54,7 +54,7 @@
     <description>Compatibility extension for fufuA-themed business content.</description>
     <labelKey>RSMF.Business.Extensions.Item.FufuA.Label</labelKey>
     <descriptionKey>RSMF.Business.Extensions.Item.FufuA.Description</descriptionKey>
-    <order>250</order>
+    <order>350</order>
     <publishedFileId>3741989068</publishedFileId>
     <workshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3741989068</workshopUrl>
     <previewImageUrl>https://images.steamusercontent.com/ugc/14015537340969664240/482276F6D96C76A2EF3D849B57FC793ED7448D07/</previewImageUrl>
@@ -66,8 +66,8 @@
     <description>Compatibility extension for fufuB-themed business content.</description>
     <labelKey>RSMF.Business.Extensions.Item.FufuB.Label</labelKey>
     <descriptionKey>RSMF.Business.Extensions.Item.FufuB.Description</descriptionKey>
-    <order>250</order>
-    <publishedFileId>3738454505</publishedFileId>
+    <order>400</order>
+    <publishedFileId>3741999388</publishedFileId>
     <workshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3741999388</workshopUrl>
     <previewImageUrl>https://images.steamusercontent.com/ugc/11143629598777163694/E93DC34FD37DFB3AACA7C7C4555B53C989CAC4B7/</previewImageUrl>
   </SimManagementLib.SimDef.BusinessExtensionRecommendationDef>

@@ -83,6 +83,7 @@ namespace SimManagementLib.SimWorkGiver
         private static PreparedShopOrder FindOrderFor(Pawn pawn, Thing provider, PrepareOrderCandidateCache cache, bool useCachedReserve)
         {
             if (pawn?.Map == null || provider == null || provider.Destroyed) return null;
+            if (provider.Map != pawn.Map || !provider.Spawned) return null;
             Zone_Shop shop = ShopDataUtility.FindShopZone(provider.Map, provider.Position);
             if (!ShopStaffUtility.IsShopOpenForWork(shop)) return null;
             if (CurrentWorkGiverDef != null && !ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, CurrentWorkGiverDef))
@@ -124,13 +125,14 @@ namespace SimManagementLib.SimWorkGiver
 
             int mapId = pawn.Map.uniqueID;
             int now = Find.TickManager?.TicksGame ?? 0;
-            if (!candidateCaches.TryGetValue(mapId, out PrepareOrderCandidateCache cache) || cache == null)
+            if (!candidateCaches.TryGetValue(mapId, out PrepareOrderCandidateCache cache) || cache == null || cache.map != pawn.Map)
             {
                 cache = new PrepareOrderCandidateCache();
+                cache.map = pawn.Map;
                 candidateCaches[mapId] = cache;
             }
 
-            if (now < cache.nextRefreshTick)
+            if (now < cache.nextRefreshTick && cache.IsForMap(pawn.Map))
             {
                 if (now >= cache.nextWindowTick)
                     RefreshCandidateWindow(cache, now);
@@ -146,6 +148,7 @@ namespace SimManagementLib.SimWorkGiver
         /// </summary>
         private static void RefreshCandidateProviders(Map map, PrepareOrderCandidateCache cache, int now)
         {
+            cache.map = map;
             cache.allCandidates.Clear();
             cache.windowCandidates.Clear();
             cache.providerIds.Clear();
@@ -231,6 +234,8 @@ namespace SimManagementLib.SimWorkGiver
         {
             if (map == null) return null;
             candidateCaches.TryGetValue(map.uniqueID, out PrepareOrderCandidateCache cache);
+            if (cache == null || !cache.IsForMap(map))
+                return null;
             return cache;
         }
 
@@ -293,6 +298,7 @@ namespace SimManagementLib.SimWorkGiver
         /// </summary>
         private class PrepareOrderCandidateCache
         {
+            public Map map;
             public int nextRefreshTick = -1;
             public int nextWindowTick = -1;
             public int windowCursor;
@@ -300,6 +306,11 @@ namespace SimManagementLib.SimWorkGiver
             public readonly List<Thing> windowCandidates = new List<Thing>();
             public readonly HashSet<int> providerIds = new HashSet<int>();
             public readonly Dictionary<int, List<PreparedShopOrder>> ordersByProviderId = new Dictionary<int, List<PreparedShopOrder>>();
+
+            public bool IsForMap(Map currentMap)
+            {
+                return map == currentMap;
+            }
         }
     }
 }

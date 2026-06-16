@@ -94,6 +94,8 @@ namespace SimManagementLib.Tool
         public static string BuildPlainTextPrompt(CustomerReviewSnapshot snapshot, SimManagementLibSettings settings)
         {
             StringBuilder sb = new StringBuilder();
+            sb.AppendLine(settings?.reviewRootPrompt ?? CustomerReviewPromptDefaults.RootPrompt);
+            sb.AppendLine();
             sb.AppendLine(settings?.reviewUserPrompt ?? CustomerReviewPromptDefaults.UserPrompt);
             sb.AppendLine();
             AppendLanguageContext(sb);
@@ -115,7 +117,8 @@ namespace SimManagementLib.Tool
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("<customerReviewPrompt>");
-            AppendXmlTextElement(sb, 1, "rootPrompt", settings?.reviewUserPrompt ?? CustomerReviewPromptDefaults.UserPrompt);
+            AppendXmlTextElement(sb, 1, "rootPrompt", settings?.reviewRootPrompt ?? CustomerReviewPromptDefaults.RootPrompt);
+            AppendXmlTextElement(sb, 1, "userPromptTemplate", settings?.reviewUserPrompt ?? CustomerReviewPromptDefaults.UserPrompt);
             AppendXmlTextElement(sb, 1, "inputStructureNote", SimTranslation.T("RSMF.CustomerReview.InputStructureNote"));
             AppendXmlOpen(sb, 1, "languageContext", 0);
             AppendXmlTextElement(sb, 2, "rimworldLanguageFolder", SimTranslation.ActiveLanguageFolderName);

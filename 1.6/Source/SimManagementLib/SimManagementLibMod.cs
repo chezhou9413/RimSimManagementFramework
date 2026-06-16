@@ -55,6 +55,7 @@ namespace SimManagementLib
         public bool reviewInfluencesCustomerSpawn;
         public bool reviewAbsurdNitpickEnabled;
         public float reviewAbsurdNitpickChance = 0.12f;
+        public string reviewRootPrompt = CustomerReviewPromptDefaults.RootPrompt;
         public string reviewSystemPrompt = CustomerReviewPromptDefaults.SystemPrompt;
         public string reviewUserPrompt = CustomerReviewPromptDefaults.UserPrompt;
         public string reviewNicknamePrefixes = CustomerReviewPromptDefaults.NicknamePrefixes;
@@ -113,6 +114,7 @@ namespace SimManagementLib
             Scribe_Values.Look(ref reviewInfluencesCustomerSpawn, "reviewInfluencesCustomerSpawn", false);
             Scribe_Values.Look(ref reviewAbsurdNitpickEnabled, "reviewAbsurdNitpickEnabled", false);
             Scribe_Values.Look(ref reviewAbsurdNitpickChance, "reviewAbsurdNitpickChance", 0.12f);
+            Scribe_Values.Look(ref reviewRootPrompt, "reviewRootPrompt", CustomerReviewPromptDefaults.DefaultRootPrompt);
             Scribe_Values.Look(ref reviewSystemPrompt, "reviewSystemPrompt", CustomerReviewPromptDefaults.DefaultSystemPrompt);
             Scribe_Values.Look(ref reviewUserPrompt, "reviewUserPrompt", CustomerReviewPromptDefaults.DefaultUserPrompt);
             Scribe_Values.Look(ref reviewNicknamePrefixes, "reviewNicknamePrefixes", CustomerReviewPromptDefaults.DefaultNicknamePrefixes);
@@ -250,6 +252,7 @@ namespace SimManagementLib
             if (openAiModel == null) openAiModel = "gpt-4o-mini";
             if (anthropicApiKey == null) anthropicApiKey = "";
             if (anthropicModel == null) anthropicModel = "claude-3-5-haiku-latest";
+            if (string.IsNullOrEmpty(reviewRootPrompt)) reviewRootPrompt = CustomerReviewPromptDefaults.DefaultRootPrompt;
             if (string.IsNullOrEmpty(reviewSystemPrompt)) reviewSystemPrompt = CustomerReviewPromptDefaults.DefaultSystemPrompt;
             if (string.IsNullOrEmpty(reviewUserPrompt)) reviewUserPrompt = CustomerReviewPromptDefaults.DefaultUserPrompt;
             if (reviewNicknamePrefixes == null) reviewNicknamePrefixes = CustomerReviewPromptDefaults.DefaultNicknamePrefixes;
@@ -279,6 +282,7 @@ namespace SimManagementLib
             openAiModel = StringEncodingUtility.SanitizeUtf16(openAiModel);
             anthropicApiKey = StringEncodingUtility.SanitizeUtf16(anthropicApiKey);
             anthropicModel = StringEncodingUtility.SanitizeUtf16(anthropicModel);
+            reviewRootPrompt = StringEncodingUtility.SanitizeUtf16(reviewRootPrompt);
             reviewSystemPrompt = StringEncodingUtility.SanitizeUtf16(reviewSystemPrompt);
             reviewUserPrompt = StringEncodingUtility.SanitizeUtf16(reviewUserPrompt);
             reviewNicknamePrefixes = StringEncodingUtility.SanitizeUtf16(reviewNicknamePrefixes);

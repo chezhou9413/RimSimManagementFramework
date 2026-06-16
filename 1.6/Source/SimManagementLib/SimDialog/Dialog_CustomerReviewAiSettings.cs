@@ -128,7 +128,7 @@ namespace SimManagementLib.SimDialog
             DrawReviewSubTabs(reviewTabsRect);
 
             Rect scrollRect = new Rect(rect.x, reviewTabsRect.yMax + 8f, rect.width, Mathf.Max(80f, rect.yMax - reviewTabsRect.yMax - 8f));
-            float viewHeight = reviewTabIndex == 0 ? 860f : (reviewTabIndex == 2 ? CalcInjectorContentHeight() : 760f);
+            float viewHeight = reviewTabIndex == 0 ? 860f : (reviewTabIndex == 1 ? 920f : (reviewTabIndex == 2 ? CalcInjectorContentHeight() : 760f));
             if (reviewTabIndex == 2)
                 HandleInjectorNestedScrollWheel(scrollRect, viewWidth, settings);
             Rect reviewViewRect = new Rect(0f, 0f, viewWidth, viewHeight);
@@ -300,6 +300,7 @@ namespace SimManagementLib.SimDialog
         private void DrawPromptPage(Rect rect, SimManagementLibSettings settings)
         {
             float y = 0f;
+            DrawTextArea(rect.width, ref y, SimTranslation.T("RSMF.ReviewSettings.RootPrompt"), ref settings.reviewRootPrompt, 160f);
             DrawTextArea(rect.width, ref y, SimTranslation.T("RSMF.ReviewSettings.SystemPrompt"), ref settings.reviewSystemPrompt, 150f);
             DrawTextArea(rect.width, ref y, SimTranslation.T("RSMF.ReviewSettings.UserPromptTemplate"), ref settings.reviewUserPrompt, 180f);
         }
@@ -433,6 +434,7 @@ namespace SimManagementLib.SimDialog
             copy.reviewInfluencesCustomerSpawn = settings.reviewInfluencesCustomerSpawn;
             copy.reviewAbsurdNitpickEnabled = settings.reviewAbsurdNitpickEnabled;
             copy.reviewAbsurdNitpickChance = settings.reviewAbsurdNitpickChance;
+            copy.reviewRootPrompt = settings.reviewRootPrompt;
             copy.reviewSystemPrompt = settings.reviewSystemPrompt;
             copy.reviewUserPrompt = settings.reviewUserPrompt;
             copy.reviewNicknamePrefixes = settings.reviewNicknamePrefixes;

@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Reflection;
+using HarmonyLib;
 using RimWorld;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimThingComp;
@@ -14,6 +16,8 @@ namespace SimManagementLib.Tool
     /// </summary>
     public static class CollectibleDisplayStandUtility
     {
+        private static readonly FieldInfo BlueprintMiniToInstallField = AccessTools.Field(typeof(Blueprint_Install), "miniToInstall");
+
         /// <summary>
         /// 判断 ThingDef 是否声明为可被收藏品展台展示。
         /// </summary>
@@ -38,6 +42,9 @@ namespace SimManagementLib.Tool
         public static bool IsValidSourceThing(Thing thing)
         {
             if (thing == null || thing.Destroyed || !thing.Spawned)
+                return false;
+
+            if (thing is MinifiedThing minified && IsReservedByInstallBlueprint(minified))
                 return false;
 
             Thing inner = GetCollectibleInnerThing(thing);
@@ -118,6 +125,25 @@ namespace SimManagementLib.Tool
                 return false;
 
             return pawn.CanReach(source, PathEndMode.ClosestTouch, Danger.Deadly);
+        }
+
+        //判断缩小物是否已经被原版安装蓝图占用，职责是避免展台搬运把蓝图里的待安装物掏空。
+        public static bool IsReservedByInstallBlueprint(MinifiedThing minified)
+        {
+            Map map = minified?.Map;
+            if (map?.listerThings == null)
+                return false;
+
+            List<Thing> blueprints = map.listerThings.ThingsInGroup(ThingRequestGroup.Blueprint);
+            if (blueprints == null)
+                return false;
+
+            for (int i = 0; i < blueprints.Count; i++)
+            {
+                if (blueprints[i] is Blueprint_Install blueprint && BlueprintMiniToInstallField?.GetValue(blueprint) == minified)
+                    return true;
+            }
+            return false;
         }
 
         /// <summary>

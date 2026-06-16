@@ -882,6 +882,7 @@ namespace SimManagementLib.GameComp
             copy.reviewInfluencesCustomerSpawn = source.reviewInfluencesCustomerSpawn;
             copy.reviewAbsurdNitpickEnabled = source.reviewAbsurdNitpickEnabled;
             copy.reviewAbsurdNitpickChance = source.reviewAbsurdNitpickChance;
+            copy.reviewRootPrompt = source.reviewRootPrompt;
             copy.reviewSystemPrompt = source.reviewSystemPrompt;
             copy.reviewUserPrompt = source.reviewUserPrompt;
             copy.reviewNicknamePrefixes = source.reviewNicknamePrefixes;

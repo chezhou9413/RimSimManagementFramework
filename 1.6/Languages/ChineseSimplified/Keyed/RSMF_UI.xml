@@ -92,6 +92,7 @@
   <RSMF.ReviewSettings.AbsurdNitpickChanceTip>这个概率只是在提示词里放行风格，不会本地拼接模板；未命中的评价仍保持普通论坛口吻。</RSMF.ReviewSettings.AbsurdNitpickChanceTip>
   <RSMF.ReviewSettings.ContextBudget>对话上下文预算: {chars} 字符</RSMF.ReviewSettings.ContextBudget>
   <RSMF.ReviewSettings.ContextBudgetTip>固定提示词前缀会优先发送以提高服务端前缀缓存命中；动态顾客资料放在最后。数值大于 0 时仅保留少量反重复摘要，不再复用旧顾客资料。</RSMF.ReviewSettings.ContextBudgetTip>
+  <RSMF.ReviewSettings.RootPrompt>根提示词</RSMF.ReviewSettings.RootPrompt>
   <RSMF.ReviewSettings.SystemPrompt>系统提示词</RSMF.ReviewSettings.SystemPrompt>
   <RSMF.ReviewSettings.UserPromptTemplate>用户提示词模板</RSMF.ReviewSettings.UserPromptTemplate>
   <RSMF.ReviewSettings.NicknameStyleA>网名风格边界 A</RSMF.ReviewSettings.NicknameStyleA>
@@ -1113,10 +1114,10 @@
   <RSMF.Business.Extensions.Item.Woffen.Description>为沃芬主题经营内容提供经商管理兼容入口。</RSMF.Business.Extensions.Item.Woffen.Description>
   <RSMF.Business.Extensions.Item.Takeout.Label>RSMF：外卖扩展</RSMF.Business.Extensions.Item.Takeout.Label>
   <RSMF.Business.Extensions.Item.Takeout.Description>模拟经营外卖主体拓展。</RSMF.Business.Extensions.Item.Takeout.Description>
-  <RSMF.Business.Extensions.Item.FufuA.Label>RSMF：FufuA扩展</RSMF.Business.Extensions.Item.FufuA.Label>
-  <RSMF.Business.Extensions.Item.FufuA.Description>模拟经营框架fufuA相关拓展。</RSMF.Business.Extensions.Item.FufuA.Description>
-  <RSMF.Business.Extensions.Item.FufuB.Label>RSMF：FufuB扩展</RSMF.Business.Extensions.Item.FufuB.Label>
-  <RSMF.Business.Extensions.Item.FufuB.Description>模拟经营框架fufuB相关拓展。</RSMF.Business.Extensions.Item.FufuB.Description>
+  <RSMF.Business.Extensions.Item.FufuA.Label>RSMF：FufuA 扩展</RSMF.Business.Extensions.Item.FufuA.Label>
+  <RSMF.Business.Extensions.Item.FufuA.Description>为 FufuA 主题经营内容提供经商管理兼容入口。</RSMF.Business.Extensions.Item.FufuA.Description>
+  <RSMF.Business.Extensions.Item.FufuB.Label>RSMF：FufuB 扩展</RSMF.Business.Extensions.Item.FufuB.Label>
+  <RSMF.Business.Extensions.Item.FufuB.Description>为 FufuB 主题经营内容提供经商管理兼容入口。</RSMF.Business.Extensions.Item.FufuB.Description>
 
   <RSMF.ShopUi.Page.Shop.Overview.Label>概览</RSMF.ShopUi.Page.Shop.Overview.Label>
   <RSMF.ShopUi.Page.Shop.Overview.Description>单店铺管理窗口的概览页。</RSMF.ShopUi.Page.Shop.Overview.Description>

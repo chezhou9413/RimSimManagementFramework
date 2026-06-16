@@ -185,13 +185,15 @@ namespace SimManagementLib.Tool
         }
 
         /// <summary>
-        /// 枚举地图上可分配为店员的殖民者。
+        /// 枚举地图上可分配为店员的殖民者和玩家控制机械体。
         /// </summary>
         public static IEnumerable<Pawn> GetAssignablePawns(Map map)
         {
             if (map?.mapPawns == null) return Enumerable.Empty<Pawn>();
             return map.mapPawns.FreeColonists
+                .Concat(map.mapPawns.SpawnedColonyMechs.Where(IsAssignableColonyMech))
                 .Where(p => p != null && !p.Destroyed && !p.Dead)
+                .Distinct()
                 .OrderBy(p => p.LabelShortCap);
         }
 
@@ -203,7 +205,8 @@ namespace SimManagementLib.Tool
             if (pawn == null) return new StaffEligibility { Eligible = false, Reason = SimTranslation.T("RSMF.StaffManager.InvalidPawn") };
             if (role == null) return new StaffEligibility { Eligible = false, Reason = SimTranslation.T("RSMF.StaffManager.InvalidRole") };
             if (pawn.Destroyed || pawn.Dead) return new StaffEligibility { Eligible = false, Reason = SimTranslation.T("RSMF.StaffManager.DeadOrUnavailable") };
-            if (pawn.workSettings == null || !pawn.workSettings.EverWork) return new StaffEligibility { Eligible = false, Reason = SimTranslation.T("RSMF.StaffManager.NoWorkSettings") };
+            bool isMechanicalStaff = IsAssignableColonyMech(pawn);
+            if (!isMechanicalStaff && (pawn.workSettings == null || !pawn.workSettings.EverWork)) return new StaffEligibility { Eligible = false, Reason = SimTranslation.T("RSMF.StaffManager.NoWorkSettings") };
             if (role.Worker != null && !role.Worker.CanAssignPawn(zone, pawn, out string workerReason))
                 return new StaffEligibility { Eligible = false, Reason = workerReason ?? "" };
 
@@ -224,12 +227,12 @@ namespace SimManagementLib.Tool
                 if (wg.workType != null)
                 {
                     string workTypeLabel = wg.workType.LabelCap.RawText;
-                    if (pawn.WorkTypeIsDisabled(wg.workType))
+                    if (!isMechanicalStaff && pawn.WorkTypeIsDisabled(wg.workType))
                     {
                         usable = false;
                         localReasons.Add(SimTranslation.T("RSMF.StaffManager.DisabledWorkType", workTypeLabel.Named("workType")));
                     }
-                    else if (!pawn.workSettings.WorkIsActive(wg.workType))
+                    else if (!isMechanicalStaff && !pawn.workSettings.WorkIsActive(wg.workType))
                     {
                         usable = false;
                         localReasons.Add(SimTranslation.T("RSMF.StaffManager.InactiveWorkType", workTypeLabel.Named("workType")));
@@ -274,6 +277,17 @@ namespace SimManagementLib.Tool
             }
 
             return new StaffEligibility { Eligible = false, Reason = sb.ToString() };
+        }
+
+        // 判断机械体是否可作为店员候选，负责只纳入当前地图玩家可控机械体。
+        private static bool IsAssignableColonyMech(Pawn pawn)
+        {
+            return pawn != null
+                && pawn.Spawned
+                && pawn.IsColonyMech
+                && pawn.IsColonyMechPlayerControlled
+                && !pawn.Destroyed
+                && !pawn.Dead;
         }
 
         /// <summary>

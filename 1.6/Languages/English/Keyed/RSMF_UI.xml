@@ -92,6 +92,7 @@
   <RSMF.ReviewSettings.AbsurdNitpickChanceTip>This chance only permits the style in the prompt. It does not splice local templates; missed reviews keep the ordinary forum voice.</RSMF.ReviewSettings.AbsurdNitpickChanceTip>
   <RSMF.ReviewSettings.ContextBudget>Conversation context budget: {chars} chars</RSMF.ReviewSettings.ContextBudget>
   <RSMF.ReviewSettings.ContextBudgetTip>The stable prompt prefix is sent first to improve provider prefix-cache hits; dynamic customer data is placed last. Values above 0 keep only a small anti-repeat memo and no longer reuse old customer material.</RSMF.ReviewSettings.ContextBudgetTip>
+  <RSMF.ReviewSettings.RootPrompt>Root prompt</RSMF.ReviewSettings.RootPrompt>
   <RSMF.ReviewSettings.SystemPrompt>System prompt</RSMF.ReviewSettings.SystemPrompt>
   <RSMF.ReviewSettings.UserPromptTemplate>User prompt template</RSMF.ReviewSettings.UserPromptTemplate>
   <RSMF.ReviewSettings.NicknameStyleA>Nickname style boundary A</RSMF.ReviewSettings.NicknameStyleA>
@@ -1128,6 +1129,12 @@
   <RSMF.Business.Extensions.Item.Milira.Description>Adds RimSim business compatibility for Milira-themed customers, shops, and Milian staff content.</RSMF.Business.Extensions.Item.Milira.Description>
   <RSMF.Business.Extensions.Item.Woffen.Label>RSMF: Woffen extension</RSMF.Business.Extensions.Item.Woffen.Label>
   <RSMF.Business.Extensions.Item.Woffen.Description>Adds RimSim business compatibility for Woffen-themed business content.</RSMF.Business.Extensions.Item.Woffen.Description>
+  <RSMF.Business.Extensions.Item.Takeout.Label>RSMF: Takeout extension</RSMF.Business.Extensions.Item.Takeout.Label>
+  <RSMF.Business.Extensions.Item.Takeout.Description>Adds RimSim business compatibility for takeout-themed business content.</RSMF.Business.Extensions.Item.Takeout.Description>
+  <RSMF.Business.Extensions.Item.FufuA.Label>RSMF: FufuA extension</RSMF.Business.Extensions.Item.FufuA.Label>
+  <RSMF.Business.Extensions.Item.FufuA.Description>Adds RimSim business compatibility for FufuA-themed business content.</RSMF.Business.Extensions.Item.FufuA.Description>
+  <RSMF.Business.Extensions.Item.FufuB.Label>RSMF: FufuB extension</RSMF.Business.Extensions.Item.FufuB.Label>
+  <RSMF.Business.Extensions.Item.FufuB.Description>Adds RimSim business compatibility for FufuB-themed business content.</RSMF.Business.Extensions.Item.FufuB.Description>
   <RSMF.ShopUi.Page.Shop.Overview.Label>Overview</RSMF.ShopUi.Page.Shop.Overview.Label>
   <RSMF.ShopUi.Page.Shop.Overview.Description>Shop manager overview page.</RSMF.ShopUi.Page.Shop.Overview.Description>
   <RSMF.ShopUi.Page.Shop.BusinessHours.Label>Business hours</RSMF.ShopUi.Page.Shop.BusinessHours.Label>

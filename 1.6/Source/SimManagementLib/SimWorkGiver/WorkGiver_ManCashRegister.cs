@@ -34,6 +34,7 @@ namespace SimManagementLib.SimWorkGiver
         {
             Building_CashRegister register = t as Building_CashRegister;
             if (register == null) return false;
+            if (pawn?.Map == null || register.Map != pawn.Map || register.Destroyed || !register.Spawned) return false;
             SimZone.Zone_Shop shop = ShopStaffUtility.FindShopFor(register);
             if (!ShopStaffUtility.CanCashierWorkAt(shop)) return false;
             if (!ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, def))
@@ -62,13 +63,14 @@ namespace SimManagementLib.SimWorkGiver
 
             int mapId = pawn.Map.uniqueID;
             int now = Find.TickManager?.TicksGame ?? 0;
-            if (!candidateCaches.TryGetValue(mapId, out RegisterCandidateCache cache) || cache == null)
+            if (!candidateCaches.TryGetValue(mapId, out RegisterCandidateCache cache) || cache == null || cache.map != pawn.Map)
             {
                 cache = new RegisterCandidateCache();
+                cache.map = pawn.Map;
                 candidateCaches[mapId] = cache;
             }
 
-            if (now < cache.nextRefreshTick)
+            if (now < cache.nextRefreshTick && cache.IsForMap(pawn.Map))
                 return cache.candidates;
 
             RefreshCandidateRegisters(pawn.Map, cache, now);
@@ -80,6 +82,7 @@ namespace SimManagementLib.SimWorkGiver
         /// </summary>
         private static void RefreshCandidateRegisters(Map map, RegisterCandidateCache cache, int now)
         {
+            cache.map = map;
             cache.candidates.Clear();
             cache.nextRefreshTick = now + CandidateCacheTicks;
 
@@ -100,8 +103,14 @@ namespace SimManagementLib.SimWorkGiver
         /// </summary>
         private class RegisterCandidateCache
         {
+            public Map map;
             public int nextRefreshTick = -1;
             public readonly List<Thing> candidates = new List<Thing>();
+
+            public bool IsForMap(Map currentMap)
+            {
+                return map == currentMap;
+            }
         }
     }
 }

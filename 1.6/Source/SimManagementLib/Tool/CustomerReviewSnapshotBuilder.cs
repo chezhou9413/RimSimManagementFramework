@@ -267,7 +267,7 @@ namespace SimManagementLib.Tool
             {
                 ThingDef def = DefDatabase<ThingDef>.GetNamedSilentFail(line.defName);
                 if (def != null)
-                    return TrimForPrompt(def.description ?? def.DescriptionDetailed ?? "", 180, SimTranslation.T("RSMF.CustomerReview.Snapshot.NoProductDescription"));
+                    return BuildProductDescription(def);
             }
 
             if (line.EffectiveLineType == FinanceLineTypes.Service && !string.IsNullOrEmpty(line.defName))
@@ -278,6 +278,104 @@ namespace SimManagementLib.Tool
             }
 
             return line.EffectiveLineType == FinanceLineTypes.Combo ? SimTranslation.T("RSMF.CustomerReview.Snapshot.ComboLineDescription") : SimTranslation.T("RSMF.Common.NoDescription");
+        }
+
+        //构造商品说明，负责把物品描述、配方和制造材料一起提供给点评模型。
+        private static string BuildProductDescription(ThingDef def)
+        {
+            if (def == null)
+                return SimTranslation.T("RSMF.CustomerReview.Snapshot.NoProductDescription");
+
+            List<string> parts = new List<string>
+            {
+                TrimForPrompt(def.description ?? def.DescriptionDetailed ?? "", 180, SimTranslation.T("RSMF.CustomerReview.Snapshot.NoProductDescription"))
+            };
+
+            string recipe = BuildProductRecipeSummary(def);
+            if (!string.IsNullOrWhiteSpace(recipe))
+                parts.Add(recipe);
+
+            string materials = BuildProductCostSummary(def);
+            if (!string.IsNullOrWhiteSpace(materials))
+                parts.Add(materials);
+
+            return TrimForPrompt(string.Join("；", parts), 420, SimTranslation.T("RSMF.CustomerReview.Snapshot.NoProductDescription"));
+        }
+
+        //构造商品配方摘要，负责根据 RecipeDef 产物反查固定材料需求。
+        private static string BuildProductRecipeSummary(ThingDef productDef)
+        {
+            List<string> recipes = new List<string>();
+            List<RecipeDef> allRecipes = DefDatabase<RecipeDef>.AllDefsListForReading;
+            for (int i = 0; i < allRecipes.Count && recipes.Count < 3; i++)
+            {
+                RecipeDef recipe = allRecipes[i];
+                if (recipe == null || recipe.products.NullOrEmpty())
+                    continue;
+                if (!recipe.products.Any(p => p != null && p.thingDef == productDef))
+                    continue;
+
+                string label = recipe.LabelCap.Resolve();
+                string ingredients = BuildRecipeIngredientsSummary(recipe);
+                recipes.Add(string.IsNullOrWhiteSpace(ingredients) ? label : label + ": " + ingredients);
+            }
+
+            return recipes.Count > 0 ? "配方 " + string.Join("；", recipes) : "";
+        }
+
+        //构造单个配方的材料列表，负责优先列出可识别物品并保留过滤器摘要。
+        private static string BuildRecipeIngredientsSummary(RecipeDef recipe)
+        {
+            if (recipe?.ingredients == null || recipe.ingredients.Count == 0)
+                return "";
+
+            List<string> parts = new List<string>();
+            for (int i = 0; i < recipe.ingredients.Count && parts.Count < 5; i++)
+            {
+                IngredientCount ingredient = recipe.ingredients[i];
+                if (ingredient == null)
+                    continue;
+
+                string label = BuildIngredientLabel(ingredient);
+                if (string.IsNullOrWhiteSpace(label))
+                    continue;
+
+                parts.Add(label + " x" + ingredient.GetBaseCount().ToString("0.##"));
+            }
+            return string.Join("、", parts);
+        }
+
+        //构造材料名称，负责把过滤器中的可用 ThingDef 转成短文本。
+        private static string BuildIngredientLabel(IngredientCount ingredient)
+        {
+            List<ThingDef> allowedDefs = ingredient.filter?.AllowedThingDefs?.Where(d => d != null).Take(4).ToList();
+            if (!allowedDefs.NullOrEmpty())
+            {
+                string names = string.Join("/", allowedDefs.Select(d => d.LabelCap.Resolve()).ToArray());
+                if (ingredient.filter.AllowedThingDefs.Count() > allowedDefs.Count)
+                    names += "/...";
+                return names;
+            }
+
+            return TrimForPrompt(ingredient.filter?.Summary ?? "", 80, "");
+        }
+
+        //构造制造或建造材料摘要，负责补充没有 RecipeDef 的商品材料来源。
+        private static string BuildProductCostSummary(ThingDef def)
+        {
+            if (def?.costList == null || def.costList.Count == 0)
+                return "";
+
+            List<string> parts = new List<string>();
+            for (int i = 0; i < def.costList.Count && parts.Count < 5; i++)
+            {
+                ThingDefCountClass cost = def.costList[i];
+                if (cost?.thingDef == null)
+                    continue;
+
+                parts.Add(cost.thingDef.LabelCap.Resolve() + " x" + cost.count);
+            }
+            return parts.Count > 0 ? "材料 " + string.Join("、", parts) : "";
         }
 
         /// <summary>

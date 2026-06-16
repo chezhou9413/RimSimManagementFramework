@@ -233,6 +233,7 @@ namespace SimManagementLib.Tool
             StringBuilder sb = new StringBuilder();
             sb.Append(settings?.reviewProvider.ToString() ?? "").Append('|');
             sb.Append(GetModelName(settings)).Append('|');
+            sb.Append(settings?.reviewRootPrompt ?? "").Append('|');
             sb.Append(settings?.reviewSystemPrompt ?? "").Append('|');
             sb.Append(settings?.reviewUserPrompt ?? "").Append('|');
             sb.Append(settings?.reviewNicknamePrefixes ?? "").Append('|');
