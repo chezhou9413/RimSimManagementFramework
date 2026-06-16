@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+
+    <ThingCategoryDef>
+        <defName>SimCheques</defName>
+        <label>支票</label>
+        <parent>Items</parent>
+    </ThingCategoryDef>
+
     <ThingDef Name="ChequeBase" Abstract="true">
         <thingClass>ThingWithComps</thingClass>
         <statBases>
-            <MarketValue>1</MarketValue>
             <Mass>0.01</Mass>
             <MaxHitPoints>100</MaxHitPoints>
             <DeteriorationRate>0</DeteriorationRate>
@@ -16,12 +22,12 @@
         <selectable>true</selectable>
         <altitudeLayer>Item</altitudeLayer>
         <thingCategories>
-            <li>Manufactured</li>
+            <li>SimCheques</li>
         </thingCategories>
         <stackLimit>75</stackLimit>
         <graphicData>
             <graphicClass>Graphic_Single</graphicClass>
-			<drawSize>1.2</drawSize>
+			<drawSize>1.2</drawSize>    
         </graphicData>
         <alwaysHaulable>true</alwaysHaulable>
         <drawGUIOverlay>true</drawGUIOverlay>
