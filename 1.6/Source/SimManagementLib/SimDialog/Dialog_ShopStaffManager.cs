@@ -178,6 +178,7 @@ namespace SimManagementLib.SimDialog
             if (!string.IsNullOrEmpty(searchText))
                 pawns = pawns.Where(p => p.LabelShortCap.IndexOf(searchText, System.StringComparison.OrdinalIgnoreCase) >= 0);
             pawns = pawns.Where(p => !assigned.Contains(p));
+            pawns = pawns.Where(p => ShopStaffUtility.EvaluateEligibility(zone, p, role).Eligible);
 
             List<Pawn> list = pawns.ToList();
             Rect outRect = new Rect(rect.x + 10f, summaryRect.yMax + 10f, rect.width - 20f, rect.height - 64f);

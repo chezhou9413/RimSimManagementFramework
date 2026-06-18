@@ -132,6 +132,8 @@ namespace SimManagementLib.Tool
         {
             if (pawn == null) return false;
             if (zone == null || workGiverDef == null) return true;
+            if (IsAssignableMechanicalStaff(pawn) && !MechanicalStaffCanUseWorkType(pawn, workGiverDef.workType))
+                return false;
 
             bool hasAnyAssignment = false;
             List<ShopStaffRoleDef> visibleRoles = GetCachedVisibleRoles(zone);
@@ -142,7 +144,9 @@ namespace SimManagementLib.Tool
                 if (!zone.HasAssignedPawnsForRole(role.defName)) continue;
 
                 hasAnyAssignment = true;
-                if (zone.IsPawnAssignedToRole(role.defName, pawn) && role.Worker.AllowsPawnForWorkGiver(zone, pawn, workGiverDef))
+                if (zone.IsPawnAssignedToRole(role.defName, pawn)
+                    && EvaluateEligibility(zone, pawn, role).Eligible
+                    && role.Worker.AllowsPawnForWorkGiver(zone, pawn, workGiverDef))
                     return true;
             }
 
@@ -215,6 +219,7 @@ namespace SimManagementLib.Tool
 
             List<string> reasons = new List<string>();
             bool anyWorkGiverUsable = false;
+            bool allWorkGiversUsable = true;
 
             for (int i = 0; i < role.workGivers.Count; i++)
             {
@@ -227,7 +232,12 @@ namespace SimManagementLib.Tool
                 if (wg.workType != null)
                 {
                     string workTypeLabel = wg.workType.LabelCap.RawText;
-                    if (!isMechanicalStaff && pawn.WorkTypeIsDisabled(wg.workType))
+                    if (isMechanicalStaff && !MechanicalStaffCanUseWorkType(pawn, wg.workType))
+                    {
+                        usable = false;
+                        localReasons.Add(SimTranslation.T("RSMF.StaffManager.DisabledWorkType", workTypeLabel.Named("workType")));
+                    }
+                    else if (!isMechanicalStaff && pawn.WorkTypeIsDisabled(wg.workType))
                     {
                         usable = false;
                         localReasons.Add(SimTranslation.T("RSMF.StaffManager.DisabledWorkType", workTypeLabel.Named("workType")));
@@ -258,14 +268,27 @@ namespace SimManagementLib.Tool
                 }
                 else if (localReasons.Count > 0)
                 {
+                    allWorkGiversUsable = false;
                     string prefix = wg.label.NullOrEmpty() ? wg.defName : wg.LabelCap.RawText;
                     reasons.Add(prefix + " - " + string.Join(SimTranslation.T("RSMF.Common.ListSeparator"), localReasons.Distinct()));
                 }
             }
 
+            if (isMechanicalStaff && anyWorkGiverUsable && allWorkGiversUsable)
+                return new StaffEligibility { Eligible = true, Reason = SimTranslation.T("RSMF.StaffManager.Eligible") };
+
+            if (isMechanicalStaff)
+                return BuildIneligibleResult(reasons);
+
             if (anyWorkGiverUsable)
                 return new StaffEligibility { Eligible = true, Reason = SimTranslation.T("RSMF.StaffManager.Eligible") };
 
+            return BuildIneligibleResult(reasons);
+        }
+
+        //函数职责：根据岗位不可用原因构建统一的不可分配结果。
+        private static StaffEligibility BuildIneligibleResult(List<string> reasons)
+        {
             if (reasons.Count <= 0)
                 return new StaffEligibility { Eligible = false, Reason = SimTranslation.T("RSMF.StaffManager.NoUsableRoleWork") };
 
@@ -277,6 +300,15 @@ namespace SimManagementLib.Tool
             }
 
             return new StaffEligibility { Eligible = false, Reason = sb.ToString() };
+        }
+
+        //函数职责：判断玩家控制机械体是否具备指定工作类型。
+        private static bool MechanicalStaffCanUseWorkType(Pawn pawn, WorkTypeDef workType)
+        {
+            if (workType == null) return true;
+            if (!IsAssignableMechanicalStaff(pawn)) return false;
+            return pawn.RaceProps?.mechEnabledWorkTypes != null
+                && pawn.RaceProps.mechEnabledWorkTypes.Contains(workType);
         }
 
         //函数职责：判断 Pawn 是否能作为玩家控制机械体店员参与候选和派工。
