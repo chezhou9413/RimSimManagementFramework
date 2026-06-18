@@ -10,7 +10,7 @@
     <triggerGoodsDefs>
       <li>Goods_Foods</li>
     </triggerGoodsDefs>
-    <configuredJobDef>Ingest</configuredJobDef>
+    <configuredJobDef>Customer_DineInShop</configuredJobDef>
     <jobDurationTicks>500~1200</jobDurationTicks>
     <maxJobsToQueue>1</maxJobsToQueue>
   </SimManagementLib.SimDef.PurchaseOutcomeDef>

@@ -432,6 +432,7 @@ namespace SimManagementLib.SimMapComp
             }
 
             GenSpawn.Spawn(pawn, spawnSpot, map);
+            CustomerNeedUtility.StabilizeCustomerNeeds(pawn);
 
             int fallbackBudget = kind.budgetRange.RandomInRange;
             LordJob_CustomerVisit lordJob = new LordJob_CustomerVisit(kind.sourceDef, shop.ID, shopTargetCell, fallbackBudget);
@@ -512,6 +513,7 @@ namespace SimManagementLib.SimMapComp
             }
 
             GenSpawn.Spawn(pawn, spawnSpot, map);
+            CustomerNeedUtility.StabilizeCustomerNeeds(pawn);
             int fallbackBudget = kind.budgetRange.RandomInRange;
             LordJob_VendingMachineVisit lordJob = new LordJob_VendingMachineVisit(kind.sourceDef, machine, fallbackBudget);
             lordJob.customerKindId = kind.kindId;

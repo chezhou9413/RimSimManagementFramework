@@ -50,6 +50,7 @@ namespace SimManagementLib.SimAI
                 if (!checkVisitState)
                     continue;
 
+                CustomerNeedUtility.StabilizeCustomerNeeds(pawn);
                 CustomerVisitSession session = GetOrCreateSession(pawn);
                 CustomerVisitTickResult result = session != null ? session.Tick(this, pawn) : default(CustomerVisitTickResult);
                 ApplySessionTickResult(pawn, result);

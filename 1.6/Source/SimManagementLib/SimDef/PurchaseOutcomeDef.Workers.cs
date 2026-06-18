@@ -40,9 +40,7 @@ namespace SimManagementLib.SimDef
         }
     }
 
-    /// <summary>
-    /// 内置堂食 worker：优先用 Ingest 在店内消费本次购买的食物。
-    /// </summary>
+    //类职责：为堂食购后行为创建商店专用 Job，并完整消费本次购买的食物。
     public class PurchaseOutcomeWorker_DineInShop : PurchaseOutcomeWorker
     {
         public override IEnumerable<Job> TryMakeJobs(Pawn customer, ThingDef purchasedDef, int purchasedCount, Zone_Shop shopZone)
@@ -50,7 +48,7 @@ namespace SimManagementLib.SimDef
             if (customer == null || customer.Map == null || def == null)
                 yield break;
 
-            JobDef dineJobDef = def.configuredJobDef ?? JobDefOf.Ingest;
+            JobDef dineJobDef = def.configuredJobDef ?? DefDatabase<JobDef>.GetNamedSilentFail("Customer_DineInShop");
             if (dineJobDef == null)
                 yield break;
 
@@ -60,31 +58,20 @@ namespace SimManagementLib.SimDef
                 out LocalTargetInfo seatTarget,
                 out LocalTargetInfo tableTarget);
 
-            if (dineJobDef == JobDefOf.Ingest)
-            {
-                ThingDef foodDef = ResolveMealThingDef(customer, purchasedDef);
-                if (foodDef == null)
-                    yield break;
-
-                Thing foodOnPawn = CreateFoodOnPawn(customer, foodDef);
-                if (foodOnPawn == null)
-                    yield break;
-
-                Job ingestJob = JobMaker.MakeJob(JobDefOf.Ingest, foodOnPawn);
-                ingestJob.count = 1;
-                if (tableTarget.IsValid)
-                    ingestJob.SetTarget(TargetIndex.B, tableTarget);
-
-                yield return ingestJob;
+            ThingDef foodDef = ResolveMealThingDef(customer, purchasedDef);
+            if (foodDef == null)
                 yield break;
-            }
 
-            // 如果开发者改成了别的 JobDef，就退回通用的目标赋值模式。
+            Thing foodOnPawn = CreateFoodOnPawn(customer, foodDef);
+            if (foodOnPawn == null)
+                yield break;
+
             Job fallbackJob = JobMaker.MakeJob(dineJobDef);
             if (seatTarget.IsValid)
                 fallbackJob.SetTarget(TargetIndex.A, seatTarget);
             if (tableTarget.IsValid)
                 fallbackJob.SetTarget(TargetIndex.B, tableTarget);
+            fallbackJob.SetTarget(TargetIndex.C, foodOnPawn);
 
             int duration = def.jobDurationTicks.RandomInRange;
             if (duration <= 0)

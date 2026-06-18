@@ -14,6 +14,7 @@ namespace SimManagementLib.SimAI
         private const int DefaultDineTicks = 700;
 
         private int DurationTicks => job != null && job.expiryInterval > 0 ? job.expiryInterval : DefaultDineTicks;
+        private Thing Food => job.GetTarget(TargetIndex.C).Thing;
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
@@ -42,6 +43,7 @@ namespace SimManagementLib.SimAI
             };
             dine.AddFinishAction(() =>
             {
+                CustomerNeedUtility.ConsumePurchasedFood(pawn, Food);
                 CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.DineFinish);
                 ShopProgressBarUtility.Clear(pawn);
             });

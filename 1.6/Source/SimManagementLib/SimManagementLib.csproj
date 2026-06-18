@@ -299,6 +299,7 @@
     <Compile Include="SimDialog\Dialog_CustomSignTransfer.cs" />
     <Compile Include="SimMapComp\CustomerArrivalShopContext.cs" />
     <Compile Include="SimMapComp\CustomerArrivalManager.cs" />
+    <Compile Include="SimMapComp\MapComponent_MechShopStaffDispatcher.cs" />
     <Compile Include="SimMapComp\MapComponent_ShopProgressOverlay.cs" />
     <Compile Include="SimMapComp\MapComponent_ShopBlueprintPlacement.cs" />
     <Compile Include="SimThingClass\Building_CashRegister.cs" />
@@ -345,6 +346,7 @@
     <Compile Include="Tool\CustomerCombatSafetyUtility.cs" />
     <Compile Include="Tool\CustomerExpressionUtility.cs" />
     <Compile Include="Tool\CustomerNeutralFactionUtility.cs" />
+    <Compile Include="Tool\CustomerNeedUtility.cs" />
     <Compile Include="Tool\CustomerPriceUtility.cs" />
     <Compile Include="Tool\CustomerPurchaseDeliveryUtility.cs" />
     <Compile Include="Tool\CustomerSafetyUtility.cs" />

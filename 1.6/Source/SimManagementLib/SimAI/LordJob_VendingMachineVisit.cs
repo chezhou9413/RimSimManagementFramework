@@ -97,8 +97,8 @@ namespace SimManagementLib.SimAI
         {
             base.LordJobTick();
             if (Find.TickManager.TicksGame % 60 != 0) return;
-            if (!CustomerSafetyUtility.IsLargeHostileRaidActive(lord?.Map)) return;
             if (lord?.ownedPawns == null) return;
+            bool largeRaidActive = CustomerSafetyUtility.IsLargeHostileRaidActive(lord?.Map);
 
             for (int i = lord.ownedPawns.Count - 1; i >= 0; i--)
             {
@@ -106,7 +106,9 @@ namespace SimManagementLib.SimAI
                 if (pawn == null || pawn.Destroyed || pawn.Dead || !pawn.Spawned)
                     continue;
 
-                ForcePawnFleeLargeRaid(pawn);
+                CustomerNeedUtility.StabilizeCustomerNeeds(pawn);
+                if (largeRaidActive)
+                    ForcePawnFleeLargeRaid(pawn);
             }
         }
 
