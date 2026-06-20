@@ -2,6 +2,7 @@ using HarmonyLib;
 using RimWorld;
 using System.Reflection;
 using Verse;
+using Verse.AI;
 
 namespace SimManagementLib.Patch
 {
@@ -22,12 +23,18 @@ namespace SimManagementLib.Patch
         private static bool Prefix(Thing __instance)
         {
             Blueprint_Install blueprint = __instance as Blueprint_Install;
+            return !TryDestroyBrokenCollectibleInstallBlueprint(blueprint);
+        }
+
+        //清理失效收藏品安装蓝图，职责是给其他补丁入口复用同一套判定。
+        public static bool TryDestroyBrokenCollectibleInstallBlueprint(Blueprint_Install blueprint)
+        {
             if (!IsBrokenCollectibleInstallBlueprint(blueprint))
-                return true;
+                return false;
 
             if (!blueprint.Destroyed)
                 blueprint.Destroy(DestroyMode.Vanish);
-            return false;
+            return true;
         }
 
         //判断蓝图是否属于失效收藏品安装蓝图，职责是只处理本模组收藏品而不影响普通安装蓝图。
@@ -41,6 +48,37 @@ namespace SimManagementLib.Patch
 
             return MiniToInstallField?.GetValue(blueprint) == null
                 && BuildingToReinstallField?.GetValue(blueprint) == null;
+        }
+    }
+
+    //施工搬运扫描清理补丁，职责是在原版 WorkGiver 读取安装目标前移除空收藏品蓝图。
+    [HarmonyPatch(typeof(WorkGiver_ConstructDeliverResourcesToBlueprints))]
+    public static class Patch_ConstructDeliverResourcesToBlueprints_CollectibleInstall
+    {
+        //扫描是否有工作前清理失效蓝图，职责是避免 DeliverResourcesToBlueprints 触发 Nothing to install。
+        [HarmonyPatch(nameof(WorkGiver_ConstructDeliverResourcesToBlueprints.HasJobOnThing))]
+        [HarmonyPrefix]
+        public static bool HasJobOnThingPrefix(Thing t, ref bool __result)
+        {
+            if (Patch_BlueprintInstall_Collectible.TryDestroyBrokenCollectibleInstallBlueprint(t as Blueprint_Install))
+            {
+                __result = false;
+                return false;
+            }
+            return true;
+        }
+
+        //创建工作前清理失效蓝图，职责是覆盖扫描和实际取 Job 之间蓝图失效的情况。
+        [HarmonyPatch(nameof(WorkGiver_ConstructDeliverResourcesToBlueprints.JobOnThing))]
+        [HarmonyPrefix]
+        public static bool JobOnThingPrefix(Thing t, ref Job __result)
+        {
+            if (Patch_BlueprintInstall_Collectible.TryDestroyBrokenCollectibleInstallBlueprint(t as Blueprint_Install))
+            {
+                __result = null;
+                return false;
+            }
+            return true;
         }
     }
 }

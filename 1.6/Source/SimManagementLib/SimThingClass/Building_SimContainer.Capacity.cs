@@ -399,6 +399,43 @@ namespace SimManagementLib.SimThingClass
             return System.Math.Min(perDefNeed, capacityRemain);
         }
 
+        //返回工作扫描阶段使用的补货缺口，职责是避免高频 WorkGiver 路径触发预约校正。
+        public int CountNeededForWorkScan(ThingDef thingDef)
+        {
+            if (thingDef == null)
+                return 0;
+
+            int storedAndPending = CountStored(thingDef) + CountPendingRaw(thingDef);
+            if (storedAndPending > GetRestockThreshold(thingDef))
+                return 0;
+
+            int perDefNeed = System.Math.Max(0, GetTargetCount(thingDef) - storedAndPending);
+            if (perDefNeed <= 0)
+                return 0;
+
+            int capacityRemain = MaxTotalCapacity - CountTotalStored() - CountTotalPendingInRaw();
+            if (capacityRemain <= 0)
+                return 0;
+
+            return System.Math.Min(perDefNeed, capacityRemain);
+        }
+
+        //查找工作扫描阶段第一个需要补货的商品，职责是让候选预筛不用枚举完整业务链路。
+        public bool TryFindRestockDefForWorkScan(out ThingDef restockDef)
+        {
+            foreach (ThingDef thingDef in ActiveDefs)
+            {
+                if (CountNeededForWorkScan(thingDef) > 0)
+                {
+                    restockDef = thingDef;
+                    return true;
+                }
+            }
+
+            restockDef = null;
+            return false;
+        }
+
         /// <summary>
         /// 不考虑待入库预约时统计指定商品的缺口数量。
         /// </summary>

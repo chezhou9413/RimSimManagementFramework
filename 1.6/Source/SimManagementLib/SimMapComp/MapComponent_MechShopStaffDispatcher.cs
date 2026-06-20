@@ -125,8 +125,15 @@ namespace SimManagementLib.SimMapComp
             for (int i = 0; i < role.workGivers.Count; i++)
             {
                 WorkGiverDef workGiverDef = role.workGivers[i];
-                WorkGiver_Scanner scanner = workGiverDef?.Worker as WorkGiver_Scanner;
-                if (scanner == null) continue;
+                WorkGiver worker = workGiverDef?.Worker;
+                if (worker == null) continue;
+
+                Job nonScanJob = worker.NonScanJob(pawn);
+                if (nonScanJob != null)
+                    return pawn.jobs.TryTakeOrderedJob(nonScanJob, JobTag.MiscWork);
+
+                WorkGiver_Scanner scanner = worker as WorkGiver_Scanner;
+                if (scanner == null || workGiverDef.scanThings == false) continue;
                 Job job = TryMakeJobFromScanner(pawn, scanner);
                 if (job == null) continue;
                 return pawn.jobs.TryTakeOrderedJob(job, JobTag.MiscWork);

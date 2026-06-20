@@ -127,6 +127,7 @@
     <Compile Include="Api\ShopUiWorkers.cs" />
     <Compile Include="Api\SimShopUiApi.cs" />
     <Compile Include="Debug\\DebugActions_SimShop.cs" />
+    <Compile Include="Debug\DebugActions_SimShop.RestockStress.cs" />
     <Compile Include="Debug\CustomerVisitDebugReportBuilder.cs" />
     <Compile Include="Debug\DebugActions_SimShop.CustomerSession.cs" />
     <Compile Include="Debug\\DebugActions_SimShop.Tools.cs" />
@@ -322,6 +323,8 @@
     <Compile Include="SimThingComp\ThingComp_VendingMachine.cs" />
     <Compile Include="SimWorkGiver\PrepareOrderGroupingUtility.cs" />
     <Compile Include="SimWorkGiver\RestockSupplyScoringUtility.cs" />
+    <Compile Include="SimWorkGiver\RestockSupplySearchStateCache.cs" />
+    <Compile Include="SimWorkGiver\RestockWorkTickBudget.cs" />
     <Compile Include="SimWorkGiver\WorkGiver_CollectCashRegisterSilver.cs" />
     <Compile Include="SimWorkGiver\WorkGiver_FillCollectibleDisplayStand.cs" />
     <Compile Include="SimWorkGiver\WorkGiver_ManCashRegister.cs" />

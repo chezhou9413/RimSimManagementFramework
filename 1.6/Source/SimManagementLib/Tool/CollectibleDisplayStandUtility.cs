@@ -11,24 +11,19 @@ using Verse.AI;
 
 namespace SimManagementLib.Tool
 {
-    /// <summary>
-    /// 提供收藏品展台的来源识别、搬运校验和缩小物生成工具。
-    /// </summary>
+    //收藏品展台工具，职责是识别可展示来源、校验搬运条件并生成搬运用缩小物。
     public static class CollectibleDisplayStandUtility
     {
         private static readonly FieldInfo BlueprintMiniToInstallField = AccessTools.Field(typeof(Blueprint_Install), "miniToInstall");
+        private static readonly FieldInfo BlueprintBuildingToReinstallField = AccessTools.Field(typeof(Blueprint_Install), "buildingToReinstall");
 
-        /// <summary>
-        /// 判断 ThingDef 是否声明为可被收藏品展台展示。
-        /// </summary>
+        //判断 ThingDef 是否声明为可被收藏品展台展示。
         public static bool IsCollectibleDef(ThingDef def)
         {
             return def != null && def.HasComp<ThingComp_DisplayStandCollectible>();
         }
 
-        /// <summary>
-        /// 从普通 Thing 或缩小物中读取真实收藏品实例。
-        /// </summary>
+        //从普通 Thing 或缩小物中读取真实收藏品实例。
         public static Thing GetCollectibleInnerThing(Thing thing)
         {
             if (thing is MinifiedThing minified)
@@ -36,15 +31,13 @@ namespace SimManagementLib.Tool
             return thing;
         }
 
-        /// <summary>
-        /// 判断地图上的 Thing 是否可作为展台槽位来源。
-        /// </summary>
+        //判断地图上的 Thing 是否可作为展台槽位来源。
         public static bool IsValidSourceThing(Thing thing)
         {
             if (thing == null || thing.Destroyed || !thing.Spawned)
                 return false;
 
-            if (thing is MinifiedThing minified && IsReservedByInstallBlueprint(minified))
+            if (IsReservedByInstallBlueprint(thing))
                 return false;
 
             Thing inner = GetCollectibleInnerThing(thing);
@@ -57,9 +50,7 @@ namespace SimManagementLib.Tool
             return thing is MinifiedThing || inner.def.Minifiable;
         }
 
-        /// <summary>
-        /// 枚举当前地图可被放入展台的收藏品来源。
-        /// </summary>
+        //枚举当前地图可被放入展台的收藏品来源。
         public static IEnumerable<Thing> EnumerateAvailableSources(Map map, Building_CollectibleDisplayStand stand = null)
         {
             if (map == null)
@@ -91,9 +82,7 @@ namespace SimManagementLib.Tool
             }
         }
 
-        /// <summary>
-        /// 根据运行时 ID 在地图上查找收藏品来源。
-        /// </summary>
+        //根据运行时 ID 在地图上查找收藏品来源。
         public static Thing FindSourceById(Map map, int thingId)
         {
             if (thingId < 0)
@@ -107,9 +96,7 @@ namespace SimManagementLib.Tool
             return null;
         }
 
-        /// <summary>
-        /// 判断小人是否能搬运指定来源到展台。
-        /// </summary>
+        //判断小人是否能搬运指定来源到展台。
         public static bool CanPawnUseSource(Pawn pawn, Building_CollectibleDisplayStand stand, Thing source)
         {
             if (pawn == null || stand == null || source == null)
@@ -127,10 +114,10 @@ namespace SimManagementLib.Tool
             return pawn.CanReach(source, PathEndMode.ClosestTouch, Danger.Deadly);
         }
 
-        //判断缩小物是否已经被原版安装蓝图占用，职责是避免展台搬运把蓝图里的待安装物掏空。
-        public static bool IsReservedByInstallBlueprint(MinifiedThing minified)
+        //判断来源是否已经被原版安装蓝图占用，职责是避免展台搬运把待安装物掏空。
+        public static bool IsReservedByInstallBlueprint(Thing source)
         {
-            Map map = minified?.Map;
+            Map map = source?.Map;
             if (map?.listerThings == null)
                 return false;
 
@@ -140,15 +127,19 @@ namespace SimManagementLib.Tool
 
             for (int i = 0; i < blueprints.Count; i++)
             {
-                if (blueprints[i] is Blueprint_Install blueprint && BlueprintMiniToInstallField?.GetValue(blueprint) == minified)
+                if (!(blueprints[i] is Blueprint_Install blueprint))
+                    continue;
+
+                if (BlueprintMiniToInstallField?.GetValue(blueprint) == source)
+                    return true;
+
+                if (BlueprintBuildingToReinstallField?.GetValue(blueprint) == source)
                     return true;
             }
             return false;
         }
 
-        /// <summary>
-        /// 生成用于 UI 显示的来源名称，职责是区分地上缩小物和已摆放建筑。
-        /// </summary>
+        //生成用于 UI 显示的来源名称，职责是区分地上缩小物和已摆放建筑。
         public static string SourceLabel(Thing source)
         {
             Thing inner = GetCollectibleInnerThing(source);
@@ -156,9 +147,7 @@ namespace SimManagementLib.Tool
             return source is MinifiedThing ? label + "（已缩小）" : label + "（已摆放）";
         }
 
-        /// <summary>
-        /// 把已摆放收藏品转成缩小物并交给小人携带。
-        /// </summary>
+        //把已摆放收藏品转成缩小物并交给小人携带。
         public static bool TryStartCarryAsMinified(Pawn pawn, Thing source, out MinifiedThing carried)
         {
             carried = null;
@@ -184,9 +173,7 @@ namespace SimManagementLib.Tool
             return true;
         }
 
-        /// <summary>
-        /// 判断来源是否已被当前展台其他槽位等待，避免玩家重复选择同一个来源。
-        /// </summary>
+        //判断来源是否已被当前展台其他槽位等待，避免玩家重复选择同一个来源。
         private static bool IsReservedByStand(Building_CollectibleDisplayStand stand, Thing source)
         {
             return stand != null && source != null && stand.HasPendingSource(source.thingIDNumber);

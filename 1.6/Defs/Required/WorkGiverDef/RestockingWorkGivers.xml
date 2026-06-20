@@ -6,6 +6,7 @@
     <giverClass>SimManagementLib.SimWorkGiver.WorkGiver_RestockMegaStorage</giverClass>
     <workType>Restocking</workType>
     <priorityInType>100</priorityInType>
+    <scanThings>false</scanThings>
     <verb>restock</verb>
     <gerund>补货</gerund>
     <requiredCapacities>
