@@ -53,6 +53,7 @@ namespace SimManagementLib.SimThingClass
 
         public override string LabelNoCount => StorageDisplayLabel;
         public int StoredCountVersion => storedCountVersion;
+        public string LastPendingReservationDebug => lastPendingReservationDebug ?? "";
 
         public int MaxTotalCapacity
         {

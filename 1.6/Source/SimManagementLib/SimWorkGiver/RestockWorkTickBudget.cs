@@ -13,6 +13,12 @@ namespace SimManagementLib.SimWorkGiver
         private const int SupplyThingChecksPerTick = 32;
         private static readonly Dictionary<int, MapTickBudget> budgets = new Dictionary<int, MapTickBudget>();
 
+        //清空补货扫描 tick 预算，职责是让调试重置后下一次扫描不受当前 tick 已用计数影响。
+        public static void ClearBudgets()
+        {
+            budgets.Clear();
+        }
+
         //尝试消耗货柜候选检查预算，职责是限制 NonScanJob 在同一 tick 检查的货柜总数。
         public static bool TryUseStorageCandidateCheck(Map map)
         {

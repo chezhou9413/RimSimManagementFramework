@@ -21,6 +21,13 @@ namespace SimManagementLib.SimWorkGiver
         private static readonly Dictionary<int, RestockCandidateCache> candidateCaches = new Dictionary<int, RestockCandidateCache>();
         private static WorkGiverDef cachedWorkGiverDef;
 
+        //清空补货货柜候选缓存，职责是让调试工具能强制重建补货扫描状态。
+        public static void ClearRestockCandidateCaches()
+        {
+            candidateCaches.Clear();
+            cachedWorkGiverDef = null;
+        }
+
         //返回当前补货 WorkGiverDef，职责是避免每次扫描查询 DefDatabase。
         private static WorkGiverDef CurrentWorkGiverDef
         {
@@ -55,7 +62,8 @@ namespace SimManagementLib.SimWorkGiver
                 if (!NeedsRestockForScan(storage, pawn))
                     continue;
 
-                Thing supply = RestockSupplySearchStateCache.FindBestSupplyBudgeted(pawn, storage, true);
+                Thing supply = RestockSupplySearchStateCache.FindBestSupplyBudgeted(pawn, storage, true)
+                    ?? RestockSupplySearchStateCache.FindBestSupplyForDispatch(pawn, storage);
                 Job job = MakeRestockJobFromSupply(pawn, storage, supply, false);
                 if (job != null)
                     return job;
@@ -86,7 +94,8 @@ namespace SimManagementLib.SimWorkGiver
             if (!NeedsRestockForJob(storage, pawn))
                 return null;
 
-            Thing supply = RestockSupplySearchStateCache.FindBestSupplyBudgeted(pawn, storage, false);
+            Thing supply = RestockSupplySearchStateCache.FindBestSupplyBudgeted(pawn, storage, false)
+                ?? RestockSupplySearchStateCache.FindBestSupplyForDispatch(pawn, storage);
             return MakeRestockJobFromSupply(pawn, storage, supply, true);
         }
 
@@ -193,6 +202,8 @@ namespace SimManagementLib.SimWorkGiver
                 StartCandidateRefresh(pawn.Map, cache, now);
 
             AdvanceCandidateRefresh(pawn.Map, cache, now);
+            if (cache.refreshInProgress && cache.allCandidates.Count <= 0 && cache.stagingCandidates.Count > 0)
+                RefreshCandidateWindow(cache, cache.stagingCandidates, now);
             if (now >= cache.nextWindowTick)
                 RefreshCandidateWindow(cache, now);
             return cache.windowCandidates;
@@ -259,7 +270,13 @@ namespace SimManagementLib.SimWorkGiver
         //刷新补货候选窗口，职责是把货柜检查摊到多次工作扫描中。
         private static void RefreshCandidateWindow(RestockCandidateCache cache, int now)
         {
-            WorkGiverScanUtility.BuildThingWindow(cache.allCandidates, cache.windowCandidates, ref cache.windowCursor, CandidateWindowSize);
+            RefreshCandidateWindow(cache, cache.allCandidates, now);
+        }
+
+        //刷新指定来源的补货候选窗口，职责是在首次全图刷新未完成时也能使用已经发现的临时候选。
+        private static void RefreshCandidateWindow(RestockCandidateCache cache, List<Thing> source, int now)
+        {
+            WorkGiverScanUtility.BuildThingWindow(source, cache.windowCandidates, ref cache.windowCursor, CandidateWindowSize);
             cache.nextWindowTick = now + CandidateWindowTicks;
         }
 

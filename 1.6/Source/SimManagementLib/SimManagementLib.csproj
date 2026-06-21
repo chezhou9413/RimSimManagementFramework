@@ -128,7 +128,9 @@
     <Compile Include="Api\SimShopUiApi.cs" />
     <Compile Include="Debug\\DebugActions_SimShop.cs" />
     <Compile Include="Debug\DebugActions_SimShop.RestockStress.cs" />
+    <Compile Include="Debug\DebugActions_SimShop.RestockReset.cs" />
     <Compile Include="Debug\CustomerVisitDebugReportBuilder.cs" />
+    <Compile Include="Debug\RestockDebugReportBuilder.cs" />
     <Compile Include="Debug\DebugActions_SimShop.CustomerSession.cs" />
     <Compile Include="Debug\\DebugActions_SimShop.Tools.cs" />
     <Compile Include="GameComp\\GameComponent_ShopComboManager.cs" />

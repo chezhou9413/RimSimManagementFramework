@@ -13,6 +13,13 @@ namespace SimManagementLib.SimWorkGiver
         private static readonly Dictionary<ThingQueryKey, BoolCacheEntry> boolCache = new Dictionary<ThingQueryKey, BoolCacheEntry>();
         private static int lastSeenTick = -1;
 
+        //清空 WorkGiver 可达性和预约查询缓存，职责是让调试重置后重新读取当前地图状态。
+        public static void Clear()
+        {
+            boolCache.Clear();
+            lastSeenTick = -1;
+        }
+
         /// <summary>
         /// 短时间缓存 pawn 到目标 Thing 的可达性，负责降低 HasJobOnThing 阶段的原版寻路查询频率。
         /// </summary>

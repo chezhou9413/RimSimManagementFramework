@@ -21,6 +21,14 @@ namespace SimManagementLib.SimWorkGiver
         private static readonly List<SupplySearchKey> tmpExpiredSupplySearchKeys = new List<SupplySearchKey>();
         private static int lastSupplyStateCleanupTick = -1;
 
+        //清空补货货源搜索状态，职责是让调试工具能丢弃跨帧游标和失败重试延迟。
+        public static void ClearSupplySearchStates()
+        {
+            supplySearchStates.Clear();
+            tmpExpiredSupplySearchKeys.Clear();
+            lastSupplyStateCleanupTick = -1;
+        }
+
         //按预算查找补货货源，职责是每次只扫描少量 Def 和少量物品并缓存可用结果。
         public static Thing FindBestSupplyBudgeted(Pawn pawn, Building_SimContainer storage, bool useCachedThingQueries)
         {
@@ -63,6 +71,41 @@ namespace SimManagementLib.SimWorkGiver
 
             state.nextSearchTick = state.completedFullPass ? now + FailedSupplyRetryTicks : now + SupplyScanContinueDelayTicks;
             return null;
+        }
+
+        //为最终派工查找补货货源，职责是在已经选中缺货货柜后避免分帧预算返回空结果导致 pawn 转去做别的工作。
+        public static Thing FindBestSupplyForDispatch(Pawn pawn, Building_SimContainer storage)
+        {
+            if (pawn?.Map == null || storage == null)
+                return null;
+
+            Thing bestThing = null;
+            float bestDistance = float.MaxValue;
+            foreach (ThingDef thingDef in storage.ActiveDefs)
+            {
+                if (storage.CountNeeded(thingDef) <= 0)
+                    continue;
+
+                List<Thing> candidates = pawn.Map.listerThings.ThingsOfDef(thingDef);
+                if (candidates == null || candidates.Count <= 0)
+                    continue;
+
+                for (int i = 0; i < candidates.Count; i++)
+                {
+                    Thing candidate = candidates[i];
+                    if (!IsValidSupply(pawn, storage, candidate, true, false))
+                        continue;
+
+                    float distance = (candidate.Position - pawn.Position).LengthHorizontalSquared;
+                    if (distance >= bestDistance)
+                        continue;
+
+                    bestDistance = distance;
+                    bestThing = candidate;
+                }
+            }
+
+            return bestThing;
         }
 
         //按需刷新缺货 Def 列表，职责是让货源搜索只遍历当前确实缺货的商品。
