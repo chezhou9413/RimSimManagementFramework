@@ -7,9 +7,7 @@ using Verse;
 
 namespace SimManagementLib.SimThingComp
 {
-    /// <summary>
-    /// 定义货柜商品数据组件的容量和可售分类限制参数。
-    /// </summary>
+    //货柜商品数据组件参数，职责是定义容量和可售分类限制。
     public class ThingCompProperties_GoodsData : CompProperties
     {
         // 货柜总容量上限（按件数，跨所有商品共享）
@@ -21,18 +19,14 @@ namespace SimManagementLib.SimThingComp
         // 允许该货柜选择的 GoodsDef 分类。用于 XML 里直接写 Def 引用，与 allowedGoodsCategoryIds 合并生效。
         public List<GoodsDef> allowedGoodsCategories = new List<GoodsDef>();
 
-        /// <summary>
-        /// 初始化组件类型，供 RimWorld 根据 XML 创建组件实例。
-        /// </summary>
+        //初始化组件类型，职责是供 RimWorld 根据 XML 创建组件实例。
         public ThingCompProperties_GoodsData()
         {
             compClass = typeof(ThingComp_GoodsData);
         }
     }
 
-    /// <summary>
-    /// 保存货柜可售商品配置，并提供容量和分类限制判断。
-    /// </summary>
+    //货柜商品数据组件，职责是保存可售商品配置并提供容量和分类限制判断。
     public class ThingComp_GoodsData : ThingComp
     {
         public string ActiveGoodsDefName = "";
@@ -56,9 +50,7 @@ namespace SimManagementLib.SimThingComp
             }
         }
 
-        /// <summary>
-        /// 获取当前选中的内置 GoodsDef；自定义运行时分类会返回 null。
-        /// </summary>
+        //获取当前选中的内置 GoodsDef，职责是在自定义运行时分类时返回 null。
         public GoodsDef ActiveGoodsDef
         {
             get
@@ -67,14 +59,10 @@ namespace SimManagementLib.SimThingComp
             }
         }
 
-        /// <summary>
-        /// 判断该货柜是否配置了可售分类限制。
-        /// </summary>
+        //判断该货柜是否配置了可售分类限制。
         public bool HasGoodsCategoryRestriction => GetAllowedGoodsCategoryIds().Count > 0;
 
-        /// <summary>
-        /// 返回合并后的可售分类 ID 列表，去除空值和重复项。
-        /// </summary>
+        //返回合并后的可售分类 ID 列表，职责是去除空值和重复项。
         public List<string> GetAllowedGoodsCategoryIds()
         {
             List<string> result = new List<string>();
@@ -97,9 +85,7 @@ namespace SimManagementLib.SimThingComp
             return result;
         }
 
-        /// <summary>
-        /// 判断指定商品分类是否允许在该货柜中售卖；没有限制时始终允许。
-        /// </summary>
+        //判断指定商品分类是否允许在该货柜中售卖，职责是在没有限制时始终允许。
         public bool AllowsGoodsCategory(string categoryId)
         {
             if (string.IsNullOrEmpty(categoryId)) return !HasGoodsCategoryRestriction;
@@ -116,9 +102,7 @@ namespace SimManagementLib.SimThingComp
             return false;
         }
 
-        /// <summary>
-        /// 获取可售分类限制的显示文本，用于提示玩家该货柜能选择哪些分类。
-        /// </summary>
+        //获取可售分类限制的显示文本，职责是提示玩家该货柜能选择哪些分类。
         public string GetAllowedGoodsCategoryLabelSummary()
         {
             List<string> allowed = GetAllowedGoodsCategoryIds();
@@ -135,9 +119,7 @@ namespace SimManagementLib.SimThingComp
             return string.Join(SimTranslation.T("RSMF.Common.ListSeparator"), labels);
         }
 
-        /// <summary>
-        /// 获取或创建指定物品的配置数据。
-        /// </summary>
+        //获取或创建指定物品的配置数据。
         public GoodsItemData GetOrCreate(ThingDef td)
         {
             if (!itemData.TryGetValue(td.defName, out var d))
@@ -145,9 +127,7 @@ namespace SimManagementLib.SimThingComp
             return d;
         }
 
-        /// <summary>
-        /// 查找指定物品的有效配置；未启用或分类不允许时返回 null。
-        /// </summary>
+        //查找指定物品的有效配置，职责是在未启用或分类不允许时返回 null。
         public GoodsItemData FindItemData(ThingDef td)
         {
             if (!AllowsGoodsCategory(ActiveGoodsDefName)) return null;
@@ -156,9 +136,7 @@ namespace SimManagementLib.SimThingComp
             return d;
         }
 
-        /// <summary>
-        /// 克隆当前商品配置，供 UI 使用草稿数据隔离编辑。
-        /// </summary>
+        //克隆当前商品配置，职责是供 UI 使用草稿数据隔离编辑。
         public Dictionary<string, GoodsItemData> CloneItemData()
         {
             var dict = new Dictionary<string, GoodsItemData>();
@@ -175,9 +153,7 @@ namespace SimManagementLib.SimThingComp
             return dict;
         }
 
-        /// <summary>
-        /// 应用 UI 草稿配置，并按货柜容量和分类限制过滤无效数据。
-        /// </summary>
+        //应用 UI 草稿配置，职责是按货柜容量和分类限制过滤无效数据并刷新补货队列。
         public void ApplySettings(string newDefName, Dictionary<string, GoodsItemData> newSettings)
         {
             ActiveGoodsDefName = newDefName ?? "";
@@ -188,6 +164,8 @@ namespace SimManagementLib.SimThingComp
                 countBuffers.Clear();
                 priceBuffers.Clear();
                 restockThresholdBuffers.Clear();
+                if (parent is Building_SimContainer invalidStorage)
+                    invalidStorage.MarkRestockQueueDirty(null, "货柜商品配置清空");
                 return;
             }
 
@@ -203,11 +181,11 @@ namespace SimManagementLib.SimThingComp
             countBuffers.Clear();
             priceBuffers.Clear();
             restockThresholdBuffers.Clear();
+            if (parent is Building_SimContainer dirtyStorage)
+                dirtyStorage.MarkRestockQueueDirty(null, "货柜商品配置变化");
         }
 
-        /// <summary>
-        /// 克隆传入配置字典，并规范化数量与价格的最小值。
-        /// </summary>
+        //克隆传入配置字典，职责是规范化数量与价格的最小值。
         private static Dictionary<string, GoodsItemData> CloneSettings(Dictionary<string, GoodsItemData> source)
         {
             var result = new Dictionary<string, GoodsItemData>();
@@ -228,9 +206,7 @@ namespace SimManagementLib.SimThingComp
             return result;
         }
 
-        /// <summary>
-        /// 将非空分类 ID 加入限制列表，并保持大小写不敏感去重。
-        /// </summary>
+        //将非空分类 ID 加入限制列表，职责是保持大小写不敏感去重。
         private static void TryAddAllowedCategoryId(List<string> result, HashSet<string> seen, string categoryId)
         {
             if (string.IsNullOrWhiteSpace(categoryId)) return;
@@ -239,9 +215,7 @@ namespace SimManagementLib.SimThingComp
             result.Add(trimmed);
         }
 
-        /// <summary>
-        /// 保存或读取货柜商品配置数据。
-        /// </summary>
+        //保存或读取货柜商品配置数据。
         public override void PostExposeData()
         {
             Scribe_Values.Look(ref ActiveGoodsDefName, "activeGoodsDefName", "");
@@ -250,9 +224,7 @@ namespace SimManagementLib.SimThingComp
         }
     }
 
-    /// <summary>
-    /// 保存单个商品的启用状态、目标数量、补货阈值和售价配置。
-    /// </summary>
+    //单个商品配置数据，职责是保存启用状态、目标数量、补货阈值和售价。
     public class GoodsItemData : IExposable
     {
         public bool enabled = false;
@@ -282,9 +254,7 @@ namespace SimManagementLib.SimThingComp
             return GetEffectiveRestockThreshold(targetCount, configuredThreshold);
         }
 
-        /// <summary>
-        /// 保存或读取单个商品的货柜配置。
-        /// </summary>
+        //保存或读取单个商品的货柜配置。
         public void ExposeData()
         {
             Scribe_Values.Look(ref enabled, "enabled", false);

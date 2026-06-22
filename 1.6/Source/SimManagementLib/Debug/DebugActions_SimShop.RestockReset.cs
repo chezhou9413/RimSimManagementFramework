@@ -1,5 +1,7 @@
 using LudeonTK;
 using RimWorld;
+using SimManagementLib.SimDialog;
+using SimManagementLib.SimMapComp;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimWorkGiver;
 using System.Collections.Generic;
@@ -28,7 +30,8 @@ namespace SimManagementLib.Debug
             WorkGiverThingQueryCache.Clear();
 
             int storageCount = ReconcileMapStorageReservations(map);
-            Messages.Message($"已重置补货缓存，并校正当前地图货柜预约：{storageCount} 个货柜。", MessageTypeDefOf.TaskCompletion, false);
+            int queueCount = map.GetComponent<MapComponent_RestockTaskQueue>()?.ResetAndRebuildAll("调试重置补货缓存") ?? 0;
+            Messages.Message($"已重置补货缓存，并重建补货队列：{queueCount} 个货柜，校正预约：{storageCount} 个货柜。", MessageTypeDefOf.TaskCompletion, false);
         }
 
         [DebugAction("SimShop", "输出补货诊断日志（当前地图）", false, false, false, false, false, 0, false,
@@ -40,6 +43,20 @@ namespace SimManagementLib.Debug
             Log.Message(report);
             GUIUtility.systemCopyBuffer = report;
             Messages.Message("已输出补货诊断日志，并复制到剪贴板。", MessageTypeDefOf.TaskCompletion, false);
+        }
+
+        [DebugAction("SimShop", "打开补货队列调试面板（当前地图）", false, false, false, false, false, 0, false,
+            allowedGameStates = AllowedGameStates.PlayingOnMap)]
+        private static void OpenRestockQueueDebugWindow()
+        {
+            Map map = Find.CurrentMap;
+            if (map == null)
+            {
+                Messages.Message("打开补货队列调试面板失败：当前没有地图。", MessageTypeDefOf.RejectInput, false);
+                return;
+            }
+
+            Find.WindowStack.Add(new Dialog_RestockQueueDebug(map));
         }
 
         //校正当前地图所有商店货柜预约，职责是清理中断任务留下的待入库和待出库数量。

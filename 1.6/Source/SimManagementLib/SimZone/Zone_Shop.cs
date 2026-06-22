@@ -379,12 +379,35 @@ namespace SimManagementLib.SimZone
             if (role?.workGivers.NullOrEmpty() != false) return;
 
             pawn.workSettings.EnableAndInitializeIfNotAlreadyInitialized();
+            bool hasRestockWork = false;
             for (int i = 0; i < role.workGivers.Count; i++)
             {
-                WorkTypeDef workType = role.workGivers[i]?.workType;
+                WorkGiverDef workGiver = role.workGivers[i];
+                if (workGiver?.defName == "RestockMegaStorage")
+                    hasRestockWork = true;
+
+                WorkTypeDef workType = workGiver?.workType;
                 if (workType == null || pawn.WorkTypeIsDisabled(workType)) continue;
                 if (!pawn.workSettings.WorkIsActive(workType))
                     pawn.workSettings.SetPriority(workType, 3);
+            }
+
+            if (hasRestockWork)
+                PrioritizeRestockingOverHauling(pawn);
+        }
+
+        //提高补货工作相对普通搬运的优先级，职责是避免店员在缺货时一直去做原版搬运。
+        private static void PrioritizeRestockingOverHauling(Pawn pawn)
+        {
+            WorkTypeDef restocking = DefDatabase<WorkTypeDef>.GetNamedSilentFail("Restocking");
+            WorkTypeDef hauling = WorkTypeDefOf.Hauling;
+            if (restocking != null && !pawn.WorkTypeIsDisabled(restocking))
+                pawn.workSettings.SetPriority(restocking, 1);
+            if (hauling != null && !pawn.WorkTypeIsDisabled(hauling))
+            {
+                int haulingPriority = pawn.workSettings.WorkIsActive(hauling) ? pawn.workSettings.GetPriority(hauling) : 0;
+                if (haulingPriority <= 0 || haulingPriority < 4)
+                    pawn.workSettings.SetPriority(hauling, 4);
             }
         }
 

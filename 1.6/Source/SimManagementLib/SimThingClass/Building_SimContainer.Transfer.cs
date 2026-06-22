@@ -5,14 +5,10 @@ using Verse;
 
 namespace SimManagementLib.SimThingClass
 {
-    /// <summary>
-    /// 提供货柜虚拟库存的预约、入库、出库和购买转移能力。
-    /// </summary>
+    //货柜虚拟库存转移能力，职责是处理预约、入库、出库和购买扣减。
     public partial class Building_SimContainer
     {
-        /// <summary>
-        /// 为指定商品预留一次待入库数量，负责避免多个搬运任务重复补同一批库存。
-        /// </summary>
+        //为指定商品预留一次待入库数量，职责是避免多个搬运任务重复补同一批库存。
         public int ReservePending(ThingDef thingDef, int count)
         {
             if (count <= 0) return 0;
@@ -23,12 +19,11 @@ namespace SimManagementLib.SimThingClass
             if (pendingInReservedAtTick == null)
                 pendingInReservedAtTick = new Dictionary<ThingDef, int>();
             pendingInReservedAtTick[thingDef] = Find.TickManager?.TicksGame ?? 0;
+            MarkRestockQueueDirty(thingDef, "补货预约增加");
             return actual;
         }
 
-        /// <summary>
-        /// 取消指定商品的一段待入库预约，负责在任务中断或完成后回收预约数量。
-        /// </summary>
+        //取消指定商品的一段待入库预约，职责是在任务中断或完成后回收预约数量。
         public void CancelPending(ThingDef thingDef, int reservedCount)
         {
             if (thingDef == null) return;
@@ -43,11 +38,10 @@ namespace SimManagementLib.SimThingClass
             {
                 pendingIn[thingDef] = next;
             }
+            MarkRestockQueueDirty(thingDef, "补货预约取消");
         }
 
-        /// <summary>
-        /// 接收搬运者携带的商品，负责按预约数量和剩余容量转入货柜虚拟库存。
-        /// </summary>
+        //接收搬运者携带的商品，职责是按预约数量和剩余容量转入货柜虚拟库存。
         public int Deposit(Pawn pawn, ThingDef thingDef, int reservedCount)
         {
             CancelPending(thingDef, reservedCount);
@@ -70,6 +64,7 @@ namespace SimManagementLib.SimThingClass
                 virtualStorage.TryAddOrTransfer(carried, carried.stackCount, canMergeWithExistingStacks: false);
                 MarkStoredCountCacheDirty();
                 RefreshProgressStageGraphic();
+                MarkRestockQueueDirty(thingDef, "补货入库完成");
                 return canStore;
             }
 
@@ -84,12 +79,11 @@ namespace SimManagementLib.SimThingClass
             }
 
             RefreshProgressStageGraphic();
+            MarkRestockQueueDirty(thingDef, "补货入库完成");
             return canStore;
         }
 
-        /// <summary>
-        /// 接收退回或临时生成的物品，负责按剩余容量放入虚拟库存并返回实际入库数量。
-        /// </summary>
+        //接收退回或临时生成的物品，职责是按剩余容量放入虚拟库存并返回实际入库数量。
         public int TryReceiveReturnedThing(Thing thing)
         {
             if (thing == null || thing.Destroyed) return 0;
@@ -104,6 +98,7 @@ namespace SimManagementLib.SimThingClass
                 virtualStorage.TryAddOrTransfer(thing, thing.stackCount, canMergeWithExistingStacks: false);
                 MarkStoredCountCacheDirty();
                 RefreshProgressStageGraphic();
+                MarkRestockQueueDirty(thing.def, "退回物品入库");
                 return all;
             }
 
@@ -112,12 +107,11 @@ namespace SimManagementLib.SimThingClass
             virtualStorage.TryAddOrTransfer(part, part.stackCount, canMergeWithExistingStacks: false);
             MarkStoredCountCacheDirty();
             RefreshProgressStageGraphic();
+            MarkRestockQueueDirty(thing.def, "退回物品入库");
             return canStore;
         }
 
-        /// <summary>
-        /// 直接生成指定商品并存入货柜，负责调试补货和自动铺货时创建库存实物。
-        /// </summary>
+        //直接生成指定商品并存入货柜，职责是调试补货和自动铺货时创建库存实物。
         public int TryCreateAndStore(ThingDef def, int desiredCount)
         {
             if (def == null || desiredCount <= 0) return 0;
@@ -147,21 +141,18 @@ namespace SimManagementLib.SimThingClass
             }
 
             ReconcilePendingReservations();
+            MarkRestockQueueDirty(def, "调试或自动铺货入库");
             return totalStored;
         }
 
-        /// <summary>
-        /// 统计指定商品当前超过目标库存的数量，负责为下架和搬出任务提供可取数量。
-        /// </summary>
+        //统计指定商品当前超过目标库存的数量，职责是为下架和搬出任务提供可取数量。
         public int CountExcess(ThingDef thingDef)
         {
             ReconcilePendingReservationsForWorkScan();
             return CountExcessAfterReconcile(thingDef);
         }
 
-        /// <summary>
-        /// 在外层已完成预约同步后统计可下架数量，负责避免批量扫描中重复校正全图任务。
-        /// </summary>
+        //在外层已完成预约同步后统计可下架数量，职责是避免批量扫描中重复校正全图任务。
         private int CountExcessAfterReconcile(ThingDef thingDef)
         {
             int stored = CountStored(thingDef);
@@ -170,9 +161,7 @@ namespace SimManagementLib.SimThingClass
             return System.Math.Max(0, stored - target - alreadyPendingOut);
         }
 
-        /// <summary>
-        /// 枚举所有超过目标库存的商品，负责批量下架逻辑扫描货柜当前库存。
-        /// </summary>
+        //枚举所有超过目标库存的商品，职责是批量下架逻辑扫描货柜当前库存。
         public IEnumerable<(ThingDef td, int excess)> GetExcessItems()
         {
             ReconcilePendingReservationsForWorkScan();
@@ -186,9 +175,7 @@ namespace SimManagementLib.SimThingClass
             }
         }
 
-        /// <summary>
-        /// 为指定商品预留一次待出库数量，负责避免多个搬出任务同时取走同一批库存。
-        /// </summary>
+        //为指定商品预留一次待出库数量，职责是避免多个搬出任务同时取走同一批库存。
         public int ReservePendingOut(ThingDef thingDef, int count)
         {
             ReconcilePendingReservations();
@@ -200,9 +187,7 @@ namespace SimManagementLib.SimThingClass
             return actual;
         }
 
-        /// <summary>
-        /// 取消指定商品的一段待出库预约，负责在搬出任务中断或完成后回收预约数量。
-        /// </summary>
+        //取消指定商品的一段待出库预约，职责是在搬出任务中断或完成后回收预约数量。
         public void CancelPendingOut(ThingDef thingDef, int count)
         {
             if (thingDef == null) return;
@@ -212,9 +197,7 @@ namespace SimManagementLib.SimThingClass
             else pendingOut[thingDef] = next;
         }
 
-        /// <summary>
-        /// 从虚拟库存取出指定商品并掉落到地图，负责店员下架或调拨商品。
-        /// </summary>
+        //从虚拟库存取出指定商品并掉落到地图，职责是店员下架或调拨商品。
         public Thing Withdraw(ThingDef thingDef, int count, IntVec3 dropLoc, int reservedCount)
         {
             CancelPendingOut(thingDef, reservedCount);
@@ -252,12 +235,11 @@ namespace SimManagementLib.SimThingClass
             MarkStoredCountCacheDirty();
             ReconcilePendingReservations();
             RefreshProgressStageGraphic();
+            MarkRestockQueueDirty(thingDef, "商品下架出库");
             return result;
         }
 
-        /// <summary>
-        /// 从虚拟库存中扣除顾客购买的商品，负责返回成交实物和成交价值。
-        /// </summary>
+        //从虚拟库存中扣除顾客购买的商品，职责是返回成交实物和成交价值。
         public Thing TryVirtualBuy(ThingDef thingDef, int count, out float itemMarketValue)
         {
             itemMarketValue = 0f;
@@ -307,13 +289,12 @@ namespace SimManagementLib.SimThingClass
             {
                 MarkStoredCountCacheDirty();
                 RefreshProgressStageGraphic();
+                MarkRestockQueueDirty(thingDef, "顾客购买扣减库存");
             }
             return result;
         }
 
-        /// <summary>
-        /// 清理已经脱离地图和容器的临时物品，负责处理原版标记为不可普通销毁的特殊物品。
-        /// </summary>
+        //清理已经脱离地图和容器的临时物品，职责是处理原版标记为不可普通销毁的特殊物品。
         private static void DestroyDetachedTemporaryThing(Thing thing)
         {
             if (thing == null || thing.Destroyed) return;

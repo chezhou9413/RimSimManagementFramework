@@ -1,4 +1,5 @@
 using RimWorld;
+using SimManagementLib.SimMapComp;
 using SimManagementLib.SimThingComp;
 using SimManagementLib.Tool;
 using System.Collections.Generic;
@@ -7,9 +8,7 @@ using Verse;
 
 namespace SimManagementLib.SimThingClass
 {
-    /// <summary>
-    /// 虚拟化存储货柜。
-    /// </summary>
+    //虚拟化存储货柜，职责是保存商店商品库存、配置目标和补货预约。
     public partial class Building_SimContainer : Building, IThingHolder, IRenameable
     {
         private const int DefaultMaxTotalCapacity = 600;
@@ -64,23 +63,16 @@ namespace SimManagementLib.SimThingClass
             }
         }
 
-        /// <summary>
-        /// 返回当前货柜用于视觉切换的库存占比。
-        /// 这里固定按总容量计算，避免受到当前商品配置目标数量影响。
-        /// </summary>
+        //返回当前货柜用于视觉切换的库存占比，职责是按总容量计算阶段贴图比例。
         public float GetVisualFillPercent()
         {
             return Mathf.Clamp01(CountTotalStored() / (float)Mathf.Max(1, MaxTotalCapacity));
         }
 
-        /// <summary>
-        /// 优先返回进度阶段组件提供的贴图，未配置时回退到默认建筑贴图。
-        /// </summary>
+        //优先返回进度阶段组件提供的贴图，职责是在未配置时回退到默认建筑贴图。
         public override Graphic Graphic => ProgressStageGraphicComp?.GetCurrentGraphic() ?? base.Graphic;
 
-        /// <summary>
-        /// 在库存数量变化后刷新货柜占用格的网格，让阶段贴图立即切换。
-        /// </summary>
+        //刷新货柜占用格网格，职责是在库存数量变化后立即切换阶段贴图。
         public void RefreshProgressStageGraphic()
         {
             if (!Spawned || Map == null)
@@ -99,9 +91,7 @@ namespace SimManagementLib.SimThingClass
 
         public ThingOwner GetDirectlyHeldThings() => virtualStorage;
 
-        /// <summary>
-        /// 复制当前虚拟库存的按物品统计，负责让 UI 和统计逻辑不用直接枚举全部库存栈。
-        /// </summary>
+        //复制当前虚拟库存的按物品统计，职责是让 UI 和统计逻辑不用直接枚举全部库存栈。
         public void CopyStoredCountsTo(Dictionary<ThingDef, int> target)
         {
             if (target == null) return;
@@ -114,18 +104,14 @@ namespace SimManagementLib.SimThingClass
             }
         }
 
-        /// <summary>
-        /// 标记虚拟库存统计需要重建，负责在入库、出库、购买和清空后同步缓存状态。
-        /// </summary>
+        //标记虚拟库存统计需要重建，职责是在入库、出库、购买和清空后同步缓存状态。
         private void MarkStoredCountCacheDirty()
         {
             storedCountCacheDirty = true;
             storedCountVersion++;
         }
 
-        /// <summary>
-        /// 按需重建虚拟库存统计，负责把大量 Thing 栈聚合为按 ThingDef 查询的字典。
-        /// </summary>
+        //按需重建虚拟库存统计，职责是把大量 Thing 栈聚合为按 ThingDef 查询的字典。
         private void RebuildStoredCountCacheIfNeeded()
         {
             if (!storedCountCacheDirty && storedCountCache != null)
@@ -152,9 +138,7 @@ namespace SimManagementLib.SimThingClass
             storedCountCacheDirty = false;
         }
 
-        /// <summary>
-        /// 按固定间隔同步补货和下架预约，负责避免 UI 每帧反复扫描地图 Pawn 任务。
-        /// </summary>
+        //按固定间隔同步补货和下架预约，职责是避免 UI 每帧反复扫描地图 Pawn 任务。
         private void ReconcilePendingReservationsIfNeeded()
         {
             int ticks = Find.TickManager?.TicksGame ?? 0;
@@ -177,6 +161,8 @@ namespace SimManagementLib.SimThingClass
                 virtualStorage = new ThingOwner<Thing>(this, oneStackOnly: false);
             MarkStoredCountCacheDirty();
             ReconcilePendingReservations();
+            MapComponent_RestockTaskQueue queue = map?.GetComponent<MapComponent_RestockTaskQueue>();
+            queue?.MarkStorageDirty(this, respawningAfterLoad ? "货柜读档生成" : "货柜生成");
         }
 
         public override void ExposeData()
@@ -202,8 +188,23 @@ namespace SimManagementLib.SimThingClass
                     storedCountCache = new Dictionary<ThingDef, int>();
                 if (lastPendingReservationDebug == null)
                     lastPendingReservationDebug = "";
+                pendingIn.Clear();
+                pendingInReservedAtTick.Clear();
                 MarkStoredCountCacheDirty();
             }
+        }
+
+        //标记当前货柜补货队列需要重算，职责是把库存、预约和配置变化通知地图队列。
+        public void MarkRestockQueueDirty(ThingDef thingDef, string reason)
+        {
+            if (!Spawned || Map == null)
+                return;
+
+            MapComponent_RestockTaskQueue queue = Map.GetComponent<MapComponent_RestockTaskQueue>();
+            if (thingDef != null)
+                queue?.MarkDirty(this, thingDef, reason);
+            else
+                queue?.MarkStorageDirty(this, reason);
         }
     }
 }

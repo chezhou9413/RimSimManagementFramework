@@ -284,6 +284,7 @@
     <Compile Include="SimAI\JobDriver_WithdrawFromMegaStorage.cs" />
     <Compile Include="SimDef\GoodsDef.cs" />
     <Compile Include="SimDialog\Dialog_GoodsManager.cs" />
+    <Compile Include="SimDialog\Dialog_RestockQueueDebug.cs" />
     <Compile Include="SimDialog\Dialog_CustomGoodsRegistry.cs" />
     <Compile Include="SimDialog\Dialog_CustomGoodsRegistry.Transfer.cs" />
     <Compile Include="SimDialog\Dialog_CustomCustomerRegistry.cs" />
@@ -302,9 +303,12 @@
     <Compile Include="SimDialog\Dialog_CustomSignTransfer.cs" />
     <Compile Include="SimMapComp\CustomerArrivalShopContext.cs" />
     <Compile Include="SimMapComp\CustomerArrivalManager.cs" />
+    <Compile Include="SimMapComp\MapComponent_RestockTaskQueue.cs" />
     <Compile Include="SimMapComp\MapComponent_MechShopStaffDispatcher.cs" />
     <Compile Include="SimMapComp\MapComponent_ShopProgressOverlay.cs" />
     <Compile Include="SimMapComp\MapComponent_ShopBlueprintPlacement.cs" />
+    <Compile Include="SimMapComp\RestockTask.cs" />
+    <Compile Include="SimMapComp\RestockTaskKey.cs" />
     <Compile Include="SimThingClass\Building_CashRegister.cs" />
     <Compile Include="SimThingClass\Building_CollectibleDisplayStand.cs" />
     <Compile Include="SimThingClass\Building_CollectibleDisplayStand.Gizmos.cs" />

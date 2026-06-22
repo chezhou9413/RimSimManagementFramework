@@ -1,5 +1,6 @@
 using RimWorld;
 using SimManagementLib.SimDef;
+using SimManagementLib.SimMapComp;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimWorkGiver;
 using SimManagementLib.SimZone;
@@ -35,6 +36,7 @@ namespace SimManagementLib.Debug
             List<Building_SimContainer> storages = GetStorages(map);
             List<Pawn> pawns = GetRelevantPawns(map);
             AppendSummary(sb, map, storages, pawns);
+            AppendQueueDiagnostics(sb, map);
             AppendPawnDiagnostics(sb, pawns);
             AppendStorageDiagnostics(sb, storages, pawns);
             return sb.ToString().TrimEnd();
@@ -55,6 +57,10 @@ namespace SimManagementLib.Debug
         {
             int storageNeedingRestock = 0;
             int totalMissing = 0;
+            int restockEnabledPawns = 0;
+            int idleRestockPawns = 0;
+            int activeRestockJobs = 0;
+            WorkGiverDef restockGiver = DefDatabase<WorkGiverDef>.GetNamedSilentFail("RestockMegaStorage");
             for (int i = 0; i < storages.Count; i++)
             {
                 int missing = CountStorageMissing(storages[i]);
@@ -65,13 +71,76 @@ namespace SimManagementLib.Debug
                 totalMissing += missing;
             }
 
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn pawn = pawns[i];
+                if (CanUseWorkGiver(pawn, restockGiver))
+                {
+                    restockEnabledPawns++;
+                    if (IsIdleForRestock(pawn))
+                        idleRestockPawns++;
+                }
+
+                if (pawn?.CurJobDef?.defName == "DepositToMegaStorage")
+                    activeRestockJobs++;
+            }
+
             sb.AppendLine("[总览]");
             sb.AppendLine("殖民地货柜数: " + storages.Count);
             sb.AppendLine("需要补货货柜数: " + storageNeedingRestock);
             sb.AppendLine("总缺口数量: " + totalMissing);
             sb.AppendLine("候选员工数: " + pawns.Count);
+            sb.AppendLine("可执行补货员工数: " + restockEnabledPawns);
+            sb.AppendLine("空闲补货员工数: " + idleRestockPawns);
+            sb.AppendLine("当前补货 Job 数: " + activeRestockJobs);
             sb.AppendLine("建筑总数: " + (map?.listerBuildings?.allBuildingsColonist?.Count ?? 0));
             sb.AppendLine();
+        }
+
+        //写入补货队列诊断，职责是展示事件驱动补货任务的 dirty、ready 和 blocked 状态。
+        private static void AppendQueueDiagnostics(StringBuilder sb, Map map)
+        {
+            RestockQueueDebugSnapshot snapshot = map?.GetComponent<MapComponent_RestockTaskQueue>()?.CreateDebugSnapshot();
+            sb.AppendLine("[补货队列]");
+            if (snapshot == null)
+            {
+                sb.AppendLine("没有地图补货队列组件。");
+                sb.AppendLine();
+                return;
+            }
+
+            sb.AppendLine("dirty=" + snapshot.DirtyCount
+                + " ready=" + snapshot.ReadyCount
+                + " blocked=" + snapshot.BlockedCount
+                + " lastProcessTick=" + snapshot.LastProcessTick
+                + " lastRebuildTick=" + snapshot.LastRebuildTick
+                + " lastReason=" + snapshot.LastReason);
+            AppendQueueTaskSamples(sb, "ready", snapshot.ReadyTasks);
+            AppendQueueTaskSamples(sb, "blocked", snapshot.BlockedTasks);
+            sb.AppendLine();
+        }
+
+        //写入队列任务样本，职责是限制日志长度同时保留排查关键字段。
+        private static void AppendQueueTaskSamples(StringBuilder sb, string label, List<RestockTask> tasks)
+        {
+            if (tasks == null || tasks.Count <= 0)
+                return;
+
+            int count = Math.Min(tasks.Count, 20);
+            for (int i = 0; i < count; i++)
+            {
+                RestockTask task = tasks[i];
+                sb.AppendLine("  " + label
+                    + " storage=" + task.StorageId
+                    + " def=" + (task.ThingDef?.defName ?? "null")
+                    + " need=" + task.NeededCount
+                    + " supply=" + task.SupplyId
+                    + " retry=" + task.RetryTick
+                    + " reason=" + task.StateReason);
+            }
+
+            if (tasks.Count > count)
+                sb.AppendLine("  " + label + " 剩余省略: " + (tasks.Count - count));
         }
 
         //写入员工诊断，职责是检查员工是否启用了补货相关工作并记录当前 Job。
@@ -335,6 +404,16 @@ namespace SimManagementLib.Debug
             }
 
             return true;
+        }
+
+        //判断 Pawn 是否处于补货主动派工可接管的空闲状态，职责是区分队列无任务和员工都在忙。
+        private static bool IsIdleForRestock(Pawn pawn)
+        {
+            if (pawn?.CurJob == null)
+                return true;
+
+            string defName = pawn.CurJobDef?.defName;
+            return defName == "Wait" || defName == "Wait_Wander" || defName == "Wait_MaintainPosture";
         }
 
         //查找第一个能使用货源的员工，职责是诊断货源是否实际可被补货任务拿起。

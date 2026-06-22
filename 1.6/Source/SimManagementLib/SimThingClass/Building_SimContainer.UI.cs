@@ -1,5 +1,6 @@
 using RimWorld;
 using SimManagementLib.SimDialog;
+using SimManagementLib.SimMapComp;
 using SimManagementLib.SimThingComp;
 using SimManagementLib.Tool;
 using System.Collections.Generic;
@@ -9,16 +10,12 @@ using Verse;
 
 namespace SimManagementLib.SimThingClass
 {
-    /// <summary>
-    /// 提供货柜拆除掉落、检查面板文本和操作按钮相关能力。
-    /// </summary>
+    //货柜 UI 和移除处理能力，职责是提供拆除掉落、检查面板文本和操作按钮。
     public partial class Building_SimContainer
     {
         private const int InspectPreviewLineLimit = 8;
 
-        /// <summary>
-        /// 在货柜被移除前掉落内部虚拟库存，负责避免拆除或摧毁时吞掉商品。
-        /// </summary>
+        //在货柜被移除前掉落内部虚拟库存，职责是避免拆除或摧毁时吞掉商品。
         private void DropStoredContentsIfNeeded(Map map, IntVec3 dropSpot, DestroyMode mode)
         {
             if (contentsDropped) return;
@@ -33,27 +30,25 @@ namespace SimManagementLib.SimThingClass
             pendingOut?.Clear();
         }
 
-        /// <summary>
-        /// 反生成货柜时处理内部库存，负责在地图移除前把商品退回地图。
-        /// </summary>
+        //反生成货柜时处理内部库存，职责是在地图移除前把商品退回地图并重建补货队列。
         public override void DeSpawn(DestroyMode mode = DestroyMode.Vanish)
         {
+            Map oldMap = MapHeld;
             DropStoredContentsIfNeeded(MapHeld, PositionHeld, mode);
             base.DeSpawn(mode);
+            oldMap?.GetComponent<MapComponent_RestockTaskQueue>()?.ResetAndRebuildAll("货柜反生成");
         }
 
-        /// <summary>
-        /// 摧毁货柜时处理内部库存，负责在建筑消失前把商品退回地图。
-        /// </summary>
+        //摧毁货柜时处理内部库存，职责是在建筑消失前把商品退回地图并重建补货队列。
         public override void Destroy(DestroyMode mode = DestroyMode.Vanish)
         {
+            Map oldMap = MapHeld;
             DropStoredContentsIfNeeded(MapHeld, PositionHeld, mode);
             base.Destroy(mode);
+            oldMap?.GetComponent<MapComponent_RestockTaskQueue>()?.ResetAndRebuildAll("货柜摧毁");
         }
 
-        /// <summary>
-        /// 返回货柜检查面板文本，负责展示汇总库存和少量预览，避免大量商品逐行拖慢检查面板。
-        /// </summary>
+        //返回货柜检查面板文本，职责是展示汇总库存和少量预览，避免大量商品逐行拖慢检查面板。
         public override string GetInspectString()
         {
             string baseStr = base.GetInspectString();
@@ -99,9 +94,7 @@ namespace SimManagementLib.SimThingClass
             return baseStr + "\n" + sb;
         }
 
-        /// <summary>
-        /// 返回货柜操作按钮，负责提供改名和商品管理入口。
-        /// </summary>
+        //返回货柜操作按钮，职责是提供改名和商品管理入口。
         public override IEnumerable<Gizmo> GetGizmos()
         {
             foreach (Gizmo gizmo in base.GetGizmos())

@@ -220,26 +220,33 @@ namespace SimManagementLib.Debug
                 return;
 
             WorkTypeDef hauling = WorkTypeDefOf.Hauling;
+            WorkTypeDef restocking = DefDatabase<WorkTypeDef>.GetNamedSilentFail("Restocking");
             for (int i = 0; i < RestockStressStaffCount; i++)
             {
                 Pawn pawn = PawnGenerator.GeneratePawn(PawnKindDefOf.Colonist, Faction.OfPlayer);
                 IntVec3 cell = cells[i % cells.Count];
                 GenSpawn.Spawn(pawn, cell, map);
-                ConfigureRestockStaffWork(pawn, hauling);
+                ConfigureRestockStaffWork(pawn, restocking, hauling);
             }
         }
 
         //配置补货员工工作优先级，职责是让生成的小人立即参与补货压力测试。
-        private static void ConfigureRestockStaffWork(Pawn pawn, WorkTypeDef hauling)
+        private static void ConfigureRestockStaffWork(Pawn pawn, WorkTypeDef restocking, WorkTypeDef hauling)
         {
             if (pawn?.workSettings == null)
                 return;
 
             pawn.workSettings.EnableAndInitializeIfNotAlreadyInitialized();
             pawn.workSettings.DisableAll();
+            if (restocking != null && !pawn.WorkTypeIsDisabled(restocking))
+                pawn.workSettings.SetPriority(restocking, 1);
             if (hauling != null && !pawn.WorkTypeIsDisabled(hauling))
-                pawn.workSettings.SetPriority(hauling, 1);
-            pawn.timetable?.SetAssignment(0, TimeAssignmentDefOf.Work);
+                pawn.workSettings.SetPriority(hauling, 4);
+            if (pawn.timetable != null)
+            {
+                for (int hour = 0; hour < 24; hour++)
+                    pawn.timetable.SetAssignment(hour, TimeAssignmentDefOf.Work);
+            }
         }
     }
 }

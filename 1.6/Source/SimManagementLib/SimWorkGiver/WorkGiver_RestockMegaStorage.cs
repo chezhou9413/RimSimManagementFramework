@@ -1,4 +1,5 @@
 using RimWorld;
+using SimManagementLib.SimMapComp;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
@@ -8,27 +9,18 @@ using Verse.AI;
 
 namespace SimManagementLib.SimWorkGiver
 {
-    //补货工作分配器，职责是以分帧预算扫描货柜和货源，避免单次找工作执行全图补货搜索。
+    //补货工作分配器，职责是把 RimWorld 找工作入口桥接到地图级补货任务队列。
     public class WorkGiver_RestockMegaStorage : WorkGiver_Scanner
     {
-        private const int CandidateCacheTicks = 179;
-        private const int CandidateCacheJitterTicks = 43;
-        private const int CandidateWindowTicks = 11;
-        private const int CandidateWindowSize = 4;
-        private const int CandidateRefreshBudgetPerTick = 2;
-        private const int CacheStaggerSalt = 101;
-        private const int StorageReachCacheTicks = 17;
-        private static readonly Dictionary<int, RestockCandidateCache> candidateCaches = new Dictionary<int, RestockCandidateCache>();
         private static WorkGiverDef cachedWorkGiverDef;
 
-        //清空补货货柜候选缓存，职责是让调试工具能强制重建补货扫描状态。
+        //清空补货候选缓存，职责是保留调试入口对旧扫描状态的兼容清理能力。
         public static void ClearRestockCandidateCaches()
         {
-            candidateCaches.Clear();
             cachedWorkGiverDef = null;
         }
 
-        //返回当前补货 WorkGiverDef，职责是避免每次扫描查询 DefDatabase。
+        //返回当前补货 WorkGiverDef，职责是避免重复查询 DefDatabase。
         private static WorkGiverDef CurrentWorkGiverDef
         {
             get
@@ -39,78 +31,99 @@ namespace SimManagementLib.SimWorkGiver
             }
         }
 
-        //返回地图上的补货货柜候选，职责是把全量货柜拆成小窗口交给原版扫描器。
+        //返回空候选列表，职责是让 scanThings=false 的补货工作只走 NonScanJob 队列桥接。
         public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn)
         {
-            List<Thing> candidates = GetCandidateStorages(pawn);
-            for (int i = 0; i < candidates.Count; i++)
-                yield return candidates[i];
+            yield break;
         }
 
-        //直接尝试创建补货工作，职责是绕开原版全局 Thing 扫描并按本类预算窗口派工。
+        //直接从地图补货队列领取任务，职责是避免小人找工作时现场全图扫描货柜和货源。
         public override Job NonScanJob(Pawn pawn)
         {
-            List<Thing> candidates = GetCandidateStorages(pawn);
-            for (int i = 0; i < candidates.Count; i++)
-            {
-                if (!RestockWorkTickBudget.TryUseStorageCandidateCheck(pawn.Map))
-                    return null;
-
-                if (!(candidates[i] is Building_SimContainer storage))
-                    continue;
-
-                if (!NeedsRestockForScan(storage, pawn))
-                    continue;
-
-                Thing supply = RestockSupplySearchStateCache.FindBestSupplyBudgeted(pawn, storage, true)
-                    ?? RestockSupplySearchStateCache.FindBestSupplyForDispatch(pawn, storage);
-                Job job = MakeRestockJobFromSupply(pawn, storage, supply, false);
-                if (job != null)
-                    return job;
-            }
-
-            return null;
+            return pawn?.Map?.GetComponent<MapComponent_RestockTaskQueue>()?.TryMakeJobForPawn(pawn);
         }
 
-        //判断指定货柜是否有可执行补货任务，职责是在高频扫描中只执行轻量判断和预算货源搜索。
+        //判断指定货柜是否有补货任务，职责是兼容手动扫描调用并使用确定性强校验。
         public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
             if (!(t is Building_SimContainer storage))
                 return false;
 
-            if (!NeedsRestockForScan(storage, pawn))
-                return false;
-
-            return RestockSupplySearchStateCache.FindBestSupplyBudgeted(pawn, storage, true) != null;
+            return TryFindRestockSupply(pawn, storage, out _, out _) != null;
         }
 
-        //为指定货柜生成补货任务，职责是复用扫描阶段找到的货源并在真正派工前执行强校验。
+        //为指定货柜生成补货任务，职责是兼容外部扫描入口并在派工前执行强校验。
         public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
             if (!(t is Building_SimContainer storage))
                 return null;
 
-            storage.ReconcilePendingReservations();
-            if (!NeedsRestockForJob(storage, pawn))
+            ThingDef thingDef;
+            int needed;
+            Thing supply = TryFindRestockSupply(pawn, storage, out thingDef, out needed);
+            if (supply == null)
                 return null;
 
-            Thing supply = RestockSupplySearchStateCache.FindBestSupplyBudgeted(pawn, storage, false)
-                ?? RestockSupplySearchStateCache.FindBestSupplyForDispatch(pawn, storage);
-            return MakeRestockJobFromSupply(pawn, storage, supply, true);
+            return MakeRestockJobFromSupply(pawn, storage, supply, thingDef, needed);
         }
 
-        //按已找到的货源创建补货 Job，职责是让扫描派工和兼容入口复用同一套任务构建规则。
-        private static Job MakeRestockJobFromSupply(Pawn pawn, Building_SimContainer storage, Thing supply, bool strongNeedCheck)
+        //查找指定货柜可补货的货源，职责是给兼容入口提供不受预算影响的确定性结果。
+        private static Thing TryFindRestockSupply(Pawn pawn, Building_SimContainer storage, out ThingDef thingDef, out int needed)
         {
-            if (pawn == null || storage == null || supply == null || supply.Destroyed || !supply.Spawned || supply.stackCount <= 0)
+            thingDef = null;
+            needed = 0;
+            if (!CanPawnUseStorage(pawn, storage))
                 return null;
 
-            if (supply.Map != pawn.Map)
+            storage.ReconcilePendingReservations();
+            foreach (ThingDef activeDef in storage.ActiveDefs)
+            {
+                int currentNeed = storage.CountNeeded(activeDef);
+                if (currentNeed <= 0)
+                    continue;
+
+                Thing supply = FindBestSupplyForDef(pawn, storage, activeDef);
+                if (supply == null)
+                    continue;
+
+                thingDef = activeDef;
+                needed = currentNeed;
+                return supply;
+            }
+
+            return null;
+        }
+
+        //查找最近的可用货源，职责是只在兼容入口中做一次完整确定性搜索。
+        private static Thing FindBestSupplyForDef(Pawn pawn, Building_SimContainer storage, ThingDef thingDef)
+        {
+            List<Thing> candidates = pawn?.Map?.listerThings?.ThingsOfDef(thingDef);
+            if (candidates == null || candidates.Count <= 0)
                 return null;
 
-            ThingDef thingDef = supply.def;
-            int needed = strongNeedCheck ? storage.CountNeeded(thingDef) : storage.CountNeededForWorkScan(thingDef);
-            if (needed <= 0)
+            Thing bestThing = null;
+            float bestDistance = float.MaxValue;
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                Thing candidate = candidates[i];
+                if (!IsValidSupplyForPawn(pawn, storage, candidate, thingDef))
+                    continue;
+
+                float distance = (candidate.Position - pawn.Position).LengthHorizontalSquared;
+                if (distance >= bestDistance)
+                    continue;
+
+                bestDistance = distance;
+                bestThing = candidate;
+            }
+
+            return bestThing;
+        }
+
+        //按已找到的货源创建补货 Job，职责是让兼容扫描入口复用同一套任务构建规则。
+        private static Job MakeRestockJobFromSupply(Pawn pawn, Building_SimContainer storage, Thing supply, ThingDef thingDef, int needed)
+        {
+            if (!IsValidSupplyForPawn(pawn, storage, supply, thingDef))
                 return null;
 
             int carryMax = MassUtility.CountToPickUpUntilOverEncumbered(pawn, supply);
@@ -125,184 +138,36 @@ namespace SimManagementLib.SimWorkGiver
             return job;
         }
 
-        //判断货柜在工作扫描阶段是否值得继续找货源，职责是避免触发完整预约校正。
-        private static bool NeedsRestockForScan(Building_SimContainer storage, Pawn pawn)
+        //判断小人是否能给货柜补货，职责是集中执行地图、岗位和可达性校验。
+        private static bool CanPawnUseStorage(Pawn pawn, Building_SimContainer storage)
         {
-            if (!IsValidStorageForPawn(storage, pawn))
+            if (pawn?.Map == null || storage == null || storage.Destroyed || !storage.Spawned || storage.Map != pawn.Map)
                 return false;
 
-            if (!storage.TryFindRestockDefForWorkScan(out _))
-                return false;
-
-            if (!AllowsPawnForStorage(storage, pawn))
-                return false;
-
-            if (!RestockWorkTickBudget.TryUseStorageReachQuery(pawn.Map))
-                return false;
-
-            return WorkGiverThingQueryCache.CanReachThingCached(pawn, storage, PathEndMode.Touch, Danger.Deadly, StorageReachCacheTicks);
-        }
-
-        //判断货柜在创建工作前是否仍能补货，职责是使用原始强校验保证最终任务有效。
-        private static bool NeedsRestockForJob(Building_SimContainer storage, Pawn pawn)
-        {
-            if (!IsValidStorageForPawn(storage, pawn))
-                return false;
-
-            if (!AllowsPawnForStorage(storage, pawn))
-                return false;
-
-            if (!pawn.CanReach(storage, PathEndMode.Touch, Danger.Deadly))
-                return false;
-
-            foreach (ThingDef thingDef in storage.ActiveDefs)
-            {
-                if (storage.CountNeeded(thingDef) > 0)
-                    return true;
-            }
-            return false;
-        }
-
-        //判断货柜和小人是否处于同一有效地图，职责是集中处理通用失效条件。
-        private static bool IsValidStorageForPawn(Building_SimContainer storage, Pawn pawn)
-        {
-            return pawn?.Map != null
-                && storage != null
-                && storage.Map == pawn.Map
-                && storage.Spawned
-                && !storage.Destroyed;
-        }
-
-        //判断当前小人是否允许给货柜补货，职责是应用商店岗位分配规则。
-        private static bool AllowsPawnForStorage(Building_SimContainer storage, Pawn pawn)
-        {
             Zone_Shop shop = ShopStaffUtility.FindShopFor(storage);
-            return VendingMachineUtility.IsVendingMachine(storage)
-                || CurrentWorkGiverDef == null
-                || ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, CurrentWorkGiverDef);
+            if (!VendingMachineUtility.IsVendingMachine(storage)
+                && CurrentWorkGiverDef != null
+                && !ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, CurrentWorkGiverDef))
+                return false;
+
+            return pawn.CanReach(storage, PathEndMode.Touch, Danger.Deadly);
         }
 
-        //返回短时间缓存的货柜候选，职责是避免每个员工重复扫描全部殖民地建筑。
-        private static List<Thing> GetCandidateStorages(Pawn pawn)
+        //判断货源是否能被指定小人实际搬运，职责是避免创建无法执行的补货 Job。
+        private static bool IsValidSupplyForPawn(Pawn pawn, Building_SimContainer storage, Thing supply, ThingDef thingDef)
         {
-            if (pawn?.Map?.listerBuildings == null)
-                return EmptyThingList;
+            if (pawn == null || storage == null || supply == null || thingDef == null)
+                return false;
+            if (supply.Destroyed || !supply.Spawned || supply.stackCount <= 0 || supply.def != thingDef)
+                return false;
+            if (supply.Map != pawn.Map || storage.Map != pawn.Map)
+                return false;
+            if (supply.IsForbidden(pawn))
+                return false;
+            if (supply.GetSlotGroup()?.parent is Building_SimContainer)
+                return false;
 
-            int mapId = pawn.Map.uniqueID;
-            int now = Find.TickManager?.TicksGame ?? 0;
-            if (!candidateCaches.TryGetValue(mapId, out RestockCandidateCache cache) || cache == null || cache.map != pawn.Map)
-            {
-                cache = new RestockCandidateCache();
-                cache.map = pawn.Map;
-                candidateCaches[mapId] = cache;
-                StartCandidateRefresh(pawn.Map, cache, now);
-            }
-
-            if (!cache.refreshInProgress && now >= cache.nextRefreshTick)
-                StartCandidateRefresh(pawn.Map, cache, now);
-
-            AdvanceCandidateRefresh(pawn.Map, cache, now);
-            if (cache.refreshInProgress && cache.allCandidates.Count <= 0 && cache.stagingCandidates.Count > 0)
-                RefreshCandidateWindow(cache, cache.stagingCandidates, now);
-            if (now >= cache.nextWindowTick)
-                RefreshCandidateWindow(cache, now);
-            return cache.windowCandidates;
+            return pawn.CanReserve(supply) && pawn.CanReach(supply, PathEndMode.ClosestTouch, Danger.Deadly);
         }
-
-        //启动补货候选增量刷新，职责是准备临时列表但继续保留旧候选供派工使用。
-        private static void StartCandidateRefresh(Map map, RestockCandidateCache cache, int now)
-        {
-            cache.map = map;
-            cache.refreshInProgress = true;
-            cache.refreshCursor = 0;
-            cache.refreshCheckedThisTick = 0;
-            cache.refreshBudgetTick = -1;
-            cache.stagingCandidates.Clear();
-        }
-
-        //推进补货候选增量刷新，职责是把全图建筑扫描和预约校正摊到多个 tick。
-        private static void AdvanceCandidateRefresh(Map map, RestockCandidateCache cache, int now)
-        {
-            if (!cache.refreshInProgress)
-                return;
-
-            if (cache.refreshBudgetTick != now)
-            {
-                cache.refreshBudgetTick = now;
-                cache.refreshCheckedThisTick = 0;
-            }
-
-            List<Building> buildings = map.listerBuildings.allBuildingsColonist;
-            while (cache.refreshCursor < buildings.Count && cache.refreshCheckedThisTick < CandidateRefreshBudgetPerTick)
-            {
-                Building_SimContainer storage = buildings[cache.refreshCursor++] as Building_SimContainer;
-                cache.refreshCheckedThisTick++;
-                if (storage == null || storage.Destroyed || !storage.Spawned)
-                    continue;
-
-                if (RestockWorkTickBudget.TryUsePendingReconcile(map))
-                    storage.ReconcilePendingReservationsForWorkScan();
-                if (!storage.TryFindRestockDefForWorkScan(out _))
-                    continue;
-
-                cache.stagingCandidates.Add(storage);
-            }
-
-            if (cache.refreshCursor < buildings.Count)
-                return;
-
-            FinishCandidateRefresh(map, cache, now);
-        }
-
-        //完成补货候选增量刷新，职责是一次性替换候选列表并安排下一轮刷新。
-        private static void FinishCandidateRefresh(Map map, RestockCandidateCache cache, int now)
-        {
-            cache.allCandidates.Clear();
-            cache.allCandidates.AddRange(cache.stagingCandidates);
-            cache.stagingCandidates.Clear();
-            cache.refreshInProgress = false;
-            cache.refreshCursor = 0;
-            cache.nextRefreshTick = WorkGiverScanUtility.NextStaggeredTick(now, CandidateCacheTicks, map.uniqueID, CacheStaggerSalt, CandidateCacheJitterTicks);
-            cache.nextWindowTick = now;
-            RefreshCandidateWindow(cache, now);
-        }
-
-        //刷新补货候选窗口，职责是把货柜检查摊到多次工作扫描中。
-        private static void RefreshCandidateWindow(RestockCandidateCache cache, int now)
-        {
-            RefreshCandidateWindow(cache, cache.allCandidates, now);
-        }
-
-        //刷新指定来源的补货候选窗口，职责是在首次全图刷新未完成时也能使用已经发现的临时候选。
-        private static void RefreshCandidateWindow(RestockCandidateCache cache, List<Thing> source, int now)
-        {
-            WorkGiverScanUtility.BuildThingWindow(source, cache.windowCandidates, ref cache.windowCursor, CandidateWindowSize);
-            cache.nextWindowTick = now + CandidateWindowTicks;
-        }
-
-        private static readonly List<Thing> EmptyThingList = new List<Thing>(0);
-
-        //单张地图的补货货柜候选缓存，职责是保存全量候选和当前扫描窗口。
-        private class RestockCandidateCache
-        {
-            public Map map;
-            public int nextRefreshTick = -1;
-            public int nextWindowTick = -1;
-            public int windowCursor;
-            public int refreshCursor;
-            public int refreshBudgetTick = -1;
-            public int refreshCheckedThisTick;
-            public bool refreshInProgress;
-            public readonly List<Thing> allCandidates = new List<Thing>();
-            public readonly List<Thing> windowCandidates = new List<Thing>();
-            public readonly List<Thing> stagingCandidates = new List<Thing>();
-
-            //判断缓存是否属于当前地图，职责是防止跨地图复用候选。
-            public bool IsForMap(Map currentMap)
-            {
-                return map == currentMap;
-            }
-        }
-
     }
 }
