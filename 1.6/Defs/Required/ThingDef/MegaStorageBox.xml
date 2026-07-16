@@ -505,4 +505,182 @@
         </comps>
     </ThingDef>
 
+    <ThingDef ParentName="MegaStorageBox">
+        <defName>BigWeaponStorageBox</defName>
+        <label>大武器货柜</label>
+        <description>用于商店运营的大武器货柜。可集中存放并管理店铺售卖的武器，方便补货与结算。</description>
+        <graphicData>
+            <texPath>Things/Building/MegaStorageBox/BigWeaponStorageBox/BigWeaponStorageBox</texPath>
+            <drawSize>(4, 4)</drawSize>
+            <drawOffsetSouth>(0, 0, 0)</drawOffsetSouth>
+            <drawOffsetNorth>(0, 0, 0)</drawOffsetNorth>
+            <drawOffsetEast>(0, 0, 0.1)</drawOffsetEast>
+            <drawOffsetWest>(0, 0, 0.1)</drawOffsetWest>
+        </graphicData>
+        <size>(2, 1)</size>
+        <costList>
+            <Steel>15</Steel>
+        </costList>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
+            <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
+            <maxTotalCapacity>10</maxTotalCapacity>
+            <!-- 可售商品分类。留空表示通用货柜；配置后只能在货柜管理中选择这些 GoodsDef 分类。 -->
+            <allowedGoodsCategoryIds>
+                <li>Goods_Weapons</li>
+                <li>Goods_MeleeWeapons</li>
+            </allowedGoodsCategoryIds>
+            </li>
+            <li Class="CompProperties_Forbiddable"/>
+            <li Class="CompProperties_Power">
+                <compClass>CompPowerTrader</compClass>
+                <basePowerConsumption>70</basePowerConsumption>
+            </li>
+            <li Class="CompProperties_Flickable"/>
+            <li Class="CompProperties_Schedule">
+            <!-- Match plant growing times -->
+                <startTime>0.25</startTime>
+                <endTime>0.8</endTime>
+                <offMessage>Off for plant resting period</offMessage>
+            </li>
+            <li Class="CompProperties_Glower">
+                <overlightRadius>7.0</overlightRadius>
+                <glowRadius>8</glowRadius>
+                <glowColor>(370,370,370,0)</glowColor>
+            </li>
+        </comps>
+    </ThingDef>
+
+    <ThingDef ParentName="MegaStorageBox">
+        <defName>SmallWeaponStorageBox</defName>
+        <label>小武器货柜</label>
+        <description>用于商店运营的小武器货柜。可集中存放并管理店铺售卖的武器，方便补货与结算。</description>
+        <graphicData>
+            <texPath>Things/Building/MegaStorageBox/SmallWeaponStorageBox/SmallWeaponStorageBox</texPath>
+            <drawSize>(2, 2)</drawSize>
+            <drawOffsetSouth>(0, 0, 0.45)</drawOffsetSouth>
+            <drawOffsetNorth>(0, 0, 0.45)</drawOffsetNorth>
+            <drawOffsetEast>(0, 0, 0.45)</drawOffsetEast>
+            <drawOffsetWest>(0, 0, 0.45)</drawOffsetWest>
+        </graphicData>
+        <size>(1, 1)</size>
+        <costList>
+            <Steel>15</Steel>
+        </costList>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
+            <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
+            <maxTotalCapacity>10</maxTotalCapacity>
+            <!-- 可售商品分类。留空表示通用货柜；配置后只能在货柜管理中选择这些 GoodsDef 分类。 -->
+            <allowedGoodsCategoryIds>
+                <li>Goods_Weapons</li>
+                <li>Goods_MeleeWeapons</li>
+            </allowedGoodsCategoryIds>
+            </li>
+            <li Class="CompProperties_Forbiddable"/>
+            <li Class="CompProperties_Power">
+                <compClass>CompPowerTrader</compClass>
+                <basePowerConsumption>70</basePowerConsumption>
+            </li>
+            <li Class="CompProperties_Flickable"/>
+            <li Class="CompProperties_Schedule">
+            <!-- Match plant growing times -->
+                <startTime>0.25</startTime>
+                <endTime>0.8</endTime>
+                <offMessage>Off for plant resting period</offMessage>
+            </li>
+            <li Class="CompProperties_Glower">
+                <overlightRadius>7.0</overlightRadius>
+                <glowRadius>8</glowRadius>
+                <glowColor>(370,370,370,0)</glowColor>
+            </li>
+        </comps>
+    </ThingDef>
+
+    <ThingDef ParentName="MegaStorageBox">
+        <defName>MiddleClothesStorageBox</defName>
+        <label>中服装货柜</label>
+        <description>用于商店运营的中服装货柜。可集中存放并管理店铺售卖的服装，方便补货与结算。</description>
+        <graphicData>
+            <texPath>Things/Building/MegaStorageBox/MiddleClothesStorageBox/MiddleClothesStorageBox</texPath>
+            <drawSize>(4, 4)</drawSize>
+            <drawOffsetSouth>(0, 0, 0)</drawOffsetSouth>
+            <drawOffsetNorth>(0, 0, 0)</drawOffsetNorth>
+            <drawOffsetEast>(0, 0, 0)</drawOffsetEast>
+            <drawOffsetWest>(0, 0, 0)</drawOffsetWest>
+        </graphicData>
+        <size>(2, 1)</size>
+        <costList>
+            <Steel>15</Steel>
+        </costList>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
+            <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
+            <maxTotalCapacity>10</maxTotalCapacity>
+            <!-- 可售商品分类。留空表示通用货柜；配置后只能在货柜管理中选择这些 GoodsDef 分类。 -->
+            <allowedGoodsCategoryIds>
+                <li>Goods_Clothes</li>
+            </allowedGoodsCategoryIds>
+            </li>
+        </comps>
+    </ThingDef>
+
+    <ThingDef ParentName="MegaStorageBox">
+        <defName>ManClothesStorageBox</defName>
+        <label>男性人偶服装货柜</label>
+        <description>用于商店运营的中服装货柜。可集中存放并管理店铺售卖的服装，方便补货与结算。</description>
+        <graphicData>
+            <texPath>Things/Building/MegaStorageBox/ManClothesStorageBox/ManClothesStorageBox</texPath>
+            <drawSize>(2.5, 2.5)</drawSize>
+            <drawOffsetSouth>(0, 0, 0.45)</drawOffsetSouth>
+            <drawOffsetNorth>(0, 0, 0.45)</drawOffsetNorth>
+            <drawOffsetEast>(0, 0, 0.45)</drawOffsetEast>
+            <drawOffsetWest>(0, 0, 0.45)</drawOffsetWest>
+        </graphicData>
+        <size>(1, 1)</size>
+        <costList>
+            <Steel>5</Steel>
+        </costList>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
+            <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
+            <maxTotalCapacity>1</maxTotalCapacity>
+            <!-- 可售商品分类。留空表示通用货柜；配置后只能在货柜管理中选择这些 GoodsDef 分类。 -->
+            <allowedGoodsCategoryIds>
+                <li>Goods_Clothes</li>
+            </allowedGoodsCategoryIds>
+            </li>
+        </comps>
+    </ThingDef>
+
+    <ThingDef ParentName="MegaStorageBox">
+        <defName>WomanClothesStorageBox</defName>
+        <label>女性人偶服装货柜</label>
+        <description>用于商店运营的中服装货柜。可集中存放并管理店铺售卖的服装，方便补货与结算。</description>
+        <graphicData>
+            <texPath>Things/Building/MegaStorageBox/WomanClothesStorageBox/WomanClothesStorageBox</texPath>
+            <drawSize>(2.5, 2.5)</drawSize>
+            <drawOffsetSouth>(0, 0, 0.45)</drawOffsetSouth>
+            <drawOffsetNorth>(0, 0, 0.45)</drawOffsetNorth>
+            <drawOffsetEast>(0, 0, 0.45)</drawOffsetEast>
+            <drawOffsetWest>(0, 0, 0.45)</drawOffsetWest>
+        </graphicData>
+        <size>(1, 1)</size>
+        <costList>
+            <Steel>5</Steel>
+        </costList>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
+            <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
+            <maxTotalCapacity>1</maxTotalCapacity>
+            <!-- 可售商品分类。留空表示通用货柜；配置后只能在货柜管理中选择这些 GoodsDef 分类。 -->
+            <allowedGoodsCategoryIds>
+                <li>Goods_Clothes</li>
+            </allowedGoodsCategoryIds>
+            </li>
+        </comps>
+    </ThingDef>
+
+
+
 </Defs>
