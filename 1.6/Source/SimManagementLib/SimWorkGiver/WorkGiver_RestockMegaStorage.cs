@@ -14,6 +14,9 @@ namespace SimManagementLib.SimWorkGiver
     {
         private static WorkGiverDef cachedWorkGiverDef;
 
+        //声明右键命令可以检查人造建筑，职责是让原版工作菜单把货柜交给 HasJobOnThing 强校验。
+        public override ThingRequest PotentialWorkThingRequest => ThingRequest.ForGroup(ThingRequestGroup.BuildingArtificial);
+
         //清空补货候选缓存，职责是保留调试入口对旧扫描状态的兼容清理能力。
         public static void ClearRestockCandidateCaches()
         {
@@ -31,12 +34,6 @@ namespace SimManagementLib.SimWorkGiver
             }
         }
 
-        //返回空候选列表，职责是让 scanThings=false 的补货工作只走 NonScanJob 队列桥接。
-        public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn)
-        {
-            yield break;
-        }
-
         //直接从地图补货队列领取任务，职责是避免小人找工作时现场全图扫描货柜和货源。
         public override Job NonScanJob(Pawn pawn)
         {
@@ -46,21 +43,21 @@ namespace SimManagementLib.SimWorkGiver
         //判断指定货柜是否有补货任务，职责是兼容手动扫描调用并使用确定性强校验。
         public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
-            if (!(t is Building_SimContainer storage))
+            if (!(t is Building_SimContainer storage) || storage is Building_UniqueGoodsContainer)
                 return false;
 
-            return TryFindRestockSupply(pawn, storage, out _, out _) != null;
+            return TryFindRestockSupply(pawn, storage, forced, out _, out _) != null;
         }
 
         //为指定货柜生成补货任务，职责是兼容外部扫描入口并在派工前执行强校验。
         public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
-            if (!(t is Building_SimContainer storage))
+            if (!(t is Building_SimContainer storage) || storage is Building_UniqueGoodsContainer)
                 return null;
 
             ThingDef thingDef;
             int needed;
-            Thing supply = TryFindRestockSupply(pawn, storage, out thingDef, out needed);
+            Thing supply = TryFindRestockSupply(pawn, storage, forced, out thingDef, out needed);
             if (supply == null)
                 return null;
 
@@ -68,20 +65,28 @@ namespace SimManagementLib.SimWorkGiver
         }
 
         //查找指定货柜可补货的货源，职责是给兼容入口提供不受预算影响的确定性结果。
-        private static Thing TryFindRestockSupply(Pawn pawn, Building_SimContainer storage, out ThingDef thingDef, out int needed)
+        private static Thing TryFindRestockSupply(Pawn pawn, Building_SimContainer storage, bool forced, out ThingDef thingDef, out int needed)
         {
             thingDef = null;
             needed = 0;
             if (!CanPawnUseStorage(pawn, storage))
+            {
+                if (forced)
+                    JobFailReason.Is("RSMF.Restock.Forced.NoAccess".Translate());
                 return null;
+            }
 
             storage.ReconcilePendingReservations();
+            bool hasShortfall = false;
             foreach (ThingDef activeDef in storage.ActiveDefs)
             {
-                int currentNeed = storage.CountNeeded(activeDef);
+                int currentNeed = forced
+                    ? storage.CountRemainingToTarget(activeDef)
+                    : storage.CountNeeded(activeDef);
                 if (currentNeed <= 0)
                     continue;
 
+                hasShortfall = true;
                 Thing supply = FindBestSupplyForDef(pawn, storage, activeDef);
                 if (supply == null)
                     continue;
@@ -91,6 +96,12 @@ namespace SimManagementLib.SimWorkGiver
                 return supply;
             }
 
+            if (forced)
+            {
+                JobFailReason.Is((hasShortfall
+                    ? "RSMF.Restock.Forced.NoSupply"
+                    : "RSMF.Restock.Forced.AtTarget").Translate());
+            }
             return null;
         }
 

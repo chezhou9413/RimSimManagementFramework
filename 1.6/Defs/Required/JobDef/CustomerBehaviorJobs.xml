@@ -4,7 +4,7 @@
     <defName>Customer_SelectPaidService</defName>
     <driverClass>SimManagementLib.SimAI.JobDriver_SelectPaidService</driverClass>
     <reportString>正在选择付费服务。</reportString>
-    <casualInterruptible>true</casualInterruptible>
+    <casualInterruptible>false</casualInterruptible>
     <joyDuration>300</joyDuration>
     <joyKind>Meditative</joyKind>
   </JobDef>
@@ -13,7 +13,7 @@
     <defName>Customer_UsePaidService</defName>
     <driverClass>SimManagementLib.SimAI.JobDriver_UsePaidService</driverClass>
     <reportString>正在使用付费服务。</reportString>
-    <casualInterruptible>true</casualInterruptible>
+    <casualInterruptible>false</casualInterruptible>
     <joyDuration>300</joyDuration>
     <joyKind>Meditative</joyKind>
   </JobDef>

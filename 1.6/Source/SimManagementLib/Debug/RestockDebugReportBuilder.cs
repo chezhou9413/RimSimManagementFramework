@@ -97,7 +97,7 @@ namespace SimManagementLib.Debug
             sb.AppendLine();
         }
 
-        //写入补货队列诊断，职责是展示事件驱动补货任务的 dirty、ready 和 blocked 状态。
+        //写入补货队列诊断，职责是展示补货周期与 dirty、ready、blocked 任务状态。
         private static void AppendQueueDiagnostics(StringBuilder sb, Map map)
         {
             RestockQueueDebugSnapshot snapshot = map?.GetComponent<MapComponent_RestockTaskQueue>()?.CreateDebugSnapshot();
@@ -112,12 +112,33 @@ namespace SimManagementLib.Debug
             sb.AppendLine("dirty=" + snapshot.DirtyCount
                 + " ready=" + snapshot.ReadyCount
                 + " blocked=" + snapshot.BlockedCount
+                + " activeCycles=" + snapshot.ActiveCycleCount
                 + " lastProcessTick=" + snapshot.LastProcessTick
                 + " lastRebuildTick=" + snapshot.LastRebuildTick
                 + " lastReason=" + snapshot.LastReason);
             AppendQueueTaskSamples(sb, "ready", snapshot.ReadyTasks);
             AppendQueueTaskSamples(sb, "blocked", snapshot.BlockedTasks);
+            AppendQueueKeySamples(sb, "activeCycle", snapshot.ActiveCycles);
             sb.AppendLine();
+        }
+
+        //写入队列键样本，职责是显示进行中的货柜商品补货周期。
+        private static void AppendQueueKeySamples(StringBuilder sb, string label, List<RestockTaskKey> keys)
+        {
+            if (keys == null || keys.Count <= 0)
+                return;
+
+            int count = Math.Min(keys.Count, 20);
+            for (int i = 0; i < count; i++)
+            {
+                RestockTaskKey key = keys[i];
+                sb.AppendLine("  " + label
+                    + " storage=" + key.StorageId
+                    + " def=" + (key.ThingDef?.defName ?? "null"));
+            }
+
+            if (keys.Count > count)
+                sb.AppendLine("  " + label + " 剩余省略: " + (keys.Count - count));
         }
 
         //写入队列任务样本，职责是限制日志长度同时保留排查关键字段。

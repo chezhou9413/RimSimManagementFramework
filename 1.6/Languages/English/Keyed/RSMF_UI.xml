@@ -391,6 +391,9 @@
   <RSMF.GoodsManager.PriceTip>Reference market value: {value} silver</RSMF.GoodsManager.PriceTip>
   <RSMF.GoodsManager.RestockThresholdTip>When current stock plus incoming restock is at or below this value, restockers refill to the target amount.</RSMF.GoodsManager.RestockThresholdTip>
   <RSMF.GoodsManager.StockThresholdTip>Format: current stock / restock threshold / target amount.</RSMF.GoodsManager.StockThresholdTip>
+  <RSMF.Restock.Forced.NoAccess>This pawn is not allowed to restock this display or cannot reach it</RSMF.Restock.Forced.NoAccess>
+  <RSMF.Restock.Forced.NoSupply>No supply can be hauled by this pawn</RSMF.Restock.Forced.NoSupply>
+  <RSMF.Restock.Forced.AtTarget>The display has reached its configured target stock</RSMF.Restock.Forced.AtTarget>
   <RSMF.GoodsManager.PendingEvictWarning>⚠️ Warning: after saving, {count} item types will be removed from storage: {names}</RSMF.GoodsManager.PendingEvictWarning>
   <RSMF.GoodsManager.PendingEvictMore>{count} more</RSMF.GoodsManager.PendingEvictMore>
   <RSMF.GoodsManager.CapacityText>Capacity: {current}/{max}</RSMF.GoodsManager.CapacityText>
@@ -1145,4 +1148,15 @@
   <RSMF.ShopUi.Page.Shop.Services.Description>Shop manager services page.</RSMF.ShopUi.Page.Shop.Services.Description>
   <RSMF.ShopUi.Page.Shop.ComboEdit.Label>Combo editor</RSMF.ShopUi.Page.Shop.ComboEdit.Label>
   <RSMF.ShopUi.Page.Shop.ComboEdit.Description>Shop manager combo editor page.</RSMF.ShopUi.Page.Shop.ComboEdit.Description>
+  <RSMF.UniqueGoods.Title>{label} · Unique goods</RSMF.UniqueGoods.Title>
+  <RSMF.UniqueGoods.Summary>Listed {listed}　Pending {pending}　In carts {reserved}　Capacity {capacity}</RSMF.UniqueGoods.Summary>
+  <RSMF.UniqueGoods.Available>Colony items available to list</RSMF.UniqueGoods.Available>
+  <RSMF.UniqueGoods.Listed>Container slots (including pending)</RSMF.UniqueGoods.Listed>
+  <RSMF.UniqueGoods.Reserved>Item held by customer</RSMF.UniqueGoods.Reserved>
+  <RSMF.UniqueGoods.Status.Pending>Waiting for a restocker</RSMF.UniqueGoods.Status.Pending>
+  <RSMF.UniqueGoods.Status.Reserved>Selected by a customer, awaiting checkout</RSMF.UniqueGoods.Status.Reserved>
+  <RSMF.UniqueGoods.Sort.Name>Sort: name</RSMF.UniqueGoods.Sort.Name>
+  <RSMF.UniqueGoods.Sort.Quality>Sort: quality</RSMF.UniqueGoods.Sort.Quality>
+  <RSMF.UniqueGoods.Sort.Value>Sort: market value</RSMF.UniqueGoods.Sort.Value>
+  <RSMF.UniqueGoods.Sort.HitPoints>Sort: condition</RSMF.UniqueGoods.Sort.HitPoints>
 </LanguageData>

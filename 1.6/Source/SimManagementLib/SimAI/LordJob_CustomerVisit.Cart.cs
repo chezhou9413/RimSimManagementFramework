@@ -17,6 +17,12 @@ namespace SimManagementLib.SimAI
             cartState.AddCartItem(pawnId, def, count);
         }
 
+        //将真实专业商品加入顾客购物车托管。
+        public bool AddExactCartItem(int pawnId, CustomerCartItem item)
+        {
+            return cartState.AddExactCartItem(pawnId, item);
+        }
+
         /// <summary>
         /// 把套餐商品加入顾客购物车。
         /// </summary>

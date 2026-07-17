@@ -30,6 +30,7 @@ namespace SimManagementLib.SimThingClass
 
         private ThingComp_GoodsData GoodsComp => GetComp<ThingComp_GoodsData>();
         private ThingComp_ProgressStageGraphic ProgressStageGraphicComp => GetComp<ThingComp_ProgressStageGraphic>();
+        protected ThingOwner<Thing> VirtualStorage => virtualStorage;
 
         public string RenamableLabel
         {
@@ -105,7 +106,7 @@ namespace SimManagementLib.SimThingClass
         }
 
         //标记虚拟库存统计需要重建，职责是在入库、出库、购买和清空后同步缓存状态。
-        private void MarkStoredCountCacheDirty()
+        protected void MarkStoredCountCacheDirty()
         {
             storedCountCacheDirty = true;
             storedCountVersion++;

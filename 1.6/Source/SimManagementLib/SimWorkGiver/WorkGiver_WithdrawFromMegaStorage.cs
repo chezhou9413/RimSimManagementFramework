@@ -52,7 +52,7 @@ namespace SimManagementLib.SimWorkGiver
         /// </summary>
         public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
-            if (!(t is Building_SimContainer storage)) return false;
+            if (!(t is Building_SimContainer storage) || storage is Building_UniqueGoodsContainer) return false;
             if (pawn?.Map == null || storage.Map != pawn.Map || storage.Destroyed || !storage.Spawned) return false;
             storage.ReconcilePendingReservationsForWorkScan();
             if (!HasExcess(storage, pawn)) return false;
@@ -65,7 +65,7 @@ namespace SimManagementLib.SimWorkGiver
         /// </summary>
         public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
-            if (!(t is Building_SimContainer storage)) return null;
+            if (!(t is Building_SimContainer storage) || storage is Building_UniqueGoodsContainer) return null;
             storage.ReconcilePendingReservations();
             if (!pawn.CanReach(storage, PathEndMode.Touch, Danger.Deadly)) return null;
 
@@ -156,6 +156,7 @@ namespace SimManagementLib.SimWorkGiver
             {
                 Building_SimContainer storage = buildings[i] as Building_SimContainer;
                 if (storage == null || storage.Destroyed || !storage.Spawned) continue;
+                if (storage is Building_UniqueGoodsContainer) continue;
                 if (!IsAllowedByBusinessState(storage)) continue;
                 if (!HasAnyExcess(storage)) continue;
                 cache.allCandidates.Add(storage);

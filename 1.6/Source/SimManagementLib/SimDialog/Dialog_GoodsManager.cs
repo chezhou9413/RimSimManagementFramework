@@ -92,12 +92,13 @@ namespace SimManagementLib.SimDialog
             GoodsCatalog.EnsureInitialized();
             allDefs = (GoodsCatalog.Categories ?? Enumerable.Empty<Pojo.RuntimeGoodsCategory>())
                 .Where(d => d != null && comp.AllowsGoodsCategory(d.categoryId))
-                .Where(d => d != null && d.Items != null && d.Items.Count > 0)
+                .Where(d => d.Items != null && d.Items.Any(item => comp.AllowsThingDef(item?.thingDef)))
                 .OrderBy(d => d.label)
                 .ToList();
 
             draftActiveDefName = comp.ActiveGoodsDefName;
-            if (!comp.AllowsGoodsCategory(draftActiveDefName))
+            if (!comp.AllowsGoodsCategory(draftActiveDefName)
+                || !allDefs.Any(d => string.Equals(d.categoryId, draftActiveDefName, System.StringComparison.OrdinalIgnoreCase)))
                 draftActiveDefName = "";
             draftItemData = comp.CloneItemData();
         }
@@ -869,6 +870,7 @@ namespace SimManagementLib.SimDialog
                 {
                     ThingDef thingDef = def.Items[i]?.thingDef;
                     if (thingDef == null) continue;
+                    if (!comp.AllowsThingDef(thingDef)) continue;
                     if (!string.IsNullOrEmpty(search) && (thingDef.label ?? "").IndexOf(search, System.StringComparison.OrdinalIgnoreCase) < 0)
                         continue;
                     filteredItemsCache.Add(thingDef);

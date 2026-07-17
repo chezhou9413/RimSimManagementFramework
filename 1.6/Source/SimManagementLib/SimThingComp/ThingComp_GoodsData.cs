@@ -1,5 +1,6 @@
 ﻿using SimManagementLib.SimDef;
 using SimManagementLib.SimThingClass;
+using RimWorld;
 using SimManagementLib.Tool;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,9 @@ namespace SimManagementLib.SimThingComp
 
         // 允许该货柜选择的 GoodsDef 分类。用于 XML 里直接写 Def 引用，与 allowedGoodsCategoryIds 合并生效。
         public List<GoodsDef> allowedGoodsCategories = new List<GoodsDef>();
+
+        //是否允许上架具有材质或品质属性的商品。
+        public bool allowStuffOrQualityGoods = true;
 
         //初始化组件类型，职责是供 RimWorld 根据 XML 创建组件实例。
         public ThingCompProperties_GoodsData()
@@ -102,6 +106,17 @@ namespace SimManagementLib.SimThingComp
             return false;
         }
 
+        //判断指定商品能否在该货柜上架，职责是执行货柜级商品属性硬限制。
+        public bool AllowsThingDef(ThingDef thingDef)
+        {
+            if (thingDef == null) return false;
+
+            ThingCompProperties_GoodsData p = GoodsProps;
+            if (p?.allowStuffOrQualityGoods != false) return true;
+
+            return !thingDef.MadeFromStuff && !thingDef.HasComp(typeof(CompQuality));
+        }
+
         //获取可售分类限制的显示文本，职责是提示玩家该货柜能选择哪些分类。
         public string GetAllowedGoodsCategoryLabelSummary()
         {
@@ -130,6 +145,7 @@ namespace SimManagementLib.SimThingComp
         //查找指定物品的有效配置，职责是在未启用或分类不允许时返回 null。
         public GoodsItemData FindItemData(ThingDef td)
         {
+            if (!AllowsThingDef(td)) return null;
             if (!AllowsGoodsCategory(ActiveGoodsDefName)) return null;
             if (!itemData.TryGetValue(td.defName, out var d)) return null;
             if (!d.enabled) return null;

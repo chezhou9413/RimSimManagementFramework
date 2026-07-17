@@ -6,6 +6,7 @@ using SimManagementLib.SimZone;
 using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
+using UnityEngine;
 using Verse;
 
 namespace SimManagementLib.Tool
@@ -44,6 +45,31 @@ namespace SimManagementLib.Tool
 
             foreach (Building_SimContainer storage in storages)
             {
+                if (storage is Building_UniqueGoodsContainer uniqueContainer)
+                {
+                    foreach (UniqueGoodsSlotData slot in uniqueContainer.GetSellableSlots())
+                    {
+                        Thing uniqueThing = uniqueContainer.GetStoredThing(slot);
+                        if (uniqueThing == null) continue;
+                        if (aggregatedData.TryGetValue(uniqueThing.def, out ShopItemStatus uniqueStatus))
+                        {
+                            uniqueStatus.CurrentStock++;
+                            uniqueStatus.Config.count++;
+                            uniqueStatus.Config.price = (uniqueStatus.Config.price * (uniqueStatus.CurrentStock - 1) + slot.price) / uniqueStatus.CurrentStock;
+                        }
+                        else
+                        {
+                            aggregatedData[uniqueThing.def] = new ShopItemStatus
+                            {
+                                Def = uniqueThing.def,
+                                CurrentStock = 1,
+                                Config = new GoodsItemData { enabled = true, count = 1, price = Mathf.Max(1f, slot.price) }
+                            };
+                        }
+                    }
+                    continue;
+                }
+
                 var comp = storage.GetComp<ThingComp_GoodsData>();
                 if (comp == null || string.IsNullOrEmpty(comp.ActiveGoodsDefName)) continue;
 
@@ -203,7 +229,9 @@ namespace SimManagementLib.Tool
             if (zone == null || zone.Map == null || combo == null || combo.items.NullOrEmpty())
                 return false;
 
-            List<Building_SimContainer> storages = GetStoragesInZone(zone).ToList();
+            List<Building_SimContainer> storages = GetStoragesInZone(zone)
+                .Where(storage => !(storage is Building_UniqueGoodsContainer))
+                .ToList();
             if (storages.NullOrEmpty()) return false;
             if (!HasEnoughStockForCombo(zone, combo)) return false;
 
@@ -252,7 +280,9 @@ namespace SimManagementLib.Tool
 
         private static bool HasEnoughStockForCombo(Zone zone, ComboData combo)
         {
-            List<Building_SimContainer> storages = GetStoragesInZone(zone).ToList();
+            List<Building_SimContainer> storages = GetStoragesInZone(zone)
+                .Where(storage => !(storage is Building_UniqueGoodsContainer))
+                .ToList();
             if (storages.NullOrEmpty()) return false;
 
             foreach (ComboItem item in combo.items)
@@ -327,14 +357,41 @@ namespace SimManagementLib.Tool
             if (zone == null || zone.Map == null || items.NullOrEmpty()) return;
 
             List<Building_SimContainer> storages = GetStoragesInZone(zone).ToList();
-            if (storages.NullOrEmpty()) return;
 
             for (int i = 0; i < items.Count; i++)
             {
                 CustomerCartItem cartItem = items[i];
                 if (cartItem == null || cartItem.def == null || cartItem.count <= 0) continue;
+                if (cartItem.HasExactThing)
+                {
+                    ReturnExactCartItem(zone, storages, cartItem);
+                    continue;
+                }
+                if (storages.NullOrEmpty()) continue;
                 ReturnSingleDefToStorages(storages, cartItem.def, cartItem.count);
             }
+        }
+
+        //将购物车托管的真实商品退回原专业货柜，原柜不可用时落到商店附近。
+        private static void ReturnExactCartItem(Zone zone, List<Building_SimContainer> storages, CustomerCartItem item)
+        {
+            Thing thing = item?.TakeExactThing();
+            if (thing == null) return;
+            Building_UniqueGoodsContainer source = storages
+                .OfType<Building_UniqueGoodsContainer>()
+                .FirstOrDefault(s => s.thingIDNumber == item.sourceContainerId);
+            if (source == null)
+            {
+                source = zone.Map.listerBuildings?.allBuildingsColonist
+                    ?.OfType<Building_UniqueGoodsContainer>()
+                    .FirstOrDefault(s => s.thingIDNumber == item.sourceContainerId);
+            }
+            if (source != null && source.TryRestoreCustomerThing(item.sourceSlotIndex, thing)) return;
+            source?.FinalizeCustomerSale(item.sourceSlotIndex, -1);
+
+            IntVec3 dropCell = source?.Position ?? storages.FirstOrDefault()?.Position ?? zone.Cells.FirstOrDefault();
+            if (!GenPlace.TryPlaceThing(thing, dropCell, zone.Map, ThingPlaceMode.Near, out _) && !thing.Destroyed)
+                thing.Destroy(DestroyMode.Vanish);
         }
 
         private static void ReturnSingleDefToStorages(List<Building_SimContainer> storages, ThingDef def, int count)

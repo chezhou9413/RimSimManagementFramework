@@ -17,4 +17,10 @@
     <driverClass>SimManagementLib.SimAI.JobDriver_FillCollectibleDisplayStand</driverClass>
     <reportString>正在布置收藏品展台。</reportString>
   </JobDef>
+
+  <JobDef>
+    <defName>RestockUniqueGoodsContainer</defName>
+    <driverClass>SimManagementLib.SimAI.JobDriver_RestockUniqueGoodsContainer</driverClass>
+    <reportString>正在上架单件商品。</reportString>
+  </JobDef>
 </Defs>

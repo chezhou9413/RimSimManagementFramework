@@ -45,6 +45,7 @@ namespace SimManagementLib.SimMapComp
         private static bool ShouldTryDispatch(Pawn pawn, int now)
         {
             if (!ShopStaffUtility.IsAssignableMechanicalStaff(pawn)) return false;
+            if (pawn.Drafted) return false;
             if (pawn.jobs == null || !IsIdleForShopDispatch(pawn)) return false;
             int offset = pawn.thingIDNumber >= 0 ? pawn.thingIDNumber % DispatchIntervalTicks : 0;
             return (now + PawnScanSalt + offset) % DispatchIntervalTicks == 0;
@@ -130,13 +131,13 @@ namespace SimManagementLib.SimMapComp
 
                 Job nonScanJob = worker.NonScanJob(pawn);
                 if (nonScanJob != null)
-                    return pawn.jobs.TryTakeOrderedJob(nonScanJob, JobTag.MiscWork);
+                    return !pawn.Drafted && pawn.jobs.TryTakeOrderedJob(nonScanJob, JobTag.MiscWork);
 
                 WorkGiver_Scanner scanner = worker as WorkGiver_Scanner;
                 if (scanner == null || workGiverDef.scanThings == false) continue;
                 Job job = TryMakeJobFromScanner(pawn, scanner);
                 if (job == null) continue;
-                return pawn.jobs.TryTakeOrderedJob(job, JobTag.MiscWork);
+                return !pawn.Drafted && pawn.jobs.TryTakeOrderedJob(job, JobTag.MiscWork);
             }
 
             return false;

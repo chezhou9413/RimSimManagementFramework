@@ -1,4 +1,5 @@
 using RimWorld;
+using SimManagementLib.SimMapComp;
 using System.Collections.Generic;
 using System.Linq;
 using Verse;
@@ -11,14 +12,16 @@ namespace SimManagementLib.SimThingClass
         //为指定商品预留一次待入库数量，职责是避免多个搬运任务重复补同一批库存。
         public int ReservePending(ThingDef thingDef, int count)
         {
+            if (GoodsComp == null || !GoodsComp.AllowsThingDef(thingDef)) return 0;
             if (count <= 0) return 0;
-            int needed = CountNeededRaw(thingDef);
+            int needed = CountRemainingToTargetForWorkScan(thingDef);
             if (needed <= 0) return 0;
             int actual = System.Math.Min(count, needed);
             pendingIn[thingDef] = CountPendingRaw(thingDef) + actual;
             if (pendingInReservedAtTick == null)
                 pendingInReservedAtTick = new Dictionary<ThingDef, int>();
             pendingInReservedAtTick[thingDef] = Find.TickManager?.TicksGame ?? 0;
+            Map?.GetComponent<MapComponent_RestockTaskQueue>()?.ActivateRestockCycle(this, thingDef);
             MarkRestockQueueDirty(thingDef, "补货预约增加");
             return actual;
         }
@@ -48,6 +51,7 @@ namespace SimManagementLib.SimThingClass
 
             Thing carried = pawn.carryTracker?.CarriedThing;
             if (carried == null || carried.def != thingDef) return 0;
+            if (GoodsComp == null || !GoodsComp.AllowsThingDef(carried.def)) return 0;
 
             int currentNeed = CountShortfallIgnoringPendingIn(thingDef);
             if (currentNeed <= 0) return 0;
@@ -87,6 +91,7 @@ namespace SimManagementLib.SimThingClass
         public int TryReceiveReturnedThing(Thing thing)
         {
             if (thing == null || thing.Destroyed) return 0;
+            if (GoodsComp == null || !GoodsComp.AllowsThingDef(thing.def)) return 0;
 
             int canStore = System.Math.Min(GetRemainingCapacityForStored(), thing.stackCount);
             if (canStore <= 0) return 0;
@@ -115,6 +120,7 @@ namespace SimManagementLib.SimThingClass
         public int TryCreateAndStore(ThingDef def, int desiredCount)
         {
             if (def == null || desiredCount <= 0) return 0;
+            if (GoodsComp == null || !GoodsComp.AllowsThingDef(def)) return 0;
             ReconcilePendingReservations();
 
             int totalStored = 0;

@@ -1,4 +1,5 @@
 using SimManagementLib.Pojo;
+using SimManagementLib.SimThingClass;
 using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
@@ -22,7 +23,18 @@ namespace SimManagementLib.Tool
             {
                 CustomerCartItem item = items[i];
                 if (item == null || item.def == null || item.count <= 0) continue;
-                DeliverSingleDef(customer, item.def, item.count);
+                if (item.HasExactThing)
+                {
+                    Thing exact = item.TakeExactThing();
+                    if (exact == null) continue;
+                    item.deliveredThingId = exact.thingIDNumber;
+                    PlaceThingForCustomer(customer, exact);
+                    FindUniqueContainer(customer.MapHeld, item.sourceContainerId)?.FinalizeCustomerSale(item.sourceSlotIndex, customer.thingIDNumber);
+                }
+                else
+                {
+                    DeliverSingleDef(customer, item.def, item.count);
+                }
             }
         }
 
@@ -192,6 +204,17 @@ namespace SimManagementLib.Tool
 
             if (!thing.Destroyed)
                 thing.Destroy(DestroyMode.Vanish);
+        }
+
+        //按编号查找顾客所在地图的专业货柜。
+        private static Building_UniqueGoodsContainer FindUniqueContainer(Map map, int thingId)
+        {
+            List<Building> buildings = map?.listerBuildings?.allBuildingsColonist;
+            if (buildings == null) return null;
+            for (int i = 0; i < buildings.Count; i++)
+                if (buildings[i] is Building_UniqueGoodsContainer container && container.thingIDNumber == thingId)
+                    return container;
+            return null;
         }
     }
 }

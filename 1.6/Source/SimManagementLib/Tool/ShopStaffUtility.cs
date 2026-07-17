@@ -80,6 +80,22 @@ namespace SimManagementLib.Tool
             return false;
         }
 
+        //判断商店是否至少有一台正在值守的收银台，职责是阻止无人服务的商店继续吸引普通顾客。
+        public static bool HasMannedCashRegister(Zone_Shop zone)
+        {
+            if (zone?.Map == null || zone.Cells == null) return false;
+            foreach (IntVec3 cell in zone.Cells)
+            {
+                List<Thing> things = zone.Map.thingGrid.ThingsListAt(cell);
+                for (int i = 0; i < things.Count; i++)
+                {
+                    if (things[i] is Building_CashRegister register && register.IsManned)
+                        return true;
+                }
+            }
+            return false;
+        }
+
         /// <summary>
         /// 判断顾客队伍中是否存在仍在地图上的待付款顾客。
         /// </summary>

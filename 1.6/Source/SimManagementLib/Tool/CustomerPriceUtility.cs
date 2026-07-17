@@ -39,6 +39,12 @@ namespace SimManagementLib.Tool
             return new CustomerPriceEvaluation(safeReference, safePrice, ratio, weight, rejected, complain);
         }
 
+        //根据真实商品实例市价评估单件售价。
+        public static CustomerPriceEvaluation EvaluateMarketValue(float referenceValue, float unitPrice, CustomerPriceSensitivityProps sensitivity)
+        {
+            return EvaluateCombo(unitPrice, referenceValue, sensitivity);
+        }
+
         /// <summary>
         /// 返回商品参考市价，负责统一处理无市价 Def。
         /// </summary>

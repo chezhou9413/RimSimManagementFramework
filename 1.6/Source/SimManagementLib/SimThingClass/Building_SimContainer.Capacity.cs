@@ -365,14 +365,13 @@ namespace SimManagementLib.SimThingClass
             return total;
         }
 
-        /// <summary>
-        /// 直接计算指定商品还需要补货的数量，负责让创建预约时不递归触发校正。
-        /// </summary>
-        private int CountNeededRaw(ThingDef thingDef)
+        //直接计算指定商品距离目标量的剩余缺口，职责是让预约和队列周期不受触发阈值重复限制。
+        private int CountRemainingToTargetRaw(ThingDef thingDef)
         {
-            int storedAndPending = CountStored(thingDef) + CountPendingRaw(thingDef);
-            if (storedAndPending > GetRestockThreshold(thingDef)) return 0;
+            if (thingDef == null)
+                return 0;
 
+            int storedAndPending = CountStored(thingDef) + CountPendingRaw(thingDef);
             int perDefNeed = System.Math.Max(0, GetTargetCount(thingDef) - storedAndPending);
             if (perDefNeed <= 0) return 0;
 
@@ -380,6 +379,19 @@ namespace SimManagementLib.SimThingClass
             if (capacityRemain <= 0) return 0;
 
             return System.Math.Min(perDefNeed, capacityRemain);
+        }
+
+        //返回指定商品距离目标量的剩余缺口，职责是让强制补货绕过自动触发阈值。
+        public int CountRemainingToTarget(ThingDef thingDef)
+        {
+            ReconcilePendingReservations();
+            return CountRemainingToTargetRaw(thingDef);
+        }
+
+        //返回工作扫描阶段距离目标量的剩余缺口，职责是让已触发周期持续派工到目标量。
+        public int CountRemainingToTargetForWorkScan(ThingDef thingDef)
+        {
+            return CountRemainingToTargetRaw(thingDef);
         }
 
         /// <summary>
@@ -457,7 +469,7 @@ namespace SimManagementLib.SimThingClass
         /// <summary>
         /// 枚举当前配置中所有可售商品定义。
         /// </summary>
-        public IEnumerable<ThingDef> ActiveDefs
+        public virtual IEnumerable<ThingDef> ActiveDefs
         {
             get
             {
@@ -469,7 +481,7 @@ namespace SimManagementLib.SimThingClass
                 for (int i = 0; i < items.Count; i++)
                 {
                     ThingDef thingDef = items[i]?.thingDef;
-                    if (thingDef != null)
+                    if (thingDef != null && comp.AllowsThingDef(thingDef))
                         yield return thingDef;
                 }
             }
@@ -497,6 +509,16 @@ namespace SimManagementLib.SimThingClass
                 ThingDef thingDef = items[i]?.thingDef;
                 if (thingDef == null) continue;
                 if (!result.TryGetValue(thingDef.defName, out GoodsItemData data) || data == null) continue;
+
+                if (comp != null && !comp.AllowsThingDef(thingDef))
+                {
+                    if (data.enabled)
+                        trimmedCount += UnityEngine.Mathf.Max(0, data.count);
+                    data.enabled = false;
+                    data.count = 0;
+                    data.restockThreshold = 0;
+                    continue;
+                }
 
                 if (!data.enabled || data.count <= 0)
                 {

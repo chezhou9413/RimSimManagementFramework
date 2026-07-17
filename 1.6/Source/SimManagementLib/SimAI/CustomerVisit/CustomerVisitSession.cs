@@ -134,6 +134,10 @@ namespace SimManagementLib.SimAI.CustomerVisit
             if (stage == CustomerVisitStage.WaitingCheckout && ShouldEnterCheckoutPhase(visit, pawn))
                 return CustomerVisitTickResult.Checkout("顾客等待结账，重新推动结账阶段");
 
+            //结账和购后服务由对应 Job 负责完成或超时，不能再进入普通浏览离店判断。
+            if (stage == CustomerVisitStage.Checkout || stage == CustomerVisitStage.PostCheckout)
+                return default(CustomerVisitTickResult);
+
             if (owed > 0 && ShouldCheckoutWithBill(visit, pawn, shop, out string checkoutReason))
             {
                 MarkReadyForCheckout(visit, pawn, checkoutReason);

@@ -8,7 +8,10 @@ namespace SimManagementLib.SimThingClass
     /// </summary>
     public class Building_CashRegister : Building
     {
+        private const int CashierCacheTicks = 15;
         private ThingComp_CashStorage CashStorage => this.GetComp<ThingComp_CashStorage>();
+        private Pawn cachedCashier;
+        private int nextCashierCheckTick = -1;
 
         /// <summary>
         /// 返回收银台内部已经收取但尚未取出的白银数量。
@@ -32,22 +35,39 @@ namespace SimManagementLib.SimThingClass
         {
             get
             {
-                if (!Spawned) return null;
-
-                // 检查交互点，也就是收银员应该站立的位置上是否有人。
-                Pawn pawn = Map.thingGrid.ThingAt<Pawn>(InteractionCell);
-
-                // 只有正在执行收银任务的小人才算正在值班。
-                if (pawn != null && pawn.CurJobDef != null && pawn.CurJobDef.defName == "Sim_ManCashRegister")
+                if (!Spawned)
                 {
-                    return pawn;
+                    cachedCashier = null;
+                    return null;
                 }
 
-                return null;
+                int now = Find.TickManager?.TicksGame ?? 0;
+                if (now < nextCashierCheckTick)
+                {
+                    if (cachedCashier == null || IsValidCashier(cachedCashier))
+                        return cachedCashier;
+                }
+
+                cachedCashier = Map.thingGrid.ThingAt<Pawn>(InteractionCell);
+                if (!IsValidCashier(cachedCashier))
+                    cachedCashier = null;
+                nextCashierCheckTick = now + CashierCacheTicks;
+                return cachedCashier;
             }
         }
 
         public bool IsManned => CurrentCashier != null;
+
+        //判断 Pawn 是否正在当前收银台交互格执行值班任务，职责是防止同类 Job 被误认成当前收银员。
+        private bool IsValidCashier(Pawn pawn)
+        {
+            return pawn != null
+                && pawn.Spawned
+                && pawn.Map == Map
+                && pawn.Position == InteractionCell
+                && pawn.CurJobDef?.defName == "Sim_ManCashRegister"
+                && pawn.CurJob?.targetA.Thing == this;
+        }
 
         /// <summary>
         /// 把顾客结账支付的白银存入收银台现金库存。

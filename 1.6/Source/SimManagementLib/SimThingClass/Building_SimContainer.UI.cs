@@ -15,6 +15,13 @@ namespace SimManagementLib.SimThingClass
     {
         private const int InspectPreviewLineLimit = 8;
 
+        //创建货柜管理窗口，职责是允许专业货柜替换管理界面。
+        protected virtual Window CreateManagementWindow()
+        {
+            ThingComp_GoodsData comp = GoodsComp;
+            return comp == null ? null : new Dialog_GoodsManager(comp);
+        }
+
         //在货柜被移除前掉落内部虚拟库存，职责是避免拆除或摧毁时吞掉商品。
         private void DropStoredContentsIfNeeded(Map map, IntVec3 dropSpot, DestroyMode mode)
         {
@@ -52,6 +59,12 @@ namespace SimManagementLib.SimThingClass
         public override string GetInspectString()
         {
             string baseStr = base.GetInspectString();
+            return BuildContainerInspectString(baseStr);
+        }
+
+        //构建货柜业务检查文本，职责是允许专业货柜替换高频检查逻辑。
+        protected virtual string BuildContainerInspectString(string baseStr)
+        {
             StringBuilder sb = new StringBuilder();
 
             if (!string.IsNullOrWhiteSpace(customName))
@@ -60,7 +73,7 @@ namespace SimManagementLib.SimThingClass
             sb.Append(SimTranslation.T("RSMF.Container.Inspect.TotalCapacity", CountTotalStored().Named("stored"), MaxTotalCapacity.Named("max")));
             if (Tool.VendingMachineUtility.IsVendingMachine(this))
                 sb.Append("\n").Append(SimTranslation.T("RSMF.Container.Inspect.VendingMachineType"));
-            int pending = CountTotalPendingIn(forceReconcile: true);
+            int pending = CountTotalPendingIn(forceReconcile: false);
             if (pending > 0)
                 sb.Append(" ").Append(SimTranslation.T("RSMF.Container.Inspect.PendingIn", pending.Named("pending")));
             sb.Append("\n").Append(SimTranslation.T("RSMF.Container.Inspect.TargetTotal", CountConfiguredTargets().Named("target")));
@@ -120,9 +133,9 @@ namespace SimManagementLib.SimThingClass
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/Copy", true),
                 action = delegate
                 {
-                    ThingComp_GoodsData comp = GoodsComp;
-                    if (comp == null) return;
-                    Find.WindowStack.Add(new Dialog_GoodsManager(comp));
+                    Window window = CreateManagementWindow();
+                    if (window != null)
+                        Find.WindowStack.Add(window);
                 }
             };
         }

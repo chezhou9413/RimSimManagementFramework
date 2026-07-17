@@ -98,6 +98,8 @@
             <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
             <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
             <maxTotalCapacity>90</maxTotalCapacity>
+            <!-- 普通货柜不允许上架带材质或品质属性的商品，服装和武器应使用专业货柜。 -->
+            <allowStuffOrQualityGoods>false</allowStuffOrQualityGoods>
             <!-- 可售商品分类。留空表示通用货柜；配置后只能在货柜管理中选择这些 GoodsDef 分类。 -->
             <allowedGoodsCategoryIds>
                 <!--li>Goods_ApparelBasic</li-->
@@ -125,6 +127,7 @@
 
     <ThingDef ParentName="MegaStorageBox">
         <defName>ClothesStorageBox</defName>
+        <thingClass>SimManagementLib.SimThingClass.Building_UniqueGoodsContainer</thingClass>
         <label>大服装货柜</label>
         <description>用于商店运营的大货柜。可集中存放并管理店铺售卖物资，方便补货与结算。</description>
         <graphicData>
@@ -140,6 +143,13 @@
             <Steel>15</Steel>
         </costList>
         <comps>
+            <li Class="SimManagementLib.SimThingComp.ThingCompProperties_UniqueGoodsContainer">
+                <slotCount>90</slotCount>
+                <requireStuffOrQuality>true</requireStuffOrQuality>
+                <allowedThingCategories>
+                    <li>Apparel</li>
+                </allowedThingCategories>
+            </li>
             <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
             <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
             <maxTotalCapacity>90</maxTotalCapacity>
@@ -507,6 +517,9 @@
 
     <ThingDef ParentName="MegaStorageBox">
         <defName>BigWeaponStorageBox</defName>
+        <thingClass>SimManagementLib.SimThingClass.Building_BigWeaponStorageBox</thingClass>
+        <!-- 货柜本体和两行武器贴图统一使用实时绘制。 -->
+        <drawerType>RealtimeOnly</drawerType>
         <label>大武器货柜</label>
         <description>用于商店运营的大武器货柜。可集中存放并管理店铺售卖的武器，方便补货与结算。</description>
         <graphicData>
@@ -522,6 +535,13 @@
             <Steel>15</Steel>
         </costList>
         <comps>
+            <li Class="SimManagementLib.SimThingComp.ThingCompProperties_UniqueGoodsContainer">
+                <slotCount>10</slotCount>
+                <requireStuffOrQuality>true</requireStuffOrQuality>
+                <allowedThingCategories>
+                    <li>Weapons</li>
+                </allowedThingCategories>
+            </li>
             <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
             <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
             <maxTotalCapacity>10</maxTotalCapacity>
@@ -538,7 +558,7 @@
             </li>
             <li Class="CompProperties_Flickable"/>
             <li Class="CompProperties_Schedule">
-            <!-- Match plant growing times -->
+            <!-- 匹配植物生长时段。 -->
                 <startTime>0.25</startTime>
                 <endTime>0.8</endTime>
                 <offMessage>Off for plant resting period</offMessage>
@@ -553,6 +573,9 @@
 
     <ThingDef ParentName="MegaStorageBox">
         <defName>SmallWeaponStorageBox</defName>
+        <thingClass>SimManagementLib.SimThingClass.Building_SmallWeaponStorageBox</thingClass>
+        <!-- 货柜本体和武器贴图统一使用实时绘制，保持与收藏品展台一致。 -->
+        <drawerType>RealtimeOnly</drawerType>
         <label>小武器货柜</label>
         <description>用于商店运营的小武器货柜。可集中存放并管理店铺售卖的武器，方便补货与结算。</description>
         <graphicData>
@@ -568,9 +591,16 @@
             <Steel>15</Steel>
         </costList>
         <comps>
+            <li Class="SimManagementLib.SimThingComp.ThingCompProperties_UniqueGoodsContainer">
+                <slotCount>5</slotCount>
+                <requireStuffOrQuality>true</requireStuffOrQuality>
+                <allowedThingCategories>
+                    <li>Weapons</li>
+                </allowedThingCategories>
+            </li>
             <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
             <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
-            <maxTotalCapacity>10</maxTotalCapacity>
+            <maxTotalCapacity>5</maxTotalCapacity>
             <!-- 可售商品分类。留空表示通用货柜；配置后只能在货柜管理中选择这些 GoodsDef 分类。 -->
             <allowedGoodsCategoryIds>
                 <li>Goods_Weapons</li>
@@ -584,7 +614,7 @@
             </li>
             <li Class="CompProperties_Flickable"/>
             <li Class="CompProperties_Schedule">
-            <!-- Match plant growing times -->
+            <!-- 匹配植物生长时段。 -->
                 <startTime>0.25</startTime>
                 <endTime>0.8</endTime>
                 <offMessage>Off for plant resting period</offMessage>
@@ -599,6 +629,9 @@
 
     <ThingDef ParentName="MegaStorageBox">
         <defName>MiddleClothesStorageBox</defName>
+        <thingClass>SimManagementLib.SimThingClass.Building_MiddleClothesStorageBox</thingClass>
+        <!-- 货柜本体和十件服装贴图统一使用实时绘制。 -->
+        <drawerType>RealtimeOnly</drawerType>
         <label>中服装货柜</label>
         <description>用于商店运营的中服装货柜。可集中存放并管理店铺售卖的服装，方便补货与结算。</description>
         <graphicData>
@@ -614,6 +647,13 @@
             <Steel>15</Steel>
         </costList>
         <comps>
+            <li Class="SimManagementLib.SimThingComp.ThingCompProperties_UniqueGoodsContainer">
+                <slotCount>10</slotCount>
+                <requireStuffOrQuality>true</requireStuffOrQuality>
+                <allowedThingCategories>
+                    <li>Apparel</li>
+                </allowedThingCategories>
+            </li>
             <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
             <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
             <maxTotalCapacity>10</maxTotalCapacity>
@@ -627,6 +667,9 @@
 
     <ThingDef ParentName="MegaStorageBox">
         <defName>ManClothesStorageBox</defName>
+        <thingClass>SimManagementLib.SimThingClass.Building_ThinMannequinClothesStorageBox</thingClass>
+        <!-- 假人本体和上架衣帽统一使用实时绘制。 -->
+        <drawerType>RealtimeOnly</drawerType>
         <label>男性人偶服装货柜</label>
         <description>用于商店运营的中服装货柜。可集中存放并管理店铺售卖的服装，方便补货与结算。</description>
         <graphicData>
@@ -642,12 +685,19 @@
             <Steel>5</Steel>
         </costList>
         <comps>
+            <li Class="SimManagementLib.SimThingComp.ThingCompProperties_UniqueGoodsContainer">
+                <slotCount>2</slotCount>
+                <requireStuffOrQuality>true</requireStuffOrQuality>
+                <allowedThingCategories>
+                    <li>Apparel</li>
+                </allowedThingCategories>
+            </li>
             <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
             <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
-            <maxTotalCapacity>1</maxTotalCapacity>
+            <maxTotalCapacity>2</maxTotalCapacity>
             <!-- 可售商品分类。留空表示通用货柜；配置后只能在货柜管理中选择这些 GoodsDef 分类。 -->
             <allowedGoodsCategoryIds>
-                <li>Goods_Clothes</li>
+                <li>Goods_ApparelBasic</li>
             </allowedGoodsCategoryIds>
             </li>
         </comps>
@@ -655,6 +705,9 @@
 
     <ThingDef ParentName="MegaStorageBox">
         <defName>WomanClothesStorageBox</defName>
+        <thingClass>SimManagementLib.SimThingClass.Building_FemaleMannequinClothesStorageBox</thingClass>
+        <!-- 假人本体和上架衣帽统一使用实时绘制。 -->
+        <drawerType>RealtimeOnly</drawerType>
         <label>女性人偶服装货柜</label>
         <description>用于商店运营的中服装货柜。可集中存放并管理店铺售卖的服装，方便补货与结算。</description>
         <graphicData>
@@ -670,12 +723,19 @@
             <Steel>5</Steel>
         </costList>
         <comps>
+            <li Class="SimManagementLib.SimThingComp.ThingCompProperties_UniqueGoodsContainer">
+                <slotCount>2</slotCount>
+                <requireStuffOrQuality>true</requireStuffOrQuality>
+                <allowedThingCategories>
+                    <li>Apparel</li>
+                </allowedThingCategories>
+            </li>
             <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
             <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
-            <maxTotalCapacity>1</maxTotalCapacity>
+            <maxTotalCapacity>2</maxTotalCapacity>
             <!-- 可售商品分类。留空表示通用货柜；配置后只能在货柜管理中选择这些 GoodsDef 分类。 -->
             <allowedGoodsCategoryIds>
-                <li>Goods_Clothes</li>
+                <li>Goods_ApparelBasic</li>
             </allowedGoodsCategoryIds>
             </li>
         </comps>

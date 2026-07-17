@@ -33,6 +33,9 @@ namespace SimManagementLib.SimMapComp
         private readonly HashSet<RestockTaskKey> dirtySet = new HashSet<RestockTaskKey>();
         private readonly Dictionary<RestockTaskKey, RestockTask> readyTasks = new Dictionary<RestockTaskKey, RestockTask>();
         private readonly Dictionary<RestockTaskKey, RestockTask> blockedTasks = new Dictionary<RestockTaskKey, RestockTask>();
+        private readonly HashSet<RestockTaskKey> activeRestockCycles = new HashSet<RestockTaskKey>();
+        private List<int> savedActiveCycleStorageIds = new List<int>();
+        private List<ThingDef> savedActiveCycleThingDefs = new List<ThingDef>();
         private int reconcileCursor;
         private int loadedQueueVersion;
         private int lastProcessTick = -1;
@@ -48,11 +51,19 @@ namespace SimManagementLib.SimMapComp
         public override void ExposeData()
         {
             base.ExposeData();
+            if (Scribe.mode == LoadSaveMode.Saving)
+            {
+                loadedQueueVersion = QueueRebuildVersion;
+                CaptureActiveRestockCycles();
+            }
+
             Scribe_Values.Look(ref loadedQueueVersion, "rsmfRestockQueueVersion", 0);
+            Scribe_Collections.Look(ref savedActiveCycleStorageIds, "rsmfActiveRestockCycleStorageIds", LookMode.Value);
+            Scribe_Collections.Look(ref savedActiveCycleThingDefs, "rsmfActiveRestockCycleThingDefs", LookMode.Def);
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+                RestoreActiveRestockCycles();
             if (Scribe.mode == LoadSaveMode.PostLoadInit && loadedQueueVersion < QueueRebuildVersion)
                 ResetAndRebuildAll("旧存档补货队列迁移");
-            if (Scribe.mode == LoadSaveMode.Saving)
-                loadedQueueVersion = QueueRebuildVersion;
         }
 
         //推进补货队列，职责是分帧处理脏货柜并定期兜底巡检。
@@ -83,7 +94,7 @@ namespace SimManagementLib.SimMapComp
             foreach (ThingDef thingDef in storage.ActiveDefs)
             {
                 RestockTaskKey key = new RestockTaskKey(storage.thingIDNumber, thingDef);
-                if (storage.CountNeededForWorkScan(thingDef) > 0)
+                if (GetNeededForQueue(storage, thingDef, true) > 0)
                 {
                     MarkDirty(storage, thingDef, reason);
                     continue;
@@ -109,6 +120,15 @@ namespace SimManagementLib.SimMapComp
             lastProcessReason = reason ?? "";
         }
 
+        //激活指定商品的补货周期，职责是让已经开始预约的强制或自动任务持续补到目标量。
+        public void ActivateRestockCycle(Building_SimContainer storage, ThingDef thingDef)
+        {
+            if (!IsValidStorage(storage) || thingDef == null)
+                return;
+
+            activeRestockCycles.Add(new RestockTaskKey(storage.thingIDNumber, thingDef));
+        }
+
         //清空并重建当前地图所有补货状态，职责是供调试和旧存档迁移暴力恢复。
         public int ResetAndRebuildAll(string reason)
         {
@@ -116,6 +136,7 @@ namespace SimManagementLib.SimMapComp
             dirtySet.Clear();
             readyTasks.Clear();
             blockedTasks.Clear();
+            activeRestockCycles.Clear();
             reconcileCursor = 0;
             loadedQueueVersion = QueueRebuildVersion;
             lastRebuildTick = Find.TickManager?.TicksGame ?? 0;
@@ -147,7 +168,7 @@ namespace SimManagementLib.SimMapComp
         //尝试为指定小人生成补货 Job，职责是让 WorkGiver 只桥接队列任务。
         public Job TryMakeJobForPawn(Pawn pawn)
         {
-            if (pawn?.Map != map)
+            if (pawn?.Map != map || !CanUseRestockWorkGiver(pawn))
                 return null;
 
             int now = Find.TickManager?.TicksGame ?? 0;
@@ -177,12 +198,14 @@ namespace SimManagementLib.SimMapComp
                 DirtyCount = dirtySet.Count,
                 ReadyCount = readyTasks.Count,
                 BlockedCount = blockedTasks.Count,
+                ActiveCycleCount = activeRestockCycles.Count,
                 LastProcessTick = lastProcessTick,
                 LastRebuildTick = lastRebuildTick,
                 LastReason = lastProcessReason ?? "",
                 DirtyTasks = dirtyQueue.ToList(),
                 ReadyTasks = readyTasks.Values.ToList(),
-                BlockedTasks = blockedTasks.Values.ToList()
+                BlockedTasks = blockedTasks.Values.ToList(),
+                ActiveCycles = activeRestockCycles.ToList()
             };
         }
 
@@ -211,7 +234,7 @@ namespace SimManagementLib.SimMapComp
                 return;
 
             storage.ReconcilePendingReservationsForWorkScan();
-            int needed = storage.CountNeededForWorkScan(key.ThingDef);
+            int needed = GetNeededForQueue(storage, key.ThingDef, true);
             if (needed <= 0)
             {
                 readyTasks.Remove(key);
@@ -300,7 +323,8 @@ namespace SimManagementLib.SimMapComp
             }
 
             ThingDef thingDef = task.ThingDef;
-            int needed = storage.CountNeeded(thingDef);
+            activeRestockCycles.Add(task.Key);
+            int needed = GetNeededForQueue(storage, thingDef, false);
             if (needed <= 0)
             {
                 readyTasks.Remove(task.Key);
@@ -452,7 +476,7 @@ namespace SimManagementLib.SimMapComp
                     continue;
 
                 Job job = TryMakeJobForPawn(pawn);
-                if (job != null)
+                if (job != null && !pawn.Drafted)
                     pawn.jobs.TryTakeOrderedJob(job, JobTag.MiscWork);
             }
         }
@@ -482,7 +506,7 @@ namespace SimManagementLib.SimMapComp
         //判断小人是否启用了补货 WorkGiver，职责是复用原版工作开关和能力限制。
         private static bool CanUseRestockWorkGiver(Pawn pawn)
         {
-            if (pawn == null || pawn.Destroyed || pawn.Dead || !pawn.Spawned || pawn.Downed || pawn.InMentalState)
+            if (pawn == null || pawn.Destroyed || pawn.Dead || !pawn.Spawned || pawn.Downed || pawn.InMentalState || pawn.Drafted)
                 return false;
 
             WorkGiverDef workGiverDef = DefDatabase<WorkGiverDef>.GetNamedSilentFail("RestockMegaStorage");
@@ -554,12 +578,71 @@ namespace SimManagementLib.SimMapComp
                 storage.ReconcilePendingReservationsForWorkScan();
                 foreach (ThingDef thingDef in storage.ActiveDefs)
                 {
-                    if (storage.CountNeededForWorkScan(thingDef) > 0)
+                    if (GetNeededForQueue(storage, thingDef, true) > 0)
                         MarkDirty(storage, thingDef, "补货兜底巡检");
                 }
             }
 
             lastProcessTick = now;
+        }
+
+        //计算队列当前可派发的补货数量，职责是区分首次阈值触发和周期内补到目标两种状态。
+        private int GetNeededForQueue(Building_SimContainer storage, ThingDef thingDef, bool allowCycleStart)
+        {
+            if (!IsValidStorage(storage) || thingDef == null)
+                return 0;
+
+            RestockTaskKey key = new RestockTaskKey(storage.thingIDNumber, thingDef);
+            int target = storage.GetTargetCount(thingDef);
+            int stored = storage.CountStored(thingDef);
+            if (target <= 0 || stored >= target)
+            {
+                activeRestockCycles.Remove(key);
+                return 0;
+            }
+
+            if (!activeRestockCycles.Contains(key))
+            {
+                if (!allowCycleStart || storage.CountNeededForWorkScan(thingDef) <= 0)
+                    return 0;
+
+                activeRestockCycles.Add(key);
+            }
+
+            return storage.CountRemainingToTargetForWorkScan(thingDef);
+        }
+
+        //保存进行中的补货周期，职责是让存读档不会把高于阈值但尚未到目标的周期截断。
+        private void CaptureActiveRestockCycles()
+        {
+            savedActiveCycleStorageIds.Clear();
+            savedActiveCycleThingDefs.Clear();
+            foreach (RestockTaskKey key in activeRestockCycles)
+            {
+                if (key.StorageId < 0 || key.ThingDef == null)
+                    continue;
+
+                savedActiveCycleStorageIds.Add(key.StorageId);
+                savedActiveCycleThingDefs.Add(key.ThingDef);
+            }
+        }
+
+        //恢复进行中的补货周期，职责是从并行保存列表重建队列运行态。
+        private void RestoreActiveRestockCycles()
+        {
+            activeRestockCycles.Clear();
+            if (savedActiveCycleStorageIds == null)
+                savedActiveCycleStorageIds = new List<int>();
+            if (savedActiveCycleThingDefs == null)
+                savedActiveCycleThingDefs = new List<ThingDef>();
+
+            int count = System.Math.Min(savedActiveCycleStorageIds.Count, savedActiveCycleThingDefs.Count);
+            for (int i = 0; i < count; i++)
+            {
+                ThingDef thingDef = savedActiveCycleThingDefs[i];
+                if (savedActiveCycleStorageIds[i] >= 0 && thingDef != null)
+                    activeRestockCycles.Add(new RestockTaskKey(savedActiveCycleStorageIds[i], thingDef));
+            }
         }
 
         //按编号查找货柜，职责是从队列持有的稳定 ID 还原地图对象。
@@ -609,11 +692,13 @@ namespace SimManagementLib.SimMapComp
         public int DirtyCount;
         public int ReadyCount;
         public int BlockedCount;
+        public int ActiveCycleCount;
         public int LastProcessTick;
         public int LastRebuildTick;
         public string LastReason;
         public List<RestockTaskKey> DirtyTasks = new List<RestockTaskKey>();
         public List<RestockTask> ReadyTasks = new List<RestockTask>();
         public List<RestockTask> BlockedTasks = new List<RestockTask>();
+        public List<RestockTaskKey> ActiveCycles = new List<RestockTaskKey>();
     }
 }

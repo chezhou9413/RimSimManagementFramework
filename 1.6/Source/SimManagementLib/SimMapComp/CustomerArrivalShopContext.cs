@@ -13,18 +13,20 @@ namespace SimManagementLib.SimMapComp
         public int CurrentCustomers;
         public int Capacity;
         public float DemandFactor = 1f;
+        public bool HasCheckoutService;
 
         public bool IsAtCapacity => CurrentCustomers >= Capacity;
 
         /// <summary>
         /// 判断指定顾客类型是否能被当前商店吸引并生成。
         /// </summary>
-        public bool CanSpawn(Pojo.RuntimeCustomerKind kind)
+        public bool CanSpawn(Pojo.RuntimeCustomerKind kind, bool requireCheckoutService = true)
         {
             return Shop != null
                 && kind != null
                 && !kind.pawnKindDefs.NullOrEmpty()
                 && MatchesShopGoodsOrServices(kind)
+                && (!requireCheckoutService || HasCheckoutService)
                 && !IsAtCapacity;
         }
 

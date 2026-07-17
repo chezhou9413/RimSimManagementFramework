@@ -26,10 +26,12 @@
     </requiredThingClasses>
     <workGivers>
       <li>RestockMegaStorage</li>
+      <li>RestockUniqueGoodsContainer</li>
       <li>WithdrawFromMegaStorage</li>
     </workGivers>
     <jobDefs>
       <li>DepositToMegaStorage</li>
+      <li>RestockUniqueGoodsContainer</li>
       <li>WithdrawFromMegaStorage</li>
     </jobDefs>
   </SimManagementLib.SimDef.ShopStaffRoleDef>

@@ -23,6 +23,10 @@ namespace SimManagementLib.SimAI
     {
         private const int ServiceTicks = 300;
         private const int DefaultMaxQueueWaitTicks = 2500;
+        private const int MaxContinuousUnmannedWaitTicks = 900;
+        private const int StaffingCheckIntervalTicks = 15;
+        private const int FacingUpdateIntervalTicks = 30;
+        private const int ProgressUpdateIntervalTicks = 5;
 
         private Building_CashRegister Register => (Building_CashRegister)job.GetTarget(TargetIndex.A).Thing;
         private IntVec3 QueueCell => job.GetTarget(TargetIndex.B).Cell;
@@ -32,6 +36,9 @@ namespace SimManagementLib.SimAI
         private int totalWaitTicks;
         private int maxQueueWaitTicks = DefaultMaxQueueWaitTicks;
         private int serviceTicksRequired = ServiceTicks;
+        private bool cachedServiceCanProgress;
+        private bool cachedRegisterManned;
+        private int continuousUnmannedWaitTicks;
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
@@ -55,6 +62,8 @@ namespace SimManagementLib.SimAI
             {
                 abortedByTimeout = false;
                 totalWaitTicks = 0;
+                continuousUnmannedWaitTicks = 0;
+                cachedRegisterManned = Register.IsManned;
                 LordJob_CustomerVisit lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
                 maxQueueWaitTicks = lordJob?.GetQueuePatienceForPawn(pawn.thingIDNumber) ?? DefaultMaxQueueWaitTicks;
                 if (maxQueueWaitTicks <= 0) maxQueueWaitTicks = DefaultMaxQueueWaitTicks;
@@ -63,8 +72,10 @@ namespace SimManagementLib.SimAI
             waitInQueue.tickAction = () =>
             {
                 totalWaitTicks++;
-                FaceCashierOrRegister();
-                ShopProgressBarUtility.Report(pawn, Mathf.Min(1f, totalWaitTicks / (float)Mathf.Max(1, maxQueueWaitTicks)), new Color(0.95f, 0.72f, 0.36f, 0.95f));
+                if (pawn.IsHashIntervalTick(FacingUpdateIntervalTicks))
+                    FaceCashierOrRegister();
+                if (pawn.IsHashIntervalTick(ProgressUpdateIntervalTicks))
+                    ShopProgressBarUtility.Report(pawn, Mathf.Min(1f, totalWaitTicks / (float)Mathf.Max(1, maxQueueWaitTicks)), new Color(0.95f, 0.72f, 0.36f, 0.95f));
 
                 LordJob_CustomerVisit lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
                 if (lordJob == null)
@@ -81,6 +92,16 @@ namespace SimManagementLib.SimAI
                     return;
                 }
 
+                if (pawn.IsHashIntervalTick(StaffingCheckIntervalTicks))
+                    cachedRegisterManned = Register.IsManned;
+                continuousUnmannedWaitTicks = cachedRegisterManned ? 0 : continuousUnmannedWaitTicks + 1;
+                if (continuousUnmannedWaitTicks >= MaxContinuousUnmannedWaitTicks)
+                {
+                    abortedByTimeout = true;
+                    ReadyForNextToil();
+                    return;
+                }
+
                 if (pawn.IsHashIntervalTick(90))
                 {
                     UpdateQueueCell(lordJob);
@@ -90,7 +111,8 @@ namespace SimManagementLib.SimAI
                     }
                 }
 
-                if (!Register.IsManned) return;
+                if (!pawn.IsHashIntervalTick(StaffingCheckIntervalTicks)) return;
+                if (!cachedRegisterManned) return;
                 if (!IsMyTurn(lordJob)) return;
                 if (!CheckoutQueueCellUtility.IsServiceCellFreeForPawn(pawn.Map, ServiceCell, pawn)) return;
 
@@ -108,13 +130,16 @@ namespace SimManagementLib.SimAI
                 float cashierSpeed = GetCashierServiceSpeed();
                 serviceTicksRequired = Mathf.Max(60, Mathf.RoundToInt(ServiceTicks / Mathf.Max(0.2f, cashierSpeed)));
                 ticksLeftThisToil = serviceTicksRequired;
+                cachedServiceCanProgress = false;
                 CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.CheckoutServiceStart);
             };
             doService.tickAction = () =>
             {
                 totalWaitTicks++;
-                FaceCashierOrRegister();
-                ShopProgressBarUtility.Report(pawn, 1f - ticksLeftThisToil / (float)Mathf.Max(1, serviceTicksRequired));
+                if (pawn.IsHashIntervalTick(FacingUpdateIntervalTicks))
+                    FaceCashierOrRegister();
+                if (pawn.IsHashIntervalTick(ProgressUpdateIntervalTicks))
+                    ShopProgressBarUtility.Report(pawn, 1f - ticksLeftThisToil / (float)Mathf.Max(1, serviceTicksRequired));
 
                 LordJob_CustomerVisit lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
                 if (lordJob == null)
@@ -132,8 +157,19 @@ namespace SimManagementLib.SimAI
                 }
 
                 if (pawn.Position != ServiceCell) return;
-                if (!Register.IsManned) return;
-                if (!IsMyTurn(lordJob)) return;
+                if (pawn.IsHashIntervalTick(StaffingCheckIntervalTicks))
+                {
+                    cachedRegisterManned = Register.IsManned;
+                    cachedServiceCanProgress = cachedRegisterManned && IsMyTurn(lordJob);
+                }
+                continuousUnmannedWaitTicks = cachedRegisterManned ? 0 : continuousUnmannedWaitTicks + 1;
+                if (continuousUnmannedWaitTicks >= MaxContinuousUnmannedWaitTicks)
+                {
+                    abortedByTimeout = true;
+                    ReadyForNextToil();
+                    return;
+                }
+                if (!cachedServiceCanProgress) return;
 
                 ticksLeftThisToil--;
                 if (ticksLeftThisToil <= 0)
@@ -385,15 +421,7 @@ namespace SimManagementLib.SimAI
         {
             List<CustomerCartItem> raw = lordJob?.GetCartItems(pawnId);
             if (raw.NullOrEmpty()) return new List<CustomerCartItem>();
-
-            return raw
-                .Where(item => item != null && item.def != null && item.count > 0)
-                .Select(item => new CustomerCartItem
-                {
-                    def = item.def,
-                    count = item.count
-                })
-                .ToList();
+            return raw.Where(item => item != null && item.def != null && item.count > 0).ToList();
         }
 
         /// <summary>

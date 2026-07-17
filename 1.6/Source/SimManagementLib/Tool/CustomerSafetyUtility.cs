@@ -91,7 +91,28 @@ namespace SimManagementLib.Tool
                 if (item == null || item.def == null || item.count <= 0)
                     continue;
 
+                if (item.deliveredThingId >= 0)
+                {
+                    DropInventoryThingById(customer, item.deliveredThingId);
+                    continue;
+                }
                 DropInventoryCount(customer, item.def, item.count);
+            }
+        }
+
+        //按运行时编号从顾客背包丢出真实购买物。
+        private static void DropInventoryThingById(Pawn customer, int thingId)
+        {
+            ThingOwner inventory = customer?.inventory?.innerContainer;
+            if (inventory == null || customer.MapHeld == null) return;
+            for (int i = 0; i < inventory.Count; i++)
+            {
+                Thing thing = inventory[i];
+                if (thing == null || thing.thingIDNumber != thingId) continue;
+                Thing taken = inventory.Take(thing, thing.stackCount);
+                if (taken != null)
+                    GenPlace.TryPlaceThing(taken, customer.PositionHeld, customer.MapHeld, ThingPlaceMode.Near, out _);
+                return;
             }
         }
 

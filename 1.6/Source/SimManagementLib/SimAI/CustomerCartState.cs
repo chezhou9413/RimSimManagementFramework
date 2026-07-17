@@ -65,6 +65,19 @@ namespace SimManagementLib.SimAI
             list.Add(new CustomerCartItem { def = def, count = count });
         }
 
+        //将一件真实专业商品加入顾客购物车托管。
+        public bool AddExactCartItem(int pawnId, CustomerCartItem item)
+        {
+            if (pawnId <= 0 || item == null || !item.HasExactThing) return false;
+            if (!cartItems.TryGetValue(pawnId, out List<CustomerCartItem> list))
+            {
+                list = new List<CustomerCartItem>();
+                cartItems[pawnId] = list;
+            }
+            list.Add(item);
+            return true;
+        }
+
         /// <summary>
         /// 把套餐条目批量加入顾客购物车。
         /// </summary>
@@ -105,7 +118,19 @@ namespace SimManagementLib.SimAI
                 if (item == null || item.def == null || item.count <= 0)
                     continue;
 
-                AddDeliveredItem(list, item.def, item.count);
+                if (item.deliveredThingId >= 0)
+                {
+                    list.Add(new CustomerCartItem
+                    {
+                        def = item.def,
+                        count = item.count,
+                        deliveredThingId = item.deliveredThingId
+                    });
+                }
+                else
+                {
+                    AddDeliveredItem(list, item.def, item.count);
+                }
             }
         }
 

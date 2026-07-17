@@ -5,6 +5,7 @@ using SimManagementLib.SimThingClass;
 using SimManagementLib.SimZone;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 using Verse;
 using Verse.AI;
 
@@ -205,6 +206,16 @@ namespace SimManagementLib.Tool
         {
             if (storage == null || storage.Destroyed || !AllowsGoods(kind, fallbackDef)) return false;
 
+            if (storage is Building_UniqueGoodsContainer uniqueContainer)
+            {
+                foreach (UniqueGoodsSlotData slot in uniqueContainer.GetSellableSlots())
+                {
+                    Thing thing = uniqueContainer.GetStoredThing(slot);
+                    if (thing != null && ThingMatchesCustomer(kind, fallbackDef, thing.def)) return true;
+                }
+                return false;
+            }
+
             foreach (ThingDef def in storage.ActiveDefs)
             {
                 if (def == null || storage.CountStored(def) <= 0) continue;
@@ -245,6 +256,20 @@ namespace SimManagementLib.Tool
         public static bool StorageHasMatchingAffordableStock(Building_SimContainer storage, Pawn pawn, RuntimeCustomerKind kind, CustomerKindDef fallbackDef, float remainingBudget)
         {
             if (storage == null || storage.Destroyed || remainingBudget <= 0f || !AllowsGoods(kind, fallbackDef)) return false;
+
+            if (storage is Building_UniqueGoodsContainer uniqueContainer)
+            {
+                CustomerPriceSensitivityProps uniqueSensitivity = GetPriceSensitivity(pawn);
+                foreach (UniqueGoodsSlotData slot in uniqueContainer.GetSellableSlots())
+                {
+                    Thing thing = uniqueContainer.GetStoredThing(slot);
+                    if (thing == null || !ThingMatchesCustomer(kind, fallbackDef, thing.def)) continue;
+                    float price = Mathf.Max(1f, slot.price > 0f ? slot.price : thing.MarketValue);
+                    if (price <= remainingBudget && !CustomerPriceUtility.EvaluateMarketValue(thing.MarketValue, price, uniqueSensitivity).rejected)
+                        return true;
+                }
+                return false;
+            }
 
             foreach (ThingDef def in storage.ActiveDefs)
             {

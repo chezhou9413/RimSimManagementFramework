@@ -391,6 +391,9 @@
   <RSMF.GoodsManager.PriceTip>参考市价: {value} 银</RSMF.GoodsManager.PriceTip>
   <RSMF.GoodsManager.RestockThresholdTip>当前库存加途中补货数量小于或等于该值时，补货员会补到目标量。</RSMF.GoodsManager.RestockThresholdTip>
   <RSMF.GoodsManager.StockThresholdTip>显示格式：当前库存 / 补货阈值 / 目标量。</RSMF.GoodsManager.StockThresholdTip>
+  <RSMF.Restock.Forced.NoAccess>该小人未被允许为此货柜补货，或无法到达货柜</RSMF.Restock.Forced.NoAccess>
+  <RSMF.Restock.Forced.NoSupply>没有该小人可以搬运的货源</RSMF.Restock.Forced.NoSupply>
+  <RSMF.Restock.Forced.AtTarget>货柜已经达到配置的目标库存</RSMF.Restock.Forced.AtTarget>
   <RSMF.GoodsManager.PendingEvictWarning>⚠️ 注意：保存后 {count} 种物品将被移出仓库：{names}</RSMF.GoodsManager.PendingEvictWarning>
   <RSMF.GoodsManager.PendingEvictMore>其余 {count} 种</RSMF.GoodsManager.PendingEvictMore>
   <RSMF.GoodsManager.CapacityText>容量: {current}/{max}</RSMF.GoodsManager.CapacityText>
@@ -1129,4 +1132,15 @@
   <RSMF.ShopUi.Page.Shop.Services.Description>单店铺管理窗口的服务页。</RSMF.ShopUi.Page.Shop.Services.Description>
   <RSMF.ShopUi.Page.Shop.ComboEdit.Label>套餐编辑</RSMF.ShopUi.Page.Shop.ComboEdit.Label>
   <RSMF.ShopUi.Page.Shop.ComboEdit.Description>单店铺管理窗口的套餐编辑页。</RSMF.ShopUi.Page.Shop.ComboEdit.Description>
+  <RSMF.UniqueGoods.Title>{label} · 单件商品管理</RSMF.UniqueGoods.Title>
+  <RSMF.UniqueGoods.Summary>已上架 {listed}　待补货 {pending}　顾客挑选中 {reserved}　容量 {capacity}</RSMF.UniqueGoods.Summary>
+  <RSMF.UniqueGoods.Available>殖民地可上架物品</RSMF.UniqueGoods.Available>
+  <RSMF.UniqueGoods.Listed>货柜槽位（含待补货）</RSMF.UniqueGoods.Listed>
+  <RSMF.UniqueGoods.Reserved>顾客暂存商品</RSMF.UniqueGoods.Reserved>
+  <RSMF.UniqueGoods.Status.Pending>等待补货员搬运</RSMF.UniqueGoods.Status.Pending>
+  <RSMF.UniqueGoods.Status.Reserved>顾客已挑选，等待结账</RSMF.UniqueGoods.Status.Reserved>
+  <RSMF.UniqueGoods.Sort.Name>排序：名称</RSMF.UniqueGoods.Sort.Name>
+  <RSMF.UniqueGoods.Sort.Quality>排序：品质</RSMF.UniqueGoods.Sort.Quality>
+  <RSMF.UniqueGoods.Sort.Value>排序：市价</RSMF.UniqueGoods.Sort.Value>
+  <RSMF.UniqueGoods.Sort.HitPoints>排序：耐久</RSMF.UniqueGoods.Sort.HitPoints>
 </LanguageData>

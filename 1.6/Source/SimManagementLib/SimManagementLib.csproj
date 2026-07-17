@@ -127,6 +127,7 @@
     <Compile Include="Api\ShopUiWorkers.cs" />
     <Compile Include="Api\SimShopUiApi.cs" />
     <Compile Include="Debug\\DebugActions_SimShop.cs" />
+    <Compile Include="Debug\DebugActions_SimShop.UniqueGoodsScenario.cs" />
     <Compile Include="Debug\DebugActions_SimShop.RestockStress.cs" />
     <Compile Include="Debug\DebugActions_SimShop.RestockReset.cs" />
     <Compile Include="Debug\CustomerVisitDebugReportBuilder.cs" />
@@ -149,6 +150,7 @@
     <Compile Include="Pojo\CustomGoodsDatabaseData.cs" />
     <Compile Include="Pojo\CustomCustomerDatabaseData.cs" />
     <Compile Include="Pojo\CustomerCartItem.cs" />
+    <Compile Include="Pojo\UniqueGoodsSlotData.cs" />
     <Compile Include="Pojo\CustomerPriceSensitivityProps.cs" />
     <Compile Include="Pojo\CustomerReviewModels.cs" />
     <Compile Include="Pojo\SimLlmModels.cs" />
@@ -176,6 +178,7 @@
     <Compile Include="SimAI\JobDriver_BrowseAndPick.cs" />
     <Compile Include="SimAI\JobDriver_CollectCashRegisterSilver.cs" />
     <Compile Include="SimAI\JobDriver_FillCollectibleDisplayStand.cs" />
+    <Compile Include="SimAI\JobDriver_RestockUniqueGoodsContainer.cs" />
     <Compile Include="SimAI\JobDriver_ManCashRegister.cs" />
     <Compile Include="SimAI\JobDriver_PayAtRegister.cs" />
     <Compile Include="SimAI\JobDriver_PrepareShopOrder.cs" />
@@ -284,6 +287,8 @@
     <Compile Include="SimAI\JobDriver_WithdrawFromMegaStorage.cs" />
     <Compile Include="SimDef\GoodsDef.cs" />
     <Compile Include="SimDialog\Dialog_GoodsManager.cs" />
+    <Compile Include="SimDialog\Dialog_UniqueGoodsManager.cs" />
+    <Compile Include="SimDialog\Dialog_UniqueGoodsManager.Pagination.cs" />
     <Compile Include="SimDialog\Dialog_RestockQueueDebug.cs" />
     <Compile Include="SimDialog\Dialog_CustomGoodsRegistry.cs" />
     <Compile Include="SimDialog\Dialog_CustomGoodsRegistry.Transfer.cs" />
@@ -318,12 +323,20 @@
     <Compile Include="SimThingClass\Building_SimContainer.Capacity.cs" />
     <Compile Include="SimThingClass\Building_SimContainer.Transfer.cs" />
     <Compile Include="SimThingClass\Building_SimContainer.UI.cs" />
+    <Compile Include="SimThingClass\Building_UniqueGoodsContainer.cs" />
+    <Compile Include="SimThingClass\Building_BigWeaponStorageBox.cs" />
+    <Compile Include="SimThingClass\Building_FemaleMannequinClothesStorageBox.cs" />
+    <Compile Include="SimThingClass\Building_MannequinClothesStorageBox.cs" />
+    <Compile Include="SimThingClass\Building_MiddleClothesStorageBox.cs" />
+    <Compile Include="SimThingClass\Building_SmallWeaponStorageBox.cs" />
+    <Compile Include="SimThingClass\Building_ThinMannequinClothesStorageBox.cs" />
     <Compile Include="SimThingComp\Gizmo_CashWithdrawThreshold.cs" />
     <Compile Include="SimThingComp\ThingComp_CollectibleDisplayStand.cs" />
     <Compile Include="SimThingComp\ThingComp_CustomSign.cs" />
     <Compile Include="SimThingComp\ThingComp_CashStorage.cs" />
     <Compile Include="SimThingComp\ThingComp_DisplayStandCollectible.cs" />
     <Compile Include="SimThingComp\ThingComp_GoodsData.cs" />
+    <Compile Include="SimThingComp\ThingComp_UniqueGoodsContainer.cs" />
     <Compile Include="SimThingComp\ThingComp_ProgressStageGraphic.cs" />
     <Compile Include="SimThingComp\ThingComp_ServiceProvider.cs" />
     <Compile Include="SimThingComp\ThingComp_VendingMachine.cs" />
@@ -336,6 +349,7 @@
     <Compile Include="SimWorkGiver\WorkGiver_ManCashRegister.cs" />
     <Compile Include="SimWorkGiver\WorkGiver_PrepareShopOrder.cs" />
     <Compile Include="SimWorkGiver\WorkGiver_RestockMegaStorage.cs" />
+    <Compile Include="SimWorkGiver\WorkGiver_RestockUniqueGoodsContainer.cs" />
     <Compile Include="SimWorkGiver\WorkGiverScanUtility.cs" />
     <Compile Include="SimWorkGiver\WorkGiverThingQueryCache.cs" />
     <Compile Include="SimWorkGiver\WorkGiver_WithdrawFromMegaStorage.cs" />
@@ -421,6 +435,7 @@
     <Compile Include="Tool\SignTextureCache.cs" />
     <Compile Include="Tool\SteamSessionResolver.cs" />
     <Compile Include="Tool\VendingMachineUtility.cs" />
+    <Compile Include="Tool\UniqueGoodsUtility.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

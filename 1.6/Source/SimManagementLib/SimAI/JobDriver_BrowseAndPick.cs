@@ -130,6 +130,65 @@ namespace SimManagementLib.SimAI
                     }
                 }
 
+                if (TargetShelf is Building_UniqueGoodsContainer uniqueContainer)
+                {
+                    List<(UniqueGoodsSlotData slot, Thing thing, float unitPrice, CustomerPriceEvaluation price)> uniqueCandidates
+                        = new List<(UniqueGoodsSlotData slot, Thing thing, float unitPrice, CustomerPriceEvaluation price)>();
+                    string uniqueRejectedReason = "";
+                    foreach (UniqueGoodsSlotData slot in uniqueContainer.GetSellableSlots())
+                    {
+                        Thing thing = uniqueContainer.GetStoredThing(slot);
+                        if (thing == null || !CustomerShoppingMatchUtility.ThingMatchesCustomer(lordJob, thing.def)) continue;
+                        float unitPrice = Mathf.Max(1f, slot.price > 0f ? slot.price : thing.MarketValue);
+                        CustomerPriceEvaluation evaluation = CustomerPriceUtility.EvaluateMarketValue(thing.MarketValue, unitPrice, lordJob.GetPriceSensitivity(pId));
+                        if (evaluation.rejected)
+                        {
+                            uniqueRejectedReason = BuildPriceRejectionReason(thing.def, evaluation);
+                            continue;
+                        }
+                        if (unitPrice <= remainingBudget)
+                            uniqueCandidates.Add((slot, thing, unitPrice, evaluation));
+                    }
+
+                    if (uniqueCandidates.NullOrEmpty())
+                    {
+                        bool shouldCheckout = RegisterNoProgressAndCheckoutIfNeeded(lordJob, ref noProgressRecorded);
+                        if (!string.IsNullOrEmpty(uniqueRejectedReason)) lordJob.RecordPriceRejection(pId, uniqueRejectedReason);
+                        CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.BrowseNoMatch);
+                        ShopBubbleUtility.ShowTextBubble(pawn, SimTranslation.T("RSMF.Bubble.NoSuitableGoods"), new Color(0.88f, 0.88f, 0.88f));
+                        if (shouldCheckout) lordJob.MarkPawnReadyForCheckout(pId);
+                        return;
+                    }
+
+                    (UniqueGoodsSlotData slot, Thing thing, float unitPrice, CustomerPriceEvaluation price) choice
+                        = uniqueCandidates.RandomElementByWeight(c => Mathf.Max(0.001f, lordJob.GetPreferenceMultiplier(pId, c.thing.def) * c.price.purchaseWeight));
+                    Thing uniqueTaken = uniqueContainer.TakeForCustomer(choice.slot.index, pId, out float salePrice, out float marketValue);
+                    CustomerCartItem exactItem = new CustomerCartItem
+                    {
+                        sourceContainerId = uniqueContainer.thingIDNumber,
+                        sourceSlotIndex = choice.slot.index,
+                        unitPrice = salePrice,
+                        marketValue = marketValue
+                    };
+                    if (uniqueTaken == null || !exactItem.StoreExactThing(uniqueTaken) || !lordJob.AddExactCartItem(pId, exactItem))
+                    {
+                        Thing restoreThing = exactItem.TakeExactThing() ?? uniqueTaken;
+                        if (restoreThing != null && !restoreThing.Destroyed)
+                            uniqueContainer.TryRestoreCustomerThing(choice.slot.index, restoreThing);
+                        RegisterNoProgressAndCheckoutIfNeeded(lordJob, ref noProgressRecorded);
+                        return;
+                    }
+
+                    lordJob.AddCustomerBill(pId, salePrice);
+                    lordJob.ClearCurrentShopNoProgressBrowse(pawn);
+                    lordJob.ClearPriceRejectionReason(pId);
+                    finance?.QueueProductSale(pawn, shopZone, choice.thing.def, 1, salePrice, marketValue);
+                    CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.PurchaseItem);
+                    ShopBubbleUtility.ShowThingBubble(pawn, choice.thing.def, SimTranslation.T("RSMF.Bubble.TakeItem", choice.thing.def.label.Named("item")), null, Color.white);
+                    lordJob.GetOrCreateSession(pawn)?.NotifyConsumptionCompleted(lordJob, pawn, "单件商品购买完成");
+                    return;
+                }
+
                 List<(ThingDef def, float unitPrice, CustomerPriceEvaluation price)> candidates = new List<(ThingDef def, float unitPrice, CustomerPriceEvaluation price)>();
                 string rejectedReason = "";
                 foreach (ThingDef def in TargetShelf.ActiveDefs)

@@ -248,7 +248,8 @@ namespace SimManagementLib.SimMapComp
                 Shop = shop,
                 CurrentCustomers = CountCustomersForShop(shop),
                 Capacity = analytics != null ? analytics.GetDynamicCustomerCapacity(shop) : CalculateShopCustomerCapacity(shop),
-                DemandFactor = ApplyReviewDemandInfluence(shop, analytics != null ? analytics.GetSpawnDemandFactor(shop, map) : 1f)
+                DemandFactor = ApplyReviewDemandInfluence(shop, analytics != null ? analytics.GetSpawnDemandFactor(shop, map) : 1f),
+                HasCheckoutService = ShopStaffUtility.HasMannedCashRegister(shop)
             };
         }
 
@@ -275,7 +276,7 @@ namespace SimManagementLib.SimMapComp
 
         private bool CanSpawnWave(CustomerArrivalShopContext context, RuntimeCustomerKind kind)
         {
-            if (context == null || !context.CanSpawn(kind)) return false;
+            if (context == null || !context.CanSpawn(kind, true)) return false;
             if (!kind.CanAppearNow(map)) return false;
             if (kind.minShopReputation > 0f)
             {
@@ -300,7 +301,7 @@ namespace SimManagementLib.SimMapComp
         /// </summary>
         private bool CanForceSpawnWave(CustomerArrivalShopContext context, RuntimeCustomerKind kind)
         {
-            if (context == null || !context.CanSpawn(kind)) return false;
+            if (context == null || !context.CanSpawn(kind, false)) return false;
             if (kind == null) return false;
             if (kind.minShopReputation > 0f)
             {
@@ -314,20 +315,20 @@ namespace SimManagementLib.SimMapComp
 
         private int CalculateShopCustomerCapacity(Zone_Shop shop)
         {
-            int storageCount = 0;
-            int registerCount = 0;
+            HashSet<Building_SimContainer> storages = new HashSet<Building_SimContainer>();
+            HashSet<Building_CashRegister> registers = new HashSet<Building_CashRegister>();
 
             foreach (IntVec3 cell in shop.Cells)
             {
                 List<Thing> things = map.thingGrid.ThingsListAt(cell);
                 for (int i = 0; i < things.Count; i++)
                 {
-                    if (things[i] is SimThingClass.Building_SimContainer) storageCount++;
-                    else if (things[i] is SimThingClass.Building_CashRegister) registerCount++;
+                    if (things[i] is Building_SimContainer storage) storages.Add(storage);
+                    else if (things[i] is Building_CashRegister register) registers.Add(register);
                 }
             }
 
-            int estimated = registerCount * 8 + storageCount * 4;
+            int estimated = registers.Count * 8 + storages.Count * 4;
             return Mathf.Max(6, estimated);
         }
 
