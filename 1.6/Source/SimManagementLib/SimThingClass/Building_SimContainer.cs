@@ -110,6 +110,8 @@ namespace SimManagementLib.SimThingClass
         {
             storedCountCacheDirty = true;
             storedCountVersion++;
+            if (Spawned)
+                ShopDataUtility.NotifyShopContentsChanged(this);
         }
 
         //按需重建虚拟库存统计，职责是把大量 Thing 栈聚合为按 ThingDef 查询的字典。
@@ -164,6 +166,8 @@ namespace SimManagementLib.SimThingClass
             ReconcilePendingReservations();
             MapComponent_RestockTaskQueue queue = map?.GetComponent<MapComponent_RestockTaskQueue>();
             queue?.MarkStorageDirty(this, respawningAfterLoad ? "货柜读档生成" : "货柜生成");
+            ShopDataUtility.NotifyBuildingChanged(map, Position);
+            VendingMachineUtility.NotifyMapBuildingsChanged(map);
         }
 
         public override void ExposeData()

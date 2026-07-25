@@ -18,21 +18,6 @@ namespace SimManagementLib.Tool
             RemoveStarvationHediff(customer);
         }
 
-        //函数职责：完整消耗一份已购买的食物，并把顾客饱食度维持在平衡值。
-        public static bool ConsumePurchasedFood(Pawn customer, Thing food)
-        {
-            if (customer == null || food == null || food.Destroyed || food.stackCount <= 0)
-                return false;
-
-            if (food.stackCount > 1)
-                food.stackCount--;
-            else
-                food.Destroy(DestroyMode.Vanish);
-
-            StabilizeCustomerNeeds(customer);
-            return true;
-        }
-
         //函数职责：设置顾客食物需求到中等水平，避免过饿倒地或过饱影响堂食 Job。
         private static void StabilizeFood(Pawn customer)
         {

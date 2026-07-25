@@ -83,15 +83,12 @@ namespace SimManagementLib.Tool
         //判断商店是否至少有一台正在值守的收银台，职责是阻止无人服务的商店继续吸引普通顾客。
         public static bool HasMannedCashRegister(Zone_Shop zone)
         {
-            if (zone?.Map == null || zone.Cells == null) return false;
-            foreach (IntVec3 cell in zone.Cells)
+            IReadOnlyList<Building_CashRegister> registers = ShopDataUtility.GetCashRegisterSnapshotInZone(zone);
+            for (int i = 0; i < registers.Count; i++)
             {
-                List<Thing> things = zone.Map.thingGrid.ThingsListAt(cell);
-                for (int i = 0; i < things.Count; i++)
-                {
-                    if (things[i] is Building_CashRegister register && register.IsManned)
-                        return true;
-                }
+                Building_CashRegister register = registers[i];
+                if (register != null && register.IsManned)
+                    return true;
             }
             return false;
         }
@@ -229,13 +226,20 @@ namespace SimManagementLib.Tool
             if (!isMechanicalStaff && (pawn.workSettings == null || !pawn.workSettings.EverWork)) return new StaffEligibility { Eligible = false, Reason = SimTranslation.T("RSMF.StaffManager.NoWorkSettings") };
             if (role.Worker != null && !role.Worker.CanAssignPawn(zone, pawn, out string workerReason))
                 return new StaffEligibility { Eligible = false, Reason = workerReason ?? "" };
+            if (role.requiredWorkType != null && !CanPawnPerformWorkType(pawn, role.requiredWorkType, false))
+            {
+                return new StaffEligibility
+                {
+                    Eligible = false,
+                    Reason = SimTranslation.T("RSMF.StaffManager.DisabledWorkType", role.requiredWorkType.LabelCap.RawText.Named("workType"))
+                };
+            }
 
             if (role.workGivers.NullOrEmpty())
                 return new StaffEligibility { Eligible = true, Reason = SimTranslation.T("RSMF.StaffManager.Eligible") };
 
             List<string> reasons = new List<string>();
             bool anyWorkGiverUsable = false;
-            bool allWorkGiversUsable = true;
 
             for (int i = 0; i < role.workGivers.Count; i++)
             {
@@ -248,20 +252,10 @@ namespace SimManagementLib.Tool
                 if (wg.workType != null)
                 {
                     string workTypeLabel = wg.workType.LabelCap.RawText;
-                    if (isMechanicalStaff && !MechanicalStaffCanUseWorkType(pawn, wg.workType))
+                    if (!CanPawnPerformWorkType(pawn, wg.workType, false))
                     {
                         usable = false;
                         localReasons.Add(SimTranslation.T("RSMF.StaffManager.DisabledWorkType", workTypeLabel.Named("workType")));
-                    }
-                    else if (!isMechanicalStaff && pawn.WorkTypeIsDisabled(wg.workType))
-                    {
-                        usable = false;
-                        localReasons.Add(SimTranslation.T("RSMF.StaffManager.DisabledWorkType", workTypeLabel.Named("workType")));
-                    }
-                    else if (!isMechanicalStaff && !pawn.workSettings.WorkIsActive(wg.workType))
-                    {
-                        usable = false;
-                        localReasons.Add(SimTranslation.T("RSMF.StaffManager.InactiveWorkType", workTypeLabel.Named("workType")));
                     }
                 }
 
@@ -284,17 +278,10 @@ namespace SimManagementLib.Tool
                 }
                 else if (localReasons.Count > 0)
                 {
-                    allWorkGiversUsable = false;
                     string prefix = wg.label.NullOrEmpty() ? wg.defName : wg.LabelCap.RawText;
                     reasons.Add(prefix + " - " + string.Join(SimTranslation.T("RSMF.Common.ListSeparator"), localReasons.Distinct()));
                 }
             }
-
-            if (isMechanicalStaff && anyWorkGiverUsable && allWorkGiversUsable)
-                return new StaffEligibility { Eligible = true, Reason = SimTranslation.T("RSMF.StaffManager.Eligible") };
-
-            if (isMechanicalStaff)
-                return BuildIneligibleResult(reasons);
 
             if (anyWorkGiverUsable)
                 return new StaffEligibility { Eligible = true, Reason = SimTranslation.T("RSMF.StaffManager.Eligible") };
@@ -325,6 +312,18 @@ namespace SimManagementLib.Tool
             if (!IsAssignableMechanicalStaff(pawn)) return false;
             return pawn.RaceProps?.mechEnabledWorkTypes != null
                 && pawn.RaceProps.mechEnabledWorkTypes.Contains(workType);
+        }
+
+        //判断 Pawn 是否具备并已按需启用工作类型，职责是让岗位资格和实际派工共享同一规则。
+        public static bool CanPawnPerformWorkType(Pawn pawn, WorkTypeDef workType, bool requireActive)
+        {
+            if (pawn == null || workType == null)
+                return pawn != null;
+            if (IsAssignableMechanicalStaff(pawn))
+                return MechanicalStaffCanUseWorkType(pawn, workType);
+            if (pawn.workSettings == null || !pawn.workSettings.EverWork || pawn.WorkTypeIsDisabled(workType))
+                return false;
+            return !requireActive || pawn.workSettings.WorkIsActive(workType);
         }
 
         //函数职责：判断 Pawn 是否能作为玩家控制机械体店员参与候选和派工。

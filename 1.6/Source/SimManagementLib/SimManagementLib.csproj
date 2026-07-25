@@ -358,6 +358,7 @@
     <Compile Include="SimZone\Zone_Shop.Assignments.cs" />
     <Compile Include="SimZone\Zone_Shop.cs" />
     <Compile Include="SimZone\Zone_Shop.RuntimeCache.cs" />
+    <Compile Include="SimZone\Zone_Shop.FacilityCache.cs" />
     <Compile Include="Tool\ComboNameGenerator.cs" />
     <Compile Include="Tool\ComboAiNameUtility.cs" />
     <Compile Include="Tool\CollectibleDisplayStandUtility.cs" />
@@ -373,6 +374,7 @@
     <Compile Include="Tool\CustomerPriceUtility.cs" />
     <Compile Include="Tool\CustomerPurchaseDeliveryUtility.cs" />
     <Compile Include="Tool\CustomerSafetyUtility.cs" />
+    <Compile Include="Tool\CustomerReachabilityCache.cs" />
     <Compile Include="Tool\CustomerShoppingMatchUtility.cs" />
     <Compile Include="Tool\CustomerReviewAiClient.cs" />
     <Compile Include="Tool\CustomerReviewAiDebugLog.cs" />
@@ -417,6 +419,7 @@
     <Compile Include="Tool\ShopBlueprintTextureAdjustmentBridge.cs" />
     <Compile Include="Tool\CashierSocialUtility.cs" />
     <Compile Include="Tool\ShopDataUtility.cs" />
+    <Compile Include="Tool\ShopDataUtility.Cache.cs" />
     <Compile Include="Tool\ShopDemandCurveUtility.cs" />
     <Compile Include="Tool\ShopFinanceLineTypeUtility.cs" />
     <Compile Include="Tool\ShopPricingUtility.cs" />

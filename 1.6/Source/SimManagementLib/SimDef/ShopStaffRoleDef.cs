@@ -16,6 +16,8 @@ namespace SimManagementLib.SimDef
         public List<WorkGiverDef> workGivers = new List<WorkGiverDef>();
         public List<JobDef> jobDefs = new List<JobDef>();
         public List<Type> requiredThingClasses = new List<Type>();
+        //岗位核心工作类型，职责是统一候选资格、自动启用和实际派工的最低要求。
+        public WorkTypeDef requiredWorkType;
         public Type workerClass = typeof(ShopStaffRoleWorker);
 
         [Unsaved] private ShopStaffRoleWorker workerInt;

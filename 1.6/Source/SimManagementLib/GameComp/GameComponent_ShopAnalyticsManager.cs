@@ -18,6 +18,7 @@ namespace SimManagementLib.GameComp
     /// </summary>
     public class GameComponent_ShopAnalyticsManager : GameComponent
     {
+        private const int MinimumMetricsRecalculationTicks = 60;
         private static readonly ShopTuningDef FallbackTuning = new ShopTuningDef();
 
         private Dictionary<int, ShopAnalyticsState> shopStates = new Dictionary<int, ShopAnalyticsState>();
@@ -92,23 +93,20 @@ namespace SimManagementLib.GameComp
             int ticks = Find.TickManager?.TicksGame ?? 0;
             ShopAnalyticsState state = GetOrCreateState(zoneId, zone.label);
 
+            int cacheAge = state.lastEvaluateTick < 0 ? int.MaxValue : ticks - state.lastEvaluateTick;
             if (!forceRecalculate
                 && state.cachedMetrics != null
                 && state.lastEvaluateTick >= 0
-                && ticks - state.lastEvaluateTick < interval)
+                && (cacheAge < MinimumMetricsRecalculationTicks || (!state.metricsDirty && cacheAge < interval)))
             {
                 return state.cachedMetrics;
             }
 
-            Map map = zone.Map;
-            List<Building_CashRegister> registers = map.listerBuildings.allBuildingsColonist
-                .OfType<Building_CashRegister>()
-                .Where(r => r != null && !r.Destroyed && r.Spawned && zone.Cells.Contains(r.Position))
-                .ToList();
+            IReadOnlyList<Building_CashRegister> registers = ShopDataUtility.GetCashRegisterSnapshotInZone(zone);
             int registerCount = registers.Count;
             int mannedCount = registers.Count(r => r.IsManned);
 
-            HashSet<Building_SimContainer> storages = ShopDataUtility.GetStoragesInZone(zone);
+            IReadOnlyList<Building_SimContainer> storages = ShopDataUtility.GetStorageSnapshotInZone(zone);
             int storageCount = storages.Count;
             int stockedStorageCount = CountStockedStorages(storages);
 
@@ -180,8 +178,19 @@ namespace SimManagementLib.GameComp
             state.lastScore = score;
             state.lastBeauty = beautyAverage;
             state.lastEnvironment = environment01 * 100f;
+            state.metricsDirty = false;
 
             return snapshot;
+        }
+
+        //失效指定商店的经营指标，职责是合并同一批建筑、库存和配置变化到下一次受限重算。
+        public void InvalidateShopMetrics(Zone_Shop zone)
+        {
+            if (zone == null)
+                return;
+
+            ShopAnalyticsState state = GetOrCreateState(zone.ID, zone.label);
+            state.metricsDirty = true;
         }
 
         public float GetSpawnDemandFactor(Zone_Shop zone, Map map)
@@ -233,7 +242,8 @@ namespace SimManagementLib.GameComp
                 state.queueWaitSamples++;
             }
 
-            ShopMetricsSnapshot snapshot = GetOrEvaluateShopMetrics(zone, true);
+            state.metricsDirty = true;
+            ShopMetricsSnapshot snapshot = GetOrEvaluateShopMetrics(zone);
 
             float queueScore = 100f * Mathf.Clamp01(1f - waitTicks / (float)Mathf.Max(1, patienceTicks));
             float budgetUse = budget > 0 ? paidSilver / (float)Mathf.Max(1, budget) : (paidSilver > 0 ? 1f : 0f);
@@ -264,6 +274,7 @@ namespace SimManagementLib.GameComp
             float repNewW = Mathf.Clamp01(tuning.reputationEmaNewWeight);
             float repNorm = Mathf.Max(0.001f, repOldW + repNewW);
             state.reputation = Mathf.Clamp((oldRep * repOldW + satisfaction * repNewW) / repNorm, 0f, 100f);
+            state.metricsDirty = true;
 
             int day = GenDate.DaysPassed;
             AddFloat(dailySatisfactionSum, day, satisfaction);
@@ -314,11 +325,11 @@ namespace SimManagementLib.GameComp
                 staffing, tuning.serviceStaffWeight);
         }
 
-        private float ComputeAverageBeauty(Zone_Shop zone, List<Building_CashRegister> registers)
+        private float ComputeAverageBeauty(Zone_Shop zone, IReadOnlyList<Building_CashRegister> registers)
         {
             if (zone == null || zone.Map == null || zone.Cells.Count == 0) return 0f;
 
-            HashSet<Building_SimContainer> storages = ShopDataUtility.GetStoragesInZone(zone);
+            IReadOnlyList<Building_SimContainer> storages = ShopDataUtility.GetStorageSnapshotInZone(zone);
             List<IntVec3> samples = new List<IntVec3>();
 
             for (int i = 0; i < registers.Count; i++)
@@ -440,7 +451,7 @@ namespace SimManagementLib.GameComp
         /// <summary>
         /// 统计至少有一种启用商品且当前有库存的货柜数量。
         /// </summary>
-        private static int CountStockedStorages(HashSet<Building_SimContainer> storages)
+        private static int CountStockedStorages(IReadOnlyList<Building_SimContainer> storages)
         {
             if (storages == null || storages.Count == 0) return 0;
 
@@ -551,6 +562,7 @@ namespace SimManagementLib.GameComp
                 if (state == null) continue;
                 state.lastEvaluateTick = -1;
                 state.cachedMetrics = null;
+                state.metricsDirty = true;
             }
         }
 

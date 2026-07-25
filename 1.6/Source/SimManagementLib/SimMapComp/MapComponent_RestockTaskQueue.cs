@@ -1,4 +1,5 @@
 using RimWorld;
+using SimManagementLib.SimDef;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimWorkGiver;
 using SimManagementLib.Tool;
@@ -77,10 +78,14 @@ namespace SimManagementLib.SimMapComp
             if (loadedQueueVersion < QueueRebuildVersion)
                 ResetAndRebuildAll("补货队列版本迁移");
 
+            bool reconcileDue = now % ReconcileIntervalTicks == map.uniqueID % ReconcileIntervalTicks;
+            if (dirtyQueue.Count <= 0 && readyTasks.Count <= 0 && blockedTasks.Count <= 0 && !reconcileDue)
+                return;
+
             ProcessDirtyQueue(now);
             RetryBlockedTasks(now);
             TryDispatchIdleRestockPawns(now);
-            if (now % ReconcileIntervalTicks == map.uniqueID % ReconcileIntervalTicks)
+            if (reconcileDue)
                 ReconcileStorageSlice(now);
         }
 
@@ -467,12 +472,15 @@ namespace SimManagementLib.SimMapComp
         {
             if (readyTasks.Count <= 0 || map?.mapPawns == null)
                 return;
+            int mapOffset = map.uniqueID >= 0 ? map.uniqueID % IdleDispatchIntervalTicks : 0;
+            if ((now + mapOffset) % IdleDispatchIntervalTicks != 0)
+                return;
 
             List<Pawn> pawns = GetRestockCandidatePawns();
             for (int i = 0; i < pawns.Count; i++)
             {
                 Pawn pawn = pawns[i];
-                if (!ShouldTryIdleDispatch(pawn, now))
+                if (!ShouldTryIdleDispatch(pawn))
                     continue;
 
                 Job job = TryMakeJobForPawn(pawn);
@@ -482,15 +490,11 @@ namespace SimManagementLib.SimMapComp
         }
 
         //判断小人是否适合由队列主动派工，职责是只处理可中断低优先级工作且启用补货的小人。
-        private static bool ShouldTryIdleDispatch(Pawn pawn, int now)
+        private static bool ShouldTryIdleDispatch(Pawn pawn)
         {
             if (!CanUseRestockWorkGiver(pawn))
                 return false;
-            if (pawn.jobs == null || !IsIdleForRestockDispatch(pawn))
-                return false;
-
-            int offset = pawn.thingIDNumber >= 0 ? pawn.thingIDNumber % IdleDispatchIntervalTicks : 0;
-            return (now + offset) % IdleDispatchIntervalTicks == 0;
+            return pawn.jobs != null && IsIdleForRestockDispatch(pawn);
         }
 
         //判断小人是否处于可接管状态，职责是避免打断医疗、睡觉、制作、收银和当前补货。
@@ -512,9 +516,9 @@ namespace SimManagementLib.SimMapComp
             WorkGiverDef workGiverDef = DefDatabase<WorkGiverDef>.GetNamedSilentFail("RestockMegaStorage");
             if (workGiverDef == null)
                 return false;
-            if (workGiverDef.workType != null && pawn.WorkTypeIsDisabled(workGiverDef.workType))
-                return false;
-            if (pawn.workSettings != null && workGiverDef.workType != null && !pawn.workSettings.WorkIsActive(workGiverDef.workType))
+            ShopStaffRoleDef role = DefDatabase<ShopStaffRoleDef>.GetNamedSilentFail("SimShopRole_Restocker");
+            WorkTypeDef requiredWorkType = role?.requiredWorkType ?? workGiverDef.workType;
+            if (!ShopStaffUtility.CanPawnPerformWorkType(pawn, requiredWorkType, true))
                 return false;
             if (workGiverDef.requiredCapacities != null)
             {

@@ -53,7 +53,7 @@ namespace SimManagementLib.Tool
 
             if (AllowsGoods(kind, fallbackDef))
             {
-                foreach (Building_SimContainer storage in ShopDataUtility.GetStoragesInZone(shop))
+                foreach (Building_SimContainer storage in ShopDataUtility.GetStorageSnapshotInZone(shop))
                 {
                     if (StorageHasMatchingSellableStock(storage, kind, fallbackDef))
                         return true;
@@ -106,7 +106,7 @@ namespace SimManagementLib.Tool
         {
             if (shop == null || remainingBudget <= 0f || !AllowsGoods(kind, fallbackDef)) return false;
 
-            foreach (Building_SimContainer storage in ShopDataUtility.GetStoragesInZone(shop))
+            foreach (Building_SimContainer storage in ShopDataUtility.GetStorageSnapshotInZone(shop))
             {
                 if (StorageHasMatchingAffordableStock(storage, pawn, kind, fallbackDef, remainingBudget))
                     return true;

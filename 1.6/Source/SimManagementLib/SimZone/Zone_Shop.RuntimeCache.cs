@@ -21,6 +21,7 @@ namespace SimManagementLib.SimZone
         {
             runtimeCacheExpireTick = -1;
             cachedValidationMessage = null;
+            InvalidateShopFacilityCache();
         }
 
         /// <summary>

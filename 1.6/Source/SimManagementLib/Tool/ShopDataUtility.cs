@@ -11,28 +11,14 @@ using Verse;
 
 namespace SimManagementLib.Tool
 {
-    public static class ShopDataUtility
+    public static partial class ShopDataUtility
     {
         /// <summary>
         /// 获取指定区域内所有的货柜（自动去重）
         /// </summary>
         public static HashSet<Building_SimContainer> GetStoragesInZone(Zone zone)
         {
-            var storages = new HashSet<Building_SimContainer>();
-            if (zone == null || zone.Map == null) return storages;
-
-            foreach (IntVec3 cell in zone.Cells)
-            {
-                List<Thing> things = zone.Map.thingGrid.ThingsListAt(cell);
-                foreach (Thing t in things)
-                {
-                    if (t is Building_SimContainer storage)
-                    {
-                        storages.Add(storage);
-                    }
-                }
-            }
-            return storages;
+            return new HashSet<Building_SimContainer>(GetStorageSnapshotInZone(zone));
         }
 
         /// <summary>
@@ -41,7 +27,7 @@ namespace SimManagementLib.Tool
         public static List<ShopItemStatus> GetAllSellableGoods(Zone zone)
         {
             var aggregatedData = new Dictionary<ThingDef, ShopItemStatus>();
-            var storages = GetStoragesInZone(zone);
+            IReadOnlyList<Building_SimContainer> storages = GetStorageSnapshotInZone(zone);
 
             foreach (Building_SimContainer storage in storages)
             {
@@ -229,7 +215,7 @@ namespace SimManagementLib.Tool
             if (zone == null || zone.Map == null || combo == null || combo.items.NullOrEmpty())
                 return false;
 
-            List<Building_SimContainer> storages = GetStoragesInZone(zone)
+            List<Building_SimContainer> storages = GetStorageSnapshotInZone(zone)
                 .Where(storage => !(storage is Building_UniqueGoodsContainer))
                 .ToList();
             if (storages.NullOrEmpty()) return false;
@@ -280,7 +266,7 @@ namespace SimManagementLib.Tool
 
         private static bool HasEnoughStockForCombo(Zone zone, ComboData combo)
         {
-            List<Building_SimContainer> storages = GetStoragesInZone(zone)
+            List<Building_SimContainer> storages = GetStorageSnapshotInZone(zone)
                 .Where(storage => !(storage is Building_UniqueGoodsContainer))
                 .ToList();
             if (storages.NullOrEmpty()) return false;
@@ -356,7 +342,7 @@ namespace SimManagementLib.Tool
         {
             if (zone == null || zone.Map == null || items.NullOrEmpty()) return;
 
-            List<Building_SimContainer> storages = GetStoragesInZone(zone).ToList();
+            List<Building_SimContainer> storages = GetStorageSnapshotInZone(zone).ToList();
 
             for (int i = 0; i < items.Count; i++)
             {

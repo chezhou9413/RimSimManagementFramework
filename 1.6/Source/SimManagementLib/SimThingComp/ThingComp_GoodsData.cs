@@ -181,7 +181,10 @@ namespace SimManagementLib.SimThingComp
                 priceBuffers.Clear();
                 restockThresholdBuffers.Clear();
                 if (parent is Building_SimContainer invalidStorage)
+                {
                     invalidStorage.MarkRestockQueueDirty(null, "货柜商品配置清空");
+                    ShopDataUtility.NotifyShopContentsChanged(invalidStorage);
+                }
                 return;
             }
 
@@ -198,7 +201,10 @@ namespace SimManagementLib.SimThingComp
             priceBuffers.Clear();
             restockThresholdBuffers.Clear();
             if (parent is Building_SimContainer dirtyStorage)
+            {
                 dirtyStorage.MarkRestockQueueDirty(null, "货柜商品配置变化");
+                ShopDataUtility.NotifyShopContentsChanged(dirtyStorage);
+            }
         }
 
         //克隆传入配置字典，职责是规范化数量与价格的最小值。

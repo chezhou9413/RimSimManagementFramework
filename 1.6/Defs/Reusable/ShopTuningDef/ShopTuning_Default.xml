@@ -5,7 +5,7 @@
     <defName>SimShop_DefaultTuning</defName>
     <label>shop tuning</label>
 
-    <evaluateIntervalTicks>120</evaluateIntervalTicks>
+    <evaluateIntervalTicks>600</evaluateIntervalTicks>
     <defaultReputation>50</defaultReputation>
     <defaultSatisfaction>50</defaultSatisfaction>
 

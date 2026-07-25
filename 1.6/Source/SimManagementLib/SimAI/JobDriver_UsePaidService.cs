@@ -65,6 +65,7 @@ namespace SimManagementLib.SimAI
             use.initAction = () =>
             {
                 ticksLeftThisToil = Mathf.Max(60, durationTicks);
+                serviceDef?.Worker.NotifyServiceUseStarted(pawn, Provider, order);
             };
             use.tickAction = () =>
             {

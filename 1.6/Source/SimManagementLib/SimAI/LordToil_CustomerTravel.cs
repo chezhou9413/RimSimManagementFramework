@@ -116,7 +116,7 @@ namespace SimManagementLib.SimAI
             if (shop.Cells.Contains(pawn.Position))
                 return true;
 
-            List<Building_SimContainer> storages = ShopDataUtility.GetStoragesInZone(shop)
+            List<Building_SimContainer> storages = ShopDataUtility.GetStorageSnapshotInZone(shop)
                 .Where(item => item != null && !item.Destroyed && item.Spawned)
                 .Where(item => CustomerSafetyUtility.CanCustomerReach(pawn, item, PathEndMode.Touch, Danger.Deadly))
                 .ToList();
@@ -137,7 +137,7 @@ namespace SimManagementLib.SimAI
         private static bool TryFindReachableStorageCell(Pawn pawn, Zone_Shop shop, out IntVec3 cell)
         {
             cell = IntVec3.Invalid;
-            List<Building_SimContainer> storages = ShopDataUtility.GetStoragesInZone(shop)
+            List<Building_SimContainer> storages = ShopDataUtility.GetStorageSnapshotInZone(shop)
                 .Where(item => item != null && !item.Destroyed && item.Spawned)
                 .Where(item => CustomerSafetyUtility.CanCustomerReach(pawn, item, PathEndMode.Touch, Danger.Deadly))
                 .ToList();

@@ -11,6 +11,7 @@
     <workGivers>
       <li>Sim_WorkGiver_ManCashRegister</li>
     </workGivers>
+    <requiredWorkType>Sim_ServiceWork</requiredWorkType>
     <jobDefs>
       <li>Sim_ManCashRegister</li>
     </jobDefs>
@@ -29,6 +30,7 @@
       <li>RestockUniqueGoodsContainer</li>
       <li>WithdrawFromMegaStorage</li>
     </workGivers>
+    <requiredWorkType>Restocking</requiredWorkType>
     <jobDefs>
       <li>DepositToMegaStorage</li>
       <li>RestockUniqueGoodsContainer</li>

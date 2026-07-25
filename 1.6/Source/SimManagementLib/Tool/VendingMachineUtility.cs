@@ -16,6 +16,8 @@ namespace SimManagementLib.Tool
     /// </summary>
     public static class VendingMachineUtility
     {
+        private static readonly Dictionary<int, VendingMachineMapCache> MapCaches = new Dictionary<int, VendingMachineMapCache>();
+
         /// <summary>
         /// 判断货柜是否启用了自动售货机能力。
         /// </summary>
@@ -44,12 +46,33 @@ namespace SimManagementLib.Tool
         /// </summary>
         public static List<Building_SimContainer> GetAllVendingMachines(Map map)
         {
-            if (map?.listerBuildings == null) return new List<Building_SimContainer>();
-            return map.listerBuildings.allBuildingsColonist
+            return new List<Building_SimContainer>(GetVendingMachineSnapshot(map));
+        }
+
+        //返回地图自动售货机只读快照，职责是在建筑未变化时避免重复扫描殖民地建筑列表。
+        public static IReadOnlyList<Building_SimContainer> GetVendingMachineSnapshot(Map map)
+        {
+            if (map?.listerBuildings == null)
+                return new List<Building_SimContainer>(0);
+
+            int mapId = map.uniqueID;
+            if (MapCaches.TryGetValue(mapId, out VendingMachineMapCache cache) && cache.Map == map)
+                return cache.Machines;
+
+            List<Building_SimContainer> machines = map.listerBuildings.allBuildingsColonist
                 .OfType<Building_SimContainer>()
                 .Where(IsVendingMachine)
-                .OrderBy(s => s.thingIDNumber)
+                .OrderBy(storage => storage.thingIDNumber)
                 .ToList();
+            MapCaches[mapId] = new VendingMachineMapCache(map, machines);
+            return machines;
+        }
+
+        //通知地图建筑清单发生变化，职责是让自动售货机快照在下次读取时重建。
+        public static void NotifyMapBuildingsChanged(Map map)
+        {
+            if (map != null)
+                MapCaches.Remove(map.uniqueID);
         }
 
         /// <summary>
@@ -57,10 +80,15 @@ namespace SimManagementLib.Tool
         /// </summary>
         public static Building_SimContainer FindVendingMachineById(Map map, int thingId)
         {
-            if (map?.listerBuildings == null || thingId < 0) return null;
-            return map.listerBuildings.allBuildingsColonist
-                .OfType<Building_SimContainer>()
-                .FirstOrDefault(s => s.thingIDNumber == thingId && IsVendingMachine(s));
+            if (map == null || thingId < 0) return null;
+            IReadOnlyList<Building_SimContainer> machines = GetVendingMachineSnapshot(map);
+            for (int i = 0; i < machines.Count; i++)
+            {
+                Building_SimContainer machine = machines[i];
+                if (machine != null && machine.thingIDNumber == thingId)
+                    return machine;
+            }
+            return null;
         }
 
         /// <summary>
@@ -172,6 +200,20 @@ namespace SimManagementLib.Tool
             }
 
             return false;
+        }
+
+        //类职责：保存单张地图的自动售货机快照及其地图身份。
+        private sealed class VendingMachineMapCache
+        {
+            public readonly Map Map;
+            public readonly List<Building_SimContainer> Machines;
+
+            //创建地图售货机缓存，职责是绑定地图实例和稳定建筑列表。
+            public VendingMachineMapCache(Map map, List<Building_SimContainer> machines)
+            {
+                Map = map;
+                Machines = machines;
+            }
         }
     }
 }

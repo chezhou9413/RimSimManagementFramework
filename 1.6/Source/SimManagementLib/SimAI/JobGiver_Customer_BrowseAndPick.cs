@@ -98,7 +98,7 @@ namespace SimManagementLib.SimAI
             Building_SimContainer fallbackSelected = null;
             int unvisitedSeen = 0;
             int fallbackSeen = 0;
-            foreach (Building_SimContainer storage in ShopDataUtility.GetStoragesInZone(shopZone))
+            foreach (Building_SimContainer storage in ShopDataUtility.GetStorageSnapshotInZone(shopZone))
             {
                 if (!StorageHasAffordableContent(storage, pawn, lordJob, remainingBudget, affordableCombos)) continue;
                 if (!CustomerSafetyUtility.CanCustomerReach(pawn, storage, PathEndMode.Touch, Danger.Deadly)) continue;
@@ -213,7 +213,7 @@ namespace SimManagementLib.SimAI
             Building_SimContainer fallbackSelected = null;
             int unvisitedSeen = 0;
             int fallbackSeen = 0;
-            foreach (Building_SimContainer storage in ShopDataUtility.GetStoragesInZone(shopZone))
+            foreach (Building_SimContainer storage in ShopDataUtility.GetStorageSnapshotInZone(shopZone))
             {
                 if (storage == null || storage.Destroyed || !storage.Spawned) continue;
                 if (!CustomerSafetyUtility.CanCustomerReach(pawn, storage, PathEndMode.Touch, Danger.Deadly)) continue;

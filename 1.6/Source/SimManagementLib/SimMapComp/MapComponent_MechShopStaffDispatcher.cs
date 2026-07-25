@@ -12,13 +12,15 @@ namespace SimManagementLib.SimMapComp
     //类职责：为已分配商店岗位的玩家机械体补充派工，让机械体不依赖殖民者工作优先级也能执行店员工作。
     public class MapComponent_MechShopStaffDispatcher : MapComponent
     {
-        private const int DispatchIntervalTicks = 121;
+        private const int DispatchSliceIntervalTicks = 31;
+        private const int MechsPerDispatchSlice = 4;
         private const int PawnScanSalt = 37;
         private static readonly HashSet<string> IdleJobDefNames = new HashSet<string>
         {
             "Wait",
             "Wait_MaintainPosture"
         };
+        private int dispatchCursor;
 
         //函数职责：创建当前地图的机械体店员派工组件。
         public MapComponent_MechShopStaffDispatcher(Map map) : base(map)
@@ -32,23 +34,34 @@ namespace SimManagementLib.SimMapComp
             if (map?.mapPawns == null || map.zoneManager?.AllZones == null) return;
 
             int now = Find.TickManager?.TicksGame ?? 0;
+            int mapOffset = map.uniqueID >= 0 ? map.uniqueID % DispatchSliceIntervalTicks : 0;
+            if ((now + PawnScanSalt + mapOffset) % DispatchSliceIntervalTicks != 0)
+                return;
+
             List<Pawn> mechs = map.mapPawns.SpawnedColonyMechs;
-            for (int i = 0; i < mechs.Count; i++)
+            if (mechs.Count <= 0)
             {
-                Pawn pawn = mechs[i];
-                if (!ShouldTryDispatch(pawn, now)) continue;
+                dispatchCursor = 0;
+                return;
+            }
+
+            int processCount = System.Math.Min(MechsPerDispatchSlice, mechs.Count);
+            for (int i = 0; i < processCount; i++)
+            {
+                if (dispatchCursor >= mechs.Count)
+                    dispatchCursor = 0;
+                Pawn pawn = mechs[dispatchCursor++];
+                if (!ShouldTryDispatch(pawn)) continue;
                 TryDispatchPawn(pawn);
             }
         }
 
         //函数职责：判断机械体当前是否适合尝试店员派工。
-        private static bool ShouldTryDispatch(Pawn pawn, int now)
+        private static bool ShouldTryDispatch(Pawn pawn)
         {
             if (!ShopStaffUtility.IsAssignableMechanicalStaff(pawn)) return false;
             if (pawn.Drafted) return false;
-            if (pawn.jobs == null || !IsIdleForShopDispatch(pawn)) return false;
-            int offset = pawn.thingIDNumber >= 0 ? pawn.thingIDNumber % DispatchIntervalTicks : 0;
-            return (now + PawnScanSalt + offset) % DispatchIntervalTicks == 0;
+            return pawn.jobs != null && IsIdleForShopDispatch(pawn);
         }
 
         //函数职责：判断机械体是否只处于空闲等待状态，避免派工打断已有实际任务。

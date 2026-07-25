@@ -41,9 +41,12 @@ namespace SimManagementLib.SimThingClass
         public override void DeSpawn(DestroyMode mode = DestroyMode.Vanish)
         {
             Map oldMap = MapHeld;
-            DropStoredContentsIfNeeded(MapHeld, PositionHeld, mode);
+            IntVec3 oldPosition = PositionHeld;
+            DropStoredContentsIfNeeded(oldMap, oldPosition, mode);
             base.DeSpawn(mode);
             oldMap?.GetComponent<MapComponent_RestockTaskQueue>()?.ResetAndRebuildAll("货柜反生成");
+            ShopDataUtility.NotifyBuildingChanged(oldMap, oldPosition);
+            VendingMachineUtility.NotifyMapBuildingsChanged(oldMap);
         }
 
         //摧毁货柜时处理内部库存，职责是在建筑消失前把商品退回地图并重建补货队列。

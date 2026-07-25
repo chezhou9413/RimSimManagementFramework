@@ -48,10 +48,7 @@ namespace SimManagementLib.Tool
             if (customer == null || !customer.Spawned || customer.Map == null || !target.IsValid)
                 return false;
 
-            if (!customer.CanReach(target, pathEndMode, danger))
-                return false;
-
-            return !PathUsesForbiddenPlayerDoor(customer, target, pathEndMode, danger);
+            return CustomerReachabilityCache.CanReach(customer, target, pathEndMode, danger);
         }
 
         // 判断顾客是否可以到达指定格，负责复用 LocalTargetInfo 版本的完整规则。
@@ -147,31 +144,6 @@ namespace SimManagementLib.Tool
             }
 
             return total;
-        }
-
-        // 判断生成路径是否会经过玩家禁用门。
-        private static bool PathUsesForbiddenPlayerDoor(Pawn customer, LocalTargetInfo target, PathEndMode pathEndMode, Danger danger)
-        {
-            using (PawnPath path = customer.Map.pathFinder.FindPathNow(
-                customer.Position,
-                target,
-                TraverseParms.For(customer, danger, TraverseMode.ByPawn),
-                null,
-                pathEndMode))
-            {
-                if (path == null || !path.Found)
-                    return true;
-
-                List<IntVec3> nodes = path.NodesReversed;
-                for (int i = 0; i < nodes.Count; i++)
-                {
-                    Building_Door door = nodes[i].GetDoor(customer.Map);
-                    if (door != null && IsPlayerForbiddenDoor(door))
-                        return true;
-                }
-            }
-
-            return false;
         }
 
         // 判断门是否是玩家拥有并手动禁用的门。

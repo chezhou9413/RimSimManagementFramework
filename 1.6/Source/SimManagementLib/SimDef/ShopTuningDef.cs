@@ -8,7 +8,7 @@ namespace SimManagementLib.SimDef
     public class ShopTuningDef : Def
     {
         // 运行时缓存与默认经营状态。
-        public int evaluateIntervalTicks = 120;
+        public int evaluateIntervalTicks = 600;
         public float defaultReputation = 50f;
         public float defaultSatisfaction = 50f;
 

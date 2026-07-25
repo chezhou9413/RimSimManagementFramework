@@ -2,6 +2,7 @@ using Verse;
 
 namespace SimManagementLib.Pojo
 {
+    //类职责：保存单个商店的持久经营统计和运行时指标缓存状态。
     public class ShopAnalyticsState : IExposable
     {
         public string label = "";
@@ -21,6 +22,10 @@ namespace SimManagementLib.Pojo
         [Unsaved]
         public ShopMetricsSnapshot cachedMetrics;
 
+        [Unsaved]
+        public bool metricsDirty = true;
+
+        //读写商店经营统计，职责是仅持久化跨存档需要保留的数据。
         public void ExposeData()
         {
             Scribe_Values.Look(ref label, "label", "");

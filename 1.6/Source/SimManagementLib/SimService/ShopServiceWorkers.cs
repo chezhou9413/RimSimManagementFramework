@@ -72,13 +72,18 @@ namespace SimManagementLib.SimService
             return provider?.Position ?? IntVec3.Invalid;
         }
 
-        /// <summary>
-        /// 在如厕读条期间让顾客固定朝向屏幕下方，使玩家能正面看到 Pawn。
-        /// </summary>
+        //顾客抵达马桶后设置一次使用朝向，职责是避免与原版旋转追踪和动画补丁逐 tick 争抢状态。
+        public override void NotifyServiceUseStarted(Pawn customer, Thing provider, CustomerServiceOrder order)
+        {
+            if (customer == null || provider == null)
+                return;
+
+            customer.rotationTracker.FaceCell(provider.Position + provider.Rotation.FacingCell);
+        }
+
+        //如厕读条期间不改写朝向，职责是保持进入服务时设置的稳定姿态。
         public override void TickServiceUse(Pawn customer, Thing provider, CustomerServiceOrder order)
         {
-            if (customer == null) return;
-            customer.Rotation = Rot4.South;
         }
     }
 

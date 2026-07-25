@@ -52,12 +52,6 @@ namespace SimManagementLib.SimDef
             if (dineJobDef == null)
                 yield break;
 
-            PurchaseOutcomeTargetResolver.TryFindDiningTargets(
-                customer,
-                shopZone,
-                out LocalTargetInfo seatTarget,
-                out LocalTargetInfo tableTarget);
-
             ThingDef foodDef = ResolveMealThingDef(customer, purchasedDef);
             if (foodDef == null)
                 yield break;
@@ -66,19 +60,9 @@ namespace SimManagementLib.SimDef
             if (foodOnPawn == null)
                 yield break;
 
-            Job fallbackJob = JobMaker.MakeJob(dineJobDef);
-            if (seatTarget.IsValid)
-                fallbackJob.SetTarget(TargetIndex.A, seatTarget);
-            if (tableTarget.IsValid)
-                fallbackJob.SetTarget(TargetIndex.B, tableTarget);
-            fallbackJob.SetTarget(TargetIndex.C, foodOnPawn);
-
-            int duration = def.jobDurationTicks.RandomInRange;
-            if (duration <= 0)
-                duration = 600;
-
-            fallbackJob.expiryInterval = duration;
-            yield return fallbackJob;
+            Job dineJob = JobMaker.MakeJob(dineJobDef, foodOnPawn);
+            dineJob.count = 1;
+            yield return dineJob;
         }
 
         private static ThingDef ResolveMealThingDef(Pawn customer, ThingDef purchasedDef)

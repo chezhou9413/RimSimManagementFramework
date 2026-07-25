@@ -169,6 +169,11 @@ namespace SimManagementLib.SimService
         {
         }
 
+        //通知顾客已经抵达服务位置，职责是让服务只在正式使用前初始化姿态和现场状态。
+        public virtual void NotifyServiceUseStarted(Pawn customer, Thing provider, Pojo.CustomerServiceOrder order)
+        {
+        }
+
         /// <summary>
         /// 在服务使用读条期间每 Tick 接收通知，默认让顾客面向服务建筑。
         /// </summary>

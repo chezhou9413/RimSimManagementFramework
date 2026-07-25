@@ -88,7 +88,13 @@ namespace SimManagementLib.Tool
         public static bool ConvertPawnToCustomerFaction(Pawn pawn, out Faction customerFaction)
         {
             customerFaction = GetOrCreateCustomerFaction();
-            if (pawn == null || customerFaction == null) return false;
+            return ConvertPawnToCustomerFaction(pawn, customerFaction);
+        }
+
+        //将 Pawn 转入已经准备好的顾客派系，职责是避免同一次生成重复执行派系创建和关系维护。
+        public static bool ConvertPawnToCustomerFaction(Pawn pawn, Faction customerFaction)
+        {
+            if (pawn == null || customerFaction == null || !IsCustomerFaction(customerFaction)) return false;
 
             if (IsProtectedFactionLeader(pawn))
             {
