@@ -525,10 +525,10 @@
         <graphicData>
             <texPath>Things/Building/MegaStorageBox/BigWeaponStorageBox/BigWeaponStorageBox</texPath>
             <drawSize>(4, 4)</drawSize>
-            <drawOffsetSouth>(0, 0, 0)</drawOffsetSouth>
-            <drawOffsetNorth>(0, 0, 0)</drawOffsetNorth>
-            <drawOffsetEast>(0, 0, 0.1)</drawOffsetEast>
-            <drawOffsetWest>(0, 0, 0.1)</drawOffsetWest>
+            <drawOffsetSouth>(0, 0.1, 0)</drawOffsetSouth>
+            <drawOffsetNorth>(0, 0.1, 0)</drawOffsetNorth>
+            <drawOffsetEast>(0, 0.1, 0.1)</drawOffsetEast>
+            <drawOffsetWest>(0, 0.1, 0.1)</drawOffsetWest>
         </graphicData>
         <size>(2, 1)</size>
         <costList>
@@ -581,10 +581,10 @@
         <graphicData>
             <texPath>Things/Building/MegaStorageBox/SmallWeaponStorageBox/SmallWeaponStorageBox</texPath>
             <drawSize>(2, 2)</drawSize>
-            <drawOffsetSouth>(0, 0, 0.45)</drawOffsetSouth>
-            <drawOffsetNorth>(0, 0, 0.45)</drawOffsetNorth>
-            <drawOffsetEast>(0, 0, 0.45)</drawOffsetEast>
-            <drawOffsetWest>(0, 0, 0.45)</drawOffsetWest>
+            <drawOffsetSouth>(0, 0.1, 0.45)</drawOffsetSouth>
+            <drawOffsetNorth>(0, 0.1, 0.45)</drawOffsetNorth>
+            <drawOffsetEast>(0, 0.1, 0.45)</drawOffsetEast>
+            <drawOffsetWest>(0, 0.1, 0.45)</drawOffsetWest>
         </graphicData>
         <size>(1, 1)</size>
         <costList>
@@ -607,23 +607,6 @@
                 <li>Goods_MeleeWeapons</li>
             </allowedGoodsCategoryIds>
             </li>
-            <li Class="CompProperties_Forbiddable"/>
-            <li Class="CompProperties_Power">
-                <compClass>CompPowerTrader</compClass>
-                <basePowerConsumption>70</basePowerConsumption>
-            </li>
-            <li Class="CompProperties_Flickable"/>
-            <li Class="CompProperties_Schedule">
-            <!-- 匹配植物生长时段。 -->
-                <startTime>0.25</startTime>
-                <endTime>0.8</endTime>
-                <offMessage>Off for plant resting period</offMessage>
-            </li>
-            <li Class="CompProperties_Glower">
-                <overlightRadius>7.0</overlightRadius>
-                <glowRadius>8</glowRadius>
-                <glowColor>(370,370,370,0)</glowColor>
-            </li>
         </comps>
     </ThingDef>
 
@@ -637,10 +620,10 @@
         <graphicData>
             <texPath>Things/Building/MegaStorageBox/MiddleClothesStorageBox/MiddleClothesStorageBox</texPath>
             <drawSize>(4, 4)</drawSize>
-            <drawOffsetSouth>(0, 0, 0)</drawOffsetSouth>
-            <drawOffsetNorth>(0, 0, 0)</drawOffsetNorth>
-            <drawOffsetEast>(0, 0, 0)</drawOffsetEast>
-            <drawOffsetWest>(0, 0, 0)</drawOffsetWest>
+            <drawOffsetSouth>(0, 0.1, 0)</drawOffsetSouth>
+            <drawOffsetNorth>(0, 0.1, 0)</drawOffsetNorth>
+            <drawOffsetEast>(0, 0.1, 0)</drawOffsetEast>
+            <drawOffsetWest>(0, 0.1, 0)</drawOffsetWest>
         </graphicData>
         <size>(2, 1)</size>
         <costList>
@@ -675,10 +658,10 @@
         <graphicData>
             <texPath>Things/Building/MegaStorageBox/ManClothesStorageBox/ManClothesStorageBox</texPath>
             <drawSize>(2.5, 2.5)</drawSize>
-            <drawOffsetSouth>(0, 0, 0.45)</drawOffsetSouth>
-            <drawOffsetNorth>(0, 0, 0.45)</drawOffsetNorth>
-            <drawOffsetEast>(0, 0, 0.45)</drawOffsetEast>
-            <drawOffsetWest>(0, 0, 0.45)</drawOffsetWest>
+            <drawOffsetSouth>(0, 0.1, 0.45)</drawOffsetSouth>
+            <drawOffsetNorth>(0, 0.1, 0.45)</drawOffsetNorth>
+            <drawOffsetEast>(0, 0.1, 0.45)</drawOffsetEast>
+            <drawOffsetWest>(0, 0.1, 0.45)</drawOffsetWest>
         </graphicData>
         <size>(1, 1)</size>
         <costList>
@@ -713,10 +696,10 @@
         <graphicData>
             <texPath>Things/Building/MegaStorageBox/WomanClothesStorageBox/WomanClothesStorageBox</texPath>
             <drawSize>(2.5, 2.5)</drawSize>
-            <drawOffsetSouth>(0, 0, 0.45)</drawOffsetSouth>
-            <drawOffsetNorth>(0, 0, 0.45)</drawOffsetNorth>
-            <drawOffsetEast>(0, 0, 0.45)</drawOffsetEast>
-            <drawOffsetWest>(0, 0, 0.45)</drawOffsetWest>
+            <drawOffsetSouth>(0, 0.1, 0.45)</drawOffsetSouth>
+            <drawOffsetNorth>(0, 0.1, 0.45)</drawOffsetNorth>
+            <drawOffsetEast>(0, 0.1, 0.45)</drawOffsetEast>
+            <drawOffsetWest>(0, 0.1, 0.45)</drawOffsetWest>
         </graphicData>
         <size>(1, 1)</size>
         <costList>
