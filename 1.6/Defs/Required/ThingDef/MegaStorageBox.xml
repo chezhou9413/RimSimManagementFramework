@@ -724,6 +724,51 @@
         </comps>
     </ThingDef>
 
+    <ThingDef ParentName="MegaStorageBox">
+        <defName>BigWarehouseStorageBox</defName>
+        <label>大仓库货柜</label>
+        <description>用于商店运营的大仓库货柜。可集中存放并管理店铺售卖的商品，方便补货与结算。</description>
+        <graphicData>
+            <texPath>Things/Building/MegaStorageBox/BigWarehouseStorageBox/BigWarehouseStorageBox_0/BigWarehouseStorageBox_0</texPath>
+            <drawSize>(4, 4)</drawSize>
+            <drawOffsetSouth>(0, 0.1, 0.45)</drawOffsetSouth>
+            <drawOffsetNorth>(0, 0.1, 0.4)</drawOffsetNorth>
+            <drawOffsetEast>(0.2, 0.1, 0.4)</drawOffsetEast>
+            <drawOffsetWest>(-0.2, 0.1, 0.4)</drawOffsetWest>
+        </graphicData>
+        <size>(3, 2)</size>
+        <costList>
+            <Steel>25</Steel>
+        </costList>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
+            <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
+            <maxTotalCapacity>120</maxTotalCapacity>
+            <!-- 可售商品分类。留空表示通用货柜；配置后只能在货柜管理中选择这些 GoodsDef 分类。 -->
+            <allowedGoodsCategoryIds>
+                <li>Goods_Drugs</li>
+            </allowedGoodsCategoryIds>
+            </li>
+            <li Class="SimManagementLib.SimThingComp.CompProperties_ProgressStageGraphic">
+                <!-- 可无限追加阶段。系统会选择不超过当前补货比例的最高阈值贴图。 -->
+                <stages>
+                    <li>
+                        <minFillPercent>0</minFillPercent>
+                        <texPath>Things/Building/MegaStorageBox/BigWarehouseStorageBox/BigWarehouseStorageBox_0/BigWarehouseStorageBox_0</texPath>
+                    </li>
+                    <li>
+                        <minFillPercent>0.25</minFillPercent>
+                        <texPath>Things/Building/MegaStorageBox/BigWarehouseStorageBox/BigWarehouseStorageBox_25/BigWarehouseStorageBox_25</texPath>
+                    </li>
+                    <li>
+                        <minFillPercent>0.75</minFillPercent>
+                        <texPath>Things/Building/MegaStorageBox/BigWarehouseStorageBox/BigWarehouseStorageBox_75/BigWarehouseStorageBox_75</texPath>
+                    </li>
+                </stages>
+            </li>
+        </comps>
+    </ThingDef>
+
 
 
 </Defs>
