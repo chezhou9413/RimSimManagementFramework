@@ -51,7 +51,7 @@
       <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Megavole</li>
       <li>Meat_Warg</li>
       <li MayRequire="Ludeon.RimWorld.Anomaly">Meat_Twisted</li>
-      <li>Meat_LabradorRetriever</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_LabradorRetriever</li>
       <li>Meat_Thrumbo</li>
       <li>Meat_Squirrel</li>
       <li>Meat_Chinchilla</li>
