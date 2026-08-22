@@ -33,6 +33,7 @@
     <giverClass>SimManagementLib.SimWorkGiver.WorkGiver_RestockUniqueGoodsContainer</giverClass>
     <workType>Restocking</workType>
     <priorityInType>105</priorityInType>
+    <scanThings>false</scanThings>
     <verb>restock unique goods</verb>
     <gerund>上架单件商品</gerund>
     <requiredCapacities>

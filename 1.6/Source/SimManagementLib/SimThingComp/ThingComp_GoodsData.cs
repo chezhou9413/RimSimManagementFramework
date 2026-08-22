@@ -11,13 +11,13 @@ namespace SimManagementLib.SimThingComp
     //货柜商品数据组件参数，职责是定义容量和可售分类限制。
     public class ThingCompProperties_GoodsData : CompProperties
     {
-        // 货柜总容量上限（按件数，跨所有商品共享）
+        //货柜总容量上限，按所有商品总件数共享。
         public int maxTotalCapacity = 600;
 
-        // 允许该货柜选择的商品分类 ID。为空时表示通用货柜，允许全部商品分类。
+        //允许该货柜选择的商品分类编号，为空时允许全部商品分类。
         public List<string> allowedGoodsCategoryIds = new List<string>();
 
-        // 允许该货柜选择的 GoodsDef 分类。用于 XML 里直接写 Def 引用，与 allowedGoodsCategoryIds 合并生效。
+        //允许该货柜选择的商品分类定义，与分类编号限制合并生效。
         public List<GoodsDef> allowedGoodsCategories = new List<GoodsDef>();
 
         //是否允许上架具有材质或品质属性的商品。
@@ -35,7 +35,7 @@ namespace SimManagementLib.SimThingComp
     {
         public string ActiveGoodsDefName = "";
 
-        // 每种物品的配置，key = ThingDef.defName
+        //保存每种商品的配置，键为 ThingDef.defName。
         public Dictionary<string, GoodsItemData> itemData = new Dictionary<string, GoodsItemData>();
 
         [NonSerialized] public Dictionary<string, string> countBuffers = new Dictionary<string, string>();
@@ -64,7 +64,32 @@ namespace SimManagementLib.SimThingComp
         }
 
         //判断该货柜是否配置了可售分类限制。
-        public bool HasGoodsCategoryRestriction => GetAllowedGoodsCategoryIds().Count > 0;
+        public bool HasGoodsCategoryRestriction
+        {
+            get
+            {
+                ThingCompProperties_GoodsData p = GoodsProps;
+                if (p == null)
+                    return false;
+                if (p.allowedGoodsCategoryIds != null)
+                {
+                    for (int i = 0; i < p.allowedGoodsCategoryIds.Count; i++)
+                    {
+                        if (!string.IsNullOrWhiteSpace(p.allowedGoodsCategoryIds[i]))
+                            return true;
+                    }
+                }
+                if (p.allowedGoodsCategories != null)
+                {
+                    for (int i = 0; i < p.allowedGoodsCategories.Count; i++)
+                    {
+                        if (p.allowedGoodsCategories[i] != null)
+                            return true;
+                    }
+                }
+                return false;
+            }
+        }
 
         //返回合并后的可售分类 ID 列表，职责是去除空值和重复项。
         public List<string> GetAllowedGoodsCategoryIds()
@@ -93,17 +118,41 @@ namespace SimManagementLib.SimThingComp
         public bool AllowsGoodsCategory(string categoryId)
         {
             if (string.IsNullOrEmpty(categoryId)) return !HasGoodsCategoryRestriction;
-
-            List<string> allowed = GetAllowedGoodsCategoryIds();
-            if (allowed.Count <= 0) return true;
-
-            for (int i = 0; i < allowed.Count; i++)
+            ThingCompProperties_GoodsData p = GoodsProps;
+            if (p == null || !HasGoodsCategoryRestriction) return true;
+            if (p.allowedGoodsCategoryIds != null)
             {
-                if (string.Equals(allowed[i], categoryId, StringComparison.OrdinalIgnoreCase))
-                    return true;
+                for (int i = 0; i < p.allowedGoodsCategoryIds.Count; i++)
+                {
+                    if (MatchesCategoryId(p.allowedGoodsCategoryIds[i], categoryId))
+                        return true;
+                }
             }
-
+            if (p.allowedGoodsCategories != null)
+            {
+                for (int i = 0; i < p.allowedGoodsCategories.Count; i++)
+                {
+                    if (string.Equals(p.allowedGoodsCategories[i]?.defName, categoryId, StringComparison.OrdinalIgnoreCase))
+                        return true;
+                }
+            }
             return false;
+        }
+
+        //无分配地比较可能带首尾空白的分类编号，保持 XML 配置语义并避免热路径创建临时字符串。
+        private static bool MatchesCategoryId(string configuredId, string categoryId)
+        {
+            if (string.IsNullOrEmpty(configuredId) || string.IsNullOrEmpty(categoryId))
+                return false;
+            int start = 0;
+            int end = configuredId.Length - 1;
+            while (start <= end && char.IsWhiteSpace(configuredId[start]))
+                start++;
+            while (end >= start && char.IsWhiteSpace(configuredId[end]))
+                end--;
+            int length = end - start + 1;
+            return length == categoryId.Length
+                && string.Compare(configuredId, start, categoryId, 0, length, StringComparison.OrdinalIgnoreCase) == 0;
         }
 
         //判断指定商品能否在该货柜上架，职责是执行货柜级商品属性硬限制。
@@ -258,10 +307,10 @@ namespace SimManagementLib.SimThingComp
         [NonSerialized] public string priceBuffer;
         [NonSerialized] public string restockThresholdBuffer;
 
-        // 返回实际生效的补货触发阈值，负责让未配置阈值的商品默认补到目标量。
+        //返回实际生效的补货触发阈值，负责让未配置阈值的商品默认补到目标量。
         public int EffectiveRestockThreshold => GetEffectiveRestockThreshold(count, restockThreshold);
 
-        // 根据目标量和保存值计算有效阈值，负责兼容旧存档未保存阈值的情况。
+        //根据目标量和保存值计算有效阈值，负责兼容未保存阈值的配置。
         public static int GetEffectiveRestockThreshold(int targetCount, int configuredThreshold)
         {
             int target = Math.Max(0, targetCount);
@@ -270,7 +319,7 @@ namespace SimManagementLib.SimThingComp
             return Math.Max(0, Math.Min(target, configuredThreshold < 0 ? fallback : configuredThreshold));
         }
 
-        // 规范化保存的补货阈值，负责避免阈值超过目标量或出现非法负数。
+        //规范化保存的补货阈值，负责避免阈值超过目标量或出现非法负数。
         public static int NormalizeRestockThreshold(int configuredThreshold, int targetCount)
         {
             return GetEffectiveRestockThreshold(targetCount, configuredThreshold);

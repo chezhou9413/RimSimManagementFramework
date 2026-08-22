@@ -1,4 +1,5 @@
 using SimManagementLib.GameComp;
+using SimManagementLib.SimMapComp;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimZone;
 using System.Collections.Generic;
@@ -37,6 +38,7 @@ namespace SimManagementLib.Tool
             shop.InvalidateShopRuntimeCache();
             ShopStaffUtility.NotifyShopChanged(shop);
             Current.Game?.GetComponent<GameComponent_ShopAnalyticsManager>()?.InvalidateShopMetrics(shop);
+            map.GetComponent<CustomerArrivalManager>()?.NotifyShopDirty(shop);
         }
 
         //通知货柜库存或配置发生变化，职责是只失效依赖商品状态的经营指标。
@@ -47,6 +49,7 @@ namespace SimManagementLib.Tool
                 return;
 
             Current.Game?.GetComponent<GameComponent_ShopAnalyticsManager>()?.InvalidateShopMetrics(shop);
+            storage.Map?.GetComponent<CustomerArrivalManager>()?.NotifyShopDirty(shop);
         }
 
         //扫描普通区划中的货柜，职责是为非商店调用保留无缓存兼容路径。

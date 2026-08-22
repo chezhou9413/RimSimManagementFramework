@@ -1,54 +1,16 @@
 using RimWorld;
-using SimManagementLib.SimMapComp;
 using System.Collections.Generic;
 using System.Linq;
 using Verse;
 
 namespace SimManagementLib.SimThingClass
 {
-    //货柜虚拟库存转移能力，职责是处理预约、入库、出库和购买扣减。
+    //货柜虚拟库存转移能力，职责是处理实际入库、下架预约、出库和购买扣减。
     public partial class Building_SimContainer
     {
-        //为指定商品预留一次待入库数量，职责是避免多个搬运任务重复补同一批库存。
-        public int ReservePending(ThingDef thingDef, int count)
-        {
-            if (GoodsComp == null || !GoodsComp.AllowsThingDef(thingDef)) return 0;
-            if (count <= 0) return 0;
-            int needed = CountRemainingToTargetForWorkScan(thingDef);
-            if (needed <= 0) return 0;
-            int actual = System.Math.Min(count, needed);
-            pendingIn[thingDef] = CountPendingRaw(thingDef) + actual;
-            if (pendingInReservedAtTick == null)
-                pendingInReservedAtTick = new Dictionary<ThingDef, int>();
-            pendingInReservedAtTick[thingDef] = Find.TickManager?.TicksGame ?? 0;
-            Map?.GetComponent<MapComponent_RestockTaskQueue>()?.ActivateRestockCycle(this, thingDef);
-            MarkRestockQueueDirty(thingDef, "补货预约增加");
-            return actual;
-        }
-
-        //取消指定商品的一段待入库预约，职责是在任务中断或完成后回收预约数量。
-        public void CancelPending(ThingDef thingDef, int reservedCount)
-        {
-            if (thingDef == null) return;
-            if (reservedCount <= 0) return;
-            int next = CountPendingRaw(thingDef) - reservedCount;
-            if (next <= 0)
-            {
-                pendingIn.Remove(thingDef);
-                pendingInReservedAtTick?.Remove(thingDef);
-            }
-            else
-            {
-                pendingIn[thingDef] = next;
-            }
-            MarkRestockQueueDirty(thingDef, "补货预约取消");
-        }
-
-        //接收搬运者携带的商品，职责是按预约数量和剩余容量转入货柜虚拟库存。
+        //接收搬运者携带的商品，职责是按 Job 租约数量和实际剩余容量转入虚拟库存。
         public int Deposit(Pawn pawn, ThingDef thingDef, int reservedCount)
         {
-            CancelPending(thingDef, reservedCount);
-
             Thing carried = pawn.carryTracker?.CarriedThing;
             if (carried == null || carried.def != thingDef) return 0;
             if (GoodsComp == null || !GoodsComp.AllowsThingDef(carried.def)) return 0;
@@ -64,7 +26,7 @@ namespace SimManagementLib.SimThingClass
 
             if (canStore >= carried.stackCount)
             {
-                // 带组件状态的特殊物品不能只按 Def 合并，否则出库拆栈时可能丢失单件状态。
+                //带组件状态的特殊物品不能只按 Def 合并，否则出库拆栈时可能丢失单件状态。
                 virtualStorage.TryAddOrTransfer(carried, carried.stackCount, canMergeWithExistingStacks: false);
                 MarkStoredCountCacheDirty();
                 RefreshProgressStageGraphic();
@@ -73,7 +35,7 @@ namespace SimManagementLib.SimThingClass
             }
 
             Thing part = carried.SplitOff(canStore);
-            // 保留入库物品的独立 Thing 实例，避免特殊食品、容器或带 Comp 数据的物品被错误并栈。
+            //保留入库物品的独立 Thing 实例，避免特殊食品、容器或带 Comp 数据的物品被错误并栈。
             virtualStorage.TryAddOrTransfer(part, part.stackCount, canMergeWithExistingStacks: false);
             MarkStoredCountCacheDirty();
 
@@ -99,7 +61,7 @@ namespace SimManagementLib.SimThingClass
             if (canStore >= thing.stackCount)
             {
                 int all = thing.stackCount;
-                // 退回物品同样不并栈，保证取出失败回滚和特殊物品状态一致。
+                //退回物品同样不并栈，保证取出失败回滚和特殊物品状态一致。
                 virtualStorage.TryAddOrTransfer(thing, thing.stackCount, canMergeWithExistingStacks: false);
                 MarkStoredCountCacheDirty();
                 RefreshProgressStageGraphic();
@@ -108,7 +70,7 @@ namespace SimManagementLib.SimThingClass
             }
 
             Thing part = thing.SplitOff(canStore);
-            // 部分退回时保留拆出的真实 Thing，避免与已有特殊栈混合。
+            //部分退回时保留拆出的真实 Thing，避免与已有特殊栈混合。
             virtualStorage.TryAddOrTransfer(part, part.stackCount, canMergeWithExistingStacks: false);
             MarkStoredCountCacheDirty();
             RefreshProgressStageGraphic();
@@ -138,7 +100,7 @@ namespace SimManagementLib.SimThingClass
                 totalStored += stored;
                 remaining -= stored;
 
-                // 完整入库时 thing 已经归 virtualStorage 持有，不能再对原引用执行销毁。
+                //完整入库时 thing 已经归 virtualStorage 持有，不能再对原引用执行销毁。
                 if (stored < chunk && thing.holdingOwner == null && !thing.Destroyed && thing.stackCount > 0)
                     DestroyDetachedTemporaryThing(thing);
 
@@ -230,7 +192,7 @@ namespace SimManagementLib.SimThingClass
 
             if (!GenPlace.TryPlaceThing(result, dropLoc, Map, ThingPlaceMode.Near))
             {
-                // 放置失败时把真实 Thing 放回虚拟库存，避免下架失败直接吞物品。
+                //放置失败时把真实 Thing 放回虚拟库存，避免下架失败直接吞物品。
                 virtualStorage.TryAdd(result, canMergeWithExistingStacks: false);
                 MarkStoredCountCacheDirty();
                 ReconcilePendingReservations();

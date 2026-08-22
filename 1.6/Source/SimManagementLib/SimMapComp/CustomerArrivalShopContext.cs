@@ -1,12 +1,10 @@
 using SimManagementLib.SimZone;
-using SimManagementLib.Tool;
+using System.Collections.Generic;
 using Verse;
 
 namespace SimManagementLib.SimMapComp
 {
-    /// <summary>
-    /// 保存单个商店的顾客刷新上下文，负责按容量和目标商品服务判断是否能生成顾客。
-    /// </summary>
+    //类职责：保存单个商店的原子刷新快照，避免刷新热路径重新扫描货柜和服务设施。
     internal sealed class CustomerArrivalShopContext
     {
         public Zone_Shop Shop;
@@ -14,28 +12,22 @@ namespace SimManagementLib.SimMapComp
         public int Capacity;
         public float DemandFactor = 1f;
         public bool HasCheckoutService;
+        public bool IsOpen;
+        public IntVec3 EntryCell = IntVec3.Invalid;
+        public HashSet<string> MatchingKindIds = new HashSet<string>();
 
         public bool IsAtCapacity => CurrentCustomers >= Capacity;
 
-        /// <summary>
-        /// 判断指定顾客类型是否能被当前商店吸引并生成。
-        /// </summary>
+        //判断指定顾客类型是否能被当前商店吸引，职责是只读取已经完成的快照。
         public bool CanSpawn(Pojo.RuntimeCustomerKind kind, bool requireCheckoutService = true)
         {
             return Shop != null
                 && kind != null
                 && !kind.pawnKindDefs.NullOrEmpty()
-                && MatchesShopGoodsOrServices(kind)
+                && IsOpen
+                && MatchingKindIds.Contains(kind.kindId ?? "")
                 && (!requireCheckoutService || HasCheckoutService)
                 && !IsAtCapacity;
-        }
-
-        /// <summary>
-        /// 判断商店内是否存在符合顾客目标分类的可售商品或可用服务。
-        /// </summary>
-        private bool MatchesShopGoodsOrServices(Pojo.RuntimeCustomerKind kind)
-        {
-            return CustomerShoppingMatchUtility.ShopHasMatchingSellableGoodsOrServices(Shop, kind, kind?.sourceDef);
         }
     }
 }

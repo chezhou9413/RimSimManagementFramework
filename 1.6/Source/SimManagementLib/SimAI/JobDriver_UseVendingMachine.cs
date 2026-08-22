@@ -11,9 +11,7 @@ using Verse.AI;
 
 namespace SimManagementLib.SimAI
 {
-    /// <summary>
-    /// 执行顾客在自动售货机前选择商品、扣库存、付款和离开的流程。
-    /// </summary>
+    //类职责：执行自动售货机购买，并在任意 Job 失败时通知访问 Lord 进入离店。
     public class JobDriver_UseVendingMachine : JobDriver
     {
         private const TargetIndex MachineInd = TargetIndex.A;
@@ -21,20 +19,16 @@ namespace SimManagementLib.SimAI
         private const int PayTicks = 90;
 
         private Building_SimContainer Machine => job.GetTarget(MachineInd).Thing as Building_SimContainer;
-
-        /// <summary>
-        /// 顾客不独占机器，机器并发由刷客容量控制。
-        /// </summary>
+        private bool visitCompleted;
+        //顾客不独占机器，机器并发由刷客容量控制。
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
             return true;
         }
-
-        /// <summary>
-        /// 构建前往机器、浏览、付款和完成访问的 Toil 序列。
-        /// </summary>
+        //构建前往机器、浏览、付款和完成访问的 Toil 序列。
         protected override IEnumerable<Toil> MakeNewToils()
         {
+            AddFinishAction(FinishVendingJob);
             this.FailOnDespawnedOrNull(MachineInd);
 
             yield return Toils_Goto.GotoThing(MachineInd, PathEndMode.Touch);
@@ -43,10 +37,7 @@ namespace SimManagementLib.SimAI
             yield return MakeTimedToil("UseVendingMachinePay", PayTicks, new Color(0.95f, 0.78f, 0.34f, 0.95f));
             yield return MakeFinishToil();
         }
-
-        /// <summary>
-        /// 创建带模拟经营读条的等待 Toil。
-        /// </summary>
+        //创建带模拟经营读条的等待 Toil。
         private Toil MakeTimedToil(string debugName, int ticks, Color color)
         {
             Toil toil = ToilMaker.MakeToil(debugName);
@@ -63,10 +54,7 @@ namespace SimManagementLib.SimAI
             toil.AddFinishAction(() => ShopProgressBarUtility.Clear(pawn));
             return toil;
         }
-
-        /// <summary>
-        /// 从机器库存中选择顾客买得起且有偏好的商品，并立即写入机器收入。
-        /// </summary>
+        //从机器库存中选择顾客买得起且有偏好的商品，并立即写入机器收入。
         private Toil MakePurchaseToil()
         {
             Toil toil = ToilMaker.MakeToil("UseVendingMachinePurchase");
@@ -110,10 +98,7 @@ namespace SimManagementLib.SimAI
             };
             return toil;
         }
-
-        /// <summary>
-        /// 通知自动售货机访问 Lord 结束当前顾客流程。
-        /// </summary>
+        //通知自动售货机访问 Lord 结束当前顾客流程。
         private Toil MakeFinishToil()
         {
             Toil toil = ToilMaker.MakeToil("UseVendingMachineFinish");
@@ -122,8 +107,18 @@ namespace SimManagementLib.SimAI
             {
                 LordJob_VendingMachineVisit lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_VendingMachineVisit;
                 lordJob?.NotifyDone();
+                visitCompleted = true;
             };
             return toil;
+        }
+
+        //统一收尾自动售货机 Job，职责是让路径、目标或 Toil 失败都结束访问而不继续游荡。
+        private void FinishVendingJob(JobCondition condition)
+        {
+            ShopProgressBarUtility.Clear(pawn);
+            if (visitCompleted || pawn?.Map == null) return;
+            LordJob_VendingMachineVisit lordJob = pawn.Map.lordManager?.LordOf(pawn)?.LordJob as LordJob_VendingMachineVisit;
+            lordJob?.NotifyDone();
         }
     }
 }

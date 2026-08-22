@@ -10,7 +10,7 @@ using Verse;
 
 namespace SimManagementLib.Debug
 {
-    //补货调试工具，职责是强制清空补货扫描缓存并校正货柜预约状态。
+    //补货调试工具，职责是重建地图补货请求、租约和相关工作查询缓存。
     public static partial class DebugActions_SimShop
     {
         [DebugAction("SimShop", "重置补货缓存（当前地图）", false, false, false, false, false, 0, false,
@@ -25,8 +25,6 @@ namespace SimManagementLib.Debug
             }
 
             WorkGiver_RestockMegaStorage.ClearRestockCandidateCaches();
-            RestockSupplySearchStateCache.ClearSupplySearchStates();
-            RestockWorkTickBudget.ClearBudgets();
             WorkGiverThingQueryCache.Clear();
 
             int storageCount = ReconcileMapStorageReservations(map);
@@ -59,7 +57,7 @@ namespace SimManagementLib.Debug
             Find.WindowStack.Add(new Dialog_RestockQueueDebug(map));
         }
 
-        //校正当前地图所有商店货柜预约，职责是清理中断任务留下的待入库和待出库数量。
+        //校正当前地图所有商店货柜的独立下架预约，补货租约由重建入口处理。
         private static int ReconcileMapStorageReservations(Map map)
         {
             if (map?.listerBuildings?.allBuildingsColonist == null)

@@ -14,18 +14,13 @@ using Verse.AI.Group;
 
 namespace SimManagementLib.SimAI
 {
-    /// <summary>
-    /// 监控顾客访问过程中的无效闲逛、访问超时和紧急状态，负责把顾客从卡住状态推进到离店。
-    /// </summary>
+    //监控顾客访问过程中的无效闲逛、访问超时和紧急状态，负责把顾客从卡住状态推进到离店。
     public partial class LordJob_CustomerVisit
     {
-        private const int VisitWatchdogIntervalTicks = 250;
+        private const int VisitWatchdogIntervalTicks = 120;
         private const int LargeRaidWatchdogIntervalTicks = 60;
         private readonly HashSet<int> forceLeaveAfterCheckout = new HashSet<int>();
-
-        /// <summary>
-        /// 周期性检查顾客访问状态，负责在无目标商品、访问超时、饥饿或倒地时结束访问。
-        /// </summary>
+        //周期性检查顾客访问状态，负责在无目标商品、访问超时、饥饿或倒地时结束访问。
         public override void LordJobTick()
         {
             base.LordJobTick();
@@ -47,6 +42,9 @@ namespace SimManagementLib.SimAI
                     continue;
                 }
 
+                if (checkLargeRaid)
+                    GetOrCreateSession(pawn)?.TrackUnsafeState(pawn, Find.TickManager.TicksGame);
+
                 if (!checkVisitState)
                     continue;
 
@@ -56,12 +54,23 @@ namespace SimManagementLib.SimAI
                 ApplySessionTickResult(pawn, result);
             }
         }
-
-        /// <summary>
-        /// 应用 Session Tick 的状态机请求，负责让 Lord 只响应统一结果。
-        /// </summary>
+        //应用 Session Tick 的状态机请求，负责让 Lord 只响应统一结果。
         private void ApplySessionTickResult(Pawn pawn, CustomerVisitTickResult result)
         {
+            if (result.forceExitNow)
+            {
+                CustomerExitUtility.ForceExit(pawn, result.reason);
+                return;
+            }
+
+            if (result.requestRecovery)
+            {
+                if (pawn?.jobs?.curJob != null)
+                    pawn.jobs.EndCurrentJob(JobCondition.InterruptForced, false, true);
+                lord?.CurLordToil?.UpdateAllDuties();
+                return;
+            }
+
             if (result.removeFromLord)
             {
                 lord?.Notify_PawnLost(pawn, PawnLostCondition.Incapped);
@@ -79,10 +88,7 @@ namespace SimManagementLib.SimAI
                 CheckAllCheckoutsDone();
             }
         }
-
-        /// <summary>
-        /// 判断当前顾客团是否必须结束行程离图，负责让任一紧急收尾顾客阻止后续跨店。
-        /// </summary>
+        //判断当前顾客团是否必须结束行程离图，负责让任一紧急收尾顾客阻止后续跨店。
         private bool ShouldForceLeaveGroupAfterCheckout()
         {
             if (forceLeaveAfterCheckout.Count <= 0) return false;
@@ -97,10 +103,7 @@ namespace SimManagementLib.SimAI
 
             return false;
         }
-
-        /// <summary>
-        /// 清理顾客未付款购物车、财务账单和服务订单，负责防止紧急离店后残留账单或吞物品。
-        /// </summary>
+        //清理顾客未付款购物车、财务账单和服务订单，负责防止紧急离店后残留账单或吞物品。
         private void CleanupUnpaidCustomerState(Pawn pawn, string reason)
         {
             if (pawn == null) return;
@@ -126,16 +129,13 @@ namespace SimManagementLib.SimAI
             checkoutState.ClearCheckoutOrder(pawnId);
             SimDebugLogger.Journey("RSMF.CustomerWatchdog", reason, pawn, shopZone, -1);
         }
-
-        /// <summary>
-        /// 供 Session 安全兜底调用的未付款清理入口，负责集中复用原有退货和清账逻辑。
-        /// </summary>
+        //供 Session 安全兜底调用的未付款清理入口，负责集中复用原有退货和清账逻辑。
         internal void CleanupUnpaidCustomerStateForSession(Pawn pawn, string reason)
         {
             CleanupUnpaidCustomerState(pawn, reason);
         }
 
-        // 强制顾客放弃购物并快速离开地图，负责响应超过 1000 战斗力的敌对袭击。
+        //强制顾客放弃购物并快速离开地图，负责响应超过 1000 战斗力的敌对袭击。
         private void ForceCustomerFleeLargeRaid(Pawn pawn)
         {
             if (pawn == null || pawn.Map == null || lord == null)
@@ -143,33 +143,19 @@ namespace SimManagementLib.SimAI
 
             int pawnId = pawn.thingIDNumber;
             string reason = "地图发生大规模敌对袭击，顾客放弃购物并逃离";
-            List<CustomerCartItem> delivered = GetDeliveredItems(pawnId);
             CleanupUnpaidCustomerState(pawn, reason);
-            CustomerSafetyUtility.DropDeliveredItems(pawn, delivered);
             ClearDeliveredItems(pawnId);
 
             PawnExitAfterRaid(pawn, reason);
         }
 
-        // 把顾客从当前访问 Lord 中移出并创建冲刺离图 Lord。
+        //把顾客从当前访问 Lord 中移出并创建冲刺离图 Lord。
         private void PawnExitAfterRaid(Pawn pawn, string reason)
         {
             if (pawn == null || pawn.Map == null || lord == null)
                 return;
 
-            Lord oldLord = lord;
-            if (pawn.jobs != null)
-                pawn.jobs.EndCurrentJob(JobCondition.InterruptForced, false, true);
-            oldLord.Notify_PawnLost(pawn, PawnLostCondition.LeftVoluntarily);
-            if (pawn.Spawned && !pawn.Dead && !pawn.Destroyed && pawn.Map != null)
-            {
-                LordMaker.MakeNewLord(
-                    pawn.Faction,
-                    new LordJob_ExitMapBest(LocomotionUrgency.Sprint, canDig: false, canDefendSelf: false),
-                    pawn.Map,
-                    new[] { pawn });
-            }
-
+            CustomerExitUtility.ForceExit(pawn, reason);
             SimDebugLogger.Journey("RSMF.CustomerWatchdog", reason, pawn, null, -1);
         }
     }

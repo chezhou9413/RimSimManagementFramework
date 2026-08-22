@@ -3,6 +3,7 @@ using SimManagementLib.Api;
 using SimManagementLib.GameComp;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimDef;
+using SimManagementLib.SimMapComp;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
@@ -14,10 +15,8 @@ using Verse.AI;
 
 namespace SimManagementLib.SimAI.CustomerVisit
 {
-    /// <summary>
-    /// 管理单个顾客的完整访问状态，负责统一阶段推进、超时兜底、账单状态和调试诊断。
-    /// </summary>
-    public class CustomerVisitSession : IExposable
+    //类职责：管理单个顾客的完整访问状态、进度时钟、恢复次数、结账期限和离店收尾。
+    public partial class CustomerVisitSession : IExposable
     {
         internal int pawnId = -1;
         internal CustomerVisitStage stage = CustomerVisitStage.Arriving;
@@ -38,6 +37,12 @@ namespace SimManagementLib.SimAI.CustomerVisit
         internal string lastFailureReason = "";
         internal int lastStageChangeTick = -1;
         internal int lastDecisionTick = -1;
+        internal int lastProgressTick = -1;
+        internal IntVec3 lastProgressCell = IntVec3.Invalid;
+        internal int lastObservedJobLoadId = -1;
+        internal int recoveryCount;
+        internal int exitRequestedTick = -1;
+        internal int unsafeSinceTick = -1;
 
         public int PawnId => pawnId;
         public CustomerVisitStage Stage => stage;
@@ -58,10 +63,10 @@ namespace SimManagementLib.SimAI.CustomerVisit
         public string LastFailureReason => lastFailureReason;
         public int LastStageChangeTick => lastStageChangeTick;
         public int LastDecisionTick => lastDecisionTick;
-
-        /// <summary>
-        /// 读写顾客访问 Session，负责保存新版顾客运行态。
-        /// </summary>
+        public int LastProgressTick => lastProgressTick;
+        public int RecoveryCount => recoveryCount;
+        public int ExitRequestedTick => exitRequestedTick;
+        //读写顾客访问 Session，负责保存新版顾客运行态。
         public void ExposeData()
         {
             Scribe_Values.Look(ref pawnId, "pawnId", -1);
@@ -83,15 +88,18 @@ namespace SimManagementLib.SimAI.CustomerVisit
             Scribe_Values.Look(ref lastFailureReason, "lastFailureReason", "");
             Scribe_Values.Look(ref lastStageChangeTick, "lastStageChangeTick", -1);
             Scribe_Values.Look(ref lastDecisionTick, "lastDecisionTick", -1);
+            Scribe_Values.Look(ref lastProgressTick, "lastProgressTick", -1);
+            Scribe_Values.Look(ref lastProgressCell, "lastProgressCell", IntVec3.Invalid);
+            Scribe_Values.Look(ref lastObservedJobLoadId, "lastObservedJobLoadId", -1);
+            Scribe_Values.Look(ref recoveryCount, "recoveryCount", 0);
+            Scribe_Values.Look(ref exitRequestedTick, "exitRequestedTick", -1);
+            Scribe_Values.Look(ref unsafeSinceTick, "unsafeSinceTick", -1);
             if (visitedShopZoneIds == null)
                 visitedShopZoneIds = new List<int>();
             if (currentShopVisitedStorageThingIds == null)
                 currentShopVisitedStorageThingIds = new List<int>();
         }
-
-        /// <summary>
-        /// 初始化顾客访问 Session，负责从 LordJob 默认目标建立首个商店状态。
-        /// </summary>
+        //初始化顾客访问 Session，负责从 LordJob 默认目标建立首个商店状态。
         internal void Initialize(LordJob_CustomerVisit visit, Pawn pawn)
         {
             pawnId = pawn?.thingIDNumber ?? pawnId;
@@ -106,25 +114,23 @@ namespace SimManagementLib.SimAI.CustomerVisit
                 totalVisitStartTick = now;
             if (lastStageChangeTick < 0)
                 lastStageChangeTick = now;
+            if (lastProgressTick < 0)
+                lastProgressTick = now;
+            if (!lastProgressCell.IsValid && pawn != null)
+                lastProgressCell = pawn.Position;
             if (currentShopZoneId >= 0 && !visitedShopZoneIds.Contains(currentShopZoneId))
                 visitedShopZoneIds.Add(currentShopZoneId);
             EnsureDesiredSpendRatio(visit);
         }
-
-        /// <summary>
-        /// 周期推进顾客 Session，负责处理安全兜底、普通结账、普通离店和长期扩展 Tick。
-        /// </summary>
+        //周期推进顾客 Session，负责处理安全兜底、普通结账、普通离店和长期扩展 Tick。
         internal CustomerVisitTickResult Tick(LordJob_CustomerVisit visit, Pawn pawn)
         {
             Initialize(visit, pawn);
             lastDecisionTick = Find.TickManager?.TicksGame ?? 0;
 
-            if (ShouldForceEndForSafety(pawn, out string safetyReason))
-            {
-                SetStage(visit, pawn, CustomerVisitStage.Leaving, safetyReason, notifyExtensions: true);
-                visit.CleanupUnpaidCustomerStateForSession(pawn, safetyReason);
-                return CustomerVisitTickResult.Leave(safetyReason);
-            }
+            CustomerVisitTickResult reliability = EvaluateReliabilityWatchdog(visit, pawn);
+            if (reliability.HasRequest)
+                return reliability;
 
             if (SimShopCustomerApi.HasCustomerVisitExtensions)
                 SimShopCustomerApi.NotifyCustomerVisitExtensionTick(BuildExtensionContext(visit, pawn, "Session Tick"));
@@ -134,7 +140,7 @@ namespace SimManagementLib.SimAI.CustomerVisit
             if (stage == CustomerVisitStage.WaitingCheckout && ShouldEnterCheckoutPhase(visit, pawn))
                 return CustomerVisitTickResult.Checkout("顾客等待结账，重新推动结账阶段");
 
-            //结账和购后服务由对应 Job 负责完成或超时，不能再进入普通浏览离店判断。
+            //结账和购后服务由可靠性看门狗统一管理期限，普通浏览判断不重复介入。
             if (stage == CustomerVisitStage.Checkout || stage == CustomerVisitStage.PostCheckout)
                 return default(CustomerVisitTickResult);
 
@@ -153,10 +159,7 @@ namespace SimManagementLib.SimAI.CustomerVisit
 
             return default(CustomerVisitTickResult);
         }
-
-        /// <summary>
-        /// 判断指定阶段是否允许由对应 JobGiver 分配 Job。
-        /// </summary>
+        //判断指定阶段是否允许由对应 JobGiver 分配 Job。
         internal bool AllowsJobGiver(CustomerVisitStage requestedStage)
         {
             if (stage == CustomerVisitStage.Arriving)
@@ -165,28 +168,19 @@ namespace SimManagementLib.SimAI.CustomerVisit
                 return true;
             return stage == requestedStage;
         }
-
-        /// <summary>
-        /// 判断顾客是否已经访问过指定商店，负责让跨店选择不直接读取访问列表。
-        /// </summary>
+        //判断顾客是否已经访问过指定商店，负责让跨店选择不直接读取访问列表。
         internal bool HasVisitedShop(int shopZoneId)
         {
             return shopZoneId >= 0 && visitedShopZoneIds != null && visitedShopZoneIds.Contains(shopZoneId);
         }
-
-        /// <summary>
-        /// 判断顾客在当前店是否已经看过指定货柜，负责让浏览 JobGiver 优先选择新货柜。
-        /// </summary>
+        //判断顾客在当前店是否已经看过指定货柜，负责让浏览 JobGiver 优先选择新货柜。
         internal bool HasVisitedCurrentShopStorage(Building_SimContainer storage)
         {
             if (storage == null) return false;
             return currentShopVisitedStorageThingIds != null
                 && currentShopVisitedStorageThingIds.Contains(storage.thingIDNumber);
         }
-
-        /// <summary>
-        /// 记录顾客当前店的货柜浏览目标，负责避免同一顾客连续反复看同一个货柜。
-        /// </summary>
+        //记录顾客当前店的货柜浏览目标，负责避免同一顾客连续反复看同一个货柜。
         internal void RecordCurrentShopStorageVisit(Building_SimContainer storage)
         {
             if (storage == null) return;
@@ -198,28 +192,19 @@ namespace SimManagementLib.SimAI.CustomerVisit
             if (!currentShopVisitedStorageThingIds.Contains(storageId))
                 currentShopVisitedStorageThingIds.Add(storageId);
         }
-
-        /// <summary>
-        /// 记录顾客到达店铺，负责从旅行阶段切到浏览阶段。
-        /// </summary>
+        //记录顾客到达店铺，负责从旅行阶段切到浏览阶段。
         internal void NotifyArrived(LordJob_CustomerVisit visit, Pawn pawn)
         {
             SetStage(visit, pawn, CustomerVisitStage.Browsing, "顾客抵达商店", notifyExtensions: true);
         }
-
-        /// <summary>
-        /// 记录浏览开始，负责统一统计浏览次数。
-        /// </summary>
+        //记录浏览开始，负责统一统计浏览次数。
         internal void NotifyBrowseStarted(LordJob_CustomerVisit visit, Pawn pawn)
         {
             SetStage(visit, pawn, CustomerVisitStage.Browsing, "顾客开始浏览", notifyExtensions: false);
             currentShopMinimumBrowseDone = true;
             currentShopBrowseAttempts++;
         }
-
-        /// <summary>
-        /// 记录一次没有消费进展的浏览。
-        /// </summary>
+        //记录一次没有消费进展的浏览。
         internal void NotifyNoProgressBrowse(LordJob_CustomerVisit visit, Pawn pawn, string reason)
         {
             currentShopNoProgressBrowseAttempts++;
@@ -227,19 +212,13 @@ namespace SimManagementLib.SimAI.CustomerVisit
             if (ShouldCheckoutAfterNoProgress(visit, pawn))
                 MarkReadyForCheckout(visit, pawn, lastReason);
         }
-
-        /// <summary>
-        /// 记录一次浏览尝试，负责让空逛也纳入浏览次数限制。
-        /// </summary>
+        //记录一次浏览尝试，负责让空逛也纳入浏览次数限制。
         internal void NotifyBrowseAttempt(LordJob_CustomerVisit visit, Pawn pawn, string reason)
         {
             currentShopBrowseAttempts++;
             lastReason = reason ?? "顾客浏览";
         }
-
-        /// <summary>
-        /// 记录一次成功消费，负责清除无进展计数并判断是否应结账。
-        /// </summary>
+        //记录一次成功消费，负责清除无进展计数并判断是否应结账。
         internal void NotifyConsumptionCompleted(LordJob_CustomerVisit visit, Pawn pawn, string reason)
         {
             currentShopNoProgressBrowseAttempts = 0;
@@ -249,10 +228,7 @@ namespace SimManagementLib.SimAI.CustomerVisit
             if (ShouldCheckoutFromCurrentShop(visit, pawn, shop, lastReason))
                 MarkReadyForCheckout(visit, pawn, lastReason);
         }
-
-        /// <summary>
-        /// 标记顾客准备结账，负责把阶段切到等待结账并同步旧结账队列。
-        /// </summary>
+        //标记顾客准备结账，负责把阶段切到等待结账并同步旧结账队列。
         internal void MarkReadyForCheckout(LordJob_CustomerVisit visit, Pawn pawn, string reason)
         {
             lastReason = reason ?? "顾客准备结账";
@@ -261,49 +237,37 @@ namespace SimManagementLib.SimAI.CustomerVisit
             if (visit.ShouldEnterCheckoutPhaseForSession())
                 visit.lord?.ReceiveMemo("Customer_ReadyToCheckout");
         }
-
-        /// <summary>
-        /// 记录顾客进入结账阶段。
-        /// </summary>
+        //记录顾客进入结账阶段。
         internal void NotifyCheckoutStarted(LordJob_CustomerVisit visit, Pawn pawn)
         {
             SetStage(visit, pawn, CustomerVisitStage.Checkout, "顾客进入结账阶段", notifyExtensions: true);
         }
-
-        /// <summary>
-        /// 记录结账成功，负责进入购后或离店收尾阶段。
-        /// </summary>
+        //记录结账成功，负责进入购后或离店收尾阶段。
         internal void NotifyCheckoutPaid(LordJob_CustomerVisit visit, Pawn pawn, string reason)
         {
             CustomerVisitStage next = visit.NeedsPostCheckoutCompletion(pawnId) ? CustomerVisitStage.PostCheckout : CustomerVisitStage.Leaving;
             SetStage(visit, pawn, next, reason ?? "顾客结账完成", notifyExtensions: true);
         }
-
-        /// <summary>
-        /// 记录购后阶段完成，负责把无待付款顾客推进到离店收尾。
-        /// </summary>
+        //记录购后阶段完成，负责把无待付款顾客推进到离店收尾。
         internal void NotifyPostCheckoutCompleted(LordJob_CustomerVisit visit, Pawn pawn, string reason)
         {
             SetStage(visit, pawn, CustomerVisitStage.Leaving, reason ?? "购后行为完成", notifyExtensions: true);
         }
-
-        /// <summary>
-        /// 记录结账失败，负责进入离店阶段。
-        /// </summary>
+        //记录结账失败，负责进入离店阶段。
         internal void NotifyCheckoutFailed(LordJob_CustomerVisit visit, Pawn pawn, string reason)
         {
             lastFailureReason = reason ?? "顾客结账失败";
             SetStage(visit, pawn, CustomerVisitStage.Leaving, lastFailureReason, notifyExtensions: true);
         }
-
-        /// <summary>
-        /// 切换下一家商店，负责重置单店计数。
-        /// </summary>
+        //切换下一家商店，负责重置单店计数。
         internal void MoveToShop(LordJob_CustomerVisit visit, Pawn pawn, Zone_Shop next)
         {
             if (next == null) return;
             currentShopZoneId = next.ID;
-            currentShopCell = next.Cells.Count > 0 ? next.Cells[0] : IntVec3.Invalid;
+            CustomerArrivalManager manager = pawn?.Map?.GetComponent<CustomerArrivalManager>();
+            currentShopCell = manager != null && manager.TryGetShopEntryCell(next.ID, out IntVec3 entry)
+                ? entry
+                : (next.Cells.Count > 0 ? next.Cells[0] : IntVec3.Invalid);
             currentShopVisitStartTick = Find.TickManager?.TicksGame ?? 0;
             currentShopConsumptionActions = 0;
             currentShopBrowseAttempts = 0;
@@ -317,10 +281,7 @@ namespace SimManagementLib.SimAI.CustomerVisit
             visit.targetShopCell = currentShopCell;
             SetStage(visit, pawn, CustomerVisitStage.Arriving, "顾客前往下一家店", notifyExtensions: true);
         }
-
-        /// <summary>
-        /// 尝试切换到下一家商店，负责跨店访问选择、状态重置和上一店运行态清理。
-        /// </summary>
+        //尝试切换到下一家商店，负责跨店访问选择、状态重置和上一店运行态清理。
         internal bool TryMoveToNextShop(LordJob_CustomerVisit visit, Pawn pawn)
         {
             if (visit == null || pawn?.Map == null) return false;
@@ -341,95 +302,62 @@ namespace SimManagementLib.SimAI.CustomerVisit
             MoveToShop(visit, pawn, next);
             return true;
         }
-
-        /// <summary>
-        /// 返回当前商店。
-        /// </summary>
+        //返回当前商店。
         internal Zone_Shop GetCurrentShop(LordJob_CustomerVisit visit, Pawn pawn)
         {
             if (visit == null || pawn?.Map == null) return null;
             return ShopDataUtility.FindAssignedShopZone(pawn.Map, currentShopZoneId, currentShopCell);
         }
-
-        /// <summary>
-        /// 返回顾客本次访问剩余预算。
-        /// </summary>
+        //返回顾客本次访问剩余预算。
         internal float GetRemainingTripBudget(LordJob_CustomerVisit visit, Pawn pawn)
         {
             int budget = visit.GetBudgetForPawn(pawnId);
             return Mathf.Max(0f, budget - totalSpentAcrossShops);
         }
-
-        /// <summary>
-        /// 返回当前店最多浏览次数，负责为无效配置提供保守默认值。
-        /// </summary>
+        //返回当前店最多浏览次数，负责为无效配置提供保守默认值。
         internal int GetBrowseLimitForVisit(LordJob_CustomerVisit visit)
         {
             return GetBrowseLimit(visit);
         }
-
-        /// <summary>
-        /// 返回连续无进展浏览退出阈值。
-        /// </summary>
+        //返回连续无进展浏览退出阈值。
         internal int GetNoProgressLimitForVisit(LordJob_CustomerVisit visit)
         {
             return GetNoProgressLimit(visit);
         }
-
-        /// <summary>
-        /// 判断当前店消费动作是否达到上限。
-        /// </summary>
+        //判断当前店消费动作是否达到上限。
         internal bool HasReachedConsumptionLimit(LordJob_CustomerVisit visit)
         {
             return currentShopConsumptionActions >= visit.GetShoppingBehavior().maxConsumptionActionsPerShop;
         }
-
-        /// <summary>
-        /// 判断当前店浏览次数是否达到上限。
-        /// </summary>
+        //判断当前店浏览次数是否达到上限。
         internal bool HasReachedBrowseLimitForVisit(LordJob_CustomerVisit visit)
         {
             return currentShopBrowseAttempts >= GetBrowseLimit(visit);
         }
-
-        /// <summary>
-        /// 判断当前店连续无进展浏览是否达到上限。
-        /// </summary>
+        //判断当前店连续无进展浏览是否达到上限。
         internal bool HasReachedNoProgressLimitForVisit(LordJob_CustomerVisit visit)
         {
             return currentShopNoProgressBrowseAttempts >= GetNoProgressLimit(visit);
         }
-
-        /// <summary>
-        /// 判断当前商店是否已经满足结账条件，负责给外部动作做纯判断。
-        /// </summary>
+        //判断当前商店是否已经满足结账条件，负责给外部动作做纯判断。
         internal bool ShouldCheckoutNow(LordJob_CustomerVisit visit, Pawn pawn, Zone_Shop shop, string reason)
         {
             return ShouldCheckoutFromCurrentShop(visit, pawn, shop, reason);
         }
-
-        /// <summary>
-        /// 记录已支付金额。
-        /// </summary>
+        //记录已支付金额。
         internal void RecordPayment(int paidSilver)
         {
             if (paidSilver > 0)
                 totalSpentAcrossShops += paidSilver;
         }
-
-        /// <summary>
-        /// 构建 Inspect 和 Debug 使用的一行状态摘要。
-        /// </summary>
+        //构建 Inspect 和 Debug 使用的一行状态摘要。
         internal string BuildShortStatus(LordJob_CustomerVisit visit, Pawn pawn)
         {
             Zone_Shop shop = GetCurrentShop(visit, pawn);
             int now = Find.TickManager?.TicksGame ?? 0;
             return $"{stage} | 店铺={(shop?.label ?? "无")} | 浏览={currentShopBrowseAttempts} | 无进展={currentShopNoProgressBrowseAttempts} | 停留={now - currentShopVisitStartTick} | 原因={lastReason}";
         }
-
-        /// <summary>
-        /// 构建完整诊断文本，负责解释顾客为什么没有发 Job、没有结账或没有离店。
-        /// </summary>
+        //构建完整诊断文本，负责解释顾客为什么没有发 Job、没有结账或没有离店。
         internal string BuildDebugReport(LordJob_CustomerVisit visit, Pawn pawn)
         {
             Zone_Shop shop = GetCurrentShop(visit, pawn);
@@ -453,10 +381,7 @@ namespace SimManagementLib.SimAI.CustomerVisit
             sb.AppendLine("下一步判断: " + ExplainNextDecision(visit, pawn, shop));
             return sb.ToString().TrimEnd();
         }
-
-        /// <summary>
-        /// 强制推进到下一步，负责 DebugAction 调试卡住顾客。
-        /// </summary>
+        //强制推进到下一步，负责 DebugAction 调试卡住顾客。
         internal CustomerVisitTickResult ForceAdvance(LordJob_CustomerVisit visit, Pawn pawn)
         {
             if (stage == CustomerVisitStage.Browsing || stage == CustomerVisitStage.SelectingService || stage == CustomerVisitStage.RunningExternalAction)
@@ -471,10 +396,7 @@ namespace SimManagementLib.SimAI.CustomerVisit
             SetStage(visit, pawn, CustomerVisitStage.Leaving, "Debug 强制结束访问", notifyExtensions: true);
             return CustomerVisitTickResult.Leave(lastReason);
         }
-
-        /// <summary>
-        /// 切换阶段并通知扩展。
-        /// </summary>
+        //切换阶段并通知扩展。
         private void SetStage(LordJob_CustomerVisit visit, Pawn pawn, CustomerVisitStage next, string reason, bool notifyExtensions)
         {
             if (stage == next && string.Equals(lastReason, reason ?? "", System.StringComparison.Ordinal))
@@ -483,44 +405,18 @@ namespace SimManagementLib.SimAI.CustomerVisit
             stage = next;
             lastReason = reason ?? "";
             lastStageChangeTick = Find.TickManager?.TicksGame ?? 0;
+            lastProgressTick = lastStageChangeTick;
+            lastProgressCell = pawn?.Position ?? IntVec3.Invalid;
+            lastObservedJobLoadId = pawn?.CurJob?.loadID ?? -1;
+            recoveryCount = 0;
+            if (next == CustomerVisitStage.Leaving && exitRequestedTick < 0)
+                exitRequestedTick = lastStageChangeTick;
+            pawn?.Map?.GetComponent<CustomerArrivalManager>()?.RegisterShopCustomer(pawn, visit);
             SimDebugLogger.Journey("RSMF.CustomerSession", $"阶段={stage} 原因={lastReason}", pawn, GetCurrentShop(visit, pawn), -1);
             if (notifyExtensions && SimShopCustomerApi.HasCustomerVisitExtensions)
                 SimShopCustomerApi.NotifyCustomerVisitStageChanged(BuildExtensionContext(visit, pawn, lastReason));
         }
-
-        /// <summary>
-        /// 判断是否因为安全条件强制结束访问。
-        /// </summary>
-        private static bool ShouldForceEndForSafety(Pawn pawn, out string reason)
-        {
-            reason = "";
-            if (pawn == null) return false;
-            if (pawn.Downed)
-            {
-                reason = "顾客倒地，强制结束访问";
-                return true;
-            }
-            if (pawn.InMentalState)
-            {
-                reason = "顾客进入精神状态，强制结束访问";
-                return true;
-            }
-            if (pawn.health?.capacities != null && !pawn.health.capacities.CapableOf(PawnCapacityDefOf.Moving))
-            {
-                reason = "顾客无法移动，强制结束访问";
-                return true;
-            }
-            if (pawn.needs?.food != null && pawn.needs.food.CurCategory >= HungerCategory.UrgentlyHungry)
-            {
-                reason = "顾客饥饿过重，强制结束访问";
-                return true;
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// 判断有账单顾客是否应进入结账。
-        /// </summary>
+        //判断有账单顾客是否应进入结账。
         private bool ShouldCheckoutWithBill(LordJob_CustomerVisit visit, Pawn pawn, Zone_Shop shop, out string reason)
         {
             reason = "";
@@ -548,10 +444,7 @@ namespace SimManagementLib.SimAI.CustomerVisit
             }
             return false;
         }
-
-        /// <summary>
-        /// 判断无账单顾客是否应离店。
-        /// </summary>
+        //判断无账单顾客是否应离店。
         private bool ShouldLeaveWithoutBill(LordJob_CustomerVisit visit, Pawn pawn, Zone_Shop shop, out string reason)
         {
             reason = "";
@@ -578,20 +471,14 @@ namespace SimManagementLib.SimAI.CustomerVisit
             }
             return false;
         }
-
-        /// <summary>
-        /// 判断一次无进展浏览后是否应结账或离店。
-        /// </summary>
+        //判断一次无进展浏览后是否应结账或离店。
         private bool ShouldCheckoutAfterNoProgress(LordJob_CustomerVisit visit, Pawn pawn)
         {
             if (!currentShopMinimumBrowseDone) return false;
             if (!HasReachedBrowseLimit(visit)) return false;
             return true;
         }
-
-        /// <summary>
-        /// 判断顾客是否应结束当前店浏览并进入结账。
-        /// </summary>
+        //判断顾客是否应结束当前店浏览并进入结账。
         private bool ShouldCheckoutFromCurrentShop(LordJob_CustomerVisit visit, Pawn pawn, Zone_Shop shop, string reason)
         {
             if (visit == null || pawn == null || shop == null) return true;
@@ -611,43 +498,28 @@ namespace SimManagementLib.SimAI.CustomerVisit
                 return !ShouldDelayCheckout(visit, pawn, shop, reason);
             return false;
         }
-
-        /// <summary>
-        /// 判断是否需要推动 Lord 状态机进入结账阶段。
-        /// </summary>
+        //判断是否需要推动 Lord 状态机进入结账阶段。
         private bool ShouldEnterCheckoutPhase(LordJob_CustomerVisit visit, Pawn pawn)
         {
             return visit.ShouldEnterCheckoutPhaseForSession();
         }
-
-        /// <summary>
-        /// 判断是否达到浏览上限。
-        /// </summary>
+        //判断是否达到浏览上限。
         private bool HasReachedBrowseLimit(LordJob_CustomerVisit visit)
         {
             return currentShopBrowseAttempts >= GetBrowseLimit(visit)
                 || currentShopNoProgressBrowseAttempts >= GetNoProgressLimit(visit);
         }
-
-        /// <summary>
-        /// 返回浏览上限。
-        /// </summary>
+        //返回浏览上限。
         private static int GetBrowseLimit(LordJob_CustomerVisit visit)
         {
             return Mathf.Max(1, visit.GetShoppingBehavior().maxShelvesToVisit);
         }
-
-        /// <summary>
-        /// 返回无进展浏览上限。
-        /// </summary>
+        //返回无进展浏览上限。
         private static int GetNoProgressLimit(LordJob_CustomerVisit visit)
         {
             return Mathf.Min(3, Mathf.Max(2, GetBrowseLimit(visit)));
         }
-
-        /// <summary>
-        /// 确保目标消费比例存在。
-        /// </summary>
+        //确保目标消费比例存在。
         private void EnsureDesiredSpendRatio(LordJob_CustomerVisit visit)
         {
             if (desiredSpendRatio > 0f) return;
@@ -662,10 +534,7 @@ namespace SimManagementLib.SimAI.CustomerVisit
             }
             desiredSpendRatio = Mathf.Clamp(Rand.Range(min, max), 0.05f, 1f);
         }
-
-        /// <summary>
-        /// 判断是否达到目标消费比例。
-        /// </summary>
+        //判断是否达到目标消费比例。
         private bool HasReachedDesiredSpend(LordJob_CustomerVisit visit)
         {
             EnsureDesiredSpendRatio(visit);
@@ -674,38 +543,26 @@ namespace SimManagementLib.SimAI.CustomerVisit
             float currentBill = visit.GetCartValue(pawnId);
             return totalSpentAcrossShops + currentBill >= budget * desiredSpendRatio;
         }
-
-        /// <summary>
-        /// 返回顾客剩余预算比例，负责判断是否值得继续跨店。
-        /// </summary>
+        //返回顾客剩余预算比例，负责判断是否值得继续跨店。
         private float GetRemainingTripBudgetRatio(LordJob_CustomerVisit visit, Pawn pawn)
         {
             int budget = visit.GetBudgetForPawn(pawnId);
             if (budget <= 0) return 0f;
             return Mathf.Clamp01(GetRemainingTripBudget(visit, pawn) / budget);
         }
-
-        /// <summary>
-        /// 询问扩展是否延迟普通结账。
-        /// </summary>
+        //询问扩展是否延迟普通结账。
         private bool ShouldDelayCheckout(LordJob_CustomerVisit visit, Pawn pawn, Zone_Shop shop, string reason)
         {
             if (!SimShopCustomerApi.HasCustomerVisitExtensions) return false;
             return SimShopCustomerApi.ShouldDelayCustomerVisitCheckout(BuildExtensionContext(visit, pawn, reason));
         }
-
-        /// <summary>
-        /// 询问扩展是否延迟普通离店。
-        /// </summary>
+        //询问扩展是否延迟普通离店。
         private bool ShouldDelayLeave(LordJob_CustomerVisit visit, Pawn pawn, Zone_Shop shop, string reason)
         {
             if (!SimShopCustomerApi.HasCustomerVisitExtensions) return false;
             return SimShopCustomerApi.ShouldDelayCustomerVisitLeave(BuildExtensionContext(visit, pawn, reason));
         }
-
-        /// <summary>
-        /// 构建扩展调用上下文。
-        /// </summary>
+        //构建扩展调用上下文。
         private CustomerVisitExtensionContext BuildExtensionContext(LordJob_CustomerVisit visit, Pawn pawn, string reason)
         {
             return new CustomerVisitExtensionContext
@@ -720,13 +577,10 @@ namespace SimManagementLib.SimAI.CustomerVisit
                 currentTick = Find.TickManager?.TicksGame ?? 0
             };
         }
-
-        /// <summary>
-        /// 解释下一步决策，负责 DebugAction 输出卡住原因。
-        /// </summary>
+        //解释下一步决策，负责 DebugAction 输出卡住原因。
         private string ExplainNextDecision(LordJob_CustomerVisit visit, Pawn pawn, Zone_Shop shop)
         {
-            if (ShouldForceEndForSafety(pawn, out string safety)) return safety;
+            if (IsMovementUnsafe(pawn, out string safety)) return safety;
             if (stage == CustomerVisitStage.WaitingCheckout) return "等待 Lord 切入结账阶段";
             if (stage == CustomerVisitStage.PostCheckout && visit.NeedsPostCheckoutCompletion(pawnId)) return "等待购后行为完成";
             if (stage == CustomerVisitStage.Browsing && shop == null) return "没有当前商店，下一次 Tick 会离店";

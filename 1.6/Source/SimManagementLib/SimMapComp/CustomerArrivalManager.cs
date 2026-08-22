@@ -16,10 +16,8 @@ using Verse.AI.Group;
 
 namespace SimManagementLib.SimMapComp
 {
-    /// <summary>
-    /// 管理地图上商店顾客的周期性刷新、强制刷新和顾客队伍生成。
-    /// </summary>
-    public class CustomerArrivalManager : MapComponent
+    //类职责：协调地图顾客索引、商店吸引力缓存、分片刷新、结账票据和可靠离店。
+    public partial class CustomerArrivalManager : MapComponent
     {
         private const int DefaultCheckInterval = 500;
         private const int ReviewInfluenceMinCount = 3;
@@ -27,53 +25,111 @@ namespace SimManagementLib.SimMapComp
         private const float ReviewInfluenceMaxMultiplier = 1.30f;
         private const int SpawnFailureBackoffTicks = 2500;
         private const int SpawnFailureLogIntervalTicks = 10000;
-        private const int MaxEdgeSpawnPathChecks = 8;
         private readonly Dictionary<string, int> spawnRetryTicks = new Dictionary<string, int>();
         private readonly Dictionary<string, int> spawnFailureLogTicks = new Dictionary<string, int>();
+        private CustomerRuntimeIndex customerIndex;
+        private CustomerArrivalRuntime arrivalRuntime;
         private int nextArrivalCheckTick = -1;
+        private bool arrivalCycleActive;
+        private bool vendingAttemptPending;
+        private string lastSpawnFailureReason = "";
 
         public CustomerArrivalManager(Map map) : base(map)
         {
         }
 
+        //推进地图级顾客运行态，职责是把刷新重算和候选尝试稳定分摊到多个 tick。
         public override void MapComponentTick()
         {
             base.MapComponentTick();
+            EnsureRuntime();
+            customerIndex.Tick();
+            arrivalRuntime.Tick();
+
             int checkInterval = GetCheckIntervalTicks();
             if (checkInterval <= 0) checkInterval = DefaultCheckInterval;
             int now = Find.TickManager?.TicksGame ?? 0;
             if (nextArrivalCheckTick < 0)
                 nextArrivalCheckTick = now + GetInitialCheckDelay(checkInterval);
-            if (now < nextArrivalCheckTick) return;
-            ScheduleNextArrivalCheck(now, checkInterval);
-
-            List<CustomerArrivalShopContext> contexts = CollectActiveShopContexts();
-            if (contexts.NullOrEmpty() && VendingMachineUtility.GetVendingMachineSnapshot(map).Count <= 0)
-                return;
-            if (CustomerSafetyUtility.IsLargeHostileRaidActive(map)) return;
-
-            if (!contexts.NullOrEmpty())
+            if (!arrivalCycleActive && now >= nextArrivalCheckTick)
             {
-                contexts.Shuffle();
-                foreach (CustomerArrivalShopContext context in contexts)
+                ScheduleNextArrivalCheck(now, checkInterval);
+                if (CustomerSafetyUtility.IsLargeHostileRaidActive(map))
+                    return;
+                arrivalRuntime.BeginCycle();
+                arrivalCycleActive = true;
+                vendingAttemptPending = true;
+            }
+
+            if (!arrivalCycleActive || CustomerSafetyUtility.IsLargeHostileRaidActive(map))
+            {
+                ProcessCustomerMetricsBudget();
+                return;
+            }
+
+            int candidatesUsed = 0;
+            while (candidatesUsed < 4 && arrivalRuntime.TryTakeNextContext(out CustomerArrivalShopContext context))
+            {
+                candidatesUsed++;
+                context.CurrentCustomers = customerIndex.CountActiveForShop(context.Shop?.ID ?? -1);
+                if (TrySpawnOneCustomerForShop(context))
                 {
-                    if (TrySpawnOneCustomerForShop(context))
-                        return;
+                    EndArrivalCycle();
+                    return;
                 }
             }
 
-            TrySpawnOneCustomerForVendingMachines(checkInterval);
+            if (!arrivalRuntime.CycleCompleted)
+            {
+                ProcessCustomerMetricsBudget();
+                return;
+            }
+
+            if (vendingAttemptPending)
+            {
+                if (candidatesUsed >= 4)
+                {
+                    ProcessCustomerMetricsBudget();
+                    return;
+                }
+                vendingAttemptPending = false;
+                candidatesUsed++;
+                if (TrySpawnOneCustomerForVendingMachines(checkInterval))
+                {
+                    EndArrivalCycle();
+                    return;
+                }
+            }
+
+            EndArrivalCycle();
+            ProcessCustomerMetricsBudget();
         }
 
-        // 强制刷新一波顾客，负责保留旧版外部调用签名。
+        //推进商店指标预算，职责是确保生成 Pawn 的 tick 不再执行经营指标采样。
+        private void ProcessCustomerMetricsBudget()
+        {
+            Current.Game?.GetComponent<GameComponent_ShopAnalyticsManager>()?.ProcessMetricsBudget(map, 64, 8);
+        }
+
+        //结束一次分片刷新周期，职责是清理临时候选游标而不丢弃长期缓存。
+        private void EndArrivalCycle()
+        {
+            arrivalCycleActive = false;
+            vendingAttemptPending = false;
+            arrivalRuntime.EndCycle();
+        }
+
+        //强制刷新一波顾客，负责保留旧版外部调用签名。
         public bool ForceSpawnOneWave(bool ignoreConditions, out string resultMessage)
         {
             return ForceSpawnOneWave(ignoreConditions, out resultMessage, out _);
         }
 
-        // 强制刷新一波顾客，负责在成功时把生成的 Pawn 引用返回给外部调用方。
+        //强制刷新一波顾客，负责在成功时把生成的 Pawn 引用返回给外部调用方。
         public bool ForceSpawnOneWave(bool ignoreConditions, out string resultMessage, out Pawn spawnedPawn)
         {
+            EnsureRuntime();
+            arrivalRuntime.RefreshAllSynchronously();
             spawnedPawn = null;
             if (CustomerSafetyUtility.IsLargeHostileRaidActive(map))
             {
@@ -168,15 +224,21 @@ namespace SimManagementLib.SimMapComp
         private bool TrySpawnOneCustomerForShop(CustomerArrivalShopContext context)
         {
             if (context?.Shop == null || context.IsAtCapacity) return false;
-
-            List<RuntimeCustomerKind> candidates = CustomerCatalog.Kinds
-                .Where(k => CanSpawnWave(context, k))
-                .ToList();
-            candidates = ApplyForcedCustomerKindFilter(candidates);
-            if (candidates.NullOrEmpty()) return false;
-
             float hour = GenLocalDate.HourFloat(map);
-            RuntimeCustomerKind selected = candidates.RandomElementByWeight(k => k.EvaluateArrivalWeight(hour));
+            RuntimeCustomerKind selected = null;
+            float totalWeight = 0f;
+            string forcedKindId = ResolveValidForcedKindId();
+            IReadOnlyCollection<RuntimeCustomerKind> kinds = CustomerCatalog.Kinds;
+            if (kinds == null) return false;
+            foreach (RuntimeCustomerKind kind in kinds)
+            {
+                if (!string.IsNullOrEmpty(forcedKindId) && !string.Equals(kind?.kindId, forcedKindId, System.StringComparison.OrdinalIgnoreCase)) continue;
+                if (!CanSpawnWave(context, kind)) continue;
+                float weight = Mathf.Max(0.001f, kind.EvaluateArrivalWeight(hour));
+                totalWeight += weight;
+                if (Rand.Value * totalWeight <= weight)
+                    selected = kind;
+            }
             if (selected == null) return false;
 
             return TrySpawnCustomerWave(context.Shop, selected, true, true, out _, out _, out _);
@@ -184,87 +246,59 @@ namespace SimManagementLib.SimMapComp
 
         private List<CustomerArrivalShopContext> CollectActiveShopContexts()
         {
-            List<CustomerArrivalShopContext> result = new List<CustomerArrivalShopContext>();
-            if (map?.zoneManager?.AllZones == null)
-                return result;
-
-            GameComponent_ShopAnalyticsManager analytics = Current.Game?.GetComponent<GameComponent_ShopAnalyticsManager>();
-            List<Zone_Shop> openShops = new List<Zone_Shop>();
-            List<Zone> zones = map.zoneManager.AllZones;
-            for (int i = 0; i < zones.Count; i++)
-            {
-                Zone_Shop shop = zones[i] as Zone_Shop;
-                if (shop == null || !shop.IsOpenNow())
-                    continue;
-                openShops.Add(shop);
-            }
-
-            if (openShops.Count <= 0)
-                return result;
-
-            Dictionary<int, int> customerCounts = CountActiveCustomersByShop();
-            for (int i = 0; i < openShops.Count; i++)
-            {
-                Zone_Shop shop = openShops[i];
-                customerCounts.TryGetValue(shop.ID, out int currentCustomers);
-                CustomerArrivalShopContext context = BuildShopContext(shop, analytics, currentCustomers);
-                if (context != null)
-                    result.Add(context);
-            }
-
-            return result;
+            EnsureRuntime();
+            return arrivalRuntime.GetOpenContexts(customerIndex);
         }
-
-        /// <summary>
-        /// 周期性尝试为地图上的自动售货机刷新顾客。
-        /// </summary>
+        //周期性尝试为地图上的自动售货机刷新顾客。
         private bool TrySpawnOneCustomerForVendingMachines(int checkInterval)
         {
-            List<Building_SimContainer> machines = VendingMachineUtility.GetVendingMachineSnapshot(map)
-                .Where(VendingMachineUtility.IsUsableVendingMachine)
-                .ToList();
-            if (machines.NullOrEmpty()) return false;
-
-            Dictionary<int, int> customerCounts = CountActiveCustomersByVendingMachine();
-            machines.RemoveAll(machine =>
+            IReadOnlyList<Building_SimContainer> machines = VendingMachineUtility.GetVendingMachineSnapshot(map);
+            Building_SimContainer selectedMachine = null;
+            int machineSeen = 0;
+            for (int i = 0; i < machines.Count; i++)
             {
+                Building_SimContainer machine = machines[i];
+                if (!VendingMachineUtility.IsUsableVendingMachine(machine)) continue;
                 ThingComp_VendingMachine comp = machine.GetComp<ThingComp_VendingMachine>();
-                customerCounts.TryGetValue(machine.thingIDNumber, out int currentCustomers);
-                return comp == null || currentCustomers >= comp.MaxSimultaneousCustomers;
-            });
-            if (machines.NullOrEmpty()) return false;
-
-            List<RuntimeCustomerKind> kinds = CustomerCatalog.Kinds
-                .Where(k => k != null && !k.pawnKindDefs.NullOrEmpty() && k.CanAppearNow(map))
-                .ToList();
-            kinds = ApplyForcedCustomerKindFilter(kinds);
-            if (kinds.NullOrEmpty()) return false;
+                int currentCustomers = customerIndex.CountActiveForVendingMachine(machine.thingIDNumber);
+                if (comp == null || currentCustomers >= comp.MaxSimultaneousCustomers) continue;
+                machineSeen++;
+                if (Rand.RangeInclusive(1, machineSeen) == 1)
+                    selectedMachine = machine;
+            }
+            if (selectedMachine == null) return false;
 
             float hour = GenLocalDate.HourFloat(map);
-            foreach (Building_SimContainer machine in machines.InRandomOrder())
+            RuntimeCustomerKind selectedKind = null;
+            float totalWeight = 0f;
+            string forcedKindId = ResolveValidForcedKindId();
+            IReadOnlyCollection<RuntimeCustomerKind> kinds = CustomerCatalog.Kinds;
+            if (kinds == null) return false;
+            foreach (RuntimeCustomerKind kind in kinds)
             {
-                ThingComp_VendingMachine comp = machine.GetComp<ThingComp_VendingMachine>();
-                List<RuntimeCustomerKind> candidates = kinds
-                    .Where(k => VendingMachineUtility.MatchesCustomerKind(machine, k))
-                    .ToList();
-                if (candidates.NullOrEmpty()) continue;
-
-                RuntimeCustomerKind selected = candidates.RandomElementByWeight(k => k.EvaluateArrivalWeight(hour));
-                if (selected == null) continue;
-
-                float mtbDays = comp.BaseMtbDays / Mathf.Max(selected.EvaluateArrivalWeight(hour), 0.05f);
-                if (!Rand.MTBEventOccurs(mtbDays, 60000f, checkInterval)) continue;
-
-                if (TrySpawnVendingMachineCustomer(machine, selected, false, true, out _, out _, out _))
-                    return true;
+                if (kind == null || kind.pawnKindDefs.NullOrEmpty() || !kind.CanAppearNow(map)) continue;
+                if (!string.IsNullOrEmpty(forcedKindId) && !string.Equals(kind.kindId, forcedKindId, System.StringComparison.OrdinalIgnoreCase)) continue;
+                if (!VendingMachineUtility.MatchesCustomerKind(selectedMachine, kind)) continue;
+                float weight = Mathf.Max(0.001f, kind.EvaluateArrivalWeight(hour));
+                totalWeight += weight;
+                if (Rand.Value * totalWeight <= weight)
+                    selectedKind = kind;
             }
+            if (selectedKind == null) return false;
 
-            return false;
+            ThingComp_VendingMachine selectedComp = selectedMachine.GetComp<ThingComp_VendingMachine>();
+            float mtbDays = selectedComp.BaseMtbDays / Mathf.Max(selectedKind.EvaluateArrivalWeight(hour), 0.05f);
+            return Rand.MTBEventOccurs(mtbDays, 60000f, checkInterval)
+                && TrySpawnVendingMachineCustomer(selectedMachine, selectedKind, false, true, out _, out _, out _);
         }
 
-        /// <summary>
-        /// 根据设置中的 Debug 强制顾客组过滤候选列表。
-        /// </summary>
+        //解析有效 Debug 强制类型，职责是在配置目标不存在时保持普通候选语义。
+        private static string ResolveValidForcedKindId()
+        {
+            string forcedKindId = SimManagementLibMod.Settings?.debugForcedCustomerKindId;
+            return !string.IsNullOrEmpty(forcedKindId) && CustomerCatalog.GetKind(forcedKindId) != null ? forcedKindId : "";
+        }
+        //根据设置中的 Debug 强制顾客组过滤候选列表。
         private static List<RuntimeCustomerKind> ApplyForcedCustomerKindFilter(List<RuntimeCustomerKind> kinds)
         {
             string forcedKindId = SimManagementLibMod.Settings?.debugForcedCustomerKindId;
@@ -277,24 +311,106 @@ namespace SimManagementLib.SimMapComp
             return forced.NullOrEmpty() ? kinds : forced;
         }
 
-        private CustomerArrivalShopContext BuildShopContext(Zone_Shop shop, GameComponent_ShopAnalyticsManager analytics, int currentCustomers)
+        //构建商店刷新快照，职责是把昂贵匹配计算限制在脏队列预算内。
+        internal CustomerArrivalShopContext BuildShopContext(Zone_Shop shop, GameComponent_ShopAnalyticsManager analytics, int currentCustomers)
         {
             if (shop == null) return null;
 
-            analytics?.GetOrEvaluateShopMetrics(shop);
-            return new CustomerArrivalShopContext
+            ShopMetricsSnapshot metrics = analytics?.GetOrEvaluateShopMetrics(shop);
+            CustomerArrivalShopContext context = new CustomerArrivalShopContext
             {
                 Shop = shop,
                 CurrentCustomers = currentCustomers,
-                Capacity = analytics != null ? analytics.GetDynamicCustomerCapacity(shop) : CalculateShopCustomerCapacity(shop),
-                DemandFactor = ApplyReviewDemandInfluence(shop, analytics != null ? analytics.GetSpawnDemandFactor(shop, map) : 1f),
-                HasCheckoutService = ShopStaffUtility.HasMannedCashRegister(shop)
+                Capacity = metrics != null ? Mathf.Max(2, metrics.dynamicCapacity) : CalculateShopCustomerCapacity(shop),
+                DemandFactor = ApplyReviewDemandInfluence(shop, metrics?.spawnDemandFactor ?? 1f),
+                HasCheckoutService = ShopStaffUtility.HasMannedCashRegister(shop),
+                IsOpen = shop.IsOpenNow()
             };
+
+            TryFindReachableShopEntryCell(shop, out context.EntryCell);
+            HashSet<ThingDef> stockedDefs = CollectStockedDefs(shop);
+            HashSet<string> serviceCategoryIds = CollectServiceCategoryIds(shop);
+            IReadOnlyList<Building_CashRegister> registers = ShopDataUtility.GetCashRegisterSnapshotInZone(shop);
+            for (int i = 0; i < registers.Count; i++) RegisterCustomerTarget(registers[i]);
+            IReadOnlyCollection<RuntimeCustomerKind> kinds = CustomerCatalog.Kinds;
+            if (kinds != null)
+            {
+                foreach (RuntimeCustomerKind kind in kinds)
+                {
+                    if (kind != null && SnapshotMatchesKind(stockedDefs, serviceCategoryIds, kind))
+                        context.MatchingKindIds.Add(kind.kindId ?? "");
+                }
+            }
+
+            return context;
         }
 
-        /// <summary>
-        /// 根据店铺评价调整刷客需求倍率，负责让玩家可选地把口碑反馈接入真实来客概率。
-        /// </summary>
+        //汇总商店有货商品 Def，职责是让顾客类型匹配不再为每个类型重复扫描货柜。
+        private static HashSet<ThingDef> CollectStockedDefs(Zone_Shop shop)
+        {
+            HashSet<ThingDef> result = new HashSet<ThingDef>();
+            IReadOnlyList<Building_SimContainer> storages = ShopDataUtility.GetStorageSnapshotInZone(shop);
+            for (int i = 0; i < storages.Count; i++)
+            {
+                Building_SimContainer storage = storages[i];
+                if (storage == null || storage.Destroyed || !storage.Spawned) continue;
+                foreach (ThingDef def in storage.ActiveDefs)
+                {
+                    if (def != null && storage.CountStored(def) > 0)
+                        result.Add(def);
+                }
+            }
+            return result;
+        }
+
+        //汇总商店当前可用服务分类，职责是让服务匹配只扫描一次区划设施。
+        private HashSet<string> CollectServiceCategoryIds(Zone_Shop shop)
+        {
+            HashSet<string> result = new HashSet<string>();
+            foreach (Thing provider in ShopServiceUtility.GetServiceProvidersInZone(shop))
+            {
+                RegisterCustomerTarget(provider);
+                ThingComp_ServiceProvider comp = provider.TryGetComp<ThingComp_ServiceProvider>();
+                if (comp == null || !comp.enabled) continue;
+                foreach (ServiceSlotData slot in comp.EnabledSlots)
+                {
+                    string categoryId = slot?.ServiceDef?.serviceCategoryId;
+                    if (!string.IsNullOrEmpty(categoryId) && ShopServiceUtility.CanAcceptMoreUsers(provider, slot.ServiceDef))
+                        result.Add(categoryId);
+                }
+            }
+            return result;
+        }
+
+        //判断原子商店快照是否匹配顾客类型，职责是只遍历聚合后的 Def 和分类集合。
+        private static bool SnapshotMatchesKind(HashSet<ThingDef> stockedDefs, HashSet<string> serviceCategoryIds, RuntimeCustomerKind kind)
+        {
+            List<string> goodsTargets = kind.targetGoodsCategoryIds;
+            List<string> serviceTargets = kind.targetServiceCategoryIds;
+            bool goodsAllowed = !goodsTargets.NullOrEmpty() || serviceTargets.NullOrEmpty();
+            if (goodsAllowed && stockedDefs.Count > 0)
+            {
+                if (goodsTargets.NullOrEmpty()) return true;
+                foreach (ThingDef def in stockedDefs)
+                {
+                    for (int i = 0; i < goodsTargets.Count; i++)
+                    {
+                        if (!string.IsNullOrEmpty(goodsTargets[i]) && GoodsCatalog.Contains(goodsTargets[i], def))
+                            return true;
+                    }
+                }
+            }
+
+            if (serviceCategoryIds.Count == 0) return false;
+            if (serviceTargets.NullOrEmpty()) return true;
+            for (int i = 0; i < serviceTargets.Count; i++)
+            {
+                if (!string.IsNullOrEmpty(serviceTargets[i]) && serviceCategoryIds.Contains(serviceTargets[i]))
+                    return true;
+            }
+            return false;
+        }
+        //根据店铺评价调整刷客需求倍率，负责让玩家可选地把口碑反馈接入真实来客概率。
         private static float ApplyReviewDemandInfluence(Zone_Shop shop, float demandFactor)
         {
             if (shop == null || SimManagementLibMod.Settings?.reviewInfluencesCustomerSpawn != true)
@@ -334,10 +450,7 @@ namespace SimManagementLib.SimMapComp
             float mtbDays = baseMtb / Mathf.Max(weight * context.DemandFactor, 0.05f);
             return Rand.MTBEventOccurs(mtbDays, 60000f, GetCheckIntervalTicks());
         }
-
-        /// <summary>
-        /// 判断 Debug 强制刷新是否允许指定顾客进入商店，只跳过时间、天气和随机概率，不跳过商店匹配。
-        /// </summary>
+        //判断 Debug 强制刷新是否允许指定顾客进入商店，只跳过时间、天气和随机概率，不跳过商店匹配。
         private bool CanForceSpawnWave(CustomerArrivalShopContext context, RuntimeCustomerKind kind)
         {
             if (context == null || !context.CanSpawn(kind, false)) return false;
@@ -359,74 +472,8 @@ namespace SimManagementLib.SimMapComp
             int estimated = registerCount * 8 + storageCount * 4;
             return Mathf.Max(6, estimated);
         }
-
-        //按商店统计当前顾客，职责是一次遍历顾客 Lord 供全部商店上下文复用。
-        private Dictionary<int, int> CountActiveCustomersByShop()
-        {
-            Dictionary<int, int> counts = new Dictionary<int, int>();
-            List<Lord> lords = map?.lordManager?.lords;
-            if (lords == null)
-                return counts;
-
-            for (int i = 0; i < lords.Count; i++)
-            {
-                Lord lord = lords[i];
-                LordJob_CustomerVisit visit = lord?.LordJob as LordJob_CustomerVisit;
-                if (visit == null || lord.ownedPawns == null)
-                    continue;
-
-                for (int p = 0; p < lord.ownedPawns.Count; p++)
-                {
-                    Pawn pawn = lord.ownedPawns[p];
-                    if (pawn == null || pawn.Destroyed || pawn.Dead || !pawn.Spawned)
-                        continue;
-                    Zone_Shop shop = visit.GetCurrentShop(pawn);
-                    if (shop == null)
-                        continue;
-                    counts.TryGetValue(shop.ID, out int current);
-                    counts[shop.ID] = current + 1;
-                }
-            }
-
-            return counts;
-        }
-
-        //按自动售货机统计当前顾客，职责是避免每台机器分别扫描全部 Lord。
-        private Dictionary<int, int> CountActiveCustomersByVendingMachine()
-        {
-            Dictionary<int, int> counts = new Dictionary<int, int>();
-            List<Lord> lords = map?.lordManager?.lords;
-            if (lords == null)
-                return counts;
-
-            for (int i = 0; i < lords.Count; i++)
-            {
-                Lord lord = lords[i];
-                LordJob_VendingMachineVisit visit = lord?.LordJob as LordJob_VendingMachineVisit;
-                if (visit == null || lord.ownedPawns == null)
-                    continue;
-
-                int active = 0;
-                for (int p = 0; p < lord.ownedPawns.Count; p++)
-                {
-                    Pawn pawn = lord.ownedPawns[p];
-                    if (pawn != null && !pawn.Destroyed && !pawn.Dead && pawn.Spawned)
-                        active++;
-                }
-
-                if (active <= 0)
-                    continue;
-                counts.TryGetValue(visit.vendingMachineThingId, out int current);
-                counts[visit.vendingMachineThingId] = current + active;
-            }
-
-            return counts;
-        }
-
-        /// <summary>
-        /// 查找商店内可作为顾客入店目标的站立格，负责避免不可达商店生成后直接离图。
-        /// </summary>
-        private bool TryFindReachableShopEntryCell(Zone_Shop shop, out IntVec3 targetCell)
+        //查找商店内可作为顾客入店目标的站立格，负责避免不可达商店生成后直接离图。
+        internal bool TryFindReachableShopEntryCell(Zone_Shop shop, out IntVec3 targetCell)
         {
             targetCell = IntVec3.Invalid;
             if (shop == null) return false;
@@ -450,10 +497,7 @@ namespace SimManagementLib.SimMapComp
             targetCell = shopCells.RandomElement();
             return true;
         }
-
-        /// <summary>
-        /// 为指定商店生成一位顾客并绑定顾客 Lord，失败时返回具体原因。
-        /// </summary>
+        //为指定商店生成一位顾客并绑定顾客 Lord，失败时返回具体原因。
         private bool TrySpawnCustomerWave(Zone_Shop shop, RuntimeCustomerKind kind, bool showArrivalMessage, bool respectFailureBackoff, out int spawnedCount, out string failReason, out Pawn spawnedPawn)
         {
             spawnedCount = 0;
@@ -474,8 +518,14 @@ namespace SimManagementLib.SimMapComp
             if (!TryFindReachableShopEntryCell(shop, out IntVec3 shopTargetCell))
                 return FailSpawnAttempt(attemptKey, "商店没有可用目标格", respectFailureBackoff, out failReason);
 
-            if (!TryFindCustomerEdgeSpawnCell(shopTargetCell, PathEndMode.OnCell, out IntVec3 spawnSpot))
+            if (!TryFindCustomerEdgeSpawnCell(out IntVec3 spawnSpot))
                 return FailSpawnAttempt(attemptKey, "地图边缘没有可达入口", respectFailureBackoff, out failReason);
+            if (respectFailureBackoff && !TryConsumeReachabilityBudget())
+            {
+                failReason = "等待顾客可达性预算";
+                DeferArrivalForBudget();
+                return false;
+            }
 
             PawnGenerationRequest request = CreateCustomerPawnGenerationRequest(selectedKind, customerFaction);
             Pawn pawn = PawnGenerator.GeneratePawn(request);
@@ -502,8 +552,14 @@ namespace SimManagementLib.SimMapComp
             lordJob.customerKindId = kind.kindId;
             CustomerRuntimeSettings settings = kind.BuildRuntimeSettings(map);
             lordJob.SetPawnSettings(pawn.thingIDNumber, settings);
-            // 顾客 Pawn 和 Lord 都使用商店专用中立派系，避免敌对来源派系残留为红名或触发战斗 AI。
-            LordMaker.MakeNewLord(customerFaction, lordJob, map, new List<Pawn> { pawn });
+            //顾客 Pawn 和 Lord 都使用商店专用中立派系，避免敌对来源派系残留为红名或触发战斗 AI。
+            Lord newLord = LordMaker.MakeNewLord(customerFaction, lordJob, map, new List<Pawn> { pawn });
+            RegisterShopCustomer(pawn, lordJob);
+            if (!CustomerSafetyUtility.CanCustomerReach(pawn, shopTargetCell, PathEndMode.OnCell, Danger.Deadly))
+            {
+                RejectSpawnedCustomerAtEdge(pawn, newLord);
+                return FailSpawnAttempt(attemptKey, "真实顾客门禁规则无法到达商店", respectFailureBackoff, out failReason);
+            }
             spawnedCount = 1;
             spawnedPawn = pawn;
             ClearSpawnFailure(attemptKey);
@@ -526,10 +582,7 @@ namespace SimManagementLib.SimMapComp
 
             return true;
         }
-
-        /// <summary>
-        /// 为指定自动售货机生成一位顾客并绑定独立的自动售货机访问 Lord。
-        /// </summary>
+        //为指定自动售货机生成一位顾客并绑定独立的自动售货机访问 Lord。
         private bool TrySpawnVendingMachineCustomer(Building_SimContainer machine, RuntimeCustomerKind kind, bool showArrivalMessage, bool respectFailureBackoff, out int spawnedCount, out string failReason, out Pawn spawnedPawn)
         {
             spawnedCount = 0;
@@ -549,8 +602,14 @@ namespace SimManagementLib.SimMapComp
             if (selectedKind == null)
                 return FailSpawnAttempt(attemptKey, "没有与顾客派系兼容的 PawnKind", respectFailureBackoff, out failReason);
 
-            if (!TryFindCustomerEdgeSpawnCell(machine.Position, PathEndMode.Touch, out IntVec3 spawnSpot))
+            if (!TryFindCustomerEdgeSpawnCell(out IntVec3 spawnSpot))
                 return FailSpawnAttempt(attemptKey, "地图边缘没有可达入口", respectFailureBackoff, out failReason);
+            if (respectFailureBackoff && !TryConsumeReachabilityBudget())
+            {
+                failReason = "等待顾客可达性预算";
+                DeferArrivalForBudget();
+                return false;
+            }
 
             Pawn pawn = PawnGenerator.GeneratePawn(CreateCustomerPawnGenerationRequest(selectedKind, customerFaction));
             if (pawn == null)
@@ -574,7 +633,13 @@ namespace SimManagementLib.SimMapComp
             LordJob_VendingMachineVisit lordJob = new LordJob_VendingMachineVisit(kind.sourceDef, machine, fallbackBudget);
             lordJob.customerKindId = kind.kindId;
             lordJob.SetPawnSettings(pawn.thingIDNumber, kind.BuildRuntimeSettings(map));
-            LordMaker.MakeNewLord(customerFaction, lordJob, map, new List<Pawn> { pawn });
+            Lord newLord = LordMaker.MakeNewLord(customerFaction, lordJob, map, new List<Pawn> { pawn });
+            RegisterVendingCustomer(pawn, lordJob);
+            if (!CustomerSafetyUtility.CanCustomerReach(pawn, machine, PathEndMode.Touch, Danger.Deadly))
+            {
+                RejectSpawnedCustomerAtEdge(pawn, newLord);
+                return FailSpawnAttempt(attemptKey, "真实顾客门禁规则无法到达自动售货机", respectFailureBackoff, out failReason);
+            }
             spawnedCount = 1;
             spawnedPawn = pawn;
             ClearSpawnFailure(attemptKey);
@@ -609,34 +674,14 @@ namespace SimManagementLib.SimMapComp
                 dontGiveWeapon: true);
         }
 
-        // 查找顾客可用的地图边缘生成点，负责在顾客入图前筛掉无法走到目标的位置。
-        private bool TryFindCustomerEdgeSpawnCell(LocalTargetInfo target, PathEndMode pathEndMode, out IntVec3 spawnSpot)
+        //查找顾客可用的地图边缘生成点，职责是只做区域级粗筛并把真实寻路交给 Pawn 路径器。
+        private bool TryFindCustomerEdgeSpawnCell(out IntVec3 spawnSpot)
         {
             spawnSpot = IntVec3.Invalid;
-            if (map == null || !target.IsValid)
+            if (map == null)
                 return false;
 
-            HashSet<IntVec3> checkedCells = new HashSet<IntVec3>();
-            for (int i = 0; i < MaxEdgeSpawnPathChecks; i++)
-            {
-                if (!CellFinder.TryFindRandomEdgeCellWith(
-                    c => !checkedCells.Contains(c) && IsUsableCustomerEdgeCell(c),
-                    map,
-                    CellFinder.EdgeRoadChance_Neutral,
-                    out IntVec3 candidate))
-                {
-                    break;
-                }
-
-                checkedCells.Add(candidate);
-                if (!CanReachFromCellWithoutForbiddenPlayerDoor(candidate, target, pathEndMode))
-                    continue;
-
-                spawnSpot = candidate;
-                return true;
-            }
-
-            return false;
+            return CellFinder.TryFindRandomEdgeCellWith(IsUsableCustomerEdgeCell, map, CellFinder.EdgeRoadChance_Neutral, out spawnSpot);
         }
 
         //判断地图边缘格是否值得执行完整寻路，职责是用常数时间条件过滤雾区和不可站立格。
@@ -646,34 +691,6 @@ namespace SimManagementLib.SimMapComp
                 && cell.InBounds(map)
                 && cell.Standable(map)
                 && !cell.Fogged(map);
-        }
-
-        // 从指定起点检查目标可达性，负责在顾客未入图前避免使用绑定 Pawn 的寻路参数。
-        private bool CanReachFromCellWithoutForbiddenPlayerDoor(IntVec3 start, LocalTargetInfo target, PathEndMode pathEndMode)
-        {
-            if (map == null || !start.IsValid || !target.IsValid)
-                return false;
-
-            using (PawnPath path = map.pathFinder.FindPathNow(
-                start,
-                target,
-                TraverseParms.For(TraverseMode.PassDoors, Danger.Deadly),
-                null,
-                pathEndMode))
-            {
-                if (path == null || !path.Found)
-                    return false;
-
-                List<IntVec3> nodes = path.NodesReversed;
-                for (int i = 0; i < nodes.Count; i++)
-                {
-                    Building_Door door = nodes[i].GetDoor(map);
-                    if (door != null && door.Faction == Faction.OfPlayer && door.IsForbidden(Faction.OfPlayer))
-                        return false;
-                }
-            }
-
-            return true;
         }
 
         //选择顾客 PawnKind，职责是只保留与最终顾客派系人类属性一致的种类。
@@ -714,6 +731,7 @@ namespace SimManagementLib.SimMapComp
         private bool FailSpawnAttempt(string attemptKey, string reason, bool respectFailureBackoff, out string failReason)
         {
             failReason = reason ?? "未知生成失败";
+            lastSpawnFailureReason = failReason;
             if (!respectFailureBackoff)
                 return false;
 
@@ -744,6 +762,16 @@ namespace SimManagementLib.SimMapComp
             Find.WorldPawns.PassToWorld(pawn, RimWorld.Planet.PawnDiscardDecideMode.Discard);
         }
 
+        //拒绝生成后不可达的顾客，职责是在发送到店事件前释放索引并从边缘立即退出。
+        private void RejectSpawnedCustomerAtEdge(Pawn pawn, Lord customerLord)
+        {
+            if (pawn == null) return;
+            UnregisterCustomer(pawn);
+            customerLord?.Notify_PawnLost(pawn, PawnLostCondition.LeftVoluntarily);
+            if (pawn.Spawned && pawn.Map == map && !pawn.Destroyed && !pawn.Dead)
+                pawn.ExitMap(false, CellRect.WholeMap(map).GetClosestEdge(pawn.Position));
+        }
+
         //计算地图首次刷新延迟，职责是让多地图组件避免在同一 tick 同步执行。
         private int GetInitialCheckDelay(int checkInterval)
         {
@@ -758,6 +786,14 @@ namespace SimManagementLib.SimMapComp
             int mapId = map?.uniqueID ?? 0;
             int jitter = Mathf.Abs((now + mapId * 31) % jitterRange);
             nextArrivalCheckTick = now + checkInterval + jitter;
+        }
+
+        //缩短预算等待后的下一轮刷新时间，职责是保证暂缓候选在 120 tick 内重新进入调度。
+        private void DeferArrivalForBudget()
+        {
+            int retryTick = (Find.TickManager?.TicksGame ?? 0) + 120;
+            if (nextArrivalCheckTick < 0 || retryTick < nextArrivalCheckTick)
+                nextArrivalCheckTick = retryTick;
         }
 
         private static int GetCheckIntervalTicks()

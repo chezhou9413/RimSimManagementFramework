@@ -2,6 +2,7 @@ using RimWorld;
 using SimManagementLib.SimAI;
 using SimManagementLib.SimDef;
 using SimManagementLib.SimThingClass;
+using SimManagementLib.SimMapComp;
 using SimManagementLib.SimZone;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,14 +12,10 @@ using Verse.AI.Group;
 
 namespace SimManagementLib.Tool
 {
-    /// <summary>
-    /// 提供商店员工岗位、资格和工作许可判断，负责把店铺配置转换为原版 WorkGiver 可用规则。
-    /// </summary>
+    //提供商店员工岗位、资格和工作许可判断，负责把店铺配置转换为原版 WorkGiver 可用规则。
     public static partial class ShopStaffUtility
     {
-        /// <summary>
-        /// 保存员工岗位资格结果，负责同时返回是否可分配和不可分配原因。
-        /// </summary>
+        //保存员工岗位资格结果，负责同时返回是否可分配和不可分配原因。
         public struct StaffEligibility
         {
             public bool Eligible;
@@ -26,58 +23,33 @@ namespace SimManagementLib.Tool
         }
 
         public static IReadOnlyList<ShopStaffRoleDef> Roles => DefDatabase<ShopStaffRoleDef>.AllDefsListForReading;
-
-        /// <summary>
-        /// 查找收银台所在的商店区域，负责为收银工作提供店铺上下文。
-        /// </summary>
+        //查找收银台所在的商店区域，负责为收银工作提供店铺上下文。
         public static Zone_Shop FindShopFor(Building_CashRegister register)
         {
             if (register?.Map == null || !register.Spawned) return null;
             return ShopDataUtility.FindShopZone(register.Map, register.Position);
         }
-
-        /// <summary>
-        /// 查找货柜所在的商店区域，负责为补货和搬运工作提供店铺上下文。
-        /// </summary>
+        //查找货柜所在的商店区域，负责为补货和搬运工作提供店铺上下文。
         public static Zone_Shop FindShopFor(Building_SimContainer storage)
         {
             if (storage?.Map == null || !storage.Spawned) return null;
             return ShopDataUtility.FindShopZone(storage.Map, storage.Position);
         }
-
-        /// <summary>
-        /// 判断指定商店当前是否允许店员执行商店工作，找不到商店时保持兼容允许工作。
-        /// </summary>
+        //判断指定商店当前是否允许店员执行商店工作，找不到商店时保持兼容允许工作。
         public static bool IsShopOpenForWork(Zone_Shop zone)
         {
             return zone == null || zone.IsOpenNow();
         }
-
-        /// <summary>
-        /// 判断收银员是否可以在指定商店工作，负责让关店后的待付款顾客仍能完成结账。
-        /// </summary>
+        //判断收银员是否可以在指定商店工作，负责让关店后的待付款顾客仍能完成结账。
         public static bool CanCashierWorkAt(Zone_Shop zone)
         {
             return IsShopOpenForWork(zone) || HasPendingCheckoutCustomers(zone);
         }
-
-        /// <summary>
-        /// 判断商店是否还有活跃顾客待付款，负责限制关店后只保留清空收银队列的工作。
-        /// </summary>
+        //判断商店是否还有活跃顾客待付款，负责限制关店后只保留清空收银队列的工作。
         public static bool HasPendingCheckoutCustomers(Zone_Shop zone)
         {
-            if (zone?.Map?.lordManager?.lords == null) return false;
-
-            List<Lord> lords = zone.Map.lordManager.lords;
-            for (int i = 0; i < lords.Count; i++)
-            {
-                LordJob_CustomerVisit visit = lords[i]?.LordJob as LordJob_CustomerVisit;
-                if (visit == null) continue;
-
-                if (HasActivePawnWithPendingBill(lords[i], visit, zone)) return true;
-            }
-
-            return false;
+            if (zone?.Map == null) return false;
+            return zone.Map.GetComponent<CustomerArrivalManager>()?.RuntimeIndex.CountPendingCheckoutForShop(zone.ID) > 0;
         }
 
         //判断商店是否至少有一台正在值守的收银台，职责是阻止无人服务的商店继续吸引普通顾客。
@@ -92,55 +64,24 @@ namespace SimManagementLib.Tool
             }
             return false;
         }
-
-        /// <summary>
-        /// 判断顾客队伍中是否存在仍在地图上的待付款顾客。
-        /// </summary>
-        private static bool HasActivePawnWithPendingBill(Lord lord, LordJob_CustomerVisit visit, Zone_Shop zone)
-        {
-            if (lord?.ownedPawns == null || visit == null) return false;
-
-            for (int i = 0; i < lord.ownedPawns.Count; i++)
-            {
-                Pawn pawn = lord.ownedPawns[i];
-                if (pawn == null || pawn.Destroyed || pawn.Dead || !pawn.Spawned) continue;
-                if (visit.GetCurrentShop(pawn) != zone) continue;
-                if (visit.HasAnyBill(pawn.thingIDNumber))
-                    return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// 返回指定商店可显示的岗位列表，负责按岗位 Worker 和排序配置过滤。
-        /// </summary>
+        //返回指定商店可显示的岗位列表，负责按岗位 Worker 和排序配置过滤。
         public static List<ShopStaffRoleDef> GetVisibleRoles(Zone_Shop zone)
         {
             return new List<ShopStaffRoleDef>(GetCachedVisibleRoles(zone));
         }
-
-        /// <summary>
-        /// 判断岗位是否应在商店中显示，负责委托岗位 Worker 执行可见性策略。
-        /// </summary>
+        //判断岗位是否应在商店中显示，负责委托岗位 Worker 执行可见性策略。
         public static bool RoleMatchesShop(Zone_Shop zone, ShopStaffRoleDef role)
         {
             if (zone?.Map == null || role == null) return false;
             return role.Worker?.CanShow(zone) == true;
         }
-
-        /// <summary>
-        /// 返回指定商店中岗位允许分配的人数上限，负责支持 Worker 按店铺状态动态控制人数。
-        /// </summary>
+        //返回指定商店中岗位允许分配的人数上限，负责支持 Worker 按店铺状态动态控制人数。
         public static int GetMaxAssignedPawns(Zone_Shop zone, ShopStaffRoleDef role)
         {
             if (role == null) return 0;
             return System.Math.Max(0, role.Worker?.GetMaxAssignedPawns(zone) ?? role.MaxAssignedPawns);
         }
-
-        /// <summary>
-        /// 判断员工是否允许执行指定 WorkGiver，负责落实店铺岗位分配限制。
-        /// </summary>
+        //判断员工是否允许执行指定 WorkGiver，负责落实店铺岗位分配限制。
         public static bool AllowsPawnForWorkGiver(Zone_Shop zone, Pawn pawn, WorkGiverDef workGiverDef)
         {
             if (pawn == null) return false;
@@ -165,10 +106,7 @@ namespace SimManagementLib.Tool
 
             return !hasAnyAssignment;
         }
-
-        /// <summary>
-        /// 判断员工是否已被分配到指定 WorkGiver 对应岗位。
-        /// </summary>
+        //判断员工是否已被分配到指定 WorkGiver 对应岗位。
         public static bool IsAssignedToWorkGiver(Zone_Shop zone, Pawn pawn, WorkGiverDef workGiverDef)
         {
             if (zone == null || pawn == null || workGiverDef == null) return false;
@@ -184,10 +122,7 @@ namespace SimManagementLib.Tool
 
             return false;
         }
-
-        /// <summary>
-        /// 构建岗位分配显示文本，负责展示当前员工和岗位人数上限。
-        /// </summary>
+        //构建岗位分配显示文本，负责展示当前员工和岗位人数上限。
         public static string GetAssignmentLabel(Zone_Shop zone, ShopStaffRoleDef role)
         {
             if (zone == null || role == null) return SimTranslation.T("RSMF.Common.Unspecified");
@@ -200,10 +135,7 @@ namespace SimManagementLib.Tool
             int max = GetMaxAssignedPawns(zone, role);
             return $"{joined} ({pawns.Count}/{(max <= 0 ? SimTranslation.T("RSMF.Common.Unlimited") : max.ToString())})";
         }
-
-        /// <summary>
-        /// 枚举地图上可分配为店员的殖民者和玩家控制机械体。
-        /// </summary>
+        //枚举地图上可分配为店员的殖民者和玩家控制机械体。
         public static IEnumerable<Pawn> GetAssignablePawns(Map map)
         {
             if (map?.mapPawns == null) return Enumerable.Empty<Pawn>();
@@ -213,10 +145,7 @@ namespace SimManagementLib.Tool
                 .Distinct()
                 .OrderBy(p => p.LabelShortCap);
         }
-
-        /// <summary>
-        /// 评估员工是否满足岗位基础与 Worker 自定义资格要求。
-        /// </summary>
+        //评估员工是否满足岗位基础与 Worker 自定义资格要求。
         public static StaffEligibility EvaluateEligibility(Zone_Shop zone, Pawn pawn, ShopStaffRoleDef role)
         {
             if (pawn == null) return new StaffEligibility { Eligible = false, Reason = SimTranslation.T("RSMF.StaffManager.InvalidPawn") };
@@ -336,10 +265,7 @@ namespace SimManagementLib.Tool
                 && !pawn.Destroyed
                 && !pawn.Dead;
         }
-
-        /// <summary>
-        /// 评估员工是否满足岗位要求，负责兼容缺少商店上下文的旧调用。
-        /// </summary>
+        //评估员工是否满足岗位要求，负责兼容缺少商店上下文的旧调用。
         public static StaffEligibility EvaluateEligibility(Pawn pawn, ShopStaffRoleDef role)
         {
             return EvaluateEligibility(null, pawn, role);

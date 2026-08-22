@@ -33,29 +33,28 @@ namespace SimManagementLib.SimThingClass
             contentsDropped = true;
             virtualStorage.TryDropAll(dropSpot, map, ThingPlaceMode.Near);
             MarkStoredCountCacheDirty();
-            pendingIn?.Clear();
             pendingOut?.Clear();
         }
 
-        //反生成货柜时处理内部库存，职责是在地图移除前把商品退回地图并重建补货队列。
+        //反生成货柜时处理内部库存，职责是在地图移除前把商品退回地图并精确注销补货状态。
         public override void DeSpawn(DestroyMode mode = DestroyMode.Vanish)
         {
             Map oldMap = MapHeld;
             IntVec3 oldPosition = PositionHeld;
             DropStoredContentsIfNeeded(oldMap, oldPosition, mode);
+            oldMap?.GetComponent<MapComponent_RestockTaskQueue>()?.UnregisterStorage(this, "货柜反生成");
             base.DeSpawn(mode);
-            oldMap?.GetComponent<MapComponent_RestockTaskQueue>()?.ResetAndRebuildAll("货柜反生成");
             ShopDataUtility.NotifyBuildingChanged(oldMap, oldPosition);
             VendingMachineUtility.NotifyMapBuildingsChanged(oldMap);
         }
 
-        //摧毁货柜时处理内部库存，职责是在建筑消失前把商品退回地图并重建补货队列。
+        //摧毁货柜时处理内部库存，职责是在建筑消失前把商品退回地图并精确注销补货状态。
         public override void Destroy(DestroyMode mode = DestroyMode.Vanish)
         {
             Map oldMap = MapHeld;
             DropStoredContentsIfNeeded(MapHeld, PositionHeld, mode);
+            oldMap?.GetComponent<MapComponent_RestockTaskQueue>()?.UnregisterStorage(this, "货柜摧毁");
             base.Destroy(mode);
-            oldMap?.GetComponent<MapComponent_RestockTaskQueue>()?.ResetAndRebuildAll("货柜摧毁");
         }
 
         //返回货柜检查面板文本，职责是展示汇总库存和少量预览，避免大量商品逐行拖慢检查面板。
@@ -102,9 +101,6 @@ namespace SimManagementLib.SimThingClass
             }
             if (hidden > 0)
                 sb.Append("\n").Append(SimTranslation.T("RSMF.Container.Inspect.HiddenGoods", hidden.Named("count")));
-
-            if (Prefs.DevMode && !string.IsNullOrWhiteSpace(lastPendingReservationDebug))
-                sb.Append("\n").Append("补货调试: ").Append(lastPendingReservationDebug);
 
             if (string.IsNullOrEmpty(baseStr)) return sb.ToString();
             return baseStr + "\n" + sb;

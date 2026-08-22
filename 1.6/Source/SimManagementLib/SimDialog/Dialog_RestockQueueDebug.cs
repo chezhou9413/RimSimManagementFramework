@@ -163,16 +163,16 @@ namespace SimManagementLib.SimDialog
         //绘制概要卡片，职责是快速展示队列数量和最近处理信息。
         private float DrawSummaryCards(Rect rect)
         {
-            int dirty = snapshot?.DirtyCount ?? 0;
-            int ready = snapshot?.ReadyCount ?? 0;
-            int blocked = snapshot?.BlockedCount ?? 0;
             float cardGap = 8f;
             float cardWidth = (rect.width - cardGap * 3f) / 4f;
-            DrawSummaryCard(new Rect(rect.x, rect.y, cardWidth, rect.height), "Dirty", dirty.ToString(CultureInfo.InvariantCulture), DirtyText);
-            DrawSummaryCard(new Rect(rect.x + (cardWidth + cardGap), rect.y, cardWidth, rect.height), "Ready", ready.ToString(CultureInfo.InvariantCulture), ReadyText);
-            DrawSummaryCard(new Rect(rect.x + (cardWidth + cardGap) * 2f, rect.y, cardWidth, rect.height), "Blocked", blocked.ToString(CultureInfo.InvariantCulture), BlockedText);
-            string tickText = "处理 " + (snapshot?.LastProcessTick.ToString(CultureInfo.InvariantCulture) ?? "-1") + "\n重建 " + (snapshot?.LastRebuildTick.ToString(CultureInfo.InvariantCulture) ?? "-1");
-            DrawSummaryCard(new Rect(rect.x + (cardWidth + cardGap) * 3f, rect.y, cardWidth, rect.height), "Tick", tickText, MutedText);
+            string requestText = "普通 " + (snapshot?.BulkRequestCount ?? 0) + "  专业 " + (snapshot?.UniqueRequestCount ?? 0);
+            string stateText = "就绪 " + (snapshot?.ReadyCount ?? 0) + "  等待 " + (snapshot?.BlockedCount ?? 0);
+            string leaseText = "租约 " + (snapshot?.LeaseCount ?? 0) + "  最老 " + (snapshot?.OldestRequestAge ?? 0) + "t";
+            string budgetText = "需求 " + (snapshot?.DemandChecksUsed ?? 0) + "/8  派工 " + (snapshot?.DispatchAttemptsUsed ?? 0) + "/4\n员工 " + (snapshot?.IdlePawnChecksUsed ?? 0) + "/4  查询 " + (snapshot?.ReachQueriesUsed ?? 0) + "/4";
+            DrawSummaryCard(new Rect(rect.x, rect.y, cardWidth, rect.height), "Requests", requestText, DirtyText);
+            DrawSummaryCard(new Rect(rect.x + (cardWidth + cardGap), rect.y, cardWidth, rect.height), "State", stateText, ReadyText);
+            DrawSummaryCard(new Rect(rect.x + (cardWidth + cardGap) * 2f, rect.y, cardWidth, rect.height), "Lease / Age", leaseText, BlockedText);
+            DrawSummaryCard(new Rect(rect.x + (cardWidth + cardGap) * 3f, rect.y, cardWidth, rect.height), "Budget", budgetText, MutedText);
             return rect.height;
         }
 
@@ -199,7 +199,7 @@ namespace SimManagementLib.SimDialog
             for (int i = 0; i < count; i++)
             {
                 RestockTaskKey key = dirty[i];
-                string text = "storage=" + key.StorageId + " def=" + (key.ThingDef?.defName ?? "null");
+                string text = FormatQueueKey(key);
                 y += DrawTextRow(new Rect(rect.x, y, rect.width, 1f), text, DirtyText);
             }
             if ((dirty?.Count ?? 0) > count)
@@ -238,8 +238,7 @@ namespace SimManagementLib.SimDialog
         {
             string text = task == null
                 ? "null task"
-                : "storage=" + task.StorageId
-                  + " def=" + (task.ThingDef?.defName ?? "null")
+                : FormatQueueKey(task.Key)
                   + " need=" + task.NeededCount
                   + " supply=" + task.SupplyId
                   + " created=" + task.CreatedTick
@@ -281,7 +280,7 @@ namespace SimManagementLib.SimDialog
             int count = Math.Min(dirty?.Count ?? 0, MaxRowsPerSection);
             Text.Font = GameFont.Tiny;
             for (int i = 0; i < count; i++)
-                height += Mathf.Ceil(Text.CalcHeight("storage=" + dirty[i].StorageId + " def=" + (dirty[i].ThingDef?.defName ?? "null"), width - 16f)) + 14f;
+                height += Mathf.Ceil(Text.CalcHeight(FormatQueueKey(dirty[i]), width - 16f)) + 14f;
             if ((dirty?.Count ?? 0) > count)
                 height += Text.LineHeightOf(GameFont.Tiny) + 14f;
             return height;
@@ -296,12 +295,20 @@ namespace SimManagementLib.SimDialog
             for (int i = 0; i < count; i++)
             {
                 RestockTask task = tasks[i];
-                string text = task == null ? "null task" : "storage=" + task.StorageId + " def=" + (task.ThingDef?.defName ?? "null") + " need=" + task.NeededCount + " supply=" + task.SupplyId + " created=" + task.CreatedTick + " checked=" + task.LastCheckedTick + " retry=" + task.RetryTick + " reason=" + task.StateReason;
+                string text = task == null ? "null task" : FormatQueueKey(task.Key) + " need=" + task.NeededCount + " supply=" + task.SupplyId + " created=" + task.CreatedTick + " checked=" + task.LastCheckedTick + " retry=" + task.RetryTick + " reason=" + task.StateReason;
                 height += Mathf.Ceil(Text.CalcHeight(text, width - 16f)) + 14f;
             }
             if ((tasks?.Count ?? 0) > count)
                 height += Text.LineHeightOf(GameFont.Tiny) + 14f;
             return height;
+        }
+
+        //格式化普通或专业补货键，职责是让面板明确显示槽位和精确来源编号。
+        private static string FormatQueueKey(RestockTaskKey key)
+        {
+            if (key.Kind == RestockRequestKind.Unique)
+                return "kind=unique storage=" + key.StorageId + " slot=" + key.SlotIndex + " source=" + key.SourceThingId;
+            return "kind=bulk storage=" + key.StorageId + " def=" + (key.ThingDef?.defName ?? "null");
         }
 
         //复制完整补货报告，职责是方便玩家直接粘贴到日志网站。

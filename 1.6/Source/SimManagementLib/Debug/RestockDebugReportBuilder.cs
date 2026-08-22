@@ -112,10 +112,20 @@ namespace SimManagementLib.Debug
             sb.AppendLine("dirty=" + snapshot.DirtyCount
                 + " ready=" + snapshot.ReadyCount
                 + " blocked=" + snapshot.BlockedCount
+                + " bulkRequests=" + snapshot.BulkRequestCount
+                + " uniqueRequests=" + snapshot.UniqueRequestCount
+                + " leases=" + snapshot.LeaseCount
+                + " oldestAge=" + snapshot.OldestRequestAge
                 + " activeCycles=" + snapshot.ActiveCycleCount
                 + " lastProcessTick=" + snapshot.LastProcessTick
                 + " lastRebuildTick=" + snapshot.LastRebuildTick
                 + " lastReason=" + snapshot.LastReason);
+            sb.AppendLine("budget demand=" + snapshot.DemandChecksUsed + "/8"
+                + " dispatch=" + snapshot.DispatchAttemptsUsed + "/4"
+                + " idle=" + snapshot.IdlePawnChecksUsed + "/4"
+                + " reach=" + snapshot.ReachQueriesUsed + "/4");
+            foreach (KeyValuePair<string, int> entry in snapshot.WaitingReasonCounts.OrderByDescending(entry => entry.Value))
+                sb.AppendLine("  waitingReason count=" + entry.Value + " reason=" + entry.Key);
             AppendQueueTaskSamples(sb, "ready", snapshot.ReadyTasks);
             AppendQueueTaskSamples(sb, "blocked", snapshot.BlockedTasks);
             AppendQueueKeySamples(sb, "activeCycle", snapshot.ActiveCycles);
@@ -132,9 +142,7 @@ namespace SimManagementLib.Debug
             for (int i = 0; i < count; i++)
             {
                 RestockTaskKey key = keys[i];
-                sb.AppendLine("  " + label
-                    + " storage=" + key.StorageId
-                    + " def=" + (key.ThingDef?.defName ?? "null"));
+                sb.AppendLine("  " + label + " " + FormatQueueKey(key));
             }
 
             if (keys.Count > count)
@@ -152,8 +160,7 @@ namespace SimManagementLib.Debug
             {
                 RestockTask task = tasks[i];
                 sb.AppendLine("  " + label
-                    + " storage=" + task.StorageId
-                    + " def=" + (task.ThingDef?.defName ?? "null")
+                    + " " + FormatQueueKey(task.Key)
                     + " need=" + task.NeededCount
                     + " supply=" + task.SupplyId
                     + " retry=" + task.RetryTick
@@ -162,6 +169,14 @@ namespace SimManagementLib.Debug
 
             if (tasks.Count > count)
                 sb.AppendLine("  " + label + " 剩余省略: " + (tasks.Count - count));
+        }
+
+        //格式化普通或专业补货键，职责是让日志明确显示槽位和精确来源编号。
+        private static string FormatQueueKey(RestockTaskKey key)
+        {
+            if (key.Kind == RestockRequestKind.Unique)
+                return "kind=unique storage=" + key.StorageId + " slot=" + key.SlotIndex + " source=" + key.SourceThingId;
+            return "kind=bulk storage=" + key.StorageId + " def=" + (key.ThingDef?.defName ?? "null");
         }
 
         //写入员工诊断，职责是检查员工是否启用了补货相关工作并记录当前 Job。
@@ -229,9 +244,6 @@ namespace SimManagementLib.Debug
             sb.AppendLine("  商店: " + (shop?.label ?? "无") + " shopId=" + (shop?.ID.ToString() ?? "无") + " openForWork=" + ShopStaffUtility.IsShopOpenForWork(shop) + " vending=" + vending);
             sb.AppendLine("  总库存: " + storage.CountTotalStored() + "/" + storage.MaxTotalCapacity + " pendingIn=" + storage.CountTotalPendingIn(true));
             sb.AppendLine("  总缺口: " + totalMissing);
-            if (!string.IsNullOrEmpty(storage.LastPendingReservationDebug))
-                sb.AppendLine("  最近预约校正: " + storage.LastPendingReservationDebug);
-
             AppendStoragePawnAccess(sb, storage, shop, pawns);
             AppendStorageGoods(sb, storage, pawns);
             sb.AppendLine();

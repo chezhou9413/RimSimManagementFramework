@@ -1,6 +1,7 @@
 using SimManagementLib.Pojo;
 using SimManagementLib.SimService;
 using SimManagementLib.SimThingComp;
+using SimManagementLib.SimMapComp;
 using SimManagementLib.SimZone;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,16 +13,11 @@ using Verse.AI.Group;
 
 namespace SimManagementLib.Tool
 {
-    /// <summary>
-    /// 提供服务建筑扫描、价格计算、并发检查、服务订单创建和服务 Job 生成的公共入口。
-    /// </summary>
+    //提供服务建筑扫描、价格计算、并发检查、服务订单创建和服务 Job 生成的公共入口。
     public static class ShopServiceUtility
     {
         public const int CustomerServiceProviderReservationSlots = 24;
-
-        /// <summary>
-        /// 获取商店区域内所有挂载服务组件的建筑。
-        /// </summary>
+        //获取商店区域内所有挂载服务组件的建筑。
         public static HashSet<Thing> GetServiceProvidersInZone(Zone zone)
         {
             HashSet<Thing> providers = new HashSet<Thing>();
@@ -40,19 +36,13 @@ namespace SimManagementLib.Tool
 
             return providers;
         }
-
-        /// <summary>
-        /// 判断指定建筑是否至少提供一个已启用并可解析的服务。
-        /// </summary>
+        //判断指定建筑是否至少提供一个已启用并可解析的服务。
         public static bool HasEnabledService(Thing provider)
         {
             ThingComp_ServiceProvider comp = GetProviderComp(provider);
             return comp != null && comp.enabled && comp.EnabledSlots.Any();
         }
-
-        /// <summary>
-        /// 判断商店区域内是否存在可用服务提供建筑。
-        /// </summary>
+        //判断商店区域内是否存在可用服务提供建筑。
         public static bool HasUsableServiceProvider(Zone_Shop shop, Pawn customer = null, IReadOnlyCollection<string> targetServiceCategoryIds = null)
         {
             if (shop == null) return false;
@@ -75,10 +65,7 @@ namespace SimManagementLib.Tool
 
             return false;
         }
-
-        /// <summary>
-        /// 获取服务单价，优先读取显式覆盖价，再读取服务基础价，最低为 0。
-        /// </summary>
+        //获取服务单价，优先读取显式覆盖价，再读取服务基础价，最低为 0。
         public static float GetServicePrice(Thing provider, ShopServiceDef serviceDef)
         {
             if (serviceDef == null) return 0f;
@@ -93,10 +80,7 @@ namespace SimManagementLib.Tool
 
             return 0f;
         }
-
-        /// <summary>
-        /// 判断服务建筑槽位是否显式覆盖价格，负责让动态服务决定是否跳过自身计价公式。
-        /// </summary>
+        //判断服务建筑槽位是否显式覆盖价格，负责让动态服务决定是否跳过自身计价公式。
         public static bool TryGetExplicitServicePrice(Thing provider, ShopServiceDef serviceDef, out float price)
         {
             price = 0f;
@@ -111,10 +95,7 @@ namespace SimManagementLib.Tool
             price = Mathf.Max(0f, slot.priceOverride);
             return true;
         }
-
-        /// <summary>
-        /// 判断指定服务建筑是否还有并发容量。
-        /// </summary>
+        //判断指定服务建筑是否还有并发容量。
         public static bool CanAcceptMoreUsers(Thing provider, ShopServiceDef serviceDef)
         {
             if (provider == null || serviceDef == null) return false;
@@ -127,10 +108,7 @@ namespace SimManagementLib.Tool
             int limit = Mathf.Max(1, slot.maxSimultaneousUsers);
             return CountActiveUsers(provider.Map, provider.thingIDNumber, serviceDef.defName) < limit;
         }
-
-        /// <summary>
-        /// 统计地图中正在使用指定服务建筑和服务 Def 的顾客数量。
-        /// </summary>
+        //统计地图中正在使用指定服务建筑和服务 Def 的顾客数量。
         public static int CountActiveUsers(Map map, int providerThingId, string serviceDefName)
         {
             if (map == null || string.IsNullOrEmpty(serviceDefName)) return 0;
@@ -146,18 +124,12 @@ namespace SimManagementLib.Tool
 
             return count;
         }
-
-        /// <summary>
-        /// 查找顾客当前商店里最适合的一项可消费服务。
-        /// </summary>
+        //查找顾客当前商店里最适合的一项可消费服务。
         public static bool TryFindServiceForCustomer(Pawn pawn, Zone_Shop shop, float remainingBudget, out Thing provider, out ShopServiceDef serviceDef, out float price)
         {
             return TryFindServiceForCustomer(pawn, shop, remainingBudget, null, out provider, out serviceDef, out price);
         }
-
-        /// <summary>
-        /// 查找顾客当前商店里最适合的一项可消费服务，并允许调用方按服务分类过滤。
-        /// </summary>
+        //查找顾客当前商店里最适合的一项可消费服务，并允许调用方按服务分类过滤。
         public static bool TryFindServiceForCustomer(Pawn pawn, Zone_Shop shop, float remainingBudget, IReadOnlyCollection<string> targetServiceCategoryIds, out Thing provider, out ShopServiceDef serviceDef, out float price)
         {
             provider = null;
@@ -195,10 +167,7 @@ namespace SimManagementLib.Tool
             price = chosen.Price;
             return true;
         }
-
-        /// <summary>
-        /// 创建一条服务订单并填充基础价格、建筑和计费字段。
-        /// </summary>
+        //创建一条服务订单并填充基础价格、建筑和计费字段。
         public static CustomerServiceOrder CreateOrder(int orderId, Thing provider, ShopServiceDef serviceDef, float price)
         {
             return new CustomerServiceOrder
@@ -215,27 +184,13 @@ namespace SimManagementLib.Tool
                 reservedTick = Find.TickManager?.TicksGame ?? 0
             };
         }
-
-        /// <summary>
-        /// 按订单中的建筑 ID 查找当前地图上的服务建筑。
-        /// </summary>
+        //按订单中的建筑 ID 查找当前地图上的服务建筑。
         public static Thing FindProviderByOrder(Map map, CustomerServiceOrder order)
         {
             if (map == null || order == null || order.providerThingId < 0) return null;
-            IReadOnlyList<Thing> things = map.listerThings.AllThings;
-            for (int i = 0; i < things.Count; i++)
-            {
-                Thing thing = things[i];
-                if (thing != null && thing.thingIDNumber == order.providerThingId)
-                    return thing;
-            }
-
-            return null;
+            return map.GetComponent<CustomerArrivalManager>()?.FindCustomerTargetById(order.providerThingId);
         }
-
-        /// <summary>
-        /// 按服务订单创建实际使用 Job。
-        /// </summary>
+        //按服务订单创建实际使用 Job。
         public static Job MakeServiceUseJob(Pawn pawn, CustomerServiceOrder order)
         {
             if (pawn == null || order == null) return null;
@@ -244,10 +199,7 @@ namespace SimManagementLib.Tool
             if (serviceDef == null || provider == null) return null;
             return serviceDef.Worker.MakeUseJob(pawn, provider, order);
         }
-
-        /// <summary>
-        /// 判断顾客是否能用共享服务预约访问建筑，负责避开维修、拆除等独占预约中的服务建筑。
-        /// </summary>
+        //判断顾客是否能用共享服务预约访问建筑，负责避开维修、拆除等独占预约中的服务建筑。
         public static bool CanCustomerReserveServiceProvider(Pawn pawn, Thing provider)
         {
             if (pawn == null || provider == null || provider.Destroyed || !provider.Spawned) return false;
@@ -267,10 +219,7 @@ namespace SimManagementLib.Tool
                 Price = price;
             }
         }
-
-        /// <summary>
-        /// 从可能带组件的 Thing 上安全获取服务提供组件。
-        /// </summary>
+        //从可能带组件的 Thing 上安全获取服务提供组件。
         public static ThingComp_ServiceProvider GetProviderComp(Thing provider)
         {
             return (provider as ThingWithComps)?.GetComp<ThingComp_ServiceProvider>();

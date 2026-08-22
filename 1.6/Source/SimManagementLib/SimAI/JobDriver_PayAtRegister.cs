@@ -4,6 +4,7 @@ using SimManagementLib.GameComp;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimDef;
 using SimManagementLib.SimAI.CustomerVisit;
+using SimManagementLib.SimMapComp;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
@@ -16,9 +17,7 @@ using Verse.AI.Group;
 
 namespace SimManagementLib.SimAI
 {
-    /// <summary>
-    /// 执行顾客排队、等待收银员、付款、财务提交和结账失败回滚的收银台工作。
-    /// </summary>
+    //类职责：执行顾客排队和付款，并保证任何 Goto、目标、预约或 Toil 失败都统一清账释放票据。
     public class JobDriver_PayAtRegister : JobDriver
     {
         private const int ServiceTicks = 300;
@@ -39,18 +38,19 @@ namespace SimManagementLib.SimAI
         private bool cachedServiceCanProgress;
         private bool cachedRegisterManned;
         private int continuousUnmannedWaitTicks;
+        private bool checkoutCommitted;
+
+        private CustomerCheckoutQueueRegistry QueueRegistry => pawn?.Map?.GetComponent<CustomerArrivalManager>()?.CheckoutQueue;
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
-            // 顾客不独占收银台建筑本体，多个顾客通过排队顺序控制结账。
-            return true;
+            //顾客不独占收银台建筑本体，地图级票据负责保证幂等顺序。
+            return Register != null && QueueRegistry?.Acquire(pawn, Register) != null;
         }
-
-        /// <summary>
-        /// 构建顾客从排队到付款完成的 Toil 序列。
-        /// </summary>
+        //构建顾客从排队到付款完成的 Toil 序列。
         protected override IEnumerable<Toil> MakeNewToils()
         {
+            AddFinishAction(FinishCheckoutJob);
             this.FailOnDespawnedOrNull(TargetIndex.A);
 
             yield return MakeEnsureQueueAndServiceCellsToil();
@@ -71,6 +71,7 @@ namespace SimManagementLib.SimAI
             };
             waitInQueue.tickAction = () =>
             {
+                QueueRegistry?.Touch(pawn.thingIDNumber);
                 totalWaitTicks++;
                 if (pawn.IsHashIntervalTick(FacingUpdateIntervalTicks))
                     FaceCashierOrRegister();
@@ -105,7 +106,7 @@ namespace SimManagementLib.SimAI
                 if (pawn.IsHashIntervalTick(90))
                 {
                     UpdateQueueCell(lordJob);
-                    if (QueueCell.IsValid && pawn.Position != QueueCell && CustomerSafetyUtility.CanCustomerReach(pawn, QueueCell, PathEndMode.OnCell, Danger.Deadly))
+                    if (QueueCell.IsValid && pawn.Position != QueueCell)
                     {
                         pawn.pather.StartPath(QueueCell, PathEndMode.OnCell);
                     }
@@ -135,6 +136,7 @@ namespace SimManagementLib.SimAI
             };
             doService.tickAction = () =>
             {
+                QueueRegistry?.Touch(pawn.thingIDNumber);
                 totalWaitTicks++;
                 if (pawn.IsHashIntervalTick(FacingUpdateIntervalTicks))
                     FaceCashierOrRegister();
@@ -204,6 +206,7 @@ namespace SimManagementLib.SimAI
                     lordJob.GetOrCreateSession(pawn)?.NotifyCheckoutFailed(lordJob, pawn, timeoutContext.failReason);
                     analytics?.RecordCheckoutResult(shopZone, totalWaitTicks, maxQueueWaitTicks, 0, budget, success: false, timeout: true);
                     lordJob.CheckAllCheckoutsDone();
+                    checkoutCommitted = true;
                     return;
                 }
 
@@ -262,13 +265,11 @@ namespace SimManagementLib.SimAI
                 }
 
                 lordJob.CheckAllCheckoutsDone();
+                checkoutCommitted = true;
             };
             yield return finalize;
         }
-
-        /// <summary>
-        /// 确保排队格和服务格在当前地图状态下可用。
-        /// </summary>
+        //确保排队格和服务格在当前地图状态下可用。
         private Toil MakeEnsureQueueAndServiceCellsToil()
         {
             Toil toil = new Toil();
@@ -292,10 +293,7 @@ namespace SimManagementLib.SimAI
             };
             return toil;
         }
-
-        /// <summary>
-        /// 按当前队列顺序刷新等待格，负责在其他顾客离开或让路后恢复队列站位。
-        /// </summary>
+        //按当前队列顺序刷新等待格，负责在其他顾客离开或让路后恢复队列站位。
         private void UpdateQueueCell(LordJob_CustomerVisit lordJob)
         {
             IntVec3 service = ServiceCell;
@@ -309,65 +307,28 @@ namespace SimManagementLib.SimAI
             if (queue.IsValid && queue != QueueCell)
                 job.SetTarget(TargetIndex.B, queue);
         }
-
-        /// <summary>
-        /// 计算当前顾客在本收银台前面的待付款顾客数量，负责得到稳定的等待格序号。
-        /// </summary>
+        //计算当前顾客在本收银台前面的待付款顾客数量，负责得到稳定的等待格序号。
         private int GetQueueIndex(LordJob_CustomerVisit lordJob)
         {
-            if (lordJob == null) return 0;
-
-            int ahead = 0;
-            int myId = pawn.thingIDNumber;
-            int myOrder = lordJob.EnsureCheckoutOrder(myId);
-            IReadOnlyList<Pawn> pawns = pawn.Map.mapPawns.AllPawnsSpawned;
-            for (int i = 0; i < pawns.Count; i++)
-            {
-                Pawn other = pawns[i];
-                if (!IsEarlierPayingPawn(other, lordJob, myId, myOrder)) continue;
-                ahead++;
-            }
-
-            return ahead;
+            return QueueRegistry?.CountAhead(pawn.thingIDNumber) ?? 0;
         }
-
-        /// <summary>
-        /// 判断当前顾客是否已经轮到在该收银台结账。
-        /// </summary>
+        //判断当前顾客是否已经轮到在该收银台结账。
         private bool IsMyTurn(LordJob_CustomerVisit lordJob)
         {
-            int myId = pawn.thingIDNumber;
-            int myOrder = lordJob.EnsureCheckoutOrder(myId);
-
-            IReadOnlyList<Pawn> pawns = pawn.Map.mapPawns.AllPawnsSpawned;
-            for (int i = 0; i < pawns.Count; i++)
-            {
-                Pawn other = pawns[i];
-                if (IsEarlierPayingPawn(other, lordJob, myId, myOrder)) return false;
-            }
-
-            return true;
+            return QueueRegistry?.IsHead(pawn.thingIDNumber) == true;
         }
 
-        /// <summary>
-        /// 判断另一个顾客是否正在同一收银台前排在当前顾客前方，负责复用结账顺序判断。
-        /// </summary>
-        private bool IsEarlierPayingPawn(Pawn other, LordJob_CustomerVisit lordJob, int myId, int myOrder)
+        //统一收尾结账 Job，职责是释放票据并在非成功结束时幂等退货清账离店。
+        private void FinishCheckoutJob(JobCondition condition)
         {
-            if (other == null || other == pawn || other.thingIDNumber == myId) return false;
-            if (other.CurJobDef == null || other.CurJobDef.defName != "Customer_PayAtRegister") return false;
-            if (other.CurJob?.targetA.Thing != Register) return false;
-
-            int otherId = other.thingIDNumber;
-            if (lordJob.GetAmountOwedForCheckout(otherId) <= 0f) return false;
-
-            int otherOrder = lordJob.GetCheckoutOrder(otherId);
-            return otherOrder < myOrder;
+            QueueRegistry?.ReleasePawn(pawn?.thingIDNumber ?? -1);
+            ShopProgressBarUtility.Clear(pawn);
+            if (checkoutCommitted || condition == JobCondition.Succeeded || pawn == null || pawn.Map == null)
+                return;
+            LordJob_CustomerVisit lordJob = pawn.Map.lordManager?.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
+            lordJob?.FailCheckoutAndLeave(pawn, "结账工作中断，未付款商品已退回");
         }
-
-        /// <summary>
-        /// 处理顾客排队超时，负责退回商品、清账并标记服务订单失败或取消。
-        /// </summary>
+        //处理顾客排队超时，负责退回商品、清账并标记服务订单失败或取消。
         private void HandleCheckoutTimeout(LordJob_CustomerVisit lordJob, GameComponent_ShopFinanceManager finance, int pawnId, Zone_Shop shopZone)
         {
             if (shopZone != null)
@@ -382,10 +343,7 @@ namespace SimManagementLib.SimAI
             CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.CheckoutTimeout);
             ShopBubbleUtility.ShowTextBubble(pawn, SimTranslation.T("RSMF.Bubble.CheckoutQueueTimeout"), new Color(1f, 0.72f, 0.4f));
         }
-
-        /// <summary>
-        /// 构建结账公开上下文，负责把内部收银状态安全传递给外部 Hook。
-        /// </summary>
+        //构建结账公开上下文，负责把内部收银状态安全传递给外部 Hook。
         private ShopCheckoutContext BuildCheckoutContext(
             LordJob_CustomerVisit lordJob,
             Zone_Shop shopZone,
@@ -413,20 +371,14 @@ namespace SimManagementLib.SimAI
                 failReason = failReason ?? ""
             };
         }
-
-        /// <summary>
-        /// 复制顾客当前商品购物车，供付款后购后行为规则读取。
-        /// </summary>
+        //复制顾客当前商品购物车，供付款后购后行为规则读取。
         private static List<CustomerCartItem> SnapshotCartItems(LordJob_CustomerVisit lordJob, int pawnId)
         {
             List<CustomerCartItem> raw = lordJob?.GetCartItems(pawnId);
             if (raw.NullOrEmpty()) return new List<CustomerCartItem>();
             return raw.Where(item => item != null && item.def != null && item.count > 0).ToList();
         }
-
-        /// <summary>
-        /// 让顾客朝向当前收银员，缺少收银员时朝向收银台。
-        /// </summary>
+        //让顾客朝向当前收银员，缺少收银员时朝向收银台。
         private void FaceCashierOrRegister()
         {
             Pawn cashier = Register.CurrentCashier;
@@ -435,10 +387,7 @@ namespace SimManagementLib.SimAI
             else
                 pawn.rotationTracker.FaceTarget(Register);
         }
-
-        /// <summary>
-        /// 根据收银员全局工作速度和社交影响力计算收银服务速度。
-        /// </summary>
+        //根据收银员全局工作速度和社交影响力计算收银服务速度。
         private float GetCashierServiceSpeed()
         {
             Pawn cashier = Register.CurrentCashier;

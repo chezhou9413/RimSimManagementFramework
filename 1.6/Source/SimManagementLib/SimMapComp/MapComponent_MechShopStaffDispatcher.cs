@@ -139,6 +139,9 @@ namespace SimManagementLib.SimMapComp
             for (int i = 0; i < role.workGivers.Count; i++)
             {
                 WorkGiverDef workGiverDef = role.workGivers[i];
+                if (workGiverDef?.defName == "RestockMegaStorage"
+                    || workGiverDef?.defName == "RestockUniqueGoodsContainer")
+                    continue;
                 WorkGiver worker = workGiverDef?.Worker;
                 if (worker == null) continue;
 

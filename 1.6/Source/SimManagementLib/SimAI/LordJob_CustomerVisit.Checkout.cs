@@ -2,6 +2,7 @@ using SimManagementLib.Api;
 using SimManagementLib.GameComp;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimAI.CustomerVisit;
+using SimManagementLib.SimMapComp;
 using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
 using System.Collections.Generic;
@@ -15,9 +16,7 @@ namespace SimManagementLib.SimAI
 {
     public partial class LordJob_CustomerVisit
     {
-        /// <summary>
-        /// 标记顾客准备结账，并在全体活跃顾客准备完毕时推进群体状态机。
-        /// </summary>
+        //标记顾客准备结账，并在全体活跃顾客准备完毕时推进群体状态机。
         public void MarkPawnReadyForCheckout(int pawnId)
         {
             Pawn pawn = FindOwnedPawnById(pawnId);
@@ -46,82 +45,52 @@ namespace SimManagementLib.SimAI
                 lord?.ReceiveMemo("Customer_ReadyToCheckout");
             }
         }
-
-        /// <summary>
-        /// 从 Session 同步准备结账标记，负责避免 MarkPawnReadyForCheckout 与 Session 互相递归。
-        /// </summary>
+        //从 Session 同步准备结账标记，负责避免 MarkPawnReadyForCheckout 与 Session 互相递归。
         internal void MarkPawnReadyForCheckoutFromSession(int pawnId)
         {
             checkoutState.MarkPawnReadyForCheckout(pawnId);
         }
-
-        /// <summary>
-        /// 判断顾客是否已被标记为准备结账。
-        /// </summary>
+        //判断顾客是否已被标记为准备结账。
         public bool IsPawnReadyForCheckout(int pawnId)
         {
             return checkoutState.IsPawnReadyForCheckout(pawnId);
         }
-
-        /// <summary>
-        /// 清除顾客准备结账标记，负责让顾客完成单店结账后可以重新浏览下一家店。
-        /// </summary>
+        //清除顾客准备结账标记，负责让顾客完成单店结账后可以重新浏览下一家店。
         public void ClearPawnReadyForCheckout(int pawnId)
         {
             checkoutState.ClearPawnReadyForCheckout(pawnId);
         }
-
-        /// <summary>
-        /// 获取或分配顾客的固定结账顺序。
-        /// </summary>
+        //获取或分配顾客的固定结账顺序。
         public int EnsureCheckoutOrder(int pawnId)
         {
             return checkoutState.EnsureCheckoutOrder(pawnId);
         }
-
-        /// <summary>
-        /// 返回顾客已分配的结账顺序。
-        /// </summary>
+        //返回顾客已分配的结账顺序。
         public int GetCheckoutOrder(int pawnId)
         {
             return checkoutState.GetCheckoutOrder(pawnId);
         }
-
-        /// <summary>
-        /// 加入付款后需要执行的 Job 队列。
-        /// </summary>
+        //加入付款后需要执行的 Job 队列。
         public void QueuePostCheckoutJobs(int pawnId, IEnumerable<Job> jobs)
         {
             checkoutState.QueuePostCheckoutJobs(pawnId, jobs);
         }
-
-        /// <summary>
-        /// 取出顾客下一项购后 Job。
-        /// </summary>
+        //取出顾客下一项购后 Job。
         public bool TryTakeNextPostCheckoutJob(int pawnId, out Job job)
         {
             return checkoutState.TryTakeNextPostCheckoutJob(pawnId, out job);
         }
-
-        /// <summary>
-        /// 判断顾客是否仍需要完成购后阶段。
-        /// </summary>
+        //判断顾客是否仍需要完成购后阶段。
         public bool NeedsPostCheckoutCompletion(int pawnId)
         {
             return checkoutState.NeedsPostCheckoutCompletion(pawnId);
         }
-
-        /// <summary>
-        /// 返回指定顾客当前购后 Job 队列的简短说明，负责给顾客评价快照提供售后行为上下文。
-        /// </summary>
+        //返回指定顾客当前购后 Job 队列的简短说明，负责给顾客评价快照提供售后行为上下文。
         public string DescribePostCheckoutJobs(int pawnId)
         {
             return checkoutState.DescribePostCheckoutJobs(pawnId);
         }
-
-        /// <summary>
-        /// 标记顾客购后阶段完成，并清除服务订单。
-        /// </summary>
+        //标记顾客购后阶段完成，并清除服务订单。
         public void MarkPostCheckoutCompleted(int pawnId)
         {
             Pawn pawn = FindOwnedPawnById(pawnId);
@@ -130,10 +99,7 @@ namespace SimManagementLib.SimAI
             checkoutState.MarkPostCheckoutCompleted(pawnId);
             ClearCustomerServiceOrders(pawnId);
         }
-
-        /// <summary>
-        /// 在顾客已完成最低浏览后标记结账，负责避免未完成最低浏览时反复进入无效结账判定。
-        /// </summary>
+        //在顾客已完成最低浏览后标记结账，负责避免未完成最低浏览时反复进入无效结账判定。
         public bool TryMarkReadyForCheckoutAfterMinimumBrowse(Pawn pawn)
         {
             if (pawn == null) return false;
@@ -145,15 +111,13 @@ namespace SimManagementLib.SimAI
             MarkPawnReadyForCheckout(pawnId);
             return true;
         }
-
-        /// <summary>
-        /// 放弃无法完成的结账，负责在缺少可达收银台等失败场景中清账并推进离店。
-        /// </summary>
+        //放弃无法完成的结账，负责在缺少可达收银台等失败场景中清账并推进离店。
         public void FailCheckoutAndLeave(Pawn pawn, string failReason)
         {
             if (pawn == null) return;
 
             int pawnId = pawn.thingIDNumber;
+            pawn.Map?.GetComponent<CustomerArrivalManager>()?.ReleaseCheckoutTicket(pawn);
             Zone_Shop shopZone = GetCurrentShop(pawn);
             GameComponent_ShopFinanceManager finance = Current.Game?.GetComponent<GameComponent_ShopFinanceManager>();
             GameComponent_ShopAnalyticsManager analytics = Current.Game?.GetComponent<GameComponent_ShopAnalyticsManager>();
@@ -161,6 +125,14 @@ namespace SimManagementLib.SimAI
             List<FinanceLineItem> billLines = finance?.GetPendingBillLines(pawn) ?? new List<FinanceLineItem>();
             float amountOwed = GetAmountOwedForCheckout(pawnId);
             int budget = GetBudgetForPawn(pawnId);
+
+            if (amountOwed <= 0f && purchasedItems.NullOrEmpty())
+            {
+                GetOrCreateSession(pawn)?.NotifyCheckoutFailed(this, pawn, failReason);
+                forceLeaveAfterCheckout.Add(pawnId);
+                CheckAllCheckoutsDone();
+                return;
+            }
 
             if (shopZone != null)
                 ShopDataUtility.ReturnCartItemsToShop(shopZone, purchasedItems);
@@ -188,12 +160,11 @@ namespace SimManagementLib.SimAI
             CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.CheckoutTimeout);
             ShopBubbleUtility.ShowTextBubble(pawn, context.failReason, new Color(1f, 0.72f, 0.4f));
             analytics?.RecordCheckoutResult(shopZone, 0, GetQueuePatienceForPawn(pawnId), 0, budget, success: false, timeout: true);
+            GetOrCreateSession(pawn)?.NotifyCheckoutFailed(this, pawn, context.failReason);
+            forceLeaveAfterCheckout.Add(pawnId);
             CheckAllCheckoutsDone();
         }
-
-        /// <summary>
-        /// 让零账单顾客单独结束本次访问并离图，负责避免无匹配商品顾客等待整个顾客团导致长期停留。
-        /// </summary>
+        //让零账单顾客单独结束本次访问并离图，负责避免无匹配商品顾客等待整个顾客团导致长期停留。
         public void FinishZeroBillCustomerAndLeave(Pawn pawn, string reason)
         {
             if (pawn == null || lord == null) return;
@@ -227,18 +198,10 @@ namespace SimManagementLib.SimAI
             checkoutState.ClearCheckoutOrder(pawnId);
             Tool.SimDebugLogger.Journey("RSMF.Checkout", reason ?? "零账单顾客离店", pawn, shopZone, -1);
 
-            Lord oldLord = lord;
-            oldLord.Notify_PawnLost(pawn, PawnLostCondition.LeftVoluntarily);
-            if (pawn.Spawned && !pawn.Dead && !pawn.Destroyed && pawn.Map != null)
-                LordMaker.MakeNewLord(pawn.Faction, new LordJob_ExitMapBest(LocomotionUrgency.Walk, canDig: false, canDefendSelf: false), pawn.Map, new[] { pawn });
-
-            if (!oldLord.ownedPawns.NullOrEmpty())
-                CheckAllCheckoutsDone();
+            forceLeaveAfterCheckout.Add(pawnId);
+            lord.ReceiveMemo("Customer_CheckoutCompleted");
         }
-
-        /// <summary>
-        /// 判断所有仍在地图上的顾客是否都已准备结账。
-        /// </summary>
+        //判断所有仍在地图上的顾客是否都已准备结账。
         private bool AreAllActivePawnsReadyForCheckout()
         {
             if (lord?.ownedPawns == null || lord.ownedPawns.Count == 0) return true;
@@ -253,10 +216,7 @@ namespace SimManagementLib.SimAI
 
             return true;
         }
-
-        /// <summary>
-        /// 判断是否应进入结账阶段，负责让已有未付账单的顾客优先结账而不是继续浏览。
-        /// </summary>
+        //判断是否应进入结账阶段，负责让已有未付账单的顾客优先结账而不是继续浏览。
         internal bool ShouldEnterCheckoutPhaseForSession()
         {
             if (AreAllActivePawnsReadyForCheckout())
@@ -274,18 +234,12 @@ namespace SimManagementLib.SimAI
 
             return false;
         }
-
-        /// <summary>
-        /// 判断是否应进入结账阶段，负责让已有未付账单的顾客优先结账而不是继续浏览。
-        /// </summary>
+        //判断是否应进入结账阶段，负责让已有未付账单的顾客优先结账而不是继续浏览。
         private bool ShouldEnterCheckoutPhase()
         {
             return ShouldEnterCheckoutPhaseForSession();
         }
-
-        /// <summary>
-        /// 检查所有活跃顾客是否都完成结账和购后行为，完成时推进群体状态机离店。
-        /// </summary>
+        //检查所有活跃顾客是否都完成结账和购后行为，完成时推进群体状态机离店。
         public void CheckAllCheckoutsDone()
         {
             bool allDone = true;
@@ -302,7 +256,7 @@ namespace SimManagementLib.SimAI
                     break;
                 }
 
-                // 顾客必须消费完所有购后服务 Job 后才算完成本次访问。
+                //顾客必须消费完所有购后服务 Job 后才算完成本次访问。
                 if (checkoutState.NeedsPostCheckoutCompletion(pawnId))
                 {
                     allDone = false;

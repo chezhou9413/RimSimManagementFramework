@@ -4,6 +4,7 @@ using SimManagementLib.Pojo;
 using SimManagementLib.SimAI;
 using SimManagementLib.SimAI.CustomerVisit;
 using SimManagementLib.SimThingClass;
+using SimManagementLib.SimMapComp;
 using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
 using System;
@@ -17,16 +18,11 @@ using Verse.AI.Group;
 
 namespace SimManagementLib.Debug
 {
-    /// <summary>
-    /// 构建单个顾客的完整调试报告，负责把状态机、当前职责、商品匹配和最近行程日志汇总为可复制文本。
-    /// </summary>
+    //构建单个顾客的完整调试报告，负责把状态机、当前职责、商品匹配和最近行程日志汇总为可复制文本。
     public static class CustomerVisitDebugReportBuilder
     {
         private const int MaxRecentLogLines = 80;
-
-        /// <summary>
-        /// 构建指定顾客的诊断文本，负责给卡住顾客定位使用。
-        /// </summary>
+        //构建指定顾客的诊断文本，负责给卡住顾客定位使用。
         public static string Build(Pawn pawn)
         {
             StringBuilder sb = new StringBuilder();
@@ -77,15 +73,16 @@ namespace SimManagementLib.Debug
             sb.AppendLine(session?.BuildDebugReport(visit, pawn) ?? "无 Session");
             sb.AppendLine();
 
+            sb.AppendLine("[MapRuntime]");
+            sb.AppendLine(pawn.Map.GetComponent<CustomerArrivalManager>()?.BuildRuntimeDiagnostics() ?? "无地图顾客协调器");
+            sb.AppendLine();
+
             AppendShopDiagnostics(sb, pawn, visit, shop, remaining);
             AppendCartAndBills(sb, pawn, visit);
             AppendRecentLogLines(sb, pawn);
             return sb.ToString();
         }
-
-        /// <summary>
-        /// 写入报告头部，负责记录生成时间和游戏 Tick。
-        /// </summary>
+        //写入报告头部，负责记录生成时间和游戏 Tick。
         private static void AppendHeader(StringBuilder sb, Pawn pawn)
         {
             sb.AppendLine("RimSim 顾客行为诊断");
@@ -94,10 +91,7 @@ namespace SimManagementLib.Debug
             sb.AppendLine("Map: " + (pawn?.Map?.uniqueID.ToString() ?? "无"));
             sb.AppendLine();
         }
-
-        /// <summary>
-        /// 写入商店和商品匹配诊断，负责解释顾客为什么能或不能拿到浏览 Job。
-        /// </summary>
+        //写入商店和商品匹配诊断，负责解释顾客为什么能或不能拿到浏览 Job。
         private static void AppendShopDiagnostics(StringBuilder sb, Pawn pawn, LordJob_CustomerVisit visit, Zone_Shop shop, float remaining)
         {
             sb.AppendLine("[ShopMatch]");
@@ -127,10 +121,7 @@ namespace SimManagementLib.Debug
             }
             sb.AppendLine();
         }
-
-        /// <summary>
-        /// 写入购物车和账单诊断，负责检查零账单或待付款状态。
-        /// </summary>
+        //写入购物车和账单诊断，负责检查零账单或待付款状态。
         private static void AppendCartAndBills(StringBuilder sb, Pawn pawn, LordJob_CustomerVisit visit)
         {
             int pawnId = pawn.thingIDNumber;
@@ -150,25 +141,14 @@ namespace SimManagementLib.Debug
                 sb.AppendLine("  " + lines[i].label + " amount=" + lines[i].amount.ToString("F2"));
             sb.AppendLine();
         }
-
-        /// <summary>
-        /// 写入最近行程日志，负责提供当前顾客相关的历史事件。
-        /// </summary>
+        //写入最近行程日志，负责提供当前顾客相关的历史事件。
         private static void AppendRecentLogLines(StringBuilder sb, Pawn pawn)
         {
             sb.AppendLine("[RecentJourneyLog]");
             try
             {
-                string path = SimDebugLogger.JourneyLogPath;
-                sb.AppendLine("Path: " + path);
-                if (!File.Exists(path))
-                {
-                    sb.AppendLine("日志文件不存在。");
-                    return;
-                }
-
                 string pawnKey = "pawn=" + pawn.LabelShortCap + "/" + pawn.thingIDNumber;
-                List<string> lines = File.ReadLines(path, Encoding.UTF8)
+                List<string> lines = SimDebugLogger.GetRecentLines()
                     .Where(line => line.Contains(pawnKey))
                     .Reverse()
                     .Take(MaxRecentLogLines)
@@ -184,10 +164,7 @@ namespace SimManagementLib.Debug
                 sb.AppendLine("读取日志失败: " + ex.Message);
             }
         }
-
-        /// <summary>
-        /// 描述当前 Job 目标，负责判断顾客正在操作哪个对象。
-        /// </summary>
+        //描述当前 Job 目标，负责判断顾客正在操作哪个对象。
         private static string DescribeJobTargets(Job job)
         {
             if (job == null) return "无";
@@ -196,20 +173,14 @@ namespace SimManagementLib.Debug
                 + " C=" + DescribeTarget(job.targetC)
                 + " count=" + job.count;
         }
-
-        /// <summary>
-        /// 描述单个 Job 目标。
-        /// </summary>
+        //描述单个 Job 目标。
         private static string DescribeTarget(LocalTargetInfo target)
         {
             if (!target.IsValid) return "无";
             if (target.HasThing) return target.Thing.LabelShortCap + "/" + target.Thing.ThingID;
             return target.Cell.ToString();
         }
-
-        /// <summary>
-        /// 描述货柜库存匹配状态，负责检查目标商品、价格和可达性。
-        /// </summary>
+        //描述货柜库存匹配状态，负责检查目标商品、价格和可达性。
         private static string DescribeStorage(Pawn pawn, LordJob_CustomerVisit visit, Building_SimContainer storage, float remaining)
         {
             if (storage == null) return "无";

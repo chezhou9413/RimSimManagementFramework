@@ -12,9 +12,7 @@ using Verse;
 
 namespace SimManagementLib
 {
-    /// <summary>
-    /// 保存模拟经营框架的模组设置，负责顾客系统、财务日志和 AI 顾客评价配置的持久化。
-    /// </summary>
+    //保存模拟经营框架的模组设置，负责顾客系统、财务日志和 AI 顾客评价配置的持久化。
     public class SimManagementLibSettings : ModSettings
     {
         public bool showCustomerArrivalMessage = true;
@@ -22,7 +20,7 @@ namespace SimManagementLib
         public int customerArrivalCheckIntervalTicks = 500;
         public int maxFinanceBillRecords = 2000;
         public int financeLogPageSize = 30;
-        public bool enableJourneyDebugLog = true;
+        public bool enableJourneyDebugLog;
         public bool mirrorJourneyDebugLogToGameLog;
         public int journeyDebugLogMaxBytes = 4194304;
         public string debugForcedCustomerKindId = "";
@@ -69,10 +67,7 @@ namespace SimManagementLib
         public string reviewPromptEnabledNodeIds = "";
         public string reviewPromptNodeOrder = "";
         public string reviewPromptCustomNodes = "";
-
-        /// <summary>
-        /// 读写模组设置数据，负责兼容旧配置并限制数值范围。
-        /// </summary>
+        //读写模组设置数据，负责兼容旧配置并限制数值范围。
         public override void ExposeData()
         {
             base.ExposeData();
@@ -81,7 +76,7 @@ namespace SimManagementLib
             Scribe_Values.Look(ref customerArrivalCheckIntervalTicks, "customerArrivalCheckIntervalTicks", 500);
             Scribe_Values.Look(ref maxFinanceBillRecords, "maxFinanceBillRecords", 2000);
             Scribe_Values.Look(ref financeLogPageSize, "financeLogPageSize", 30);
-            Scribe_Values.Look(ref enableJourneyDebugLog, "enableJourneyDebugLog", true);
+            Scribe_Values.Look(ref enableJourneyDebugLog, "enableJourneyDebugLog", false);
             Scribe_Values.Look(ref mirrorJourneyDebugLogToGameLog, "mirrorJourneyDebugLogToGameLog", false);
             Scribe_Values.Look(ref journeyDebugLogMaxBytes, "journeyDebugLogMaxBytes", 4194304);
             Scribe_Values.Look(ref debugForcedCustomerKindId, "debugForcedCustomerKindId", "");
@@ -151,19 +146,13 @@ namespace SimManagementLib
             SyncLegacyReviewAiConnectionFields();
             NormalizeReviewSettingsText();
         }
-
-        /// <summary>
-        /// 规范化经商管理页面配置，负责移除空白和重复的页面标识。
-        /// </summary>
+        //规范化经商管理页面配置，负责移除空白和重复的页面标识。
         private void NormalizeBusinessManagerPageSettings()
         {
             businessManagerPageOrder = NormalizeStringList(businessManagerPageOrder);
             businessManagerHiddenPages = NormalizeStringList(businessManagerHiddenPages);
         }
-
-        /// <summary>
-        /// 规范化字符串列表，负责保证持久化的页面标识稳定且没有重复项。
-        /// </summary>
+        //规范化字符串列表，负责保证持久化的页面标识稳定且没有重复项。
         private static List<string> NormalizeStringList(List<string> values)
         {
             List<string> result = new List<string>();
@@ -182,10 +171,7 @@ namespace SimManagementLib
 
             return result;
         }
-
-        /// <summary>
-        /// 规范化通用 LLM 设置文本，负责旧存档缺失字段时补齐安全默认值。
-        /// </summary>
+        //规范化通用 LLM 设置文本，负责旧存档缺失字段时补齐安全默认值。
         private void NormalizeLlmSettingsText()
         {
             if (llmOpenAiBaseUrl == null) llmOpenAiBaseUrl = "https://api.openai.com/v1";
@@ -195,10 +181,7 @@ namespace SimManagementLib
             if (llmAnthropicModel == null) llmAnthropicModel = "claude-3-5-haiku-latest";
             SanitizeLlmSettingsText();
         }
-
-        /// <summary>
-        /// 清理通用 LLM 设置里的非法 UTF-16 字符，负责避免 HTTP、JSON 和日志路径遇到孤立代理字符。
-        /// </summary>
+        //清理通用 LLM 设置里的非法 UTF-16 字符，负责避免 HTTP、JSON 和日志路径遇到孤立代理字符。
         public void SanitizeLlmSettingsText()
         {
             llmOpenAiBaseUrl = StringEncodingUtility.SanitizeUtf16(llmOpenAiBaseUrl);
@@ -207,10 +190,7 @@ namespace SimManagementLib
             llmAnthropicApiKey = StringEncodingUtility.SanitizeUtf16(llmAnthropicApiKey);
             llmAnthropicModel = StringEncodingUtility.SanitizeUtf16(llmAnthropicModel);
         }
-
-        /// <summary>
-        /// 从旧评价 AI 连接字段迁移通用 LLM 配置，负责让旧设置无需重新填写密钥。
-        /// </summary>
+        //从旧评价 AI 连接字段迁移通用 LLM 配置，负责让旧设置无需重新填写密钥。
         private void MigrateLegacyReviewAiConnectionSettings()
         {
             bool hasNewCredential = !string.IsNullOrWhiteSpace(llmOpenAiApiKey) || !string.IsNullOrWhiteSpace(llmAnthropicApiKey);
@@ -228,10 +208,7 @@ namespace SimManagementLib
             llmAnthropicModel = anthropicModel;
             SanitizeLlmSettingsText();
         }
-
-        /// <summary>
-        /// 将通用 LLM 连接字段同步给旧评价字段，负责兼容仍读取旧字段的调试和存档路径。
-        /// </summary>
+        //将通用 LLM 连接字段同步给旧评价字段，负责兼容仍读取旧字段的调试和存档路径。
         public void SyncLegacyReviewAiConnectionFields()
         {
             reviewProvider = llmProvider == SimLlmProvider.Anthropic ? CustomerReviewProvider.Anthropic : CustomerReviewProvider.OpenAICompatible;
@@ -241,10 +218,7 @@ namespace SimManagementLib
             anthropicApiKey = llmAnthropicApiKey;
             anthropicModel = llmAnthropicModel;
         }
-
-        /// <summary>
-        /// 规范化 AI 点评设置文本，负责旧存档缺失字段时补齐安全默认值。
-        /// </summary>
+        //规范化 AI 点评设置文本，负责旧存档缺失字段时补齐安全默认值。
         private void NormalizeReviewSettingsText()
         {
             if (openAiBaseUrl == null) openAiBaseUrl = "https://api.openai.com/v1";
@@ -269,10 +243,7 @@ namespace SimManagementLib
             UpgradeLegacyReviewForumDefaults();
             UpgradeLegacyReviewPromptDefaults();
         }
-
-        /// <summary>
-        /// 清理 AI 点评设置里的非法 UTF-16 字符，负责避免 HTTP、JSON 和日志路径遇到孤立代理字符。
-        /// </summary>
+        //清理 AI 点评设置里的非法 UTF-16 字符，负责避免 HTTP、JSON 和日志路径遇到孤立代理字符。
         public void SanitizeReviewSettingsText()
         {
             debugForcedCustomerKindId = StringEncodingUtility.SanitizeUtf16(debugForcedCustomerKindId);
@@ -296,19 +267,13 @@ namespace SimManagementLib
             reviewPromptNodeOrder = StringEncodingUtility.SanitizeUtf16(reviewPromptNodeOrder);
             reviewPromptCustomNodes = StringEncodingUtility.SanitizeUtf16(reviewPromptCustomNodes);
         }
-
-        /// <summary>
-        /// 将旧版论坛互动默认概率升级为更活跃的默认值。
-        /// </summary>
+        //将旧版论坛互动默认概率升级为更活跃的默认值。
         private void UpgradeLegacyReviewForumDefaults()
         {
             if (Mathf.Approximately(reviewForumReactionChance, 0.60f) || Mathf.Approximately(reviewForumReactionChance, 0.85f)) reviewForumReactionChance = 0.95f;
             if (Mathf.Approximately(reviewForumReplyChance, 0.35f) || Mathf.Approximately(reviewForumReplyChance, 0.65f)) reviewForumReplyChance = 0.75f;
         }
-
-        /// <summary>
-        /// 将未手动改动过的旧默认提示词升级为更口语、多样的默认文本。
-        /// </summary>
+        //将未手动改动过的旧默认提示词升级为更口语、多样的默认文本。
         private void UpgradeLegacyReviewPromptDefaults()
         {
             if (reviewSystemPrompt == CustomerReviewPromptDefaults.LegacySystemPrompt) reviewSystemPrompt = CustomerReviewPromptDefaults.DefaultSystemPrompt;
@@ -329,19 +294,13 @@ namespace SimManagementLib
             if (reviewNegativeWords == CustomerReviewPromptDefaults.LegacyNegativeWords) reviewNegativeWords = CustomerReviewPromptDefaults.DefaultNegativeWords;
             if (reviewBannedWords == CustomerReviewPromptDefaults.LegacyBannedWords) reviewBannedWords = CustomerReviewPromptDefaults.DefaultBannedWords;
         }
-
-        /// <summary>
-        /// 判断当前通用 LLM 配置是否具备发起请求的必要字段。
-        /// </summary>
+        //判断当前通用 LLM 配置是否具备发起请求的必要字段。
         public bool HasValidLlmConfig()
         {
             if (!llmEnabled) return false;
             return HasLlmConnectionFields();
         }
-
-        /// <summary>
-        /// 判断当前通用 LLM 供应商的连接字段是否齐全，负责让测试按钮不依赖功能启用开关。
-        /// </summary>
+        //判断当前通用 LLM 供应商的连接字段是否齐全，负责让测试按钮不依赖功能启用开关。
         public bool HasLlmConnectionFields()
         {
             if (llmProvider == SimLlmProvider.Anthropic)
@@ -351,28 +310,19 @@ namespace SimManagementLib
                 && !string.IsNullOrEmpty(llmOpenAiApiKey)
                 && !string.IsNullOrEmpty(llmOpenAiModel);
         }
-
-        /// <summary>
-        /// 判断当前 AI 点评配置是否具备发起请求的必要字段。
-        /// </summary>
+        //判断当前 AI 点评配置是否具备发起请求的必要字段。
         public bool HasValidReviewAiConfig()
         {
             if (!reviewAiEnabled) return false;
             return HasValidLlmConfig();
         }
-
-        /// <summary>
-        /// 判断当前供应商的连接字段是否齐全，负责让测试按钮不依赖功能启用开关。
-        /// </summary>
+        //判断当前供应商的连接字段是否齐全，负责让测试按钮不依赖功能启用开关。
         public bool HasReviewAiConnectionFields()
         {
             return HasLlmConnectionFields();
         }
     }
-
-    /// <summary>
-    /// RimWorld 模组入口，负责初始化 Harmony、读取设置并绘制模组设置页。
-    /// </summary>
+    //RimWorld 模组入口，负责初始化 Harmony、读取设置并绘制模组设置页。
     public class SimManagementLibMod : Mod
     {
         private const float SettingsScrollBottomPadding = 24f;
@@ -380,27 +330,18 @@ namespace SimManagementLib
         public static ModContentPack ActiveContentPack { get; private set; }
         private Vector2 settingsScrollPosition;
         private float settingsViewHeight = 700f;
-
-        /// <summary>
-        /// 初始化模组设置实例，负责保存内容包引用并读取玩家配置。
-        /// </summary>
+        //初始化模组设置实例，负责保存内容包引用并读取玩家配置。
         public SimManagementLibMod(ModContentPack content) : base(content)
         {
             ActiveContentPack = content;
             Settings = GetSettings<SimManagementLibSettings>();
         }
-
-        /// <summary>
-        /// 返回模组设置页名称，负责让 RimWorld 在设置列表中显示本模组入口。
-        /// </summary>
+        //返回模组设置页名称，负责让 RimWorld 在设置列表中显示本模组入口。
         public override string SettingsCategory()
         {
             return SimTranslation.T("RSMF.Settings.Category");
         }
-
-        /// <summary>
-        /// 绘制模组设置页面，负责提供顾客、财务、评价和注册面板入口。
-        /// </summary>
+        //绘制模组设置页面，负责提供顾客、财务、评价和注册面板入口。
         public override void DoSettingsWindowContents(Rect inRect)
         {
             if (Settings == null)
@@ -471,7 +412,7 @@ namespace SimManagementLib
                 Settings.customerArrivalCheckIntervalTicks = 500;
                 Settings.maxFinanceBillRecords = 2000;
                 Settings.financeLogPageSize = 30;
-                Settings.enableJourneyDebugLog = true;
+                Settings.enableJourneyDebugLog = false;
                 Settings.mirrorJourneyDebugLogToGameLog = false;
                 Settings.journeyDebugLogMaxBytes = 4194304;
                 Settings.debugForcedCustomerKindId = "";
@@ -484,10 +425,7 @@ namespace SimManagementLib
             Widgets.EndScrollView();
             Settings.Write();
         }
-
-        /// <summary>
-        /// 绘制用于测试刷客的强制顾客组选择控件。
-        /// </summary>
+        //绘制用于测试刷客的强制顾客组选择控件。
         private static void DrawDebugForcedCustomerKindSelector(Listing_Standard list)
         {
             CustomerCatalog.EnsureInitialized();
@@ -532,19 +470,14 @@ namespace SimManagementLib
     [StaticConstructorOnStartup]
     public static class SimManagementLibBootstrap
     {
-        /// <summary>
-        /// 初始化框架补丁和快捷指令注册，负责在 Def 加载后接入必要的运行时入口。
-        /// </summary>
+        //初始化框架补丁和快捷指令注册，负责在 Def 加载后接入必要的运行时入口。
         static SimManagementLibBootstrap()
         {
             Harmony harmony = new Harmony("com.Chezhou.simmanagementlib");
             harmony.PatchAll();
             EnsureShopDesignatorRegistered();
         }
-
-        /// <summary>
-        /// 将商店区和快捷商品注册指令接入原版区划分类，负责兼容只打开原版区划页的玩家操作路径。
-        /// </summary>
+        //将商店区和快捷商品注册指令接入原版区划分类，负责兼容只打开原版区划页的玩家操作路径。
         private static void EnsureShopDesignatorRegistered()
         {
             DesignationCategoryDef zoneCategory = DefDatabase<DesignationCategoryDef>.GetNamedSilentFail("Zone");

@@ -1,6 +1,7 @@
 using RimWorld;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimDialog;
+using SimManagementLib.SimMapComp;
 using SimManagementLib.SimThingComp;
 using SimManagementLib.Tool;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ using Verse.AI;
 namespace SimManagementLib.SimThingClass
 {
     //单件品质商品货柜基类，职责是按槽位保存真实物品并提供精确补货和购买能力。
-    public class Building_UniqueGoodsContainer : Building_SimContainer
+    public partial class Building_UniqueGoodsContainer : Building_SimContainer
     {
         private List<UniqueGoodsSlotData> uniqueSlots = new List<UniqueGoodsSlotData>();
         private int cachedInspectVersion = -1;
@@ -85,11 +86,12 @@ namespace SimManagementLib.SimThingClass
             return IsEligibleUniqueThing(thing);
         }
 
-        //处理槽位变化，职责是集中刷新库存缓存、贴图和地图网格。
-        protected virtual void NotifyUniqueSlotsChanged()
+        //处理槽位变化，职责是刷新库存显示并向地图协调器发出精确需求通知。
+        protected virtual void NotifyUniqueSlotsChanged(string reason = "专业货柜槽位变化")
         {
             MarkStoredCountCacheDirty();
             RefreshProgressStageGraphic();
+            Map?.GetComponent<MapComponent_RestockTaskQueue>()?.MarkUniqueStorageDirty(this, reason);
         }
 
         //创建专业货柜管理窗口。
@@ -143,38 +145,6 @@ namespace SimManagementLib.SimThingClass
             return index >= 0 && index < uniqueSlots.Count ? uniqueSlots[index] : null;
         }
 
-        //将地图上的具体物品加入第一个空槽的补货队列。
-        public bool TryQueueSource(Thing source, out string reason)
-        {
-            reason = "";
-            EnsureUniqueSlots();
-            if (!IsEligibleUniqueThing(source) || !source.Spawned || source.Map != Map)
-            {
-                reason = "该物品不符合专业货柜上架条件。";
-                return false;
-            }
-            if (IsSourceAssignedAnywhere(source.thingIDNumber))
-            {
-                reason = "该物品已经被其他槽位指定。";
-                return false;
-            }
-
-            UniqueGoodsSlotData slot = uniqueSlots.FirstOrDefault(s => s != null
-                && !s.IsOccupied
-                && IsEligibleUniqueThingForSlot(source, s.index));
-            if (slot == null)
-            {
-                reason = "专业货柜没有可接收该物品的空槽。";
-                return false;
-            }
-
-            slot.pendingSourceThingId = source.thingIDNumber;
-            slot.pendingSourceLabel = source.LabelCapNoCount;
-            slot.price = Mathf.Max(1f, source.MarketValue);
-            NotifyUniqueSlotsChanged();
-            return true;
-        }
-
         //直接存入一件真实商品，职责是供场景生成和外部测试初始化现货槽位。
         public bool TryStoreDirectly(Thing thing)
         {
@@ -197,101 +167,6 @@ namespace SimManagementLib.SimThingClass
             }
             slot.storedThingId = thing.thingIDNumber;
             slot.price = Mathf.Max(1f, thing.MarketValue);
-            NotifyUniqueSlotsChanged();
-            return true;
-        }
-
-        //判断来源是否已被地图上的任意专业货柜指定。
-        public bool IsSourceAssignedAnywhere(int sourceThingId)
-        {
-            if (sourceThingId < 0 || Map?.listerBuildings?.allBuildingsColonist == null) return false;
-            List<Building> buildings = Map.listerBuildings.allBuildingsColonist;
-            for (int i = 0; i < buildings.Count; i++)
-            {
-                if (!(buildings[i] is Building_UniqueGoodsContainer container)) continue;
-                IReadOnlyList<UniqueGoodsSlotData> slots = container.UniqueSlots;
-                for (int j = 0; j < slots.Count; j++)
-                    if (slots[j]?.pendingSourceThingId == sourceThingId) return true;
-            }
-            return false;
-        }
-
-        //查找一个能够执行的精确补货来源。
-        public bool TryFindPendingSource(Pawn pawn, out UniqueGoodsSlotData slot, out Thing source)
-        {
-            EnsureUniqueSlots();
-            bool changed = false;
-            for (int i = 0; i < uniqueSlots.Count; i++)
-            {
-                UniqueGoodsSlotData candidate = uniqueSlots[i];
-                if (candidate == null || !candidate.HasPendingSource) continue;
-                Thing found = UniqueGoodsUtility.FindSource(Map, candidate.pendingSourceThingId, this);
-                if (found == null)
-                {
-                    candidate.pendingSourceThingId = -1;
-                    candidate.pendingSourceLabel = "";
-                    changed = true;
-                    continue;
-                }
-                if (!IsEligibleUniqueThingForSlot(found, candidate.index))
-                {
-                    candidate.pendingSourceThingId = -1;
-                    candidate.pendingSourceLabel = "";
-                    changed = true;
-                    continue;
-                }
-                //来源被其他搬运者携带时保留预约，等待物品重新落地后继续专业补货。
-                if (!found.Spawned || found.Map != Map)
-                    continue;
-                if (pawn == null || found.IsForbidden(pawn) || !pawn.CanReserve(found)
-                    || !pawn.CanReach(found, Verse.AI.PathEndMode.ClosestTouch, Danger.Deadly)
-                    || !pawn.CanReach(this, Verse.AI.PathEndMode.Touch, Danger.Deadly))
-                    continue;
-                slot = candidate;
-                source = found;
-                if (changed) NotifyUniqueSlotsChanged();
-                return true;
-            }
-            if (changed) NotifyUniqueSlotsChanged();
-            slot = null;
-            source = null;
-            return false;
-        }
-
-        //把搬运者携带的真实物品存入其指定槽位。
-        public bool TryInstallFromCarry(Pawn pawn, int sourceThingId)
-        {
-            EnsureUniqueSlots();
-            Thing carried = pawn?.carryTracker?.CarriedThing;
-            UniqueGoodsSlotData slot = uniqueSlots.FirstOrDefault(s => s?.pendingSourceThingId == sourceThingId);
-            if (slot == null && carried != null)
-                slot = uniqueSlots.FirstOrDefault(s => s?.pendingSourceThingId == carried.thingIDNumber);
-            if (slot == null)
-            {
-                Log.Error($"专业货柜入库失败：{LabelCap} 找不到来源编号 {sourceThingId} 对应的等待槽位。");
-                return false;
-            }
-            if (carried == null)
-            {
-                Log.Error($"专业货柜入库失败：搬运者 {pawn?.LabelShort ?? "无"} 没有携带物品。");
-                return false;
-            }
-            if (!IsEligibleUniqueThingForSlot(carried, slot.index))
-            {
-                Log.Error($"专业货柜入库失败：{carried.LabelCapNoCount} 不符合 {LabelCap} 的上架条件。");
-                return false;
-            }
-
-            Thing stored = carried.stackCount > 1 ? carried.SplitOff(1) : carried;
-            if (VirtualStorage.TryAddOrTransfer(stored, stored.stackCount, false) <= 0)
-            {
-                Log.Error($"专业货柜入库失败：{stored.LabelCapNoCount} 无法从搬运者转入 {LabelCap} 的虚拟库存。");
-                return false;
-            }
-            slot.storedThingId = stored.thingIDNumber;
-            slot.pendingSourceThingId = -1;
-            slot.pendingSourceLabel = "";
-            slot.price = Mathf.Max(1f, slot.price > 0f ? slot.price : stored.MarketValue);
             NotifyUniqueSlotsChanged();
             return true;
         }

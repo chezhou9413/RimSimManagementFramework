@@ -1,6 +1,5 @@
-using SimManagementLib.SimDef;
-using SimManagementLib.SimThingComp;
-using SimManagementLib.Tool;
+using SimManagementLib.SimMapComp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Verse;
@@ -8,115 +7,46 @@ using Verse.AI;
 
 namespace SimManagementLib.SimThingClass
 {
-    /// <summary>
-    /// 提供商店货柜容量、目标库存和补货预约数量的统计能力。
-    /// </summary>
+    //货柜容量统计模块，职责是从实际库存和地图租约计算补货缺口，并维护独立的下架预约。
     public partial class Building_SimContainer
     {
-        /// <summary>
-        /// 统计货柜当前已经实际存入的总件数。
-        /// </summary>
+        //统计货柜当前已经实际存入的总件数。
         public int CountTotalStored()
         {
             RebuildStoredCountCacheIfNeeded();
             return cachedTotalStored;
         }
 
-        /// <summary>
-        /// 统计货柜当前仍在路上的补货数量。
-        /// </summary>
+        //统计货柜当前全部有效普通补货租约数量。
         public int CountTotalPendingIn(bool forceReconcile = false)
         {
-            if (forceReconcile)
-                ReconcilePendingReservations();
-            else
-                ReconcilePendingReservationsIfNeeded();
-            int total = 0;
-            if (pendingIn == null || pendingIn.Count == 0) return 0;
-
-            foreach (int value in pendingIn.Values)
-            {
-                total += UnityEngine.Mathf.Max(0, value);
-            }
-
-            return total;
+            MapComponent_RestockTaskQueue queue = Map?.GetComponent<MapComponent_RestockTaskQueue>();
+            return queue?.CountTotalPending(this) ?? 0;
         }
 
-        /// <summary>
-        /// 清理没有对应补货任务的待入库数量，负责修正任务中断或旧存档残留的“途中”显示。
-        /// </summary>
-        public void ClearOrphanedPendingIn()
-        {
-            if (pendingIn == null || pendingIn.Count == 0) return;
-
-            int now = Find.TickManager?.TicksGame ?? 0;
-            List<ThingDef> removeDefs = null;
-            Dictionary<ThingDef, int> trimDefs = null;
-            foreach (KeyValuePair<ThingDef, int> entry in pendingIn.ToList())
-            {
-                ThingDef thingDef = entry.Key;
-                int activeCount = CountActiveReservationJobs(thingDef, "DepositToMegaStorage", TargetIndex.B, true);
-                int shortfall = CountShortfallIgnoringPendingIn(thingDef);
-                int allowed = System.Math.Min(activeCount, shortfall);
-                if (thingDef == null || entry.Value <= 0 || allowed <= 0)
-                {
-                    if (IsPendingInWithinGrace(thingDef, now) && shortfall > 0)
-                        continue;
-
-                    if (removeDefs == null)
-                        removeDefs = new List<ThingDef>();
-                    removeDefs.Add(thingDef);
-                    RememberPendingReservationDebug(thingDef, entry.Value, allowed, activeCount, shortfall, "清理待入库预约");
-                }
-                else if (entry.Value > allowed)
-                {
-                    if (trimDefs == null)
-                        trimDefs = new Dictionary<ThingDef, int>();
-                    trimDefs[thingDef] = allowed;
-                    RememberPendingReservationDebug(thingDef, entry.Value, allowed, activeCount, shortfall, "裁剪待入库预约");
-                }
-            }
-
-            if (trimDefs != null)
-            {
-                foreach (KeyValuePair<ThingDef, int> entry in trimDefs)
-                    pendingIn[entry.Key] = entry.Value;
-            }
-
-            if (removeDefs == null) return;
-            for (int i = 0; i < removeDefs.Count; i++)
-            {
-                pendingIn.Remove(removeDefs[i]);
-                pendingInReservedAtTick?.Remove(removeDefs[i]);
-            }
-        }
-
-        /// <summary>
-        /// 清理没有对应下架任务的待出库数量，负责修正任务中断或配置变更后残留的库存占用。
-        /// </summary>
+        //清理没有对应下架任务的待出库数量，职责是回收中断任务留下的库存占用。
         public void ClearOrphanedPendingOut()
         {
-            if (pendingOut == null || pendingOut.Count == 0) return;
+            if (pendingOut == null || pendingOut.Count == 0)
+                return;
 
             List<ThingDef> removeDefs = null;
             Dictionary<ThingDef, int> trimDefs = null;
             foreach (KeyValuePair<ThingDef, int> entry in pendingOut.ToList())
             {
-                ThingDef thingDef = entry.Key;
-                int activeCount = CountActiveReservationJobs(thingDef, "WithdrawFromMegaStorage", TargetIndex.A, false);
-                int excess = CountExcessIgnoringPendingOut(thingDef);
-                int allowed = System.Math.Min(activeCount, excess);
-                if (thingDef == null || entry.Value <= 0 || allowed <= 0)
+                int activeCount = CountActiveWithdrawJobs(entry.Key);
+                int allowed = Math.Min(activeCount, CountExcessIgnoringPendingOut(entry.Key));
+                if (entry.Key == null || entry.Value <= 0 || allowed <= 0)
                 {
                     if (removeDefs == null)
                         removeDefs = new List<ThingDef>();
-                    removeDefs.Add(thingDef);
+                    removeDefs.Add(entry.Key);
                 }
                 else if (entry.Value > allowed)
                 {
                     if (trimDefs == null)
                         trimDefs = new Dictionary<ThingDef, int>();
-                    trimDefs[thingDef] = allowed;
+                    trimDefs[entry.Key] = allowed;
                 }
             }
 
@@ -125,96 +55,49 @@ namespace SimManagementLib.SimThingClass
                 foreach (KeyValuePair<ThingDef, int> entry in trimDefs)
                     pendingOut[entry.Key] = entry.Value;
             }
-
-            if (removeDefs == null) return;
+            if (removeDefs == null)
+                return;
             for (int i = 0; i < removeDefs.Count; i++)
                 pendingOut.Remove(removeDefs[i]);
         }
 
-        /// <summary>
-        /// 判断待入库预约是否还处于启动宽限期，负责避免 Job 刚开始时被校正过早清掉。
-        /// </summary>
-        private bool IsPendingInWithinGrace(ThingDef thingDef, int now)
-        {
-            if (thingDef == null || pendingInReservedAtTick == null)
-                return false;
-
-            if (!pendingInReservedAtTick.TryGetValue(thingDef, out int reservedAt) || reservedAt <= 0)
-                return false;
-
-            return now >= reservedAt && now - reservedAt <= PendingReservationGraceTicks;
-        }
-
-        /// <summary>
-        /// 记录最近一次预约校正原因，负责让调试文本能解释“途中”数量为什么变化。
-        /// </summary>
-        private void RememberPendingReservationDebug(ThingDef thingDef, int oldValue, int newValue, int activeCount, int shortfall, string reason)
-        {
-            string label = thingDef?.defName ?? "null";
-            lastPendingReservationDebug = $"{reason}: {label} {oldValue}->{newValue}, 当前任务={activeCount}, 缺口={shortfall}";
-        }
-
-        /// <summary>
-        /// 同步所有补货和下架预约，负责在强制补货、改配置或读档后主动修正运行态。
-        /// </summary>
+        //同步下架预约，普通补货在途数量由地图租约看门狗独立维护。
         public void ReconcilePendingReservations()
         {
-            ClearOrphanedPendingIn();
             ClearOrphanedPendingOut();
             lastPendingReservationReconcileTick = Find.TickManager?.TicksGame ?? 0;
         }
 
-        /// <summary>
-        /// 按固定间隔同步补货和下架预约，负责供高频工作扫描使用，避免每个候选货柜都全图扫描 Pawn 任务。
-        /// </summary>
+        //按固定间隔同步下架预约，职责是供下架工作扫描共享一次校正。
         public void ReconcilePendingReservationsForWorkScan()
         {
             ReconcilePendingReservationsIfNeeded();
         }
 
-        /// <summary>
-        /// 统计当前地图上仍然有效的补货或下架任务预约数量。
-        /// </summary>
-        private int CountActiveReservationJobs(ThingDef thingDef, string jobDefName, TargetIndex storageTarget, bool depositJob)
+        //统计当前地图上仍然执行指定商品下架工作的数量。
+        private int CountActiveWithdrawJobs(ThingDef thingDef)
         {
-            if (thingDef == null || Map == null) return 0;
-
-            IReadOnlyList<Pawn> pawns = Map.mapPawns?.AllPawnsSpawned;
-            if (pawns == null) return 0;
+            if (thingDef == null || Map?.mapPawns?.AllPawnsSpawned == null)
+                return 0;
 
             int total = 0;
+            IReadOnlyList<Pawn> pawns = Map.mapPawns.AllPawnsSpawned;
             for (int i = 0; i < pawns.Count; i++)
             {
                 Pawn pawn = pawns[i];
-                if (pawn == null) continue;
-                total += GetReservationCountFromJob(pawn.CurJob, pawn, thingDef, jobDefName, storageTarget, depositJob);
+                Job job = pawn?.CurJob;
+                if (job?.def?.defName != "WithdrawFromMegaStorage"
+                    || job.GetTarget(TargetIndex.A).Thing != this
+                    || job.plantDefToSow != thingDef
+                    || job.count <= 0
+                    || !IsPawnStillExecutingReservation(pawn))
+                    continue;
+                total += Math.Max(0, job.count);
             }
-
             return total;
         }
 
-        /// <summary>
-        /// 从指定 Job 读取对当前货柜和物品的预约数量。
-        /// </summary>
-        private int GetReservationCountFromJob(Job job, Pawn pawn, ThingDef thingDef, string jobDefName, TargetIndex storageTarget, bool depositJob)
-        {
-            if (job == null || job.def?.defName != jobDefName) return 0;
-            if (job.GetTarget(storageTarget).Thing != this) return 0;
-            if (!IsPawnStillExecutingReservation(pawn)) return 0;
-            if (job.count <= 0) return 0;
-
-            ThingDef jobThingDef = job.plantDefToSow;
-            if (jobThingDef == null && depositJob)
-                jobThingDef = job.GetTarget(TargetIndex.A).Thing?.def ?? pawn?.carryTracker?.CarriedThing?.def;
-            if (jobThingDef != thingDef) return 0;
-            if (depositJob && !HasValidDepositSource(job, pawn, thingDef)) return 0;
-
-            return UnityEngine.Mathf.Max(0, job.count);
-        }
-
-        /// <summary>
-        /// 判断小人是否仍在执行预约任务，负责避免倒地、死亡或离图小人的旧任务保留“途中”数量。
-        /// </summary>
+        //判断 Pawn 是否仍在地图上执行当前预约工作。
         private static bool IsPawnStillExecutingReservation(Pawn pawn)
         {
             return pawn != null
@@ -225,97 +108,61 @@ namespace SimManagementLib.SimThingClass
                 && pawn.CurJob != null;
         }
 
-        /// <summary>
-        /// 判断补货任务的货源是否仍有效，负责避免货源消失后待入库数量长期残留。
-        /// </summary>
-        private static bool HasValidDepositSource(Job job, Pawn pawn, ThingDef thingDef)
-        {
-            Thing carried = pawn?.carryTracker?.CarriedThing;
-            if (carried != null && !carried.Destroyed && carried.def == thingDef && carried.stackCount > 0)
-                return true;
-
-            Thing source = job?.GetTarget(TargetIndex.A).Thing;
-            return source != null
-                && !source.Destroyed
-                && source.Spawned
-                && source.def == thingDef
-                && source.stackCount > 0;
-        }
-
-        /// <summary>
-        /// 返回考虑待入库预约后的剩余容量。
-        /// </summary>
+        //返回扣除有效补货租约后的剩余总容量。
         public int GetRemainingCapacityForPending()
         {
-            ReconcilePendingReservationsIfNeeded();
-            int remain = MaxTotalCapacity - CountTotalStored() - CountTotalPendingIn();
-            return UnityEngine.Mathf.Max(0, remain);
+            return Math.Max(0, MaxTotalCapacity - CountTotalStored() - CountTotalPendingIn());
         }
 
-        /// <summary>
-        /// 返回只考虑实际库存的剩余容量。
-        /// </summary>
+        //返回只考虑实际库存的剩余总容量。
         public int GetRemainingCapacityForStored()
         {
-            int remain = MaxTotalCapacity - CountTotalStored();
-            return UnityEngine.Mathf.Max(0, remain);
+            return Math.Max(0, MaxTotalCapacity - CountTotalStored());
         }
 
-        /// <summary>
-        /// 统计当前配置的目标库存总量。
-        /// </summary>
+        //统计当前配置的目标库存总量。
         public int CountConfiguredTargets()
         {
             int total = 0;
             foreach (ThingDef thingDef in ActiveDefs)
-            {
-                int target = GetTargetCount(thingDef);
-                if (target > 0)
-                    total += target;
-            }
-
+                total += Math.Max(0, GetTargetCount(thingDef));
             return total;
         }
 
-        /// <summary>
-        /// 返回指定商品的目标库存数量。
-        /// </summary>
+        //返回指定商品配置的目标库存数量。
         public int GetTargetCount(ThingDef thingDef)
         {
-            ThingComp_GoodsData comp = GoodsComp;
-            if (comp == null || string.IsNullOrEmpty(comp.ActiveGoodsDefName)) return 0;
-            if (!comp.AllowsGoodsCategory(comp.ActiveGoodsDefName)) return 0;
-            if (!GoodsCatalog.Contains(comp.ActiveGoodsDefName, thingDef)) return 0;
-            GoodsItemData item = comp.FindItemData(thingDef);
-            if (item == null || !item.enabled) return 0;
-            return UnityEngine.Mathf.Max(0, item.count);
+            SimThingComp.ThingComp_GoodsData comp = GoodsComp;
+            if (comp == null || string.IsNullOrEmpty(comp.ActiveGoodsDefName))
+                return 0;
+            if (!comp.AllowsGoodsCategory(comp.ActiveGoodsDefName) || !Tool.GoodsCatalog.Contains(comp.ActiveGoodsDefName, thingDef))
+                return 0;
+            SimThingComp.GoodsItemData item = comp.FindItemData(thingDef);
+            return item == null || !item.enabled ? 0 : Math.Max(0, item.count);
         }
 
         //返回指定商品触发自动补货的库存阈值。
         public int GetRestockThreshold(ThingDef thingDef)
         {
-            ThingComp_GoodsData comp = GoodsComp;
-            if (comp == null || string.IsNullOrEmpty(comp.ActiveGoodsDefName)) return 0;
-            if (!comp.AllowsGoodsCategory(comp.ActiveGoodsDefName)) return 0;
-            if (!GoodsCatalog.Contains(comp.ActiveGoodsDefName, thingDef)) return 0;
-            GoodsItemData item = comp.FindItemData(thingDef);
-            if (item == null || !item.enabled) return 0;
-            return item.EffectiveRestockThreshold;
+            SimThingComp.ThingComp_GoodsData comp = GoodsComp;
+            if (comp == null || string.IsNullOrEmpty(comp.ActiveGoodsDefName))
+                return 0;
+            if (!comp.AllowsGoodsCategory(comp.ActiveGoodsDefName) || !Tool.GoodsCatalog.Contains(comp.ActiveGoodsDefName, thingDef))
+                return 0;
+            SimThingComp.GoodsItemData item = comp.FindItemData(thingDef);
+            return item == null || !item.enabled ? 0 : item.EffectiveRestockThreshold;
         }
 
-        /// <summary>
-        /// 返回指定商品的实际库存数量。
-        /// </summary>
+        //返回指定商品的实际库存数量。
         public int CountStored(ThingDef thingDef)
         {
-            if (thingDef == null) return 0;
+            if (thingDef == null)
+                return 0;
             RebuildStoredCountCacheIfNeeded();
             return storedCountCache.TryGetValue(thingDef, out int value) ? value : 0;
         }
 
-        /// <summary>
-        /// 返回当前有实际库存的商品定义快照，负责让高频扫描不用枚举虚拟库存中的每个物品栈。
-        /// </summary>
+        //返回当前有实际库存的商品定义快照。
         public List<ThingDef> GetStoredThingDefsSnapshot()
         {
             RebuildStoredCountCacheIfNeeded();
@@ -328,250 +175,75 @@ namespace SimManagementLib.SimThingClass
             return result;
         }
 
-        /// <summary>
-        /// 返回指定商品仍在路上的补货数量。
-        /// </summary>
+        //返回指定商品当前全部有效普通补货租约数量。
         public int CountPending(ThingDef thingDef, bool forceReconcile = false)
         {
-            if (forceReconcile)
-                ReconcilePendingReservations();
-            else
-                ReconcilePendingReservationsIfNeeded();
-            return pendingIn.TryGetValue(thingDef, out int value) ? value : 0;
-        }
-
-        /// <summary>
-        /// 直接读取待入库预约数量，负责在预约读写内部避免再次触发校正。
-        /// </summary>
-        private int CountPendingRaw(ThingDef thingDef)
-        {
-            if (thingDef == null || pendingIn == null)
+            if (thingDef == null)
                 return 0;
-
-            return pendingIn.TryGetValue(thingDef, out int value) ? UnityEngine.Mathf.Max(0, value) : 0;
+            MapComponent_RestockTaskQueue queue = Map?.GetComponent<MapComponent_RestockTaskQueue>();
+            return queue?.CountPending(this, thingDef) ?? 0;
         }
 
-        /// <summary>
-        /// 直接统计全部待入库预约数量，负责在预约读写内部避免再次触发校正。
-        /// </summary>
-        private int CountTotalPendingInRaw()
-        {
-            if (pendingIn == null || pendingIn.Count == 0)
-                return 0;
-
-            int total = 0;
-            foreach (int value in pendingIn.Values)
-                total += UnityEngine.Mathf.Max(0, value);
-            return total;
-        }
-
-        //直接计算指定商品距离目标量的剩余缺口，职责是让预约和队列周期不受触发阈值重复限制。
+        //直接计算指定商品距离目标量的剩余缺口。
         private int CountRemainingToTargetRaw(ThingDef thingDef)
         {
             if (thingDef == null)
                 return 0;
-
-            int storedAndPending = CountStored(thingDef) + CountPendingRaw(thingDef);
-            int perDefNeed = System.Math.Max(0, GetTargetCount(thingDef) - storedAndPending);
-            if (perDefNeed <= 0) return 0;
-
-            int capacityRemain = MaxTotalCapacity - CountTotalStored() - CountTotalPendingInRaw();
-            if (capacityRemain <= 0) return 0;
-
-            return System.Math.Min(perDefNeed, capacityRemain);
+            int perDefNeed = Math.Max(0, GetTargetCount(thingDef) - CountStored(thingDef) - CountPending(thingDef));
+            return Math.Min(perDefNeed, GetRemainingCapacityForPending());
         }
 
-        //返回指定商品距离目标量的剩余缺口，职责是让强制补货绕过自动触发阈值。
+        //返回指定商品距离目标量的剩余缺口，强制补货可绕过阈值。
         public int CountRemainingToTarget(ThingDef thingDef)
         {
-            ReconcilePendingReservations();
             return CountRemainingToTargetRaw(thingDef);
         }
 
-        //返回工作扫描阶段距离目标量的剩余缺口，职责是让已触发周期持续派工到目标量。
+        //返回工作扫描阶段距离目标量的剩余缺口。
         public int CountRemainingToTargetForWorkScan(ThingDef thingDef)
         {
             return CountRemainingToTargetRaw(thingDef);
         }
 
-        /// <summary>
-        /// 返回指定商品还需要补货的数量。
-        /// </summary>
+        //返回指定商品按照阈值语义还需要补货的数量。
         public int CountNeeded(ThingDef thingDef)
         {
             int storedAndPending = CountStored(thingDef) + CountPending(thingDef);
-            if (storedAndPending > GetRestockThreshold(thingDef)) return 0;
-
-            int perDefNeed = System.Math.Max(0, GetTargetCount(thingDef) - storedAndPending);
-            if (perDefNeed <= 0) return 0;
-
-            int capacityRemain = GetRemainingCapacityForPending();
-            if (capacityRemain <= 0) return 0;
-
-            return System.Math.Min(perDefNeed, capacityRemain);
-        }
-
-        //返回工作扫描阶段使用的补货缺口，职责是避免高频 WorkGiver 路径触发预约校正。
-        public int CountNeededForWorkScan(ThingDef thingDef)
-        {
-            if (thingDef == null)
-                return 0;
-
-            int storedAndPending = CountStored(thingDef) + CountPendingRaw(thingDef);
             if (storedAndPending > GetRestockThreshold(thingDef))
                 return 0;
-
-            int perDefNeed = System.Math.Max(0, GetTargetCount(thingDef) - storedAndPending);
-            if (perDefNeed <= 0)
-                return 0;
-
-            int capacityRemain = MaxTotalCapacity - CountTotalStored() - CountTotalPendingInRaw();
-            if (capacityRemain <= 0)
-                return 0;
-
-            return System.Math.Min(perDefNeed, capacityRemain);
+            return CountRemainingToTargetRaw(thingDef);
         }
 
-        //查找工作扫描阶段第一个需要补货的商品，职责是让候选预筛不用枚举完整业务链路。
+        //返回工作扫描阶段按照阈值语义还需要补货的数量。
+        public int CountNeededForWorkScan(ThingDef thingDef)
+        {
+            return CountNeeded(thingDef);
+        }
+
+        //查找第一个按照阈值语义需要补货的商品。
         public bool TryFindRestockDefForWorkScan(out ThingDef restockDef)
         {
             foreach (ThingDef thingDef in ActiveDefs)
             {
-                if (CountNeededForWorkScan(thingDef) > 0)
-                {
-                    restockDef = thingDef;
-                    return true;
-                }
+                if (CountNeeded(thingDef) <= 0)
+                    continue;
+                restockDef = thingDef;
+                return true;
             }
-
             restockDef = null;
             return false;
         }
 
-        /// <summary>
-        /// 不考虑待入库预约时统计指定商品的缺口数量。
-        /// </summary>
+        //不考虑补货租约时统计指定商品的实际库存缺口。
         public int CountShortfallIgnoringPendingIn(ThingDef thingDef)
         {
-            if (thingDef == null) return 0;
-            return System.Math.Max(0, GetTargetCount(thingDef) - CountStored(thingDef));
+            return thingDef == null ? 0 : Math.Max(0, GetTargetCount(thingDef) - CountStored(thingDef));
         }
 
-        /// <summary>
-        /// 不考虑待出库预约时统计指定商品的多余数量。
-        /// </summary>
+        //不考虑下架预约时统计指定商品的多余库存。
         public int CountExcessIgnoringPendingOut(ThingDef thingDef)
         {
-            if (thingDef == null) return 0;
-            return System.Math.Max(0, CountStored(thingDef) - GetTargetCount(thingDef));
-        }
-
-        /// <summary>
-        /// 枚举当前配置中所有可售商品定义。
-        /// </summary>
-        public virtual IEnumerable<ThingDef> ActiveDefs
-        {
-            get
-            {
-                ThingComp_GoodsData comp = GoodsComp;
-                if (comp == null || string.IsNullOrEmpty(comp.ActiveGoodsDefName)) yield break;
-                if (!comp.AllowsGoodsCategory(comp.ActiveGoodsDefName)) yield break;
-
-                IReadOnlyList<Pojo.RuntimeGoodsItem> items = GoodsCatalog.GetItems(comp.ActiveGoodsDefName);
-                for (int i = 0; i < items.Count; i++)
-                {
-                    ThingDef thingDef = items[i]?.thingDef;
-                    if (thingDef != null && comp.AllowsThingDef(thingDef))
-                        yield return thingDef;
-                }
-            }
-        }
-
-        /// <summary>
-        /// 将传入的商品设置限制到当前货柜容量内。
-        /// </summary>
-        public Dictionary<string, GoodsItemData> ClampSettingsToCapacity(string activeDefName, Dictionary<string, GoodsItemData> source, out int trimmedCount)
-        {
-            trimmedCount = 0;
-            ThingComp_GoodsData comp = GoodsComp;
-            if (comp != null && !comp.AllowsGoodsCategory(activeDefName))
-                return new Dictionary<string, GoodsItemData>();
-
-            Dictionary<string, GoodsItemData> result = CloneSettings(source);
-            IReadOnlyList<Pojo.RuntimeGoodsItem> items = GoodsCatalog.GetItems(activeDefName);
-            if (items.Count <= 0) return result;
-
-            int used = 0;
-            int max = MaxTotalCapacity;
-
-            for (int i = 0; i < items.Count; i++)
-            {
-                ThingDef thingDef = items[i]?.thingDef;
-                if (thingDef == null) continue;
-                if (!result.TryGetValue(thingDef.defName, out GoodsItemData data) || data == null) continue;
-
-                if (comp != null && !comp.AllowsThingDef(thingDef))
-                {
-                    if (data.enabled)
-                        trimmedCount += UnityEngine.Mathf.Max(0, data.count);
-                    data.enabled = false;
-                    data.count = 0;
-                    data.restockThreshold = 0;
-                    continue;
-                }
-
-                if (!data.enabled || data.count <= 0)
-                {
-                    data.enabled = false;
-                    data.count = 0;
-                    data.restockThreshold = 0;
-                    continue;
-                }
-
-                int allow = max - used;
-                if (allow <= 0)
-                {
-                    trimmedCount += data.count;
-                    data.enabled = false;
-                    data.count = 0;
-                    data.restockThreshold = 0;
-                    continue;
-                }
-
-                if (data.count > allow)
-                {
-                    trimmedCount += data.count - allow;
-                    data.count = allow;
-                }
-
-                data.restockThreshold = GoodsItemData.NormalizeRestockThreshold(data.restockThreshold, data.count);
-                used += data.count;
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// 复制商品配置，负责避免 UI 编辑直接修改原始配置对象。
-        /// </summary>
-        private static Dictionary<string, GoodsItemData> CloneSettings(Dictionary<string, GoodsItemData> source)
-        {
-            Dictionary<string, GoodsItemData> result = new Dictionary<string, GoodsItemData>();
-            if (source == null) return result;
-
-            foreach (KeyValuePair<string, GoodsItemData> kvp in source)
-            {
-                GoodsItemData item = kvp.Value;
-                result[kvp.Key] = new GoodsItemData
-                {
-                    enabled = item?.enabled ?? false,
-                    count = UnityEngine.Mathf.Max(0, item?.count ?? 0),
-                    price = UnityEngine.Mathf.Max(0f, item?.price ?? 0f),
-                    restockThreshold = GoodsItemData.NormalizeRestockThreshold(item?.restockThreshold ?? -1, UnityEngine.Mathf.Max(0, item?.count ?? 0))
-                };
-            }
-
-            return result;
+            return thingDef == null ? 0 : Math.Max(0, CountStored(thingDef) - GetTargetCount(thingDef));
         }
     }
 }

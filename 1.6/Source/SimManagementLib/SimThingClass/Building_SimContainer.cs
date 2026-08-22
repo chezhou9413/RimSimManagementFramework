@@ -8,25 +8,21 @@ using Verse;
 
 namespace SimManagementLib.SimThingClass
 {
-    //虚拟化存储货柜，职责是保存商店商品库存、配置目标和补货预约。
+    //虚拟化存储货柜，职责是保存商店商品库存、配置目标并通知地图级补货协调器。
     public partial class Building_SimContainer : Building, IThingHolder, IRenameable
     {
         private const int DefaultMaxTotalCapacity = 600;
 
         private ThingOwner<Thing> virtualStorage;
-        private Dictionary<ThingDef, int> pendingIn = new Dictionary<ThingDef, int>();
         private Dictionary<ThingDef, int> pendingOut = new Dictionary<ThingDef, int>();
-        private Dictionary<ThingDef, int> pendingInReservedAtTick = new Dictionary<ThingDef, int>();
         private Dictionary<ThingDef, int> storedCountCache = new Dictionary<ThingDef, int>();
         private string customName = "";
-        private string lastPendingReservationDebug = "";
         private bool contentsDropped;
         private int cachedTotalStored;
         private bool storedCountCacheDirty = true;
         private int storedCountVersion;
         private int lastPendingReservationReconcileTick = int.MinValue;
         private const int PendingReservationReconcileIntervalTicks = 120;
-        private const int PendingReservationGraceTicks = 180;
 
         private ThingComp_GoodsData GoodsComp => GetComp<ThingComp_GoodsData>();
         private ThingComp_ProgressStageGraphic ProgressStageGraphicComp => GetComp<ThingComp_ProgressStageGraphic>();
@@ -53,7 +49,7 @@ namespace SimManagementLib.SimThingClass
 
         public override string LabelNoCount => StorageDisplayLabel;
         public int StoredCountVersion => storedCountVersion;
-        public string LastPendingReservationDebug => lastPendingReservationDebug ?? "";
+        public string LastPendingReservationDebug => "";
 
         public int MaxTotalCapacity
         {
@@ -90,6 +86,7 @@ namespace SimManagementLib.SimThingClass
             }
         }
 
+        //返回货柜直接持有的虚拟库存容器。
         public ThingOwner GetDirectlyHeldThings() => virtualStorage;
 
         //复制当前虚拟库存的按物品统计，职责是让 UI 和统计逻辑不用直接枚举全部库存栈。
@@ -141,7 +138,7 @@ namespace SimManagementLib.SimThingClass
             storedCountCacheDirty = false;
         }
 
-        //按固定间隔同步补货和下架预约，职责是避免 UI 每帧反复扫描地图 Pawn 任务。
+        //按固定间隔同步下架预约，职责是避免 UI 每帧反复扫描地图 Pawn 任务。
         private void ReconcilePendingReservationsIfNeeded()
         {
             int ticks = Find.TickManager?.TicksGame ?? 0;
@@ -151,11 +148,13 @@ namespace SimManagementLib.SimThingClass
             ReconcilePendingReservations();
         }
 
+        //把虚拟库存中的子持有者追加给原版持有关系遍历。
         public void GetChildHolders(List<IThingHolder> outChildren)
         {
             ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, GetDirectlyHeldThings());
         }
 
+        //生成货柜并向地图补货协调器登记当前实例。
         public override void SpawnSetup(Map map, bool respawningAfterLoad)
         {
             base.SpawnSetup(map, respawningAfterLoad);
@@ -165,36 +164,26 @@ namespace SimManagementLib.SimThingClass
             MarkStoredCountCacheDirty();
             ReconcilePendingReservations();
             MapComponent_RestockTaskQueue queue = map?.GetComponent<MapComponent_RestockTaskQueue>();
-            queue?.MarkStorageDirty(this, respawningAfterLoad ? "货柜读档生成" : "货柜生成");
+            queue?.RegisterStorage(this, respawningAfterLoad ? "货柜读档生成" : "货柜生成");
             ShopDataUtility.NotifyBuildingChanged(map, Position);
             VendingMachineUtility.NotifyMapBuildingsChanged(map);
         }
 
+        //保存实际虚拟库存、下架预约和玩家自定义名称。
         public override void ExposeData()
         {
             base.ExposeData();
             Scribe_Deep.Look(ref virtualStorage, "virtualStorage", this);
-            Scribe_Collections.Look(ref pendingIn, "pendingIn", LookMode.Def, LookMode.Value);
             Scribe_Collections.Look(ref pendingOut, "pendingOut", LookMode.Def, LookMode.Value);
-            Scribe_Collections.Look(ref pendingInReservedAtTick, "pendingInReservedAtTick", LookMode.Def, LookMode.Value);
             Scribe_Values.Look(ref customName, "customName", "");
-            Scribe_Values.Look(ref lastPendingReservationDebug, "lastPendingReservationDebug", "");
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
                 if (virtualStorage == null)
                     virtualStorage = new ThingOwner<Thing>(this, oneStackOnly: false);
-                if (pendingIn == null)
-                    pendingIn = new Dictionary<ThingDef, int>();
                 if (pendingOut == null)
                     pendingOut = new Dictionary<ThingDef, int>();
-                if (pendingInReservedAtTick == null)
-                    pendingInReservedAtTick = new Dictionary<ThingDef, int>();
                 if (storedCountCache == null)
                     storedCountCache = new Dictionary<ThingDef, int>();
-                if (lastPendingReservationDebug == null)
-                    lastPendingReservationDebug = "";
-                pendingIn.Clear();
-                pendingInReservedAtTick.Clear();
                 MarkStoredCountCacheDirty();
             }
         }

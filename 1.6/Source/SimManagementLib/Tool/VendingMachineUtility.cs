@@ -1,6 +1,7 @@
 using RimWorld;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimAI;
+using SimManagementLib.SimMapComp;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimThingComp;
 using System.Collections.Generic;
@@ -11,24 +12,16 @@ using Verse.AI.Group;
 
 namespace SimManagementLib.Tool
 {
-    /// <summary>
-    /// 提供自动售货机货柜的查找、可用性、顾客匹配和直接购买工具函数。
-    /// </summary>
+    //提供自动售货机货柜的查找、可用性、顾客匹配和直接购买工具函数。
     public static class VendingMachineUtility
     {
         private static readonly Dictionary<int, VendingMachineMapCache> MapCaches = new Dictionary<int, VendingMachineMapCache>();
-
-        /// <summary>
-        /// 判断货柜是否启用了自动售货机能力。
-        /// </summary>
+        //判断货柜是否启用了自动售货机能力。
         public static bool IsVendingMachine(Building_SimContainer storage)
         {
             return storage?.GetComp<ThingComp_VendingMachine>() != null;
         }
-
-        /// <summary>
-        /// 判断自动售货机当前是否能接待顾客。
-        /// </summary>
+        //判断自动售货机当前是否能接待顾客。
         public static bool IsUsableVendingMachine(Building_SimContainer storage)
         {
             if (storage == null || storage.Destroyed || !storage.Spawned) return false;
@@ -40,10 +33,7 @@ namespace SimManagementLib.Tool
             if (flickable != null && !flickable.SwitchIsOn) return false;
             return HasSellableStock(storage);
         }
-
-        /// <summary>
-        /// 返回指定地图上所有自动售货机货柜。
-        /// </summary>
+        //返回指定地图上所有自动售货机货柜。
         public static List<Building_SimContainer> GetAllVendingMachines(Map map)
         {
             return new List<Building_SimContainer>(GetVendingMachineSnapshot(map));
@@ -74,10 +64,7 @@ namespace SimManagementLib.Tool
             if (map != null)
                 MapCaches.Remove(map.uniqueID);
         }
-
-        /// <summary>
-        /// 按 ThingID 查找自动售货机货柜。
-        /// </summary>
+        //按 ThingID 查找自动售货机货柜。
         public static Building_SimContainer FindVendingMachineById(Map map, int thingId)
         {
             if (map == null || thingId < 0) return null;
@@ -90,10 +77,7 @@ namespace SimManagementLib.Tool
             }
             return null;
         }
-
-        /// <summary>
-        /// 判断顾客类型是否能被该自动售货机吸引。
-        /// </summary>
+        //判断顾客类型是否能被该自动售货机吸引。
         public static bool MatchesCustomerKind(Building_SimContainer storage, RuntimeCustomerKind kind)
         {
             if (storage == null || kind == null) return false;
@@ -105,32 +89,13 @@ namespace SimManagementLib.Tool
             return !string.IsNullOrEmpty(active) && targets.Contains(active);
         }
 
-        /// <summary>
-        /// 返回自动售货机当前顾客数量。
-        /// </summary>
+        //返回自动售货机当前顾客数量，职责是读取地图级索引而不扫描全部 Lord。
         public static int CountActiveCustomers(Map map, Building_SimContainer storage)
         {
-            if (map?.lordManager == null || storage == null) return 0;
-            int count = 0;
-            for (int i = 0; i < map.lordManager.lords.Count; i++)
-            {
-                Lord lord = map.lordManager.lords[i];
-                LordJob_VendingMachineVisit visit = lord?.LordJob as LordJob_VendingMachineVisit;
-                if (visit == null || visit.vendingMachineThingId != storage.thingIDNumber) continue;
-                for (int p = 0; p < lord.ownedPawns.Count; p++)
-                {
-                    Pawn pawn = lord.ownedPawns[p];
-                    if (pawn != null && !pawn.Destroyed && !pawn.Dead && pawn.Spawned)
-                        count++;
-                }
-            }
-
-            return count;
+            if (map == null || storage == null) return 0;
+            return map.GetComponent<CustomerArrivalManager>()?.RuntimeIndex.CountActiveForVendingMachine(storage.thingIDNumber) ?? 0;
         }
-
-        /// <summary>
-        /// 为顾客从自动售货机中购买一件或多件商品。
-        /// </summary>
+        //为顾客从自动售货机中购买一件或多件商品。
         public static bool TryPurchaseBestItem(Pawn pawn, LordJob_VendingMachineVisit visit, Building_SimContainer machine, out ThingDef boughtDef, out int count, out float paid, out float cost)
         {
             boughtDef = null;
@@ -172,10 +137,7 @@ namespace SimManagementLib.Tool
             taken.Destroy(DestroyMode.Vanish);
             return paid > 0f;
         }
-
-        /// <summary>
-        /// 按价格意愿选择售货机购买数量，负责让折扣商品更容易多买、高溢价商品更少买。
-        /// </summary>
+        //按价格意愿选择售货机购买数量，负责让折扣商品更容易多买、高溢价商品更少买。
         private static int PickPurchaseCount(int maxByBudget, int maxByStock, CustomerPriceEvaluation price)
         {
             int maxCount = Mathf.Min(maxByBudget, maxByStock);
@@ -187,10 +149,7 @@ namespace SimManagementLib.Tool
                 return 1;
             return Mathf.Clamp(maxByBudget > 1 ? Rand.RangeInclusive(1, maxByBudget) : 1, 1, maxByStock);
         }
-
-        /// <summary>
-        /// 判断自动售货机是否有启用商品且真实库存大于零。
-        /// </summary>
+        //判断自动售货机是否有启用商品且真实库存大于零。
         private static bool HasSellableStock(Building_SimContainer storage)
         {
             foreach (ThingDef def in storage.ActiveDefs)

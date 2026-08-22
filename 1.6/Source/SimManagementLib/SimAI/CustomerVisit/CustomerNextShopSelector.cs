@@ -1,6 +1,7 @@
 using SimManagementLib.GameComp;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimThingClass;
+using SimManagementLib.SimMapComp;
 using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
 using System.Collections.Generic;
@@ -10,71 +11,61 @@ using Verse.AI;
 
 namespace SimManagementLib.SimAI.CustomerVisit
 {
-    /// <summary>
-    /// 选择顾客跨店行程中的下一家商店，负责匹配商品服务、可达性、队列和距离权重。
-    /// </summary>
+    //类职责：从地图级开放商店快照选择下一家店，并只对最终候选执行一次可达判断。
     public static class CustomerNextShopSelector
     {
-        /// <summary>
-        /// 从当前地图选择下一家适合的商店。
-        /// </summary>
+        //从当前地图选择下一家适合的商店。
         public static Zone_Shop FindNextShop(LordJob_CustomerVisit visit, Pawn pawn, Zone_Shop currentShop, CustomerVisitSession session)
         {
             if (visit == null || pawn?.Map == null || currentShop == null || session == null)
                 return null;
 
+            CustomerArrivalManager manager = pawn.Map.GetComponent<CustomerArrivalManager>();
+            List<CustomerArrivalShopContext> contexts = manager?.GetOpenShopContexts();
+            if (contexts.NullOrEmpty()) return null;
             Zone_Shop selected = null;
+            IntVec3 selectedCell = IntVec3.Invalid;
             float totalWeight = 0f;
-            List<Zone> zones = pawn.Map.zoneManager.AllZones;
-            for (int i = 0; i < zones.Count; i++)
+            for (int i = 0; i < contexts.Count; i++)
             {
-                Zone_Shop shop = zones[i] as Zone_Shop;
+                CustomerArrivalShopContext context = contexts[i];
+                Zone_Shop shop = context?.Shop;
                 if (shop == null || shop == currentShop) continue;
-                if (!shop.IsOpenNow()) continue;
                 if (session.HasVisitedShop(shop.ID)) continue;
-                if (!TryGetReachableShopCell(pawn, shop, out IntVec3 reachableCell)) continue;
-                if (!HasMatchingGoodsOrService(visit, pawn, shop)) continue;
+                if (!context.EntryCell.IsValid) continue;
+                if (!context.MatchingKindIds.Contains(visit.customerKindId ?? "")) continue;
+                if (visit.GetRemainingTripBudget(pawn, shop) <= 0f) continue;
 
-                float weight = Mathf.Max(0.01f, ScoreNextShop(visit, pawn, shop, reachableCell));
+                float weight = Mathf.Max(0.01f, ScoreNextShop(visit, pawn, shop, context.EntryCell));
                 totalWeight += weight;
                 if (Rand.Value * totalWeight <= weight)
+                {
                     selected = shop;
+                    selectedCell = context.EntryCell;
+                }
             }
 
-            return selected;
+            return selected != null
+                && manager.TryConsumeReachabilityBudget()
+                && CustomerSafetyUtility.CanCustomerReach(pawn, selectedCell, PathEndMode.OnCell, Danger.Deadly)
+                ? selected
+                : null;
         }
-
-        /// <summary>
-        /// 返回当前店队列人数，用于判断拥挤度。
-        /// </summary>
+        //返回当前店队列人数，用于判断拥挤度。
         public static int GetCheckoutQueueSize(Map map, Zone_Shop shop)
         {
             if (map == null || shop == null) return 0;
+            CustomerCheckoutQueueRegistry registry = map.GetComponent<CustomerArrivalManager>()?.CheckoutQueue;
+            if (registry == null) return 0;
             int count = 0;
-            IReadOnlyList<Pawn> pawns = map.mapPawns.AllPawnsSpawned;
-            for (int i = 0; i < pawns.Count; i++)
+            IReadOnlyList<Building_CashRegister> registers = ShopDataUtility.GetCashRegisterSnapshotInZone(shop);
+            for (int i = 0; i < registers.Count; i++)
             {
-                Pawn pawn = pawns[i];
-                if (pawn?.CurJobDef == null || pawn.CurJobDef.defName != "Customer_PayAtRegister") continue;
-                if (pawn.CurJob?.targetA.Thing is Building_CashRegister register && shop.Cells.Contains(register.Position))
-                    count++;
+                count += registry.CountForRegister(registers[i]);
             }
             return count;
         }
-
-        /// <summary>
-        /// 判断商店是否存在顾客可能消费的商品或服务。
-        /// </summary>
-        private static bool HasMatchingGoodsOrService(LordJob_CustomerVisit visit, Pawn pawn, Zone_Shop shop)
-        {
-            float remainingBudget = visit.GetRemainingTripBudget(pawn, shop);
-            if (remainingBudget <= 0f) return false;
-            return CustomerShoppingMatchUtility.ShopHasMatchingAffordableGoodsOrServices(pawn, shop, visit, remainingBudget);
-        }
-
-        /// <summary>
-        /// 计算下一家店的选择权重。
-        /// </summary>
+        //计算下一家店的选择权重。
         private static float ScoreNextShop(LordJob_CustomerVisit visit, Pawn pawn, Zone_Shop shop, IntVec3 shopCell)
         {
             float score = 1f;
@@ -90,21 +81,5 @@ namespace SimManagementLib.SimAI.CustomerVisit
             return score;
         }
 
-        /// <summary>
-        /// 查找顾客可到达的商店格，负责避免跨店选择时依赖第一个格子不可达导致误判。
-        /// </summary>
-        private static bool TryGetReachableShopCell(Pawn pawn, Zone_Shop shop, out IntVec3 cell)
-        {
-            cell = IntVec3.Invalid;
-            if (pawn?.Map == null || shop == null) return false;
-            foreach (IntVec3 candidate in shop.Cells)
-            {
-                if (!candidate.IsValid) continue;
-                if (!CustomerSafetyUtility.CanCustomerReach(pawn, candidate, PathEndMode.ClosestTouch, Danger.Deadly)) continue;
-                cell = candidate;
-                return true;
-            }
-            return false;
-        }
     }
 }

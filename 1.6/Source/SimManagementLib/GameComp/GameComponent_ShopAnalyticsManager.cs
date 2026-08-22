@@ -13,10 +13,8 @@ using Verse;
 
 namespace SimManagementLib.GameComp
 {
-    /// <summary>
-    /// 维护商店经营指标、满意度、口碑和客流缓存，供刷客系统和经营界面读取。
-    /// </summary>
-    public class GameComponent_ShopAnalyticsManager : GameComponent
+    //类职责：维护商店经营指标、满意度、口碑和客流快照，并按固定预算完成指标重算。
+    public partial class GameComponent_ShopAnalyticsManager : GameComponent
     {
         private const int MinimumMetricsRecalculationTicks = 60;
         private static readonly ShopTuningDef FallbackTuning = new ShopTuningDef();
@@ -31,7 +29,7 @@ namespace SimManagementLib.GameComp
         private List<ShopAnalyticsState> tmpStateValues;
         private List<string> tmpStringValues;
 
-        // 旧存档兼容字段。
+        //旧存档兼容字段。
         private Dictionary<int, float> legacyShopReputation;
         private Dictionary<int, float> legacyShopSatisfactionEma;
         private Dictionary<int, int> legacyShopSuccessfulCheckouts;
@@ -79,10 +77,7 @@ namespace SimManagementLib.GameComp
                 ResetTransientCaches();
             }
         }
-
-        /// <summary>
-        /// 获取或重新计算指定商店的经营指标快照，并按调参间隔缓存结果。
-        /// </summary>
+        //获取或重新计算指定商店的经营指标快照，并按调参间隔缓存结果。
         public ShopMetricsSnapshot GetOrEvaluateShopMetrics(Zone_Shop zone, bool forceRecalculate = false)
         {
             if (zone == null || zone.Map == null) return null;
@@ -100,6 +95,12 @@ namespace SimManagementLib.GameComp
                 && (cacheAge < MinimumMetricsRecalculationTicks || (!state.metricsDirty && cacheAge < interval)))
             {
                 return state.cachedMetrics;
+            }
+
+            if (!forceRecalculate)
+            {
+                QueueMetricsRecalculation(zone);
+                return state.cachedMetrics ?? CreateConservativeMetrics(zone, state);
             }
 
             IReadOnlyList<Building_CashRegister> registers = ShopDataUtility.GetCashRegisterSnapshotInZone(zone);
@@ -191,6 +192,7 @@ namespace SimManagementLib.GameComp
 
             ShopAnalyticsState state = GetOrCreateState(zone.ID, zone.label);
             state.metricsDirty = true;
+            QueueMetricsRecalculation(zone);
         }
 
         public float GetSpawnDemandFactor(Zone_Shop zone, Map map)
@@ -397,10 +399,7 @@ namespace SimManagementLib.GameComp
 
             return roofed / (float)Mathf.Max(1, zone.Cells.Count);
         }
-
-        /// <summary>
-        /// 计算商店最终刷客需求倍率，包含地图发展阶段、商店质量、口碑、美观和有效规模。
-        /// </summary>
+        //计算商店最终刷客需求倍率，包含地图发展阶段、商店质量、口碑、美观和有效规模。
         private float CalculateSpawnDemandFactor(ShopTuningDef tuning, Zone_Shop zone, float score01, float rep01, float beautyDemandMultiplier, float scaleDemandMultiplier)
         {
             if (zone?.Map == null) return 1f;
@@ -408,7 +407,12 @@ namespace SimManagementLib.GameComp
             Map map = zone.Map;
             float wealth = map.wealthWatcher != null ? map.wealthWatcher.WealthTotal : 0f;
             int colonists = map.mapPawns.FreeColonistsSpawnedCount;
-            int shopCount = map.zoneManager.AllZones.OfType<Zone_Shop>().Count(z => z.IsValidShop());
+            int shopCount = 0;
+            List<Zone> zones = map.zoneManager.AllZones;
+            for (int i = 0; i < zones.Count; i++)
+            {
+                if (zones[i] is Zone_Shop) shopCount++;
+            }
 
             float wealth01 = Mathf.InverseLerp(tuning.wealthRange.min, tuning.wealthRange.max, wealth);
             float colonist01 = Mathf.Clamp01(colonists / Mathf.Max(1f, tuning.colonistTarget));
@@ -425,10 +429,7 @@ namespace SimManagementLib.GameComp
             float demand = stage * quality * reputation * beautyDemandMultiplier * scaleDemandMultiplier;
             return Mathf.Clamp(demand, tuning.demandFactorClamp.min, tuning.demandFactorClamp.max);
         }
-
-        /// <summary>
-        /// 计算商店动态顾客容量，容量只把有库存货柜计入货柜贡献并叠加有效规模倍率。
-        /// </summary>
+        //计算商店动态顾客容量，容量只把有库存货柜计入货柜贡献并叠加有效规模倍率。
         private int CalculateDynamicCapacity(ShopTuningDef tuning, Zone_Shop zone, float score01, float rep01, int registerCount, int mannedCount, int stockedStorageCount, float scaleCapacityMultiplier)
         {
             float baseCapacity = registerCount * tuning.capacityRegisterFactor
@@ -447,10 +448,7 @@ namespace SimManagementLib.GameComp
 
             return Mathf.Clamp(cap, Mathf.Max(1, tuning.capacityMin), Mathf.Max(tuning.capacityMin, tuning.capacityMax));
         }
-
-        /// <summary>
-        /// 统计至少有一种启用商品且当前有库存的货柜数量。
-        /// </summary>
+        //统计至少有一种启用商品且当前有库存的货柜数量。
         private static int CountStockedStorages(IReadOnlyList<Building_SimContainer> storages)
         {
             if (storages == null || storages.Count == 0) return 0;
@@ -465,10 +463,7 @@ namespace SimManagementLib.GameComp
 
             return count;
         }
-
-        /// <summary>
-        /// 判断货柜是否存在任意启用商品并且该商品有库存。
-        /// </summary>
+        //判断货柜是否存在任意启用商品并且该商品有库存。
         private static bool HasAnyStockedActiveDef(Building_SimContainer storage)
         {
             if (storage == null) return false;
@@ -555,8 +550,12 @@ namespace SimManagementLib.GameComp
             return state;
         }
 
+        //清理易失指标运行态，职责是让读档后从持久统计重新分片构建完整快照。
         private void ResetTransientCaches()
         {
+            metricsQueues.Clear();
+            queuedMetricKeys.Clear();
+            activeMetricsWork.Clear();
             foreach (ShopAnalyticsState state in shopStates.Values)
             {
                 if (state == null) continue;

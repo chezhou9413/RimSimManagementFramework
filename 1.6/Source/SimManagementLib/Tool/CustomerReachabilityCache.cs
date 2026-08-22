@@ -1,4 +1,3 @@
-using RimWorld;
 using System;
 using System.Collections.Generic;
 using Verse;
@@ -6,14 +5,14 @@ using Verse.AI;
 
 namespace SimManagementLib.Tool
 {
-    //类职责：缓存顾客短时间内的路径安全结果，确保一次查询只执行一次完整寻路。
+    //类职责：缓存顾客短时间内的区域可达结果，避免职责树触发同步完整寻路。
     internal static class CustomerReachabilityCache
     {
         private const int CacheLifetimeTicks = 30;
         private const int MaxCacheEntries = 1024;
         private static readonly Dictionary<ReachabilityCacheKey, ReachabilityCacheEntry> Cache = new Dictionary<ReachabilityCacheKey, ReachabilityCacheEntry>();
 
-        //判断顾客能否安全到达目标，职责是复用短期结果并检查路径上的玩家禁用门。
+        //判断顾客能否安全到达目标，职责是复用区域可达结果并让门禁补丁参与通行规则。
         public static bool CanReach(Pawn customer, LocalTargetInfo target, PathEndMode pathEndMode, Danger danger)
         {
             ReachabilityCacheKey key = ReachabilityCacheKey.Create(customer, target, pathEndMode, danger);
@@ -21,36 +20,11 @@ namespace SimManagementLib.Tool
             if (Cache.TryGetValue(key, out ReachabilityCacheEntry entry) && now < entry.ExpireTick)
                 return entry.CanReach;
 
-            bool canReach = EvaluatePath(customer, target, pathEndMode, danger);
+            bool canReach = customer.CanReach(target, pathEndMode, danger);
             if (Cache.Count >= MaxCacheEntries)
                 Cache.Clear();
             Cache[key] = new ReachabilityCacheEntry(canReach, now + CacheLifetimeTicks);
             return canReach;
-        }
-
-        //执行一次真实寻路，职责是同时完成可达性和禁用门校验。
-        private static bool EvaluatePath(Pawn customer, LocalTargetInfo target, PathEndMode pathEndMode, Danger danger)
-        {
-            using (PawnPath path = customer.Map.pathFinder.FindPathNow(
-                customer.Position,
-                target,
-                TraverseParms.For(customer, danger, TraverseMode.ByPawn),
-                null,
-                pathEndMode))
-            {
-                if (path == null || !path.Found)
-                    return false;
-
-                List<IntVec3> nodes = path.NodesReversed;
-                for (int i = 0; i < nodes.Count; i++)
-                {
-                    Building_Door door = nodes[i].GetDoor(customer.Map);
-                    if (CustomerSafetyUtility.IsPlayerForbiddenDoor(door))
-                        return false;
-                }
-            }
-
-            return true;
         }
 
         //结构职责：描述会影响顾客路径结果的稳定输入，用作短缓存键。
