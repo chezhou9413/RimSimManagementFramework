@@ -746,7 +746,6 @@
             <maxTotalCapacity>120</maxTotalCapacity>
             <!-- 可售商品分类。留空表示通用货柜；配置后只能在货柜管理中选择这些 GoodsDef 分类。 -->
             <allowedGoodsCategoryIds>
-                <li>Goods_Drugs</li>
             </allowedGoodsCategoryIds>
             </li>
             <li Class="SimManagementLib.SimThingComp.CompProperties_ProgressStageGraphic">
@@ -763,6 +762,50 @@
                     <li>
                         <minFillPercent>0.75</minFillPercent>
                         <texPath>Things/Building/MegaStorageBox/BigWarehouseStorageBox/BigWarehouseStorageBox_75/BigWarehouseStorageBox_75</texPath>
+                    </li>
+                </stages>
+            </li>
+        </comps>
+    </ThingDef>
+
+    <ThingDef ParentName="MegaStorageBox">
+        <defName>BigBookStorageBox</defName>
+        <label>大书架</label>
+        <description>超级大书架，可以装很多很多本图书</description>
+        <graphicData>
+            <texPath>Things/Building/MegaStorageBox/BigBookStorageBox/BigBookStorageBox_0/BigBookStorageBox_0</texPath>
+            <drawSize>(4, 4)</drawSize>
+            <drawOffsetSouth>(0, 0.1, 0)</drawOffsetSouth>
+            <drawOffsetNorth>(0, 0.1, 0)</drawOffsetNorth>
+            <drawOffsetEast>(0, 0.1, 0.1)</drawOffsetEast>
+            <drawOffsetWest>(0, 0.1, 0.1)</drawOffsetWest>
+        </graphicData>
+        <size>(2, 1)</size>
+        <costList>
+            <Steel>15</Steel>
+        </costList>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData">
+            <!-- 货柜总容量上限（按件数，跨所有商品共享） -->
+            <maxTotalCapacity>60</maxTotalCapacity>
+            <!-- 可售商品分类。留空表示通用货柜；配置后只能在货柜管理中选择这些 GoodsDef 分类。 -->
+            <allowedGoodsCategoryIds>
+            </allowedGoodsCategoryIds>
+            </li>
+            <li Class="SimManagementLib.SimThingComp.CompProperties_ProgressStageGraphic">
+                <!-- 可无限追加阶段。系统会选择不超过当前补货比例的最高阈值贴图。 -->
+                <stages>
+                    <li>
+                        <minFillPercent>0</minFillPercent>
+                        <texPath>Things/Building/MegaStorageBox/BigBookStorageBox/BigBookStorageBox_0/BigBookStorageBox_0</texPath>
+                    </li>
+                    <li>
+                        <minFillPercent>0.25</minFillPercent>
+                        <texPath>Things/Building/MegaStorageBox/BigBookStorageBox/BigBookStorageBox_25/BigBookStorageBox_25</texPath>
+                    </li>
+                    <li>
+                        <minFillPercent>0.75</minFillPercent>
+                        <texPath>Things/Building/MegaStorageBox/BigBookStorageBox/BigBookStorageBox_75/BigBookStorageBox_75</texPath>
                     </li>
                 </stages>
             </li>

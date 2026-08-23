@@ -35,7 +35,7 @@
       <li>Meat_Megaspider</li>
       <li>Meat_Pig</li>
       <li>Meat_Tortoise</li>
-      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Mastodon</li>
+      <!--li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Mastodon</li-->
       <li>Meat_Dromedary</li>
       <li>Meat_Husky</li>
       <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_PrairieDog</li>
