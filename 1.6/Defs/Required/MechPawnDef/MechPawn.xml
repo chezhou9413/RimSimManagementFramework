@@ -126,7 +126,7 @@
     </PawnKindDef>
 
     <RecipeDef ParentName="LightMechanoidRecipe" MayRequire="Ludeon.RimWorld.Biotech">
-        <defName>RSMF_Recipe_Service</defName>
+        <defName>RSMF_Mech_Service</defName>
         <label>培育服务机</label>
         <description>培育一台服务机</description>
         <products>

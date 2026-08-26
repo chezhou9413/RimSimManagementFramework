@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+    <Operation Class="PatchOperationAdd"  MayRequire="Ludeon.RimWorld.Biotech">
+        <xpath>/Defs/ThingDef[defName="MechGestator"]/recipes</xpath>
+        <value>
+            <li>RSMF_Mech_Restorer</li>
+            <li>RSMF_Mech_Service</li>
+        </value>
+    </Operation>
+
+</Patch>
