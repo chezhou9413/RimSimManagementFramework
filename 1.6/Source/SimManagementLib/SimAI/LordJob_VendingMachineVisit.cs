@@ -25,6 +25,7 @@ namespace SimManagementLib.SimAI
         private IntVec3 lastProgressCell = IntVec3.Invalid;
         private int lastJobLoadId = -1;
         private int exitRequestedTick = -1;
+        private int exitRecoveryCount;
         private int unsafeSinceTick = -1;
 
         private List<int> tmpSettingKeys;
@@ -84,6 +85,7 @@ namespace SimManagementLib.SimAI
             Scribe_Values.Look(ref lastProgressCell, "lastProgressCell", IntVec3.Invalid);
             Scribe_Values.Look(ref lastJobLoadId, "lastJobLoadId", -1);
             Scribe_Values.Look(ref exitRequestedTick, "exitRequestedTick", -1);
+            Scribe_Values.Look(ref exitRecoveryCount, "exitRecoveryCount", 0);
             Scribe_Values.Look(ref unsafeSinceTick, "unsafeSinceTick", -1);
 
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
@@ -142,9 +144,19 @@ namespace SimManagementLib.SimAI
                     NotifyDone();
                 }
 
-                if (exitRequestedTick >= 0 && (now - lastProgressTick >= 600 || now - exitRequestedTick >= 720))
+                if (exitRequestedTick >= 0 && now - lastProgressTick >= 600)
                 {
-                    CustomerExitUtility.ForceExit(pawn, "自动售货机顾客自然离店无进展");
+                    if (exitRecoveryCount <= 0)
+                    {
+                        exitRecoveryCount++;
+                        lastProgressTick = now;
+                        pawn.jobs?.EndCurrentJob(JobCondition.InterruptForced, false, true);
+                        lord.CurLordToil?.UpdateAllDuties();
+                        SimDebugLogger.Journey("RSMF.CustomerExit", "自动售货机顾客离店无进展，重新下发离图职责", pawn, null, -1);
+                        continue;
+                    }
+
+                    CustomerExitUtility.ForceExit(pawn, "自动售货机顾客重新取得离图职责后仍无进展");
                     continue;
                 }
 
@@ -243,7 +255,7 @@ namespace SimManagementLib.SimAI
             if (pawn == null || pawn.Map == null || lord == null)
                 return;
 
-            CustomerExitUtility.ForceExit(pawn, "地图发生大规模敌对袭击，自动售货机顾客离店");
+            CustomerExitUtility.BeginEmergencyExit(pawn, "地图发生大规模敌对袭击，自动售货机顾客离店");
         }
 
         //解析目标自动售货机，职责是只检查缓存目标格而不扫描全图 Thing。
@@ -271,10 +283,16 @@ namespace SimManagementLib.SimAI
         private void ObserveProgress(Pawn pawn, int now)
         {
             int jobLoadId = pawn.CurJob?.loadID ?? -1;
-            if (pawn.Position == lastProgressCell && jobLoadId == lastJobLoadId) return;
+            bool moved = pawn.Position != lastProgressCell;
+            bool jobChanged = jobLoadId != lastJobLoadId;
+            if (!moved && !jobChanged) return;
             lastProgressCell = pawn.Position;
             lastJobLoadId = jobLoadId;
+            if (!moved && exitRecoveryCount > 0)
+                return;
             lastProgressTick = now;
+            if (moved)
+                exitRecoveryCount = 0;
         }
     }
 }

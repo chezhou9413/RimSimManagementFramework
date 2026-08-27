@@ -399,6 +399,8 @@
   <RSMF.GoodsManager.CapacityText>容量: {current}/{max}</RSMF.GoodsManager.CapacityText>
   <RSMF.GoodsManager.SelectAllPage>全选当前页</RSMF.GoodsManager.SelectAllPage>
   <RSMF.GoodsManager.ClearAllPage>清空当前页</RSMF.GoodsManager.ClearAllPage>
+  <RSMF.GoodsManager.MaxAllRestockThresholds>全部最大阈值</RSMF.GoodsManager.MaxAllRestockThresholds>
+  <RSMF.GoodsManager.MaxAllRestockThresholdsTip>将当前分类中所有已启用商品的补货阈值设置为各自的目标库存。</RSMF.GoodsManager.MaxAllRestockThresholdsTip>
   <RSMF.GoodsManager.Save>确认保存</RSMF.GoodsManager.Save>
   <RSMF.GoodsManager.Cancel>取消</RSMF.GoodsManager.Cancel>
   <RSMF.GoodsManager.CopyConfig>复制配置</RSMF.GoodsManager.CopyConfig>

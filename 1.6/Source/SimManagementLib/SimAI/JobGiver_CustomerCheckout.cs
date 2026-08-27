@@ -25,8 +25,6 @@ namespace SimManagementLib.SimAI
             bool isPostCheckout = session?.stage == CustomerVisitStage.PostCheckout;
             if (session == null || (!isPostCheckout && !session.AllowsJobGiver(CustomerVisitStage.Checkout)))
                 return null;
-            if (!isPostCheckout)
-                session.NotifyCheckoutStarted(lordJob, pawn);
 
             int pawnId = pawn.thingIDNumber;
             float owed = lordJob.GetAmountOwedForCheckout(pawnId);
@@ -86,6 +84,9 @@ namespace SimManagementLib.SimAI
             Job job = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Customer_PayAtRegister"), register);
             job.SetTarget(TargetIndex.B, queueCell);
             job.SetTarget(TargetIndex.C, serviceCell);
+            //只有完整结账 Job 已构造成功后才切换阶段，避免预算轮空时被看门狗误判为结账失败。
+            if (!isPostCheckout)
+                session.NotifyCheckoutStarted(lordJob, pawn);
             return job;
         }
 

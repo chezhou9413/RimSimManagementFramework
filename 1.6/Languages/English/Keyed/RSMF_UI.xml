@@ -399,6 +399,8 @@
   <RSMF.GoodsManager.CapacityText>Capacity: {current}/{max}</RSMF.GoodsManager.CapacityText>
   <RSMF.GoodsManager.SelectAllPage>Select all page</RSMF.GoodsManager.SelectAllPage>
   <RSMF.GoodsManager.ClearAllPage>Clear page</RSMF.GoodsManager.ClearAllPage>
+  <RSMF.GoodsManager.MaxAllRestockThresholds>Max all thresholds</RSMF.GoodsManager.MaxAllRestockThresholds>
+  <RSMF.GoodsManager.MaxAllRestockThresholdsTip>Sets the restock threshold of every enabled item in the current category to its target stock.</RSMF.GoodsManager.MaxAllRestockThresholdsTip>
   <RSMF.GoodsManager.Save>Save</RSMF.GoodsManager.Save>
   <RSMF.GoodsManager.Cancel>Cancel</RSMF.GoodsManager.Cancel>
   <RSMF.GoodsManager.CopyConfig>Copy config</RSMF.GoodsManager.CopyConfig>

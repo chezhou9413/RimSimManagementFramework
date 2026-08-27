@@ -535,6 +535,10 @@ namespace SimManagementLib.SimDialog
                     ToggleAllCurrentDef(true);
                 if (SimUiStyle.DrawSecondaryButton(new Rect(rect.x + 118f, btnY, 100f, 30f), SimTranslation.T("RSMF.GoodsManager.ClearAllPage"), true, GameFont.Tiny))
                     ToggleAllCurrentDef(false);
+                Rect maxThresholdRect = new Rect(rect.x + 226f, btnY, 160f, 30f);
+                if (SimUiStyle.DrawSecondaryButton(maxThresholdRect, SimTranslation.T("RSMF.GoodsManager.MaxAllRestockThresholds"), true, GameFont.Tiny))
+                    SetAllRestockThresholdsToMaximum();
+                TooltipHandler.TipRegion(maxThresholdRect, SimTranslation.T("RSMF.GoodsManager.MaxAllRestockThresholdsTip"));
             }
 
             if (SimUiStyle.DrawSecondaryButton(new Rect(rect.xMax - 440f, btnY, 100f, 30f), SimTranslation.T("RSMF.GoodsManager.CopyConfig"), true, GameFont.Tiny))
@@ -701,6 +705,32 @@ namespace SimManagementLib.SimDialog
             {
                 Messages.Message(SimTranslation.T("RSMF.GoodsManager.AutoTrimNotice", trimmed.Named("trimmed")), MessageTypeDefOf.NeutralEvent, false);
             }
+        }
+
+        //批量设置当前分类的补货阈值，职责是把所有已启用商品的阈值同步到各自目标库存。
+        private void SetAllRestockThresholdsToMaximum()
+        {
+            Pojo.RuntimeGoodsCategory def = GoodsCatalog.GetCategory(draftActiveDefName);
+            if (def == null) return;
+
+            bool changed = false;
+            for (int i = 0; i < def.Items.Count; i++)
+            {
+                ThingDef thingDef = def.Items[i]?.thingDef;
+                if (!TryGetDraftItem(thingDef, out GoodsItemData data) || !data.enabled)
+                    continue;
+
+                int maximum = Mathf.Max(0, data.count);
+                if (data.restockThreshold == maximum && data.restockThresholdBuffer == maximum.ToString())
+                    continue;
+
+                data.restockThreshold = maximum;
+                data.restockThresholdBuffer = maximum.ToString();
+                changed = true;
+            }
+
+            if (changed)
+                MarkDraftInventoryViewDirty();
         }
 
         /// <summary>
@@ -930,4 +960,3 @@ namespace SimManagementLib.SimDialog
         }
     }
 }
-

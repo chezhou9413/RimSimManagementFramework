@@ -155,7 +155,7 @@ namespace SimManagementLib.SimAI
             if (pawn == null || pawn.Map == null || lord == null)
                 return;
 
-            CustomerExitUtility.ForceExit(pawn, reason);
+            CustomerExitUtility.BeginEmergencyExit(pawn, reason);
             SimDebugLogger.Journey("RSMF.CustomerWatchdog", reason, pawn, null, -1);
         }
     }

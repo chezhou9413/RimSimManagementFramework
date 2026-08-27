@@ -129,11 +129,20 @@ namespace SimManagementLib.Tool
                 return false;
             if (!lord.faction.HostileTo(Faction.OfPlayer))
                 return false;
+            if (IsDormantAncientThreat(lord))
+                return false;
 
             string jobName = lord.LordJob?.GetType().Name ?? "";
             return jobName.Contains("Assault")
                 || jobName.Contains("Siege")
                 || jobName.Contains("StageThenAttack");
+        }
+
+        //判断敌对远古威胁是否仍在休眠，负责让未唤醒的远古遗迹不触发大型袭击避险。
+        private static bool IsDormantAncientThreat(Lord lord)
+        {
+            return lord?.LordJob is LordJob_SleepThenAssaultColony
+                && lord.CurLordToil is LordToil_Sleep;
         }
 
         //统计袭击 Lord 当前仍在地图上的战斗力。

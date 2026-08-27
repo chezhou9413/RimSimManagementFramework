@@ -9,7 +9,7 @@ namespace SimManagementLib.SimAI.CustomerVisit
     {
         private const int NoProgressRecoveryTicks = 600;
         private const int MaxRecoveryCount = 2;
-        private const int CheckoutJobGraceTicks = 120;
+        private const int CheckoutJobRecoveryTicks = 600;
         private const int PostCheckoutTimeoutTicks = 600;
         private const int LeavingNoProgressTicks = 600;
         private const int UnsafeGraceTicks = 300;
@@ -40,20 +40,38 @@ namespace SimManagementLib.SimAI.CustomerVisit
             if (stage == CustomerVisitStage.Leaving)
             {
                 if (exitRequestedTick < 0) exitRequestedTick = now;
-                if (now - lastProgressTick >= LeavingNoProgressTicks || now - exitRequestedTick >= 720)
-                    return CustomerVisitTickResult.ForceExit("顾客自然离店持续无进展");
-                return default(CustomerVisitTickResult);
+                if (now - lastProgressTick < LeavingNoProgressTicks)
+                    return default(CustomerVisitTickResult);
+                if (recoveryCount <= 0)
+                {
+                    recoveryCount++;
+                    lastProgressTick = now;
+                    lastReason = "顾客离店无进展，重新下发离图职责";
+                    return CustomerVisitTickResult.Recover(lastReason);
+                }
+                return CustomerVisitTickResult.ForceExit("顾客重新取得离图职责后仍无进展");
             }
 
-            if (stage == CustomerVisitStage.WaitingCheckout && now - lastStageChangeTick >= CheckoutJobGraceTicks)
-                return RequestReliableLeave(visit, pawn, "等待结账阶段未能取得有效结账工作");
+            //等待结账表示该顾客已准备好，但同一批次的其他顾客可能仍在购物，不能按个人等待时间清账离店。
+            if (stage == CustomerVisitStage.WaitingCheckout)
+                return default(CustomerVisitTickResult);
 
             if (stage == CustomerVisitStage.Checkout)
             {
                 bool hasCheckoutJob = pawn?.CurJobDef?.defName == "Customer_PayAtRegister";
                 int stageTicks = now - lastStageChangeTick;
-                if (!hasCheckoutJob && stageTicks >= CheckoutJobGraceTicks)
-                    return RequestReliableLeave(visit, pawn, "结账阶段未能取得有效结账工作");
+                if (!hasCheckoutJob)
+                {
+                    if (now - lastProgressTick < CheckoutJobRecoveryTicks)
+                        return default(CustomerVisitTickResult);
+                    if (recoveryCount >= MaxRecoveryCount)
+                        return RequestReliableLeave(visit, pawn, "结账工作两次恢复后仍无法取得");
+
+                    recoveryCount++;
+                    lastProgressTick = now;
+                    lastReason = "结账工作中断，重新下发结账职责";
+                    return CustomerVisitTickResult.Recover(lastReason);
+                }
                 int deadline = visit.GetQueuePatienceForPawn(pawnId) + NoProgressRecoveryTicks;
                 if (hasCheckoutJob && stageTicks >= deadline)
                     return RequestReliableLeave(visit, pawn, "顾客结账总期限已到");
