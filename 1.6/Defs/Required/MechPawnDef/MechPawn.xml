@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+    <ThingDef ParentName="LightMechanoid" MayRequire="Ludeon.RimWorld.Biotech">
+        <defName>RSMF_Mech_Restorer</defName>
+        <label>补货机</label>
+        <description>一台小型的补货机器，用于将殖民者从繁杂的补货工作中解脱出来</description>
+        <statBases>
+            <MoveSpeed>5.0</MoveSpeed>
+        </statBases>
+        <race>
+            <mechEnabledWorkTypes>
+                <li>Restocking</li>
+            </mechEnabledWorkTypes>
+            <lifeStageAges>
+                <li>
+                    <def>MechanoidFullyFormed</def>
+                    <minAge>0</minAge>
+                    <soundWounded>Pawn_Mech_Lifter_Wounded</soundWounded>
+                    <soundDeath>Pawn_Mech_Lifter_Death</soundDeath>
+                    <soundCall>Pawn_Mech_Lifter_Call</soundCall>
+                </li>
+                <li>
+                    <def>MechanoidFullyFormed</def>
+                    <minAge>100</minAge>
+                    <soundWounded>Pawn_Mech_Lifter_Wounded</soundWounded>
+                    <soundDeath>Pawn_Mech_Lifter_Death</soundDeath>
+                    <soundCall>Pawn_Mech_Lifter_Call</soundCall>
+                </li>
+            </lifeStageAges>
+        </race>
+    </ThingDef>
+
+    <PawnKindDef ParentName="NonCombatLightMechanoidKind" MayRequire="Ludeon.RimWorld.Biotech">
+        <defName>RSMF_Mech_Restorer</defName>
+        <label>补货机</label>
+        <race>RSMF_Mech_Restorer</race>
+        <lifeStages>
+            <li>
+                <bodyGraphicData>
+                    <texPath>Things/Pawn/MechPawn/RSMF_Mech_Restorer/RSMF_Mech_Restorer</texPath>
+                    <maskPath>Things/Pawn/MechPawn/RSMF_Mech_Restorer/RSMF_Mech_RestorerT</maskPath>
+                    <shaderType>CutoutWithOverlay</shaderType>
+                    <graphicClass>Graphic_Multi</graphicClass>
+                    <drawSize>1.1</drawSize>
+                </bodyGraphicData>
+            </li>
+            <li>
+                <bodyGraphicData>
+                    <texPath>Things/Pawn/MechPawn/RSMF_Mech_Restorer/RSMF_Mech_Restorer</texPath>
+                    <maskPath>Things/Pawn/MechPawn/RSMF_Mech_Restorer/RSMF_Mech_RestorerT</maskPath>
+                    <shaderType>CutoutWithOverlay</shaderType>
+                    <graphicClass>Graphic_Multi</graphicClass>
+                    <drawSize>1.1</drawSize>
+                </bodyGraphicData>
+            </li>
+        </lifeStages>
+    </PawnKindDef>
+
+    <RecipeDef ParentName="LightMechanoidRecipe" MayRequire="Ludeon.RimWorld.Biotech">
+        <defName>RSMF_Mech_Restorer</defName>
+        <label>培育补货机</label>
+        <description>培育一台补货机</description>
+        <products>
+            <RSMF_Mech_Restorer>1</RSMF_Mech_Restorer>
+        </products>
+        <descriptionHyperlinks>
+            <ThingDef>RSMF_Mech_Restorer</ThingDef>
+        </descriptionHyperlinks>
+  </RecipeDef>
+
+    <ThingDef ParentName="LightMechanoid" MayRequire="Ludeon.RimWorld.Biotech">
+        <defName>RSMF_Mech_Service</defName>
+        <label>服务机</label>
+        <description>一台小型的服务机器，用于将殖民者从繁杂的收银工作中解脱出来</description>
+        <statBases>
+            <MoveSpeed>5.0</MoveSpeed>
+        </statBases>
+        <race>
+            <mechEnabledWorkTypes>
+                <li>Sim_ServiceWork</li>
+            </mechEnabledWorkTypes>
+            <lifeStageAges>
+                <li>
+                    <def>MechanoidFullyFormed</def>
+                    <minAge>0</minAge>
+                    <soundWounded>Pawn_Mech_Lifter_Wounded</soundWounded>
+                    <soundDeath>Pawn_Mech_Lifter_Death</soundDeath>
+                    <soundCall>Pawn_Mech_Lifter_Call</soundCall>
+                </li>
+                <li>
+                    <def>MechanoidFullyFormed</def>
+                    <minAge>100</minAge>
+                    <soundWounded>Pawn_Mech_Lifter_Wounded</soundWounded>
+                    <soundDeath>Pawn_Mech_Lifter_Death</soundDeath>
+                    <soundCall>Pawn_Mech_Lifter_Call</soundCall>
+                </li>
+            </lifeStageAges>
+        </race>
+    </ThingDef>
+
+    <PawnKindDef ParentName="NonCombatLightMechanoidKind" MayRequire="Ludeon.RimWorld.Biotech">
+        <defName>RSMF_Mech_Service</defName>
+        <label>服务机</label>
+        <race>RSMF_Mech_Service</race>
+        <lifeStages>
+            <li>
+                <bodyGraphicData>
+                    <texPath>Things/Pawn/MechPawn/RSMF_Mech_Service/RSMF_Mech_Service</texPath>
+                    <maskPath>Things/Pawn/MechPawn/RSMF_Mech_Service/RSMF_Mech_ServiceT</maskPath>
+                    <shaderType>CutoutWithOverlay</shaderType>
+                    <graphicClass>Graphic_Multi</graphicClass>
+                    <drawSize>1.1</drawSize>
+                </bodyGraphicData>
+            </li>
+            <li>
+                <bodyGraphicData>
+                    <texPath>Things/Pawn/MechPawn/RSMF_Mech_Service/RSMF_Mech_Service</texPath>
+                    <maskPath>Things/Pawn/MechPawn/RSMF_Mech_Service/RSMF_Mech_ServiceT</maskPath>
+                    <shaderType>CutoutWithOverlay</shaderType>
+                    <graphicClass>Graphic_Multi</graphicClass>
+                    <drawSize>1.1</drawSize>
+                </bodyGraphicData>
+            </li>
+        </lifeStages>
+    </PawnKindDef>
+
+    <RecipeDef ParentName="LightMechanoidRecipe" MayRequire="Ludeon.RimWorld.Biotech">
+        <defName>RSMF_Mech_Service</defName>
+        <label>培育服务机</label>
+        <description>培育一台服务机</description>
+        <products>
+            <RSMF_Mech_Service>1</RSMF_Mech_Service>
+        </products>
+        <descriptionHyperlinks>
+            <ThingDef>RSMF_Mech_Service</ThingDef>
+        </descriptionHyperlinks>
+    </RecipeDef>
+
+</Defs>
