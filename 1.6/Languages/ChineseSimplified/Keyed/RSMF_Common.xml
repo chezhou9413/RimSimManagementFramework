@@ -24,6 +24,11 @@
   <RSMF.Common.SilverAmount>{amount} 银</RSMF.Common.SilverAmount>
   <RSMF.CustomerFaction.Name>商店顾客</RSMF.CustomerFaction.Name>
   <RSMF.CustomerFaction.MissingDef>缺少商店顾客中立派系 Def: {defName}</RSMF.CustomerFaction.MissingDef>
+  <RSMF.CustomerDismiss.Label>驱离顾客</RSMF.CustomerDismiss.Label>
+  <RSMF.CustomerDismiss.Desc>要求该顾客立即结束访问并离开地图。未付款商品会退回商店，未完成交易会取消。</RSMF.CustomerDismiss.Desc>
+  <RSMF.CustomerDismiss.Confirm>确定要驱离顾客 {customer} 吗？未付款商品会退回商店，未完成交易会取消。</RSMF.CustomerDismiss.Confirm>
+  <RSMF.CustomerDismiss.Success>已要求顾客 {customer} 离店。</RSMF.CustomerDismiss.Success>
+  <RSMF.CustomerDismiss.Unavailable>该顾客已经离开或当前无法驱离。</RSMF.CustomerDismiss.Unavailable>
   <RSMF.Common.Import.EmptyContent>导入内容为空。</RSMF.Common.Import.EmptyContent>
   <RSMF.Common.Import.ParseFailed>Base64 或 JSON 解析失败: {message}</RSMF.Common.Import.ParseFailed>
 </LanguageData>

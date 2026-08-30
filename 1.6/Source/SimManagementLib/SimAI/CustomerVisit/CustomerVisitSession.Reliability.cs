@@ -1,6 +1,7 @@
 using RimWorld;
 using SimManagementLib.SimDef;
 using Verse;
+using Verse.AI.Group;
 
 namespace SimManagementLib.SimAI.CustomerVisit
 {
@@ -12,6 +13,7 @@ namespace SimManagementLib.SimAI.CustomerVisit
         private const int CheckoutJobRecoveryTicks = 600;
         private const int PostCheckoutTimeoutTicks = 600;
         private const int LeavingNoProgressTicks = 600;
+        private const int LeavingHardTimeoutTicks = 3600;
         private const int UnsafeGraceTicks = 300;
 
         //检查顾客可靠性期限，职责是让任何阶段都无法永久滞留。
@@ -40,6 +42,11 @@ namespace SimManagementLib.SimAI.CustomerVisit
             if (stage == CustomerVisitStage.Leaving)
             {
                 if (exitRequestedTick < 0) exitRequestedTick = now;
+                //业务阶段已经离店但 Lord 职责尚未同步时，重新发出离图请求。
+                if (!(visit?.lord?.CurLordToil is LordToil_ExitMap))
+                    return CustomerVisitTickResult.Leave("顾客离店阶段重新同步离图职责");
+                if (now - exitRequestedTick >= LeavingHardTimeoutTicks)
+                    return CustomerVisitTickResult.ForceExit("顾客离店超过绝对期限");
                 if (now - lastProgressTick < LeavingNoProgressTicks)
                     return default(CustomerVisitTickResult);
                 if (recoveryCount <= 0)

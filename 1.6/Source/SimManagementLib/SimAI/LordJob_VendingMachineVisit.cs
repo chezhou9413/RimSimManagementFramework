@@ -11,7 +11,7 @@ using Verse.AI.Group;
 namespace SimManagementLib.SimAI
 {
     //类职责：管理自动售货机顾客的购买状态、全程进度期限和可靠离店。
-    public class LordJob_VendingMachineVisit : LordJob
+    public partial class LordJob_VendingMachineVisit : LordJob
     {
         public CustomerKindDef customerKind;
         public string customerKindId = "";

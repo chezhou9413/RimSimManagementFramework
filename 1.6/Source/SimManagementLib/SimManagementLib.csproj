@@ -205,6 +205,7 @@
     <Compile Include="SimAI\CustomerVisit\CustomerVisitSession.cs" />
     <Compile Include="SimAI\CustomerVisit\CustomerVisitSession.Reliability.cs" />
     <Compile Include="SimAI\CustomerVisit\CustomerVisitStage.cs" />
+    <Compile Include="SimAI\CustomerDismissalUtility.cs" />
     <Compile Include="SimAI\CustomerExitUtility.cs" />
     <Compile Include="SimAI\CustomerVisit\CustomerVisitTickResult.cs" />
     <Compile Include="SimAI\CustomerPawnSettingsState.cs" />
@@ -219,6 +220,7 @@
     <Compile Include="SimAI\LordJob_CustomerVisit.ServiceOrders.cs" />
     <Compile Include="SimAI\LordJob_CustomerVisit.Watchdog.cs" />
     <Compile Include="SimAI\LordJob_VendingMachineVisit.cs" />
+    <Compile Include="SimAI\LordJob_VendingMachineVisit.Gizmos.cs" />
     <Compile Include="SimAI\LordToil_CustomerBrowse.cs" />
     <Compile Include="SimAI\LordToil_CustomerCheckout.cs" />
     <Compile Include="SimAI\LordToil_CustomerTravel.cs" />

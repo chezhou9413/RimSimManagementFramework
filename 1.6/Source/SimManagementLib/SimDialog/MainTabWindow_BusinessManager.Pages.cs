@@ -310,7 +310,9 @@ namespace SimManagementLib.SimDialog
 
             Rect listRect = new Rect(rect.x, summaryRect.yMax + 8f, rect.width, rect.height - summaryRect.height - 8f);
             float viewWidth = listRect.width - 18f;
-            float rowH = 98f;
+            float actionButtonHeight = Mathf.Max(28f, Text.LineHeightOf(GameFont.Tiny) + 8f);
+            const float actionButtonGap = 4f;
+            float rowH = Mathf.Max(106f, actionButtonHeight * 3f + actionButtonGap * 2f + 16f);
             Rect viewRect = new Rect(0f, 0f, viewWidth, rowH * customers.Count);
             Widgets.BeginScrollView(listRect, ref customerScrollPos, viewRect);
 
@@ -359,18 +361,23 @@ namespace SimManagementLib.SimDialog
                 Widgets.Label(new Rect(row.x + 380f, row.y + 62f, row.width - 500f, 18f), SimTranslation.T("RSMF.Business.Customer.PreferenceLine", BuildPreferenceText(settings).Named("preferences")));
 
                 float btnW = 84f;
-                float btnH = 28f;
                 float bx = row.xMax - btnW - 10f;
-                float by = row.y + 10f;
-                if (SimUiStyle.DrawSecondaryButton(new Rect(bx, by, btnW, btnH), SimTranslation.T("RSMF.Common.Locate"), true, GameFont.Tiny))
+                float by = row.y + 8f;
+                if (SimUiStyle.DrawSecondaryButton(new Rect(bx, by, btnW, actionButtonHeight), SimTranslation.T("RSMF.Common.Locate"), true, GameFont.Tiny))
                 {
                     CameraJumper.TryJump(pawn);
                 }
 
-                by += btnH + 8f;
-                if (SimUiStyle.DrawSecondaryButton(new Rect(bx, by, btnW, btnH), SimTranslation.T("RSMF.Common.Select"), true, GameFont.Tiny))
+                by += actionButtonHeight + actionButtonGap;
+                if (SimUiStyle.DrawSecondaryButton(new Rect(bx, by, btnW, actionButtonHeight), SimTranslation.T("RSMF.Common.Select"), true, GameFont.Tiny))
                 {
                     Find.Selector.Select(pawn, playSound: false, forceDesignatorDeselect: false);
+                }
+
+                by += actionButtonHeight + actionButtonGap;
+                if (SimUiStyle.DrawSecondaryButton(new Rect(bx, by, btnW, actionButtonHeight), SimTranslation.T("RSMF.CustomerDismiss.Label"), true, GameFont.Tiny))
+                {
+                    CustomerDismissalUtility.RequestDismiss(pawn);
                 }
 
                 ResetText();

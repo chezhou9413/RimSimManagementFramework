@@ -221,6 +221,8 @@ namespace SimManagementLib.Debug
             int pawnId = pawn.thingIDNumber;
             float owed = visit.GetAmountOwedForCheckout(pawnId);
             bool needsPostCheckout = visit.NeedsPostCheckoutCompletion(pawnId);
+            if (session.Stage == CustomerVisitStage.Leaving && !(visit.lord?.CurLordToil is LordToil_ExitMap))
+                return "离店阶段仍在非离图职责=" + (visit.lord?.CurLordToil?.GetType().Name ?? "无");
             if (pawn.CurJob == null && session.Stage != CustomerVisitStage.Leaving && session.Stage != CustomerVisitStage.Ended)
                 return "当前无 Job 阶段=" + session.Stage + " 原因=" + session.LastReason + " 失败=" + session.LastFailureReason;
             if (session.Stage == CustomerVisitStage.Browsing && session.CurrentShopMinimumBrowseDone && session.CurrentShopNoProgressBrowseAttempts >= visit.GetCurrentShopNoProgressBrowseLimit())

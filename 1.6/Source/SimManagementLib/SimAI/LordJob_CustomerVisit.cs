@@ -115,9 +115,11 @@ namespace SimManagementLib.SimAI
             browseToCheckout.AddTrigger(new Trigger_Memo("Customer_ReadyToCheckout"));
             graph.AddTransition(browseToCheckout);
 
-            Transition checkoutToExit = new Transition(checkoutToil, exitToil);
-            checkoutToExit.AddTrigger(new Trigger_Memo("Customer_CheckoutCompleted"));
-            graph.AddTransition(checkoutToExit);
+            //离店请求可能由赶路、浏览或结账阶段发出，统一切入原版离图职责。
+            Transition activeVisitToExit = new Transition(checkoutToil, exitToil);
+            activeVisitToExit.AddSources(travelToil, browseToil);
+            activeVisitToExit.AddTrigger(new Trigger_Memo("Customer_CheckoutCompleted"));
+            graph.AddTransition(activeVisitToExit);
 
             Transition checkoutToNextShop = new Transition(checkoutToil, travelToil);
             checkoutToNextShop.AddTrigger(new Trigger_Memo("Customer_GoToNextShop"));

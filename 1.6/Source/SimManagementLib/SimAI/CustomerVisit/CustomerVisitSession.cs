@@ -275,6 +275,7 @@ namespace SimManagementLib.SimAI.CustomerVisit
             currentShopMinimumBrowseDone = false;
             currentShopVisitedStorageThingIds?.Clear();
             currentShopLastStorageThingId = -1;
+            exitRequestedTick = -1;
             if (!visitedShopZoneIds.Contains(next.ID))
                 visitedShopZoneIds.Add(next.ID);
             visit.targetShopZoneId = currentShopZoneId;

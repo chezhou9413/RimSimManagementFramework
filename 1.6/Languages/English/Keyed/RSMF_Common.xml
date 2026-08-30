@@ -24,6 +24,11 @@
   <RSMF.Common.SilverAmount>{amount} silver</RSMF.Common.SilverAmount>
   <RSMF.CustomerFaction.Name>Shop customers</RSMF.CustomerFaction.Name>
   <RSMF.CustomerFaction.MissingDef>Missing neutral customer faction Def: {defName}</RSMF.CustomerFaction.MissingDef>
+  <RSMF.CustomerDismiss.Label>Dismiss customer</RSMF.CustomerDismiss.Label>
+  <RSMF.CustomerDismiss.Desc>End this customer's visit and make them leave the map. Unpaid goods are returned and unfinished transactions are cancelled.</RSMF.CustomerDismiss.Desc>
+  <RSMF.CustomerDismiss.Confirm>Dismiss customer {customer}? Unpaid goods will be returned and unfinished transactions will be cancelled.</RSMF.CustomerDismiss.Confirm>
+  <RSMF.CustomerDismiss.Success>Customer {customer} has been told to leave.</RSMF.CustomerDismiss.Success>
+  <RSMF.CustomerDismiss.Unavailable>This customer has already left or cannot currently be dismissed.</RSMF.CustomerDismiss.Unavailable>
   <RSMF.Common.Import.EmptyContent>Import content is empty.</RSMF.Common.Import.EmptyContent>
   <RSMF.Common.Import.ParseFailed>Base64 or JSON parse failed: {message}</RSMF.Common.Import.ParseFailed>
 </LanguageData>

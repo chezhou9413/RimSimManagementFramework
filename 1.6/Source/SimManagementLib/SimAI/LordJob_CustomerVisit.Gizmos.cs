@@ -7,20 +7,21 @@ using Verse;
 
 namespace SimManagementLib.SimAI
 {
-    /// <summary>
-    /// 提供顾客开发调试 Gizmo，负责在上帝模式下复制单个顾客的行为诊断。
-    /// </summary>
+    //类职责：提供顾客手动驱离与开发诊断 Gizmo。
     public partial class LordJob_CustomerVisit
     {
-        /// <summary>
-        /// 返回顾客 Pawn 的额外 Gizmo，负责提供行为日志复制入口。
-        /// </summary>
+        //返回顾客 Pawn 的额外 Gizmo，职责是提供手动驱离和开发诊断入口。
         public override IEnumerable<Gizmo> GetPawnGizmos(Pawn p)
         {
             foreach (Gizmo gizmo in base.GetPawnGizmos(p))
                 yield return gizmo;
 
-            if (!DebugSettings.ShowDevGizmos || p == null)
+            if (p == null)
+                yield break;
+
+            yield return CustomerDismissalUtility.CreateDismissCommand(p);
+
+            if (!DebugSettings.ShowDevGizmos)
                 yield break;
 
             yield return new Command_Action

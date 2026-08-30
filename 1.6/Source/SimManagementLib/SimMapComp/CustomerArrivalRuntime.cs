@@ -83,8 +83,8 @@ namespace SimManagementLib.SimMapComp
                 if (dirtyIds.Contains(shopId)) continue;
                 if (!contexts.TryGetValue(shopId, out CustomerArrivalShopContext candidate)) continue;
                 if (candidate?.Shop == null || candidate.Shop.Map != map) continue;
-                if (!candidate.Shop.IsOpenNow()) continue;
-                candidate.IsOpen = true;
+                RefreshDynamicState(candidate);
+                if (!candidate.IsOpen) continue;
                 context = candidate;
                 return true;
             }
@@ -104,8 +104,9 @@ namespace SimManagementLib.SimMapComp
             List<CustomerArrivalShopContext> result = new List<CustomerArrivalShopContext>();
             foreach (CustomerArrivalShopContext context in contexts.Values)
             {
-                if (context?.Shop == null || context.Shop.Map != map || !context.Shop.IsOpenNow()) continue;
-                context.IsOpen = true;
+                if (context?.Shop == null || context.Shop.Map != map) continue;
+                RefreshDynamicState(context);
+                if (!context.IsOpen) continue;
                 context.CurrentCustomers = index?.CountActiveForShop(context.Shop.ID) ?? 0;
                 result.Add(context);
             }
@@ -187,6 +188,17 @@ namespace SimManagementLib.SimMapComp
                     return shop;
             }
             return null;
+        }
+
+        //刷新高频变化的营业与收银状态，职责是让后台到客周期不依赖经营界面触发缓存重算。
+        private static void RefreshDynamicState(CustomerArrivalShopContext context)
+        {
+            Zone_Shop shop = context?.Shop;
+            if (shop == null) return;
+
+            context.IsOpen = shop.IsOpenNow();
+            context.HasCheckoutService = context.IsOpen && ShopStaffUtility.HasMannedCashRegister(shop);
+            Current.Game?.GetComponent<GameComponent_ShopAnalyticsManager>()?.GetOrEvaluateShopMetrics(shop);
         }
 
         //标记全部已注册商店失效，职责是处理顾客目录整体变化。
