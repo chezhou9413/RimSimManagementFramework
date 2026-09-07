@@ -63,6 +63,7 @@ namespace RimSimRestaurantExtension.Models
         public int tableThingId = -1;
         public int createdTick;
         public int cookingStartedTick;
+        public int nextCookingAttemptTick;
         public int cookedTick;
         public int deliveredTick;
         public int diningStartedTick;
@@ -134,6 +135,7 @@ namespace RimSimRestaurantExtension.Models
             Scribe_Values.Look(ref tableThingId, "tableThingId", -1);
             Scribe_Values.Look(ref createdTick, "createdTick", 0);
             Scribe_Values.Look(ref cookingStartedTick, "cookingStartedTick", 0);
+            Scribe_Values.Look(ref nextCookingAttemptTick, "nextCookingAttemptTick", 0);
             Scribe_Values.Look(ref cookedTick, "cookedTick", 0);
             Scribe_Values.Look(ref deliveredTick, "deliveredTick", 0);
             Scribe_Values.Look(ref diningStartedTick, "diningStartedTick", 0);

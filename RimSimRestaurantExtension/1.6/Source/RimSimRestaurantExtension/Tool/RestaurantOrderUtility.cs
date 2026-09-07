@@ -176,11 +176,12 @@ namespace RimSimRestaurantExtension.Tool
         //查找厨师可认领的最早订单，职责是过滤状态、设施、食材和商店边界。
         public static RestaurantOrder FindCookOrder(Pawn cook, Zone_Shop shop, Thing stove)
         {
-            if (cook?.Map == null || shop == null || stove == null) return null;
+            if (cook?.Map == null || shop == null || stove == null || OrderManager?.CanDispatchCooking(cook) != true) return null;
             return OrderManager?.GetActiveOrders(shop.ID)
-                .Where(order => order.state == RestaurantOrderState.WaitingCook)
+                .Where(order => order.state == RestaurantOrderState.WaitingCook && Find.TickManager.TicksGame >= order.nextCookingAttemptTick)
                 .Where(order => EnsureOrderStillValid(order, cook.Map))
                 .Where(order => !order.mealProduced && RestaurantCookingUtility.CanPawnCookOrderAt(cook, stove, order))
+                .Where(order => cook.carryTracker.MaxStackSpaceEver(order.mealDef) >= order.mealCount)
                 .Where(order => FindProvider(cook.Map, order) is Thing pass && cook.CanReach(pass, PathEndMode.Touch, Danger.Some))
                 .Where(order => RestaurantIngredientUtility.TryFindIngredientThingCounts(cook, shop, order, out _, out _))
                 .OrderBy(order => order.createdTick)

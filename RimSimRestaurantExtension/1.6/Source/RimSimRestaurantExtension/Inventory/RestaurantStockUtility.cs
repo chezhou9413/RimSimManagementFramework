@@ -37,6 +37,7 @@ namespace RimSimRestaurantExtension.Inventory
                 || item.TryGetComp<CompRottable>()?.Stage > RotStage.Fresh) return false;
             bool protectedStock = item.MapHeld?.GetComponent<MapComponent_InventoryReservations>().IsProtected(item) == true;
             if (actor == null) return protectedStock || !item.IsForbidden(Faction.OfPlayer);
+            if (actor.carryTracker == null || actor.carryTracker.MaxStackSpaceEver(item.def) <= 0) return false;
             if (item.ParentHolder is Building_RestaurantStorage cabinet)
                 return cabinet.Spawned && actor.CanReach(cabinet.InventoryInteractionTarget, cabinet.InventoryInteractionEndMode, Danger.Some);
             return item.Spawned && (ownKey != null || protectedStock || !item.IsForbidden(actor))

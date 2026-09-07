@@ -126,6 +126,8 @@
     <Compile Include="Inventory\RestaurantPantryConfiguration.cs" />
     <Compile Include="Inventory\RestaurantOrderStock.cs" />
     <Compile Include="Inventory\RestaurantIngredientToils.cs" />
+    <Compile Include="Inventory\RestaurantIngredientTransfer.cs" />
+    <Compile Include="GameComp\GameComponent_RestaurantOrderManager.Cooking.cs" />
     <Compile Include="Inventory\RestaurantStockUtility.cs" />
     <Compile Include="Inventory\RestaurantStockRule.cs" />
     <Compile Include="Inventory\RestaurantRefrigeration.cs" />

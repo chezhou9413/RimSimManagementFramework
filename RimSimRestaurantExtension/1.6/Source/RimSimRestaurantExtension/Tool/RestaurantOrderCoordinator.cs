@@ -107,7 +107,8 @@ namespace RimSimRestaurantExtension.Tool
         //认领厨房任务，职责是防止同一订单重复投料。
         public static bool ClaimCooking(RestaurantOrder order, Pawn cook, Thing stove)
         {
-            if (order?.state != RestaurantOrderState.WaitingCook || order.mealProduced || order.stockProduct) return false;
+            if (order?.state != RestaurantOrderState.WaitingCook || order.mealProduced || order.stockProduct
+                || Find.TickManager.TicksGame < order.nextCookingAttemptTick) return false;
             order.cookThingId = cook.thingIDNumber;
             order.stoveThingId = stove.thingIDNumber;
             order.cookingStartedTick = Find.TickManager.TicksGame;

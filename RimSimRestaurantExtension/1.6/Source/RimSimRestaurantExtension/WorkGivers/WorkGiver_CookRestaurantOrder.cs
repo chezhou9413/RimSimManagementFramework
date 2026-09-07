@@ -16,6 +16,12 @@ namespace RimSimRestaurantExtension.WorkGivers
         public override ThingRequest PotentialWorkThingRequest => ThingRequest.ForGroup(ThingRequestGroup.PotentialBillGiver);
         public override PathEndMode PathEndMode => PathEndMode.InteractionCell;
 
+        //跳过尚未到重试时点的厨师，职责是让失败工作退出当前 Tick 的派工链。
+        public override bool ShouldSkip(Pawn pawn, bool forced = false)
+        {
+            return RestaurantOrderUtility.OrderManager?.CanDispatchCooking(pawn) != true;
+        }
+
         //返回地图上具有可制作订单的工作台，职责是支持原版及模组兼容灶台。
         public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn)
         {

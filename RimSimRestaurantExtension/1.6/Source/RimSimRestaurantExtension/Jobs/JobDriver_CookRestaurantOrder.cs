@@ -18,36 +18,36 @@ namespace RimSimRestaurantExtension.Jobs
             RestaurantOrder order = ResolveOrder();
             Thing stove = job.GetTarget(TargetIndex.A).Thing;
             if (order == null || order.state != RestaurantOrderState.WaitingCook || !RestaurantCookingUtility.CanCookOrderAt(stove, order))
-            {
-                RestaurantFlowLog.Failure(order, "厨师预约", "订单状态或灶台配方已失效", pawn);
-                return false;
-            }
+                return RejectReservation(order, "订单状态或灶台配方已失效");
             if (!pawn.Reserve(stove, job, 1, -1, null, errorOnFailed))
-            {
-                RestaurantFlowLog.Failure(order, "厨师预约", "无法预约灶台", pawn);
-                return false;
-            }
+                return RejectReservation(order, "无法预约灶台");
             if (stove.def.hasInteractionCell && !pawn.ReserveSittableOrSpot(stove.InteractionCell, job, errorOnFailed))
-            {
-                RestaurantFlowLog.Failure(order, "厨师预约", "无法预约灶台交互格", pawn);
-                return false;
-            }
+                return RejectReservation(order, "无法预约灶台交互格");
 
             List<LocalTargetInfo> ingredients = job.GetTargetQueue(TargetIndex.B);
-            if (ingredients.NullOrEmpty())
-            {
-                RestaurantFlowLog.Failure(order, "厨师预约", "Job 没有食材目标", pawn);
-                return false;
-            }
+            if (ingredients.NullOrEmpty() || job.countQueue == null || job.countQueue.Count != ingredients.Count)
+                return RejectReservation(order, "Job 食材目标与数量队列不完整");
             for (int i = 0; i < ingredients.Count; i++)
             {
-                int count = job.countQueue != null && i < job.countQueue.Count ? job.countQueue[i] : -1;
-                if (!ingredients[i].Thing.Spawned || pawn.Reserve(ingredients[i], job, 1, count, null, errorOnFailed)) continue;
-                RestaurantFlowLog.Failure(order, "厨师预约", $"无法预约第 {i + 1} 组食材，数量={count}", pawn);
-                return false;
+                int count = job.countQueue[i];
+                Thing source = ingredients[i].Thing;
+                if (source == null || source.Destroyed || count <= 0 || count > source.stackCount
+                    || pawn.carryTracker.MaxStackSpaceEver(source.def) <= 0)
+                    return RejectReservation(order, $"第 {i + 1} 组食材无效或无法携带，数量={count}");
+                if (!source.Spawned || pawn.Reserve(ingredients[i], job, 1, count, null, errorOnFailed)) continue;
+                return RejectReservation(order, $"无法预约第 {i + 1} 组食材，数量={count}");
             }
 
-            return RestaurantOrderCoordinator.ClaimCooking(order, pawn, stove);
+            return RestaurantOrderCoordinator.ClaimCooking(order, pawn, stove)
+                || RejectReservation(order, "订单暂不可认领，等待重新检查");
+        }
+
+        //处理尚未建立 Toil 的预约失败，职责是记录原因并阻止原版立即再次派发相同厨房工作。
+        private bool RejectReservation(RestaurantOrder order, string reason)
+        {
+            RestaurantOrderUtility.OrderManager.DeferCooking(pawn, order, reason);
+            RestaurantFlowLog.Failure(order, "厨师预约", reason, pawn);
+            return false;
         }
 
         //构建取料、烹饪和出餐流程，职责是让所有临时对象都可从 Job 与订单编号恢复。
@@ -150,7 +150,6 @@ namespace RimSimRestaurantExtension.Jobs
                 Thing thing = job.placedThings[i]?.thing;
                 if (thing != null && !thing.Destroyed)
                 {
-                    thing.SetForbidden(false, false);
                     pawn.Map.physicalInteractionReservationManager.TryRelease(pawn, job, thing);
                 }
             }
@@ -161,12 +160,17 @@ namespace RimSimRestaurantExtension.Jobs
         private void HandleJobFinished(JobCondition condition)
         {
             if (condition == JobCondition.Succeeded) return;
-            RestaurantFlowLog.Failure(ResolveOrder(), "烹饪 Job 中断", condition.ToString(), pawn);
             RestaurantOrder order = ResolveOrder();
+            string reason = order?.blockReason.NullOrEmpty() != false ? condition.ToString() : order.blockReason;
+            bool failed = condition == JobCondition.Incompletable || condition == JobCondition.Errored;
+            //先登记重试边界，避免释放认领后被当前结束回调再次派回同一任务。
+            if (failed) RestaurantOrderUtility.OrderManager.DeferCooking(pawn, order, reason);
+            RestaurantFlowLog.Failure(order, "烹饪 Job 中断", reason, pawn);
             if (order?.mealProduced == true) RestaurantMealTransferUtility.DropCarried(pawn, order);
             else ReleaseCarriedIngredient();
             ReleasePlacedIngredients();
             RestaurantOrderCoordinator.ReleaseClaim(order, pawn);
+            if (failed && order?.IsTerminal == false) order.blockReason = reason;
             if (order?.IsTerminal == true) RestaurantMealTransferUtility.Release(order);
         }
 
@@ -174,8 +178,7 @@ namespace RimSimRestaurantExtension.Jobs
         private void ReleaseCarriedIngredient()
         {
             Thing carried = pawn?.carryTracker?.CarriedThing;
-            if (carried == null) return;
-            carried.SetForbidden(false, false);
+            if (carried == null || carried != job.GetTarget(TargetIndex.B).Thing) return;
             pawn.carryTracker.TryDropCarriedThing(pawn.Position, ThingPlaceMode.Near, out _);
         }
 

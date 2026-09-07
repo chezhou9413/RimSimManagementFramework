@@ -89,6 +89,7 @@ namespace RimSimRestaurantExtension.Inventory
             }
             if (reserved.Count == 0 && !order.stockProduct && order.state == RestaurantOrderState.WaitingCook)
             {
+                if (Find.TickManager.TicksGame < order.nextCookingAttemptTick) return;
                 var shop = RestaurantOrderUtility.FindShopById(map, order.shopZoneId);
                 if (!Reserve(order, shop)) order.blockReason = "制作中断后，绑定货源暂时不足";
                 return;

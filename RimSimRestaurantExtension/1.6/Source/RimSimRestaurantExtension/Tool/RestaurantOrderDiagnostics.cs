@@ -11,6 +11,7 @@ namespace RimSimRestaurantExtension.Tool
         //更新当前订单阻塞说明，职责是只在待派工阶段执行可用性查询。
         public static void Refresh(RestaurantOrder order, Map map)
         {
+            if (order.state == RestaurantOrderState.WaitingCook && Find.TickManager.TicksGame < order.nextCookingAttemptTick) return;
             order.blockReason = "";
             var shop = RestaurantOrderUtility.FindShopById(map, order.shopZoneId);
             if (shop == null) return;

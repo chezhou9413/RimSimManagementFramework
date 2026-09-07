@@ -61,27 +61,44 @@ namespace SimManagementLib.SimMapComp
         //提取指定预留实物，职责是保留组件状态且把预留随拆出的实际物品移动。
         public Thing Extract(string key, Thing source, int count, ThingOwner destination)
         {
+            return Extract(key, source, count, destination, out _);
+        }
+
+        //提取实物并返回拒绝原因，职责是让取料岗位区分预留、数量、位置与容器容量错误。
+        public Thing Extract(string key, Thing source, int count, ThingOwner destination, out string failReason)
+        {
+            failReason = "";
             var record = reservations.FirstOrDefault(r => r.key == key && r.thing == source);
-            if (record == null || source == null || source.Destroyed || count <= 0
-                || count > record.count || count > source.stackCount || destination == null) return null;
-            if (source.holdingOwner != destination && destination.GetCountCanAccept(source, false) < count) return null;
-            if (source.holdingOwner == destination) return source;
+            if (source == null || source.Destroyed || source.MapHeld != map)
+                return RejectExtraction("预留实物不存在或已离开当前地图", out failReason);
+            if (record == null)
+                return RejectExtraction($"{key} 未预留 {source}", out failReason);
+            if (count <= 0 || count > record.count || count > source.stackCount)
+                return RejectExtraction($"提取数量无效：请求={count}，本单预留={record.count}，实物={source.stackCount}", out failReason);
+            if (destination == null)
+                return RejectExtraction("接收容器不存在", out failReason);
+            if (source.holdingOwner == destination)
+                return source.stackCount == count ? source : RejectExtraction("实物已在接收容器内，但数量与本次交接不符", out failReason);
+            int capacity = destination.GetCountCanAccept(source, false);
+            if (capacity < count)
+                return RejectExtraction($"接收容器空间不足：请求={count}，可接收={capacity}", out failReason);
             bool wasForbidden = protectedThings.FirstOrDefault(p => p.thing == source)?.wasForbidden ?? source.IsForbidden(Faction.OfPlayer);
             var storage = source.ParentHolder as Building_SimContainer;
             Thing part;
             if (source.holdingOwner != null)
             {
-                if (source.holdingOwner.TryTransferToContainer(source, destination, count, out part, false) != count) return null;
+                if (source.holdingOwner.TryTransferToContainer(source, destination, count, out part, false) != count)
+                    return RejectExtraction("持有容器未能转移完整的预留数量", out failReason);
             }
             else
             {
-                if (!source.Spawned) return null;
+                if (!source.Spawned) return RejectExtraction("实物既未生成在地图，也不在持有容器内", out failReason);
                 IntVec3 origin = source.Position;
                 part = source.SplitOff(count);
                 if (!destination.TryAdd(part, false))
                 {
                     GenSpawn.Spawn(part, origin, map);
-                    return null;
+                    return RejectExtraction("接收容器拒绝拆出的地面实物", out failReason);
                 }
             }
             record.count -= count;
@@ -92,6 +109,13 @@ namespace SimManagementLib.SimMapComp
             RestoreUnusedProtection();
             storage?.NotifyInventoryChanged();
             return part;
+        }
+
+        //返回提取失败详情，职责是保持所有拒绝分支的返回约定一致。
+        private static Thing RejectExtraction(string reason, out string failReason)
+        {
+            failReason = reason;
+            return null;
         }
 
         //释放业务预留，职责是让取消、消费和配置变更归还库存分配权。
