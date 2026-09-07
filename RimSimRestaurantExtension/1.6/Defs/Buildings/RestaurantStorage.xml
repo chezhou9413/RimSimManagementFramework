@@ -16,7 +16,8 @@
     <terrainAffordanceNeeded>Light</terrainAffordanceNeeded>
     <comps>
       <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData"><maxTotalCapacity>3000</maxTotalCapacity></li>
-      <li Class="CompProperties_Power"><compClass>CompPowerTrader</compClass><basePowerConsumption>200</basePowerConsumption><shortCircuitInRain>true</shortCircuitInRain></li><li><compClass>CompFlickable</compClass></li>
+      <li Class="CompProperties_Power"><compClass>CompPowerTrader</compClass><basePowerConsumption>200</basePowerConsumption><shortCircuitInRain>true</shortCircuitInRain></li>
+      <li Class="CompProperties_Flickable"/>
     </comps>
     <modExtensions><li Class="RimSimRestaurantExtension.Inventory.RestaurantStorageExtension"><refrigerated>true</refrigerated><wallMounted>false</wallMounted><products>
       <li>RSR_KitchenIngredients</li>
