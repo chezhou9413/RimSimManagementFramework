@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ThingDef ParentName="BenchBase">
+    <defName>RSR_RestaurantOrderCounter</defName>
+    <label>餐厅接待与出餐台</label>
+    <description>餐厅接待与出餐设施。顾客在桌椅入座后由服务员交谈点菜；厨师把成品存入此台，服务员再整单送到顾客的私人桌面托盘。餐品在容器中独立保存，会正常腐坏。柜中现货由服务员直接配送，所有追加订单处理完毕后统一前往收银台付款。</description>
+    <thingClass>RimSimRestaurantExtension.Buildings.Building_RestaurantPass</thingClass>
+    <tickerType>Normal</tickerType>
+    <designationCategory>SimManagementBuildings</designationCategory>
+    <graphicData>
+      <texPath>Things/Building/Production/TableStoveElectric</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <drawSize>(3.5,1.5)</drawSize>
+    </graphicData>
+    <size>(3,1)</size>
+    <costList>
+      <Steel>80</Steel>
+      <WoodLog>40</WoodLog>
+    </costList>
+    <statBases>
+      <MaxHitPoints>180</MaxHitPoints>
+      <WorkToBuild>1600</WorkToBuild>
+      <Flammability>0.7</Flammability>
+    </statBases>
+  </ThingDef>
+</Defs>

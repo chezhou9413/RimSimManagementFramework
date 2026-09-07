@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <SimManagementLib.SimDef.CustomerActionDef>
+    <defName>RSR_Action_RestaurantDining</defName>
+    <label>餐厅点菜用餐</label>
+    <description>顾客入座后由服务员交谈接单并弹出商品图标。厨房菜品经制作出餐，柜中现货直接取货，服务员统一交入本人桌面。顾客原座吃喝或收下商品，等待和进食期间可按需求追加，全部处理完毕后到同店收银台统一付款。</description>
+    <order>450</order>
+    <selectionWeight>1.15</selectionWeight>
+    <defaultEnabled>true</defaultEnabled>
+    <requiredThingDefs>
+      <li>RSR_RestaurantOrderCounter</li>
+    </requiredThingDefs>
+    <workerClass>RimSimRestaurantExtension.Services.RestaurantCustomerActionWorker</workerClass>
+    <createsPersistentOrder>true</createsPersistentOrder>
+    <defaultBillAmount>0</defaultBillAmount>
+  </SimManagementLib.SimDef.CustomerActionDef>
+</Defs>

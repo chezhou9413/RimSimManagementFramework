@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <RimSimRestaurantExtension.Inventory.RestaurantProductDef>
+    <defName>RSR_KitchenIngredients</defName><label>厨房原料</label><ingredientsOnly>true</ingredientsOnly>
+    <categories><li>FoodRaw</li></categories>
+  </RimSimRestaurantExtension.Inventory.RestaurantProductDef>
+  <RimSimRestaurantExtension.Inventory.RestaurantProductDef>
+    <defName>RSR_Beer</defName><label>餐厅酒水</label><things><li>Beer</li></things>
+    <defaultPrice>15</defaultPrice><defaultCount>1</defaultCount><selectionWeight>0.7</selectionWeight><deliveryMode>Consume</deliveryMode>
+  </RimSimRestaurantExtension.Inventory.RestaurantProductDef>
+  <RimSimRestaurantExtension.Inventory.RestaurantProductDef>
+    <defName>RSR_PreparedFood</defName><label>成品餐食</label><categories><li>FoodMeals</li></categories>
+    <defaultPrice>-1</defaultPrice><deliveryMode>Consume</deliveryMode>
+  </RimSimRestaurantExtension.Inventory.RestaurantProductDef>
+  <RimSimRestaurantExtension.Inventory.RestaurantProductDef>
+    <defName>RSR_TakeAwayGoods</defName><label>随身商品</label><things><li>Chocolate</li><li>MedicineHerbal</li></things>
+    <defaultPrice>-1</defaultPrice><deliveryMode>TakeAway</deliveryMode>
+  </RimSimRestaurantExtension.Inventory.RestaurantProductDef>
+</Defs>

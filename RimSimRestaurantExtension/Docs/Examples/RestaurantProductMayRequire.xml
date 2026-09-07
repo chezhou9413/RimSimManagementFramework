@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--示例包名和物品名需替换为目标模组真实定义。将此 Def 放入模组 Defs，并在柜体 products 中引用它。-->
+<Defs>
+  <RimSimRestaurantExtension.Inventory.RestaurantProductDef MayRequire="example.restaurant.drinks">
+    <defName>RSR_ExampleFruitJuice</defName>
+    <label>示例模组果汁</label>
+    <things><li>ExampleFruitJuice</li></things>
+    <excludedThings />
+    <defaultPrice>18</defaultPrice><defaultCount>1</defaultCount>
+    <selectionWeight>0.8</selectionWeight><deliveryMode>Consume</deliveryMode>
+  </RimSimRestaurantExtension.Inventory.RestaurantProductDef>
+</Defs>

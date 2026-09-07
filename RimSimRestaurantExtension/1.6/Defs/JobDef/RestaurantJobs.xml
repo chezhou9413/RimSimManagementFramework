@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <JobDef>
+    <defName>RSR_WaitRestaurantOrderAtDiningSpot</defName>
+    <driverClass>RimSimRestaurantExtension.Jobs.JobDriver_WaitRestaurantOrderAtDiningSpot</driverClass>
+    <reportString>正在餐厅座位等待上菜。</reportString>
+  </JobDef>
+
+  <JobDef>
+    <defName>RSR_CookRestaurantOrder</defName>
+    <driverClass>RimSimRestaurantExtension.Jobs.JobDriver_CookRestaurantOrder</driverClass>
+    <reportString>正在制作餐厅订单。</reportString>
+  </JobDef>
+
+  <JobDef>
+    <defName>RSR_DeliverRestaurantOrder</defName>
+    <driverClass>RimSimRestaurantExtension.Jobs.JobDriver_DeliverRestaurantOrder</driverClass>
+    <reportString>正在给顾客送餐。</reportString>
+  </JobDef>
+
+  <JobDef>
+    <defName>RSR_RestaurantStandby</defName>
+    <driverClass>RimSimRestaurantExtension.Jobs.JobDriver_RestaurantStandby</driverClass>
+    <reportString>正在餐厅值班。</reportString>
+    <isIdle>true</isIdle>
+  </JobDef>
+  <JobDef>
+    <defName>RSR_TakeRestaurantOrder</defName>
+    <driverClass>RimSimRestaurantExtension.Jobs.JobDriver_TakeRestaurantOrder</driverClass>
+    <reportString>正在与顾客交谈点菜。</reportString>
+  </JobDef>
+  <JobDef>
+    <defName>RSR_BringRestaurantMealToPass</defName>
+    <driverClass>RimSimRestaurantExtension.Jobs.JobDriver_BringRestaurantMealToPass</driverClass>
+    <reportString>正在把餐品送往出餐台。</reportString>
+  </JobDef>
+</Defs>

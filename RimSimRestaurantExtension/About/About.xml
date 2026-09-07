@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+  <name>模拟经营框架扩展-餐厅</name>
+  <author>chezhou</author>
+  <supportedVersions>
+    <li>1.6</li>
+  </supportedVersions>
+  <description>模拟经营框架的餐厅扩展。顾客会按预算、饥饿程度和个体偏好点菜，由分配岗位的厨师制作、服务员送餐，并在实际用餐完成后统一结账。</description>
+  <packageId>chezhou.rimsim.restaurantextension</packageId>
+  <modDependencies>
+    <li>
+      <packageId>chezhou.Framework.RimSimManagementFramework</packageId>
+      <displayName>RimSimManagementFramework边缘模拟经营框架</displayName>
+      <steamWorkshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3736621496</steamWorkshopUrl>
+    </li>
+  </modDependencies>
+  <loadAfter>
+    <li>chezhou.Framework.RimSimManagementFramework</li>
+  </loadAfter>
+</ModMetaData>

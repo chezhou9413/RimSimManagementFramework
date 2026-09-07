@@ -1,6 +1,9 @@
 # 文本文件统一使用 LF，减少跨平台换行差异
 * text=auto eol=lf
 
+# Windows 批处理使用 CRLF，保证切换 UTF-8 代码页后的逐行解析正常
+*.bat text eol=crlf
+
 # 二进制资源保持原样
 *.dll binary
 *.pdb binary

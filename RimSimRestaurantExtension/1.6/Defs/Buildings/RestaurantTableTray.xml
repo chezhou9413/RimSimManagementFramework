@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ThingDef>
+    <defName>RSR_TableTray</defName><label>餐位餐品</label>
+    <thingClass>RimSimRestaurantExtension.Dining.RestaurantTableTray</thingClass>
+    <category>Attachment</category><tickerType>Normal</tickerType><drawerType>RealtimeOnly</drawerType>
+    <altitudeLayer>Item</altitudeLayer><useHitPoints>false</useHitPoints><selectable>false</selectable>
+    <saveCompressible>false</saveCompressible><rotatable>false</rotatable>
+  </ThingDef>
+</Defs>

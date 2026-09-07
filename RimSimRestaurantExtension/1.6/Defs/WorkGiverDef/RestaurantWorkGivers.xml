@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <WorkGiverDef>
+    <defName>RSR_WorkGiver_CookRestaurantOrder</defName>
+    <label>制作餐厅订单</label>
+    <giverClass>RimSimRestaurantExtension.WorkGivers.WorkGiver_CookRestaurantOrder</giverClass>
+    <workType>Sim_ServiceWork</workType>
+    <priorityInType>92</priorityInType>
+    <verb>制作</verb>
+    <gerund>正在制作餐厅订单</gerund>
+    <requiredCapacities>
+      <li>Manipulation</li>
+    </requiredCapacities>
+  </WorkGiverDef>
+
+  <WorkGiverDef>
+    <defName>RSR_WorkGiver_DeliverRestaurantOrder</defName>
+    <label>送达餐厅订单</label>
+    <giverClass>RimSimRestaurantExtension.WorkGivers.WorkGiver_DeliverRestaurantOrder</giverClass>
+    <workType>Sim_ServiceWork</workType>
+    <priorityInType>91</priorityInType>
+    <verb>送餐</verb>
+    <gerund>正在给顾客送餐</gerund>
+    <requiredCapacities>
+      <li>Manipulation</li>
+    </requiredCapacities>
+  </WorkGiverDef>
+
+  <WorkGiverDef>
+    <defName>RSR_WorkGiver_RestaurantChefStandby</defName>
+    <label>餐厅厨师值班</label>
+    <giverClass>RimSimRestaurantExtension.WorkGivers.WorkGiver_RestaurantStandby</giverClass>
+    <workType>Sim_ServiceWork</workType>
+    <priorityInType>8</priorityInType>
+    <verb>值班</verb>
+    <gerund>正在餐厅厨房值班</gerund>
+    <requiredCapacities>
+      <li>Moving</li>
+    </requiredCapacities>
+  </WorkGiverDef>
+
+  <WorkGiverDef>
+    <defName>RSR_WorkGiver_RestaurantWaiterStandby</defName>
+    <label>餐厅服务员值班</label>
+    <giverClass>RimSimRestaurantExtension.WorkGivers.WorkGiver_RestaurantStandby</giverClass>
+    <workType>Sim_ServiceWork</workType>
+    <priorityInType>7</priorityInType>
+    <verb>值班</verb>
+    <gerund>正在餐厅前厅值班</gerund>
+    <requiredCapacities>
+      <li>Moving</li>
+    </requiredCapacities>
+  </WorkGiverDef>
+  <WorkGiverDef>
+    <defName>RSR_WorkGiver_TakeRestaurantOrder</defName>
+    <label>接待餐厅顾客</label>
+    <giverClass>RimSimRestaurantExtension.WorkGivers.WorkGiver_TakeRestaurantOrder</giverClass>
+    <workType>Sim_ServiceWork</workType>
+    <priorityInType>90</priorityInType>
+    <verb>接待</verb>
+    <gerund>正在与顾客点菜</gerund>
+    <requiredCapacities><li>Manipulation</li><li>Moving</li></requiredCapacities>
+  </WorkGiverDef>
+  <WorkGiverDef>
+    <defName>RSR_WorkGiver_BringRestaurantMealToPass</defName>
+    <label>运送餐品到出餐台</label>
+    <giverClass>RimSimRestaurantExtension.WorkGivers.WorkGiver_BringRestaurantMealToPass</giverClass>
+    <workType>Sim_ServiceWork</workType>
+    <priorityInType>93</priorityInType>
+    <verb>出餐</verb>
+    <gerund>正在运送成品</gerund>
+    <requiredCapacities><li>Manipulation</li><li>Moving</li></requiredCapacities>
+  </WorkGiverDef>
+</Defs>

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>RimSimRestaurantExtension</RootNamespace>
+    <AssemblyName>RimSimRestaurantExtension</AssemblyName>
+    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\Assemblies\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>E:\捷豹\rimworlddll\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="0Harmony"><HintPath>E:\捷豹\rimworlddll\0Harmony.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UnityEngine">
+      <HintPath>E:\捷豹\rimworlddll\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AssetBundleModule">
+      <HintPath>E:\捷豹\rimworlddll\UnityEngine.AssetBundleModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AudioModule">
+      <HintPath>E:\捷豹\rimworlddll\UnityEngine.AudioModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>E:\捷豹\rimworlddll\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>E:\捷豹\rimworlddll\UnityEngine.ImageConversionModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>E:\捷豹\rimworlddll\UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>E:\捷豹\rimworlddll\UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule">
+      <HintPath>E:\捷豹\rimworlddll\UnityEngine.ParticleSystemModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>E:\捷豹\rimworlddll\UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>E:\捷豹\rimworlddll\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIElementsModule">
+      <HintPath>E:\捷豹\rimworlddll\UnityEngine.UIElementsModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>E:\捷豹\rimworlddll\UnityEngine.UIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestModule">
+      <HintPath>E:\捷豹\rimworlddll\UnityEngine.UnityWebRequestModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestWWWModule">
+      <HintPath>E:\捷豹\rimworlddll\UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.VideoModule">
+      <HintPath>E:\捷豹\rimworlddll\UnityEngine.VideoModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\RimSimManagementFramework\1.6\Source\SimManagementLib\SimManagementLib.csproj">
+      <Project>{3ED734BD-1058-4F10-A3F6-11C0ED77942A}</Project>
+      <Name>SimManagementLib</Name>
+      <Private>False</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Debug\CompleteRestaurantKitchenCells.cs" />
+    <Compile Include="Buildings\Building_RestaurantBar.cs" />
+    <Compile Include="Buildings\Graphic_RestaurantWallCabinet.cs" />
+    <Compile Include="Debug\CompleteRestaurantFurnitureUtility.cs" />
+    <Compile Include="Debug\CompleteRestaurantPantryUtility.cs" />
+    <Compile Include="UI\Dialog_RestaurantStorage.cs" />
+    <Compile Include="Buildings\Graphic_RestaurantBar.cs" />
+    <Compile Include="Buildings\Building_RestaurantStorage.cs" />
+    <Compile Include="Dining\RestaurantTableTray.cs" />
+    <Compile Include="Dining\RestaurantTableDelivery.cs" />
+    <Compile Include="Dining\RestaurantSessionUtility.cs" />
+    <Compile Include="Dining\RestaurantSessionSettlement.cs" />
+    <Compile Include="Dining\RestaurantDiningSession.cs" />
+    <Compile Include="Inventory\RestaurantProductMenuUtility.cs" />
+    <Compile Include="Inventory\RestaurantProductDef.cs" />
+    <Compile Include="Inventory\RestaurantPantryConfiguration.cs" />
+    <Compile Include="Inventory\RestaurantOrderStock.cs" />
+    <Compile Include="Inventory\RestaurantIngredientToils.cs" />
+    <Compile Include="Inventory\RestaurantStockUtility.cs" />
+    <Compile Include="Inventory\RestaurantStockRule.cs" />
+    <Compile Include="Inventory\RestaurantRefrigeration.cs" />
+    <Compile Include="Inventory\RestaurantStorageConfiguration.cs" />
+    <Compile Include="Inventory\RestaurantStorageExtension.cs" />
+    <Compile Include="GameComp\GameComponent_RestaurantOrderManager.Sessions.cs" />
+    <Compile Include="Tool\RestaurantMealTransferUtility.Products.cs" />
+    <Compile Include="Buildings\Building_RestaurantPass.cs" />
+    <Compile Include="Tool\RestaurantMealTransferUtility.cs" />
+    <Compile Include="Tool\RestaurantPickupReservationUtility.cs" />
+    <Compile Include="Tool\RestaurantOrderCoordinator.cs" />
+    <Compile Include="Tool\RestaurantBusinessAvailability.cs" />
+    <Compile Include="Tool\RestaurantThingQuery.cs" />
+    <Compile Include="Tool\RestaurantKitchenUtility.cs" />
+    <Compile Include="Jobs\RestaurantPassToils.cs" />
+    <Compile Include="Jobs\JobDriver_BringRestaurantMealToPass.cs" />
+    <Compile Include="WorkGivers\WorkGiver_BringRestaurantMealToPass.cs" />
+    <Compile Include="WorkGivers\WorkGiver_TakeRestaurantOrder.cs" />
+    <Compile Include="Jobs\JobDriver_TakeRestaurantOrder.cs" />
+    <Compile Include="UI\RestaurantPageState.cs" />
+    <Compile Include="UI\RestaurantGuiScope.cs" />
+    <Compile Include="UI\Dialog_RestaurantParameters.cs" />
+    <Compile Include="UI\Dialog_RestaurantMenuEditor.cs" />
+    <Compile Include="UI\RestaurantOverviewState.cs" />
+    <Compile Include="Tool\RestaurantOrderDiagnostics.cs" />
+    <Compile Include="DefOfRefs.cs" />
+    <Compile Include="Debug\CompleteRestaurantCreationUtility.cs" />
+    <Compile Include="Debug\CompleteRestaurantInventoryUtility.cs" />
+    <Compile Include="Debug\CompleteRestaurantStaffUtility.cs" />
+    <Compile Include="Debug\DebugActions_Restaurant.cs" />
+    <Compile Include="GameComp\GameComponent_RestaurantOrderManager.cs" />
+    <Compile Include="GameComp\GameComponent_RestaurantPreferences.cs" />
+    <Compile Include="GameComp\GameComponent_RestaurantSettings.cs" />
+    <Compile Include="Jobs\JobDriver_CookRestaurantOrder.cs" />
+    <Compile Include="Jobs\JobDriver_DeliverRestaurantOrder.cs" />
+    <Compile Include="Jobs\JobDriver_RestaurantStandby.cs" />
+    <Compile Include="Jobs\JobDriver_WaitRestaurantOrderAtDiningSpot.cs" />
+    <Compile Include="MainEntry.cs" />
+    <Compile Include="Models\RestaurantMenuModels.cs" />
+    <Compile Include="Models\RestaurantOrder.cs" />
+    <Compile Include="Models\RestaurantPreferenceModels.cs" />
+    <Compile Include="Services\RestaurantCustomerActionWorker.cs" />
+    <Compile Include="Services\RestaurantCheckoutWorker.cs" />
+    <Compile Include="Services\RestaurantReviewSnapshotWorker.cs" />
+    <Compile Include="Tool\RestaurantCookingUtility.cs" />
+    <Compile Include="Tool\RestaurantDiningSpotUtility.cs" />
+    <Compile Include="Tool\RestaurantFoodUtility.cs" />
+    <Compile Include="Tool\RestaurantFlowLog.cs" />
+    <Compile Include="Tool\RestaurantIngredientUtility.cs" />
+    <Compile Include="Tool\RestaurantActionUtility.cs" />
+    <Compile Include="Tool\RestaurantJobUtility.cs" />
+    <Compile Include="Tool\RestaurantMenuUtility.cs" />
+    <Compile Include="Tool\RestaurantOrderUtility.cs" />
+    <Compile Include="Tool\RestaurantOrderCreationUtility.cs" />
+    <Compile Include="Tool\RestaurantStandbyUtility.cs" />
+    <Compile Include="Tool\RestaurantStaffAvailabilityUtility.cs" />
+    <Compile Include="UI\Dialog_SelectRestaurantFood.cs" />
+    <Compile Include="UI\BusinessPageWorker_RestaurantExtension.cs" />
+    <Compile Include="UI\RestaurantBusinessUiUtility.cs" />
+    <Compile Include="UI\RestaurantUiStyle.cs" />
+    <Compile Include="UI\ShopPageWorker_RestaurantSettings.cs" />
+    <Compile Include="WorkGivers\WorkGiver_CookRestaurantOrder.cs" />
+    <Compile Include="WorkGivers\WorkGiver_DeliverRestaurantOrder.cs" />
+    <Compile Include="WorkGivers\WorkGiver_RestaurantStandby.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

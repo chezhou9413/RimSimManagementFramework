@@ -1,6 +1,6 @@
 # 编译输出与中间缓存
-1.6/Source/**/bin/
-1.6/Source/**/obj/
+**/Source/**/bin/
+**/Source/**/obj/
 
 # IDE 与本机用户配置
 .vs/

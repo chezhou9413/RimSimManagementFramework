@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <SimManagementLib.SimDef.ShopUiPageDef>
+    <defName>RSR_ShopUi_RestaurantSettings</defName>
+    <label>餐厅设置</label>
+    <description>配置单店餐厅扩展参数。</description>
+    <scope>ShopManager</scope>
+    <order>450</order>
+    <workerClass>RimSimRestaurantExtension.UI.ShopPageWorker_RestaurantSettings</workerClass>
+  </SimManagementLib.SimDef.ShopUiPageDef>
+
+  <SimManagementLib.SimDef.ShopUiPageDef>
+    <defName>RSR_BusinessUi_RestaurantOverview</defName>
+    <label>餐厅运营</label>
+    <description>查看所有餐厅的活跃订单、设施状态和顾客偏好摘要。</description>
+    <scope>BusinessManager</scope>
+    <order>455</order>
+    <workerClass>RimSimRestaurantExtension.UI.BusinessPageWorker_RestaurantExtension</workerClass>
+  </SimManagementLib.SimDef.ShopUiPageDef>
+</Defs>

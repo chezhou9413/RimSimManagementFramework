@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ThingDef ParentName="TableBase">
+    <defName>RSR_DiningTableSquare</defName><label>餐厅方桌</label>
+    <description>可供顾客原座用餐的餐厅桌面。在相邻格摆放餐椅后形成餐位。</description>
+    <designationCategory>SimManagementBuildings</designationCategory><canOverlapZones>true</canOverlapZones>
+    <size>(1,1)</size><costStuffCount>40</costStuffCount>
+    <graphicData><texPath>Things/Building/Restaurant/DiningTable1x1/RSR_DiningTable1x1</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <shaderType>CutoutComplex</shaderType><drawSize>(2,2)</drawSize>
+    </graphicData>
+
+    <statBases><MaxHitPoints>100</MaxHitPoints><WorkToBuild>3000</WorkToBuild><Mass>12</Mass><Beauty>3</Beauty><Flammability>1</Flammability></statBases>
+  </ThingDef>
+  <ThingDef ParentName="TableBase">
+    <defName>RSR_DiningTableRectangular</defName><label>餐厅长桌</label>
+    <description>可供顾客原座用餐的餐厅桌面。在相邻格摆放餐椅后形成餐位。</description>
+    <designationCategory>SimManagementBuildings</designationCategory><canOverlapZones>true</canOverlapZones>
+    <size>(1,2)</size><costStuffCount>60</costStuffCount>
+    <graphicData><texPath>Things/Building/Restaurant/DiningTable1x2/RSR_DiningTable1x2</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <shaderType>CutoutComplex</shaderType><drawSize>(4,4)</drawSize>
+    </graphicData>
+
+    <statBases><MaxHitPoints>100</MaxHitPoints><WorkToBuild>3000</WorkToBuild><Mass>12</Mass><Beauty>3</Beauty><Flammability>1</Flammability></statBases>
+  </ThingDef>
+  <ThingDef ParentName="TableBase">
+    <defName>RSR_BarCounter</defName><thingClass>RimSimRestaurantExtension.Buildings.Building_RestaurantBar</thingClass><label>拼接吧台桌</label>
+    <description>可供顾客原座用餐的餐厅桌面。只与相邻的同类吧台连接。</description>
+    <designationCategory>SimManagementBuildings</designationCategory><canOverlapZones>true</canOverlapZones>
+    <size>(1,1)</size><costStuffCount>35</costStuffCount>
+    <graphicData><texPath>Things/Building/Restaurant/BarCounter/RSR_BarCounter_Atlas</texPath>
+      <graphicClass>RimSimRestaurantExtension.Buildings.Graphic_RestaurantBar</graphicClass>
+      <shaderType>CutoutComplex</shaderType><drawSize>(1,1)</drawSize><linkFlags>Custom10</linkFlags>
+    </graphicData>
+    <uiIconPath>UI/Icons/Buildings/Restaurant/RSR_BarCounter</uiIconPath><rotatable>false</rotatable>
+    <statBases><MaxHitPoints>100</MaxHitPoints><WorkToBuild>3000</WorkToBuild><Mass>12</Mass><Beauty>3</Beauty><Flammability>1</Flammability></statBases>
+  </ThingDef>
+  <ThingDef ParentName="FurnitureWithQualityBase">
+    <defName>RSR_DiningChair</defName><label>餐厅餐椅</label>
+    <description>可在餐桌或吧台旁入座用餐。</description>
+    <thingClass>Building</thingClass><designationCategory>SimManagementBuildings</designationCategory>
+    <size>(1,1)</size><altitudeLayer>Building</altitudeLayer><canOverlapZones>true</canOverlapZones>
+    <graphicData><texPath>Things/Building/Restaurant/DiningChair/RSR_DiningChair</texPath><graphicClass>Graphic_Multi</graphicClass><shaderType>CutoutComplex</shaderType><drawSize>(2,2)</drawSize></graphicData>
+    <stuffCategories><li>Woody</li><li>Metallic</li></stuffCategories><costStuffCount>45</costStuffCount>
+    <passability>PassThroughOnly</passability><pathCost>30</pathCost><fillPercent>0.35</fillPercent><defaultPlacingRot>South</defaultPlacingRot>
+    <statBases><MaxHitPoints>140</MaxHitPoints><WorkToBuild>5000</WorkToBuild><Mass>20</Mass><Comfort>0.7</Comfort><Beauty>4</Beauty><Flammability>1</Flammability></statBases>
+    <building><isSittable>true</isSittable><multiSittable>false</multiSittable><paintable>true</paintable></building>
+    <researchPrerequisites><li>ComplexFurniture</li></researchPrerequisites><constructionSkillPrerequisite>4</constructionSkillPrerequisite>
+  </ThingDef>
+  <ThingDef ParentName="FurnitureWithQualityBase">
+    <defName>RSR_BarStool</defName><label>餐厅高脚椅</label>
+    <description>可在餐桌或吧台旁入座用餐。</description>
+    <thingClass>Building</thingClass><designationCategory>SimManagementBuildings</designationCategory>
+    <size>(1,1)</size><altitudeLayer>Building</altitudeLayer><canOverlapZones>true</canOverlapZones>
+    <graphicData><texPath>Things/Building/Restaurant/BarStool/RSR_BarStool</texPath><graphicClass>Graphic_Multi</graphicClass><shaderType>CutoutComplex</shaderType><drawSize>(2,2)</drawSize></graphicData>
+    <stuffCategories><li>Woody</li><li>Metallic</li></stuffCategories><costStuffCount>35</costStuffCount>
+    <passability>PassThroughOnly</passability><pathCost>30</pathCost><fillPercent>0.35</fillPercent><defaultPlacingRot>South</defaultPlacingRot>
+    <statBases><MaxHitPoints>140</MaxHitPoints><WorkToBuild>5000</WorkToBuild><Mass>20</Mass><Comfort>0.65</Comfort><Beauty>4</Beauty><Flammability>1</Flammability></statBases>
+    <building><isSittable>true</isSittable><multiSittable>false</multiSittable><paintable>true</paintable></building>
+    <researchPrerequisites><li>ComplexFurniture</li></researchPrerequisites><constructionSkillPrerequisite>4</constructionSkillPrerequisite>
+  </ThingDef>
+  <ThingDef ParentName="FurnitureWithQualityBase">
+    <defName>RSR_BoothSofa</defName><label>双人卡座沙发</label>
+    <description>两个占用格可分别预约，供两名顾客独立用餐。</description>
+    <thingClass>Building</thingClass><designationCategory>SimManagementBuildings</designationCategory>
+    <size>(2,1)</size><altitudeLayer>Building</altitudeLayer><canOverlapZones>true</canOverlapZones>
+    <graphicData><texPath>Things/Building/Restaurant/BoothSofa/RSR_BoothSofa</texPath><graphicClass>Graphic_Multi</graphicClass><shaderType>CutoutComplex</shaderType><drawSize>(4,4)</drawSize></graphicData>
+    <stuffCategories><li>Fabric</li><li>Leathery</li></stuffCategories><costStuffCount>160</costStuffCount>
+    <passability>PassThroughOnly</passability><pathCost>30</pathCost><fillPercent>0.35</fillPercent><defaultPlacingRot>South</defaultPlacingRot>
+    <statBases><MaxHitPoints>140</MaxHitPoints><WorkToBuild>16000</WorkToBuild><Mass>20</Mass><Comfort>0.85</Comfort><Beauty>4</Beauty><Flammability>1</Flammability></statBases>
+    <building><isSittable>true</isSittable><multiSittable>true</multiSittable><paintable>true</paintable></building>
+    <researchPrerequisites><li>ComplexFurniture</li></researchPrerequisites><constructionSkillPrerequisite>4</constructionSkillPrerequisite>
+  </ThingDef>
+</Defs>

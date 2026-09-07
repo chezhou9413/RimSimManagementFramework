@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <SimManagementLib.SimDef.ShopStaffRoleDef>
+    <defName>RSR_Role_RestaurantChef</defName>
+    <label>餐厅厨师</label>
+    <description>优先取用本店冰箱的预留食材，不足时使用绑定后厨储存区。制作后将整单餐品送入接待与出餐台，已出餐订单只恢复运输。</description>
+    <maxAssignedPawns>2</maxAssignedPawns>
+    <requiredThingDefs>
+      <li>RSR_RestaurantOrderCounter</li>
+    </requiredThingDefs>
+    <workGivers>
+      <li>RSR_WorkGiver_CookRestaurantOrder</li>
+      <li>RSR_WorkGiver_BringRestaurantMealToPass</li>
+      <li>RSR_WorkGiver_RestaurantChefStandby</li>
+    </workGivers>
+    <requiredWorkType>Sim_ServiceWork</requiredWorkType>
+    <jobDefs>
+      <li>RSR_CookRestaurantOrder</li>
+      <li>RSR_BringRestaurantMealToPass</li>
+      <li>RSR_RestaurantStandby</li>
+    </jobDefs>
+  </SimManagementLib.SimDef.ShopStaffRoleDef>
+
+  <SimManagementLib.SimDef.ShopStaffRoleDef>
+    <defName>RSR_Role_RestaurantWaiter</defName>
+    <label>餐厅服务员</label>
+    <description>优先从出餐台取餐或从商品柜提取现货，交入对应顾客的桌面托盘；其次在桌边处理首次或追加接单，空闲时值班。</description>
+    <maxAssignedPawns>2</maxAssignedPawns>
+    <requiredThingDefs>
+      <li>RSR_RestaurantOrderCounter</li>
+    </requiredThingDefs>
+    <workGivers>
+      <li>RSR_WorkGiver_DeliverRestaurantOrder</li>
+      <li>RSR_WorkGiver_TakeRestaurantOrder</li>
+      <li>RSR_WorkGiver_RestaurantWaiterStandby</li>
+    </workGivers>
+    <requiredWorkType>Sim_ServiceWork</requiredWorkType>
+    <jobDefs>
+      <li>RSR_DeliverRestaurantOrder</li>
+      <li>RSR_TakeRestaurantOrder</li>
+      <li>RSR_RestaurantStandby</li>
+    </jobDefs>
+  </SimManagementLib.SimDef.ShopStaffRoleDef>
+</Defs>
