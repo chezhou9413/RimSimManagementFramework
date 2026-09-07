@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
-  <name>模拟经营框架扩展-餐厅</name>
-  <author>chezhou</author>
+  <name>RimRestaurant边缘餐厅</name>
+  <author>追踪虫 and Migua</author>
   <supportedVersions>
     <li>1.6</li>
   </supportedVersions>
