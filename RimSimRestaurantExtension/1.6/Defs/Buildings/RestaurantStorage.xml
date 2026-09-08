@@ -1,28 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
-  <ThingDef ParentName="BuildingBase">
-    <defName>RSR_Refrigerator</defName><label>餐厅冰箱</label><description>厨房专用冷藏库存。通电只暂停腐坏，断电后继续按环境温度腐坏。厨师优先使用冰箱内食材。补货从本店绑定的后厨储存区取货，未配置品种不会自动补货。</description>
-    <thingClass>RimSimRestaurantExtension.Buildings.Building_RestaurantStorage</thingClass>
-    <designationCategory>SimManagementBuildings</designationCategory><tickerType>Normal</tickerType>
-    <size>(1,1)</size><canOverlapZones>true</canOverlapZones><rotatable>true</rotatable>
-    <graphicData><texPath>Things/Building/Restaurant/Refrigerator/RSR_Refrigerator</texPath><graphicClass>Graphic_Multi</graphicClass><shaderType>CutoutComplex</shaderType><drawSize>(2,2)</drawSize>
+    <ThingDef ParentName="BuildingBase">
+        <defName>RSR_Refrigerator</defName>
+        <label>餐厅冰箱</label><description>厨房专用冷藏库存。通电只暂停腐坏，断电后继续按环境温度腐坏。厨师优先使用冰箱内食材。补货从本店绑定的后厨储存区取货，未配置品种不会自动补货。</description>
+        <thingClass>RimSimRestaurantExtension.Buildings.Building_RestaurantStorage</thingClass>
+        <designationCategory>SimManagementBuildings</designationCategory><tickerType>Normal</tickerType>
+        <size>(1,1)</size><canOverlapZones>true</canOverlapZones><rotatable>true</rotatable>
+        <graphicData><texPath>Things/Building/Restaurant/Refrigerator/RSR_Refrigerator</texPath><graphicClass>Graphic_Multi</graphicClass><shaderType>CutoutComplex</shaderType><drawSize>(2,2)</drawSize>
 
-    </graphicData>
-    <altitudeLayer>Building</altitudeLayer><drawerType>MapMeshOnly</drawerType>
-    <passability>PassThroughOnly</passability><pathCost>50</pathCost>
-    <statBases><MaxHitPoints>180</MaxHitPoints><WorkToBuild>4000</WorkToBuild><Mass>25</Mass><Beauty>3</Beauty><Flammability>0.3</Flammability></statBases>
-    <costList><Steel>100</Steel><ComponentIndustrial>2</ComponentIndustrial></costList>
-    <building><isEdifice>true</isEdifice><isAttachment>false</isAttachment><paintable>true</paintable></building>
-    <terrainAffordanceNeeded>Light</terrainAffordanceNeeded>
-    <comps>
-      <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData"><maxTotalCapacity>3000</maxTotalCapacity></li>
-      <li Class="CompProperties_Power"><compClass>CompPowerTrader</compClass><basePowerConsumption>200</basePowerConsumption><shortCircuitInRain>true</shortCircuitInRain></li>
-      <li Class="CompProperties_Flickable"/>
-    </comps>
-    <modExtensions><li Class="RimSimRestaurantExtension.Inventory.RestaurantStorageExtension"><refrigerated>true</refrigerated><wallMounted>false</wallMounted><products>
-      <li>RSR_KitchenIngredients</li>
-    </products></li></modExtensions>
-  </ThingDef>
+        </graphicData>
+        <altitudeLayer>Building</altitudeLayer><drawerType>MapMeshOnly</drawerType>
+        <passability>PassThroughOnly</passability><pathCost>50</pathCost>
+        <statBases><MaxHitPoints>180</MaxHitPoints><WorkToBuild>4000</WorkToBuild><Mass>25</Mass><Beauty>3</Beauty><Flammability>0.3</Flammability></statBases>
+        <costList><Steel>100</Steel><ComponentIndustrial>2</ComponentIndustrial></costList>
+        <building><isEdifice>true</isEdifice><isAttachment>false</isAttachment><paintable>true</paintable></building>
+        <terrainAffordanceNeeded>Light</terrainAffordanceNeeded>
+        <comps>
+         <li Class="SimManagementLib.SimThingComp.ThingCompProperties_GoodsData"><maxTotalCapacity>3000</maxTotalCapacity></li>
+         <li Class="CompProperties_Power"><compClass>CompPowerTrader</compClass><basePowerConsumption>200</basePowerConsumption><shortCircuitInRain>true</shortCircuitInRain></li>
+         <li Class="CompProperties_Flickable"/>
+        </comps>
+        <modExtensions><li Class="RimSimRestaurantExtension.Inventory.RestaurantStorageExtension"><refrigerated>true</refrigerated><wallMounted>false</wallMounted><products>
+          <li>RSR_KitchenIngredients</li>
+        </products></li></modExtensions>
+    </ThingDef>
+    
   <ThingDef ParentName="BuildingBase">
     <defName>RSR_WallCabinet</defName><uiIconPath>Things/Building/Restaurant/WallCabinet/RSR_WallCabinet_south</uiIconPath><label>壁挂橱柜</label><description>餐厅配送专用商品柜。设置库存目标、售价与上架状态后，由服务员送到顾客桌面。补货从本店绑定的后厨储存区取货，未配置品种不会自动补货。</description>
     <thingClass>RimSimRestaurantExtension.Buildings.Building_RestaurantStorage</thingClass>
