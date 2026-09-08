@@ -94,8 +94,12 @@ namespace RimSimRestaurantExtension.Inventory
                 if (!Reserve(order, shop)) order.blockReason = "制作中断后，绑定货源暂时不足";
                 return;
             }
-            if (reserved.Any(t => t.Thing == null || t.Thing.Destroyed || t.Count > t.Thing.stackCount))
-                RestaurantOrderUtility.FailOrder(order, "已预留的真实物资已毁坏或数量不足");
+            int invalid = reserved.FindIndex(t => t.Thing == null || t.Thing.Destroyed || t.Count <= 0 || t.Count > t.Thing.stackCount);
+            if (invalid >= 0)
+            {
+                ThingCount item = reserved[invalid];
+                RestaurantOrderUtility.FailOrder(order, $"已预留的真实物资已毁坏或数量不足：{item.Thing}，预留={item.Count}，实物={item.Thing?.stackCount ?? 0}");
+            }
             else if (order.stockProduct && (order.sourceCabinet?.Spawned != true || reserved.Sum(t => t.Count) != order.mealCount))
                 RestaurantOrderUtility.FailOrder(order, "商品柜已移除或已预留商品丢失");
         }

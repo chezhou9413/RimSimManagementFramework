@@ -12,9 +12,7 @@ using Verse.AI.Group;
 
 namespace SimManagementLib.SimAI
 {
-    /// <summary>
-    /// 执行付款后服务的通用使用流程，负责消耗服务资格并通知服务 Worker 完成状态。
-    /// </summary>
+    //执行付款后服务的通用使用流程，负责消耗服务资格并通知服务 Worker 完成状态。
     public class JobDriver_UsePaidService : JobDriver
     {
         private Thing Provider => job.GetTarget(TargetIndex.A).Thing;
@@ -23,6 +21,28 @@ namespace SimManagementLib.SimAI
         private ShopServiceDef serviceDef;
         private int durationTicks = 300;
         private bool completedNormally;
+        private bool serviceUseStarted;
+
+        //提供正在执行的服务状态，职责是避免已结束订单继续阻止顾客离店。
+        internal bool HasActiveService
+        {
+            get
+            {
+                ResolveOrderContext();
+                return !completedNormally && Provider != null && Provider.Spawned && order?.state == ServiceOrderState.InUse;
+            }
+        }
+        internal bool IsUsingService => HasActiveService && serviceUseStarted;
+
+        //保存服务读条上下文，订单通过原版保存的 Job 编号重新关联。
+        public override void ExposeData()
+        {
+            base.ExposeData();
+            Scribe_Defs.Look(ref serviceDef, "serviceDef");
+            Scribe_Values.Look(ref durationTicks, "durationTicks", 300);
+            Scribe_Values.Look(ref completedNormally, "completedNormally");
+            Scribe_Values.Look(ref serviceUseStarted, "serviceUseStarted");
+        }
 
         //预约服务建筑并提前恢复订单上下文，职责是保证 Job 在任意阶段中断时都能恢复服务资格。
         public override bool TryMakePreToilReservations(bool errorOnFailed)
@@ -36,7 +56,6 @@ namespace SimManagementLib.SimAI
         //构建付款后服务流程，职责是完成移动、持续使用和订单结算。
         protected override IEnumerable<Toil> MakeNewToils()
         {
-            completedNormally = false;
             AddFinishAction(HandleServiceJobFinished);
             this.FailOnDespawnedOrNull(TargetIndex.A);
 
@@ -61,20 +80,20 @@ namespace SimManagementLib.SimAI
             yield return Toils_Goto.GotoCell(TargetIndex.B, PathEndMode.OnCell);
 
             Toil use = new Toil();
-            use.defaultCompleteMode = ToilCompleteMode.Never;
+            use.defaultCompleteMode = ToilCompleteMode.Delay;
             use.initAction = () =>
             {
+                ResolveOrderContext();
+                serviceUseStarted = true;
                 ticksLeftThisToil = Mathf.Max(60, durationTicks);
                 serviceDef?.Worker.NotifyServiceUseStarted(pawn, Provider, order);
             };
             use.tickAction = () =>
             {
+                ResolveOrderContext();
                 float progress = 1f - ticksLeftThisToil / (float)Mathf.Max(1, durationTicks);
                 ShopProgressBarUtility.Report(pawn, progress);
                 serviceDef?.Worker.TickServiceUse(pawn, Provider, order);
-                ticksLeftThisToil--;
-                if (ticksLeftThisToil <= 0)
-                    ReadyForNextToil();
             };
             use.AddFinishAction(() => ShopProgressBarUtility.Clear(pawn));
             yield return use;
@@ -83,7 +102,10 @@ namespace SimManagementLib.SimAI
             finalize.defaultCompleteMode = ToilCompleteMode.Instant;
             finalize.initAction = () =>
             {
-                if (order == null || serviceDef == null) return;
+                ResolveOrderContext();
+                if (completedNormally || order == null || serviceDef == null) return;
+                completedNormally = true;
+                serviceUseStarted = false;
                 order.completedTick = Find.TickManager.TicksGame;
                 order.state = ServiceOrderState.Completed;
                 serviceDef.Worker.NotifyServiceCompleted(pawn, Provider, order);
@@ -96,7 +118,6 @@ namespace SimManagementLib.SimAI
                     lordJob?.TryEnqueueFreeCompletedServiceReview(pawn, shopZone, "完成免费服务");
                 lordJob?.GetOrCreateSession(pawn)?.NotifyCheckoutPaid(lordJob, pawn, "购后服务完成");
                 lordJob?.CheckAllCheckoutsDone();
-                completedNormally = true;
             };
             yield return finalize;
         }
@@ -113,7 +134,9 @@ namespace SimManagementLib.SimAI
         //处理服务 Job 的异常结束，职责是把已付款但未完成的服务重新放回购后执行队列。
         private void HandleServiceJobFinished(JobCondition condition)
         {
+            ResolveOrderContext();
             ShopProgressBarUtility.Clear(pawn);
+            serviceUseStarted = false;
             if (completedNormally || order == null || order.state != ServiceOrderState.InUse) return;
 
             LordJob_CustomerVisit lordJob = pawn?.Map?.lordManager?.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;

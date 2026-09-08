@@ -19,9 +19,9 @@ namespace RimSimRestaurantExtension.Tool
                 || !RestaurantCookingUtility.CanCookOrderAt(stove, order)
                 || !RestaurantCookingUtility.CanPawnCookOrderAt(cook, stove, order)
                 || !RestaurantOrderUtility.EnsureOrderStillValid(order, cook.Map)) return false;
-            if (job.placedThings.NullOrEmpty()) return false;
+            if (job.placedThings.NullOrEmpty() || job.placedThings.Any(item => item?.thing == null)) return false;
             var placed = job.placedThings.GroupBy(item => item.thing)
-                .Select(group => new ThingCount(group.Key, group.Sum(item => item.Count))).ToList();
+                .Select(group => new ThingCount(group.Key, group.Sum(item => item.Count), true)).ToList();
             if (placed.Any(item => item.Thing == null || item.Thing.Destroyed || !item.Thing.Spawned
                 || item.Thing.Map != cook.Map || item.Thing.stackCount < item.Count
                 || item.Count <= 0 || item.Thing.IsBurning()

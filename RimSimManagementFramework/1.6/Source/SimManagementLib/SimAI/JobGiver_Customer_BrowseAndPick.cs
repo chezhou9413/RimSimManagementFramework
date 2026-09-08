@@ -113,15 +113,8 @@ namespace SimManagementLib.SimAI
         private static bool StorageHasAffordableContent(Building_SimContainer storage, Pawn pawn, LordJob_CustomerVisit lordJob, float remainingBudget, List<ComboData> affordableCombos)
         {
             if (storage == null || !storage.AllowsCustomerSelfPurchase || storage.Destroyed || !storage.Spawned) return false;
-            foreach (ThingDef def in storage.ActiveDefs)
-            {
-                if (storage.CountStored(def) <= 0) continue;
-                if (!CustomerShoppingMatchUtility.ThingMatchesCustomer(lordJob, def)) continue;
-                float unitPrice = ShopPricingUtility.GetUnitPrice(storage, def);
-                CustomerPriceEvaluation price = CustomerPriceUtility.Evaluate(def, unitPrice, lordJob.GetPriceSensitivity(pawn.thingIDNumber));
-                if (unitPrice <= remainingBudget && !price.rejected)
-                    return true;
-            }
+            if (CustomerShoppingMatchUtility.StorageHasMatchingAffordableStock(storage, pawn, lordJob, remainingBudget))
+                return true;
             return !affordableCombos.NullOrEmpty() && CustomerShoppingMatchUtility.StorageHasComboItem(storage, affordableCombos);
         }
         //为不适合购买的顾客创建橱窗浏览 Job，完成过最低浏览后才进入结账。
@@ -206,12 +199,11 @@ namespace SimManagementLib.SimAI
             return unvisitedSelected ?? fallbackSelected;
         }
 
-        //返回商店缓存入口格，职责是避免橱窗浏览扫描全部区划格。
+        //选择可预约的店内站位，职责是避让被占用的入口并在无空位时结束本次浏览。
         private static bool TryFindRandomReachableShopCell(Pawn pawn, Zone_Shop shopZone, out LocalTargetInfo target)
         {
             target = LocalTargetInfo.Invalid;
-            CustomerArrivalManager manager = pawn?.Map?.GetComponent<CustomerArrivalManager>();
-            if (manager == null || !manager.TryGetShopEntryCell(shopZone.ID, out IntVec3 selected)) return false;
+            if (!CustomerWindowShopTargetUtility.TryFindCell(pawn, shopZone, out IntVec3 selected)) return false;
             target = selected;
             return true;
         }

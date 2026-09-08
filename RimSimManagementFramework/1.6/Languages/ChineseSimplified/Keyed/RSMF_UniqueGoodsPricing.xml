@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.UniqueGoods.Sort.Ascending>升序 ↑</RSMF.UniqueGoods.Sort.Ascending>
+  <RSMF.UniqueGoods.Sort.Descending>降序 ↓</RSMF.UniqueGoods.Sort.Descending>
+  <RSMF.UniqueGoods.Pricing.Multiplier>市价 ×</RSMF.UniqueGoods.Pricing.Multiplier>
+  <RSMF.UniqueGoods.Pricing.Apply>批量定价</RSMF.UniqueGoods.Pricing.Apply>
+  <RSMF.UniqueGoods.Pricing.Help>按实际市价 × 倍率，为本柜所有未被顾客预订的现货和待补货商品设置售价，不受当前分页影响。实际市价已经包含品质、材质和耐久影响，不再额外乘品质系数。缺失来源的商品会跳过。修改立即生效。</RSMF.UniqueGoods.Pricing.Help>
+  <RSMF.UniqueGoods.Pricing.Invalid>定价结果超出有效数值范围，请降低倍率。</RSMF.UniqueGoods.Pricing.Invalid>
+  <RSMF.UniqueGoods.Pricing.Applied>已为 {count} 件商品按实际市价设置售价。</RSMF.UniqueGoods.Pricing.Applied>
+</LanguageData>

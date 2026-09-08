@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.UniqueGoods.Sort.Ascending>Ascending ↑</RSMF.UniqueGoods.Sort.Ascending>
+  <RSMF.UniqueGoods.Sort.Descending>Descending ↓</RSMF.UniqueGoods.Sort.Descending>
+  <RSMF.UniqueGoods.Pricing.Multiplier>Value ×</RSMF.UniqueGoods.Pricing.Multiplier>
+  <RSMF.UniqueGoods.Pricing.Apply>Price all</RSMF.UniqueGoods.Pricing.Apply>
+  <RSMF.UniqueGoods.Pricing.Help>Set prices to actual market value × multiplier for every stocked or pending item in this shelf, across all pages. Actual value already includes quality, material and condition. Items reserved by customers or missing their source are skipped. Changes apply immediately.</RSMF.UniqueGoods.Pricing.Help>
+  <RSMF.UniqueGoods.Pricing.Invalid>The resulting price is outside the valid numeric range. Use a lower multiplier.</RSMF.UniqueGoods.Pricing.Invalid>
+  <RSMF.UniqueGoods.Pricing.Applied>Updated prices for {count} items using actual market value.</RSMF.UniqueGoods.Pricing.Applied>
+</LanguageData>

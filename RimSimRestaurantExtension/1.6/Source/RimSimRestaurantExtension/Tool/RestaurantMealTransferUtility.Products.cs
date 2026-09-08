@@ -14,11 +14,12 @@ namespace RimSimRestaurantExtension.Tool
         //完整转移单个实物，职责是拒绝自动合堆并保持直接引用。
         public static bool TransferThing(Thing thing, ThingOwner target)
         {
-            if (thing == null || thing.Destroyed || target == null) return false;
+            if (thing == null || thing.Destroyed || target == null || target.Owner is Map) return false;
             if (thing.holdingOwner == target) return true;
             if (target.GetCountCanAccept(thing, false) < thing.stackCount) return false;
             int count = thing.stackCount;
-            if (thing.holdingOwner != null)
+            //地图持有的掉落商品先脱离地图，再转入员工或顾客的真实容器。
+            if (!thing.Spawned && thing.holdingOwner != null)
                 return thing.holdingOwner.TryTransferToContainer(thing, target, count, out _, false) == count;
             if (thing.Spawned) thing.DeSpawn();
             if (!target.TryAdd(thing, false)) throw new System.InvalidOperationException("餐厅实物转移失败：" + thing);

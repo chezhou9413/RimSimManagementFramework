@@ -135,8 +135,9 @@ namespace SimManagementLib.SimAI.CustomerVisit
             if (SimShopCustomerApi.HasCustomerVisitExtensions)
                 SimShopCustomerApi.NotifyCustomerVisitExtensionTick(BuildExtensionContext(visit, pawn, "Session Tick"));
 
-            //顾客动作订单执行期间由动作自身决定完成或失败，普通购物流程不能提前结账或离店。
-            if (SimShopCustomerApi.HasRunningCustomerActionOrder(pawn, currentShopZoneId))
+            //动作和内置服务执行期间不能提前结账或离店，停滞和安全期限仍由可靠性巡检处理。
+            if (SimShopCustomerApi.HasRunningCustomerActionOrder(pawn, currentShopZoneId)
+                || CustomerServiceActivityUtility.HasActiveService(pawn))
                 return default(CustomerVisitTickResult);
 
             Zone_Shop shop = GetCurrentShop(visit, pawn);
@@ -151,7 +152,9 @@ namespace SimManagementLib.SimAI.CustomerVisit
             if (owed > 0 && ShouldCheckoutWithBill(visit, pawn, shop, out string checkoutReason))
             {
                 MarkReadyForCheckout(visit, pawn, checkoutReason);
-                return CustomerVisitTickResult.Checkout(checkoutReason);
+                return visit.ShouldEnterCheckoutPhaseForSession()
+                    ? CustomerVisitTickResult.Checkout(checkoutReason)
+                    : default(CustomerVisitTickResult);
             }
 
             if (owed <= 0 && ShouldLeaveWithoutBill(visit, pawn, shop, out string leaveReason))
@@ -235,6 +238,7 @@ namespace SimManagementLib.SimAI.CustomerVisit
         //标记顾客准备结账，负责把阶段切到等待结账并同步旧结账队列。
         internal void MarkReadyForCheckout(LordJob_CustomerVisit visit, Pawn pawn, string reason)
         {
+            if (CustomerServiceActivityUtility.HasActiveService(pawn)) return;
             lastReason = reason ?? "顾客准备结账";
             SetStage(visit, pawn, CustomerVisitStage.WaitingCheckout, lastReason, notifyExtensions: true);
             visit.MarkPawnReadyForCheckoutFromSession(pawnId);

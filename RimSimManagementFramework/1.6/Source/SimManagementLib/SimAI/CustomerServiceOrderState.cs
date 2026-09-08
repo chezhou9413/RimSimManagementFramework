@@ -6,9 +6,7 @@ using Verse;
 
 namespace SimManagementLib.SimAI
 {
-    /// <summary>
-    /// 保存顾客服务订单和订单编号，负责管理服务型消费的持久状态。
-    /// </summary>
+    //保存顾客服务订单和订单编号，负责管理服务型消费的持久状态。
     internal class CustomerServiceOrderState
     {
         internal Dictionary<int, List<CustomerServiceOrder>> serviceOrders = new Dictionary<int, List<CustomerServiceOrder>>();
@@ -17,9 +15,7 @@ namespace SimManagementLib.SimAI
         private List<int> tmpServiceOrderKeys;
         private List<List<CustomerServiceOrder>> tmpServiceOrderValues;
 
-        /// <summary>
-        /// 读写服务订单存档数据，并在读档后补齐集合实例。
-        /// </summary>
+        //读写服务订单存档数据，并在读档后补齐集合实例。
         public void ExposeData()
         {
             Scribe_Collections.Look(ref serviceOrders, "serviceOrders", LookMode.Value, LookMode.Deep, ref tmpServiceOrderKeys, ref tmpServiceOrderValues);
@@ -32,9 +28,7 @@ namespace SimManagementLib.SimAI
             }
         }
 
-        /// <summary>
-        /// 添加服务订单，并确保订单编号单调递增。
-        /// </summary>
+        //添加服务订单，并确保订单编号单调递增。
         public void AddServiceOrder(int pawnId, CustomerServiceOrder order)
         {
             if (pawnId <= 0 || order == null) return;
@@ -58,17 +52,13 @@ namespace SimManagementLib.SimAI
             list.Add(order);
         }
 
-        /// <summary>
-        /// 返回指定顾客的服务订单列表。
-        /// </summary>
+        //返回指定顾客的服务订单列表。
         public List<CustomerServiceOrder> GetServiceOrders(int pawnId)
         {
             return serviceOrders.TryGetValue(pawnId, out List<CustomerServiceOrder> list) ? list : null;
         }
 
-        /// <summary>
-        /// 按订单编号查找指定顾客的服务订单。
-        /// </summary>
+        //按订单编号查找指定顾客的服务订单。
         public CustomerServiceOrder GetServiceOrder(int pawnId, int orderId)
         {
             List<CustomerServiceOrder> list = GetServiceOrders(pawnId);
@@ -76,9 +66,7 @@ namespace SimManagementLib.SimAI
             return list.FirstOrDefault(o => o != null && o.orderId == orderId);
         }
 
-        /// <summary>
-        /// 统计指定服务建筑和服务 Def 当前正在占用并发名额的订单数量。
-        /// </summary>
+        //统计指定服务建筑和服务 Def 当前正在占用并发名额的订单数量。
         public int CountActiveServiceOrders(int providerThingId, string serviceDefName)
         {
             if (providerThingId < 0 || string.IsNullOrEmpty(serviceDefName)) return 0;
@@ -91,7 +79,8 @@ namespace SimManagementLib.SimAI
                     CustomerServiceOrder order = list[i];
                     if (order == null) continue;
                     if (order.providerThingId != providerThingId || order.serviceDefName != serviceDefName) continue;
-                    if (order.state == ServiceOrderState.AwaitingPayment
+                    if (order.state == ServiceOrderState.Draft
+                        || order.state == ServiceOrderState.AwaitingPayment
                         || order.state == ServiceOrderState.ReadyToUse
                         || order.state == ServiceOrderState.TicketIssued
                         || order.state == ServiceOrderState.InUse
@@ -103,9 +92,7 @@ namespace SimManagementLib.SimAI
             return count;
         }
 
-        /// <summary>
-        /// 清除指定顾客的服务订单。
-        /// </summary>
+        //清除指定顾客的服务订单。
         public void ClearCustomerServiceOrders(int pawnId)
         {
             if (pawnId <= 0) return;

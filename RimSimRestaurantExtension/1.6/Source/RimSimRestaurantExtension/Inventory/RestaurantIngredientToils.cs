@@ -55,8 +55,8 @@ namespace RimSimRestaurantExtension.Inventory
                 if (!RestaurantIngredientTransfer.IsCarryingBatch(pawn, job, resolve()))
                 { Stop(driver, resolve(), "到达灶台时携带食材与当前批次预留不符"); return; }
                 int count = ingredient.stackCount;
-                pawn.carryTracker.innerContainer.Remove(ingredient);
-                GenSpawn.Spawn(ingredient, pawn.Position, pawn.Map);
+                if (!RestaurantIngredientPlacement.TryPlace(pawn, job, ingredient))
+                { Stop(driver, resolve(), "灶台附近没有可独立放置食材的空格"); return; }
                 job.placedThings.Add(new ThingCountClass(ingredient, count));
                 job.countQueue[0] -= count;
                 if (job.countQueue[0] <= 0) { job.countQueue.RemoveAt(0); job.targetQueueB.RemoveAt(0); }

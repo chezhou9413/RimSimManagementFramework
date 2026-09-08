@@ -33,10 +33,11 @@ namespace SimManagementLib.SimDialog
             searchChangedRealtime = Time.realtimeSinceStartup;
         }
 
-        //使可用物品筛选缓存失效并回到第一页。
-        private void InvalidateAvailableFilter()
+        //使筛选缓存失效，职责是只在用户主动改变筛选或排序时重置浏览位置。
+        private void InvalidateAvailableFilter(bool resetPosition = true)
         {
             filteredSourceVersion = -1;
+            if (!resetPosition) return;
             availablePage = 0;
             availableScroll = Vector2.zero;
         }
@@ -51,7 +52,7 @@ namespace SimManagementLib.SimDialog
                 availablePage = 0;
                 availableScroll = Vector2.zero;
             }
-            if (filteredSourceVersion == availableSourceVersion && filteredSortMode == sortMode && filteredSearch == committedSearch)
+            if (filteredSourceVersion == availableSourceVersion && filteredSortMode == AvailableSortKey && filteredSearch == committedSearch)
                 return filteredAvailableCache;
 
             IEnumerable<Thing> query = available;
@@ -60,17 +61,11 @@ namespace SimManagementLib.SimDialog
                 query = query.Where(thing => (thing.LabelCapNoCount + " " + GetThingDetailsCached(thing))
                     .IndexOf(committedSearch, System.StringComparison.OrdinalIgnoreCase) >= 0);
             }
-            switch (sortMode)
-            {
-                case 1: query = query.OrderByDescending(thing => thing.TryGetQuality(out QualityCategory quality) ? (int)quality : -1); break;
-                case 2: query = query.OrderByDescending(thing => thing.MarketValue); break;
-                case 3: query = query.OrderByDescending(thing => thing.MaxHitPoints > 0 ? thing.HitPoints / (float)thing.MaxHitPoints : 1f); break;
-                default: query = query.OrderBy(thing => thing.LabelCapNoCount); break;
-            }
+            query = SortItems(query, thing => thing, thing => thing.thingIDNumber, sortMode, sortDescending);
             filteredAvailableCache.Clear();
             filteredAvailableCache.AddRange(query);
             filteredSourceVersion = availableSourceVersion;
-            filteredSortMode = sortMode;
+            filteredSortMode = AvailableSortKey;
             filteredSearch = committedSearch;
             return filteredAvailableCache;
         }
@@ -80,12 +75,20 @@ namespace SimManagementLib.SimDialog
         {
             if (listedCacheVersion == container.StoredCountVersion) return listedSlotsCache;
             listedSlotsCache.Clear();
+            listedThingCache.Clear();
             IReadOnlyList<UniqueGoodsSlotData> slots = container.UniqueSlots;
             for (int i = 0; i < slots.Count; i++)
             {
                 UniqueGoodsSlotData slot = slots[i];
-                if (slot != null && slot.IsOccupied) listedSlotsCache.Add(slot);
+                if (slot == null || !slot.IsOccupied) continue;
+                listedSlotsCache.Add(slot);
+                listedThingCache[slot.index] = container.GetStoredThing(slot)
+                    ?? UniqueGoodsUtility.FindSource(container.Map, slot.pendingSourceThingId, container);
             }
+            List<UniqueGoodsSlotData> sorted = SortItems(listedSlotsCache, slot => listedThingCache[slot.index],
+                slot => slot.index, listedSortMode, listedSortDescending).ToList();
+            listedSlotsCache.Clear();
+            listedSlotsCache.AddRange(sorted);
             listedCacheVersion = container.StoredCountVersion;
             ClampPage(ref listedPage, listedSlotsCache.Count, ListedPageSize);
             return listedSlotsCache;

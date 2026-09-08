@@ -226,6 +226,7 @@
     <Compile Include="SimAI\CustomerVisit\CustomerNextShopSelector.cs" />
     <Compile Include="SimAI\CustomerVisit\CustomerPreferencePolicy.cs" />
     <Compile Include="SimAI\CustomerVisit\CustomerVisitSession.cs" />
+    <Compile Include="SimAI\CustomerVisit\CustomerWindowShopTargetUtility.cs" />
     <Compile Include="SimAI\CustomerVisit\CustomerVisitSession.Reliability.cs" />
     <Compile Include="SimAI\CustomerVisit\CustomerVisitStage.cs" />
     <Compile Include="SimAI\CustomerDismissalUtility.cs" />
@@ -482,6 +483,12 @@
     <Compile Include="Tool\SteamSessionResolver.cs" />
     <Compile Include="Tool\VendingMachineUtility.cs" />
     <Compile Include="Tool\UniqueGoodsUtility.cs" />
+    <Compile Include="Tool\ShopServiceUtility.Selection.cs" />
+    <Compile Include="SimAI\CustomerVisit\CustomerServiceActivityUtility.cs" />
+    <Compile Include="SimAI\JobDriver_SelectPaidService.Settlement.cs" />
+    <Compile Include="SimAI\JobDriver_SelectPaidService.State.cs" />
+    <Compile Include="SimDialog\Dialog_UniqueGoodsManager.Sorting.cs" />
+    <Compile Include="SimDialog\Dialog_UniqueGoodsManager.Pricing.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
