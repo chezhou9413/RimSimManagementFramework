@@ -10,6 +10,7 @@ namespace SimManagementLib.SimAI.CustomerVisit
     public partial class CustomerVisitSession
     {
         private const int NoProgressRecoveryTicks = 600;
+        private int lastObservedServiceTicks = -1;
         private const int MaxRecoveryCount = 2;
         private const int CheckoutJobRecoveryTicks = 600;
         private const int PostCheckoutTimeoutTicks = 600;
@@ -126,20 +127,23 @@ namespace SimManagementLib.SimAI.CustomerVisit
             else unsafeSinceTick = -1;
         }
 
-        //观察位置和 Job 变化，职责是只把实际移动或行为切换视为有效进展。
+        //观察位置、工作和服务剩余工时，职责是识别原地服务进展并保留移动停滞检测。
         private void ObserveProgress(Pawn pawn, int now)
         {
             if (pawn == null) return;
             int jobLoadId = pawn.CurJob?.loadID ?? -1;
             bool moved = !lastProgressCell.IsValid || pawn.Position != lastProgressCell;
             bool jobChanged = jobLoadId != lastObservedJobLoadId;
-            if (!moved && !jobChanged) return;
+            int serviceTicks = CustomerServiceActivityUtility.RemainingServiceTicks(pawn);
+            bool serviceProgress = serviceTicks >= 0 && lastObservedServiceTicks >= 0 && serviceTicks < lastObservedServiceTicks;
+            lastObservedServiceTicks = serviceTicks;
+            if (!moved && !jobChanged && !serviceProgress) return;
             lastProgressCell = pawn.Position;
             lastObservedJobLoadId = jobLoadId;
-            if (!moved && recoveryCount > 0)
+            if (!moved && !serviceProgress && recoveryCount > 0)
                 return;
             lastProgressTick = now;
-            if (moved)
+            if (moved || serviceProgress)
                 recoveryCount = 0;
         }
 

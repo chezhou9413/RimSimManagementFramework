@@ -7,9 +7,7 @@ using Verse.AI;
 
 namespace SimManagementLib.SimService
 {
-    /// <summary>
-    /// 定义一项可由商店建筑提供的付费服务，负责保存服务分类、价格、时长、计费模式和默认执行器。
-    /// </summary>
+    //定义一项可由商店建筑提供的付费服务，负责保存服务分类、价格、时长、计费模式和默认执行器。
     public class ShopServiceDef : Def
     {
         public string serviceCategoryId = "";
@@ -23,9 +21,7 @@ namespace SimManagementLib.SimService
 
         [Unsaved] private ShopServiceWorker workerInt;
 
-        /// <summary>
-        /// 返回该服务的运行时执行器，并在首次访问时创建默认或自定义 Worker。
-        /// </summary>
+        //返回该服务的运行时执行器，并在首次访问时创建默认或自定义 Worker。
         public ShopServiceWorker Worker
         {
             get
@@ -49,9 +45,7 @@ namespace SimManagementLib.SimService
             }
         }
 
-        /// <summary>
-        /// 返回面向 UI 和账单显示的服务名称。
-        /// </summary>
+        //返回面向 UI 和账单显示的服务名称。
         public string DisplayLabel
         {
             get
@@ -62,9 +56,7 @@ namespace SimManagementLib.SimService
         }
     }
 
-    /// <summary>
-    /// 描述服务费用是在使用前、使用后还是以单次票据资格结算。
-    /// </summary>
+    //描述服务费用是在使用前、使用后还是以单次票据资格结算。
     public enum ServiceBillingMode
     {
         PayBeforeUse,
@@ -72,9 +64,7 @@ namespace SimManagementLib.SimService
         TicketBeforeUse
     }
 
-    /// <summary>
-    /// 描述顾客服务订单从选择、付款、使用到完成或失败的运行时状态。
-    /// </summary>
+    //描述顾客服务订单从选择、付款、使用到完成或失败的运行时状态。
     public enum ServiceOrderState
     {
         Draft,
@@ -88,16 +78,12 @@ namespace SimManagementLib.SimService
         CheckoutFailed
     }
 
-    /// <summary>
-    /// 为服务提供可重写的执行逻辑，复杂模组可继承它来控制可用性、价格、预约、使用 Job 和状态通知。
-    /// </summary>
+    //为服务提供可重写的执行逻辑，复杂模组可继承它来控制可用性、价格、预约、使用 Job 和状态通知。
     public class ShopServiceWorker
     {
         public ShopServiceDef def;
 
-        /// <summary>
-        /// 判断指定顾客是否能在指定建筑上使用服务，默认只检查基础对象、地图和可达性。
-        /// </summary>
+        //判断指定顾客是否能在指定建筑上使用服务，默认只检查基础对象、地图和可达性。
         public virtual bool CanUse(Pawn customer, Thing provider, SimZone.Zone_Shop shop, out string failReason)
         {
             failReason = "";
@@ -132,25 +118,25 @@ namespace SimManagementLib.SimService
             return true;
         }
 
-        /// <summary>
-        /// 返回指定顾客在指定建筑使用服务时的单价，默认读取建筑服务槽位覆盖价和服务基础价。
-        /// </summary>
+        //返回指定顾客在指定建筑使用服务时的单价，默认读取建筑服务槽位覆盖价和服务基础价。
         public virtual float GetPrice(Pawn customer, Thing provider, SimZone.Zone_Shop shop)
         {
             return Tool.ShopServiceUtility.GetServicePrice(provider, def);
         }
 
-        /// <summary>
-        /// 尝试为服务订单占用运行资格，默认只做并发数量检查。
-        /// </summary>
+        //返回服务未加价时的参考价值，职责是让顾客按服务价值判断溢价；动态服务应覆盖此方法。
+        public virtual float GetReferencePrice(Pawn customer, Thing provider, SimZone.Zone_Shop shop)
+        {
+            return def.basePrice;
+        }
+
+        //尝试为服务订单占用运行资格，默认只做并发数量检查。
         public virtual bool TryReserve(Pawn customer, Thing provider, Pojo.CustomerServiceOrder order)
         {
             return Tool.ShopServiceUtility.CanAcceptMoreUsers(provider, def);
         }
 
-        /// <summary>
-        /// 生成服务使用 Job，默认使用服务 Def 配置的 JobDef，缺省时使用通用等待服务 Job。
-        /// </summary>
+        //生成服务使用 Job，默认使用服务 Def 配置的 JobDef，缺省时使用通用等待服务 Job。
         public virtual Job MakeUseJob(Pawn customer, Thing provider, Pojo.CustomerServiceOrder order)
         {
             if (provider == null || order == null) return null;
@@ -162,9 +148,7 @@ namespace SimManagementLib.SimService
             return job;
         }
 
-        /// <summary>
-        /// 在服务开始时接收通知，默认不执行额外逻辑。
-        /// </summary>
+        //在服务开始时接收通知，默认不执行额外逻辑。
         public virtual void NotifyServiceStarted(Pawn customer, Thing provider, Pojo.CustomerServiceOrder order)
         {
         }
@@ -174,39 +158,29 @@ namespace SimManagementLib.SimService
         {
         }
 
-        /// <summary>
-        /// 在服务使用读条期间每 Tick 接收通知，默认让顾客面向服务建筑。
-        /// </summary>
+        //在服务使用读条期间每 Tick 接收通知，默认让顾客面向服务建筑。
         public virtual void TickServiceUse(Pawn customer, Thing provider, Pojo.CustomerServiceOrder order)
         {
             if (customer == null || provider == null) return;
             customer.rotationTracker.FaceTarget(provider);
         }
 
-        /// <summary>
-        /// 在服务完成时接收通知，默认不执行额外逻辑。
-        /// </summary>
+        //在服务完成时接收通知，默认不执行额外逻辑。
         public virtual void NotifyServiceCompleted(Pawn customer, Thing provider, Pojo.CustomerServiceOrder order)
         {
         }
 
-        /// <summary>
-        /// 在服务取消时接收通知，默认不执行额外逻辑。
-        /// </summary>
+        //在服务取消时接收通知，默认不执行额外逻辑。
         public virtual void NotifyServiceCanceled(Pawn customer, Thing provider, Pojo.CustomerServiceOrder order)
         {
         }
 
-        /// <summary>
-        /// 在服务费用结清时接收通知，默认不执行额外逻辑。
-        /// </summary>
+        //在服务费用结清时接收通知，默认不执行额外逻辑。
         public virtual void NotifyServicePaid(Pawn customer, Thing provider, Pojo.CustomerServiceOrder order)
         {
         }
 
-        /// <summary>
-        /// 返回服务建筑的默认使用格，优先使用建筑交互格。
-        /// </summary>
+        //返回服务建筑的默认使用格，优先使用建筑交互格。
         protected virtual IntVec3 GetUseCell(Thing provider)
         {
             if (provider is Building building && building.InteractionCell.IsValid)
@@ -214,9 +188,7 @@ namespace SimManagementLib.SimService
             return provider?.Position ?? IntVec3.Invalid;
         }
 
-        /// <summary>
-        /// 返回本次服务等待时长，默认从服务定义的范围中随机取值。
-        /// </summary>
+        //返回本次服务等待时长，默认从服务定义的范围中随机取值。
         public virtual int GetDurationTicks()
         {
             if (def == null) return 300;

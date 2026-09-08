@@ -14,7 +14,7 @@ using Verse.AI.Group;
 namespace SimManagementLib.Tool
 {
     //提供服务建筑扫描、价格计算、并发检查、服务订单创建和服务 Job 生成的公共入口。
-    public static class ShopServiceUtility
+    public static partial class ShopServiceUtility
     {
         public const int CustomerServiceProviderReservationSlots = 24;
         //获取商店区域内所有挂载服务组件的建筑。
@@ -132,40 +132,8 @@ namespace SimManagementLib.Tool
         //查找顾客当前商店里最适合的一项可消费服务，并允许调用方按服务分类过滤。
         public static bool TryFindServiceForCustomer(Pawn pawn, Zone_Shop shop, float remainingBudget, IReadOnlyCollection<string> targetServiceCategoryIds, out Thing provider, out ShopServiceDef serviceDef, out float price)
         {
-            provider = null;
-            serviceDef = null;
-            price = 0f;
-            if (pawn == null || shop == null || remainingBudget < 0f) return false;
-
-            List<ServiceCandidate> candidates = new List<ServiceCandidate>();
-            foreach (Thing candidateProvider in GetServiceProvidersInZone(shop))
-            {
-                ThingComp_ServiceProvider comp = GetProviderComp(candidateProvider);
-                if (comp == null || !comp.enabled) continue;
-                if (!CustomerSafetyUtility.CanCustomerReach(pawn, candidateProvider, PathEndMode.Touch, Danger.Deadly)) continue;
-                if (!CanCustomerReserveServiceProvider(pawn, candidateProvider)) continue;
-
-                foreach (ServiceSlotData slot in comp.EnabledSlots)
-                {
-                    ShopServiceDef def = slot.ServiceDef;
-                    if (def == null) continue;
-                    if (targetServiceCategoryIds != null && targetServiceCategoryIds.Count > 0 && !targetServiceCategoryIds.Contains(def.serviceCategoryId)) continue;
-                    float unitPrice = def.Worker.GetPrice(pawn, candidateProvider, shop);
-                    if (unitPrice > remainingBudget) continue;
-                    if (!def.Worker.CanUse(pawn, candidateProvider, shop, out _)) continue;
-                    if (!CanAcceptMoreUsers(candidateProvider, def)) continue;
-
-                    candidates.Add(new ServiceCandidate(candidateProvider, def, unitPrice));
-                }
-            }
-
-            if (candidates.NullOrEmpty()) return false;
-
-            ServiceCandidate chosen = candidates.RandomElementByWeight(c => Mathf.Max(1f, c.Price));
-            provider = chosen.Provider;
-            serviceDef = chosen.ServiceDef;
-            price = chosen.Price;
-            return true;
+            return TryFindServiceFromProviders(pawn, shop, remainingBudget, targetServiceCategoryIds,
+                GetServiceProvidersInZone(shop), out provider, out serviceDef, out price);
         }
         //创建一条服务订单并填充基础价格、建筑和计费字段。
         public static CustomerServiceOrder CreateOrder(int orderId, Thing provider, ShopServiceDef serviceDef, float price)
@@ -206,19 +174,6 @@ namespace SimManagementLib.Tool
             return pawn.CanReserve(provider, CustomerServiceProviderReservationSlots, 0, null, false);
         }
 
-        private sealed class ServiceCandidate
-        {
-            public readonly Thing Provider;
-            public readonly ShopServiceDef ServiceDef;
-            public readonly float Price;
-
-            public ServiceCandidate(Thing provider, ShopServiceDef serviceDef, float price)
-            {
-                Provider = provider;
-                ServiceDef = serviceDef;
-                Price = price;
-            }
-        }
         //从可能带组件的 Thing 上安全获取服务提供组件。
         public static ThingComp_ServiceProvider GetProviderComp(Thing provider)
         {

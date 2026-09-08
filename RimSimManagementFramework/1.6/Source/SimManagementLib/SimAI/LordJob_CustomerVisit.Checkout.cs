@@ -14,12 +14,14 @@ using Verse.AI.Group;
 
 namespace SimManagementLib.SimAI
 {
+    //顾客结账协调部分，职责是管理准备状态、结账顺序和全体访问收尾。
     public partial class LordJob_CustomerVisit
     {
         //标记顾客准备结账，并在全体活跃顾客准备完毕时推进群体状态机。
         public void MarkPawnReadyForCheckout(int pawnId)
         {
             Pawn pawn = FindOwnedPawnById(pawnId);
+            if (CustomerServiceActivityUtility.HasActiveService(pawn)) return;
             CustomerVisitSession session = pawn != null ? GetOrCreateSession(pawn) : null;
             ShopCheckoutReadinessContext context = new ShopCheckoutReadinessContext
             {
@@ -219,6 +221,9 @@ namespace SimManagementLib.SimAI
         //判断是否应进入结账阶段，负责让已有未付账单的顾客优先结账而不是继续浏览。
         internal bool ShouldEnterCheckoutPhaseForSession()
         {
+            //同批顾客的先用后付服务完成前不能整体切换职责，否则尚未产生账单的顾客会被当成空逛。
+            if (lord?.ownedPawns != null && lord.ownedPawns.Any(CustomerServiceActivityUtility.HasActiveService))
+                return false;
             if (AreAllActivePawnsReadyForCheckout())
                 return true;
 
@@ -256,8 +261,8 @@ namespace SimManagementLib.SimAI
                     break;
                 }
 
-                //顾客必须消费完所有购后服务 Job 后才算完成本次访问。
-                if (checkoutState.NeedsPostCheckoutCompletion(pawnId))
+                //正在使用的服务和待执行购后服务都必须完成，不能只凭账单为零判定可以离店。
+                if (CustomerServiceActivityUtility.HasActiveService(pawn) || checkoutState.NeedsPostCheckoutCompletion(pawnId))
                 {
                     allDone = false;
                     break;

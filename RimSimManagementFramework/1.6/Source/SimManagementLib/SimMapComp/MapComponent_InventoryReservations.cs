@@ -55,7 +55,10 @@ namespace SimManagementLib.SimMapComp
         public List<ThingCount> Query(string key)
         {
             EnsureIndices();
-            return byKey.TryGetValue(key, out var list) ? list.Select(r => new ThingCount(r.thing, r.count)).ToList() : new List<ThingCount>();
+            //查询保留账面数量，让业务核验实物缺损，不能由 ThingCount 构造器截断数量或反复打印警告。
+            return byKey.TryGetValue(key, out var list)
+                ? list.Select(r => r.thing == null ? default(ThingCount) : new ThingCount(r.thing, r.count, true)).ToList()
+                : new List<ThingCount>();
         }
 
         //提取指定预留实物，职责是保留组件状态且把预留随拆出的实际物品移动。
@@ -77,6 +80,8 @@ namespace SimManagementLib.SimMapComp
                 return RejectExtraction($"提取数量无效：请求={count}，本单预留={record.count}，实物={source.stackCount}", out failReason);
             if (destination == null)
                 return RejectExtraction("接收容器不存在", out failReason);
+            if (destination.Owner is Map)
+                return RejectExtraction("地图不能作为接收容器，地面放置必须使用生成接口", out failReason);
             if (source.holdingOwner == destination)
                 return source.stackCount == count ? source : RejectExtraction("实物已在接收容器内，但数量与本次交接不符", out failReason);
             int capacity = destination.GetCountCanAccept(source, false);
@@ -85,22 +90,29 @@ namespace SimManagementLib.SimMapComp
             bool wasForbidden = protectedThings.FirstOrDefault(p => p.thing == source)?.wasForbidden ?? source.IsForbidden(Faction.OfPlayer);
             var storage = source.ParentHolder as Building_SimContainer;
             Thing part;
-            if (source.holdingOwner != null)
+            //地图上的实物同样有 holdingOwner，必须先按生成状态区分，不能把地图当成普通容器。
+            if (source.Spawned)
             {
-                if (source.holdingOwner.TryTransferToContainer(source, destination, count, out part, false) != count)
-                    return RejectExtraction("持有容器未能转移完整的预留数量", out failReason);
-            }
-            else
-            {
-                if (!source.Spawned) return RejectExtraction("实物既未生成在地图，也不在持有容器内", out failReason);
                 IntVec3 origin = source.Position;
                 part = source.SplitOff(count);
                 if (!destination.TryAdd(part, false))
                 {
-                    GenSpawn.Spawn(part, origin, map);
+                    //完整堆恢复原位；部分堆合回来源，保持原有预留数量和物品引用有效。
+                    if (part == source) GenSpawn.Spawn(part, origin, map);
+                    else if (!source.TryAbsorbStack(part, false))
+                    {
+                        GenSpawn.Spawn(part, origin, map);
+                        throw new InvalidOperationException("预留食材交接失败后无法合回来源：" + source);
+                    }
                     return RejectExtraction("接收容器拒绝拆出的地面实物", out failReason);
                 }
             }
+            else if (source.holdingOwner != null)
+            {
+                if (source.holdingOwner.TryTransferToContainer(source, destination, count, out part, false) != count)
+                    return RejectExtraction("持有容器未能转移完整的预留数量", out failReason);
+            }
+            else return RejectExtraction("实物既未生成在地图，也不在持有容器内", out failReason);
             record.count -= count;
             if (record.count == 0) reservations.Remove(record);
             reservations.Add(new InventoryReservation { key = key, thing = part, count = count });

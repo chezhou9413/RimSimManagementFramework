@@ -4,6 +4,12 @@
 
 ## 字段说明
 
+普通商品使用定义市价；品质货柜使用每件实物的实际市价及槽位售价。材质、品质和耐久已由原版计算，因此高品质带来的正常价值增长不会被误算成溢价，顾客仍需有足够预算。
+
+内置付费服务也使用同一套价格敏感度。默认参考价是服务 Def 的 `basePrice`，建筑设置的覆盖售价不会抬高参考价。候选服务按价格接受权重选择，不会因标价更高而获得更大权重。展台使用“展品数 × 20”作为动态参考价。
+
+动态服务扩展可覆盖 `ShopServiceWorker.GetReferencePrice(Pawn, Thing, Zone_Shop)` 返回未加价的服务价值，并通过 `GetPrice` 返回实际收费。两者都必须是有限、非负数；参考价为零时，价格比率的分母沿用商品规则的最低值 1。
+
 ```xml
 <priceSensitivity>
   <discountWeightMultiplier>1.35</discountWeightMultiplier>

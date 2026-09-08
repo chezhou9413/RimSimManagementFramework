@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 using Verse;
 using Verse.AI;
 using Verse.AI.Group;
@@ -188,7 +189,20 @@ namespace SimManagementLib.Debug
             bool hasAffordable = CustomerShoppingMatchUtility.StorageHasMatchingAffordableStock(storage, pawn, visit, remaining);
             string priceRejection = visit.GetPriceRejectionReason(pawn.thingIDNumber);
             List<string> items = new List<string>();
-            foreach (ThingDef def in storage.ActiveDefs.Take(12))
+            if (storage is Building_UniqueGoodsContainer unique)
+            {
+                foreach (UniqueGoodsSlotData slot in unique.GetSellableSlots().Take(12))
+                {
+                    Thing thing = unique.GetStoredThing(slot);
+                    if (thing == null) continue;
+                    float price = Mathf.Max(1f, slot.price > 0f ? slot.price : thing.MarketValue);
+                    CustomerPriceEvaluation evaluation = CustomerPriceUtility.EvaluateMarketValue(thing.MarketValue, price, visit.GetPriceSensitivity(pawn.thingIDNumber));
+                    bool match = CustomerShoppingMatchUtility.ThingMatchesCustomer(visit, thing.def);
+                    items.Add(thing.ThingID + " slot=" + slot.index + " match=" + match + " price=" + price.ToString("F1")
+                        + " marketValue=" + thing.MarketValue.ToString("F1") + " ratio=" + evaluation.ratio.ToString("F2") + " rejected=" + evaluation.rejected);
+                }
+            }
+            else foreach (ThingDef def in storage.ActiveDefs.Take(12))
             {
                 int count = storage.CountStored(def);
                 bool match = CustomerShoppingMatchUtility.ThingMatchesCustomer(visit, def);

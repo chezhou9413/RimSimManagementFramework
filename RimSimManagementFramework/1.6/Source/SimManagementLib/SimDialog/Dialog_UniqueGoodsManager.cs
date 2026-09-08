@@ -110,28 +110,25 @@ namespace SimManagementLib.SimDialog
             Widgets.Label(new Rect(inner.x, inner.y, inner.width, line), SimTranslation.T("RSMF.UniqueGoods.Available"));
 
             float toolsY = inner.y + line + 6f;
-            string nextSearch = Widgets.TextField(new Rect(inner.x, toolsY, Mathf.Max(160f, inner.width - 180f), line), search);
+            string nextSearch = Widgets.TextField(new Rect(inner.x, toolsY, inner.width, line), search);
             if (nextSearch != search)
             {
                 search = nextSearch;
                 NotifySearchChanged();
             }
-            Rect sortRect = new Rect(inner.xMax - 170f, toolsY, 170f, line);
-            if (SimUiStyle.DrawSecondaryButton(sortRect, SortLabel(), true, GameFont.Tiny))
-            {
-                sortMode = (sortMode + 1) % 4;
-                InvalidateAvailableFilter();
-            }
+            Rect sortRect = new Rect(inner.x, toolsY + line + 6f, inner.width, line);
+            DrawSortControls(sortRect, false);
 
             List<Thing> rows = GetFilteredAvailableCached();
             float rowH = GetRowHeight();
             float pagerH = Mathf.Max(32f, Text.LineHeightOf(GameFont.Small) + 10f);
             Rect pagerRect = new Rect(inner.x, inner.yMax - pagerH, inner.width, pagerH);
-            Rect outRect = new Rect(inner.x, toolsY + line + 8f, inner.width, pagerRect.y - toolsY - line - 14f);
+            Rect outRect = new Rect(inner.x, sortRect.yMax + 8f, inner.width, Mathf.Max(0f, pagerRect.y - sortRect.yMax - 14f));
             ClampPage(ref availablePage, rows.Count, AvailablePageSize);
             int pageStart = availablePage * AvailablePageSize;
             int pageCount = Mathf.Min(AvailablePageSize, Mathf.Max(0, rows.Count - pageStart));
             Rect viewRect = new Rect(0f, 0f, outRect.width - ScrollbarWidth, Mathf.Max(outRect.height, pageCount * rowH));
+            availableScroll.y = Mathf.Clamp(availableScroll.y, 0f, Mathf.Max(0f, viewRect.height - outRect.height));
             Widgets.BeginScrollView(outRect, ref availableScroll, viewRect);
             try
             {
@@ -158,15 +155,21 @@ namespace SimManagementLib.SimDialog
             GUI.color = Color.white;
             Widgets.Label(new Rect(inner.x, inner.y, inner.width, titleH), SimTranslation.T("RSMF.UniqueGoods.Listed"));
 
+            Rect sortRect = new Rect(inner.x, inner.y + titleH + 6f, inner.width, titleH);
+            DrawSortControls(sortRect, true);
+            Rect pricingRect = new Rect(inner.x, sortRect.yMax + 6f, inner.width, titleH);
+            DrawBulkPricingControls(pricingRect);
+
             List<UniqueGoodsSlotData> rows = GetListedSlotsCached();
             float rowH = GetRowHeight();
             float pagerH = Mathf.Max(32f, Text.LineHeightOf(GameFont.Small) + 10f);
             Rect pagerRect = new Rect(inner.x, inner.yMax - pagerH, inner.width, pagerH);
-            Rect outRect = new Rect(inner.x, inner.y + titleH + 8f, inner.width, pagerRect.y - inner.y - titleH - 14f);
+            Rect outRect = new Rect(inner.x, pricingRect.yMax + 8f, inner.width, Mathf.Max(0f, pagerRect.y - pricingRect.yMax - 14f));
             ClampPage(ref listedPage, rows.Count, ListedPageSize);
             int pageStart = listedPage * ListedPageSize;
             int pageCount = Mathf.Min(ListedPageSize, Mathf.Max(0, rows.Count - pageStart));
             Rect viewRect = new Rect(0f, 0f, outRect.width - ScrollbarWidth, Mathf.Max(outRect.height, pageCount * rowH));
+            listedScroll.y = Mathf.Clamp(listedScroll.y, 0f, Mathf.Max(0f, viewRect.height - outRect.height));
             Widgets.BeginScrollView(outRect, ref listedScroll, viewRect);
             try
             {
@@ -219,10 +222,12 @@ namespace SimManagementLib.SimDialog
 
             if (!slot.IsReservedByCustomer)
             {
-                if (!priceBuffers.TryGetValue(slot.index, out string buffer)) buffer = slot.price.ToString("F0");
+                string buffer = GetPriceBuffer(slot);
+                GUI.SetNextControlName("UniqueGoodsPrice_" + slot.index);
                 string next = Widgets.TextField(priceRect, buffer);
                 priceBuffers[slot.index] = next;
-                if (float.TryParse(next, out float parsed)) container.SetSlotPrice(slot.index, parsed);
+                if (next != buffer && float.TryParse(next, out float parsed) && !float.IsNaN(parsed) && !float.IsInfinity(parsed))
+                    container.SetSlotPrice(slot.index, parsed);
             }
             else
             {
@@ -260,13 +265,6 @@ namespace SimManagementLib.SimDialog
             return Mathf.Max(58f, Text.LineHeightOf(GameFont.Small) + Text.LineHeightOf(GameFont.Tiny) + 16f);
         }
 
-        //返回当前排序按钮文本。
-        private string SortLabel()
-        {
-            string[] keys = { "RSMF.UniqueGoods.Sort.Name", "RSMF.UniqueGoods.Sort.Quality", "RSMF.UniqueGoods.Sort.Value", "RSMF.UniqueGoods.Sort.HitPoints" };
-            return SimTranslation.T(keys[Mathf.Clamp(sortMode, 0, keys.Length - 1)]);
-        }
-
         //按固定实时间隔刷新地图来源缓存，职责是在暂停状态下也能发现地图物品变化。
         private void RefreshAvailableIfNeeded()
         {
@@ -284,7 +282,8 @@ namespace SimManagementLib.SimDialog
             thingTooltipCache.Clear();
             lastRefreshRealtime = now;
             availableSourceVersion++;
-            InvalidateAvailableFilter();
+            InvalidateAvailableFilter(false);
+            listedCacheVersion = -1;
         }
     }
 }

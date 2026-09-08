@@ -41,11 +41,12 @@ namespace RimSimRestaurantExtension.Tool
         public static bool Transfer(RestaurantOrder order, ThingOwner destination)
         {
             Thing meal = order?.meal;
-            if (meal == null || meal.Destroyed || destination == null) return false;
+            if (meal == null || meal.Destroyed || destination == null || destination.Owner is Map) return false;
             if (meal.holdingOwner == destination) return true;
             if (destination.GetCountCanAccept(meal, false) < meal.stackCount) return false;
             int count = meal.stackCount;
-            if (meal.holdingOwner != null)
+            //落地餐品由地图持有，必须先卸载地图实体；只有未生成的库存才走容器转移。
+            if (!meal.Spawned && meal.holdingOwner != null)
             {
                 Thing result;
                 int transferred = meal.holdingOwner.TryTransferToContainer(meal, destination, count, out result, false);
@@ -101,7 +102,7 @@ namespace RimSimRestaurantExtension.Tool
             {
                 if (thing == null || thing.Destroyed) continue;
                 thing.SetForbidden(false, false);
-                if (order.IsTerminal && !order.mealConsumed && thing.holdingOwner != null && thing.MapHeld != null)
+                if (order.IsTerminal && !order.mealConsumed && !thing.Spawned && thing.holdingOwner != null && thing.MapHeld != null)
                     thing.holdingOwner.TryDrop(thing, thing.PositionHeld, thing.MapHeld, ThingPlaceMode.Near, out _);
             }
             order.mealLockedForbidden = false;

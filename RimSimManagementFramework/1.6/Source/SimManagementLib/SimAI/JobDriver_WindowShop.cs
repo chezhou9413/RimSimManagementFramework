@@ -10,28 +10,30 @@ using Verse.AI.Group;
 
 namespace SimManagementLib.SimAI
 {
-    /// <summary>
-    /// 执行顾客未购买前的橱窗浏览，负责让无合适商品的顾客也先进入店内体验。
-    /// </summary>
+    //执行顾客未购买前的橱窗浏览，职责是让无合适商品的顾客完成店内体验。
     public class JobDriver_WindowShop : JobDriver
     {
         private const int DefaultBrowseTicks = 300;
 
-        /// <summary>
-        /// 预约橱窗浏览目标，负责避免多人同时挤占同一个可站立点。
-        /// </summary>
+        //预约橱窗浏览目标，职责是复核站位并在目标被占用时选择其他店内空格。
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
             LocalTargetInfo target = job.GetTarget(TargetIndex.A);
-            if (!target.IsValid) return true;
+            if (!target.IsValid) return false;
             if (target.HasThing)
                 return true;
-            return pawn.Reserve(target.Cell, job, 1, -1, null, errorOnFailed);
+            if (!CustomerWindowShopTargetUtility.CanUseCell(pawn, target.Cell))
+            {
+                var lordJob = pawn.GetLord()?.LordJob as LordJob_CustomerVisit;
+                if (!CustomerWindowShopTargetUtility.TryFindCell(pawn, lordJob?.GetCurrentShop(pawn), out IntVec3 cell))
+                    return false;
+                job.SetTarget(TargetIndex.A, cell);
+                target = cell;
+            }
+            return pawn.ReserveSittableOrSpot(target.Cell, job, errorOnFailed);
         }
 
-        /// <summary>
-        /// 创建橱窗浏览流程，负责移动、等待、进度展示和离店前反馈。
-        /// </summary>
+        //创建橱窗浏览流程，职责是移动、等待、展示进度并提交离店前反馈。
         protected override IEnumerable<Toil> MakeNewToils()
         {
             this.FailOn(() => !job.GetTarget(TargetIndex.A).IsValid);
@@ -79,9 +81,7 @@ namespace SimManagementLib.SimAI
             yield return finish;
         }
 
-        /// <summary>
-        /// 返回本次橱窗浏览时长，负责复用顾客类型中的浏览时间配置。
-        /// </summary>
+        //返回本次橱窗浏览时长，职责是复用顾客类型中的浏览时间配置。
         private int GetBrowseTicks()
         {
             if (job != null && job.count > 0)

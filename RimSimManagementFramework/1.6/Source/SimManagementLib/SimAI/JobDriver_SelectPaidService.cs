@@ -15,18 +15,17 @@ using Verse.AI.Group;
 
 namespace SimManagementLib.SimAI
 {
-    /// <summary>
-    /// 执行顾客选择服务、预付入账或先用后付服务使用的流程。
-    /// </summary>
-    public class JobDriver_SelectPaidService : JobDriver
+    //执行顾客选择服务、预付入账或先用后付服务使用的流程。
+    public partial class JobDriver_SelectPaidService : JobDriver
     {
         private Thing Provider => job.GetTarget(TargetIndex.A).Thing;
 
         private ShopServiceDef selectedService;
         private float selectedPrice;
-        private CustomerServiceOrder activeOrder;
+        private CustomerServiceOrder activeOrder => Visit?.GetServiceOrder(pawn.thingIDNumber, activeOrderId);
         private int serviceDurationTicks = 120;
 
+        //预约共享服务建筑，职责是允许服务并发同时避开独占工程预约。
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
             Thing provider = Provider;
@@ -34,8 +33,10 @@ namespace SimManagementLib.SimAI
             return pawn.Reserve(provider, job, ShopServiceUtility.CustomerServiceProviderReservationSlots, 0, null, false);
         }
 
+        //构建服务选择和使用流程，职责是完成预约、移动、读条和统一记账。
         protected override IEnumerable<Toil> MakeNewToils()
         {
+            AddFinishAction(HandleSelectionFinished);
             this.FailOnDespawnedOrNull(TargetIndex.A);
 
             Toil init = new Toil();
@@ -61,15 +62,16 @@ namespace SimManagementLib.SimAI
                     return;
                 }
 
-                activeOrder = ShopServiceUtility.CreateOrder(lordJob.nextServiceOrderId++, Provider, selectedService, selectedPrice);
-                if (!selectedService.Worker.TryReserve(pawn, Provider, activeOrder))
+                CustomerServiceOrder newOrder = ShopServiceUtility.CreateOrder(lordJob.nextServiceOrderId++, Provider, selectedService, selectedPrice);
+                if (!selectedService.Worker.TryReserve(pawn, Provider, newOrder))
                 {
                     RegisterNoProgressAndCheckoutIfNeeded(lordJob);
-                    SimDebugLogger.Journey("RSMF.SelectService", $"服务预约失败 service={selectedService.defName} provider={Provider?.thingIDNumber ?? -1}", pawn, shopZone, activeOrder.orderId);
+                    SimDebugLogger.Journey("RSMF.SelectService", $"服务预约失败 service={selectedService.defName} provider={Provider?.thingIDNumber ?? -1}", pawn, shopZone, newOrder.orderId);
                     EndJobWith(JobCondition.Incompletable);
                     return;
                 }
-                lordJob.GetOrCreateSession(pawn)?.NotifyBrowseStarted(lordJob, pawn);
+                activeOrderId = newOrder.orderId;
+                lordJob.AddServiceOrder(pawnId, newOrder);
                 SimDebugLogger.Journey("RSMF.SelectService", $"选择服务成功 service={selectedService.defName} price={selectedPrice} provider={Provider?.thingIDNumber ?? -1}", pawn, shopZone, activeOrder.orderId);
             };
             yield return init;
@@ -91,6 +93,7 @@ namespace SimManagementLib.SimAI
                     return;
                 }
 
+                serviceUseStarted = true;
                 serviceDurationTicks = selectedService.Worker.GetDurationTicks();
                 ticksLeftThisToil = serviceDurationTicks;
                 activeOrder.state = ServiceOrderState.InUse;
@@ -120,102 +123,18 @@ namespace SimManagementLib.SimAI
             finalize.defaultCompleteMode = ToilCompleteMode.Instant;
             finalize.initAction = () =>
             {
-                LordJob_CustomerVisit lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
-                if (lordJob == null || activeOrder == null || selectedService == null) return;
-
-                Zone_Shop shopZone = lordJob.GetCurrentShop(pawn);
-                GameComponent_ShopFinanceManager finance = Current.Game?.GetComponent<GameComponent_ShopFinanceManager>();
-                int pawnId = pawn.thingIDNumber;
-
-                lordJob.EnsureCustomerBill(pawnId);
-
-                if (selectedService.billingMode == ServiceBillingMode.UseBeforePay)
-                {
-                    if (activeOrder.totalPrice <= 0f)
-                    {
-                        activeOrder.state = ServiceOrderState.Completed;
-                        activeOrder.paidTick = Find.TickManager.TicksGame;
-                        SimDebugLogger.Journey("RSMF.SelectService", $"免费先用后付服务完成 service={selectedService.defName}", pawn, shopZone, activeOrder.orderId);
-                        selectedService.Worker.NotifyServicePaid(pawn, Provider, activeOrder);
-                        SimShopEvents.NotifyServiceOrderPaid(pawn, activeOrder, shopZone);
-                    }
-                    else
-                    {
-                        activeOrder.state = ServiceOrderState.UsedAwaitingPayment;
-                    }
-                    activeOrder.completedTick = Find.TickManager.TicksGame;
-                    SimDebugLogger.Journey("RSMF.SelectService", $"先用后付服务完成，等待付款 service={selectedService.defName}", pawn, shopZone, activeOrder.orderId);
-                    selectedService.Worker.NotifyServiceCompleted(pawn, Provider, activeOrder);
-                }
-                else
-                {
-                    if (activeOrder.totalPrice <= 0f)
-                    {
-                        activeOrder.paidTick = Find.TickManager.TicksGame;
-                        activeOrder.state = selectedService.billingMode == ServiceBillingMode.TicketBeforeUse
-                            ? ServiceOrderState.TicketIssued
-                            : ServiceOrderState.ReadyToUse;
-                        SimDebugLogger.Journey("RSMF.SelectService", $"免费服务资格生成 service={selectedService.defName} state={activeOrder.state}", pawn, shopZone, activeOrder.orderId);
-                    }
-                    else
-                    {
-                        activeOrder.state = ServiceOrderState.AwaitingPayment;
-                        SimDebugLogger.Journey("RSMF.SelectService", $"服务票据生成，等待付款 service={selectedService.defName}", pawn, shopZone, activeOrder.orderId);
-                    }
-                }
-
-                lordJob.AddServiceOrder(pawnId, activeOrder);
-                lordJob.ClearCurrentShopNoProgressBrowse(pawn);
-                SimShopEvents.NotifyServiceOrderCreated(pawn, activeOrder, shopZone);
-                if (activeOrder.totalPrice > 0f)
-                {
-                    lordJob.AddCustomerBill(pawnId, activeOrder.totalPrice);
-                    finance?.QueueServiceSale(pawn, shopZone, activeOrder.serviceDefName, selectedService.DisplayLabel, activeOrder.count, activeOrder.totalPrice);
-                }
-                ShopBubbleUtility.ShowTextBubble(pawn, SimTranslation.T("RSMF.Bubble.SelectService", selectedService.DisplayLabel.Named("service")), new Color(0.55f, 0.85f, 1f));
-
-                CustomerVisitSession session = lordJob.GetOrCreateSession(pawn);
-                session?.NotifyConsumptionCompleted(lordJob, pawn, "服务选择完成");
-                if (activeOrder.totalPrice <= 0f && selectedService.billingMode != ServiceBillingMode.UseBeforePay)
-                {
-                    lordJob.ResolveServiceOrdersOnCheckoutPaid(pawn, shopZone);
-                    lordJob.TryEnqueueFreeCompletedServiceReview(pawn, shopZone, "完成免费服务");
-                }
-                if (activeOrder.totalPrice <= 0f && selectedService.billingMode == ServiceBillingMode.UseBeforePay)
-                    lordJob.TryEnqueueFreeCompletedServiceReview(pawn, shopZone, "完成免费服务");
-                if (selectedService.checkoutAfterSelection)
-                    session?.MarkReadyForCheckout(lordJob, pawn, "服务要求选择后结账");
+                CommitSelectedService();
             };
             yield return finalize;
         }
 
-        /// <summary>
-        /// 从目标建筑上重新选择一项当前仍可用且预算足够的服务。
-        /// </summary>
+        //从目标建筑上重新选择一项当前仍可用且预算足够的服务。
         private bool TryPickService(Zone_Shop shopZone, float remainingBudget, out ShopServiceDef serviceDef, out float price)
         {
-            serviceDef = null;
-            price = 0f;
-            ThingComp_ServiceProvider comp = ShopServiceUtility.GetProviderComp(Provider);
-            if (comp == null || !comp.enabled || remainingBudget < 0f) return false;
-
-            List<ShopServiceDef> candidates = comp.EnabledSlots
-                .Select(s => s.ServiceDef)
-                .Where(d => d != null)
-                .Where(d => d.Worker.CanUse(pawn, Provider, shopZone, out _))
-                .Where(d => d.Worker.GetPrice(pawn, Provider, shopZone) <= remainingBudget)
-                .Where(d => ShopServiceUtility.CanAcceptMoreUsers(Provider, d))
-                .ToList();
-
-            if (candidates.NullOrEmpty()) return false;
-            serviceDef = candidates.RandomElement();
-            price = serviceDef.Worker.GetPrice(pawn, Provider, shopZone);
-            return true;
+            return ShopServiceUtility.TryFindServiceAtProvider(pawn, shopZone, Provider, remainingBudget, out serviceDef, out price);
         }
 
-        /// <summary>
-        /// 记录一次无进展服务选择，负责在服务反复不可用时让顾客结束浏览。
-        /// </summary>
+        //记录一次无进展服务选择，负责在服务反复不可用时让顾客结束浏览。
         private void RegisterNoProgressAndCheckoutIfNeeded(LordJob_CustomerVisit lordJob)
         {
             if (lordJob == null || pawn == null) return;
