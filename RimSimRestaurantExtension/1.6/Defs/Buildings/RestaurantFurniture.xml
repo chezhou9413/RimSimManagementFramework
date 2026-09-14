@@ -9,11 +9,13 @@
         <canOverlapZones>true</canOverlapZones>
         <size>(1,1)</size>
         <costStuffCount>40</costStuffCount>
+        <rotatable>false</rotatable>
         <graphicData>
             <texPath>Things/Building/Restaurant/DiningTable1x1/RSR_DiningTable1x1</texPath>
             <graphicClass>Graphic_Single</graphicClass>
             <shaderType>CutoutComplex</shaderType>
             <drawSize>(2,2)</drawSize>
+            <drawOffset>(0,0,-0.1)</drawOffset>
         </graphicData>
         <statBases>
             <MaxHitPoints>100</MaxHitPoints>
@@ -37,6 +39,10 @@
             <graphicClass>Graphic_Multi</graphicClass>
             <shaderType>CutoutComplex</shaderType>
             <drawSize>(4,4)</drawSize>
+            <drawOffsetNorth>(0,0,-0.1)</drawOffsetNorth>
+            <drawOffsetSouth>(0,0,-0.1)</drawOffsetSouth>
+            <drawOffsetEast>(0,0,-0.1)</drawOffsetEast>
+            <drawOffsetWest>(0,0,-0.1)</drawOffsetWest>
         </graphicData>
         <statBases>
             <MaxHitPoints>100</MaxHitPoints>
@@ -63,7 +69,7 @@
             <drawSize>(1,1)</drawSize>
             <linkFlags>Custom10</linkFlags>
         </graphicData>
-        <uiIconPath>UI/Icons/Buildings/Restaurant/RSR_BarCounter</uiIconPath>
+        <uiIconPath>UI/Icons/Buildings/Restaurant/RSR_BarCounter_blueprint</uiIconPath>
         <rotatable>false</rotatable>
         <statBases>
             <MaxHitPoints>100</MaxHitPoints>
@@ -88,6 +94,10 @@
             <graphicClass>Graphic_Multi</graphicClass>
             <shaderType>CutoutComplex</shaderType>
             <drawSize>(2,2)</drawSize>
+            <drawOffsetNorth>(0,0,-0.1)</drawOffsetNorth>
+            <drawOffsetSouth>(0,0,-0.1)</drawOffsetSouth>
+            <drawOffsetEast>(0,0,-0.1)</drawOffsetEast>
+            <drawOffsetWest>(0,0,-0.1)</drawOffsetWest>
         </graphicData>
         <stuffCategories>
             <li>Woody</li>
@@ -174,6 +184,10 @@
             <graphicClass>Graphic_Multi</graphicClass>
             <shaderType>CutoutComplex</shaderType>
             <drawSize>(4,4)</drawSize>
+            <drawOffsetNorth>(0,0,-0.1)</drawOffsetNorth>
+            <drawOffsetSouth>(0,0,-0.1)</drawOffsetSouth>
+            <drawOffsetEast>(0,0,-0.1)</drawOffsetEast>
+            <drawOffsetWest>(0,0,-0.1)</drawOffsetWest>
         </graphicData>
         <stuffCategories>
             <li>Fabric</li>
