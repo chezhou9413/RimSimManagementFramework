@@ -9,7 +9,12 @@ namespace RimSimRestaurantExtension.Inventory
         //在灶台附近空格放下完整批次，职责是保持预留对象不变并保护制作中的实物。
         public static bool TryPlace(Pawn cook, Job job, Thing ingredient)
         {
-            Thing stove = job.GetTarget(TargetIndex.A).Thing;
+            return TryPlaceAt(cook, job, ingredient, job.GetTarget(TargetIndex.A).Thing);
+        }
+
+        //在指定工作台旁放置实物，职责是供订单和独立备餐任务共用物理预约。
+        public static bool TryPlaceAt(Pawn cook, Job job, Thing ingredient, Thing stove)
+        {
             if (stove?.Spawned != true || ingredient == null || ingredient.Destroyed) return false;
             foreach (IntVec3 cell in GenRadial.RadialCellsAround(cook.Position, 5f, true))
             {

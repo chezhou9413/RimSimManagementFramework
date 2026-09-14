@@ -83,6 +83,7 @@ namespace RimSimRestaurantExtension.Tool
                 .OfType<Building_CashRegister>().Distinct().ToList();
             if (registers.Count == 0) return "店内缺少收银台";
             if (!registers.Any(register => register.IsManned)) return "当前没有在岗收银员";
+            if (Conveyor.Dining.ConveyorDiningAvailability.HasOffer(shop)) return "";
             var menus = Inventory.RestaurantProductMenuUtility.AllMenus(shop, settings);
             if (menus.Count == 0) return "没有启用的有效菜单";
             string last = "没有可制作菜单";
@@ -144,6 +145,8 @@ namespace RimSimRestaurantExtension.Tool
                 shopZoneId = shop.ID, seatCell = seat, tableThingId = table.thingIDNumber,
                 customerThingId = customer.thingIDNumber
             };
+            if (table is Conveyor.Transport.Building_SushiConveyor belt)
+                return Conveyor.Dining.ConveyorDiningAvailability.CanServe(customer, shop, belt);
             if (!RestaurantStaffAvailabilityUtility.HasWaiterForOrder(shop, preview))
             {
                 reason = "服务员无法到达顾客旁";

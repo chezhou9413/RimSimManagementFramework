@@ -31,7 +31,11 @@
 | `BarCounter` | 吧台桌 | 拼接图集、独立图标及各自蒙版 |
 | `SushiConveyor` | 旋转寿司台 | 完整图集、底座图集、图标、蒙版及 3 帧传送带动画 |
 
-除旋转寿司台外的 10 类资源已经绑定 `RSR_` 建筑 Def，位于 `Defs/Buildings/RestaurantFurniture.xml` 和 `RestaurantStorage.xml`。吧台使用自定义同类拼接 Graphic 与独立图标；壁挂柜使用反向材质与依墙偏移。旋转寿司台保留资源，不加载建筑或动画。
+11 类资源均已绑定 `RSR_` 建筑 Def。普通家具与储存设施位于 `Defs/Buildings/RestaurantFurniture.xml` 和 `RestaurantStorage.xml`；旋转寿司台位于 `RestaurantSushiConveyor.xml`。吧台使用自定义同类拼接 Graphic 与独立图标；壁挂柜使用反向材质与依墙偏移。
+
+旋转寿司台使用底座图集、传送带区域蒙版和三帧动画生成缓存帧，按输入输出方向绘制直线与弯道；完整图集供蓝图、框架与静态建筑 Graphic 使用。染色蒙版和独立图标蒙版均已接入，详见 `10_旋转传送带.md`。
+
+吧台独立图标的染色蒙版由 `UI/RestaurantBarIcon.cs` 在启动初始化时显式绑定到 `uiIconMaterial`，供原版建造菜单和定义图标绘制使用；`uiIconPath` 本身只加载主图，不会自动绑定 `_m` 蒙版。
 
 餐桌建筑 Def 分别为 `RSR_DiningTableSquare` 与 `RSR_DiningTableRectangular`。ThingDef 名称不能以数字结尾；贴图路径不受此限制，保留已整理的 1x1、1x2 文件名。
 
@@ -105,4 +109,4 @@
 
 ## 文件核对
 
-共 61 张 PNG：42 张 256×256、13 张 512×512、6 张 1024×1024。所有文件与原压缩包提取内容的 SHA-256 一致，普通染色蒙版均能找到同尺寸主图。
+原始入库共 61 张 PNG：42 张 256×256、13 张 512×512、6 张 1024×1024。最初导入时与压缩包一致；后续冰箱、厨房杂物柜和吧台部分贴图已调整，不能再以全部 SHA-256 相同作为当前状态。普通染色蒙版均有对应主图。

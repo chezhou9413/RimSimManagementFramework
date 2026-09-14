@@ -16,6 +16,9 @@ namespace RimSimRestaurantExtension.Dining
         public int tableId;
         public IntVec3 seat;
         public bool stopOrdering, billQueued;
+        public bool selfService;
+        public int conveyorLineId;
+        public string wantedConveyorRule = "";
         public RestaurantSessionState state;
         public string reason = "";
         public RestaurantTableTray tray;
@@ -34,6 +37,9 @@ namespace RimSimRestaurantExtension.Dining
         public void ExposeData()
         {
             Scribe_Values.Look(ref sessionId, "sessionId");
+            Scribe_Values.Look(ref selfService, "selfService");
+            Scribe_Values.Look(ref conveyorLineId, "conveyorLineId");
+            Scribe_Values.Look(ref wantedConveyorRule, "wantedConveyorRule", "");
             Scribe_Values.Look(ref actionOrderId, "actionOrderId", -1);
             Scribe_Values.Look(ref customerId, "customerId");
             Scribe_Values.Look(ref shopId, "shopId");

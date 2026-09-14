@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <JobDef>
+    <defName>RSR_StockSushiConveyor</defName>
+    <driverClass>RimSimRestaurantExtension.Conveyor.Stocking.JobDriver_StockSushiConveyor</driverClass>
+    <reportString>正在补充或清理餐厅传送带。</reportString>
+  </JobDef>
+  <WorkGiverDef>
+    <defName>RSR_WorkGiver_StockSushiConveyor</defName>
+    <label>餐厅传送带补餐</label>
+    <giverClass>RimSimRestaurantExtension.Conveyor.Stocking.WorkGiver_StockSushiConveyor</giverClass>
+    <workType>Sim_ServiceWork</workType>
+    <priorityInType>20</priorityInType>
+    <verb>补餐</verb>
+    <gerund>正在补充或清理餐厅传送带</gerund>
+    <requiredCapacities><li>Manipulation</li><li>Moving</li></requiredCapacities>
+  </WorkGiverDef>
+</Defs>
+

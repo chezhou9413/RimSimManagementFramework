@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ThingDef ParentName="BuildingBase">
+    <defName>RSR_SushiConveyor</defName>
+    <label>旋转寿司传送带</label>
+    <description>单向运输餐盘的餐厅桌面。在四向相邻格摆放椅子后，顾客可自行拿取经过面前的食品，并到餐厅收银台结账。点击任意一段配置整条线路的上架食品。</description>
+    <thingClass>RimSimRestaurantExtension.Conveyor.Transport.Building_SushiConveyor</thingClass>
+    <designationCategory>SimManagementBuildings</designationCategory>
+    <canGenerateDefaultDesignator>false</canGenerateDefaultDesignator>
+    <drawStyleCategory>RSR_SushiPathCategory</drawStyleCategory>
+    <size>(1,1)</size>
+    <rotatable>true</rotatable>
+    <canOverlapZones>true</canOverlapZones>
+    <surfaceType>Eat</surfaceType>
+    <passability>PassThroughOnly</passability>
+    <pathCost>30</pathCost>
+    <fillPercent>0.4</fillPercent>
+    <altitudeLayer>Building</altitudeLayer>
+    <drawerType>RealtimeOnly</drawerType>
+    <tickerType>Normal</tickerType>
+    <graphicData>
+      <texPath>Things/Building/Restaurant/SushiConveyor/RSR_SushiConveyor_Atlas</texPath>
+      <graphicClass>RimSimRestaurantExtension.Conveyor.Rendering.Graphic_SushiConveyor</graphicClass>
+      <shaderType>CutoutComplex</shaderType>
+      <drawSize>(1,1)</drawSize>
+      <drawRotated>false</drawRotated>
+    </graphicData>
+    <uiIconPath>UI/Icons/Buildings/Restaurant/RSR_SushiConveyor</uiIconPath>
+    <statBases>
+      <MaxHitPoints>160</MaxHitPoints>
+      <WorkToBuild>2000</WorkToBuild>
+      <Mass>12</Mass>
+      <Beauty>3</Beauty>
+      <Flammability>0.2</Flammability>
+    </statBases>
+    <costList><Steel>30</Steel></costList>
+    <building><isEdifice>true</isEdifice><paintable>true</paintable></building>
+    <comps>
+      <li Class="CompProperties_Power">
+        <compClass>CompPowerTrader</compClass>
+        <basePowerConsumption>10</basePowerConsumption>
+        <transmitsPower>true</transmitsPower>
+        <shortCircuitInRain>true</shortCircuitInRain>
+      </li>
+    </comps>
+    <modExtensions>
+      <li Class="RimSimRestaurantExtension.Conveyor.Transport.ConveyorSettings"><ticksPerCell>60</ticksPerCell></li>
+    </modExtensions>
+  </ThingDef>
+  <DrawStyleDef>
+    <defName>RSR_SushiPath</defName>
+    <label>传送带路径</label>
+    <uiIconPath>UI/Widgets/DrawStyles/AngledLine</uiIconPath>
+    <drawStyleType>RimSimRestaurantExtension.Conveyor.Placement.DrawStyle_SushiPath</drawStyleType>
+    <drawArea>false</drawArea>
+    <drawShortSideMeasurement>true</drawShortSideMeasurement>
+    <canSnap>false</canSnap>
+  </DrawStyleDef>
+  <DrawStyleCategoryDef>
+    <defName>RSR_SushiPathCategory</defName>
+    <styles><li>RSR_SushiPath</li></styles>
+  </DrawStyleCategoryDef>
+</Defs>
+

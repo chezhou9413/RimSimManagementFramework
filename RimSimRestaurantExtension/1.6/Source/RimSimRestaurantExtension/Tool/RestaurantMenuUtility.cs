@@ -149,7 +149,7 @@ namespace RimSimRestaurantExtension.Tool
         }
 
         //计算菜单偏好权重，职责是让价格、品质、饮食方向与新鲜感共同影响点菜而不形成硬编码必选项。
-        private static float ScoreMenuItem(RestaurantMenuItem item, int count, float unitPrice, float budget, RestaurantCustomerPreference preference, float strength)
+        public static float ScoreMenuItem(RestaurantMenuItem item, int count, float unitPrice, float budget, RestaurantCustomerPreference preference, float strength)
         {
             if (preference == null || strength <= 0f) return 1f;
             float total = unitPrice * count;

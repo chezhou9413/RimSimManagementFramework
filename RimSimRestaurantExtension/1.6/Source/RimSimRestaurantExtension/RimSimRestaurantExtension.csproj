@@ -109,6 +109,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Debug\CompleteRestaurantKitchenCells.cs" />
+    <Compile Include="Conveyor\**\*.cs" />
+    <Compile Include="Models\RestaurantProductionRequest.cs" />
+    <Compile Include="Tool\RestaurantProductionUtility.cs" />
     <Compile Include="Buildings\Building_RestaurantBar.cs" />
     <Compile Include="Buildings\Graphic_RestaurantWallCabinet.cs" />
     <Compile Include="Debug\CompleteRestaurantFurnitureUtility.cs" />
@@ -156,6 +159,8 @@
     <Compile Include="Tool\RestaurantOrderDiagnostics.cs" />
     <Compile Include="DefOfRefs.cs" />
     <Compile Include="Debug\CompleteRestaurantCreationUtility.cs" />
+    <Compile Include="Debug\Conveyor\ConveyorRestaurantLayout.cs" />
+    <Compile Include="Debug\Conveyor\ConveyorRestaurantStock.cs" />
     <Compile Include="Debug\CompleteRestaurantInventoryUtility.cs" />
     <Compile Include="Debug\CompleteRestaurantStaffUtility.cs" />
     <Compile Include="Debug\DebugActions_Restaurant.cs" />
@@ -189,6 +194,9 @@
     <Compile Include="UI\BusinessPageWorker_RestaurantExtension.cs" />
     <Compile Include="UI\RestaurantBusinessUiUtility.cs" />
     <Compile Include="UI\RestaurantUiStyle.cs" />
+    <Compile Include="UI\Menu\RestaurantMenuTable.cs" />
+    <Compile Include="UI\Common\RestaurantFoodRow.cs" />
+    <Compile Include="UI\RestaurantBarIcon.cs" />
     <Compile Include="UI\ShopPageWorker_RestaurantSettings.cs" />
     <Compile Include="WorkGivers\WorkGiver_CookRestaurantOrder.cs" />
     <Compile Include="WorkGivers\WorkGiver_DeliverRestaurantOrder.cs" />

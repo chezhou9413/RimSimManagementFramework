@@ -18,6 +18,12 @@ namespace RimSimRestaurantExtension.Debug
             var booth = (Building)SpawnNamed(map, "RSR_BoothSofa", center + new IntVec3(3, 0, -3), Rot4.South);
             foreach (var cell in booth.OccupiedRect())
                 SpawnNamed(map, "RSR_DiningTableSquare", cell + IntVec3.South, Rot4.North);
+            SpawnKitchenAndPower(map, center);
+        }
+
+        //布置货柜和已加满燃料的发电机，职责是让不同用餐布局共用库存与供电设施。
+        internal static void SpawnKitchenAndPower(Map map, IntVec3 center)
+        {
             SpawnNamed(map, "RSR_WallWineCabinet", center + new IntVec3(-6, 0, 4), Rot4.West);
             SpawnNamed(map, "RSR_WallCabinet", center + new IntVec3(-6, 0, 2), Rot4.West);
             SpawnNamed(map, "RSR_KitchenStorageCabinet", center + new IntVec3(6, 0, 4), Rot4.South);

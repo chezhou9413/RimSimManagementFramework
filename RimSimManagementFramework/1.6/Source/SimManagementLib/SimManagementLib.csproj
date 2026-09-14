@@ -147,6 +147,7 @@
     <Compile Include="Api\ShopUiContexts.cs" />
     <Compile Include="Api\ShopUiLayoutUtility.cs" />
     <Compile Include="Api\ShopUiVisualUtility.cs" />
+    <Compile Include="Api\ShopUiVisualUtility.Layout.cs" />
     <Compile Include="Api\ShopUiWorkers.cs" />
     <Compile Include="Api\SimShopUiApi.cs" />
 

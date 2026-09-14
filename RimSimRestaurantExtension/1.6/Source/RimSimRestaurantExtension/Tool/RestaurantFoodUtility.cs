@@ -54,7 +54,9 @@ namespace RimSimRestaurantExtension.Tool
         {
             if (def?.ingestible == null) return "无营养数据";
             string nutrition = def.ingestible.CachedNutrition.ToString("F2");
-            string preferability = def.ingestible.preferability.ToString();
+            string preferability = def.ingestible.preferability >= FoodPreferability.MealLavish ? "豪华餐品"
+                : def.ingestible.preferability >= FoodPreferability.MealFine ? "精致餐品"
+                : def.ingestible.IsMeal ? "日常餐品" : "可食用食品";
             string source = def.modContentPack?.Name ?? "Core";
             return $"营养 {nutrition} · {preferability} · {source}";
         }

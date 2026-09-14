@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using RimSimRestaurantExtension.Tool;
 using RimWorld;
+using SimManagementLib.Api;
 using UnityEngine;
 using Verse;
 
@@ -11,7 +12,7 @@ namespace RimSimRestaurantExtension.UI
     //显示餐厅菜单餐品选择器，职责是搜索所有存在普通制作配方的原版及模组餐品。
     public class Dialog_SelectRestaurantFood : Window
     {
-        private const float RowHeight = 64f;
+        private static float RowHeight => RestaurantFoodRow.Height;
         private readonly Action<ThingDef> onSelected;
         private Vector2 scrollPosition;
         private string search = "";
@@ -50,7 +51,7 @@ namespace RimSimRestaurantExtension.UI
                 RestaurantUiStyle.DrawPanel(inRect);
                 Rect inner = inRect.ContractedBy(12f);
                 float titleHeight = DrawTitle(new Rect(inner.x, inner.y, inner.width, inner.height));
-                float controlHeight = RestaurantUiStyle.ControlHeight(GameFont.Tiny);
+                float controlHeight = RestaurantUiStyle.ControlHeight();
                 Rect searchRect = new Rect(inner.x, inner.y + titleHeight + 8f, inner.width, controlHeight);
                 DrawSearch(searchRect);
                 Rect filterRect = new Rect(inner.x, searchRect.yMax + 6f, inner.width, controlHeight);
@@ -60,9 +61,11 @@ namespace RimSimRestaurantExtension.UI
                 Rect countRect = new Rect(inner.x, filterRect.yMax + 6f, inner.width, countHeight);
                 Text.Font = GameFont.Tiny;
                 GUI.color = RestaurantUiStyle.MutedText;
-                Widgets.Label(countRect, $"找到 {foods.Count} 个可由普通工作台配方生产的餐品");
+                Widgets.Label(countRect, $"可选餐品 {foods.Count} 项");
                 Rect listRect = new Rect(inner.x, countRect.yMax + 4f, inner.width,
                     Mathf.Max(0f, inner.yMax - countRect.yMax - 4f));
+                GUI.color = Color.white;
+                ShopUiVisualUtility.DrawSection(listRect);
                 DrawFoodList(listRect, foods);
             }
             finally
@@ -77,47 +80,15 @@ namespace RimSimRestaurantExtension.UI
         //绘制标题说明，职责是动态测量中文副标题并说明配方限制。
         private static float DrawTitle(Rect rect)
         {
-            float mediumLine = RestaurantUiStyle.LineHeight(GameFont.Medium);
-            Text.Font = GameFont.Tiny;
-            Text.WordWrap = true;
-            string description = "只列出人类可食用、具有单一餐品产物且每批产出一份的普通制作配方；选择后会按当前餐厅灶台自动匹配一组食材。";
-            float descriptionHeight = Text.CalcHeight(description, Mathf.Max(120f, rect.width));
-            Text.Font = GameFont.Medium;
-            Text.WordWrap = false;
-            GUI.color = Color.white;
-            Widgets.Label(new Rect(rect.x, rect.y, rect.width - 32f, mediumLine), "选择菜单餐品");
-            Text.Font = GameFont.Tiny;
-            Text.WordWrap = true;
-            GUI.color = RestaurantUiStyle.MutedText;
-            Widgets.Label(new Rect(rect.x, rect.y + mediumLine + 4f, rect.width, descriptionHeight), description);
-            GUI.color = Color.white;
-            return mediumLine + 4f + descriptionHeight;
+            return ShopUiVisualUtility.DrawPageHeading(rect, "选择菜单餐品",
+                "选择后自动填入可用食材，可在菜品编辑中继续调整。", true);
         }
 
         //绘制搜索栏，职责是支持标签、DefName 和来源模组并提供清空入口。
         private void DrawSearch(Rect rect)
         {
-            const float labelWidth = 44f;
-            const float clearWidth = 72f;
-            Text.Font = GameFont.Small;
-            Text.Anchor = TextAnchor.MiddleLeft;
-            GUI.color = Color.white;
-            Widgets.Label(new Rect(rect.x, rect.y, labelWidth, rect.height), "搜索");
-            Rect field = new Rect(rect.x + labelWidth + 6f, rect.y,
-                Mathf.Max(80f, rect.width - labelWidth - clearWidth - 20f), rect.height);
-            string next = Widgets.TextField(field, search ?? "");
-            if (next != search)
-            {
-                search = next ?? "";
-                InvalidateFilter();
-            }
-            Rect clear = new Rect(field.xMax + 8f, rect.y, clearWidth, rect.height);
-            if (RestaurantUiStyle.DrawSecondaryButton(clear, "清空", !search.NullOrEmpty(), GameFont.Tiny))
-            {
-                search = "";
-                InvalidateFilter();
-            }
-            Text.Anchor = TextAnchor.UpperLeft;
+            string next = ShopUiVisualUtility.DrawSearchField(rect, search, "搜索餐品名称、标识或来源模组");
+            if (next != search) { search = next; InvalidateFilter(); }
         }
 
         //绘制餐品品质筛选，职责是把长列表按原版偏好等级快速缩小。
@@ -135,9 +106,7 @@ namespace RimSimRestaurantExtension.UI
         private void DrawFilter(Rect rect, MealTier target, string label)
         {
             bool selected = tier == target;
-            bool clicked = selected
-                ? RestaurantUiStyle.DrawPrimaryButton(rect, label, true, GameFont.Tiny)
-                : RestaurantUiStyle.DrawSecondaryButton(rect, label, true, GameFont.Tiny);
+            bool clicked = ShopUiVisualUtility.DrawTabButton(rect, label, selected, RestaurantUiStyle.MutedText);
             if (!clicked || selected) return;
             tier = target;
             InvalidateFilter();
@@ -177,30 +146,9 @@ namespace RimSimRestaurantExtension.UI
         //绘制单个餐品行，职责是显示图标、营养、来源、配方数量和明确选择按钮。
         private void DrawFoodRow(Rect rect, ThingDef def)
         {
-            RestaurantUiStyle.DrawCard(rect);
-            Rect icon = new Rect(rect.x + 8f, rect.y + 8f, 48f, 48f);
-            Widgets.ThingIcon(icon.ContractedBy(3f), def);
-            float buttonWidth = 82f;
-            float buttonHeight = RestaurantUiStyle.ControlHeight(GameFont.Tiny);
-            Rect button = new Rect(rect.xMax - buttonWidth - 8f, rect.center.y - buttonHeight / 2f, buttonWidth, buttonHeight);
-            float textWidth = Mathf.Max(80f, button.x - icon.xMax - 18f);
-            Text.Font = GameFont.Small;
-            Text.WordWrap = false;
-            GUI.color = Color.white;
-            Widgets.Label(new Rect(icon.xMax + 8f, rect.y + 7f, textWidth, RestaurantUiStyle.LineHeight(GameFont.Small)),
-                def.LabelCap.ToString().Truncate(textWidth));
-            Text.Font = GameFont.Tiny;
-            GUI.color = RestaurantUiStyle.MutedText;
-            string details = $"{RestaurantFoodUtility.BuildFoodSummary(def)} · 配方 {RestaurantCookingUtility.GetProductionRecipes(def).Count}";
-            Widgets.Label(new Rect(icon.xMax + 8f, rect.y + 35f, textWidth, RestaurantUiStyle.LineHeight(GameFont.Tiny)),
-                details.Truncate(textWidth));
-            bool clicked = RestaurantUiStyle.DrawPrimaryButton(button, "选择", true, GameFont.Tiny);
-            if (clicked || Widgets.ButtonInvisible(new Rect(rect.x, rect.y, button.x - rect.x - 4f, rect.height), false))
-            {
-                onSelected?.Invoke(def);
-                Close();
-            }
-            GUI.color = Color.white;
+            if (!RestaurantFoodRow.Draw(rect, def, 0)) return;
+            onSelected?.Invoke(def);
+            Close();
         }
 
         //返回缓存后的筛选结果，职责是避免每帧重新扫描全部 Def。

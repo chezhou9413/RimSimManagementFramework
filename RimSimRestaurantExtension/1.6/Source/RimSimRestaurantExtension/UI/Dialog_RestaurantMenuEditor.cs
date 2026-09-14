@@ -5,6 +5,7 @@ using System.Linq;
 using RimSimRestaurantExtension.Models;
 using RimSimRestaurantExtension.Tool;
 using SimManagementLib.SimZone;
+using SimManagementLib.Api;
 using UnityEngine;
 using Verse;
 
@@ -22,7 +23,7 @@ namespace RimSimRestaurantExtension.UI
         private string minimum;
         private string maximum;
         private string error = "";
-        public override Vector2 InitialSize => new Vector2(660f, Mathf.Min(680f, Verse.UI.screenHeight - 60f));
+        public override Vector2 InitialSize => new Vector2(Mathf.Min(680f, Verse.UI.screenWidth - 48f), Mathf.Min(720f, Verse.UI.screenHeight - 48f));
 
         //建立编辑副本与数字输入缓冲，职责是让关闭子窗口丢弃修改。
         public Dialog_RestaurantMenuEditor(Zone_Shop shop, RestaurantMenuItem item, Action<RestaurantMenuItem> confirm)
@@ -36,6 +37,7 @@ namespace RimSimRestaurantExtension.UI
             if (draft.ingredients.Count == 0)
                 draft.ingredients = RestaurantIngredientUtility.BuildDefaultMenuIngredients(shop, draft.MealDef);
             doCloseX = true;
+            closeOnAccept = false;
             absorbInputAroundWindow = true;
         }
 
@@ -45,9 +47,9 @@ namespace RimSimRestaurantExtension.UI
             using (new RestaurantGuiScope())
             {
                 float row = RestaurantUiStyle.ControlHeight() + 8f;
-                Widgets.Label(new Rect(0f, 0f, rect.width - 34f, row), "编辑餐厅菜品");
+                float top = ShopUiVisualUtility.DrawPageHeading(rect, "编辑餐厅菜品", "配置每份售价与食材；确认后仍需在商店管理中统一保存。", true);
                 float errorHeight = error.NullOrEmpty() ? 0f : Text.CalcHeight(error, rect.width) + 8f;
-                Rect body = new Rect(0f, row, rect.width, Mathf.Max(0f, rect.height - row * 2f - errorHeight - 8f));
+                Rect body = new Rect(0f, top, rect.width, Mathf.Max(0f, rect.height - top - row - errorHeight - 8f));
                 float width = body.width - 16f;
                 string note = "每份原料必须满足该餐品的同一个生产配方。原料选择受配方过滤限制；菜品确认后仍需在店铺窗口统一保存。";
                 float noteHeight = Text.CalcHeight(note, width);
@@ -77,7 +79,7 @@ namespace RimSimRestaurantExtension.UI
             float y = 0f;
             draft.label = Field(width, y, row, "菜单名称", draft.label); y += row;
             Widgets.Label(new Rect(0f, y, 110f, row - 8f), "餐品产物");
-            Widgets.ThingIcon(new Rect(114f, y, row - 8f, row - 8f), draft.MealDef);
+            RestaurantUiStyle.DrawThingIconOrMissing(new Rect(114f, y, row - 8f, row - 8f), draft.MealDef);
             float labelWidth = Mathf.Max(80f, width - 266f);
             Widgets.Label(new Rect(160f, y, labelWidth, row - 8f), (draft.MealDef?.LabelCap.ToString() ?? "未选择").Truncate(labelWidth));
             if (RestaurantUiStyle.DrawSecondaryButton(new Rect(width - 96f, y, 96f, row - 8f), "选择产物"))
@@ -87,7 +89,8 @@ namespace RimSimRestaurantExtension.UI
             minimum = Field(width, y, row, "最少份数", minimum); y += row;
             maximum = Field(width, y, row, "最多份数", maximum); y += row;
             Widgets.CheckboxLabeled(new Rect(0f, y, width, row - 8f), "启用此菜品", ref draft.enabled); y += row;
-            Widgets.Label(new Rect(0f, y, width, row - 8f), "每份食材与数量"); y += row;
+            ShopUiVisualUtility.DrawTableHeaderBackground(new Rect(0f, y, width, row - 8f));
+            ShopUiVisualUtility.DrawCellLabel(new Rect(8f, y, width - 16f, row - 8f), "每份食材与数量"); y += row;
             foreach (var ingredient in draft.ingredients.ToList())
             {
                 if (!counts.TryGetValue(ingredient, out string count)) count = ingredient.countPerMeal.ToString();
@@ -112,7 +115,7 @@ namespace RimSimRestaurantExtension.UI
         //绘制单个输入字段，职责是为标签和输入框使用统一行高。
         private static string Field(float width, float y, float row, string label, string value)
         {
-            Widgets.Label(new Rect(0f, y, 110f, row - 8f), label);
+            ShopUiVisualUtility.DrawCellLabel(new Rect(0f, y, 110f, row - 8f), label, RestaurantUiStyle.MutedText);
             return Widgets.TextField(new Rect(118f, y, width - 118f, row - 8f), value ?? "");
         }
 

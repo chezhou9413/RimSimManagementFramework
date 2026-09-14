@@ -14,7 +14,7 @@ namespace RimSimRestaurantExtension.Tool
     public static class RestaurantCookingUtility
     {
         //返回店内可处理指定订单的工作台，职责是同时验证工作格、能源、配方和菜单食材。
-        public static List<Building_WorkTable> FindUsableStoves(Zone_Shop shop, RestaurantOrder order = null)
+        public static List<Building_WorkTable> FindUsableStoves(Zone_Shop shop, RestaurantProductionRequest order = null)
         {
             if (shop?.Map == null) return new List<Building_WorkTable>();
             HashSet<Building_WorkTable> result = new HashSet<Building_WorkTable>();
@@ -44,7 +44,7 @@ namespace RimSimRestaurantExtension.Tool
         }
 
         //判断工作台是否可以处理订单，职责是统一能源、故障、研究、产物与食材数量检查。
-        public static bool CanCookOrderAt(Thing thing, RestaurantOrder order)
+        public static bool CanCookOrderAt(Thing thing, RestaurantProductionRequest order)
         {
             if (!(thing is Building_WorkTable table) || table.Destroyed || !table.Spawned || table.IsBurning())
                 return false;
@@ -59,7 +59,7 @@ namespace RimSimRestaurantExtension.Tool
         }
 
         //判断厨师能否在工作台制作订单，职责是补充原版配方技能门槛检查。
-        public static bool CanPawnCookOrderAt(Pawn cook, Thing stove, RestaurantOrder order)
+        public static bool CanPawnCookOrderAt(Pawn cook, Thing stove, RestaurantProductionRequest order)
         {
             if (!(stove is Building_WorkTable table) || table.Destroyed || !table.Spawned)
                 return false;
@@ -68,7 +68,7 @@ namespace RimSimRestaurantExtension.Tool
         }
 
         //判断商店是否有当前可接单的厨师，职责是把岗位分配、人员状态、灶台和配方技能统一为菜单硬条件。
-        public static bool HasAvailableCook(Zone_Shop shop, RestaurantOrder order)
+        public static bool HasAvailableCook(Zone_Shop shop, RestaurantProductionRequest order)
         {
             if (shop?.Map?.mapPawns == null || order == null || DefOfRefs.RSR_WorkGiver_CookRestaurantOrder == null)
                 return false;
@@ -98,7 +98,7 @@ namespace RimSimRestaurantExtension.Tool
         }
 
         //根据订单和工作台选择真实配方，职责是只返回产物完全匹配且菜单食材足量兼容的配方。
-        public static RecipeDef GetRecipeForOrder(RestaurantOrder order, Building_WorkTable table = null)
+        public static RecipeDef GetRecipeForOrder(RestaurantProductionRequest order, Building_WorkTable table = null)
         {
             if (order?.mealDef == null) return null;
             IEnumerable<RecipeDef> recipes = table?.def?.AllRecipes ?? GetProductionRecipes(order.mealDef);
@@ -114,7 +114,7 @@ namespace RimSimRestaurantExtension.Tool
         }
 
         //判断菜单食材能否满足配方，职责是按原版 IngredientValueGetter 计算整单批次数量并避免凭空出餐。
-        public static bool CanRecipeUseOrderIngredients(RecipeDef recipe, RestaurantOrder order)
+        public static bool CanRecipeUseOrderIngredients(RecipeDef recipe, RestaurantProductionRequest order)
         {
             if (recipe == null || order == null || recipe.ingredients.NullOrEmpty()) return false;
             List<RestaurantIngredientRequirement> needs = order.GetTotalIngredientNeeds();
@@ -153,7 +153,7 @@ namespace RimSimRestaurantExtension.Tool
         }
 
         //计算订单制作时长，职责是按真实配方批次、厨师速度和工作台速度换算工作量。
-        public static int GetCookTicks(Pawn cook, Thing stove, RestaurantOrder order)
+        public static int GetCookTicks(Pawn cook, Thing stove, RestaurantProductionRequest order)
         {
             RecipeDef recipe = GetRecipeForOrder(order, stove as Building_WorkTable);
             float work = recipe?.WorkAmountTotal(null) ?? 900f;
@@ -168,7 +168,7 @@ namespace RimSimRestaurantExtension.Tool
         }
 
         //生成订单餐品，职责是使用原版配方生成品质与成分并按订单批量合并成一堆。
-        public static Thing MakeCookedMeal(Pawn cook, Thing stove, RestaurantOrder order, List<Thing> ingredients)
+        public static Thing MakeCookedMeal(Pawn cook, Thing stove, RestaurantProductionRequest order, List<Thing> ingredients)
         {
             RecipeDef recipe = GetRecipeForOrder(order, stove as Building_WorkTable);
             if (cook?.Map == null || order?.mealDef == null || recipe == null) return null;

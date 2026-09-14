@@ -8,9 +8,11 @@ namespace RimSimRestaurantExtension
     [StaticConstructorOnStartup]
     public static class MainEntry
     {
-        //注册餐厅结账门禁和评价快照，职责是把长期用餐流程接入框架结账与评价生命周期。
+        //初始化餐厅图标与冷藏逻辑，并将结账门禁和评价快照注册到框架生命周期。
         static MainEntry()
         {
+            UI.RestaurantBarIcon.Initialize();
+            Conveyor.Placement.ConveyorConstructionHooks.Install();
             Inventory.RestaurantRefrigeration.Install();
             SimShopCheckoutApi.RegisterCheckoutWorker(new RestaurantCheckoutWorker());
             SimShopReviewApi.RegisterSnapshotWorker(new RestaurantReviewSnapshotWorker());

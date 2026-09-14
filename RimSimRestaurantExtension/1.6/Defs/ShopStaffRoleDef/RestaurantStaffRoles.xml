@@ -11,12 +11,14 @@
     <workGivers>
       <li>RSR_WorkGiver_CookRestaurantOrder</li>
       <li>RSR_WorkGiver_BringRestaurantMealToPass</li>
+      <li>RSR_WorkGiver_StockSushiConveyor</li>
       <li>RSR_WorkGiver_RestaurantChefStandby</li>
     </workGivers>
     <requiredWorkType>Sim_ServiceWork</requiredWorkType>
     <jobDefs>
       <li>RSR_CookRestaurantOrder</li>
       <li>RSR_BringRestaurantMealToPass</li>
+      <li>RSR_StockSushiConveyor</li>
       <li>RSR_RestaurantStandby</li>
     </jobDefs>
   </SimManagementLib.SimDef.ShopStaffRoleDef>

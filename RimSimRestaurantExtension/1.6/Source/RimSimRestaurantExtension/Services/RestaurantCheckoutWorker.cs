@@ -32,6 +32,11 @@ namespace RimSimRestaurantExtension.Services
                 float total = context.billLines.Sum(l => l.amount);
                 foreach (var order in session.Orders)
                 {
+                    if (session.selfService && order.orderId == session.anchorOrderId)
+                    {
+                        if (!order.IsTerminal) RestaurantOrderUtility.CompleteOrder(order);
+                        continue;
+                    }
                     if (order.acceptedCount <= 0) continue;
                     order.paidAmount = total > 0 ? context.paidSilver * order.unitPrice * order.acceptedCount / total : 0;
                     if (!order.IsTerminal) RestaurantOrderUtility.CompleteOrder(order);

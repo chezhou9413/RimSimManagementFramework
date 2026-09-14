@@ -28,7 +28,13 @@ namespace RimSimRestaurantExtension.Dining
             if (session.state == RestaurantSessionState.Seating)
             {
                 session.state = RestaurantSessionState.Serving;
-                RestaurantOrderCoordinator.Seated(session.Anchor);
+                if (session.selfService)
+                {
+                    session.Anchor.state = RestaurantOrderState.Dining;
+                    session.Anchor.seatedTick = Find.TickManager.TicksGame;
+                    session.lastOrderTick = Find.TickManager.TicksGame;
+                }
+                else RestaurantOrderCoordinator.Seated(session.Anchor);
             }
             if (session.tray != null && !session.tray.Destroyed) return;
             Thing table = RestaurantDiningSpotUtility.FindTableById(customer.Map, session.tableId);
@@ -44,6 +50,7 @@ namespace RimSimRestaurantExtension.Dining
         public static void Tick(RestaurantDiningSession session)
         {
             if (session.IsTerminal) return;
+            if (session.selfService) { Conveyor.Dining.ConveyorDiningSession.Tick(session); return; }
             Map map = Find.Maps.FirstOrDefault(m => m.uniqueID == session.mapId);
             if (!Validate(session, map, out string reason)) { Abort(session, reason); return; }
             if (session.state == RestaurantSessionState.AwaitingCheckout) return;

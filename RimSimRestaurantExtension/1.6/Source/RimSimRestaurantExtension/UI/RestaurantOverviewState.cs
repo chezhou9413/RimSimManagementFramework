@@ -6,6 +6,8 @@ namespace RimSimRestaurantExtension.UI
     internal sealed class RestaurantOverviewState
     {
         public bool showOrders = true;
+        public bool includeHistory;
+        public string lastSearch = "";
         public System.Collections.Generic.HashSet<int> expanded = new System.Collections.Generic.HashSet<int>();
         public int page;
         public Vector2 scroll;

@@ -34,7 +34,7 @@ namespace RimSimRestaurantExtension.GameComp
             foreach (RestaurantOrder order in orders.Where(o => !o.IsTerminal).ToList())
             {
                 var session = SessionFor(order);
-                if (session == null || session.IsTerminal || session.state == Dining.RestaurantSessionState.AwaitingCheckout) continue;
+                if (session == null || session.IsTerminal || session.selfService || session.state == Dining.RestaurantSessionState.AwaitingCheckout) continue;
                 Map map = Find.Maps.FirstOrDefault(item => item.uniqueID == order.mapId);
                 if (map == null || !RestaurantOrderUtility.EnsureOrderStillValid(order, map)) continue;
                 RecoverClaim(order, map);

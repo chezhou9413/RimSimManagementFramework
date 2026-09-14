@@ -106,7 +106,13 @@ namespace RimSimRestaurantExtension.Jobs
         {
             var session = Session;
             if (session == null || session.IsTerminal) { EndJobWith(JobCondition.Incompletable); return; }
-            if (Find.TickManager.TicksGame % 120 == 0 && !RestaurantSessionUtility.Validate(session, pawn.Map, out string reason))
+            if (session.selfService)
+            {
+                Conveyor.Dining.ConveyorDiningSession.Tick(session);
+                if (session.IsTerminal) { EndJobWith(JobCondition.Succeeded); return; }
+                Conveyor.Dining.ConveyorDiningSession.TryTake(pawn, session);
+            }
+            if (!session.selfService && Find.TickManager.TicksGame % 120 == 0 && !RestaurantSessionUtility.Validate(session, pawn.Map, out string reason))
             { RestaurantSessionUtility.Abort(session, reason); EndJobWith(JobCondition.Incompletable); return; }
             pawn.rotationTracker.FaceTarget(job.GetTarget(TargetIndex.C));
             if (session.ReadyForCheckout) { ReadyForNextToil(); return; }

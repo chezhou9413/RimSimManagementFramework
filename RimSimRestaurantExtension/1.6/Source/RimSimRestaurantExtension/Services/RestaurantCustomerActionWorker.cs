@@ -56,7 +56,9 @@ namespace RimSimRestaurantExtension.Services
                 lastProgressTick = Find.TickManager.TicksGame
             });
             if (order == null) return null;
-            RestaurantOrderUtility.OrderManager.CreateSession(order);
+            var session = RestaurantOrderUtility.OrderManager.CreateSession(order);
+            if (table is Conveyor.Transport.Building_SushiConveyor belt)
+                Conveyor.Dining.ConveyorDiningSession.Initialize(session, belt);
             return new CustomerActionOrder
             {
                 customerThingId = customer.thingIDNumber,

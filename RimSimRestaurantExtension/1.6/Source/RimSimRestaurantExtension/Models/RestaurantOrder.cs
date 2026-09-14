@@ -24,7 +24,7 @@ namespace RimSimRestaurantExtension.Models
     }
 
     //保存一张餐厅订单，职责是跨 Job 和存档追踪动作订单、餐位、菜品、员工与结算状态。
-    public class RestaurantOrder : IExposable
+    public class RestaurantOrder : RestaurantProductionRequest, IExposable
     {
         public int orderId;
         public int sessionId, round, acceptedCount;
@@ -39,11 +39,8 @@ namespace RimSimRestaurantExtension.Models
         public string menuItemId = "";
         public string menuItemLabel = "";
         public float unitPrice;
-        public ThingDef mealDef;
-        public int mealCount = 1;
         public int mealThingId = -1;
         public Thing meal;
-        public RecipeDef recipe;
         public int mapId = -1;
         public int seatedTick = -1;
         public int orderedTick = -1;
@@ -57,7 +54,6 @@ namespace RimSimRestaurantExtension.Models
         public float price;
         public float paidAmount;
         public float ingredientCost;
-        public List<RestaurantIngredientRequirement> ingredients = new List<RestaurantIngredientRequirement>();
         public RestaurantOrderState state = RestaurantOrderState.GoingToSeat;
         public IntVec3 seatCell = IntVec3.Invalid;
         public int tableThingId = -1;
@@ -173,19 +169,5 @@ namespace RimSimRestaurantExtension.Models
             lastProgressTick = Find.TickManager?.TicksGame ?? lastProgressTick;
         }
 
-        //返回订单总食材需求的独立副本，职责是避免厨房逻辑修改订单持久化明细。
-        public List<RestaurantIngredientRequirement> GetTotalIngredientNeeds()
-        {
-            if (ingredients == null) return new List<RestaurantIngredientRequirement>();
-            return ingredients
-                .Where(item => item != null && !item.thingDefName.NullOrEmpty())
-                .GroupBy(item => item.thingDefName)
-                .Select(group => new RestaurantIngredientRequirement
-                {
-                    thingDefName = group.Key,
-                    countPerMeal = group.Sum(item => Mathf.Max(1, item.countPerMeal))
-                })
-                .ToList();
-        }
     }
 }

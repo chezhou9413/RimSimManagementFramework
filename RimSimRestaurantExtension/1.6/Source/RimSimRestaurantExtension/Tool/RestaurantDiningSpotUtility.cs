@@ -22,14 +22,27 @@ namespace RimSimRestaurantExtension.Tool
             foreach (var cell in candidates)
             {
                 if (!IsAvailableSeat(customer, shop, cell, ignoredOrder) || !IsUsableCell(customer, cell)) continue;
-                Thing surface = FindAdjacentEatSurface(shop, cell);
-                if (surface == null) continue;
-                var preview = new RestaurantOrder { shopZoneId = shop.ID, customerThingId = customer.thingIDNumber,
-                    seatCell = cell, tableThingId = surface.thingIDNumber };
-                if (!RestaurantStaffAvailabilityUtility.HasWaiterForOrder(shop, preview)) continue;
-                seatCell = cell;
-                table = surface;
-                break;
+                foreach (var direction in GenAdj.CardinalDirections)
+                {
+                    IntVec3 adjacent = cell + direction;
+                    if (!adjacent.InBounds(shop.Map) || !IsCellInShop(shop, adjacent)) continue;
+                    Thing surface = adjacent.GetEdifice(shop.Map);
+                    if (surface?.def.surfaceType != SurfaceType.Eat) continue;
+                    if (surface is Conveyor.Transport.Building_SushiConveyor belt)
+                    {
+                        if (!Conveyor.Dining.ConveyorDiningAvailability.CanServe(customer, shop, belt)) continue;
+                    }
+                    else
+                    {
+                        var preview = new RestaurantOrder { shopZoneId = shop.ID, customerThingId = customer.thingIDNumber,
+                            seatCell = cell, tableThingId = surface.thingIDNumber };
+                        if (!RestaurantStaffAvailabilityUtility.HasWaiterForOrder(shop, preview)
+                            || !Conveyor.Dining.ConveyorDiningAvailability.HasOrdinaryOffer(shop)) continue;
+                    }
+                    seatCell = cell;
+                    table = surface;
+                    return true;
+                }
             }
             return table != null;
         }

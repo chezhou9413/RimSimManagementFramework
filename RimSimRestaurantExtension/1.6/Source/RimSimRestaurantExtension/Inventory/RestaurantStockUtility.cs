@@ -61,7 +61,7 @@ namespace RimSimRestaurantExtension.Inventory
         }
 
         //为整单生成具体物资清单，职责是同时供菜单判断和接单预留使用。
-        public static bool Select(Zone_Shop shop, RestaurantOrder order, Pawn actor, out List<ThingCount> result)
+        public static bool Select(Zone_Shop shop, RestaurantProductionRequest order, Pawn actor, out List<ThingCount> result)
         {
             result = new List<ThingCount>();
             var ledger = shop.Map.GetComponent<MapComponent_InventoryReservations>();

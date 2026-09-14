@@ -4,7 +4,7 @@ using Verse;
 namespace SimManagementLib.Api
 {
     //类职责：向框架内置页面和外部经营扩展公开同一套商店界面颜色、分区、列表行、状态标签和按钮。
-    public static class ShopUiVisualUtility
+    public static partial class ShopUiVisualUtility
     {
         public static readonly Color Accent = new Color(0.25f, 0.65f, 0.85f, 0.95f);
         public static readonly Color MutedText = new Color(0.72f, 0.72f, 0.72f, 1f);

@@ -18,6 +18,16 @@ namespace RimSimRestaurantExtension.Debug
         //在指定地图中心点创建完整餐厅，职责是提供扩展内部和其他开发工具可复用的单一入口。
         public static bool TryCreateCompleteRestaurant(Map map, IntVec3 center,
             out Zone_Shop shop, out string failReason)
+            => TryCreateRestaurant(map, center, false, out shop, out failReason);
+
+        //创建闭环传送带样板店，职责是复用完整餐厅的后厨、库存、员工和营业配置。
+        public static bool TryCreateConveyorRestaurant(Map map, IntVec3 center,
+            out Zone_Shop shop, out string failReason)
+            => TryCreateRestaurant(map, center, true, out shop, out failReason);
+
+        //组装指定用餐布局的样板店，职责是统一预检查与设施生成顺序。
+        private static bool TryCreateRestaurant(Map map, IntVec3 center, bool conveyor,
+            out Zone_Shop shop, out string failReason)
         {
             shop = null;
             failReason = "";
@@ -70,6 +80,8 @@ namespace RimSimRestaurantExtension.Debug
                 return false;
             }
 
+            if (conveyor && !ConveyorRestaurantLayout.TryValidate(out failReason)) return false;
+
             ClearArea(map, outer);
             if (!BuildRoomShell(map, outer, ThingDefOf.Wall, ThingDefOf.Door))
             {
@@ -93,7 +105,8 @@ namespace RimSimRestaurantExtension.Debug
                 return false;
             }
 
-            CompleteRestaurantFurnitureUtility.Spawn(map, center);
+            if (conveyor) CompleteRestaurantFurnitureUtility.SpawnKitchenAndPower(map, center);
+            else CompleteRestaurantFurnitureUtility.Spawn(map, center);
             CompRefuelable fuel = stove.TryGetComp<CompRefuelable>();
             if (fuel == null)
             {
@@ -102,7 +115,8 @@ namespace RimSimRestaurantExtension.Debug
             }
             fuel.Refuel(fuel.Props.fuelCapacity);
 
-            int seatCount = SpawnDiningLayout(map, inner, tableDef, chairDef, center);
+            int seatCount = conveyor ? ConveyorRestaurantLayout.Spawn(map, center, chairDef)
+                : SpawnDiningLayout(map, inner, tableDef, chairDef, center);
             if (seatCount < 4)
             {
                 failReason = "无法生成足够的餐桌座位";
@@ -128,6 +142,10 @@ namespace RimSimRestaurantExtension.Debug
             if (!CompleteRestaurantPantryUtility.TryConfigure(map, shop, kitchenCells, settings, stockPlan, out failReason))
                 return false;
 
+            string conveyorResult = "";
+            if (conveyor && !ConveyorRestaurantStock.TryConfigure(map, center, shop, menuItems, kitchenCells,
+                    out conveyorResult, out failReason)) return false;
+
             if (!CompleteRestaurantStaffUtility.TrySpawnAndAssign(map, inner, shop, register, stove,
                     cashierRole, chefRole, waiterRole, cashierJobDef, out failReason))
                 return false;
@@ -142,7 +160,7 @@ namespace RimSimRestaurantExtension.Debug
                 return false;
             }
 
-            failReason = $"座位 {seatCount} 个，食材 {ingredientCount} 份，四类员工已分配";
+            failReason = conveyorResult + $"座位 {seatCount} 个，食材 {ingredientCount} 份，四类员工已分配";
             return true;
         }
 

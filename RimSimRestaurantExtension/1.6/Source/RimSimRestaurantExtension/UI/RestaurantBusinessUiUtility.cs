@@ -62,13 +62,15 @@ namespace RimSimRestaurantExtension.UI
         //绘制空状态，职责是保持中文多行文本居中且不污染后续锚点。
         public static void DrawEmpty(Rect rect, string message)
         {
-            Text.Font = GameFont.Small;
-            Text.Anchor = TextAnchor.MiddleCenter;
-            Text.WordWrap = true;
-            GUI.color = RestaurantUiStyle.MutedText;
-            Widgets.Label(rect.ContractedBy(12f), message ?? "");
-            Text.Anchor = TextAnchor.UpperLeft;
-            GUI.color = Color.white;
+            using (new RestaurantGuiScope())
+            {
+                Text.Anchor = TextAnchor.MiddleCenter;
+                GUI.color = RestaurantUiStyle.MutedText;
+                Rect body = rect.ContractedBy(12f);
+                string text = message ?? "";
+                if (body.height >= Text.CalcHeight(text, Mathf.Max(1f, body.width))) Widgets.Label(body, text);
+                else TooltipHandler.TipRegion(rect, text);
+            }
         }
 
     }

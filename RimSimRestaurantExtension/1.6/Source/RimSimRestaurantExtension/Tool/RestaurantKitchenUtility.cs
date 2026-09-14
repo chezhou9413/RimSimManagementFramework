@@ -19,34 +19,10 @@ namespace RimSimRestaurantExtension.Tool
                 || !RestaurantCookingUtility.CanCookOrderAt(stove, order)
                 || !RestaurantCookingUtility.CanPawnCookOrderAt(cook, stove, order)
                 || !RestaurantOrderUtility.EnsureOrderStillValid(order, cook.Map)) return false;
-            if (job.placedThings.NullOrEmpty() || job.placedThings.Any(item => item?.thing == null)) return false;
-            var placed = job.placedThings.GroupBy(item => item.thing)
-                .Select(group => new ThingCount(group.Key, group.Sum(item => item.Count), true)).ToList();
-            if (placed.Any(item => item.Thing == null || item.Thing.Destroyed || !item.Thing.Spawned
-                || item.Thing.Map != cook.Map || item.Thing.stackCount < item.Count
-                || item.Count <= 0 || item.Thing.IsBurning()
-                || item.Thing.TryGetComp<CompRottable>()?.Stage > RotStage.Fresh
-                || (item.Thing.Position - stove.Position).LengthHorizontalSquared > 25)) return false;
-            var needs = order.GetTotalIngredientNeeds();
-            if (needs.Any(need => placed.Where(item => item.Thing.def == need.ThingDef).Sum(item => item.Count) != need.countPerMeal)
-                || placed.Any(item => needs.All(need => need.ThingDef != item.Thing.def))) return false;
-            var actual = new List<Thing>();
-            foreach (ThingCount item in placed)
-            {
-                cook.Map.physicalInteractionReservationManager.TryRelease(cook, job, item.Thing);
-                Thing ingredient = item.Thing.SplitOff(item.Count);
-                if (ingredient.Spawned) ingredient.DeSpawn();
-                actual.Add(ingredient);
-            }
-            job.placedThings = null;
-            Thing meal = RestaurantCookingUtility.MakeCookedMeal(cook, stove, order, actual);
-            if (meal == null)
-            {
-                foreach (Thing item in actual) GenSpawn.Spawn(item, cook.Position, cook.Map);
+            if (!RestaurantProductionUtility.TryProduce(cook, stove, order, job, out Thing meal, out float cost))
                 return false;
-            }
-            order.ingredientCost = actual.Sum(item => item.MarketValue * item.stackCount);
-            foreach (Thing item in actual) item.Destroy(DestroyMode.Vanish);
+            job.placedThings = null;
+            order.ingredientCost = cost;
             RestaurantOrderCoordinator.Produced(order, meal);
             if (!RestaurantMealTransferUtility.Transfer(order, cook.carryTracker.innerContainer))
             {
