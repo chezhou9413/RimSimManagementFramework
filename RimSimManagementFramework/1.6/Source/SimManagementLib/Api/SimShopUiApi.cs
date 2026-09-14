@@ -111,6 +111,9 @@ namespace SimManagementLib.Api
             {
                 if (context != null)
                 {
+                    //切换页面或开始本轮绘制时清除旧异常，只展示当前页面本次调用的错误。
+                    if (context.PageDef != page || stage == "DrawPage")
+                        context.RecordException(null);
                     context.PageDef = page;
                     if (page != null)
                         activeContextsByDefName[page.defName] = context;
