@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Defs>
+    
+    <DesignatorDropdownGroupDef>
+        <defName>Props_Sim_SignBoard</defName>
+        <label>招牌SighBoard</label>
+    </DesignatorDropdownGroupDef>
 
     <ThingDef ParentName="LampBase">
         <defName>Sim_SignBoard1A</defName>
@@ -62,6 +67,7 @@
           </li>
           <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
         </comps>
+        <designatorDropdown>Props_Sim_SignBoard</designatorDropdown>
     </ThingDef>
 
     <ThingDef ParentName="LampBase">
@@ -126,6 +132,7 @@
           <li Class="CompProperties_Flickable"/>
           <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
         </comps>
+        <designatorDropdown>Props_Sim_SignBoard</designatorDropdown>
     </ThingDef>
 
     <ThingDef ParentName="LampBase">
@@ -189,6 +196,7 @@
           </li>
           <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
         </comps>
+        <designatorDropdown>Props_Sim_SignBoard</designatorDropdown>
     </ThingDef>
 
     <ThingDef ParentName="LampBase">
@@ -252,6 +260,7 @@
           </li>
           <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
         </comps>
+        <designatorDropdown>Props_Sim_SignBoard</designatorDropdown>
     </ThingDef>
 
     <ThingDef ParentName="LampBase">
@@ -315,6 +324,7 @@
           </li>
           <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
         </comps>
+        <designatorDropdown>Props_Sim_SignBoard</designatorDropdown>
     </ThingDef>
 
     <ThingDef ParentName="LampBase">
@@ -378,6 +388,7 @@
           </li>
           <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
         </comps>
+        <designatorDropdown>Props_Sim_SignBoard</designatorDropdown>
     </ThingDef>
 
     <ThingDef ParentName="LampBase">
@@ -441,6 +452,7 @@
           </li>
           <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
         </comps>
+        <designatorDropdown>Props_Sim_SignBoard</designatorDropdown>
     </ThingDef>
 
     <ThingDef ParentName="LampBase">
@@ -504,6 +516,7 @@
           </li>
           <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
         </comps>
+        <designatorDropdown>Props_Sim_SignBoard</designatorDropdown>
     </ThingDef>
 
     <ThingDef ParentName="LampBase">
@@ -567,6 +580,7 @@
           </li>
           <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
         </comps>
+        <designatorDropdown>Props_Sim_SignBoard</designatorDropdown>
     </ThingDef>
 
     <ThingDef ParentName="LampBase">
@@ -630,6 +644,7 @@
           </li>
           <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
         </comps>
+        <designatorDropdown>Props_Sim_SignBoard</designatorDropdown>
     </ThingDef>
 
     <ThingDef ParentName="LampBase">
@@ -693,6 +708,7 @@
           </li>
           <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
         </comps>
+        <designatorDropdown>Props_Sim_SignBoard</designatorDropdown>
     </ThingDef>
 
     <ThingDef ParentName="LampBase">
@@ -756,6 +772,7 @@
           </li>
           <li Class="SimManagementLib.SimThingComp.CompProperties_CustomSign" />
         </comps>
+        <designatorDropdown>Props_Sim_SignBoard</designatorDropdown>
     </ThingDef>
 
 </Defs>
