@@ -14,8 +14,14 @@ namespace RimSimRestaurantExtension.Conveyor.Placement
             || thing?.def.defName == "RSR_SushiConveyor";
 
         //读取指定格的唯一传送带节点。
-        public static Thing At(Map map, IntVec3 cell) => cell.InBounds(map)
-            ? cell.GetThingList(map).FirstOrDefault(IsBelt) : null;
+        public static Thing At(Map map, IntVec3 cell)
+        {
+            if (!cell.InBounds(map)) return null;
+            var things = cell.GetThingList(map);
+            for (int i = 0; i < things.Count; i++)
+                if (IsBelt(things[i])) return things[i];
+            return null;
+        }
 
         //取得叠加预览后的节点出口，职责是让预览与实际提交使用相同数据。
         public static bool Output(Map map, IntVec3 cell, IDictionary<IntVec3, Rot4> preview, out Rot4 rotation)
@@ -46,8 +52,24 @@ namespace RimSimRestaurantExtension.Conveyor.Placement
         //校验受影响格是否出现多个入口，职责是阻止隐式合流。
         public static bool Valid(Map map, IDictionary<IntVec3, Rot4> preview)
         {
-            foreach (var cell in preview.Keys.SelectMany(c => GenAdj.CardinalDirections.Select(d => c + d).Concat(new[] { c })).Distinct())
-                if (GenAdj.CardinalDirections.Count(d => Connects(map, cell + d, cell, preview)) > 1) return false;
+            return Valid(map, preview, new HashSet<IntVec3>());
+        }
+
+        //复用受影响格集合，职责是让拖拽校验去重且不逐格创建查询闭包和数组。
+        public static bool Valid(Map map, IDictionary<IntVec3, Rot4> preview, HashSet<IntVec3> affected)
+        {
+            affected.Clear();
+            foreach (var cell in preview.Keys)
+            {
+                affected.Add(cell);
+                for (int i = 0; i < 4; i++) affected.Add(cell + GenAdj.CardinalDirections[i]);
+            }
+            foreach (var cell in affected)
+            {
+                int incoming = 0;
+                for (int i = 0; i < 4; i++)
+                    if (Connects(map, cell + GenAdj.CardinalDirections[i], cell, preview) && ++incoming > 1) return false;
+            }
             return true;
         }
 
@@ -69,4 +91,3 @@ namespace RimSimRestaurantExtension.Conveyor.Placement
         }
     }
 }
-

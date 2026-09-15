@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using RimSimRestaurantExtension.Conveyor.Rendering;
 using RimSimRestaurantExtension.Conveyor.Transport;
 using RimWorld;
@@ -13,6 +12,9 @@ namespace RimSimRestaurantExtension.Conveyor.Placement
     {
         private IntVec3 origin = IntVec3.Invalid;
         private bool axisLocked;
+        private readonly List<IntVec3> previewCells = new List<IntVec3>();
+        private readonly Dictionary<IntVec3, Rot4> previewPlan = new Dictionary<IntVec3, Rot4>();
+        private readonly HashSet<IntVec3> previewAffected = new HashSet<IntVec3>();
         public override DrawStyleCategoryDef DrawStyleCategory => DefDatabase<DrawStyleCategoryDef>.GetNamed("RSR_SushiPathCategory");
 
         //绑定寿司建筑定义，职责是复用原版建造消耗和施工流程。
@@ -41,11 +43,11 @@ namespace RimSimRestaurantExtension.Conveyor.Placement
             }
             base.SelectedUpdate();
             if (!dragger.Dragging) return;
-            var cells = Prefix(dragger.CellBuffer);
-            var plan = ConveyorPlacementPlanner.Plan(Map, cells, placingRot);
-            bool valid = ConveyorLinks.Valid(Map, plan);
-            foreach (var cell in plan.Keys)
-                ConveyorRenderer.Preview(Map, cell, plan, valid ? new Color(0.4f, 1f, 0.5f, 0.65f) : new Color(1f, 0.2f, 0.2f, 0.65f));
+            CollectPrefix(dragger.CellBuffer, previewCells);
+            ConveyorPlacementPlanner.FillPlan(Map, previewCells, placingRot, previewPlan);
+            bool valid = ConveyorLinks.Valid(Map, previewPlan, previewAffected);
+            foreach (var cell in previewPlan.Keys)
+                ConveyorRenderer.Preview(Map, cell, previewPlan, valid ? new Color(0.4f, 1f, 0.5f, 0.65f) : new Color(1f, 0.2f, 0.2f, 0.65f));
         }
 
         //允许穿过已有传送带，职责是让连续拖拽可以改向而不重复消耗材料。
@@ -83,8 +85,10 @@ namespace RimSimRestaurantExtension.Conveyor.Placement
         {
             if (Find.DesignatorManager.Dragger.Dragging) return;
             var cell = Verse.UI.MouseCell();
-            var plan = ConveyorPlacementPlanner.Plan(Map, new List<IntVec3> { cell }, placingRot);
-            ConveyorRenderer.Preview(Map, cell, plan, color);
+            previewCells.Clear();
+            previewCells.Add(cell);
+            ConveyorPlacementPlanner.FillPlan(Map, previewCells, placingRot, previewPlan);
+            ConveyorRenderer.Preview(Map, cell, previewPlan, color);
         }
 
         //释放拖拽状态，职责是防止下一次铺设继承旧起点。
@@ -94,6 +98,14 @@ namespace RimSimRestaurantExtension.Conveyor.Placement
         private List<IntVec3> Prefix(IEnumerable<IntVec3> cells)
         {
             var result = new List<IntVec3>();
+            CollectPrefix(cells, result);
+            return result;
+        }
+
+        //填充调用方路径缓冲，职责是实时检查施工阻挡并保留连续可铺设前缀。
+        private void CollectPrefix(IEnumerable<IntVec3> cells, List<IntVec3> result)
+        {
+            result.Clear();
             foreach (var cell in cells)
             {
                 if (!CanDesignateCell(cell).Accepted) break;
@@ -101,7 +113,6 @@ namespace RimSimRestaurantExtension.Conveyor.Placement
                 if (result.Count > 0 && (cell - result[result.Count - 1]).LengthManhattan != 1) break;
                 result.Add(cell);
             }
-            return result;
         }
     }
 }

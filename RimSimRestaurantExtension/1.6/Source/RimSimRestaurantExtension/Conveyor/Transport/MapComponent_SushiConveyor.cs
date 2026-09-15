@@ -42,27 +42,29 @@ namespace RimSimRestaurantExtension.Conveyor.Transport
             index.Clear();
             var old = lines.ToDictionary(l => l.id);
             var claimed = new HashSet<int>();
-            var remaining = new HashSet<Building_SushiConveyor>(belts.Where(b => b.Spawned));
+            var topology = new ConveyorTopologySnapshot(belts);
+            var remaining = new HashSet<Building_SushiConveyor>(topology.Belts);
             var result = new List<ConveyorLine>();
-            while (remaining.Count > 0)
+            foreach (var seed in topology.Belts)
             {
+                if (!remaining.Contains(seed)) continue;
                 var component = new List<Building_SushiConveyor>();
                 var queue = new Queue<Building_SushiConveyor>();
-                queue.Enqueue(remaining.OrderBy(b => b.thingIDNumber).First());
+                queue.Enqueue(seed);
                 while (queue.Count > 0)
                 {
                     var belt = queue.Dequeue();
                     if (!remaining.Remove(belt)) continue;
                     component.Add(belt);
-                    foreach (var d in GenAdj.CardinalDirections)
-                        if (ConveyorLinks.At(map, belt.Position + d) is Building_SushiConveyor neighbor
-                            && (ConveyorLinks.Next(belt) == neighbor || ConveyorLinks.Next(neighbor) == belt))
-                            queue.Enqueue(neighbor);
+                    var next = topology.Next(belt);
+                    var previousBelt = topology.Previous(belt);
+                    if (next != null) queue.Enqueue(next);
+                    if (previousBelt != null) queue.Enqueue(previousBelt);
                 }
                 var previous = component.Select(b => b.lineId).Distinct().Where(old.ContainsKey).Select(id => old[id]).OrderBy(l => l.id).ToList();
                 var source = previous.FirstOrDefault();
                 bool ownsAnchor = source != null && (component.Any(b => b.thingIDNumber == source.anchorId)
-                    || !belts.Any(b => b.Spawned && b.thingIDNumber == source.anchorId));
+                    || !topology.ThingIds.Contains(source.anchorId));
                 bool reuse = ownsAnchor && claimed.Add(source.id);
                 var line = reuse ? source : new ConveyorLine { id = nextId++, anchorId = component.Min(b => b.thingIDNumber) };
                 if (source != null && !reuse)
@@ -73,7 +75,7 @@ namespace RimSimRestaurantExtension.Conveyor.Transport
                 }
                 if (previous.Count(l => l.rules.Count > 0) > 1)
                 { line.paused = true; line.notice = "线路合并，保留较早线路配置，请确认上架目标"; }
-                line.segments = OrderSegments(component);
+                line.segments = OrderSegments(component, topology);
                 line.transport.Rebuild(line.segments);
                 line.RefreshShop();
                 if (!component.Any(b => b.thingIDNumber == line.anchorId)) line.anchorId = component.Min(b => b.thingIDNumber);
@@ -86,18 +88,23 @@ namespace RimSimRestaurantExtension.Conveyor.Transport
         }
 
         //按运输方向排列线路成员，职责是让阻塞限制能够从下游向上游线性传播。
-        private static List<Building_SushiConveyor> OrderSegments(List<Building_SushiConveyor> component)
+        private static List<Building_SushiConveyor> OrderSegments(List<Building_SushiConveyor> component, ConveyorTopologySnapshot topology)
         {
-            var downstream = new HashSet<Building_SushiConveyor>(component.Select(ConveyorLinks.Next).Where(b => b != null));
-            var start = component.FirstOrDefault(b => !downstream.Contains(b)) ?? component.OrderBy(b => b.thingIDNumber).First();
+            var start = component.FirstOrDefault(b => topology.Previous(b) == null) ?? component[0];
             var result = new List<Building_SushiConveyor>();
             var visited = new HashSet<Building_SushiConveyor>();
-            for (var current = start; current != null && visited.Add(current); current = ConveyorLinks.Next(current))
+            for (var current = start; current != null && visited.Add(current); current = topology.Next(current))
                 result.Add(current);
             return result;
         }
 
-        //更新线路动画与餐盘，职责是原版负责食品组件，本组件只负责运输。
+        //分帧推进共享动画缓存，职责是让暂停和上帝模式放置时仍可完成限时生成。
+        public override void MapComponentUpdate()
+        {
+            Rendering.ConveyorTextureCache.UpdatePending();
+        }
+
+        //更新真实线路与餐盘，职责是仅在游戏步推进运输且不生成任何动画贴图。
         public override void MapComponentTick()
         {
             Rebuild();

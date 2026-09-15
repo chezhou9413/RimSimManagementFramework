@@ -12,6 +12,7 @@ namespace RimSimRestaurantExtension
         static MainEntry()
         {
             UI.RestaurantBarIcon.Initialize();
+            Buildings.Rendering.RestaurantBarConstructionNotifications.Install();
             Conveyor.Placement.ConveyorConstructionHooks.Install();
             Inventory.RestaurantRefrigeration.Install();
             SimShopCheckoutApi.RegisterCheckoutWorker(new RestaurantCheckoutWorker());

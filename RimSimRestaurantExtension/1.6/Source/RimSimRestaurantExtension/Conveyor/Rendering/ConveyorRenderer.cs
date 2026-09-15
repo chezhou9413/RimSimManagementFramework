@@ -19,7 +19,9 @@ namespace RimSimRestaurantExtension.Conveyor.Rendering
                 * ConveyorTextureCache.PhaseCount);
             int mask = ConveyorLinks.Mask(belt.Map, belt.Position);
             var mat = ConveyorTextureCache.Material(mask, belt.Rotation, frame, belt.DrawColor, belt.DrawColorTwo);
-            Graphics.DrawMesh(MeshPool.plane10, location, Quaternion.identity, mat, 0);
+            //缓存准备期间直接显示同形状静态图集，完整周期就绪后再切换动画。
+            if (mat == null) belt.Graphic.DrawWorker(location, belt.Rotation, belt.def, belt, 0f);
+            else Graphics.DrawMesh(MeshPool.plane10, location, Quaternion.identity, mat, 0);
             if (belt.Food != null)
             {
                 var pos = belt.Position.ToVector3Shifted() + ConveyorMovement.Offset(belt);
@@ -38,8 +40,10 @@ namespace RimSimRestaurantExtension.Conveyor.Rendering
             var position = cell.ToVector3Shifted();
             position.y = AltitudeLayer.MetaOverlays.AltitudeFor();
             int mask = ConveyorLinks.Mask(map, cell, plan);
-            var material = ConveyorTextureCache.Material(mask, plan[cell], 0, color, Color.white);
-            Graphics.DrawMesh(MeshPool.plane10, position, Quaternion.identity, material, 0);
+            //预览只采样现有静态图集，避免鼠标移动触发成品整周期动画的像素烘焙。
+            var material = MaterialPool.MatFrom("Things/Building/Restaurant/SushiConveyor/RSR_SushiConveyor_Atlas",
+                ShaderDatabase.Transparent, color);
+            Graphics.DrawMesh(Buildings.Rendering.RestaurantAtlasGeometry.MeshFor(mask), position, Quaternion.identity, material, 0);
             GenDraw.DrawArrowRotated(position + new Vector3(0f, 0.01f, 0f), plan[cell].AsAngle, true);
         }
     }

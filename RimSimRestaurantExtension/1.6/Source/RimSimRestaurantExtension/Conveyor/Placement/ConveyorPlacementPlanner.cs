@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Verse;
 
 namespace RimSimRestaurantExtension.Conveyor.Placement
@@ -11,31 +10,56 @@ namespace RimSimRestaurantExtension.Conveyor.Placement
         public static Dictionary<IntVec3, Rot4> Plan(Map map, List<IntVec3> cells, Rot4 fallback)
         {
             var result = new Dictionary<IntVec3, Rot4>();
-            if (cells.Count == 0) return result;
+            FillPlan(map, cells, fallback, result);
+            return result;
+        }
+
+        //复用调用方方向表，职责是让连续预览保持实时规划而不反复分配路径字典。
+        public static void FillPlan(Map map, List<IntVec3> cells, Rot4 fallback, Dictionary<IntVec3, Rot4> result)
+        {
+            result.Clear();
+            if (cells.Count == 0) return;
             for (int i = 0; i < cells.Count; i++)
                 result[cells[i]] = i + 1 < cells.Count ? Rot4.FromIntVec3(cells[i + 1] - cells[i])
                     : i > 0 ? Rot4.FromIntVec3(cells[i] - cells[i - 1]) : fallback;
             var first = cells[0];
             var last = cells[cells.Count - 1];
-            var sources = GenAdj.CardinalDirections.Select(d => ConveyorLinks.At(map, first + d))
-                .Where(t => t != null && !result.ContainsKey(t.Position))
-                .Where(t => t.Position + t.Rotation.FacingCell == first
-                    || ConveyorLinks.At(map, t.Position + t.Rotation.FacingCell) == null && Incoming(map, t.Position) == 1).ToList();
-            if (sources.Count == 1) result[sources[0].Position] = Rot4.FromIntVec3(first - sources[0].Position);
+            int sourceCount = 0;
+            Thing source = null;
+            for (int i = 0; i < 4; i++)
+            {
+                var candidate = ConveyorLinks.At(map, first + GenAdj.CardinalDirections[i]);
+                if (candidate == null || result.ContainsKey(candidate.Position)) continue;
+                var output = candidate.Position + candidate.Rotation.FacingCell;
+                if (output != first && (ConveyorLinks.At(map, output) != null || Incoming(map, candidate.Position) != 1)) continue;
+                source = candidate;
+                sourceCount++;
+            }
+            if (sourceCount == 1) result[source.Position] = Rot4.FromIntVec3(first - source.Position);
             var forward = last + result[last].FacingCell;
             if (ConveyorLinks.Output(map, forward, result, out var direction) && forward + direction.FacingCell != last)
-                return result;
-            var targets = GenAdj.CardinalDirections.Select(d => last + d)
-                .Where(c => c != last && (c == first && cells.Count > 2
-                    || !result.ContainsKey(c) && ConveyorLinks.At(map, c) != null && Incoming(map, c) == 0))
-                .Where(c => ConveyorLinks.Output(map, c, result, out var rot) && c + rot.FacingCell != last).ToList();
-            if (targets.Count == 1) result[last] = Rot4.FromIntVec3(targets[0] - last);
-            return result;
+                return;
+            int targetCount = 0;
+            IntVec3 target = IntVec3.Invalid;
+            for (int i = 0; i < 4; i++)
+            {
+                var candidate = last + GenAdj.CardinalDirections[i];
+                bool closesLoop = candidate == first && cells.Count > 2;
+                if (!closesLoop && (result.ContainsKey(candidate) || ConveyorLinks.At(map, candidate) == null || Incoming(map, candidate) != 0)) continue;
+                if (!ConveyorLinks.Output(map, candidate, result, out var rot) || candidate + rot.FacingCell == last) continue;
+                target = candidate;
+                targetCount++;
+            }
+            if (targetCount == 1) result[last] = Rot4.FromIntVec3(target - last);
         }
 
         //统计旧线路真实入口，职责是仅吸附没有上游的入口端点。
-        private static int Incoming(Map map, IntVec3 cell) =>
-            GenAdj.CardinalDirections.Count(d => ConveyorLinks.Connects(map, cell + d, cell));
+        private static int Incoming(Map map, IntVec3 cell)
+        {
+            int count = 0;
+            for (int i = 0; i < 4; i++)
+                if (ConveyorLinks.Connects(map, cell + GenAdj.CardinalDirections[i], cell)) count++;
+            return count;
+        }
     }
 }
-

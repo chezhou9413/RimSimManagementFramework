@@ -118,6 +118,9 @@
     <Compile Include="Debug\CompleteRestaurantPantryUtility.cs" />
     <Compile Include="UI\Dialog_RestaurantStorage.cs" />
     <Compile Include="Buildings\Graphic_RestaurantBar.cs" />
+    <Compile Include="Buildings\Rendering\Graphic_RestaurantLinkedAtlas.cs" />
+    <Compile Include="Buildings\Rendering\RestaurantAtlasGeometry.cs" />
+    <Compile Include="Buildings\Rendering\RestaurantBarConstructionNotifications.cs" />
     <Compile Include="Buildings\Building_RestaurantStorage.cs" />
     <Compile Include="Dining\RestaurantTableTray.cs" />
     <Compile Include="Dining\RestaurantTableDelivery.cs" />
