@@ -28,6 +28,8 @@
             <isEdifice>false</isEdifice>
             <canPlaceOverWall>false</canPlaceOverWall>
         </building>
+        <uiOrder>20</uiOrder>
+        
   </ThingDef>
 
 </Defs>

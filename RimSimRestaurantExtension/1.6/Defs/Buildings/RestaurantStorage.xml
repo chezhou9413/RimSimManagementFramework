@@ -62,6 +62,7 @@
                 </products>
             </li>
         </modExtensions>
+        <uiOrder>20</uiOrder>
     </ThingDef>
     
     <ThingDef ParentName="BuildingBase">
@@ -79,11 +80,11 @@
             <texPath>Things/Building/Restaurant/WallCabinet/RSR_WallCabinet</texPath>
             <graphicClass>RimSimRestaurantExtension.Buildings.Graphic_RestaurantWallCabinet</graphicClass>
             <shaderType>CutoutComplex</shaderType>
-            <drawSize>(2,2)</drawSize>
-            <drawOffsetNorth>(0,0,0.15)</drawOffsetNorth>
-            <drawOffsetSouth>(0,0,0.35)</drawOffsetSouth>
-            <drawOffsetEast>(0,0,0.15)</drawOffsetEast>
-            <drawOffsetWest>(0,0,0.15)</drawOffsetWest>
+            <drawSize>(2.2,2.2)</drawSize>
+            <drawOffsetNorth>(0,0,0.3)</drawOffsetNorth>
+            <drawOffsetSouth>(0,0,0.4)</drawOffsetSouth>
+            <drawOffsetEast>(0,0,0.25)</drawOffsetEast>
+            <drawOffsetWest>(0,0,0.25)</drawOffsetWest>
         </graphicData>
         <altitudeLayer>BuildingOnTop</altitudeLayer>
         <drawerType>MapMeshOnly</drawerType>
@@ -124,6 +125,7 @@
                 </products>
             </li>
         </modExtensions>
+        <uiOrder>20</uiOrder>
 
     </ThingDef>
 
@@ -142,11 +144,11 @@
             <texPath>Things/Building/Restaurant/WallWineCabinet/RSR_WallWineCabinet</texPath>
             <graphicClass>RimSimRestaurantExtension.Buildings.Graphic_RestaurantWallCabinet</graphicClass>
             <shaderType>CutoutComplex</shaderType>
-            <drawSize>(2,2)</drawSize>
-            <drawOffsetNorth>(0,0,0.15)</drawOffsetNorth>
-            <drawOffsetSouth>(0,0,0.35)</drawOffsetSouth>
-            <drawOffsetEast>(0,0,0.15)</drawOffsetEast>
-            <drawOffsetWest>(0,0,0.15)</drawOffsetWest>
+            <drawSize>(2.2,2.2)</drawSize>
+                <drawOffsetNorth>(0,0,0.3)</drawOffsetNorth>
+                <drawOffsetSouth>(0,0,0.4)</drawOffsetSouth>
+                <drawOffsetEast>(0,0,0.25)</drawOffsetEast>
+                <drawOffsetWest>(0,0,0.25)</drawOffsetWest>
         </graphicData>
         <altitudeLayer>BuildingOnTop</altitudeLayer>
         <drawerType>MapMeshOnly</drawerType>
@@ -185,6 +187,7 @@
                 </products>
             </li>
         </modExtensions>
+        <uiOrder>20</uiOrder>
     </ThingDef>
 
     <ThingDef ParentName="BuildingBase">
@@ -243,6 +246,7 @@
                 </products>
             </li>
         </modExtensions>
+        <uiOrder>20</uiOrder>
     </ThingDef>
 
 </Defs>

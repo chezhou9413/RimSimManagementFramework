@@ -46,6 +46,7 @@
     <modExtensions>
       <li Class="RimSimRestaurantExtension.Conveyor.Transport.ConveyorSettings"><ticksPerCell>60</ticksPerCell></li>
     </modExtensions>
+    <uiOrder>20</uiOrder>
   </ThingDef>
   <DrawStyleDef>
     <defName>RSR_SushiPath</defName>
