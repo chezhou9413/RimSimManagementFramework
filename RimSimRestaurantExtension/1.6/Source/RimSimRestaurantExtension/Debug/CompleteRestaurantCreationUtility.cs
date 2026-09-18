@@ -51,12 +51,11 @@ namespace RimSimRestaurantExtension.Debug
             }
 
             ThingDef registerDef = DefDatabase<ThingDef>.GetNamedSilentFail("Sim_CashRegister");
-            ThingDef storageDef = DefDatabase<ThingDef>.GetNamedSilentFail("RSR_Refrigerator");
             ThingDef stoveDef = DefDatabase<ThingDef>.GetNamedSilentFail("FueledStove");
             ThingDef tableDef = DefDatabase<ThingDef>.GetNamedSilentFail("RSR_DiningTableRectangular");
             ThingDef chairDef = DefDatabase<ThingDef>.GetNamedSilentFail("RSR_DiningChair");
             TerrainDef floorDef = DefDatabase<TerrainDef>.GetNamedSilentFail("FineTile") ?? TerrainDefOf.PavedTile;
-            if (registerDef == null || storageDef == null || stoveDef == null || tableDef == null
+            if (registerDef == null || stoveDef == null || tableDef == null
                 || chairDef == null || DefOfRefs.RSR_RestaurantOrderCounter == null
                 || ThingDefOf.Wall == null || ThingDefOf.Door == null)
             {
@@ -97,11 +96,9 @@ namespace RimSimRestaurantExtension.Debug
                 center + IntVec3.South * 5 + IntVec3.East * 3, Rot4.South);
             Building_WorkTable stove = SpawnBuilding(map, stoveDef,
                 center + IntVec3.North * 5 + IntVec3.West * 3, Rot4.North) as Building_WorkTable;
-            Building_SimContainer storage = SpawnBuilding(map, storageDef,
-                center + IntVec3.North * 5 + IntVec3.East * 4, Rot4.South) as Building_SimContainer;
-            if (register == null || counter == null || stove == null || storage == null)
+            if (register == null || counter == null || stove == null)
             {
-                failReason = "无法生成收银台、接待与出餐台、燃料灶或食品货柜";
+                failReason = "无法生成收银台、接待与出餐台或燃料灶";
                 return false;
             }
 

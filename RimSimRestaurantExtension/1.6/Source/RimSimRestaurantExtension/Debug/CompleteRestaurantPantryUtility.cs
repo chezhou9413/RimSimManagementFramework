@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using RimSimRestaurantExtension.Inventory;
@@ -9,7 +8,7 @@ using Verse;
 
 namespace RimSimRestaurantExtension.Debug
 {
-    //配置样板餐厅后厨和库存，职责是从调试场景中的真实食材填充冰箱并上架酒水。
+    //配置样板餐厅后厨和库存，职责是将真实食材保留在店内储存架并上架酒水。
     internal static class CompleteRestaurantPantryUtility
     {
         //将后厨食材格布置成店内储存架并配置补货目标，职责是保留整店区域和库存归属。
@@ -18,11 +17,10 @@ namespace RimSimRestaurantExtension.Debug
         {
             failReason = "";
             var cabinets = RestaurantStockUtility.Cabinets(shop).ToList();
-            var fridge = cabinets.FirstOrDefault(c => c.IsRefrigerator);
             var wine = cabinets.FirstOrDefault(c => c.def.defName == "RSR_WallWineCabinet");
-            if (fridge == null || wine == null)
+            if (wine == null)
             {
-                failReason = "样板餐厅店内缺少设施：" + (fridge == null ? "RSR_Refrigerator" : "RSR_WallWineCabinet");
+                failReason = "样板餐厅店内缺少设施：RSR_WallWineCabinet";
                 return false;
             }
             if (cells.Count == 0)
@@ -39,27 +37,12 @@ namespace RimSimRestaurantExtension.Debug
                 foreach (var item in stock.Keys) shelf.GetStoreSettings().filter.SetAllow(item, true);
                 shelf.GetStoreSettings().filter.SetAllow(DefDatabase<ThingDef>.GetNamed("Beer"), true);
             }
-            var targets = stock.ToDictionary(p => p.Key.defName, p => new GoodsItemData
-            { enabled = true, count = Math.Min(p.Value, 500), restockThreshold = 50, price = 1 });
-            fridge.Goods.ApplySettings(fridge.CatalogId, targets);
             foreach (var pair in stock)
             {
                 var source = RestaurantKitchenStorage.Items(shop).FirstOrDefault(t => t.def == pair.Key);
                 if (source == null)
                 {
                     failReason = "后厨货源缺少样板食材：" + pair.Key.defName;
-                    return false;
-                }
-                IntVec3 sourceCell = source.Position;
-                int count = Math.Min(50, source.stackCount);
-                Thing part = source.SplitOff(count);
-                if (part.Spawned) part.DeSpawn();
-                if (fridge.TryReceiveReturnedThing(part) != count)
-                {
-                    //入库未接收的实物归还原格，避免配置失败时留下无归属物品。
-                    if (!part.Destroyed && part.holdingOwner == null)
-                        GenSpawn.Spawn(part, sourceCell, map);
-                    failReason = "样板冰箱无法接收食材：" + pair.Key.defName;
                     return false;
                 }
             }

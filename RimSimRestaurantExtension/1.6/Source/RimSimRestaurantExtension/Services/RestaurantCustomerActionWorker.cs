@@ -1,6 +1,7 @@
 using RimSimRestaurantExtension.Models;
 using RimSimRestaurantExtension.Tool;
 using SimManagementLib.Api;
+using SimManagementLib.Pojo;
 using SimManagementLib.SimZone;
 using UnityEngine;
 using Verse;
@@ -11,10 +12,10 @@ namespace RimSimRestaurantExtension.Services
     //连接框架顾客动作与堂食会话，职责是入座时建单、完成用餐后记账并交接收银。
     public class RestaurantCustomerActionWorker : CustomerActionWorker
     {
-        //判断餐厅吸引力是否有效，职责是复用经营快照排除无法营业的配置。
-        public override bool IsAttractionAvailable(Zone_Shop shop)
+        //检查餐厅实际到客条件，职责是保留人员和库存要求，让设施识别沿用基类的出餐台检查。
+        public override bool CanAttractCustomer(Zone_Shop shop, RuntimeCustomerKind customerKind)
         {
-            return base.IsAttractionAvailable(shop) && RestaurantBusinessAvailability.Snapshot(shop).NullOrEmpty();
+            return base.CanAttractCustomer(shop, customerKind) && RestaurantBusinessAvailability.Snapshot(shop).NullOrEmpty();
         }
 
         //报告店内餐厅的到客限制，职责是让框架强制刷新能重算并展示菜单、岗位和路线问题。
