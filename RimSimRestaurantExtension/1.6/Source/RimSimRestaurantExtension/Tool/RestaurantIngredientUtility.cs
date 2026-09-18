@@ -43,7 +43,7 @@ namespace RimSimRestaurantExtension.Tool
                 return valid;
             }
             bool found = Inventory.RestaurantStockUtility.Select(shop, order, actor, out chosen);
-            if (!found) failReason = "冰箱和绑定后厨储存区食材不足或不可达";
+            if (!found) failReason = "冰箱和店内储存架食材不足或不可达";
             return found;
         }
 

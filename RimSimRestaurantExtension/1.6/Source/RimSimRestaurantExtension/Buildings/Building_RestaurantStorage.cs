@@ -28,7 +28,7 @@ namespace RimSimRestaurantExtension.Buildings
         public override LocalTargetInfo InventoryInteractionTarget => Settings.wallMounted ? (LocalTargetInfo)Position : this;
         public override PathEndMode InventoryInteractionEndMode => Settings.wallMounted ? PathEndMode.OnCell : PathEndMode.Touch;
         public override string RestockSourceIssue => Shop == null ? "货柜未放在餐厅商店区域内"
-            : RestaurantStockUtility.Pantries(Shop).Any() ? "" : "本店未绑定有效的后厨储存区";
+            : RestaurantKitchenStorage.Cells(Shop).Any() ? "" : "商店区域内尚未放置后厨储存架";
 
         //判断物品是否属于建筑配置并被玩家允许。
         public override bool AllowsInventoryItem(ThingDef item)
@@ -36,11 +36,10 @@ namespace RimSimRestaurantExtension.Buildings
             return Settings.products.Any(p => p.Allows(item)) && Goods.FindItemData(item)?.enabled == true;
         }
 
-        //限制补货来源，职责是只允许从本店绑定的原版储存区搬运。
+        //限制补货来源，职责是只允许从本店区域内的储存架搬运。
         public override bool AllowsRestockSource(Thing source)
         {
-            return source?.Spawned == true && source.Map == Map && Shop != null
-                && RestaurantStockUtility.Pantries(Shop).Any(z => z.ContainsCell(source.Position));
+            return RestaurantKitchenStorage.Contains(Shop, source);
         }
 
         //查找商品默认规则，职责是按建筑 XML 配置顺序解析重叠商品范围。

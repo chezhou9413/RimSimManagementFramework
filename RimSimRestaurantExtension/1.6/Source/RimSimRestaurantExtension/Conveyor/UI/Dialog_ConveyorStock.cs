@@ -97,14 +97,14 @@ namespace RimSimRestaurantExtension.Conveyor.UI
             Find.WindowStack.Add(new FloatMenu(options));
         }
 
-        //选择现成食品来源，职责是限定本店食品柜或绑定后厨。
+        //选择现成食品来源，职责是限定本店食品柜或店内储存架。
         private void AddStock()
         {
             var shop = belt.Line.Shop;
             if (shop == null) return;
             var options = new List<FloatMenuOption>
             {
-                new FloatMenuOption("绑定后厨储存区", () => Find.WindowStack.Add(new Dialog_ConveyorFoodPicker(
+                new FloatMenuOption("商店区域内的储存架", () => Find.WindowStack.Add(new Dialog_ConveyorFoodPicker(
                     DefDatabase<ThingDef>.AllDefsListForReading, food => draft.Add(new ConveyorStockRule
                     { food = food, price = Mathf.Max(1f, food.BaseMarketValue * 1.5f) }))))
             };

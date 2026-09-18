@@ -4,7 +4,7 @@
     <ThingDef ParentName="BuildingBase">
         <defName>RSR_Refrigerator</defName>
         <label>餐厅冰箱</label>
-        <description>厨房专用冷藏库存。通电只暂停腐坏，断电后继续按环境温度腐坏。厨师优先使用冰箱内食材。补货从本店绑定的后厨储存区取货，未配置品种不会自动补货。</description>
+        <description>厨房专用冷藏库存。通电只暂停腐坏，断电后继续按环境温度腐坏。厨师优先使用冰箱内食材。补货从本店商店区域内的储存架取货，未配置品种不会自动补货。</description>
         <thingClass>RimSimRestaurantExtension.Buildings.Building_RestaurantStorage</thingClass>
         <designationCategory>SimManagementBuildings</designationCategory>
         <tickerType>Normal</tickerType>
@@ -68,7 +68,7 @@
         <defName>RSR_WallCabinet</defName>
         <uiIconPath>Things/Building/Restaurant/WallCabinet/RSR_WallCabinet_south</uiIconPath>
         <label>壁挂橱柜</label>
-        <description>餐厅配送专用商品柜。设置库存目标、售价与上架状态后，由服务员送到顾客桌面。补货从本店绑定的后厨储存区取货，未配置品种不会自动补货。</description>
+        <description>餐厅配送专用商品柜。设置库存目标、售价与上架状态后，由服务员送到顾客桌面。补货从本店商店区域内的储存架取货，未配置品种不会自动补货。</description>
         <thingClass>RimSimRestaurantExtension.Buildings.Building_RestaurantStorage</thingClass>
         <designationCategory>SimManagementBuildings</designationCategory>
         <tickerType>Normal</tickerType>
@@ -131,7 +131,7 @@
         <defName>RSR_WallWineCabinet</defName>
         <uiIconPath>Things/Building/Restaurant/WallWineCabinet/RSR_WallWineCabinet_south</uiIconPath>
         <label>壁挂酒柜</label>
-        <description>餐厅配送专用商品柜。设置库存目标、售价与上架状态后，由服务员送到顾客桌面。补货从本店绑定的后厨储存区取货，未配置品种不会自动补货。</description>
+        <description>餐厅配送专用商品柜。设置库存目标、售价与上架状态后，由服务员送到顾客桌面。补货从本店商店区域内的储存架取货，未配置品种不会自动补货。</description>
         <thingClass>RimSimRestaurantExtension.Buildings.Building_RestaurantStorage</thingClass>
         <designationCategory>SimManagementBuildings</designationCategory>
         <tickerType>Normal</tickerType>
@@ -190,7 +190,7 @@
     <ThingDef ParentName="BuildingBase">
         <defName>RSR_KitchenStorageCabinet</defName>
         <label>落地厨房杂物柜</label>
-        <description>餐厅配送专用商品柜。设置库存目标、售价与上架状态后，由服务员送到顾客桌面。补货从本店绑定的后厨储存区取货，未配置品种不会自动补货。</description>
+        <description>餐厅配送专用商品柜。设置库存目标、售价与上架状态后，由服务员送到顾客桌面。补货从本店商店区域内的储存架取货，未配置品种不会自动补货。</description>
         <thingClass>RimSimRestaurantExtension.Buildings.Building_RestaurantStorage</thingClass>
         <designationCategory>SimManagementBuildings</designationCategory>
         <tickerType>Normal</tickerType>

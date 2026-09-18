@@ -92,8 +92,7 @@ namespace RimSimRestaurantExtension.Conveyor.Stocking
             {
                 var shop = RestaurantOrderUtility.FindShopById(pawn.Map, task.shopId);
                 Thing food = pawn.carryTracker.CarriedThing;
-                var cells = RestaurantStockUtility.Pantries(shop).Where(z => z.GetStoreSettings().AllowedToAccept(food))
-                    .SelectMany(z => z.Cells).Where(c => c.GetItemCount(pawn.Map) == 0
+                var cells = RestaurantKitchenStorage.Cells(shop).Where(c => RestaurantKitchenStorage.Accepts(shop, c, food)
                         && pawn.CanReserveAndReach(c, PathEndMode.OnCell, Danger.Some)).OrderBy(c => c.DistanceToSquared(pawn.Position)).ToList();
                 if (cells.Count == 0) { DropCarried(); ReadyForNextToil(); return; }
                 job.SetTarget(TargetIndex.C, cells[0]);

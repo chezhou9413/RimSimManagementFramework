@@ -16,7 +16,6 @@ namespace RimSimRestaurantExtension.GameComp
         public int maxServiceWaitTicks = 12000;
         public int maxOrderRounds = 3;
         public int reorderIntervalTicks = 1200;
-        public List<int> pantryZoneIds = new List<int>();
         public bool useCustomerPreferences = true;
         public float preferenceStrength = 1f;
         public List<RestaurantMenuItem> menuItems = new List<RestaurantMenuItem>();
@@ -31,7 +30,6 @@ namespace RimSimRestaurantExtension.GameComp
             Scribe_Values.Look(ref maxServiceWaitTicks, "maxServiceWaitTicks", 12000);
             Scribe_Values.Look(ref maxOrderRounds, "maxOrderRounds", 3);
             Scribe_Values.Look(ref reorderIntervalTicks, "reorderIntervalTicks", 1200);
-            Scribe_Collections.Look(ref pantryZoneIds, "pantryZoneIds", LookMode.Value);
             Scribe_Values.Look(ref useCustomerPreferences, "useCustomerPreferences", true);
             Scribe_Values.Look(ref preferenceStrength, "preferenceStrength", 1f);
             Scribe_Collections.Look(ref menuItems, "menuItems", LookMode.Deep);
@@ -98,7 +96,6 @@ namespace RimSimRestaurantExtension.GameComp
                 maxServiceWaitTicks = maxServiceWaitTicks,
                 maxOrderRounds = maxOrderRounds,
                 reorderIntervalTicks = reorderIntervalTicks,
-                pantryZoneIds = new List<int>(pantryZoneIds),
                 useCustomerPreferences = useCustomerPreferences,
                 preferenceStrength = preferenceStrength,
                 menuItems = menuItems?
@@ -121,7 +118,6 @@ namespace RimSimRestaurantExtension.GameComp
             maxServiceWaitTicks = source.maxServiceWaitTicks;
             maxOrderRounds = source.maxOrderRounds;
             reorderIntervalTicks = source.reorderIntervalTicks;
-            pantryZoneIds = new List<int>(source.pantryZoneIds);
             useCustomerPreferences = source.useCustomerPreferences;
             preferenceStrength = source.preferenceStrength;
             menuItems = source.menuItems?

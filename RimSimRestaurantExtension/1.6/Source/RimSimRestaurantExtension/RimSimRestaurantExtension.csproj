@@ -129,7 +129,7 @@
     <Compile Include="Dining\RestaurantDiningSession.cs" />
     <Compile Include="Inventory\RestaurantProductMenuUtility.cs" />
     <Compile Include="Inventory\RestaurantProductDef.cs" />
-    <Compile Include="Inventory\RestaurantPantryConfiguration.cs" />
+    <Compile Include="Inventory\RestaurantKitchenStorage.cs" />
     <Compile Include="Inventory\RestaurantOrderStock.cs" />
     <Compile Include="Inventory\RestaurantIngredientToils.cs" />
     <Compile Include="Inventory\RestaurantIngredientPlacement.cs" />

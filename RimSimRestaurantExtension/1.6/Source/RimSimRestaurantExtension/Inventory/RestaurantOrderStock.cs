@@ -84,14 +84,14 @@ namespace RimSimRestaurantExtension.Inventory
             if (!order.stockProduct && reserved.Any(t => t.Thing != null && !t.Thing.Destroyed
                 && !IsWithdrawn(order, t.Thing, map) && !IsCurrentKitchenSource(currentShop, t.Thing)))
             {
-                RestaurantOrderUtility.FailOrder(order, "已预留食材的冰箱或后厨储存区已失效");
+                RestaurantOrderUtility.FailOrder(order, "已预留食材的冰箱或店内储存架已失效");
                 return;
             }
             if (reserved.Count == 0 && !order.stockProduct && order.state == RestaurantOrderState.WaitingCook)
             {
                 if (Find.TickManager.TicksGame < order.nextCookingAttemptTick) return;
                 var shop = RestaurantOrderUtility.FindShopById(map, order.shopZoneId);
-                if (!Reserve(order, shop)) order.blockReason = "制作中断后，绑定货源暂时不足";
+                if (!Reserve(order, shop)) order.blockReason = "制作中断后，店内后厨货源暂时不足";
                 return;
             }
             int invalid = reserved.FindIndex(t => t.Thing == null || t.Thing.Destroyed || t.Count <= 0 || t.Count > t.Thing.stackCount);
@@ -114,13 +114,13 @@ namespace RimSimRestaurantExtension.Inventory
                     || cook.CurJob.placedThings?.Any(t => t.thing == thing) == true);
         }
 
-        //核对尚未取出的食材来源，职责是感知储存区删除、范围调整和冰箱拆除。
+        //核对尚未取出的食材来源，职责是感知商店范围调整、储存架和冰箱拆除。
         private static bool IsCurrentKitchenSource(Zone_Shop shop, Thing thing)
         {
             if (shop == null) return false;
             if (thing.ParentHolder is Buildings.Building_RestaurantStorage fridge)
                 return fridge.Spawned && fridge.IsRefrigerator && fridge.Shop == shop && fridge.AllowsInventoryItem(thing.def);
-            return thing.Spawned && RestaurantStockUtility.Pantries(shop).Any(z => z.ContainsCell(thing.Position));
+            return RestaurantKitchenStorage.Contains(shop, thing);
         }
 
         //释放订单所有实物预留，职责是不改变已生成餐品的身份。

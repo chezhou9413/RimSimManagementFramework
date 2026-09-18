@@ -10,17 +10,9 @@ using Verse;
 using Verse.AI;
 namespace RimSimRestaurantExtension.Inventory
 {
-    //解析厨房真实货源，职责是统一冰箱优先级、后厨绑定和跨店预留查询。
+    //解析厨房真实货源，职责是统一冰箱优先级、店内储存架和跨店预留查询。
     public static class RestaurantStockUtility
     {
-        //取得同地图仍然存在的绑定原版储存区。
-        public static IEnumerable<Zone_Stockpile> Pantries(Zone_Shop shop)
-        {
-            if (shop?.Map == null) return Enumerable.Empty<Zone_Stockpile>();
-            var ids = RestaurantOrderUtility.Settings.GetOrCreate(shop.ID).pantryZoneIds;
-            return shop.Map.zoneManager.AllZones.OfType<Zone_Stockpile>().Where(z => ids.Contains(z.ID));
-        }
-
         //取得本店餐厅货柜，职责是保留不同柜体的来源身份。
         public static IEnumerable<Building_RestaurantStorage> Cabinets(Zone_Shop shop)
         {
@@ -52,9 +44,7 @@ namespace RimSimRestaurantExtension.Inventory
             var fridges = Cabinets(shop).Where(c => c.IsRefrigerator && c.AllowsInventoryItem(item))
                 .OrderBy(c => c.Position.DistanceToSquared(origin))
                 .SelectMany(c => c.GetDirectlyHeldThings().Cast<Thing>().Where(t => t.def == item));
-            var zones = Pantries(shop).ToList();
-            var ground = shop.Map.listerThings.ThingsOfDef(item)
-                .Where(t => t.Spawned && zones.Any(z => z.ContainsCell(t.Position)))
+            var ground = RestaurantKitchenStorage.Items(shop).Where(t => t.def == item)
                 .OrderBy(t => t.Position.DistanceToSquared(origin));
             var ledger = shop.Map.GetComponent<MapComponent_InventoryReservations>();
             return fridges.Concat(ground).Where(t => Reachable(actor, t) && ledger.Available(t) > 0);

@@ -75,18 +75,30 @@ namespace RimSimRestaurantExtension.Tool
             result = IntVec3.Invalid;
             if (pawn?.Map == null || shop?.Cells == null) return false;
 
-            List<IntVec3> candidates = shop.Cells
-                .Where(cell => cell.Standable(pawn.Map)
-                    && !cell.IsForbidden(pawn)
-                    && pawn.CanReach(cell, PathEndMode.OnCell, Danger.Some)
-                    && pawn.CanReserve(cell))
-                .OrderBy(cell => cell.DistanceToSquared(near))
-                .Take(16)
-                .ToList();
+            //续班优先保留已预约的位置，避免同岗员工反复交换站位。
+            if (pawn.CurJobDef == DefOfRefs.RSR_RestaurantStandby
+                && pawn.CurJob.targetA.Cell == pawn.Position && shop.ContainsCell(pawn.Position)
+                && CanStandAt(pawn, pawn.Position))
+            {
+                result = pawn.Position;
+                return true;
+            }
+            //先按距离排序，再逐格验证路径，避免每次派工对全店格子执行寻路检查。
+            foreach (var cell in shop.Cells.OrderBy(c => c.DistanceToSquared(near)))
+            {
+                if (!CanStandAt(pawn, cell)) continue;
+                result = cell;
+                return true;
+            }
+            return false;
+        }
 
-            if (candidates.Count <= 0) return false;
-            result = candidates[0];
-            return true;
+        //核对站位可用性，职责是避让顾客座椅、储存架、建筑主体及其他员工预约。
+        private static bool CanStandAt(Pawn pawn, IntVec3 cell)
+        {
+            return cell.Standable(pawn.Map) && cell.GetEdifice(pawn.Map) == null
+                && !cell.IsForbidden(pawn) && pawn.CanReserve(cell)
+                && pawn.CanReach(cell, PathEndMode.OnCell, Danger.Some);
         }
     }
 }

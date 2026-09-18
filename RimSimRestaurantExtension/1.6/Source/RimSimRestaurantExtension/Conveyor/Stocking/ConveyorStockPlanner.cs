@@ -101,23 +101,22 @@ namespace RimSimRestaurantExtension.Conveyor.Stocking
             {
                 if (source.ParentHolder is Buildings.Building_RestaurantStorage fridge)
                     return fridge.Spawned && fridge.IsRefrigerator && fridge.Shop == shop && fridge.AllowsInventoryItem(source.def);
-                return source.Spawned && RestaurantStockUtility.Pantries(shop).Any(z => z.ContainsCell(source.Position));
+                return RestaurantKitchenStorage.Contains(shop, source);
             }
             var rule = task.destination.Line.rules.FirstOrDefault(r => r.id == task.ruleId && r.enabled);
             if (rule == null) return false;
             return rule.cabinet != null
                 ? rule.cabinet.Shop == shop && source.ParentHolder == rule.cabinet && rule.cabinet.AllowsInventoryItem(source.def)
-                : source.Spawned && RestaurantStockUtility.Pantries(shop).Any(z => z.ContainsCell(source.Position));
+                : RestaurantKitchenStorage.Contains(shop, source);
         }
 
-        //筛选食品柜或绑定后厨现货，职责是排除其他预留及传送带回流。
+        //筛选食品柜或店内储存架现货，职责是排除其他预留及传送带回流。
         private static List<ThingCount> SelectStock(Zone_Shop shop, ConveyorStockRule rule, Pawn pawn)
         {
             var candidates = rule.cabinet != null
                 ? RestaurantStockUtility.Cabinets(shop).Where(c => c == rule.cabinet && !c.IsRefrigerator)
                     .SelectMany(c => c.GetDirectlyHeldThings().Cast<Thing>())
-                : RestaurantStockUtility.Pantries(shop).SelectMany(z => z.Cells)
-                    .SelectMany(c => c.GetThingList(shop.Map)).Where(t => t.def.category == ThingCategory.Item).Distinct();
+                : RestaurantKitchenStorage.Items(shop);
             var ledger = shop.Map.GetComponent<MapComponent_InventoryReservations>();
             var result = new List<ThingCount>();
             int left = rule.portions;

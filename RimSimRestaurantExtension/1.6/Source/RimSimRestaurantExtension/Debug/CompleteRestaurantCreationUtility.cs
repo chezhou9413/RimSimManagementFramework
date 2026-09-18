@@ -139,7 +139,7 @@ namespace RimSimRestaurantExtension.Debug
             settings.maxServiceWaitTicks = 12000;
             settings.maxWaitTicks = 12000;
             settings.Normalize();
-            if (!CompleteRestaurantPantryUtility.TryConfigure(map, shop, kitchenCells, settings, stockPlan, out failReason))
+            if (!CompleteRestaurantPantryUtility.TryConfigure(map, shop, kitchenCells, stockPlan, out failReason))
                 return false;
 
             string conveyorResult = "";

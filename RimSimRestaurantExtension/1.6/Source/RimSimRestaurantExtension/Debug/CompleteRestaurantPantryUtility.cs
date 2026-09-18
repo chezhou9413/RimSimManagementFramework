@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using RimSimRestaurantExtension.GameComp;
 using RimSimRestaurantExtension.Inventory;
 using RimWorld;
 using SimManagementLib.SimThingComp;
@@ -13,9 +12,9 @@ namespace RimSimRestaurantExtension.Debug
     //配置样板餐厅后厨和库存，职责是从调试场景中的真实食材填充冰箱并上架酒水。
     internal static class CompleteRestaurantPantryUtility
     {
-        //绑定已规划的后厨空地并配置补货目标，职责是保留柜体的商店归属并报告配置失败原因。
+        //将后厨食材格布置成店内储存架并配置补货目标，职责是保留整店区域和库存归属。
         public static bool TryConfigure(Map map, Zone_Shop shop, IReadOnlyList<IntVec3> cells,
-            RestaurantShopSettings settings, Dictionary<ThingDef, int> stock, out string failReason)
+            Dictionary<ThingDef, int> stock, out string failReason)
         {
             failReason = "";
             var cabinets = RestaurantStockUtility.Cabinets(shop).ToList();
@@ -28,26 +27,24 @@ namespace RimSimRestaurantExtension.Debug
             }
             if (cells.Count == 0)
             {
-                failReason = "样板餐厅没有可划为后厨货源的空地";
+                failReason = "样板餐厅没有可放置后厨储存架的空地";
                 return false;
             }
 
-            var pantry = new Zone_Stockpile(StorageSettingsPreset.DefaultStockpile, map.zoneManager);
-            pantry.label = "样板餐厅后厨货源";
-            map.zoneManager.RegisterZone(pantry);
+            var shelfDef = ThingDefOf.ShelfSmall;
             foreach (IntVec3 cell in cells)
             {
-                shop.RemoveCell(cell);
-                pantry.AddCell(cell);
+                var shelf = (Building_Storage)CompleteRestaurantCreationUtility.SpawnBuilding(map, shelfDef, cell, Rot4.North);
+                shelf.GetStoreSettings().filter.SetDisallowAll();
+                foreach (var item in stock.Keys) shelf.GetStoreSettings().filter.SetAllow(item, true);
+                shelf.GetStoreSettings().filter.SetAllow(DefDatabase<ThingDef>.GetNamed("Beer"), true);
             }
-            settings.pantryZoneIds.Add(pantry.ID);
             var targets = stock.ToDictionary(p => p.Key.defName, p => new GoodsItemData
             { enabled = true, count = Math.Min(p.Value, 500), restockThreshold = 50, price = 1 });
             fridge.Goods.ApplySettings(fridge.CatalogId, targets);
             foreach (var pair in stock)
             {
-                var source = map.listerThings.ThingsOfDef(pair.Key)
-                    .FirstOrDefault(t => t.Spawned && pantry.ContainsCell(t.Position));
+                var source = RestaurantKitchenStorage.Items(shop).FirstOrDefault(t => t.def == pair.Key);
                 if (source == null)
                 {
                     failReason = "后厨货源缺少样板食材：" + pair.Key.defName;

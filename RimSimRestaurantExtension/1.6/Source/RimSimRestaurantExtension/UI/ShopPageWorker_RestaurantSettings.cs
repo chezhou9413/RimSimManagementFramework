@@ -50,7 +50,7 @@ namespace RimSimRestaurantExtension.UI
                 Widgets.CheckboxLabeled(new Rect(rect.x, y, 118f, h), "启用餐厅", ref state.draft.enabled);
                 bool narrow = rect.width < 500f;
                 if (RestaurantUiStyle.DrawSecondaryButton(new Rect(narrow ? rect.xMax - 110f : rect.x + 126f, y, 110f, h), "运行参数"))
-                    Find.WindowStack.Add(new Dialog_RestaurantParameters(state.draft, context.Shop));
+                    Find.WindowStack.Add(new Dialog_RestaurantParameters(state.draft));
                 if (narrow) y += h + 8f;
                 if (RestaurantUiStyle.DrawSecondaryButton(new Rect(narrow ? rect.x : rect.x + 244f, y, 100f, h), "传送带管理"))
                     OpenConveyors(context);
@@ -102,8 +102,6 @@ namespace RimSimRestaurantExtension.UI
             var shop = (context as ShopManagerUiContext)?.Shop;
             if (state == null || shop == null) return;
             RestaurantOrderUtility.Settings.GetOrCreate(shop.ID).CopyFrom(state.draft);
-            foreach (var cabinet in Inventory.RestaurantStockUtility.Cabinets(shop)) cabinet.MarkRestockQueueDirty(null, "后厨绑定变化");
-            Inventory.RestaurantPantryConfiguration.Apply(shop);
             RestaurantBusinessAvailability.Reset();
             RestaurantMenuUtility.ResetSelections();
             shop.InvalidateShopRuntimeCache();

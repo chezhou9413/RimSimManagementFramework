@@ -43,20 +43,18 @@ namespace RimSimRestaurantExtension.WorkGivers
             if (RestaurantOrderUtility.HasBlockingPriorityJobOrNeed(pawn)) return false;
 
             Zone_Shop shop = SimShopServiceApi.FindShop(provider.Map, provider.Position);
-            if (shop == null || !RestaurantOrderUtility.CanRestaurantStaffWorkAt(shop)) return false;
+            if (shop == null || !RestaurantOrderUtility.CanRestaurantStaffWorkAt(shop)
+                || !RestaurantOrderUtility.Settings.GetOrCreate(shop.ID).enabled) return false;
             if (!SimShopStaffApi.IsAssignedToWorkGiver(shop, pawn, def)) return false;
 
             bool waiter = def == DefOfRefs.RSR_WorkGiver_RestaurantWaiterStandby;
             if (!RestaurantStandbyUtility.TryFindStandbyCell(pawn, shop, waiter, out IntVec3 cell, out Thing focus))
                 return false;
-            if (pawn.Position == cell) return false;
-
-            JobDef jobDef = DefOfRefs.RSR_RestaurantStandby ?? DefDatabase<JobDef>.GetNamedSilentFail("RSR_RestaurantStandby");
-            if (jobDef == null) return false;
-            job = JobMaker.MakeJob(jobDef, cell);
+            //已到岗仍需生成值班工作，否则工作树会继续选择店外任务。
+            job = JobMaker.MakeJob(DefOfRefs.RSR_RestaurantStandby, cell);
             if (focus != null) job.SetTarget(TargetIndex.B, focus);
-            job.expiryInterval = 420;
-            job.checkOverrideOnExpire = true;
+            job.SetTarget(TargetIndex.C, provider);
+            job.workGiverDef = def;
             return true;
         }
     }

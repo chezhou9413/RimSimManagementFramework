@@ -40,7 +40,7 @@ namespace SimManagementLib.SimAI.CustomerVisit
             };
         }
 
-        //创建立即强制退出地图的结果。
+        //请求结束当前访问并交给独立离图职责，职责是保留顾客实物直到其走出地图。
         public static CustomerVisitTickResult ForceExit(string reason)
         {
             return new CustomerVisitTickResult

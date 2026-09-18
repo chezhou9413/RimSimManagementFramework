@@ -48,7 +48,8 @@ namespace RimSimRestaurantExtension.Debug
             line.paused = false;
             line.notice = "";
 
-            //现货不进入冰箱补货目标，保留在绑定后厨，供厨师走现货搬运分支。
+            //现货保留在店内储存架，供厨师搬运补餐，储存过滤器同步接受回收餐品。
+            sourceCell.GetSlotGroup(map).Settings.filter.SetAllow(readyRule.Food, true);
             Thing reserve = ThingMaker.MakeThing(readyRule.Food);
             reserve.stackCount = Math.Min(30, readyRule.Food.stackLimit);
             GenSpawn.Spawn(reserve, sourceCell, map);

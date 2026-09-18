@@ -3,7 +3,7 @@
   <SimManagementLib.SimDef.ShopStaffRoleDef>
     <defName>RSR_Role_RestaurantChef</defName>
     <label>餐厅厨师</label>
-    <description>优先取用本店冰箱的预留食材，不足时使用绑定后厨储存区。制作后将整单餐品送入接待与出餐台，已出餐订单只恢复运输。</description>
+    <description>优先取用本店冰箱的预留食材，不足时使用店内储存架。制作后将整单餐品送入接待与出餐台，已出餐订单只恢复运输。</description>
     <maxAssignedPawns>2</maxAssignedPawns>
     <requiredThingDefs>
       <li>RSR_RestaurantOrderCounter</li>

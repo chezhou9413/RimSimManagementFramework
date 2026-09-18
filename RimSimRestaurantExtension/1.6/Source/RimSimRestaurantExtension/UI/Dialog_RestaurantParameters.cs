@@ -1,8 +1,5 @@
-using System.Linq;
 using RimSimRestaurantExtension.GameComp;
-using RimWorld;
 using SimManagementLib.Api;
-using SimManagementLib.SimZone;
 using UnityEngine;
 using Verse;
 
@@ -13,15 +10,13 @@ namespace RimSimRestaurantExtension.UI
     {
         private readonly RestaurantShopSettings target;
         private readonly RestaurantShopSettings draft;
-        private readonly Zone_Shop shop;
         private Vector2 scroll;
         public override Vector2 InitialSize => new Vector2(Mathf.Min(620f, Verse.UI.screenWidth - 48f), Mathf.Min(740f, Verse.UI.screenHeight - 48f));
 
         //建立参数副本，职责是让取消子窗口丢弃本次参数编辑。
-        public Dialog_RestaurantParameters(RestaurantShopSettings target, Zone_Shop shop)
+        public Dialog_RestaurantParameters(RestaurantShopSettings target)
         {
             this.target = target;
-            this.shop = shop;
             draft = target.Clone();
             doCloseX = true;
             closeOnAccept = false;
@@ -37,10 +32,13 @@ namespace RimSimRestaurantExtension.UI
                 float h = RestaurantUiStyle.ControlHeight();
                 float top = ShopUiVisualUtility.DrawPageHeading(rect, "餐厅运行参数", "确认返回商店管理后，点击统一保存才会生效。", true);
                 float footer = rect.height - h;
-                var zones = shop.Map.zoneManager.AllZones.OfType<Zone_Stockpile>().ToList();
                 float line = RestaurantUiStyle.LineHeight(GameFont.Small);
+                const string kitchenHint = "将储存架放入商店区域，即可自动供厨房取料、传送带现货补餐及货柜补货。冰箱仍优先供料；桌面餐品和普通散落物品不会作为后厨库存。";
+                Text.Font = GameFont.Small;
+                Text.WordWrap = true;
+                float hintHeight = Text.CalcHeight(kitchenHint, rect.width - 32f);
                 float height = 3f * (h + 8f) + 2f * (h + 8f) + 6f * (line + h + 12f)
-                    + Mathf.Max(1, zones.Count) * (h + 6f) + line + 12f;
+                    + hintHeight + 12f;
                 Rect outer = new Rect(0, top, rect.width, Mathf.Max(0f, footer - top - 12f));
                 Rect view = new Rect(0, 0, rect.width - 16f, Mathf.Max(outer.height, height));
                 Widgets.BeginScrollView(outer, ref scroll, view);
@@ -61,22 +59,11 @@ namespace RimSimRestaurantExtension.UI
                     draft.reorderIntervalTicks = Mathf.RoundToInt(Slider(view.width, ref y, "追加用餐间隔", draft.reorderIntervalTicks / 60 + " 秒",
                         draft.reorderIntervalTicks / 60f, 2f, 200f, 2f) * 60f);
                     y = Section(view.width, y, "后厨货源");
-                    ShopUiVisualUtility.DrawCellLabel(new Rect(8f, y, view.width - 16f, line), "绑定的储存区同时供厨房取料、传送带现货与货柜补货。", RestaurantUiStyle.MutedText);
-                    y += line + 12f;
-                    if (zones.Count == 0)
-                        ShopUiVisualUtility.DrawCellLabel(new Rect(8f, y, view.width - 16f, h), "地图上还没有储存区。", RestaurantUiStyle.MutedText);
-                    for (int i = 0; i < zones.Count; i++)
-                    {
-                        var zone = zones[i];
-                        var row = new Rect(0, y, view.width, h);
-                        bool selected = draft.pantryZoneIds.Contains(zone.ID);
-                        ShopUiVisualUtility.DrawTableRowBackground(row, i, selected);
-                        Widgets.CheckboxLabeled(new Rect(8f, y, view.width - 16f, h), (zone.label + " · " + zone.CellCount + " 格").Truncate(view.width - 56f), ref selected);
-                        TooltipHandler.TipRegion(row, zone.label);
-                        if (selected && !draft.pantryZoneIds.Contains(zone.ID)) draft.pantryZoneIds.Add(zone.ID);
-                        if (!selected) draft.pantryZoneIds.Remove(zone.ID);
-                        y += h + 6f;
-                    }
+                    GUI.color = RestaurantUiStyle.MutedText;
+                    Text.Anchor = TextAnchor.UpperLeft;
+                    Text.WordWrap = true;
+                    Widgets.Label(new Rect(8f, y, view.width - 16f, hintHeight), kitchenHint);
+                    GUI.color = Color.white;
                 }
                 finally { Widgets.EndScrollView(); }
                 if (RestaurantUiStyle.DrawSecondaryButton(new Rect(0, footer, 110f, h), "取消")) Close();
@@ -117,7 +104,6 @@ namespace RimSimRestaurantExtension.UI
             target.maxWaitTicks = draft.maxWaitTicks;
             target.maxOrderRounds = draft.maxOrderRounds;
             target.reorderIntervalTicks = draft.reorderIntervalTicks;
-            target.pantryZoneIds = draft.pantryZoneIds.ToList();
             Close();
         }
     }

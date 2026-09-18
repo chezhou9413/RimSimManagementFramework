@@ -87,7 +87,7 @@ namespace RimSimRestaurantExtension.Conveyor.UI
 
         //显示食品来源，职责是让制作与搬运分支拥有清晰可读的名称。
         private static string Source(ConveyorStockRule rule) =>
-            rule.menu != null ? "菜谱 · 厨房制作" : rule.cabinet != null ? "现货 · " + rule.cabinet.LabelCap : "现货 · 绑定后厨储存区";
+            rule.menu != null ? "菜谱 · 厨房制作" : rule.cabinet != null ? "现货 · " + rule.cabinet.LabelCap : "现货 · 店内储存架";
 
         //保留数字输入缓冲，职责是避免重绘覆盖正在编辑的数量。
         private void Number(Rect rect, string key, ref int value, int minimum, int maximum)
