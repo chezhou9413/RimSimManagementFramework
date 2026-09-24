@@ -6,6 +6,7 @@ using RimSimRestaurantExtension.Models;
 using RimSimRestaurantExtension.Tool;
 using RimWorld;
 using SimManagementLib.Api;
+using UnityEngine;
 using Verse;
 using Verse.AI;
 
@@ -25,8 +26,19 @@ namespace RimSimRestaurantExtension.Jobs
             if (session == null || session.IsTerminal || session.customerId != pawn.thingIDNumber
                 || !RestaurantSessionUtility.Validate(session, pawn.Map, out _)) return false;
             job.SetTarget(TargetIndex.B, session.seat);
-            job.SetTarget(TargetIndex.C, RestaurantDiningSpotUtility.FindTableById(pawn.Map, session.tableId));
+            Thing table = RestaurantDiningSpotUtility.FindTableById(pawn.Map, session.tableId);
+            //长桌的建筑中心不一定紧邻座位，进食目标必须使用本人餐位旁的桌面格。
+            IntVec3 tableCell = GenAdj.CardinalDirections.Select(direction => session.seat + direction)
+                .First(cell => table.OccupiedRect().Contains(cell));
+            job.SetTarget(TargetIndex.C, tableCell);
             return pawn.ReserveSittableOrSpot(session.seat, job, errorOnFailed);
+        }
+
+        //复用原版进食绘制，职责是将支持桌面进食的餐品显示在相邻桌面并保留食物自身的手持规则。
+        public override bool ModifyCarriedThingDrawPos(ref Vector3 drawPos, ref bool flip)
+        {
+            return JobDriver_Ingest.ModifyCarriedThingDrawPosWorker(ref drawPos, ref flip,
+                job.GetTarget(TargetIndex.C).Cell, pawn);
         }
 
         //构造会话循环，职责是所有取物发生于私人桌面容器而不离开餐位。
@@ -141,6 +153,9 @@ namespace RimSimRestaurantExtension.Jobs
             { RestaurantOrderUtility.FailOrder(order, "本人餐品无法从托盘转到手中"); return; }
             meal.SetForbidden(false, false);
             job.SetTarget(TargetIndex.A, meal);
+            //与原版寻找进食桌面一致，让有朝向的餐品面向实际用餐格。
+            if (meal.def.rotatable)
+                meal.Rotation = Rot4.FromIntVec3(job.GetTarget(TargetIndex.C).Cell - pawn.Position);
             job.count = meal.stackCount;
             job.ingestTotalCount = true;
         }
