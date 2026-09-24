@@ -1,0 +1,23 @@
+﻿<LanguageData>
+  <RSR_WorkGiver_BringRestaurantMealToPass.gerund>Hauling finished meals</RSR_WorkGiver_BringRestaurantMealToPass.gerund>
+  <RSR_WorkGiver_BringRestaurantMealToPass.label>Haul meals to serving counter</RSR_WorkGiver_BringRestaurantMealToPass.label>
+  <RSR_WorkGiver_BringRestaurantMealToPass.verb>Serve</RSR_WorkGiver_BringRestaurantMealToPass.verb>
+  <RSR_WorkGiver_CookRestaurantOrder.gerund>Cooking restaurant order</RSR_WorkGiver_CookRestaurantOrder.gerund>
+  <RSR_WorkGiver_CookRestaurantOrder.label>Cook restaurant order</RSR_WorkGiver_CookRestaurantOrder.label>
+  <RSR_WorkGiver_CookRestaurantOrder.verb>Cook</RSR_WorkGiver_CookRestaurantOrder.verb>
+  <RSR_WorkGiver_DeliverRestaurantOrder.gerund>Delivering meal to customer</RSR_WorkGiver_DeliverRestaurantOrder.gerund>
+  <RSR_WorkGiver_DeliverRestaurantOrder.label>Deliver restaurant order</RSR_WorkGiver_DeliverRestaurantOrder.label>
+  <RSR_WorkGiver_DeliverRestaurantOrder.verb>Deliver</RSR_WorkGiver_DeliverRestaurantOrder.verb>
+  <RSR_WorkGiver_RestaurantChefStandby.gerund>Standing by in restaurant kitchen</RSR_WorkGiver_RestaurantChefStandby.gerund>
+  <RSR_WorkGiver_RestaurantChefStandby.label>Restaurant chef standby</RSR_WorkGiver_RestaurantChefStandby.label>
+  <RSR_WorkGiver_RestaurantChefStandby.verb>Stand by</RSR_WorkGiver_RestaurantChefStandby.verb>
+  <RSR_WorkGiver_RestaurantWaiterStandby.gerund>Standing by in restaurant front of house</RSR_WorkGiver_RestaurantWaiterStandby.gerund>
+  <RSR_WorkGiver_RestaurantWaiterStandby.label>Restaurant waiter standby</RSR_WorkGiver_RestaurantWaiterStandby.label>
+  <RSR_WorkGiver_RestaurantWaiterStandby.verb>Stand by</RSR_WorkGiver_RestaurantWaiterStandby.verb>
+  <RSR_WorkGiver_StockSushiConveyor.gerund>Restocking or clearing restaurant conveyor</RSR_WorkGiver_StockSushiConveyor.gerund>
+  <RSR_WorkGiver_StockSushiConveyor.label>Restock restaurant conveyor</RSR_WorkGiver_StockSushiConveyor.label>
+  <RSR_WorkGiver_StockSushiConveyor.verb>Restock</RSR_WorkGiver_StockSushiConveyor.verb>
+  <RSR_WorkGiver_TakeRestaurantOrder.gerund>Taking order from customer</RSR_WorkGiver_TakeRestaurantOrder.gerund>
+  <RSR_WorkGiver_TakeRestaurantOrder.label>Serve restaurant customers</RSR_WorkGiver_TakeRestaurantOrder.label>
+  <RSR_WorkGiver_TakeRestaurantOrder.verb>Serve</RSR_WorkGiver_TakeRestaurantOrder.verb>
+</LanguageData>

@@ -17,4 +17,5 @@
   <loadAfter>
     <li>chezhou.Framework.RimSimManagementFramework</li>
   </loadAfter>
+  <modIconPath IgnoreIfNoMatchingField="True">Things/Icon/Mod_Icon</modIconPath>
 </ModMetaData>
