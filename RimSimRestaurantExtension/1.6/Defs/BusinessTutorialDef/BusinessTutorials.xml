@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <SimManagementLib.SimDef.BusinessTutorialDef>
+    <defName>Sim_BusinessTutorial_StartBusinessRestaurants</defName>
+    <label>How to Start Business Restaurants</label>
+    <order>800</order>
+    <titleKey>RSMF.Business.Tutorial.StartBusinessRestaurants.Title</titleKey>
+    <title>怎么建立一个餐厅</title>
+    <textBeforeImageKey>RSMF.Business.Tutorial.StartBusinessRestaurants.BeforeImage</textBeforeImageKey>
+    <textBeforeImage>划定一个室内商店区，并在区域里放置一个收银台，一个餐厅接待与出餐台，一个炉灶以及至少一套桌椅。</textBeforeImage>
+    <textAfterImageKey>RSMF.Business.Tutorial.StartBusinessRestaurants.AfterImage</textAfterImageKey>
+    <textAfterImage>进入商店管理中的餐厅设置界面，编辑你想要上架的菜品\n在这个室内商店区内放置一个储存架并在其中储存所需食材，即可开始营业</textAfterImage>
+  </SimManagementLib.SimDef.BusinessTutorialDef>
+
+</Defs>

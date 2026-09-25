@@ -1,0 +1,6 @@
+﻿<LanguageData>
+  <RSR_Role_RestaurantChef.description>Prefers to use reserved ingredients in this store's refrigerator, falling back to store storage shelves when insufficient. After cooking, brings the entire order to the reception and serving counter; already-served orders only resume transport.</RSR_Role_RestaurantChef.description>
+  <RSR_Role_RestaurantChef.label>Restaurant Chef</RSR_Role_RestaurantChef.label>
+  <RSR_Role_RestaurantWaiter.description>Prefers to take meals from the serving counter or in-stock goods from product cabinets and deliver them to the corresponding customer's table tray; next, takes first or additional orders at the table; stands by when idle.</RSR_Role_RestaurantWaiter.description>
+  <RSR_Role_RestaurantWaiter.label>Restaurant Waiter</RSR_Role_RestaurantWaiter.label>
+</LanguageData>
