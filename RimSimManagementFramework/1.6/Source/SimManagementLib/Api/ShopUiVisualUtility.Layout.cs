@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using UnityEngine;
 using Verse;
 
@@ -105,7 +106,7 @@ namespace SimManagementLib.Api
         }
 
         //绘制带清空操作的搜索栏，职责是让核心和扩展使用统一字段尺寸与操作样式。
-        public static string DrawSearchField(Rect rect, string value, string tip = "搜索名称")
+        public static string DrawSearchField(Rect rect, string value, string tip = null)
         {
             GameFont oldFont = Text.Font;
             TextAnchor oldAnchor = Text.Anchor;
@@ -117,11 +118,16 @@ namespace SimManagementLib.Api
                 Text.Anchor = TextAnchor.MiddleLeft;
                 Text.WordWrap = false;
                 GUI.color = Color.white;
-                DrawCellLabel(new Rect(rect.x, rect.y, 46f, rect.height), "搜索", MutedText);
-                Rect field = new Rect(rect.x + 50f, rect.y, Mathf.Max(1f, rect.width - 120f), rect.height);
+                string searchLabel = SimTranslation.T("RSMF.Search.Label");
+                string clearLabel = SimTranslation.T("RSMF.Search.Clear");
+                float labelWidth = Mathf.Min(Text.CalcSize(searchLabel).x + 8f, rect.width * 0.25f);
+                float clearWidth = Mathf.Min(Mathf.Max(62f, Text.CalcSize(clearLabel).x + 20f), rect.width * 0.3f);
+                DrawCellLabel(new Rect(rect.x, rect.y, labelWidth, rect.height), searchLabel, MutedText);
+                Rect field = new Rect(rect.x + labelWidth + 4f, rect.y,
+                    Mathf.Max(1f, rect.width - labelWidth - clearWidth - 12f), rect.height);
                 string result = Widgets.TextField(field, value ?? "");
-                TooltipHandler.TipRegion(field, tip);
-                if (DrawSecondaryButton(new Rect(rect.xMax - 62f, rect.y, 62f, rect.height), "清空", !result.NullOrEmpty())) result = "";
+                TooltipHandler.TipRegion(field, tip ?? SimTranslation.T("RSMF.Search.Hint"));
+                if (DrawSecondaryButton(new Rect(rect.xMax - clearWidth, rect.y, clearWidth, rect.height), clearLabel, !result.NullOrEmpty())) result = "";
                 return result;
             }
             finally { Restore(oldFont, oldAnchor, oldWrap, oldColor); }

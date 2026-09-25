@@ -31,7 +31,7 @@ namespace SimManagementLib.SimDialog
             List<BusinessTutorialDef> tutorials = GetTutorials();
             if (tutorials.Count == 0)
             {
-                ShopUiLayoutUtility.DrawEmptyState(rect, SimTranslation.TOrFallback("RSMF.Business.Tutorial.Empty", "没有配置教程。"));
+                ShopUiLayoutUtility.DrawEmptyState(rect, SimTranslation.T("RSMF.Business.Tutorial.Empty"));
                 return;
             }
 
@@ -221,7 +221,7 @@ namespace SimManagementLib.SimDialog
                 Text.Anchor = TextAnchor.MiddleCenter;
                 Text.WordWrap = true;
                 GUI.color = new Color(0.72f, 0.72f, 0.72f, 1f);
-                Widgets.Label(rect.ContractedBy(8f), SimTranslation.TOrFallback("RSMF.Business.Tutorial.ImageMissing", "图片未找到"));
+                Widgets.Label(rect.ContractedBy(8f), SimTranslation.T("RSMF.Business.Tutorial.ImageMissing"));
             }
             finally
             {
@@ -241,13 +241,13 @@ namespace SimManagementLib.SimDialog
             Rect nextRect = new Rect(prevRect.xMax + 8f, y, 92f, buttonHeight);
             Rect pageRect = new Rect(nextRect.xMax + 8f, y, rect.width - 216f, buttonHeight);
 
-            if (SimUiStyle.DrawSecondaryButton(prevRect, SimTranslation.TOrFallback("RSMF.Common.PreviousPage", "上一页"), pageIndex > 0, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(prevRect, SimTranslation.T("RSMF.Common.PreviousPage"), pageIndex > 0, GameFont.Tiny))
             {
                 pageIndex--;
                 context.ScrollPosition = Vector2.zero;
             }
 
-            if (SimUiStyle.DrawSecondaryButton(nextRect, SimTranslation.TOrFallback("RSMF.Common.NextPage", "下一页"), pageIndex < pageCount - 1, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(nextRect, SimTranslation.T("RSMF.Common.NextPage"), pageIndex < pageCount - 1, GameFont.Tiny))
             {
                 pageIndex++;
                 context.ScrollPosition = Vector2.zero;

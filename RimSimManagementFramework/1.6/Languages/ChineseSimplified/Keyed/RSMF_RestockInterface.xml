@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.RestockPanel.Title>补货队列调试</RSMF.RestockPanel.Title>
+  <RSMF.RestockPanel.NoMap>当前没有地图。</RSMF.RestockPanel.NoMap>
+  <RSMF.RestockPanel.NotExported>未导出</RSMF.RestockPanel.NotExported>
+  <RSMF.RestockPanel.Refresh>刷新</RSMF.RestockPanel.Refresh>
+  <RSMF.RestockPanel.Rebuild>重建队列</RSMF.RestockPanel.Rebuild>
+  <RSMF.RestockPanel.Copy>复制完整日志</RSMF.RestockPanel.Copy>
+  <RSMF.RestockPanel.Export>导出日志文件</RSMF.RestockPanel.Export>
+  <RSMF.RestockPanel.Close>关闭</RSMF.RestockPanel.Close>
+  <RSMF.RestockPanel.Dirty>Dirty 等待重算</RSMF.RestockPanel.Dirty>
+  <RSMF.RestockPanel.Copied>已复制完整补货日志。</RSMF.RestockPanel.Copied>
+  <RSMF.RestockPanel.Exported>已导出补货日志，并复制路径。</RSMF.RestockPanel.Exported>
+  <RSMF.RestockPanel.Ready>就绪</RSMF.RestockPanel.Ready>
+  <RSMF.RestockPanel.Blocked>等待</RSMF.RestockPanel.Blocked>
+  <RSMF.RestockPanel.RequestsTitle>需求</RSMF.RestockPanel.RequestsTitle>
+  <RSMF.RestockPanel.StateTitle>状态</RSMF.RestockPanel.StateTitle>
+  <RSMF.RestockPanel.LeaseTitle>预约 / 时长</RSMF.RestockPanel.LeaseTitle>
+  <RSMF.RestockPanel.BudgetTitle>处理预算</RSMF.RestockPanel.BudgetTitle>
+  <RSMF.RestockPanel.Summary>地图={map} 时刻={tick} 导出路径={path}</RSMF.RestockPanel.Summary>
+  <RSMF.RestockPanel.Requests>普通 {bulk}  专业 {unique}</RSMF.RestockPanel.Requests>
+  <RSMF.RestockPanel.State>就绪 {ready}  等待 {blocked}</RSMF.RestockPanel.State>
+  <RSMF.RestockPanel.Leases>预约 {count}  最老 {age}t</RSMF.RestockPanel.Leases>
+  <RSMF.RestockPanel.Limits>需求 {demand}/8  派工 {dispatch}/4\n员工 {staff}/4  查询 {reach}/4</RSMF.RestockPanel.Limits>
+  <RSMF.RestockPanel.Omitted>剩余省略: {count}</RSMF.RestockPanel.Omitted>
+  <RSMF.RestockReason.StaffNotAllowed>当前员工无权执行该货柜补货</RSMF.RestockReason.StaffNotAllowed>
+  <RSMF.RestockReason.LinkedSourceEmpty>绑定货源没有可用于补货的物资</RSMF.RestockReason.LinkedSourceEmpty>
+  <RSMF.RestockReason.WaitCabinetReach>等待货柜可达查询预算</RSMF.RestockReason.WaitCabinetReach>
+  <RSMF.RestockReason.CabinetUnreachable>当前员工无法到达货柜</RSMF.RestockReason.CabinetUnreachable>
+  <RSMF.RestockReason.InTransit>等待途中补货</RSMF.RestockReason.InTransit>
+  <RSMF.RestockReason.WaitSourceSearch>等待货源区域搜索预算</RSMF.RestockReason.WaitSourceSearch>
+  <RSMF.RestockReason.BulkSourceUnavailable>没有当前员工可用的普通货源</RSMF.RestockReason.BulkSourceUnavailable>
+  <RSMF.RestockReason.WaitDeepSearch>等待深度货源搜索</RSMF.RestockReason.WaitDeepSearch>
+  <RSMF.RestockReason.NoCarryCapacity>当前员工可搬运数量为 0</RSMF.RestockReason.NoCarryCapacity>
+  <RSMF.RestockReason.JobCreated>Job 已创建，等待预预约</RSMF.RestockReason.JobCreated>
+  <RSMF.RestockReason.UniqueInProgress>专业补货任务执行中</RSMF.RestockReason.UniqueInProgress>
+  <RSMF.RestockReason.UniqueNotSpawned>专业货源暂时不在地图上</RSMF.RestockReason.UniqueNotSpawned>
+  <RSMF.RestockReason.WaitUniqueIndex>等待专业货源索引批扫</RSMF.RestockReason.WaitUniqueIndex>
+  <RSMF.RestockReason.UniqueIneligible>专业货源当前不符合槽位条件</RSMF.RestockReason.UniqueIneligible>
+  <RSMF.RestockReason.UniqueReserved>专业货源暂时禁用或已被预约</RSMF.RestockReason.UniqueReserved>
+  <RSMF.RestockReason.WaitUniqueReach>等待专业货源可达查询预算</RSMF.RestockReason.WaitUniqueReach>
+  <RSMF.RestockReason.UniqueUnreachable>当前员工无法到达专业货源</RSMF.RestockReason.UniqueUnreachable>
+  <RSMF.RestockReason.UniqueJobCreated>专业 Job 已创建，等待预预约</RSMF.RestockReason.UniqueJobCreated>
+  <RSMF.RestockReason.WaitDispatch>等待派工</RSMF.RestockReason.WaitDispatch>
+  <RSMF.RestockReason.WaitUniqueDispatch>等待专业补货派工</RSMF.RestockReason.WaitUniqueDispatch>
+  <RSMF.RestockPanel.MissingTask>任务不存在</RSMF.RestockPanel.MissingTask>
+  <RSMF.RestockPanel.TaskDetails>{target} 缺货={needed} 货源={supply} 创建={created} 检查={checked} 重试={retry} 原因={reason}</RSMF.RestockPanel.TaskDetails>
+  <RSMF.RestockPanel.UniqueTarget>专业 货柜={storage} 槽位={slot} 货源={source}</RSMF.RestockPanel.UniqueTarget>
+  <RSMF.RestockPanel.BulkTarget>普通 货柜={storage} 商品={def}</RSMF.RestockPanel.BulkTarget>
+</LanguageData>

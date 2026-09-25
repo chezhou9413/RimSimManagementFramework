@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR_Role_RestaurantChef.description>优先取用本店冰箱的预留食材，不足时使用店内储存架。制作后将整单餐品送入接待与出餐台，已出餐订单只恢复运输。</RSR_Role_RestaurantChef.description>
+  <RSR_Role_RestaurantChef.label>餐厅厨师</RSR_Role_RestaurantChef.label>
+  <RSR_Role_RestaurantWaiter.description>优先从出餐台取餐或从商品柜提取现货，交入对应顾客的桌面托盘；其次在桌边处理首次或追加接单，空闲时值班。</RSR_Role_RestaurantWaiter.description>
+  <RSR_Role_RestaurantWaiter.label>餐厅服务员</RSR_Role_RestaurantWaiter.label>
+</LanguageData>

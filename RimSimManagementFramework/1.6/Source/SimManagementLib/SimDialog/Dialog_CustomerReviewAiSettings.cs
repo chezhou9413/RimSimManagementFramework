@@ -9,9 +9,7 @@ using Verse;
 
 namespace SimManagementLib.SimDialog
 {
-    /// <summary>
-    /// 绘制通用 LLM 设置窗口，负责统一接口配置和各类 AI 功能子面板入口。
-    /// </summary>
+    //绘制通用 LLM 设置窗口，负责统一接口配置和各类 AI 功能子面板入口。
     public partial class Dialog_CustomerReviewAiSettings : Window
     {
         private int tabIndex;
@@ -24,10 +22,7 @@ namespace SimManagementLib.SimDialog
         private Task<CustomerReviewConnectionTestResult> baseUrlTestTask;
 
         public override Vector2 InitialSize => new Vector2(1040f, 760f);
-
-        /// <summary>
-        /// 初始化顾客 AI 点评配置窗口的基础行为。
-        /// </summary>
+        //初始化顾客 AI 点评配置窗口的基础行为。
         public Dialog_CustomerReviewAiSettings()
         {
             doCloseX = true;
@@ -36,19 +31,13 @@ namespace SimManagementLib.SimDialog
             draggable = true;
             resizeable = true;
         }
-
-        /// <summary>
-        /// 关闭设置窗口前保存配置，负责避免接口配置页每帧写盘造成卡顿。
-        /// </summary>
+        //关闭设置窗口前保存配置，负责避免接口配置页每帧写盘造成卡顿。
         public override void PreClose()
         {
             base.PreClose();
             SimManagementLibMod.Settings?.Write();
         }
-
-        /// <summary>
-        /// 绘制窗口主体内容。
-        /// </summary>
+        //绘制窗口主体内容。
         public override void DoWindowContents(Rect inRect)
         {
             GameFont oldFont = Text.Font;
@@ -66,7 +55,7 @@ namespace SimManagementLib.SimDialog
                 Text.Font = GameFont.Medium;
                 Text.Anchor = TextAnchor.MiddleLeft;
                 GUI.color = Color.white;
-                Widgets.Label(new Rect(inRect.x, inRect.y, Mathf.Max(0f, inRect.width), titleH), SimTranslation.TOrFallback("RSMF.LlmSettings.Title", "通用 LLM 设置"));
+                Widgets.Label(new Rect(inRect.x, inRect.y, Mathf.Max(0f, inRect.width), titleH), SimTranslation.T("RSMF.LlmSettings.Title"));
                 ResetText();
 
                 Rect tabRect = new Rect(inRect.x, inRect.y + titleH + 6f, Mathf.Max(0f, inRect.width), 34f);
@@ -90,13 +79,14 @@ namespace SimManagementLib.SimDialog
             }
         }
 
+        //绘制设置页签，职责是切换模型接口与顾客评价设置。
         private void DrawTabs(Rect rect)
         {
             float w = 132f;
             string[] labels =
             {
-                SimTranslation.TOrFallback("RSMF.LlmSettings.Tab.Api", "LLM 设置"),
-                SimTranslation.TOrFallback("RSMF.LlmSettings.Tab.Reviews", "顾客评价")
+                SimTranslation.T("RSMF.LlmSettings.Tab.Api"),
+                SimTranslation.T("RSMF.LlmSettings.Tab.Reviews")
             };
             for (int i = 0; i < labels.Length; i++)
             {
@@ -108,10 +98,7 @@ namespace SimManagementLib.SimDialog
                 }
             }
         }
-
-        /// <summary>
-        /// 绘制当前设置页签内容，负责给接口页预留足够滚动高度。
-        /// </summary>
+        //绘制当前设置页签内容，负责给接口页预留足够滚动高度。
         private void DrawSelectedPage(Rect rect, SimManagementLibSettings settings)
         {
             float viewWidth = Mathf.Max(120f, rect.width - 18f);
@@ -139,16 +126,13 @@ namespace SimManagementLib.SimDialog
             else DrawLexiconPage(reviewViewRect, settings);
             Widgets.EndScrollView();
         }
-
-        /// <summary>
-        /// 绘制顾客评价子页签，负责把评价基础、提示词、注入器和词库设置收纳到评价子面板。
-        /// </summary>
+        //绘制顾客评价子页签，负责把评价基础、提示词、注入器和词库设置收纳到评价子面板。
         private void DrawReviewSubTabs(Rect rect)
         {
             float w = 116f;
             string[] labels =
             {
-                SimTranslation.TOrFallback("RSMF.ReviewSettings.Tab.General", "基础"),
+                SimTranslation.T("RSMF.ReviewSettings.Tab.General"),
                 SimTranslation.T("RSMF.ReviewSettings.Tab.Prompt"),
                 SimTranslation.T("RSMF.ReviewSettings.Tab.Injector"),
                 SimTranslation.T("RSMF.ReviewSettings.Tab.Lexicon")
@@ -163,14 +147,11 @@ namespace SimManagementLib.SimDialog
                 }
             }
         }
-
-        /// <summary>
-        /// 绘制通用 LLM 接口配置页，负责供应商、密钥、模型和接口测试。
-        /// </summary>
+        //绘制通用 LLM 接口配置页，负责供应商、密钥、模型和接口测试。
         private void DrawLlmApiPage(Rect rect, SimManagementLibSettings settings)
         {
             float y = 0f;
-            DrawCheckbox(new Rect(0f, y, rect.width, 28f), SimTranslation.TOrFallback("RSMF.LlmSettings.Enable", "启用通用 LLM"), ref settings.llmEnabled, SimTranslation.TOrFallback("RSMF.LlmSettings.EnableTip", "开启后，套餐取名、顾客评价和后续经营 AI 功能可以调用同一套模型接口。"));
+            DrawCheckbox(new Rect(0f, y, rect.width, 28f), SimTranslation.T("RSMF.LlmSettings.Enable"), ref settings.llmEnabled, SimTranslation.T("RSMF.LlmSettings.EnableTip"));
             y += 36f;
             DrawRimTalkImportRow(rect.width, ref y, settings);
 
@@ -199,30 +180,27 @@ namespace SimManagementLib.SimDialog
             y += 12f;
             ResetText();
         }
-
-        /// <summary>
-        /// 绘制顾客评价基础设置页，负责抽样、限速、论坛互动和重型模式配置。
-        /// </summary>
+        //绘制顾客评价基础设置页，负责抽样、限速、论坛互动和重型模式配置。
         private void DrawReviewGeneralPage(Rect rect, SimManagementLibSettings settings)
         {
             float y = 0f;
             DrawCheckbox(new Rect(0f, y, rect.width, 28f), SimTranslation.T("RSMF.ReviewSettings.EnableReviews"), ref settings.reviewAiEnabled, SimTranslation.T("RSMF.ReviewSettings.EnableReviewsTip"));
             y += 36f;
-            DrawCheckbox(new Rect(0f, y, rect.width, 28f), SimTranslation.TOrFallback("RSMF.ReviewSettings.HeavyMode", "重型评价模式（特别耗 token）"), ref settings.reviewHeavyModeEnabled, SimTranslation.TOrFallback("RSMF.ReviewSettings.HeavyModeTip", "开启后每条评价会使用独立初稿上下文和独立润色上下文，重型评价还允许玩家在评价页回复申诉。"));
+            DrawCheckbox(new Rect(0f, y, rect.width, 28f), SimTranslation.T("RSMF.ReviewSettings.HeavyMode"), ref settings.reviewHeavyModeEnabled, SimTranslation.T("RSMF.ReviewSettings.HeavyModeTip"));
             y += 30f;
             Text.Font = GameFont.Tiny;
             Text.WordWrap = true;
             GUI.color = settings.reviewHeavyModeEnabled ? new Color(1f, 0.72f, 0.38f, 1f) : new Color(0.72f, 0.76f, 0.82f, 1f);
-            float heavyTipH = Mathf.Max(Text.LineHeightOf(GameFont.Tiny), Text.CalcHeight(SimTranslation.TOrFallback("RSMF.ReviewSettings.HeavyModeWarning", "重型模式会明显增加 token 消耗：一次评价至少两次模型调用，玩家每次回复还会额外调用模型。"), rect.width - 10f));
-            Widgets.Label(new Rect(0f, y, rect.width - 10f, heavyTipH), SimTranslation.TOrFallback("RSMF.ReviewSettings.HeavyModeWarning", "重型模式会明显增加 token 消耗：一次评价至少两次模型调用，玩家每次回复还会额外调用模型。"));
+            float heavyTipH = Mathf.Max(Text.LineHeightOf(GameFont.Tiny), Text.CalcHeight(SimTranslation.T("RSMF.ReviewSettings.HeavyModeWarning"), rect.width - 10f));
+            Widgets.Label(new Rect(0f, y, rect.width - 10f, heavyTipH), SimTranslation.T("RSMF.ReviewSettings.HeavyModeWarning"));
             y += heavyTipH + 10f;
             ResetText();
-            DrawCheckbox(new Rect(0f, y, rect.width, 28f), SimTranslation.TOrFallback("RSMF.ReviewSettings.InfluenceSpawn", "评价影响顾客刷新概率"), ref settings.reviewInfluencesCustomerSpawn, SimTranslation.TOrFallback("RSMF.ReviewSettings.InfluenceSpawnTip", "默认关闭。开启后店铺评价均分会影响真实顾客刷新概率：高分更容易来客，低分会降低来客。"));
+            DrawCheckbox(new Rect(0f, y, rect.width, 28f), SimTranslation.T("RSMF.ReviewSettings.InfluenceSpawn"), ref settings.reviewInfluencesCustomerSpawn, SimTranslation.T("RSMF.ReviewSettings.InfluenceSpawnTip"));
             y += 30f;
             Text.Font = GameFont.Tiny;
             Text.WordWrap = true;
             GUI.color = settings.reviewInfluencesCustomerSpawn ? new Color(0.72f, 0.86f, 0.72f, 1f) : new Color(0.72f, 0.76f, 0.82f, 1f);
-            string influenceTip = SimTranslation.TOrFallback("RSMF.ReviewSettings.InfluenceSpawnDetail", "至少 3 条有效主评价后生效；撤回评价和楼中楼回复不会参与计算。");
+            string influenceTip = SimTranslation.T("RSMF.ReviewSettings.InfluenceSpawnDetail");
             float influenceTipH = Mathf.Max(Text.LineHeightOf(GameFont.Tiny), Text.CalcHeight(influenceTip, rect.width - 10f));
             Widgets.Label(new Rect(0f, y, rect.width - 10f, influenceTipH), influenceTip);
             y += influenceTipH + 10f;
@@ -297,6 +275,7 @@ namespace SimManagementLib.SimDialog
             ResetText();
         }
 
+        //绘制提示词设置，职责是编辑模型的根提示和消息模板。
         private void DrawPromptPage(Rect rect, SimManagementLibSettings settings)
         {
             float y = 0f;
@@ -305,6 +284,7 @@ namespace SimManagementLib.SimDialog
             DrawTextArea(rect.width, ref y, SimTranslation.T("RSMF.ReviewSettings.UserPromptTemplate"), ref settings.reviewUserPrompt, 180f);
         }
 
+        //绘制词库设置，职责是编辑昵称、语气和评价用词。
         private void DrawLexiconPage(Rect rect, SimManagementLibSettings settings)
         {
             float y = 0f;
@@ -316,6 +296,7 @@ namespace SimManagementLib.SimDialog
             DrawTextArea(rect.width, ref y, SimTranslation.T("RSMF.ReviewSettings.BannedWords"), ref settings.reviewBannedWords, 95f);
         }
 
+        //绘制底部操作，职责是提供接口检查和配置重置入口。
         private void DrawBottomButtons(Rect rect, SimManagementLibSettings settings)
         {
             bool canTestBaseUrl = settings.llmProvider == SimLlmProvider.Anthropic || !string.IsNullOrWhiteSpace(settings.llmOpenAiBaseUrl);
@@ -364,10 +345,7 @@ namespace SimManagementLib.SimDialog
             }
             ResetText();
         }
-
-        /// <summary>
-        /// 绘制 RimTalk 配置导入行，负责让玩家一键复用 RimTalk 当前有效 API 和模型设置。
-        /// </summary>
+        //绘制 RimTalk 配置导入行，负责让玩家一键复用 RimTalk 当前有效 API 和模型设置。
         private void DrawRimTalkImportRow(float width, ref float y, SimManagementLibSettings settings)
         {
             bool loaded = RimTalkConfigBridge.IsRimTalkLoaded();
@@ -391,30 +369,21 @@ namespace SimManagementLib.SimDialog
             ResetText();
             y += rowH + 10f;
         }
-
-        /// <summary>
-        /// 启动 BaseUrl 联通性测试，负责只探测玩家填写的接口地址是否能建立 HTTP 连接。
-        /// </summary>
+        //启动 BaseUrl 联通性测试，负责只探测玩家填写的接口地址是否能建立 HTTP 连接。
         private void StartBaseUrlTest(SimManagementLibSettings settings)
         {
             testingBaseUrl = true;
             connectionStatus = SimTranslation.T("RSMF.ReviewSettings.Status.TestingBaseUrl");
             baseUrlTestTask = SimLlmUtility.TestBaseUrlAsync(CopySettingsForTest(settings), CancellationToken.None);
         }
-
-        /// <summary>
-        /// 启动 API 生成测试，负责验证模型、密钥和响应解析是否可用。
-        /// </summary>
+        //启动 API 生成测试，负责验证模型、密钥和响应解析是否可用。
         private void StartApiTest(SimManagementLibSettings settings)
         {
             testingApi = true;
             connectionStatus = SimTranslation.T("RSMF.ReviewSettings.Status.TestingApi");
             apiTestTask = SimLlmUtility.TestGenerationAsync(CopySettingsForTest(settings), CancellationToken.None);
         }
-
-        /// <summary>
-        /// 复制设置给后台测试任务，负责避免后台线程读取正在被 UI 修改的设置对象。
-        /// </summary>
+        //复制设置给后台测试任务，负责避免后台线程读取正在被 UI 修改的设置对象。
         private SimManagementLibSettings CopySettingsForTest(SimManagementLibSettings settings)
         {
             SimManagementLibSettings copy = new SimManagementLibSettings();
@@ -454,10 +423,7 @@ namespace SimManagementLib.SimDialog
             copy.SanitizeReviewSettingsText();
             return copy;
         }
-
-        /// <summary>
-        /// 轮询后台测试结果，负责把完成状态显示回窗口底部。
-        /// </summary>
+        //轮询后台测试结果，负责把完成状态显示回窗口底部。
         private void PollConnectionTests()
         {
             if (testingBaseUrl && baseUrlTestTask != null && baseUrlTestTask.IsCompleted)
@@ -474,10 +440,7 @@ namespace SimManagementLib.SimDialog
                 apiTestTask = null;
             }
         }
-
-        /// <summary>
-        /// 格式化 BaseUrl 测试结果，负责生成适合底栏显示的短文本。
-        /// </summary>
+        //格式化 BaseUrl 测试结果，负责生成适合底栏显示的短文本。
         private static string FormatBaseUrlResult(Task<CustomerReviewConnectionTestResult> task)
         {
             if (task.Status != TaskStatus.RanToCompletion || task.Result == null)
@@ -486,10 +449,7 @@ namespace SimManagementLib.SimDialog
             CustomerReviewConnectionTestResult result = task.Result;
             return result.baseUrlReachable ? SimTranslation.T("RSMF.ReviewSettings.Result.BaseUrlReachable", result.statusCode.Named("statusCode")) : result.message;
         }
-
-        /// <summary>
-        /// 格式化 API 测试结果，负责提示玩家区分地址、密钥、模型和 JSON 解析问题。
-        /// </summary>
+        //格式化 API 测试结果，负责提示玩家区分地址、密钥、模型和 JSON 解析问题。
         private static string FormatApiResult(Task<CustomerReviewConnectionTestResult> task)
         {
             if (task.Status != TaskStatus.RanToCompletion || task.Result == null)
@@ -505,6 +465,7 @@ namespace SimManagementLib.SimDialog
             return SimTranslation.T("RSMF.ReviewSettings.Result.GenerationFailed");
         }
 
+        //绘制单行输入字段，职责是显示标签并按需隐藏密钥内容。
         private static void DrawTextField(float width, ref float y, string label, ref string value, bool secret)
         {
             Text.Font = GameFont.Tiny;
@@ -522,6 +483,7 @@ namespace SimManagementLib.SimDialog
             ResetText();
         }
 
+        //绘制多行输入区域，职责是编辑长文本并推进布局位置。
         private static void DrawTextArea(float width, ref float y, string label, ref string value, float height)
         {
             GameFont oldFont = Text.Font;
@@ -547,12 +509,14 @@ namespace SimManagementLib.SimDialog
             }
         }
 
+        //绘制设置开关，职责是同步布尔值并展示说明。
         private static void DrawCheckbox(Rect rect, string label, ref bool value, string tooltip)
         {
             Widgets.CheckboxLabeled(rect, label, ref value);
             if (!string.IsNullOrEmpty(tooltip)) TooltipHandler.TipRegion(rect, tooltip);
         }
 
+        //恢复默认文本绘制状态，职责是隔离设置控件的字体和颜色。
         private static void ResetText()
         {
             Text.Anchor = TextAnchor.UpperLeft;

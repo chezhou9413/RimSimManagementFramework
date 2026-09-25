@@ -6,17 +6,12 @@ using Verse;
 
 namespace SimManagementLib.SimDialog
 {
-    /// <summary>
-    /// 展示未读公告弹窗，负责一次性呈现本次联网发现的新公告。
-    /// </summary>
+    //展示未读公告弹窗，负责一次性呈现本次联网发现的新公告。
     public sealed class Dialog_Announcements : Window
     {
         private readonly List<AnnouncementNetworkItemData> announcements;
         private Vector2 scrollPos;
-
-        /// <summary>
-        /// 初始化公告弹窗，负责复制公告列表并配置标准关闭按钮。
-        /// </summary>
+        //初始化公告弹窗，负责复制公告列表并配置标准关闭按钮。
         public Dialog_Announcements(List<AnnouncementNetworkItemData> announcements)
         {
             this.announcements = announcements ?? new List<AnnouncementNetworkItemData>();
@@ -25,14 +20,11 @@ namespace SimManagementLib.SimDialog
             closeOnAccept = true;
             closeOnCancel = true;
             absorbInputAroundWindow = false;
-            optionalTitle = SimTranslation.TOrFallback("RSMF.Announcement.PopupTitle", "Announcements");
+            optionalTitle = SimTranslation.T("RSMF.Announcement.PopupTitle");
         }
 
         public override Vector2 InitialSize => new Vector2(760f, 560f);
-
-        /// <summary>
-        /// 绘制公告弹窗内容，负责用滚动区域避免长正文裁剪到底部关闭按钮。
-        /// </summary>
+        //绘制公告弹窗内容，负责用滚动区域避免长正文裁剪到底部关闭按钮。
         public override void DoWindowContents(Rect inRect)
         {
             GameFont oldFont = Text.Font;
@@ -52,10 +44,7 @@ namespace SimManagementLib.SimDialog
                 GUI.color = oldColor;
             }
         }
-
-        /// <summary>
-        /// 绘制公告列表，负责按正文实际高度创建滚动视图。
-        /// </summary>
+        //绘制公告列表，负责按正文实际高度创建滚动视图。
         private void DrawAnnouncementList(Rect rect)
         {
             if (announcements.NullOrEmpty())
@@ -64,7 +53,7 @@ namespace SimManagementLib.SimDialog
                 Text.Font = GameFont.Small;
                 Text.WordWrap = true;
                 GUI.color = Color.white;
-                Widgets.Label(rect, SimTranslation.TOrFallback("RSMF.Announcement.EmptyUnread", "No new announcements."));
+                Widgets.Label(rect, SimTranslation.T("RSMF.Announcement.EmptyUnread"));
                 return;
             }
 

@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System.Linq;
 using RimSimRestaurantExtension.Models;
 using RimSimRestaurantExtension.Tool;
@@ -35,7 +36,7 @@ namespace RimSimRestaurantExtension.Dining
             if (action == null) return false;
             if (session.Amount <= 0)
             {
-                RestaurantSessionUtility.Abort(session, session.reason.NullOrEmpty() ? "没有已接受的商品，本次用餐结束" : session.reason);
+                RestaurantSessionUtility.Abort(session, session.reason.NullOrEmpty() ? SimTranslation.T("RSR.Issue.NoAcceptedGoods") : session.reason);
                 return true;
             }
             if (!QueueBill(customer, session, action)) return false;

@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System.Collections.Generic;
 using System.Linq;
 using RimSimRestaurantExtension.GameComp;
@@ -17,27 +18,27 @@ namespace RimSimRestaurantExtension.UI
             List<RestaurantOrder> active, int menuCount, int stoves)
         {
             string issue = RestaurantBusinessAvailability.Snapshot(shop);
-            return issue.NullOrEmpty() ? "正常：当前设施、员工、库存与餐位检查通过。" : issue;
+            return issue.NullOrEmpty() ? SimTranslation.T("RSR.UI.AllChecksPassed") : issue;
         }
 
-        //返回状态中文标签，职责是避免界面泄露内部枚举名。
+        //返回当前语言的状态标签，职责是避免界面泄露内部枚举名。
         public static string StateLabel(RestaurantOrderState state)
         {
             switch (state)
             {
-                case RestaurantOrderState.WaitingCook: return "待制作";
-                case RestaurantOrderState.Cooking: return "制作中";
-                case RestaurantOrderState.ReadyToDeliver: return "待送餐";
-                case RestaurantOrderState.Delivering: return "送餐中";
-                case RestaurantOrderState.GoingToSeat: return "前往座位";
-                case RestaurantOrderState.WaitingOrder: return "等待接单";
-                case RestaurantOrderState.TakingOrder: return "接单中";
-                case RestaurantOrderState.ChefBringingToPass: return "厨师出餐中";
-                case RestaurantOrderState.AwaitingCheckout: return "待付款";
-                case RestaurantOrderState.Dining: return "用餐中";
-                case RestaurantOrderState.Completed: return "已完成";
-                case RestaurantOrderState.Canceled: return "已取消";
-                default: return "失败";
+                case RestaurantOrderState.WaitingCook: return SimTranslation.T("RSR.State.WaitingCook");
+                case RestaurantOrderState.Cooking: return SimTranslation.T("RSR.State.Cooking");
+                case RestaurantOrderState.ReadyToDeliver: return SimTranslation.T("RSR.State.ReadyToDeliver");
+                case RestaurantOrderState.Delivering: return SimTranslation.T("RSR.State.Delivering");
+                case RestaurantOrderState.GoingToSeat: return SimTranslation.T("RSR.State.Seating");
+                case RestaurantOrderState.WaitingOrder: return SimTranslation.T("RSR.State.WaitingOrder");
+                case RestaurantOrderState.TakingOrder: return SimTranslation.T("RSR.State.TakingOrder");
+                case RestaurantOrderState.ChefBringingToPass: return SimTranslation.T("RSR.State.BringingToPass");
+                case RestaurantOrderState.AwaitingCheckout: return SimTranslation.T("RSR.State.AwaitingCheckout");
+                case RestaurantOrderState.Dining: return SimTranslation.T("RSR.State.Eating");
+                case RestaurantOrderState.Completed: return SimTranslation.T("RSR.State.Completed");
+                case RestaurantOrderState.Canceled: return SimTranslation.T("RSR.State.Canceled");
+                default: return SimTranslation.T("RSR.State.Failed");
             }
         }
 

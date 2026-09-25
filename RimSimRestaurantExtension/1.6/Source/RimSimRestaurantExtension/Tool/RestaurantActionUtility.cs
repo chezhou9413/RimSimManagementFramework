@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using RimSimRestaurantExtension.Models;
 using SimManagementLib.Api;
 using Verse;
@@ -37,7 +38,7 @@ namespace RimSimRestaurantExtension.Tool
             if (restaurantOrder == null || restaurantOrder.actionOrderId <= 0) return;
             CustomerActionOrder actionOrder = SimShopCustomerApi.GetActionOrder(restaurantOrder.actionOrderId);
             if (actionOrder == null || !actionOrder.IsActiveState) return;
-            SimShopCustomerApi.CancelActionOrder(actionOrder, reason ?? "餐厅动作中断", failed);
+            SimShopCustomerApi.CancelActionOrder(actionOrder, reason ?? SimTranslation.T("RSR.Issue.ActionInterrupted"), failed);
         }
     }
 }

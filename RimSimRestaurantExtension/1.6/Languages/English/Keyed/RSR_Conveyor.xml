@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR.Conveyor.CapacityNotice>Plate targets exceed line capacity. Adjust stock settings.</RSR.Conveyor.CapacityNotice>
+  <RSR.Conveyor.MergeNotice>Lines merged, keeping the older line's settings. Check stock targets.</RSR.Conveyor.MergeNotice>
+  <RSR.Conveyor.MultipleInputs>A standard conveyor cannot accept multiple upstream inputs.</RSR.Conveyor.MultipleInputs>
+  <RSR.Conveyor.SplitNotice>Line split. Check stock targets before resuming restocking.</RSR.Conveyor.SplitNotice>
+</LanguageData>

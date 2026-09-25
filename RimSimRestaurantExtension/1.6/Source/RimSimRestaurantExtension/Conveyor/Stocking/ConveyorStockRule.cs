@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System;
 using RimSimRestaurantExtension.Buildings;
 using RimSimRestaurantExtension.Models;
@@ -16,7 +17,7 @@ namespace RimSimRestaurantExtension.Conveyor.Stocking
         public int portions = 1, target = 1;
         public float price = 1f;
         public ThingDef Food => menu?.MealDef ?? food;
-        public string Label => menu?.DisplayLabel ?? food?.LabelCap.RawText ?? "无效食品";
+        public string Label => menu?.DisplayLabel ?? food?.LabelCap.RawText ?? SimTranslation.T("RSR.Food.InvalidFood");
 
         //复制线路规则，职责是让拆分线路保留来源但独立调整数量和售价。
         public ConveyorStockRule Clone() => new ConveyorStockRule

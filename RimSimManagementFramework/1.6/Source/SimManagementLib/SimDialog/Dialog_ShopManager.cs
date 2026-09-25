@@ -14,6 +14,7 @@ using Verse;
 
 namespace SimManagementLib.SimDialog
 {
+    //管理商店配置窗口，职责是组织各配置页面并保存玩家选择。
     public partial class Dialog_ShopManager : Window
     {
         private const float SidebarW = 190f;
@@ -136,10 +137,7 @@ namespace SimManagementLib.SimDialog
             uiContext.PageSelector = SwitchPage;
             EnsureUiPages();
         }
-
-        /// <summary>
-        /// 为商店总管收集指定货柜可管理的商品定义，负责给套餐页和货柜列表提供稳定的商品全集。
-        /// </summary>
+        //为商店总管收集指定货柜可管理的商品定义，负责给套餐页和货柜列表提供稳定的商品全集。
         private void RegisterStorageAvailableGoods(ThingComp_GoodsData comp, HashSet<string> addedDefNames)
         {
             if (comp == null || addedDefNames == null) return;
@@ -155,10 +153,7 @@ namespace SimManagementLib.SimDialog
                 }
             }
         }
-
-        /// <summary>
-        /// 返回指定货柜当前可管理的分类列表，负责兼容已配置分类、受限分类和通用货柜三种情况。
-        /// </summary>
+        //返回指定货柜当前可管理的分类列表，负责兼容已配置分类、受限分类和通用货柜三种情况。
         private IEnumerable<string> GetManageableCategoryIds(ThingComp_GoodsData comp)
         {
             if (comp == null)
@@ -186,10 +181,7 @@ namespace SimManagementLib.SimDialog
                     yield return category.categoryId;
             }
         }
-
-        /// <summary>
-        /// 校正当前选中的货柜编号，负责在货柜被拆除或列表变化后让货柜管理页仍然指向有效目标。
-        /// </summary>
+        //校正当前选中的货柜编号，负责在货柜被拆除或列表变化后让货柜管理页仍然指向有效目标。
         private void EnsureSelectedStorageValid()
         {
             storages = storages
@@ -203,16 +195,14 @@ namespace SimManagementLib.SimDialog
 
             selectedStorageThingId = storages.FirstOrDefault()?.thingIDNumber ?? -1;
         }
-
-        /// <summary>
-        /// 返回当前在商店总管中选中的货柜，负责让货柜页、套餐页和定位操作复用同一目标。
-        /// </summary>
+        //返回当前在商店总管中选中的货柜，负责让货柜页、套餐页和定位操作复用同一目标。
         private Building_SimContainer GetSelectedStorage()
         {
             if (selectedStorageThingId < 0) return null;
             return storages.FirstOrDefault(storage => storage.thingIDNumber == selectedStorageThingId);
         }
 
+        //绘制商店管理窗口，职责是协调导航、内容区和底部操作。
         public override void DoWindowContents(Rect inRect)
         {
             PollComboAiNameTask();
@@ -252,10 +242,7 @@ namespace SimManagementLib.SimDialog
             priceJustCalculated = false;
             DrawBottomBar(bottomRect);
         }
-
-        /// <summary>
-        /// 确保店铺管理页面缓存有效，负责从 Def/API 拉取当前可见页。
-        /// </summary>
+        //确保店铺管理页面缓存有效，负责从 Def/API 拉取当前可见页。
         private void EnsureUiPages()
         {
             if (!uiPages.NullOrEmpty() && !SimShopUiApi.ConsumeRefreshRequest())
@@ -271,35 +258,26 @@ namespace SimManagementLib.SimDialog
                 curPageDefName = uiPages[0].defName;
             NotifyPageOpened(GetCurrentUiPage());
         }
-
-        /// <summary>
-        /// 返回当前选中的 UI 页面 Def。
-        /// </summary>
+        //返回当前选中的 UI 页面 Def。
         private ShopUiPageDef GetCurrentUiPage()
         {
             return uiPages.FirstOrDefault(page => page.defName == curPageDefName) ?? uiPages.FirstOrDefault();
         }
-
-        /// <summary>
-        /// 绘制当前 UI 页面，负责隔离外部 Worker 异常。
-        /// </summary>
+        //绘制当前 UI 页面，负责隔离外部 Worker 异常。
         private void DrawCurrentUiPage(Rect rect)
         {
             ShopUiPageDef page = GetCurrentUiPage();
             if (page == null)
             {
-                ShopUiLayoutUtility.DrawEmptyState(rect, SimTranslation.TOrFallback("RSMF.ShopUi.Empty.NoPages", "No available pages."));
+                ShopUiLayoutUtility.DrawEmptyState(rect, SimTranslation.T("RSMF.ShopUi.Empty.NoPages"));
                 return;
             }
 
             SimShopUiApi.SafeInvoke(page, uiContext, "DrawPage", worker => worker?.DrawPage(rect, uiContext));
             if (uiContext.LastException != null)
-                ShopUiLayoutUtility.DrawErrorState(rect, SimTranslation.TOrFallback("RSMF.ShopUi.Error.PageDrawFailed", "Page drawing failed."), uiContext.LastException.Message);
+                ShopUiLayoutUtility.DrawErrorState(rect, SimTranslation.T("RSMF.ShopUi.Error.PageDrawFailed"), uiContext.LastException.Message);
         }
-
-        /// <summary>
-        /// 切换到指定页面，负责触发打开生命周期并重置列表滚动。
-        /// </summary>
+        //切换到指定页面，负责触发打开生命周期并重置列表滚动。
         private void SwitchPage(string defName)
         {
             if (string.IsNullOrEmpty(defName))
@@ -311,19 +289,13 @@ namespace SimManagementLib.SimDialog
             listScroll = Vector2.zero;
             NotifyPageOpened(GetCurrentUiPage());
         }
-
-        /// <summary>
-        /// 通知页面已打开，负责触发 Def Worker 的打开生命周期。
-        /// </summary>
+        //通知页面已打开，负责触发 Def Worker 的打开生命周期。
         private void NotifyPageOpened(ShopUiPageDef page)
         {
             if (page == null) return;
             SimShopUiApi.SafeInvoke(page, uiContext, "OnOpen", worker => worker?.OnOpen(uiContext));
         }
-
-        /// <summary>
-        /// 关闭窗口前清理 UI API 上下文和异步请求。
-        /// </summary>
+        //关闭窗口前清理 UI API 上下文和异步请求。
         public override void PreClose()
         {
             CancelComboAiNameRequest();

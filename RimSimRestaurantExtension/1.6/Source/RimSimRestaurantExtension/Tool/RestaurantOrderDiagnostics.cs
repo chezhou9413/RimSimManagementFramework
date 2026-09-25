@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System.Linq;
 using RimSimRestaurantExtension.Models;
 using SimManagementLib.Api;
@@ -23,9 +24,9 @@ namespace RimSimRestaurantExtension.Tool
             if (order.state == RestaurantOrderState.WaitingOrder)
             {
                 if (!RestaurantStaffAvailabilityUtility.HasStaffForWorkGiver(shop, DefOfRefs.RSR_WorkGiver_TakeRestaurantOrder))
-                    order.blockReason = "当前没有可工作的接单服务员";
+                    order.blockReason = SimTranslation.T("RSR.Issue.NoOrderWaiter");
                 else if (!RestaurantStaffAvailabilityUtility.HasWaiterForOrder(shop, order))
-                    order.blockReason = "顾客旁的交谈位置受阻或已被预约";
+                    order.blockReason = SimTranslation.T("RSR.Issue.ConversationBlocked");
             }
             if (order.state == RestaurantOrderState.ReadyToDeliver)
             {
@@ -34,7 +35,7 @@ namespace RimSimRestaurantExtension.Tool
                     && SimShopStaffApi.IsAssignedToWorkGiver(shop, pawn, DefOfRefs.RSR_WorkGiver_DeliverRestaurantOrder)
                     && RestaurantMealTransferUtility.CanCollect(pawn, order)
                     && RestaurantDiningSpotUtility.TryFindDeliveryCell(pawn, order, out _));
-                if (!deliverable) order.blockReason = "暂无服务员能够完整取餐并到达顾客旁";
+                if (!deliverable) order.blockReason = SimTranslation.T("RSR.Issue.NoDeliveryWaiter");
             }
         }
     }

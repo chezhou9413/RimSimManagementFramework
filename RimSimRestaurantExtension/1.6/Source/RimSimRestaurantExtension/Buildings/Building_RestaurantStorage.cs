@@ -27,8 +27,8 @@ namespace RimSimRestaurantExtension.Buildings
         public override IEnumerable<ThingDef> ActiveDefs => GoodsCatalog.GetItems(CatalogId).Select(i => i.thingDef);
         public override LocalTargetInfo InventoryInteractionTarget => Settings.wallMounted ? (LocalTargetInfo)Position : this;
         public override PathEndMode InventoryInteractionEndMode => Settings.wallMounted ? PathEndMode.OnCell : PathEndMode.Touch;
-        public override string RestockSourceIssue => Shop == null ? "货柜未放在餐厅商店区域内"
-            : RestaurantKitchenStorage.Cells(Shop).Any() ? "" : "商店区域内尚未放置后厨储存架";
+        public override string RestockSourceIssue => Shop == null ? SimTranslation.T("RSR.Issue.CabinetOutsideShop")
+            : RestaurantKitchenStorage.Cells(Shop).Any() ? "" : SimTranslation.T("RSR.Issue.NoKitchenShelves");
 
         //判断物品是否属于建筑配置并被玩家允许。
         public override bool AllowsInventoryItem(ThingDef item)
@@ -87,7 +87,7 @@ namespace RimSimRestaurantExtension.Buildings
         protected override string BuildContainerInspectString(string baseStr)
         {
             return base.BuildContainerInspectString(baseStr) + "\n"
-                + (IsRefrigerator ? IsCooling ? "厨房冷藏库存：通电保鲜" : "厨房冷藏库存：断电，按环境温度腐坏" : "餐厅配送库存")
+                + (IsRefrigerator ? IsCooling ? SimTranslation.T("RSR.Building.Refrigerated") : SimTranslation.T("RSR.Building.RefrigeratorUnpowered") : SimTranslation.T("RSR.Building.DeliveryStock"))
                 + (RestockSourceIssue.NullOrEmpty() ? "" : "\n" + RestockSourceIssue);
         }
     }

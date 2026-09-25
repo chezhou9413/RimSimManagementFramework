@@ -1,11 +1,10 @@
+using SimManagementLib.Tool;
 using SimManagementLib.SimService;
 using Verse;
 
 namespace SimManagementLib.Pojo
 {
-    /// <summary>
-    /// 保存顾客一次服务消费的订单数据，负责在存档中追踪服务定义、建筑、费用、计费模式和订单状态。
-    /// </summary>
+    //保存顾客一次服务消费的订单数据，负责在存档中追踪服务定义、建筑、费用、计费模式和订单状态。
     public class CustomerServiceOrder : IExposable
     {
         public int orderId;
@@ -22,10 +21,7 @@ namespace SimManagementLib.Pojo
         public int completedTick;
         public int paidTick;
         public bool reviewEnqueued;
-
-        /// <summary>
-        /// 返回该订单是否已经发生实际服务使用，发生后不能像未使用订单一样直接取消。
-        /// </summary>
+        //返回该订单是否已经发生实际服务使用，发生后不能像未使用订单一样直接取消。
         public bool HasBeenUsed
         {
             get
@@ -36,10 +32,7 @@ namespace SimManagementLib.Pojo
                     || state == ServiceOrderState.CheckoutFailed;
             }
         }
-
-        /// <summary>
-        /// 将服务订单读写到存档，缺失字段会使用兼容旧存档的安全默认值。
-        /// </summary>
+        //将服务订单读写到存档，缺失字段会使用兼容旧存档的安全默认值。
         public void ExposeData()
         {
             Scribe_Values.Look(ref orderId, "orderId", 0);
@@ -62,7 +55,7 @@ namespace SimManagementLib.Pojo
                 if (count <= 0) count = 1;
                 if (unitPrice < 0f) unitPrice = 0f;
                 if (totalPrice < 0f) totalPrice = 0f;
-                if (string.IsNullOrEmpty(providerLabel)) providerLabel = "服务建筑";
+                if (string.IsNullOrEmpty(providerLabel)) providerLabel = SimTranslation.T("RSMF.Service.ProviderFallback");
             }
         }
     }

@@ -9,9 +9,7 @@ using Verse.AI;
 
 namespace SimManagementLib.Api
 {
-    /// <summary>
-    /// 提供顾客行为动作的可继承逻辑，负责控制动作可见性、目标选择、Job 创建、账单和完成回调。
-    /// </summary>
+    //提供顾客行为动作的可继承逻辑，负责控制动作可见性、目标选择、Job 创建、账单和完成回调。
     public class CustomerActionWorker
     {
         public CustomerActionDef def;
@@ -22,27 +20,27 @@ namespace SimManagementLib.Api
             reason = "";
             if (def == null || !def.defaultEnabled)
             {
-                reason = "动作未启用";
+                reason = SimTranslation.T("RSMF.Api.Error.ActionDisabled");
                 return false;
             }
             if (context?.customer == null || context.shop == null || !context.HasValidVisit)
             {
-                reason = "顾客上下文无效";
+                reason = SimTranslation.T("RSMF.Api.Error.ContextInvalid");
                 return false;
             }
             if (!MatchesCustomerKind(context))
             {
-                reason = "顾客类型不匹配";
+                reason = SimTranslation.T("RSMF.Api.Error.KindMismatch");
                 return false;
             }
             if (!MatchesInterest(context))
             {
-                reason = "顾客兴趣不匹配";
+                reason = SimTranslation.T("RSMF.Api.Error.InterestMismatch");
                 return false;
             }
             if (!HasRequiredThing(context))
             {
-                reason = "店铺缺少动作目标";
+                reason = SimTranslation.T("RSMF.Api.Error.ActionTargetMissing");
                 return false;
             }
             return true;
@@ -114,12 +112,12 @@ namespace SimManagementLib.Api
             reason = "";
             if (context?.order == null)
             {
-                reason = "动作订单无效";
+                reason = SimTranslation.T("RSMF.Api.Error.ActionOrderInvalid");
                 return false;
             }
             if (context.customer == null)
             {
-                reason = "顾客无效";
+                reason = SimTranslation.T("RSMF.Api.Error.CustomerInvalid");
                 return false;
             }
             return true;

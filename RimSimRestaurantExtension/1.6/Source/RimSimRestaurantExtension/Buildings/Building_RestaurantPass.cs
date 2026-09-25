@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System.Collections.Generic;
 using System.Linq;
 using RimSimRestaurantExtension.Tool;
@@ -42,7 +43,7 @@ namespace RimSimRestaurantExtension.Buildings
                 .Where(item => !item.IsTerminal && item.state != Models.RestaurantOrderState.AwaitingCheckout
                     && item.providerThingId == thingIDNumber).ToList()
                 ?? new List<Models.RestaurantOrder>())
-                RestaurantOrderUtility.FailOrder(order, "接待与出餐台已移除");
+                RestaurantOrderUtility.FailOrder(order, SimTranslation.T("RSR.Issue.PassRemoved"));
             if (Spawned) meals.TryDropAll(Position, Map, ThingPlaceMode.Near);
             base.DeSpawn(mode);
         }
@@ -50,7 +51,7 @@ namespace RimSimRestaurantExtension.Buildings
         //显示待出餐数量，职责是帮助玩家确认厨师已经交入实物。
         public override string GetInspectString()
         {
-            return base.GetInspectString() + "\n待取餐品：" + meals.Count;
+            return base.GetInspectString() + SimTranslation.T("RSR.Building.WaitingMeals", (meals.Count).Named("count"));
         }
     }
 }

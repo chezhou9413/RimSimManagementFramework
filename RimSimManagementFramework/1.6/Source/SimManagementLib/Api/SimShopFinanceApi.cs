@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using SimManagementLib.GameComp;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimThingClass;
@@ -19,15 +20,15 @@ namespace SimManagementLib.Api
         {
             if (customer == null || shop == null || order == null || order.orderId <= 0
                 || order.customerThingId != customer.thingIDNumber || order.shopZoneId != shop.ID)
-                return SimApiResult.Fail("动作订单与顾客或商店不匹配");
+                return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.ActionOwnerMismatch"));
             if (!ReferenceEquals(order, SimShopCustomerApi.GetActionOrder(order.orderId)))
-                return SimApiResult.Fail("必须使用框架管理器保存的动作订单");
+                return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.ActionOrderNotManaged"));
             if (count <= 0 || amount <= 0f || float.IsNaN(amount) || float.IsInfinity(amount)
                 || cost < 0f || float.IsNaN(cost) || float.IsInfinity(cost))
-                return SimApiResult.Fail("动作账单数量、金额或成本无效");
+                return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.ActionBillInvalid"));
             if (order.billRegistered && order.financeRegistered) return SimApiResult.Success();
             if (Manager == null || SimShopCustomerApi.GetCurrentShop(customer) != shop)
-                return SimApiResult.Fail("财务管理器或顾客当前商店不可用");
+                return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.FinanceContextUnavailable"));
             if (!order.billRegistered)
             {
                 SimApiResult result = SimShopCustomerApi.AddCustomerBill(customer, amount);
@@ -67,10 +68,10 @@ namespace SimManagementLib.Api
         public static SimApiResult QueueCostedServiceSale(Pawn customer, Zone_Shop zone, string serviceDefName,
             string serviceLabel, int count, float amount, float cost)
         {
-            if (customer == null) return SimApiResult.Fail("顾客无效");
-            if (string.IsNullOrEmpty(serviceDefName)) return SimApiResult.Fail("服务定义名无效");
-            if (count <= 0 || amount <= 0f) return SimApiResult.Fail("数量和金额必须大于零");
-            if (Manager == null) return SimApiResult.Fail("财务管理器不可用");
+            if (customer == null) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.CustomerInvalid"));
+            if (string.IsNullOrEmpty(serviceDefName)) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.ServiceNameInvalid"));
+            if (count <= 0 || amount <= 0f) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.PositiveQuantityAmountRequired"));
+            if (Manager == null) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.FinanceManagerUnavailable"));
             Manager.QueueCustomLine(customer, zone, new FinanceLineItem
             {
                 lineType = FinanceLineTypes.Service,
@@ -87,9 +88,9 @@ namespace SimManagementLib.Api
         //把外部自定义财务明细加入顾客待结账账单。
         public static SimApiResult QueueCustomLine(Pawn customer, Zone_Shop zone, FinanceLineItem line)
         {
-            if (customer == null) return SimApiResult.Fail("顾客无效");
-            if (line == null) return SimApiResult.Fail("财务明细无效");
-            if (line.amount <= 0f) return SimApiResult.Fail("金额必须大于零");
+            if (customer == null) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.CustomerInvalid"));
+            if (line == null) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.FinanceLineInvalid"));
+            if (line.amount <= 0f) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.PositiveAmountRequired"));
             Manager?.QueueCustomLine(customer, zone, line);
             return SimApiResult.Success();
         }

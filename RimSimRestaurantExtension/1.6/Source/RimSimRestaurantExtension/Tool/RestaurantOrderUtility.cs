@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System.Collections.Generic;
 using System.Linq;
 using RimSimRestaurantExtension.GameComp;
@@ -115,35 +116,35 @@ namespace RimSimRestaurantExtension.Tool
             Pawn customer = FindCustomer(map, order);
             if (customer == null || customer.Destroyed || customer.Dead || !customer.Spawned)
             {
-                FailOrder(order, "顾客已离开地图");
+                FailOrder(order, SimTranslation.T("RSR.Issue.CustomerLeftMap"));
                 return false;
             }
             Zone_Shop shop = FindShopById(map, order.shopZoneId);
             if (shop == null)
             {
-                FailOrder(order, "餐厅商店区域已不存在");
+                FailOrder(order, SimTranslation.T("RSR.Issue.RestaurantRemoved"));
                 return false;
             }
             if (order.state == RestaurantOrderState.AwaitingCheckout) return true;
             Thing provider = FindProvider(map, order);
             if (provider == null || !shop.Cells.Contains(provider.Position))
             {
-                FailOrder(order, "点餐台已不可用或被移出餐厅区域");
+                FailOrder(order, SimTranslation.T("RSR.Issue.PassUnavailable"));
                 return false;
             }
             if (order.menuConfirmed && !order.stockProduct && !order.mealProduced && RestaurantCookingUtility.FindUsableStoves(shop, order).Count == 0)
             {
-                FailOrder(order, "本单需要的兼容灶台已不可用");
+                FailOrder(order, SimTranslation.T("RSR.Issue.OrderStoveUnavailable"));
                 return false;
             }
             if (!RestaurantDiningSpotUtility.IsDiningSpotValid(customer, order))
             {
-                FailOrder(order, "顾客餐位或餐桌已不可用");
+                FailOrder(order, SimTranslation.T("RSR.Issue.OrderSeatUnavailable"));
                 return false;
             }
             if (IsOrderTimedOut(order))
             {
-                Dining.RestaurantSessionUtility.StopUndelivered(OrderManager.SessionFor(order), order.menuConfirmed ? "等待上菜超时" : "等待服务员接单超时");
+                Dining.RestaurantSessionUtility.StopUndelivered(OrderManager.SessionFor(order), order.menuConfirmed ? SimTranslation.T("RSR.Issue.MealTimeout") : SimTranslation.T("RSR.Issue.OrderTimeout"));
                 return false;
             }
             return true;

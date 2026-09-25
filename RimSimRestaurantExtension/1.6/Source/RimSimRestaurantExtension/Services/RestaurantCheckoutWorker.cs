@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System.Linq;
 using RimSimRestaurantExtension.Dining;
 using RimSimRestaurantExtension.Models;
@@ -15,7 +16,7 @@ namespace RimSimRestaurantExtension.Services
             if (context == null) return true;
             bool dining = RestaurantOrderUtility.OrderManager.Sessions.Any(s => !s.IsTerminal
                 && s.customerId == context.pawnId && s.state != RestaurantSessionState.AwaitingCheckout);
-            if (dining) context.Defer("顾客尚有接单请求、未处理商品或制作配送订单");
+            if (dining) context.Defer(SimTranslation.T("RSR.Issue.CheckoutPendingOrders"));
             return !dining;
         }
 
@@ -53,7 +54,7 @@ namespace RimSimRestaurantExtension.Services
             if (context?.customer == null) return;
             foreach (var session in RestaurantOrderUtility.OrderManager.Sessions.Where(s => !s.IsTerminal
                 && s.customerId == context.customer.thingIDNumber && s.shopId == context.shop?.ID))
-                RestaurantSessionUtility.Abort(session, context.timedOut ? "收银等待超时" : "结账失败：" + context.failReason);
+                RestaurantSessionUtility.Abort(session, context.timedOut ? SimTranslation.T("RSR.Issue.CheckoutTimeout") : SimTranslation.T("RSR.Issue.CheckoutFailed", (context.failReason).Named("reason")));
         }
     }
 }

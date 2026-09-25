@@ -18,6 +18,7 @@ namespace SimManagementLib.SimThingClass
         private List<UniqueGoodsSlotData> uniqueSlots = new List<UniqueGoodsSlotData>();
         private int cachedInspectVersion = -1;
         private string cachedUniqueInspect = "";
+        private LoadedLanguage cachedInspectLanguage;
 
         public ThingComp_UniqueGoodsContainer UniqueComp => GetComp<ThingComp_UniqueGoodsContainer>();
         public IReadOnlyList<UniqueGoodsSlotData> UniqueSlots
@@ -103,7 +104,7 @@ namespace SimManagementLib.SimThingClass
         //构建专业货柜检查文本，职责是按库存版本缓存槽位摘要并跳过普通 Def 目标扫描。
         protected override string BuildContainerInspectString(string baseStr)
         {
-            if (cachedInspectVersion != StoredCountVersion)
+            if (cachedInspectVersion != StoredCountVersion || cachedInspectLanguage != LanguageDatabase.activeLanguage)
             {
                 EnsureUniqueSlots();
                 int stored = 0;
@@ -117,10 +118,11 @@ namespace SimManagementLib.SimThingClass
                     else if (GetStoredThing(slot) != null) stored++;
                     else if (slot.HasPendingSource) pending++;
                 }
-                cachedUniqueInspect = $"单件库存: {stored}/{UniqueSlotCount}";
-                if (pending > 0) cachedUniqueInspect += $"  待补货: {pending}";
-                if (reserved > 0) cachedUniqueInspect += $"  顾客挑选中: {reserved}";
+                cachedUniqueInspect = SimTranslation.T("RSMF.UniqueGoods.Inspect.Stored", (stored).Named("count"), (UniqueSlotCount).Named("capacity"));
+                if (pending > 0) cachedUniqueInspect += SimTranslation.T("RSMF.UniqueGoods.Inspect.Pending", (pending).Named("count"));
+                if (reserved > 0) cachedUniqueInspect += SimTranslation.T("RSMF.UniqueGoods.Inspect.Reserved", (reserved).Named("count"));
                 cachedInspectVersion = StoredCountVersion;
+                cachedInspectLanguage = LanguageDatabase.activeLanguage;
             }
             return string.IsNullOrEmpty(baseStr) ? cachedUniqueInspect : baseStr + "\n" + cachedUniqueInspect;
         }

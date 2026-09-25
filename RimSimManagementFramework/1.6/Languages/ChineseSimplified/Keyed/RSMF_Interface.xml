@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.PageManager.Title>页面管理</RSMF.PageManager.Title>
+  <RSMF.PageManager.ShowAll>全部显示</RSMF.PageManager.ShowAll>
+  <RSMF.PageManager.Reset>恢复默认</RSMF.PageManager.Reset>
+  <RSMF.PageManager.ResetHint>默认注册页面会全部显示，并按页面注册顺序排列。</RSMF.PageManager.ResetHint>
+  <RSMF.PageManager.Visible>显示</RSMF.PageManager.Visible>
+  <RSMF.PageManager.Page>页面</RSMF.PageManager.Page>
+  <RSMF.PageManager.Order>排序</RSMF.PageManager.Order>
+  <RSMF.PageManager.Up>上移</RSMF.PageManager.Up>
+  <RSMF.PageManager.Down>下移</RSMF.PageManager.Down>
+  <RSMF.PageManager.Empty>当前没有可管理的经商页面。</RSMF.PageManager.Empty>
+  <RSMF.PageManager.HideTab>从页签隐藏</RSMF.PageManager.HideTab>
+  <RSMF.PageManager.ShowTab>显示在页签</RSMF.PageManager.ShowTab>
+  <RSMF.PageManager.NoDescription>该页面没有说明文本。</RSMF.PageManager.NoDescription>
+  <RSMF.PageManager.ApplyHint>应用后会立即刷新经商管理顶部页签。</RSMF.PageManager.ApplyHint>
+  <RSMF.PageManager.OnePageRequired>至少需要保留一个显示页面。</RSMF.PageManager.OnePageRequired>
+  <RSMF.PageManager.Apply>应用</RSMF.PageManager.Apply>
+  <RSMF.PageManager.Summary>已显示 {visible} / {total} 个页面，可用上移和下移调整顶部页签顺序。</RSMF.PageManager.Summary>
+  <RSMF.MenuTransfer.Export>导出套餐</RSMF.MenuTransfer.Export>
+  <RSMF.MenuTransfer.Import>导入套餐</RSMF.MenuTransfer.Import>
+  <RSMF.MenuTransfer.NoValidBundles>没有可导入的有效套餐。</RSMF.MenuTransfer.NoValidBundles>
+  <RSMF.MenuTransfer.ExportHelp>复制下方 Base64 文本，可以导入到其他店铺。当前导出范围只包含套餐。</RSMF.MenuTransfer.ExportHelp>
+  <RSMF.MenuTransfer.Copy>复制到剪贴板</RSMF.MenuTransfer.Copy>
+  <RSMF.MenuTransfer.Copied>套餐 Base64 已复制。</RSMF.MenuTransfer.Copied>
+  <RSMF.MenuTransfer.ImportHelp>粘贴套餐 Base64。导入会合并追加到当前店铺，已有套餐不会被清空。</RSMF.MenuTransfer.ImportHelp>
+  <RSMF.MenuTransfer.Paste>从剪贴板粘贴</RSMF.MenuTransfer.Paste>
+  <RSMF.MenuTransfer.Confirm>确认导入</RSMF.MenuTransfer.Confirm>
+  <RSMF.MenuTransfer.ParseFailed>套餐 Base64 解析失败。</RSMF.MenuTransfer.ParseFailed>
+  <RSMF.MenuTransfer.Imported>导入套餐 {count} 个</RSMF.MenuTransfer.Imported>
+  <RSMF.MenuTransfer.Skipped>，跳过物品 {items} 个，跳过空套餐 {bundles} 个</RSMF.MenuTransfer.Skipped>
+  <RSMF.MenuTransfer.MissingItems>，缺失物品：{items}</RSMF.MenuTransfer.MissingItems>
+  <RSMF.MenuTransfer.Command>套餐传输</RSMF.MenuTransfer.Command>
+  <RSMF.MenuTransfer.CommandDescription>导出或导入当前商店区域的套餐 Base64。</RSMF.MenuTransfer.CommandDescription>
+  <RSMF.Search.Label>搜索</RSMF.Search.Label>
+  <RSMF.Search.Clear>清空</RSMF.Search.Clear>
+  <RSMF.Search.Hint>搜索名称</RSMF.Search.Hint>
+  <RSMF.UniqueGoods.Inspect.Stored>单件库存: {count}/{capacity}</RSMF.UniqueGoods.Inspect.Stored>
+  <RSMF.UniqueGoods.Inspect.Pending>  待补货: {count}</RSMF.UniqueGoods.Inspect.Pending>
+  <RSMF.UniqueGoods.Inspect.Reserved>  顾客挑选中: {count}</RSMF.UniqueGoods.Inspect.Reserved>
+  <RSMF.UniqueGoods.Restock.Ineligible>该物品不符合专业货柜上架条件。</RSMF.UniqueGoods.Restock.Ineligible>
+  <RSMF.UniqueGoods.Restock.Assigned>该物品已经被其他槽位指定。</RSMF.UniqueGoods.Restock.Assigned>
+  <RSMF.UniqueGoods.Restock.Full>专业货柜没有可接收该物品的空槽。</RSMF.UniqueGoods.Restock.Full>
+  <RSMF.Collectible.Minified>已缩小</RSMF.Collectible.Minified>
+  <RSMF.Collectible.Placed>已摆放</RSMF.Collectible.Placed>
+  <RSMF.Collectible.SourceLabel>{label}（{state}）</RSMF.Collectible.SourceLabel>
+  <RSMF.Service.DisplayStand.FallbackLabel>收藏品展台</RSMF.Service.DisplayStand.FallbackLabel>
+  <RSMF.Service.DisplayStand.OrderLabel>{label}（{count}件展品）</RSMF.Service.DisplayStand.OrderLabel>
+  <RSMF.CustomerDiagnostics.Copy>复制顾客诊断</RSMF.CustomerDiagnostics.Copy>
+  <RSMF.CustomerDiagnostics.CopyDescription>复制该顾客的 Session、Lord、Job、商品匹配和最近行为日志到剪切板。</RSMF.CustomerDiagnostics.CopyDescription>
+  <RSMF.CustomerDiagnostics.Copied>已复制顾客诊断到剪切板。</RSMF.CustomerDiagnostics.Copied>
+  <RSMF.Business.Pages.Select>页面</RSMF.Business.Pages.Select>
+  <RSMF.CustomerReview.Split.BudgetSignalFreeService>完成了免费服务，没有花钱；免费本身不是差评理由，按等待、完成状态和服务内容判断。</RSMF.CustomerReview.Split.BudgetSignalFreeService>
+  <RSMF.Settings.JourneyLog.Enable>启用顾客行程调试日志</RSMF.Settings.JourneyLog.Enable>
+  <RSMF.Settings.JourneyLog.Location>输出到 RimWorld 存档数据目录下的 RimSimManagementFramework/Logs/journey-debug.log。</RSMF.Settings.JourneyLog.Location>
+  <RSMF.Settings.JourneyLog.Mirror>同步调试日志到游戏日志</RSMF.Settings.JourneyLog.Mirror>
+  <RSMF.Settings.JourneyLog.MirrorTip>仅排查问题时开启，会增加游戏日志输出。</RSMF.Settings.JourneyLog.MirrorTip>
+  <RSMF.Settings.JourneyLog.Clear>清空顾客行程调试日志</RSMF.Settings.JourneyLog.Clear>
+  <RSMF.Settings.JourneyLog.MaxSize>行程调试日志最大体积：{size} KB</RSMF.Settings.JourneyLog.MaxSize>
+  <RSMF.BlueprintNetwork.ServiceName>网络蓝图服务</RSMF.BlueprintNetwork.ServiceName>
+  <RSMF.BlueprintNetwork.EndpointName>服务接口</RSMF.BlueprintNetwork.EndpointName>
+  <RSMF.BlueprintNetwork.EmptyPath>蓝图文件路径为空，无法上传。</RSMF.BlueprintNetwork.EmptyPath>
+  <RSMF.BlueprintNetwork.FileMissing>未找到要上传的蓝图文件。</RSMF.BlueprintNetwork.FileMissing>
+  <RSMF.BlueprintNetwork.CodeMissing>服务端未返回蓝图码，无法继续读取详情。</RSMF.BlueprintNetwork.CodeMissing>
+  <RSMF.BlueprintNetwork.ConnectionFailed>网络连接失败</RSMF.BlueprintNetwork.ConnectionFailed>
+  <RSMF.BlueprintNetwork.NoResponse>无响应</RSMF.BlueprintNetwork.NoResponse>
+  <RSMF.BlueprintNetwork.SyncFailed>上传前同步本地蓝图失败：{reason}</RSMF.BlueprintNetwork.SyncFailed>
+  <RSMF.BlueprintNetwork.RequestFailed>{method} 请求失败：{reason}</RSMF.BlueprintNetwork.RequestFailed>
+  <RSMF.BlueprintNetwork.ReadErrorFailed>读取失败响应内容时出错: {reason}</RSMF.BlueprintNetwork.ReadErrorFailed>
+  <RSMF.Announcements.ServiceUnavailable>公告服务不可用</RSMF.Announcements.ServiceUnavailable>
+  <RSMF.Staff.Unknown>未知员工</RSMF.Staff.Unknown>
+</LanguageData>

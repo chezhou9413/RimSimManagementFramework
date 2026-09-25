@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.RestockPanel.Title>Restock queue</RSMF.RestockPanel.Title>
+  <RSMF.RestockPanel.NoMap>No map is active.</RSMF.RestockPanel.NoMap>
+  <RSMF.RestockPanel.NotExported>Not exported</RSMF.RestockPanel.NotExported>
+  <RSMF.RestockPanel.Refresh>Refresh</RSMF.RestockPanel.Refresh>
+  <RSMF.RestockPanel.Rebuild>Rebuild queue</RSMF.RestockPanel.Rebuild>
+  <RSMF.RestockPanel.Copy>Copy full log</RSMF.RestockPanel.Copy>
+  <RSMF.RestockPanel.Export>Export log</RSMF.RestockPanel.Export>
+  <RSMF.RestockPanel.Close>Close</RSMF.RestockPanel.Close>
+  <RSMF.RestockPanel.Dirty>Awaiting recalculation</RSMF.RestockPanel.Dirty>
+  <RSMF.RestockPanel.Copied>Full restock log copied.</RSMF.RestockPanel.Copied>
+  <RSMF.RestockPanel.Exported>Restock log exported and path copied.</RSMF.RestockPanel.Exported>
+  <RSMF.RestockPanel.Ready>Ready</RSMF.RestockPanel.Ready>
+  <RSMF.RestockPanel.Blocked>Waiting</RSMF.RestockPanel.Blocked>
+  <RSMF.RestockPanel.RequestsTitle>Requests</RSMF.RestockPanel.RequestsTitle>
+  <RSMF.RestockPanel.StateTitle>State</RSMF.RestockPanel.StateTitle>
+  <RSMF.RestockPanel.LeaseTitle>Reservations / Age</RSMF.RestockPanel.LeaseTitle>
+  <RSMF.RestockPanel.BudgetTitle>Work limits</RSMF.RestockPanel.BudgetTitle>
+  <RSMF.RestockPanel.Summary>Map={map} Tick={tick} Export={path}</RSMF.RestockPanel.Summary>
+  <RSMF.RestockPanel.Requests>Bulk {bulk}  Unique {unique}</RSMF.RestockPanel.Requests>
+  <RSMF.RestockPanel.State>Ready {ready}  Waiting {blocked}</RSMF.RestockPanel.State>
+  <RSMF.RestockPanel.Leases>Reservations {count}  Oldest {age}t</RSMF.RestockPanel.Leases>
+  <RSMF.RestockPanel.Limits>Demand {demand}/8  Dispatch {dispatch}/4\nStaff {staff}/4  Reach {reach}/4</RSMF.RestockPanel.Limits>
+  <RSMF.RestockPanel.Omitted>{count} more omitted</RSMF.RestockPanel.Omitted>
+  <RSMF.RestockReason.StaffNotAllowed>This worker is not allowed to restock this cabinet.</RSMF.RestockReason.StaffNotAllowed>
+  <RSMF.RestockReason.LinkedSourceEmpty>The linked source has no restocking supplies.</RSMF.RestockReason.LinkedSourceEmpty>
+  <RSMF.RestockReason.WaitCabinetReach>Waiting for a cabinet reachability check.</RSMF.RestockReason.WaitCabinetReach>
+  <RSMF.RestockReason.CabinetUnreachable>This worker cannot reach the cabinet.</RSMF.RestockReason.CabinetUnreachable>
+  <RSMF.RestockReason.InTransit>Waiting for supplies already in transit.</RSMF.RestockReason.InTransit>
+  <RSMF.RestockReason.WaitSourceSearch>Waiting for a source-area search.</RSMF.RestockReason.WaitSourceSearch>
+  <RSMF.RestockReason.BulkSourceUnavailable>No bulk supplies are available to this worker.</RSMF.RestockReason.BulkSourceUnavailable>
+  <RSMF.RestockReason.WaitDeepSearch>Waiting for a full source search.</RSMF.RestockReason.WaitDeepSearch>
+  <RSMF.RestockReason.NoCarryCapacity>This worker cannot carry any of the required items.</RSMF.RestockReason.NoCarryCapacity>
+  <RSMF.RestockReason.JobCreated>Job created; awaiting initial reservation.</RSMF.RestockReason.JobCreated>
+  <RSMF.RestockReason.UniqueInProgress>Unique-item restocking is in progress.</RSMF.RestockReason.UniqueInProgress>
+  <RSMF.RestockReason.UniqueNotSpawned>The unique item is not currently spawned on the map.</RSMF.RestockReason.UniqueNotSpawned>
+  <RSMF.RestockReason.WaitUniqueIndex>Waiting for the unique-item source index scan.</RSMF.RestockReason.WaitUniqueIndex>
+  <RSMF.RestockReason.UniqueIneligible>The unique item no longer meets the slot requirements.</RSMF.RestockReason.UniqueIneligible>
+  <RSMF.RestockReason.UniqueReserved>The unique item is forbidden or reserved.</RSMF.RestockReason.UniqueReserved>
+  <RSMF.RestockReason.WaitUniqueReach>Waiting for a unique-item reachability check.</RSMF.RestockReason.WaitUniqueReach>
+  <RSMF.RestockReason.UniqueUnreachable>This worker cannot reach the unique item.</RSMF.RestockReason.UniqueUnreachable>
+  <RSMF.RestockReason.UniqueJobCreated>Unique-item job created; awaiting initial reservation.</RSMF.RestockReason.UniqueJobCreated>
+  <RSMF.RestockReason.WaitDispatch>Waiting for a worker.</RSMF.RestockReason.WaitDispatch>
+  <RSMF.RestockReason.WaitUniqueDispatch>Waiting for a unique-item restocking worker.</RSMF.RestockReason.WaitUniqueDispatch>
+  <RSMF.RestockPanel.MissingTask>Missing task</RSMF.RestockPanel.MissingTask>
+  <RSMF.RestockPanel.TaskDetails>{target} Needed={needed} Source={supply} Created={created} Checked={checked} Retry={retry} Reason={reason}</RSMF.RestockPanel.TaskDetails>
+  <RSMF.RestockPanel.UniqueTarget>Unique Cabinet={storage} Slot={slot} Source={source}</RSMF.RestockPanel.UniqueTarget>
+  <RSMF.RestockPanel.BulkTarget>Bulk Cabinet={storage} Item={def}</RSMF.RestockPanel.BulkTarget>
+</LanguageData>

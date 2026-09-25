@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using SimManagementLib.SimThingClass;
 using System.Collections.Generic;
 using Verse;
@@ -205,7 +206,7 @@ namespace SimManagementLib.SimMapComp
                 }
                 int available = CalculateBulkAvailable(storage, task.ThingDef, settings.TargetCount, stored);
                 task.NeededCount = available;
-                task.StateReason = available > 0 ? "等待派工" : "等待途中补货";
+                task.StateReason = available > 0 ? SimTranslation.T("RSMF.RestockReason.WaitDispatch") : SimTranslation.T("RSMF.RestockReason.InTransit");
                 task.RetryTick = available > 0 ? now : now + TemporaryRetryTicks;
                 ScheduleDispatch(task.Key, task.RetryTick, now);
                 return;
@@ -217,7 +218,7 @@ namespace SimManagementLib.SimMapComp
                 return;
             }
             task.NeededCount = 1;
-            task.StateReason = leases.HasLease(task.Key) ? "专业补货任务执行中" : "等待专业补货派工";
+            task.StateReason = leases.HasLease(task.Key) ? SimTranslation.T("RSMF.RestockReason.UniqueInProgress") : SimTranslation.T("RSMF.RestockReason.WaitUniqueDispatch");
             task.RetryTick = leases.HasLease(task.Key) ? now + TemporaryRetryTicks : now;
             ScheduleDispatch(task.Key, task.RetryTick, now);
         }

@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -132,11 +133,11 @@ namespace RimSimRestaurantExtension.GameComp
         {
             return new List<RestaurantMenuItem>
             {
-                MakeMenuItem("rsr_simple_rice", "家常米饭套餐", "MealSimple", 35f, 1, 2,
+                MakeMenuItem("rsr_simple_rice", SimTranslation.T("RSR.Food.DefaultSimple"), "MealSimple", 35f, 1, 2,
                     ("RawRice", 6), ("RawPotatoes", 4)),
-                MakeMenuItem("rsr_fine_veg", "精致蔬菜套餐", "MealFine_Veg", 65f, 1, 3,
+                MakeMenuItem("rsr_fine_veg", SimTranslation.T("RSR.Food.DefaultFine"), "MealFine_Veg", 65f, 1, 3,
                     ("RawCorn", 9), ("RawBerries", 6)),
-                MakeMenuItem("rsr_lavish_veg", "豪华餐厅套餐", "MealLavish_Veg", 110f, 1, 2,
+                MakeMenuItem("rsr_lavish_veg", SimTranslation.T("RSR.Food.DefaultLavish"), "MealLavish_Veg", 110f, 1, 2,
                     ("RawRice", 9), ("RawCorn", 9), ("RawBerries", 7))
             };
         }

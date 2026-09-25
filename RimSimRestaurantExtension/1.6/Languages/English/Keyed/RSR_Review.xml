@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR.Review.Completed>Customer ate or accepted goods at their seat and completed checkout</RSR.Review.Completed>
+  <RSR.Review.Order>Round {round}: {dish} ×{count}, accepted {accepted}, {status}</RSR.Review.Order>
+  <RSR.Review.PartialFailure>Some restaurant goods could not be served; this may affect the service review</RSR.Review.PartialFailure>
+  <RSR.Review.Session>{rounds} restaurant orders; {goods}; amount due {amount}, paid {paid}</RSR.Review.Session>
+  <RSR.Review.TakeAwayGoods>Takeaway goods</RSR.Review.TakeAwayGoods>
+  <RSR.Review.Unpaid>Restaurant payment incomplete: {reason}</RSR.Review.Unpaid>
+</LanguageData>

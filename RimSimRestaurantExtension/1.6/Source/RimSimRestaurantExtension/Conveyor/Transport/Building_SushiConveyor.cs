@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System.Collections.Generic;
 using RimSimRestaurantExtension.Conveyor.Rendering;
 using RimSimRestaurantExtension.Conveyor.UI;
@@ -76,8 +77,8 @@ namespace RimSimRestaurantExtension.Conveyor.Transport
         public override IEnumerable<Gizmo> GetGizmos()
         {
             foreach (var gizmo in base.GetGizmos()) yield return gizmo;
-            yield return new Command_Action { defaultLabel = "传送带上架配置",
-                defaultDesc = "配置整条线路的食品、目标盘数和售价。",
+            yield return new Command_Action { defaultLabel = SimTranslation.T("RSR.Building.ConfigureConveyor"),
+                defaultDesc = SimTranslation.T("RSR.Building.ConfigureConveyorDesc"),
                 icon = def.uiIcon, action = () => Find.WindowStack.Add(new Dialog_ConveyorStock(this)) };
         }
 
@@ -85,8 +86,7 @@ namespace RimSimRestaurantExtension.Conveyor.Transport
         public override string GetInspectString()
         {
             var line = Line;
-            return base.GetInspectString() + (line == null ? "" : "\n线路 " + line.id + "：" + line.Occupied + "/" + line.segments.Count
-                + " 盘\n" + (!line.SameShop ? "线路必须位于同一家餐厅" : !line.Powered ? "断电，停止运输与补货" : line.paused ? "补货暂停" : "运行中")
+            return base.GetInspectString() + (line == null ? "" : SimTranslation.T("RSR.Building.LineStock", (line.id).Named("id"), (line.Occupied).Named("occupied"), (line.segments.Count).Named("capacity")) + (!line.SameShop ? SimTranslation.T("RSR.Building.LineOutsideShop") : !line.Powered ? SimTranslation.T("RSR.Building.LineUnpowered") : line.paused ? SimTranslation.T("RSR.Building.LinePaused") : SimTranslation.T("RSR.Building.LineRunning"))
                 + (line.notice.NullOrEmpty() ? "" : "\n" + line.notice));
         }
     }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR.Food.DefaultFine>精致蔬菜套餐</RSR.Food.DefaultFine>
+  <RSR.Food.DefaultLavish>豪华餐厅套餐</RSR.Food.DefaultLavish>
+  <RSR.Food.DefaultSimple>家常米饭套餐</RSR.Food.DefaultSimple>
+  <RSR.Food.Edible>可食用食品</RSR.Food.Edible>
+  <RSR.Food.Fine>精致餐品</RSR.Food.Fine>
+  <RSR.Food.InvalidFood>无效食品</RSR.Food.InvalidFood>
+  <RSR.Food.InvalidMeal>无效餐品</RSR.Food.InvalidMeal>
+  <RSR.Food.Lavish>豪华餐品</RSR.Food.Lavish>
+  <RSR.Food.NoNutrition>无营养数据</RSR.Food.NoNutrition>
+  <RSR.Food.Simple>日常餐品</RSR.Food.Simple>
+  <RSR.Food.Summary>营养 {nutrition} · {quality} · {source}</RSR.Food.Summary>
+</LanguageData>

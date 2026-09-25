@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using RimSimRestaurantExtension.Tool;
 using SimManagementLib.Api;
 using UnityEngine;
@@ -24,7 +25,7 @@ namespace RimSimRestaurantExtension.UI
                 ShopUiVisualUtility.DrawCellLabel(new Rect(x, rect.y + 8f, width, line), food.LabelCap);
                 ShopUiVisualUtility.DrawCellLabel(new Rect(x, rect.y + line + 12f, width, line),
                     RestaurantFoodUtility.BuildFoodSummary(food), RestaurantUiStyle.MutedText);
-                return RestaurantUiStyle.DrawPrimaryButton(button, "选择")
+                return RestaurantUiStyle.DrawPrimaryButton(button, SimTranslation.T("RSR.UI.Select"))
                     || Widgets.ButtonInvisible(new Rect(rect.x, rect.y, button.x - rect.x - 4f, rect.height), false);
             }
         }

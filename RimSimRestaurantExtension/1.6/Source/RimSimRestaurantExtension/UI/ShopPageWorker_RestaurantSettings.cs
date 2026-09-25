@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System.Linq;
 using RimSimRestaurantExtension.Models;
 using RimSimRestaurantExtension.Tool;
@@ -40,21 +41,21 @@ namespace RimSimRestaurantExtension.UI
             using (new RestaurantGuiScope())
             {
                 float h = RestaurantUiStyle.ControlHeight();
-                float y = rect.y + ShopUiVisualUtility.DrawPageHeading(rect, "餐厅菜单",
-                    "菜谱 " + state.draft.menuItems.Count + " 项 · 菜品与运行参数随商店统一保存");
+                float y = rect.y + ShopUiVisualUtility.DrawPageHeading(rect, SimTranslation.T("RSR.UI.MenuHeading"),
+                    SimTranslation.T("RSR.UI.MenuCountHint", (state.draft.menuItems.Count).Named("count")));
                 string issue = RestaurantBusinessAvailability.Snapshot(context.Shop);
-                string status = issue.NullOrEmpty() ? "当前营业检查通过 · 堂食与传送带自助均使用餐厅收银。" : "当前经营提示：" + issue;
+                string status = issue.NullOrEmpty() ? SimTranslation.T("RSR.UI.BusinessReadyHint") : SimTranslation.T("RSR.UI.BusinessIssue", (issue).Named("reason"));
                 float notice = ShopUiVisualUtility.NoticeHeight(status, rect.width);
                 ShopUiVisualUtility.DrawNotice(new Rect(rect.x, y, rect.width, notice), status, !issue.NullOrEmpty());
                 y += notice + 10f;
-                Widgets.CheckboxLabeled(new Rect(rect.x, y, 118f, h), "启用餐厅", ref state.draft.enabled);
+                RestaurantUiStyle.DrawCheckbox(new Rect(rect.x, y, 118f, h), SimTranslation.T("RSR.UI.EnableRestaurant"), ref state.draft.enabled);
                 bool narrow = rect.width < 500f;
-                if (RestaurantUiStyle.DrawSecondaryButton(new Rect(narrow ? rect.xMax - 110f : rect.x + 126f, y, 110f, h), "运行参数"))
+                if (RestaurantUiStyle.DrawSecondaryButton(new Rect(narrow ? rect.xMax - 110f : rect.x + 126f, y, 110f, h), SimTranslation.T("RSR.UI.Parameters")))
                     Find.WindowStack.Add(new Dialog_RestaurantParameters(state.draft));
                 if (narrow) y += h + 8f;
-                if (RestaurantUiStyle.DrawSecondaryButton(new Rect(narrow ? rect.x : rect.x + 244f, y, 100f, h), "传送带管理"))
+                if (RestaurantUiStyle.DrawSecondaryButton(new Rect(narrow ? rect.x : rect.x + 244f, y, 100f, h), SimTranslation.T("RSR.UI.ConveyorManager")))
                     OpenConveyors(context);
-                if (RestaurantUiStyle.DrawPrimaryButton(new Rect(rect.xMax - 110f, y, 110f, h), "添加菜品"))
+                if (RestaurantUiStyle.DrawPrimaryButton(new Rect(rect.xMax - 110f, y, 110f, h), SimTranslation.T("RSR.UI.AddDish")))
                     OpenEditor(context, state, new RestaurantMenuItem { id = GameComp.RestaurantShopSettings.MakeMenuId() }, true);
                 y += h + 10f;
                 RestaurantMenuTable.Draw(new Rect(rect.x, y, rect.width, Mathf.Max(0f, rect.yMax - y)), context, state,
@@ -70,12 +71,12 @@ namespace RimSimRestaurantExtension.UI
             var lines = manager.lines.Where(line => line.Shop == context.Shop).ToList();
             if (lines.Count == 0)
             {
-                Messages.Message("本店尚无传送带，请先铺设并划入餐厅区域。", RimWorld.MessageTypeDefOf.RejectInput, false);
+                Messages.Message(SimTranslation.T("RSR.UI.NoConveyor"), RimWorld.MessageTypeDefOf.RejectInput, false);
                 return;
             }
             if (lines.Count == 1) Find.WindowStack.Add(new Conveyor.UI.Dialog_ConveyorStock(lines[0].segments[0]));
             else Find.WindowStack.Add(new FloatMenu(lines.Select(line => new FloatMenuOption(
-                "线路 " + line.id + " · " + line.Occupied + " / " + line.segments.Count + " 盘",
+                SimTranslation.T("RSR.UI.LineSummary", (line.id).Named("id"), (line.Occupied).Named("occupied"), (line.segments.Count).Named("capacity")),
                 () => Find.WindowStack.Add(new Conveyor.UI.Dialog_ConveyorStock(line.segments[0])))).ToList()));
         }
 
@@ -110,7 +111,7 @@ namespace RimSimRestaurantExtension.UI
         //说明保存语义，职责是帮助用户区分子窗口确认和实际提交。
         public override string GetSaveTip(ShopUiContext context)
         {
-            return "菜单与参数在统一保存后生效；关闭窗口会丢弃未保存内容。";
+            return SimTranslation.T("RSR.UI.MenuSaveHint");
         }
     }
 }

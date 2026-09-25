@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR_BringRestaurantMealToPass.reportString>正在把餐品送往出餐台。</RSR_BringRestaurantMealToPass.reportString>
+  <RSR_CookRestaurantOrder.reportString>正在制作餐厅订单。</RSR_CookRestaurantOrder.reportString>
+  <RSR_DeliverRestaurantOrder.reportString>正在给顾客送餐。</RSR_DeliverRestaurantOrder.reportString>
+  <RSR_RestaurantStandby.reportString>正在餐厅值班。</RSR_RestaurantStandby.reportString>
+  <RSR_StockSushiConveyor.reportString>正在补充或清理餐厅传送带。</RSR_StockSushiConveyor.reportString>
+  <RSR_TakeRestaurantOrder.reportString>正在与顾客交谈点菜。</RSR_TakeRestaurantOrder.reportString>
+  <RSR_WaitRestaurantOrderAtDiningSpot.reportString>正在餐厅座位等待上菜。</RSR_WaitRestaurantOrderAtDiningSpot.reportString>
+</LanguageData>

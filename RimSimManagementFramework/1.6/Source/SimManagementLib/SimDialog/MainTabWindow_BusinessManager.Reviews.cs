@@ -10,6 +10,7 @@ using Verse;
 
 namespace SimManagementLib.SimDialog
 {
+    //管理顾客评价页面，职责是展示评价、筛选条件与申诉记录。
     public partial class MainTabWindow_BusinessManager
     {
         private const int ReviewsPerPage = 8;
@@ -19,19 +20,13 @@ namespace SimManagementLib.SimDialog
         private const float ReviewAvatarSize = 76f;
         private const float ReviewTextLeftPadding = 104f;
         private const int ReviewSummaryCardCount = 4;
-
-        /// <summary>
-        /// 保存论坛评价线程视图，负责把主帖和回复集合组合成可展开的显示单元。
-        /// </summary>
+        //保存论坛评价线程视图，负责把主帖和回复集合组合成可展开的显示单元。
         private sealed class ReviewThreadView
         {
             public CustomerReviewRecord Root;
             public List<CustomerReviewRecord> Replies = new List<CustomerReviewRecord>();
         }
-
-        /// <summary>
-        /// 绘制顾客评价页，展示点评汇总、筛选和单条点评列表。
-        /// </summary>
+        //绘制顾客评价页，展示点评汇总、筛选和单条点评列表。
         private void DrawCustomerReviewsPage(Rect rect)
         {
             GameComponent_CustomerReviewManager manager = Current.Game?.GetComponent<GameComponent_CustomerReviewManager>();
@@ -53,10 +48,7 @@ namespace SimManagementLib.SimDialog
             Rect listRect = new Rect(rect.x, filterRect.yMax + 8f, rect.width, Mathf.Max(0f, rect.yMax - filterRect.yMax - 8f));
             DrawReviewList(listRect, threads);
         }
-
-        /// <summary>
-        /// 计算评价汇总区高度，负责在窄窗口中给统计卡自动换行预留空间。
-        /// </summary>
+        //计算评价汇总区高度，负责在窄窗口中给统计卡自动换行预留空间。
         private float CalcReviewSummaryHeight(float width)
         {
             int columns = Mathf.Max(1, Mathf.FloorToInt((width - 16f + 8f) / (ReviewSummaryCardMinWidth + 8f)));
@@ -65,10 +57,7 @@ namespace SimManagementLib.SimDialog
             float cardH = CalcReviewSummaryCardHeight();
             return 16f + rows * cardH + Mathf.Max(0, rows - 1) * 8f;
         }
-
-        /// <summary>
-        /// 计算评价汇总卡片宽度，负责避免统计标题和值在不同窗口宽度下被截断。
-        /// </summary>
+        //计算评价汇总卡片宽度，负责避免统计标题和值在不同窗口宽度下被截断。
         private float CalcReviewSummaryCardWidth(float width)
         {
             int columns = Mathf.Max(1, Mathf.FloorToInt((width - 16f + 8f) / (ReviewSummaryCardMinWidth + 8f)));
@@ -76,6 +65,7 @@ namespace SimManagementLib.SimDialog
             return Mathf.Max(ReviewSummaryCardMinWidth, (width - 16f - (columns - 1) * 8f) / columns);
         }
 
+        //绘制评价总览，职责是汇总当前评价的数量和评分。
         private void DrawReviewSummary(Rect rect, GameComponent_CustomerReviewManager manager)
         {
             Widgets.DrawBoxSolid(rect, new Color(0f, 0f, 0f, 0.22f));
@@ -112,10 +102,7 @@ namespace SimManagementLib.SimDialog
             }
             ResetText();
         }
-
-        /// <summary>
-        /// 统计论坛主帖数量，负责让顶部数量和实际列表线程数量保持一致。
-        /// </summary>
+        //统计论坛主帖数量，负责让顶部数量和实际列表线程数量保持一致。
         private static int CountRootReviews(IEnumerable<CustomerReviewRecord> records)
         {
             if (records == null) return 0;
@@ -123,19 +110,13 @@ namespace SimManagementLib.SimDialog
             HashSet<string> replyIds = BuildValidReplyIds(list);
             return list.Count(r => !replyIds.Contains(r.reviewId));
         }
-
-        /// <summary>
-        /// 统计论坛回复数量，负责把折叠楼中楼和主帖数量分开展示。
-        /// </summary>
+        //统计论坛回复数量，负责把折叠楼中楼和主帖数量分开展示。
         private static int CountForumReplies(IEnumerable<CustomerReviewRecord> records)
         {
             if (records == null) return 0;
             return BuildValidReplyIds(records.Where(r => r != null).ToList()).Count;
         }
-
-        /// <summary>
-        /// 收集有效回复记录编号，负责只把能挂到现有主帖的记录视为回复。
-        /// </summary>
+        //收集有效回复记录编号，负责只把能挂到现有主帖的记录视为回复。
         private static HashSet<string> BuildValidReplyIds(List<CustomerReviewRecord> records)
         {
             HashSet<string> ids = new HashSet<string>();
@@ -151,10 +132,7 @@ namespace SimManagementLib.SimDialog
             }
             return ids;
         }
-
-        /// <summary>
-        /// 计算评价汇总卡片高度，负责按当前字体回退和 UI 缩放预留垂直空间。
-        /// </summary>
+        //计算评价汇总卡片高度，负责按当前字体回退和 UI 缩放预留垂直空间。
         private float CalcReviewSummaryCardHeight()
         {
             float titleH = Text.LineHeightOf(GameFont.Tiny);
@@ -162,6 +140,7 @@ namespace SimManagementLib.SimDialog
             return ReviewSummaryCardPaddingY * 2f + titleH + 8f + valueH;
         }
 
+        //绘制评价指标卡，职责是分行展示指标名称和数值。
         private void DrawReviewSummaryCard(Rect rect, string title, string value)
         {
             Widgets.DrawBoxSolid(rect, new Color(1f, 1f, 1f, 0.03f));
@@ -181,6 +160,7 @@ namespace SimManagementLib.SimDialog
             ResetText();
         }
 
+        //绘制评价筛选栏，职责是选择商店、排序和显示范围。
         private void DrawReviewFilters(Rect rect, int totalCount)
         {
             Widgets.DrawBoxSolid(rect, new Color(0f, 0f, 0f, 0.18f));
@@ -231,6 +211,7 @@ namespace SimManagementLib.SimDialog
             }
         }
 
+        //绘制评价滚动列表，职责是逐项显示主评价及回复。
         private void DrawReviewList(Rect rect, List<ReviewThreadView> threads)
         {
             float viewWidth = rect.width - 18f;
@@ -259,10 +240,7 @@ namespace SimManagementLib.SimDialog
             }
             Widgets.EndScrollView();
         }
-
-        /// <summary>
-        /// 计算论坛线程高度，负责给主帖、展开按钮和已展开回复预留空间。
-        /// </summary>
+        //计算论坛线程高度，负责给主帖、展开按钮和已展开回复预留空间。
         private float CalcReviewThreadHeight(ReviewThreadView thread, float width)
         {
             if (thread?.Root == null) return 0f;
@@ -281,6 +259,7 @@ namespace SimManagementLib.SimDialog
             return total;
         }
 
+        //测量评价行高度，职责是为正文和回复保留完整空间。
         private float CalcReviewRowHeight(CustomerReviewRecord record, float width, bool includeOwnReply)
         {
             GameFont oldFont = Text.Font;
@@ -304,10 +283,7 @@ namespace SimManagementLib.SimDialog
                 Text.WordWrap = oldWordWrap;
             }
         }
-
-        /// <summary>
-        /// 绘制论坛线程，负责主帖、展开按钮和回复列表的整体布局。
-        /// </summary>
+        //绘制论坛线程，负责主帖、展开按钮和回复列表的整体布局。
         private void DrawReviewThread(Rect rect, ReviewThreadView thread, int index)
         {
             if (thread?.Root == null) return;
@@ -337,6 +313,7 @@ namespace SimManagementLib.SimDialog
             }
         }
 
+        //绘制单条评价，职责是显示作者、评分、正文和互动操作。
         private void DrawReviewRow(Rect row, CustomerReviewRecord record, int index, bool includeOwnReply)
         {
             GameFont oldFont = Text.Font;
@@ -360,10 +337,10 @@ namespace SimManagementLib.SimDialog
             GUI.color = Color.white;
             string authorLabel = record.aiNickname;
             if (record.isWithdrawn)
-                authorLabel += " · " + SimTranslation.TOrFallback("RSMF.Business.Reviews.WithdrawnShort", "已撤回");
+                authorLabel += " · " + SimTranslation.T("RSMF.Business.Reviews.WithdrawnShort");
             Widgets.Label(new Rect(row.x + ReviewTextLeftPadding, row.y + 8f, 240f, Mathf.Max(24f, Text.LineHeightOf(GameFont.Small) + 2f)), authorLabel.Truncate(220f));
             GUI.color = new Color(0.95f, 0.78f, 0.20f, 1f);
-            Widgets.Label(new Rect(row.x + ReviewTextLeftPadding + 246f, row.y + 8f, 120f, Mathf.Max(24f, Text.LineHeightOf(GameFont.Small) + 2f)), record.isWithdrawn ? SimTranslation.TOrFallback("RSMF.Business.Reviews.WithdrawnStars", "撤回") : BuildStars(record.stars));
+            Widgets.Label(new Rect(row.x + ReviewTextLeftPadding + 246f, row.y + 8f, 120f, Mathf.Max(24f, Text.LineHeightOf(GameFont.Small) + 2f)), record.isWithdrawn ? SimTranslation.T("RSMF.Business.Reviews.WithdrawnStars") : BuildStars(record.stars));
             GUI.color = CDim;
             Text.Font = GameFont.Tiny;
             Text.Anchor = TextAnchor.MiddleRight;
@@ -410,10 +387,7 @@ namespace SimManagementLib.SimDialog
                 GUI.color = oldColor;
             }
         }
-
-        /// <summary>
-        /// 计算玩家申诉区域高度，负责让评价卡片按按钮和历史记录动态增高。
-        /// </summary>
+        //计算玩家申诉区域高度，负责让评价卡片按按钮和历史记录动态增高。
         private float CalcReviewNegotiationHeight(CustomerReviewRecord record, float width)
         {
             if (record == null || (!record.isHeavyMode && record.negotiationTurns.NullOrEmpty()))
@@ -428,7 +402,7 @@ namespace SimManagementLib.SimDialog
                 float total = 32f;
                 if (record.isWithdrawn)
                 {
-                    string withdrawn = SimTranslation.TOrFallback("RSMF.Business.Reviews.Withdrawn", "已撤回：这条评价不再计入平均星级。");
+                    string withdrawn = SimTranslation.T("RSMF.Business.Reviews.Withdrawn");
                     total += Mathf.Max(Text.LineHeight, Text.CalcHeight(withdrawn, width - 20f)) + 8f;
                 }
 
@@ -450,10 +424,7 @@ namespace SimManagementLib.SimDialog
                 Text.WordWrap = oldWordWrap;
             }
         }
-
-        /// <summary>
-        /// 计算单轮申诉历史高度，负责让店主和顾客文本完整显示。
-        /// </summary>
+        //计算单轮申诉历史高度，负责让店主和顾客文本完整显示。
         private static float CalcNegotiationTurnHeight(CustomerReviewNegotiationTurn turn, float width)
         {
             if (turn == null) return 0f;
@@ -465,8 +436,8 @@ namespace SimManagementLib.SimDialog
                 Text.WordWrap = true;
                 string title = BuildNegotiationTurnTitle(turn);
                 float titleH = Mathf.Max(Text.LineHeight, Text.CalcHeight(title, width));
-                string body = SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.PlayerLine", "店主：{text}").Replace("{text}", turn.playerText ?? "")
-                    + "\n" + SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.CustomerLine", "顾客：{text}").Replace("{text}", turn.aiText ?? "");
+                string body = SimTranslation.T("RSMF.Business.Reviews.Negotiation.PlayerLine").Replace("{text}", turn.playerText ?? "")
+                    + "\n" + SimTranslation.T("RSMF.Business.Reviews.Negotiation.CustomerLine").Replace("{text}", turn.aiText ?? "");
                 float bodyH = Mathf.Max(Text.LineHeight, Text.CalcHeight(body, width));
                 return titleH + bodyH + 18f;
             }
@@ -476,10 +447,7 @@ namespace SimManagementLib.SimDialog
                 Text.WordWrap = oldWordWrap;
             }
         }
-
-        /// <summary>
-        /// 绘制玩家申诉区域，负责显示申诉入口、处理状态和历史记录。
-        /// </summary>
+        //绘制玩家申诉区域，负责显示申诉入口、处理状态和历史记录。
         private void DrawReviewNegotiationArea(Rect rect, CustomerReviewRecord record)
         {
             if (rect.height <= 24f || record == null || (!record.isHeavyMode && record.negotiationTurns.NullOrEmpty()))
@@ -495,7 +463,7 @@ namespace SimManagementLib.SimDialog
                 Text.Font = GameFont.Tiny;
                 Text.WordWrap = true;
                 GUI.color = new Color(1f, 0.66f, 0.38f, 1f);
-                string withdrawn = SimTranslation.TOrFallback("RSMF.Business.Reviews.Withdrawn", "已撤回：这条评价不再计入平均星级。");
+                string withdrawn = SimTranslation.T("RSMF.Business.Reviews.Withdrawn");
                 float withdrawnH = Mathf.Max(Text.LineHeight, Text.CalcHeight(withdrawn, rect.width - 20f));
                 Widgets.Label(new Rect(rect.x + 10f, y, rect.width - 20f, withdrawnH), withdrawn);
                 y += withdrawnH + 8f;
@@ -510,21 +478,18 @@ namespace SimManagementLib.SimDialog
 
             bool pending = manager != null && manager.IsNegotiationInFlight(record.reviewId);
             Rect buttonRect = new Rect(rect.x + 8f, y, 96f, Mathf.Max(26f, Text.LineHeightOf(GameFont.Tiny) + 8f));
-            if (SimUiStyle.DrawSecondaryButton(buttonRect, SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.Reply", "申诉"), !pending, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(buttonRect, SimTranslation.T("RSMF.Business.Reviews.Negotiation.Reply"), !pending, GameFont.Tiny))
                 Find.WindowStack.Add(new Dialog_CustomerReviewNegotiation(record.reviewId, record.aiNickname, record.reviewText));
 
             if (pending)
             {
                 Text.Font = GameFont.Tiny;
                 GUI.color = CDim;
-                Widgets.Label(new Rect(buttonRect.xMax + 8f, buttonRect.y, rect.width - buttonRect.width - 24f, buttonRect.height), SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.Pending", "等待顾客回复申诉。"));
+                Widgets.Label(new Rect(buttonRect.xMax + 8f, buttonRect.y, rect.width - buttonRect.width - 24f, buttonRect.height), SimTranslation.T("RSMF.Business.Reviews.Negotiation.Pending"));
                 ResetText();
             }
         }
-
-        /// <summary>
-        /// 绘制申诉历史，负责默认只显示最近一轮并允许展开全部历史。
-        /// </summary>
+        //绘制申诉历史，负责默认只显示最近一轮并允许展开全部历史。
         private void DrawNegotiationHistory(Rect rect, CustomerReviewRecord record, ref float y)
         {
             if (record?.negotiationTurns == null || record.negotiationTurns.Count == 0)
@@ -533,8 +498,8 @@ namespace SimManagementLib.SimDialog
             bool expanded = IsReviewNegotiationHistoryExpanded(record.reviewId);
             Rect toggleRect = new Rect(rect.x, y, 138f, Mathf.Max(26f, Text.LineHeightOf(GameFont.Tiny) + 8f));
             string label = expanded
-                ? SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.CollapseHistory", "收起申诉记录")
-                : SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.ExpandHistory", "申诉记录({count})").Replace("{count}", record.negotiationTurns.Count.ToString());
+                ? SimTranslation.T("RSMF.Business.Reviews.Negotiation.CollapseHistory")
+                : SimTranslation.T("RSMF.Business.Reviews.Negotiation.ExpandHistory").Replace("{count}", record.negotiationTurns.Count.ToString());
             if (SimUiStyle.DrawSecondaryButton(toggleRect, label, true, GameFont.Tiny))
                 ToggleReviewNegotiationHistory(record.reviewId);
 
@@ -549,10 +514,7 @@ namespace SimManagementLib.SimDialog
                 y += h + 6f;
             }
         }
-
-        /// <summary>
-        /// 绘制单轮申诉历史，负责展示店主申诉、顾客回应和评价处理动作。
-        /// </summary>
+        //绘制单轮申诉历史，负责展示店主申诉、顾客回应和评价处理动作。
         private void DrawNegotiationTurn(Rect rect, CustomerReviewNegotiationTurn turn)
         {
             if (turn == null || rect.height <= 18f)
@@ -567,15 +529,12 @@ namespace SimManagementLib.SimDialog
             float titleH = Mathf.Max(Text.LineHeight, Text.CalcHeight(title, rect.width - 20f));
             Widgets.Label(new Rect(rect.x + 10f, rect.y + 6f, rect.width - 20f, titleH), title);
             GUI.color = Color.white;
-            string body = SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.PlayerLine", "店主：{text}").Replace("{text}", turn.playerText ?? "")
-                + "\n" + SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.CustomerLine", "顾客：{text}").Replace("{text}", turn.aiText ?? "");
+            string body = SimTranslation.T("RSMF.Business.Reviews.Negotiation.PlayerLine").Replace("{text}", turn.playerText ?? "")
+                + "\n" + SimTranslation.T("RSMF.Business.Reviews.Negotiation.CustomerLine").Replace("{text}", turn.aiText ?? "");
             Widgets.Label(new Rect(rect.x + 10f, rect.y + 8f + titleH, rect.width - 20f, Mathf.Max(Text.LineHeight, rect.yMax - rect.y - titleH - 14f)), body);
             ResetText();
         }
-
-        /// <summary>
-        /// 计算折叠回复行高度，负责动态测量回复文本避免中文截断。
-        /// </summary>
+        //计算折叠回复行高度，负责动态测量回复文本避免中文截断。
         private static float CalcForumReplyRowHeight(CustomerReviewRecord reply, float width)
         {
             GameFont oldFont = Text.Font;
@@ -596,10 +555,7 @@ namespace SimManagementLib.SimDialog
                 Text.WordWrap = oldWordWrap;
             }
         }
-
-        /// <summary>
-        /// 绘制展开后的单条回复，负责呈现楼中楼回复内容和作者信息。
-        /// </summary>
+        //绘制展开后的单条回复，负责呈现楼中楼回复内容和作者信息。
         private void DrawForumReplyRow(Rect rect, CustomerReviewRecord reply)
         {
             GameFont oldFont = Text.Font;
@@ -633,6 +589,7 @@ namespace SimManagementLib.SimDialog
             }
         }
 
+        //绘制评价关联商品，职责是展示顾客本次消费涉及的物品。
         private void DrawReviewFeaturedItems(Rect rect, CustomerReviewRecord record)
         {
             if (record.featuredItems.NullOrEmpty()) return;
@@ -654,10 +611,7 @@ namespace SimManagementLib.SimDialog
                 if (x + size > rect.xMax) break;
             }
         }
-
-        /// <summary>
-        /// 绘制论坛回复块，负责把 AI 生成的支持、反驳或补充挂到目标评论下方。
-        /// </summary>
+        //绘制论坛回复块，负责把 AI 生成的支持、反驳或补充挂到目标评论下方。
         private void DrawForumReply(Rect rect, CustomerReviewRecord record)
         {
             if (rect.height <= 24f) return;
@@ -680,20 +634,14 @@ namespace SimManagementLib.SimDialog
             float bodyY = rect.y + 8f + titleH;
             Widgets.Label(new Rect(rect.x + 10f, bodyY, rect.width - 18f, Mathf.Max(Text.LineHeight, rect.yMax - bodyY - 6f)), record.replyText);
         }
-
-        /// <summary>
-        /// 构造论坛帖子的底部元信息，负责把日期、店铺、消费和服务摘要压成一行可换行文本。
-        /// </summary>
+        //构造论坛帖子的底部元信息，负责把日期、店铺、消费和服务摘要压成一行可换行文本。
         private static string BuildForumMeta(CustomerReviewRecord record)
         {
             string purchase = BuildPublicPurchaseSummary(record);
             string service = BuildPublicServiceSummary(record);
             return SimTranslation.T("RSMF.Business.Reviews.MetaLine", record.gameDay.Named("day"), record.zoneLabel.Named("shop"), record.spentSilver.ToString("F0").Named("spent"), purchase.Named("purchase"), service.Named("service"));
         }
-
-        /// <summary>
-        /// 构造公开购买摘要，负责避免把只给模型看的商品说明正文显示到论坛 UI。
-        /// </summary>
+        //构造公开购买摘要，负责避免把只给模型看的商品说明正文显示到论坛 UI。
         private static string BuildPublicPurchaseSummary(CustomerReviewRecord record)
         {
             if (record == null)
@@ -717,10 +665,7 @@ namespace SimManagementLib.SimDialog
 
             return StripModelOnlyDescriptions(record.purchasedSummary, SimTranslation.T("RSMF.Business.Reviews.NoPurchaseSummary"));
         }
-
-        /// <summary>
-        /// 构造公开服务摘要，负责移除服务定义说明等模型专用描述。
-        /// </summary>
+        //构造公开服务摘要，负责移除服务定义说明等模型专用描述。
         private static string BuildPublicServiceSummary(CustomerReviewRecord record)
         {
             if (record == null)
@@ -728,10 +673,7 @@ namespace SimManagementLib.SimDialog
 
             return StripModelOnlyDescriptions(record.serviceSummary, SimTranslation.T("RSMF.Business.Reviews.NoServiceSummary"));
         }
-
-        /// <summary>
-        /// 清理模型专用说明片段，负责兼容旧存档中已经保存的富摘要文本。
-        /// </summary>
+        //清理模型专用说明片段，负责兼容旧存档中已经保存的富摘要文本。
         private static string StripModelOnlyDescriptions(string value, string fallback)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -756,6 +698,7 @@ namespace SimManagementLib.SimDialog
             return string.Join("；", segments);
         }
 
+        //筛选并排序评价，职责是生成符合当前显示条件的记录列表。
         private List<CustomerReviewRecord> FilterAndSortReviews(IReadOnlyList<CustomerReviewRecord> source)
         {
             IEnumerable<CustomerReviewRecord> query = source?.Where(r => r != null) ?? Enumerable.Empty<CustomerReviewRecord>();
@@ -771,10 +714,7 @@ namespace SimManagementLib.SimDialog
 
             return query.ToList();
         }
-
-        /// <summary>
-        /// 构造论坛线程列表，负责把 AI 回复归入被回复主帖，避免回复在主列表里重复显示。
-        /// </summary>
+        //构造论坛线程列表，负责把 AI 回复归入被回复主帖，避免回复在主列表里重复显示。
         private static List<ReviewThreadView> BuildReviewThreads(List<CustomerReviewRecord> records)
         {
             List<ReviewThreadView> threads = new List<ReviewThreadView>();
@@ -814,18 +754,12 @@ namespace SimManagementLib.SimDialog
 
             return threads;
         }
-
-        /// <summary>
-        /// 判断指定评论的回复是否展开，负责保持玩家本次打开窗口内的论坛折叠状态。
-        /// </summary>
+        //判断指定评论的回复是否展开，负责保持玩家本次打开窗口内的论坛折叠状态。
         private bool IsReviewRepliesExpanded(string reviewId)
         {
             return !string.IsNullOrEmpty(reviewId) && expandedReviewReplyIds.Contains(reviewId);
         }
-
-        /// <summary>
-        /// 切换评论回复展开状态，负责让玩家像论坛一样展开或收起楼中楼。
-        /// </summary>
+        //切换评论回复展开状态，负责让玩家像论坛一样展开或收起楼中楼。
         private void ToggleReviewReplies(string reviewId)
         {
             if (string.IsNullOrEmpty(reviewId)) return;
@@ -834,18 +768,12 @@ namespace SimManagementLib.SimDialog
             else
                 expandedReviewReplyIds.Add(reviewId);
         }
-
-        /// <summary>
-        /// 判断申诉历史是否展开，负责默认只显示最近一轮历史。
-        /// </summary>
+        //判断申诉历史是否展开，负责默认只显示最近一轮历史。
         private bool IsReviewNegotiationHistoryExpanded(string reviewId)
         {
             return !string.IsNullOrEmpty(reviewId) && expandedReviewNegotiationHistoryIds.Contains(reviewId);
         }
-
-        /// <summary>
-        /// 切换申诉历史展开状态，负责控制无限轮数历史在界面中的占用高度。
-        /// </summary>
+        //切换申诉历史展开状态，负责控制无限轮数历史在界面中的占用高度。
         private void ToggleReviewNegotiationHistory(string reviewId)
         {
             if (string.IsNullOrEmpty(reviewId)) return;
@@ -854,10 +782,7 @@ namespace SimManagementLib.SimDialog
             else
                 expandedReviewNegotiationHistoryIds.Add(reviewId);
         }
-
-        /// <summary>
-        /// 判断评价是否可以显示玩家申诉入口，负责限制入口只出现在可申诉主评上。
-        /// </summary>
+        //判断评价是否可以显示玩家申诉入口，负责限制入口只出现在可申诉主评上。
         private static bool CanShowNegotiationInput(CustomerReviewRecord record)
         {
             return record != null
@@ -865,22 +790,16 @@ namespace SimManagementLib.SimDialog
                 && !record.isWithdrawn
                 && string.IsNullOrWhiteSpace(record.replyToReviewId);
         }
-
-        /// <summary>
-        /// 构造申诉历史标题，负责展示顾客本轮处理动作和星级变化。
-        /// </summary>
+        //构造申诉历史标题，负责展示顾客本轮处理动作和星级变化。
         private static string BuildNegotiationTurnTitle(CustomerReviewNegotiationTurn turn)
         {
             string actionLabel = SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.Action." + (turn?.action ?? "keep"), turn?.action ?? "keep");
             string stars = turn == null ? "" : turn.oldStars + "★ -> " + turn.newStars + "★";
-            return SimTranslation.TOrFallback("RSMF.Business.Reviews.Negotiation.TurnTitle", "申诉结果：{action} · {stars}")
+            return SimTranslation.T("RSMF.Business.Reviews.Negotiation.TurnTitle")
                 .Replace("{action}", actionLabel)
                 .Replace("{stars}", stars);
         }
-
-        /// <summary>
-        /// 构造回复标题，负责统一展示作者、被回复者和回复立场。
-        /// </summary>
+        //构造回复标题，负责统一展示作者、被回复者和回复立场。
         private static string BuildReplyTitle(CustomerReviewRecord reply)
         {
             string author = string.IsNullOrWhiteSpace(reply?.aiNickname) ? SimTranslation.T("RSMF.Business.Reviews.AnonymousUser") : reply.aiNickname;
@@ -888,10 +807,7 @@ namespace SimManagementLib.SimDialog
             string stance = string.IsNullOrWhiteSpace(reply?.replyStance) ? SimTranslation.T("RSMF.Business.Reviews.ReplyStanceDefault") : reply.replyStance;
             return SimTranslation.T("RSMF.Business.Reviews.ReplyTitle", author.Named("author"), target.Named("target"), stance.Named("stance"));
         }
-
-        /// <summary>
-        /// 按论坛流排序评价，负责让回复尽量贴近被回复的主帖显示。
-        /// </summary>
+        //按论坛流排序评价，负责让回复尽量贴近被回复的主帖显示。
         private static IEnumerable<CustomerReviewRecord> OrderForumThread(IEnumerable<CustomerReviewRecord> source)
         {
             List<CustomerReviewRecord> all = source.OrderByDescending(r => r.tickAbs).ToList();
@@ -915,6 +831,7 @@ namespace SimManagementLib.SimDialog
             }
         }
 
+        //生成商店筛选标签，职责是显示当前评价查询范围。
         private string BuildReviewFilterLabel()
         {
             if (reviewFilterZoneId == int.MinValue) return SimTranslation.T("RSMF.Business.Reviews.AllShops");
@@ -922,6 +839,7 @@ namespace SimManagementLib.SimDialog
             return zone != null ? zone.label.Truncate(150f) : SimTranslation.T("RSMF.Business.Reviews.ShopFallback", reviewFilterZoneId.Named("id"));
         }
 
+        //打开商店筛选菜单，职责是切换评价所属商店。
         private void OpenReviewShopFilterMenu()
         {
             List<FloatMenuOption> options = new List<FloatMenuOption>
@@ -937,6 +855,7 @@ namespace SimManagementLib.SimDialog
             Find.WindowStack.Add(new FloatMenu(options));
         }
 
+        //生成评分星形文字，职责是按星级显示评价分数。
         private static string BuildStars(int stars)
         {
             stars = Mathf.Clamp(stars, 1, 5);

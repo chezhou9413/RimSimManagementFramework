@@ -10,6 +10,7 @@ using Verse;
 
 namespace SimManagementLib.SimDialog
 {
+    //组织商店管理面板，职责是展示配置内容与当前选择摘要。
     public partial class Dialog_ShopManager
     {
         //绘制单店总览，职责是展示当前经营状态和配置摘要。
@@ -124,7 +125,7 @@ namespace SimManagementLib.SimDialog
 
             string categoryText = activeCategory != null
                 ? activeCategory.label
-                : SimTranslation.TOrFallback("RSMF.Common.None", "无");
+                : SimTranslation.T("RSMF.Common.None");
             string summaryLine = SimTranslation.T("RSMF.ShopManager.StorageSummaryLine",
                 categoryText.Named("category"),
                 storage.CountTotalStored().Named("stored"),

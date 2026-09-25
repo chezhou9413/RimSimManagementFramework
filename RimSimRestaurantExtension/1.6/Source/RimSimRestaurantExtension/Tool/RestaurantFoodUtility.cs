@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,13 +53,13 @@ namespace RimSimRestaurantExtension.Tool
         //返回食物摘要，职责是在选择器和菜单卡片中显示营养、偏好和来源。
         public static string BuildFoodSummary(ThingDef def)
         {
-            if (def?.ingestible == null) return "无营养数据";
+            if (def?.ingestible == null) return SimTranslation.T("RSR.Food.NoNutrition");
             string nutrition = def.ingestible.CachedNutrition.ToString("F2");
-            string preferability = def.ingestible.preferability >= FoodPreferability.MealLavish ? "豪华餐品"
-                : def.ingestible.preferability >= FoodPreferability.MealFine ? "精致餐品"
-                : def.ingestible.IsMeal ? "日常餐品" : "可食用食品";
+            string preferability = def.ingestible.preferability >= FoodPreferability.MealLavish ? SimTranslation.T("RSR.Food.Lavish")
+                : def.ingestible.preferability >= FoodPreferability.MealFine ? SimTranslation.T("RSR.Food.Fine")
+                : def.ingestible.IsMeal ? SimTranslation.T("RSR.Food.Simple") : SimTranslation.T("RSR.Food.Edible");
             string source = def.modContentPack?.Name ?? "Core";
-            return $"营养 {nutrition} · {preferability} · {source}";
+            return SimTranslation.T("RSR.Food.Summary", (nutrition).Named("nutrition"), (preferability).Named("quality"), (source).Named("source"));
         }
 
         //返回食物是否为正式餐品，职责是给界面显示稳定分类。

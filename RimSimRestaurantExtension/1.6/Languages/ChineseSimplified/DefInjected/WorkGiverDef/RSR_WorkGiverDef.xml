@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR_WorkGiver_BringRestaurantMealToPass.gerund>正在运送成品</RSR_WorkGiver_BringRestaurantMealToPass.gerund>
+  <RSR_WorkGiver_BringRestaurantMealToPass.label>运送餐品到出餐台</RSR_WorkGiver_BringRestaurantMealToPass.label>
+  <RSR_WorkGiver_BringRestaurantMealToPass.verb>出餐</RSR_WorkGiver_BringRestaurantMealToPass.verb>
+  <RSR_WorkGiver_CookRestaurantOrder.gerund>正在制作餐厅订单</RSR_WorkGiver_CookRestaurantOrder.gerund>
+  <RSR_WorkGiver_CookRestaurantOrder.label>制作餐厅订单</RSR_WorkGiver_CookRestaurantOrder.label>
+  <RSR_WorkGiver_CookRestaurantOrder.verb>制作</RSR_WorkGiver_CookRestaurantOrder.verb>
+  <RSR_WorkGiver_DeliverRestaurantOrder.gerund>正在给顾客送餐</RSR_WorkGiver_DeliverRestaurantOrder.gerund>
+  <RSR_WorkGiver_DeliverRestaurantOrder.label>送达餐厅订单</RSR_WorkGiver_DeliverRestaurantOrder.label>
+  <RSR_WorkGiver_DeliverRestaurantOrder.verb>送餐</RSR_WorkGiver_DeliverRestaurantOrder.verb>
+  <RSR_WorkGiver_RestaurantChefStandby.gerund>正在餐厅厨房值班</RSR_WorkGiver_RestaurantChefStandby.gerund>
+  <RSR_WorkGiver_RestaurantChefStandby.label>餐厅厨师值班</RSR_WorkGiver_RestaurantChefStandby.label>
+  <RSR_WorkGiver_RestaurantChefStandby.verb>值班</RSR_WorkGiver_RestaurantChefStandby.verb>
+  <RSR_WorkGiver_RestaurantWaiterStandby.gerund>正在餐厅前厅值班</RSR_WorkGiver_RestaurantWaiterStandby.gerund>
+  <RSR_WorkGiver_RestaurantWaiterStandby.label>餐厅服务员值班</RSR_WorkGiver_RestaurantWaiterStandby.label>
+  <RSR_WorkGiver_RestaurantWaiterStandby.verb>值班</RSR_WorkGiver_RestaurantWaiterStandby.verb>
+  <RSR_WorkGiver_StockSushiConveyor.gerund>正在补充或清理餐厅传送带</RSR_WorkGiver_StockSushiConveyor.gerund>
+  <RSR_WorkGiver_StockSushiConveyor.label>餐厅传送带补餐</RSR_WorkGiver_StockSushiConveyor.label>
+  <RSR_WorkGiver_StockSushiConveyor.verb>补餐</RSR_WorkGiver_StockSushiConveyor.verb>
+  <RSR_WorkGiver_TakeRestaurantOrder.gerund>正在与顾客点菜</RSR_WorkGiver_TakeRestaurantOrder.gerund>
+  <RSR_WorkGiver_TakeRestaurantOrder.label>接待餐厅顾客</RSR_WorkGiver_TakeRestaurantOrder.label>
+  <RSR_WorkGiver_TakeRestaurantOrder.verb>接待</RSR_WorkGiver_TakeRestaurantOrder.verb>
+</LanguageData>

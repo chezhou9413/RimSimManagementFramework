@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,7 @@ namespace RimSimRestaurantExtension.UI
             if (items.Count == 0)
             {
                 RestaurantBusinessUiUtility.DrawEmpty(rect, context.SearchText.NullOrEmpty()
-                    ? "菜单还是空的\n添加菜品后，可设置售价、食材与每次点餐份数。" : "没有匹配菜品\n请调整商店管理窗口的搜索条件。");
+                    ? SimTranslation.T("RSR.UI.MenuEmpty") : SimTranslation.T("RSR.UI.MenuNoMatch"));
                 return;
             }
             float width = Mathf.Max(620f, rect.width - 16f);
@@ -48,7 +49,7 @@ namespace RimSimRestaurantExtension.UI
             if (header) ShopUiVisualUtility.DrawTableHeaderBackground(rect);
             else ShopUiVisualUtility.DrawTableRowBackground(rect, index, state.selectedId == item.id);
             float[] widths = { rect.width - 384f, 70f, 54f, 50f, 106f, 104f };
-            string[] labels = { "菜品与货源", "售价/份", "份数", "启用", "供货状态", "操作" };
+            string[] labels = { SimTranslation.T("RSR.UI.DishAndSource"), SimTranslation.T("RSR.UI.PricePerPortion"), SimTranslation.T("RSR.UI.Portions"), SimTranslation.T("RSR.UI.Enable"), SimTranslation.T("RSR.UI.SupplyStatus"), SimTranslation.T("RSR.UI.Actions") };
             float x = rect.x, control = RestaurantUiStyle.ControlHeight(), h = RestaurantUiStyle.LineHeight(GameFont.Small);
             for (int i = 0; i < widths.Length; i++)
             {
@@ -61,24 +62,24 @@ namespace RimSimRestaurantExtension.UI
                     RestaurantUiStyle.DrawThingIconOrMissing(new Rect(cell.x, cell.center.y - 18f, 36f, 36f), item.MealDef);
                     ShopUiVisualUtility.DrawCellLabel(new Rect(cell.x + 44f, cell.y + 6f, cell.width - 44f, h), item.DisplayLabel);
                     ShopUiVisualUtility.DrawCellLabel(new Rect(cell.x + 44f, cell.y + h + 8f, cell.width - 44f, h),
-                        item.IsStockProduct ? "现货 · " + item.sourceCabinet.LabelCap : "菜谱 · 厨房制作", RestaurantUiStyle.MutedText);
+                        item.IsStockProduct ? SimTranslation.T("RSR.UI.CabinetSource", (item.sourceCabinet.LabelCap.ToString()).Named("cabinet")) : SimTranslation.T("RSR.UI.KitchenRecipe"), RestaurantUiStyle.MutedText);
                 }
                 else if (i == 1) ShopUiVisualUtility.DrawCellLabel(cell, (item.unitPrice * state.draft.priceMultiplier).ToString("F1"));
                 else if (i == 2) ShopUiVisualUtility.DrawCellLabel(cell, item.minCount + "–" + item.maxCount);
                 else if (i == 3)
                 {
-                    if (item.IsStockProduct) ShopUiVisualUtility.DrawCellLabel(cell, "柜中", RestaurantUiStyle.MutedText);
+                    if (item.IsStockProduct) ShopUiVisualUtility.DrawCellLabel(cell, SimTranslation.T("RSR.UI.InCabinet"), RestaurantUiStyle.MutedText);
                     else Widgets.CheckboxLabeled(field, "", ref item.enabled);
                 }
                 else if (i == 4)
                 {
-                    string status = !item.enabled && !item.IsStockProduct ? "已停用" : issue.NullOrEmpty() ? "可制作" : issue;
-                    bool available = issue.NullOrEmpty() || issue == "柜中有货";
+                    string status = !item.enabled && !item.IsStockProduct ? SimTranslation.T("RSR.UI.Disabled") : issue.NullOrEmpty() ? (item.IsStockProduct ? SimTranslation.T("RSR.UI.InStock") : SimTranslation.T("RSR.UI.CanCook")) : issue;
+                    bool available = issue.NullOrEmpty();
                     ShopUiVisualUtility.DrawCellLabel(cell, status, available ? RestaurantUiStyle.Good : RestaurantUiStyle.Warning);
                 }
                 else
                 {
-                    if (RestaurantUiStyle.DrawSecondaryButton(new Rect(field.x, field.y, 58f, field.height), "编辑"))
+                    if (RestaurantUiStyle.DrawSecondaryButton(new Rect(field.x, field.y, 58f, field.height), SimTranslation.T("RSR.UI.Edit")))
                     {
                         state.selectedId = item.id;
                         if (item.IsStockProduct) Find.WindowStack.Add(new Dialog_RestaurantStorage(item.sourceCabinet));
@@ -87,14 +88,14 @@ namespace RimSimRestaurantExtension.UI
                     if (!item.IsStockProduct && RestaurantUiStyle.DrawSecondaryButton(new Rect(field.xMax - 30f, field.y, 30f, field.height), "…"))
                         Find.WindowStack.Add(new FloatMenu(new List<FloatMenuOption>
                         {
-                            new FloatMenuOption("复制菜品", () =>
+                            new FloatMenuOption(SimTranslation.T("RSR.UI.CopyDish"), () =>
                             {
                                 var clone = item.Clone();
                                 clone.id = GameComp.RestaurantShopSettings.MakeMenuId();
-                                clone.label = item.DisplayLabel + " 副本";
+                                clone.label = SimTranslation.T("RSR.UI.DishCopyName", (item.DisplayLabel).Named("name"));
                                 state.draft.menuItems.Add(clone);
                             }),
-                            new FloatMenuOption("删除菜品", () => state.draft.menuItems.Remove(item))
+                            new FloatMenuOption(SimTranslation.T("RSR.UI.DeleteDish"), () => state.draft.menuItems.Remove(item))
                         }));
                 }
             }
@@ -103,14 +104,19 @@ namespace RimSimRestaurantExtension.UI
         //缓存菜单供货提示，职责是避免每帧执行库存核对与厨房检查。
         private static string Issue(ShopManagerUiContext context, RestaurantPageState state, RestaurantMenuItem item)
         {
+            if (state.menuStatusLanguage != LanguageDatabase.activeLanguage)
+            {
+                state.menuStatus.Clear();
+                state.menuStatusLanguage = LanguageDatabase.activeLanguage;
+            }
             int now = Find.TickManager.TicksGame;
             if (state.menuStatus.TryGetValue(item.id, out var cached) && now - cached.tick < 120) return cached.issue;
             var preview = new RestaurantOrder { mealDef = item.MealDef, mealCount = item.minCount,
                 ingredients = RestaurantIngredientUtility.BuildNeeds(item, item.minCount) };
             string issue = item.IsStockProduct
-                ? Inventory.RestaurantProductMenuUtility.Available(context.Shop, item, item.minCount) ? "柜中有货" : "现货或路线不足"
+                ? Inventory.RestaurantProductMenuUtility.Available(context.Shop, item, item.minCount) ? "" : SimTranslation.T("RSR.UI.StockUnavailable")
                 : !RestaurantIngredientUtility.HasIngredients(null, context.Shop, item, item.minCount)
-                    ? "食材不足" : RestaurantBusinessAvailability.CheckOrder(context.Shop, preview);
+                    ? SimTranslation.T("RSR.UI.IngredientsMissing") : RestaurantBusinessAvailability.CheckOrder(context.Shop, preview);
             state.menuStatus[item.id] = (now, issue);
             return issue;
         }

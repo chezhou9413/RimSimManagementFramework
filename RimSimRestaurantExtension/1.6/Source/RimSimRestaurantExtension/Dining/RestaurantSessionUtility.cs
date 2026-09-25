@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System.Linq;
 using RimSimRestaurantExtension.Models;
 using RimSimRestaurantExtension.Tool;
@@ -12,13 +13,13 @@ namespace RimSimRestaurantExtension.Dining
         public static bool Validate(RestaurantDiningSession session, Map map, out string reason)
         {
             reason = "";
-            if (session == null || map == null) { reason = "用餐会话或地图已不存在"; return false; }
+            if (session == null || map == null) { reason = SimTranslation.T("RSR.Issue.SessionMissing"); return false; }
             Pawn customer = RestaurantOrderUtility.FindThingById(map, session.customerId) as Pawn;
-            if (customer == null || customer.Dead || !customer.Spawned) reason = "顾客已离开地图";
-            else if (RestaurantOrderUtility.FindShopById(map, session.shopId) == null) reason = "餐厅商店区域已不存在";
-            else if (session.state == RestaurantSessionState.Serving && session.tray?.Spawned != true) reason = "本人桌面托盘已丢失";
+            if (customer == null || customer.Dead || !customer.Spawned) reason = SimTranslation.T("RSR.Issue.CustomerLeftMap");
+            else if (RestaurantOrderUtility.FindShopById(map, session.shopId) == null) reason = SimTranslation.T("RSR.Issue.RestaurantRemoved");
+            else if (session.state == RestaurantSessionState.Serving && session.tray?.Spawned != true) reason = SimTranslation.T("RSR.Issue.TrayMissing");
             else if (session.state != RestaurantSessionState.AwaitingCheckout
-                && !RestaurantDiningSpotUtility.IsDiningSpotValid(customer, session.Anchor)) reason = "餐桌或座位已不可用";
+                && !RestaurantDiningSpotUtility.IsDiningSpotValid(customer, session.Anchor)) reason = SimTranslation.T("RSR.Issue.SeatUnavailable");
             return reason.NullOrEmpty();
         }
 
@@ -57,7 +58,7 @@ namespace RimSimRestaurantExtension.Dining
             var action = SimShopCustomerApi.GetActionOrder(session.actionOrderId);
             if (action == null || !action.IsActiveState)
             {
-                if (Find.TickManager.TicksGame - session.Anchor.createdTick > 600) Abort(session, "框架用餐动作已结束或丢失");
+                if (Find.TickManager.TicksGame - session.Anchor.createdTick > 600) Abort(session, SimTranslation.T("RSR.Issue.ActionMissing"));
                 return;
             }
             if (session.state != RestaurantSessionState.Serving || session.stopOrdering) return;
@@ -72,7 +73,7 @@ namespace RimSimRestaurantExtension.Dining
             if (RestaurantMenuUtility.GetOrCreateSelection(customer, provider, shop) == null)
             {
                 session.stopOrdering = true;
-                session.reason = "需求已满足或没有符合剩余预算的商品";
+                session.reason = SimTranslation.T("RSR.Issue.DiningSatisfied");
                 return;
             }
             RestaurantOrderUtility.OrderManager.RequestNext(session);

@@ -14,20 +14,16 @@ using Verse;
 
 namespace SimManagementLib.SimDialog
 {
+    //管理经商主窗口，职责是组织注册页面与全局经营信息。
     public partial class MainTabWindow_BusinessManager : MainTabWindow
     {
-        /// <summary>
-        /// 保存经商管理商店行需要的地图与区域，负责避免绘制循环反复解析地图。
-        /// </summary>
+        //保存经商管理商店行需要的地图与区域，负责避免绘制循环反复解析地图。
         private sealed class ShopViewData
         {
             public Map Map;
             public Zone_Shop Zone;
         }
-
-        /// <summary>
-        /// 保存经商管理顾客行需要的顾客、地图、商店和 Lord 状态。
-        /// </summary>
+        //保存经商管理顾客行需要的顾客、地图、商店和 Lord 状态。
         private sealed class CustomerViewData
         {
             public Map Map;
@@ -92,6 +88,7 @@ namespace SimManagementLib.SimDialog
 
         public override Vector2 RequestedTabSize => new Vector2(1220f, 720f);
 
+        //准备主窗口，职责是在打开时同步页面和当前选择。
         public override void PreOpen()
         {
             base.PreOpen();
@@ -99,10 +96,7 @@ namespace SimManagementLib.SimDialog
             EnsurePages();
             AnnouncementClientState.TryCheckOnBusinessManagerOpen();
         }
-
-        /// <summary>
-        /// 关闭经营管理窗口前清理网络蓝图异步任务，负责避免后台请求继续占用资源。
-        /// </summary>
+        //关闭经营管理窗口前清理网络蓝图异步任务，负责避免后台请求继续占用资源。
         public override void PreClose()
         {
             base.PreClose();
@@ -112,6 +106,7 @@ namespace SimManagementLib.SimDialog
             BusinessPageWorker_Extensions.ClearPreviewCache();
         }
 
+        //绘制经营主窗口，职责是划分导航和当前页面内容。
         public override void DoWindowContents(Rect inRect)
         {
             GameFont oldFont = Text.Font;
@@ -144,7 +139,7 @@ namespace SimManagementLib.SimDialog
 
                     if (uiContext.LastException != null)
                     {
-                        ShopUiLayoutUtility.DrawErrorState(bodyRect.ContractedBy(10f), SimTranslation.TOrFallback("RSMF.ShopUi.Error.PageDrawFailed", "Page drawing failed."), uiContext.LastException.Message);
+                        ShopUiLayoutUtility.DrawErrorState(bodyRect.ContractedBy(10f), SimTranslation.T("RSMF.ShopUi.Error.PageDrawFailed"), uiContext.LastException.Message);
                     }
                 }
             }
@@ -157,6 +152,7 @@ namespace SimManagementLib.SimDialog
             }
         }
 
+        //同步可用页面，职责是按注册信息和显示设置维护导航。
         private void EnsurePages()
         {
             if (!pages.NullOrEmpty() && !SimShopUiApi.ConsumeRefreshRequest())
@@ -190,6 +186,7 @@ namespace SimManagementLib.SimDialog
             }
         }
 
+        //绘制页面导航，职责是切换当前页面并提供页面管理入口。
         private void DrawPageTabs(Rect rect)
         {
             Widgets.DrawBoxSolid(rect, new Color(0f, 0f, 0f, 0.2f));
@@ -234,7 +231,7 @@ namespace SimManagementLib.SimDialog
             if (hasPager)
                 DrawTabPager(new Rect(selectorRect.x - TabControlGap - TabPagerWidth, outRect.y, TabPagerWidth, outRect.height), ranges.Count);
 
-            if (SimUiStyle.DrawSecondaryButton(selectorRect, SimTranslation.TOrFallback("RSMF.Business.Pages.Select", "页面"), true, GameFont.Tiny))
+            if (SimUiStyle.DrawSecondaryButton(selectorRect, SimTranslation.T("RSMF.Business.Pages.Select"), true, GameFont.Tiny))
                 ShowBusinessPageManager();
         }
 
@@ -244,10 +241,7 @@ namespace SimManagementLib.SimDialog
         private const float TabControlHeight = 28f;
         private const float TabMinWidth = 110f;
         private const float TabMaxWidth = 188f;
-
-        /// <summary>
-        /// 切换经商管理页面，负责同步当前页 Def、重置页面滚动状态并触发页面打开生命周期。
-        /// </summary>
+        //切换经商管理页面，负责同步当前页 Def、重置页面滚动状态并触发页面打开生命周期。
         private void SelectBusinessPage(int pageIndex)
         {
             if (pageIndex < 0 || pageIndex >= pages.Count)
@@ -269,10 +263,7 @@ namespace SimManagementLib.SimDialog
             announcementScrollPos = Vector2.zero;
             NotifyPageOpened(page);
         }
-
-        /// <summary>
-        /// 绘制页签分页按钮，负责在页面数量过多时提供稳定的上一页和下一页切换入口。
-        /// </summary>
+        //绘制页签分页按钮，负责在页面数量过多时提供稳定的上一页和下一页切换入口。
         private void DrawTabPager(Rect rect, int pageCount)
         {
             float buttonH = Mathf.Max(Text.LineHeightOf(GameFont.Tiny) + 8f, 28f);
@@ -307,10 +298,7 @@ namespace SimManagementLib.SimDialog
             if (SimUiStyle.DrawSecondaryButton(nextRect, ">", pageTabPageIndex < pageCount - 1, GameFont.Tiny))
                 pageTabPageIndex++;
         }
-
-        /// <summary>
-        /// 确保当前选中页签所在分页可见，负责处理外部刷新或恢复页面后页签分页不同步的问题。
-        /// </summary>
+        //确保当前选中页签所在分页可见，负责处理外部刷新或恢复页面后页签分页不同步的问题。
         private void EnsureSelectedTabPageVisible(Rect outRect)
         {
             List<int> visiblePageIndices = BuildVisibleBusinessPageIndices();
@@ -333,10 +321,7 @@ namespace SimManagementLib.SimDialog
 
             pageTabPageIndex = Mathf.Clamp(pageTabPageIndex, 0, ranges.Count - 1);
         }
-
-        /// <summary>
-        /// 根据当前窗口宽度切分页签范围，负责让每一页页签都能完整放入可用宽度。
-        /// </summary>
+        //根据当前窗口宽度切分页签范围，负责让每一页页签都能完整放入可用宽度。
         private List<TabPageRange> BuildTabPageRanges(float availableWidth, List<int> visiblePageIndices, out bool hasPager)
         {
             hasPager = false;
@@ -352,10 +337,7 @@ namespace SimManagementLib.SimDialog
             float tabWidthWithPager = Mathf.Max(TabMinWidth, availableWidth - TabSelectorWidth - TabPagerWidth - TabControlGap * 2f);
             return BuildTabPageRangesForWidth(tabWidthWithPager, visiblePageIndices);
         }
-
-        /// <summary>
-        /// 按指定页签区域宽度切分范围，负责给带分页器和不带分页器的布局复用同一套测量逻辑。
-        /// </summary>
+        //按指定页签区域宽度切分范围，负责给带分页器和不带分页器的布局复用同一套测量逻辑。
         private List<TabPageRange> BuildTabPageRangesForWidth(float tabAreaWidth, List<int> visiblePageIndices)
         {
             List<TabPageRange> ranges = new List<TabPageRange>();
@@ -380,10 +362,7 @@ namespace SimManagementLib.SimDialog
             ranges.Add(new TabPageRange(start, visiblePageIndices.Count - 1));
             return ranges;
         }
-
-        /// <summary>
-        /// 测量页签宽度，负责限制过长翻译文本占满整行。
-        /// </summary>
+        //测量页签宽度，负责限制过长翻译文本占满整行。
         private static float GetPageTabWidth(string label)
         {
             GameFont oldFont = Text.Font;
@@ -397,10 +376,7 @@ namespace SimManagementLib.SimDialog
                 Text.Font = oldFont;
             }
         }
-
-        /// <summary>
-        /// 返回当前仍显示在顶部页签栏中的页面下标，负责把页面过滤和分页测量分离。
-        /// </summary>
+        //返回当前仍显示在顶部页签栏中的页面下标，负责把页面过滤和分页测量分离。
         private List<int> BuildVisibleBusinessPageIndices()
         {
             List<int> result = new List<int>();
@@ -411,18 +387,12 @@ namespace SimManagementLib.SimDialog
             }
             return result;
         }
-
-        /// <summary>
-        /// 打开经商管理页面管理器，负责让玩家在独立窗口中调整页面显示和顺序。
-        /// </summary>
+        //打开经商管理页面管理器，负责让玩家在独立窗口中调整页面显示和顺序。
         private void ShowBusinessPageManager()
         {
             Find.WindowStack.Add(new Dialog_BusinessPageManager(pages, ApplyBusinessPageManagement));
         }
-
-        /// <summary>
-        /// 判断页面是否显示在顶部页签中，负责默认让新增或首次出现的页面保持可见。
-        /// </summary>
+        //判断页面是否显示在顶部页签中，负责默认让新增或首次出现的页面保持可见。
         private bool IsBusinessPageVisible(ShopUiPageDef page)
         {
             SimManagementLibSettings settings = SimManagementLibMod.Settings;
@@ -430,10 +400,7 @@ namespace SimManagementLib.SimDialog
                 && !string.IsNullOrEmpty(page.defName)
                 && (settings?.businessManagerHiddenPages == null || !settings.businessManagerHiddenPages.Contains(page.defName));
         }
-
-        /// <summary>
-        /// 按玩家设置重排经商管理页面，负责让顶部页签和页面管理器使用同一顺序。
-        /// </summary>
+        //按玩家设置重排经商管理页面，负责让顶部页签和页面管理器使用同一顺序。
         private void ApplyBusinessPageOrder()
         {
             List<string> order = SimManagementLibMod.Settings?.businessManagerPageOrder;
@@ -458,10 +425,7 @@ namespace SimManagementLib.SimDialog
             pages.Clear();
             pages.AddRange(orderedPages);
         }
-
-        /// <summary>
-        /// 清理已不存在页面的排序和隐藏记录，负责避免外部页面卸载后留下无效配置。
-        /// </summary>
+        //清理已不存在页面的排序和隐藏记录，负责避免外部页面卸载后留下无效配置。
         private void PruneBusinessPageSettings()
         {
             SimManagementLibSettings settings = SimManagementLibMod.Settings;
@@ -473,10 +437,7 @@ namespace SimManagementLib.SimDialog
             if (BuildVisibleBusinessPageIndices().Count == 0 && pages.Count > 0)
                 settings.businessManagerHiddenPages.Clear();
         }
-
-        /// <summary>
-        /// 清理指定页面标识列表，负责保留仍存在且不重复的页面 DefName。
-        /// </summary>
+        //清理指定页面标识列表，负责保留仍存在且不重复的页面 DefName。
         private void PrunePageDefNameList(List<string> defNames)
         {
             if (defNames == null)
@@ -490,10 +451,7 @@ namespace SimManagementLib.SimDialog
                     defNames.RemoveAt(i);
             }
         }
-
-        /// <summary>
-        /// 应用页面管理器提交的配置，负责持久化排序、隐藏状态并恢复当前选中页面。
-        /// </summary>
+        //应用页面管理器提交的配置，负责持久化排序、隐藏状态并恢复当前选中页面。
         internal void ApplyBusinessPageManagement(List<string> pageOrder, HashSet<string> hiddenPages)
         {
             SimManagementLibSettings settings = SimManagementLibMod.Settings;
@@ -518,10 +476,7 @@ namespace SimManagementLib.SimDialog
 
             EnsureSelectedTabPageVisible(new Rect(0f, 0f, RequestedTabSize.x, 42f));
         }
-
-        /// <summary>
-        /// 规范化管理器提交的页面顺序，负责补齐新增页面并丢弃无效页面。
-        /// </summary>
+        //规范化管理器提交的页面顺序，负责补齐新增页面并丢弃无效页面。
         private List<string> NormalizeSubmittedBusinessPageOrder(List<string> pageOrder)
         {
             List<string> result = new List<string>();
@@ -537,10 +492,7 @@ namespace SimManagementLib.SimDialog
 
             return result;
         }
-
-        /// <summary>
-        /// 规范化管理器提交的隐藏页面，负责至少保留一个可见页。
-        /// </summary>
+        //规范化管理器提交的隐藏页面，负责至少保留一个可见页。
         private List<string> NormalizeSubmittedHiddenBusinessPages(HashSet<string> hiddenPages)
         {
             List<string> result = new List<string>();
@@ -559,10 +511,7 @@ namespace SimManagementLib.SimDialog
 
             return result;
         }
-
-        /// <summary>
-        /// 添加有效页面标识到结果列表，负责过滤空值、重复值和不存在的页面。
-        /// </summary>
+        //添加有效页面标识到结果列表，负责过滤空值、重复值和不存在的页面。
         private void AddValidPageDefName(List<string> result, HashSet<string> seen, string defName)
         {
             if (string.IsNullOrWhiteSpace(defName) || seen.Contains(defName) || pages.FindIndex(page => page?.defName == defName) < 0)
@@ -571,20 +520,14 @@ namespace SimManagementLib.SimDialog
             seen.Add(defName);
             result.Add(defName);
         }
-
-        /// <summary>
-        /// 返回当前选中页面对象，负责让可见性恢复逻辑避免重复边界判断。
-        /// </summary>
+        //返回当前选中页面对象，负责让可见性恢复逻辑避免重复边界判断。
         private ShopUiPageDef CurrentBusinessPageOrNull()
         {
             if (curPageIndex < 0 || curPageIndex >= pages.Count)
                 return null;
             return pages[curPageIndex];
         }
-
-        /// <summary>
-        /// 查找第一个可见页面下标，负责在当前页被隐藏或页面刷新后恢复到可绘制页面。
-        /// </summary>
+        //查找第一个可见页面下标，负责在当前页被隐藏或页面刷新后恢复到可绘制页面。
         private int FindFirstVisibleBusinessPageIndex()
         {
             for (int i = 0; i < pages.Count; i++)
@@ -594,10 +537,7 @@ namespace SimManagementLib.SimDialog
             }
             return pages.Count > 0 ? 0 : -1;
         }
-
-        /// <summary>
-        /// 保存页签分页的起止下标，负责避免在绘制循环中重复计算范围。
-        /// </summary>
+        //保存页签分页的起止下标，负责避免在绘制循环中重复计算范围。
         private struct TabPageRange
         {
             public readonly int StartIndex;
@@ -608,10 +548,7 @@ namespace SimManagementLib.SimDialog
                 StartIndex = startIndex;
                 EndIndex = endIndex;
             }
-
-            /// <summary>
-            /// 判断指定页面下标是否落在当前页签分页中。
-            /// </summary>
+            //判断指定页面下标是否落在当前页签分页中。
             public bool ContainsPageIndex(List<int> visiblePageIndices, int pageIndex)
             {
                 if (visiblePageIndices == null)
@@ -624,16 +561,14 @@ namespace SimManagementLib.SimDialog
                 return false;
             }
         }
-
-        /// <summary>
-        /// 通知当前页面已打开，负责触发 Def Worker 的打开生命周期。
-        /// </summary>
+        //通知当前页面已打开，负责触发 Def Worker 的打开生命周期。
         private void NotifyPageOpened(ShopUiPageDef page)
         {
             if (page == null) return;
             SimShopUiApi.SafeInvoke(page, uiContext, "OnOpen", worker => worker?.OnOpen(uiContext));
         }
 
+        //绘制区域边框，职责是建立经营界面的分区边界。
         private static void DrawBorder(Rect rect, Color color)
         {
             Widgets.DrawBoxSolid(new Rect(rect.x, rect.y, rect.width, 1f), color);
@@ -642,6 +577,7 @@ namespace SimManagementLib.SimDialog
             Widgets.DrawBoxSolid(new Rect(rect.xMax - 1f, rect.y, 1f, rect.height), color);
         }
 
+        //恢复默认文本状态，职责是避免页面样式影响后续绘制。
         private static void ResetText()
         {
             Text.Anchor = TextAnchor.UpperLeft;

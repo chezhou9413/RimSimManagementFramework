@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System.Collections.Generic;
 using System.Linq;
 using RimSimRestaurantExtension.Models;
@@ -26,23 +27,23 @@ namespace RimSimRestaurantExtension.UI
                 var all = (RestaurantOrderUtility.OrderManager?.Sessions ?? new List<RestaurantDiningSession>())
                     .Where(session => ids.Contains(session.shopId)).ToList();
                 float row = RestaurantUiStyle.ControlHeight();
-                float y = rect.y + ShopUiVisualUtility.DrawPageHeading(rect, "餐厅经营",
-                    "查看当前经营情况与用餐记录 · 金额统计基于保留的用餐记录");
+                float y = rect.y + ShopUiVisualUtility.DrawPageHeading(rect, SimTranslation.T("RSR.UI.RestaurantOverview"),
+                    SimTranslation.T("RSR.UI.OverviewHint"));
                 y += ShopUiVisualUtility.DrawMetrics(new Rect(rect.x, y, rect.width, 0),
-                    new[] { "餐厅数量", "进行中用餐", "待收款", "已收款" },
+                    new[] { SimTranslation.T("RSR.UI.RestaurantCount"), SimTranslation.T("RSR.UI.ActiveSessions"), SimTranslation.T("RSR.UI.Unpaid"), SimTranslation.T("RSR.UI.Revenue") },
                     new[] { shops.Count.ToString(), all.Count(s => !s.IsTerminal).ToString(),
                         all.Where(s => s.state == RestaurantSessionState.AwaitingCheckout)
                             .Sum(s => Mathf.Max(0f, s.Amount - s.Orders.Sum(o => o.paidAmount))).ToString("F0"),
                         all.Sum(s => s.Orders.Sum(o => o.paidAmount)).ToString("F0") }, rect.height < 480f) + 12f;
-                if (ShopUiVisualUtility.DrawTabButton(new Rect(rect.x, y, 116f, row), "用餐记录", state.showOrders, RestaurantUiStyle.MutedText))
+                if (ShopUiVisualUtility.DrawTabButton(new Rect(rect.x, y, 116f, row), SimTranslation.T("RSR.UI.DiningRecords"), state.showOrders, RestaurantUiStyle.MutedText))
                 { state.showOrders = true; state.scroll = Vector2.zero; }
-                if (ShopUiVisualUtility.DrawTabButton(new Rect(rect.x + 124f, y, 116f, row), "餐厅状态", !state.showOrders, RestaurantUiStyle.MutedText))
+                if (ShopUiVisualUtility.DrawTabButton(new Rect(rect.x + 124f, y, 116f, row), SimTranslation.T("RSR.UI.RestaurantStatus"), !state.showOrders, RestaurantUiStyle.MutedText))
                 { state.showOrders = false; state.scroll = Vector2.zero; }
                 if (state.showOrders)
                 {
                     if (rect.width < 450f) y += row + 8f;
                     bool previous = state.includeHistory;
-                    Widgets.CheckboxLabeled(new Rect(rect.width < 450f ? rect.x : rect.xMax - 180f, y, 180f, row), "包含历史记录", ref state.includeHistory);
+                    RestaurantUiStyle.DrawCheckbox(new Rect(rect.width < 450f ? rect.x : rect.xMax - 180f, y, 180f, row), SimTranslation.T("RSR.UI.IncludeHistory"), ref state.includeHistory);
                     if (previous != state.includeHistory) { state.page = 0; state.scroll = Vector2.zero; }
                 }
                 var body = new Rect(rect.x, y + row + 8f, rect.width, Mathf.Max(0f, rect.yMax - y - row - 8f));
@@ -63,17 +64,17 @@ namespace RimSimRestaurantExtension.UI
             state.page = Mathf.Clamp(state.page, 0, pages - 1);
             float control = RestaurantUiStyle.ControlHeight();
             float footer = rect.yMax - control;
-            Widgets.Label(new Rect(rect.x, footer, rect.width - 216f, control), $"匹配 {sessions.Count} 次用餐 · 第 {state.page + 1}/{pages} 页");
-            if (RestaurantUiStyle.DrawSecondaryButton(new Rect(rect.xMax - 204f, footer, 96f, control), "上一页", state.page > 0))
+            ShopUiVisualUtility.DrawCellLabel(new Rect(rect.x, footer, rect.width - 216f, control), SimTranslation.T("RSR.UI.SessionPage", (sessions.Count).Named("count"), (state.page + 1).Named("page"), (pages).Named("pages")));
+            if (RestaurantUiStyle.DrawSecondaryButton(new Rect(rect.xMax - 204f, footer, 96f, control), SimTranslation.T("RSR.UI.PreviousPage"), state.page > 0))
             { state.page--; state.scroll = Vector2.zero; }
-            if (RestaurantUiStyle.DrawSecondaryButton(new Rect(rect.xMax - 100f, footer, 100f, control), "下一页", state.page < pages - 1))
+            if (RestaurantUiStyle.DrawSecondaryButton(new Rect(rect.xMax - 100f, footer, 100f, control), SimTranslation.T("RSR.UI.NextPage"), state.page < pages - 1))
             { state.page++; state.scroll = Vector2.zero; }
             var shown = sessions.Skip(state.page * PageSize).Take(PageSize).ToList();
             float line = RestaurantUiStyle.LineHeight(GameFont.Small), childHeight = line * 4f + 18f, summaryHeight = line * 2f + 14f;
             if (sessions.Count == 0)
             {
                 RestaurantBusinessUiUtility.DrawEmpty(new Rect(rect.x, rect.y, rect.width, Mathf.Max(0f, rect.height - control - 8f)),
-                    "没有匹配的用餐记录\n可以调整搜索条件，或勾选“包含历史记录”。");
+                    SimTranslation.T("RSR.UI.NoDiningRecords"));
                 return;
             }
             float height = shown.Sum(s => summaryHeight + (state.expanded.Contains(s.sessionId) ? s.Orders.Count() * childHeight : 0));
@@ -90,20 +91,20 @@ namespace RimSimRestaurantExtension.UI
                     bool expanded = state.expanded.Contains(session.sessionId);
                     if (RestaurantUiStyle.DrawSecondaryButton(new Rect(4, y + 6, 32, control), expanded ? "−" : "+"))
                     { if (expanded) state.expanded.Remove(session.sessionId); else state.expanded.Add(session.sessionId); }
-                    string status = session.state == RestaurantSessionState.AwaitingCheckout ? "待付款"
-                        : session.state == RestaurantSessionState.Completed ? "已付款"
-                        : session.state == RestaurantSessionState.Canceled ? "已取消"
-                        : session.state == RestaurantSessionState.Failed ? "未完成"
-                        : session.state == RestaurantSessionState.Seating ? "前往座位"
-                        : session.stopOrdering ? "准备结账" : "用餐中";
+                    string status = session.state == RestaurantSessionState.AwaitingCheckout ? SimTranslation.T("RSR.State.AwaitingCheckout")
+                        : session.state == RestaurantSessionState.Completed ? SimTranslation.T("RSR.State.Paid")
+                        : session.state == RestaurantSessionState.Canceled ? SimTranslation.T("RSR.State.Canceled")
+                        : session.state == RestaurantSessionState.Failed ? SimTranslation.T("RSR.State.Incomplete")
+                        : session.state == RestaurantSessionState.Seating ? SimTranslation.T("RSR.State.Seating")
+                        : session.stopOrdering ? SimTranslation.T("RSR.State.CheckingOut") : SimTranslation.T("RSR.State.Eating");
                     RestaurantUiStyle.DrawBadge(new Rect(view.width - 100f, y + 4f, 94f, line + 2f), status,
                         session.state == RestaurantSessionState.Failed ? new Color(0.9f, 0.35f, 0.35f, 0.24f)
                         : new Color(RestaurantUiStyle.Accent.r, RestaurantUiStyle.Accent.g, RestaurantUiStyle.Accent.b, 0.2f));
                     DrawText(new Rect(44, y + 4, view.width - 154f, line),
-                        CustomerName(session.Anchor) + " · " + (session.selfService ? "传送带自助" : "普通堂食"));
+                        CustomerName(session.Anchor) + " · " + (session.selfService ? SimTranslation.T("RSR.UI.ConveyorDining") : SimTranslation.T("RSR.UI.TableService")));
                     DrawText(new Rect(44, y + line + 7, view.width - 50, line),
-                        $"已消费 {session.Amount:F0} · 已付 {session.Orders.Sum(o => o.paidAmount):F0} · {session.rounds} 轮 · 成本 {session.Cost:F0}");
-                    TooltipHandler.TipRegion(block, "用餐记录 #" + session.sessionId + (session.reason.NullOrEmpty() ? "" : "\n" + session.reason));
+                        SimTranslation.T("RSR.UI.SessionSummary", (session.Amount.ToString("F0")).Named("amount"), (session.Orders.Sum(o => o.paidAmount).ToString("F0")).Named("paid"), (session.rounds).Named("rounds"), (session.Cost.ToString("F0")).Named("cost")));
+                    TooltipHandler.TipRegion(block, SimTranslation.T("RSR.UI.SessionId", (session.sessionId).Named("id")) + (session.reason.NullOrEmpty() ? "" : "\n" + session.reason));
                     y += summaryHeight;
                     if (!expanded) continue;
                     foreach (var order in session.Orders)
@@ -118,7 +119,7 @@ namespace RimSimRestaurantExtension.UI
         {
             ShopUiVisualUtility.DrawTableRowBackground(rect, index, false);
             string stage = RestaurantBusinessUiUtility.StateLabel(order.state);
-            string meal = order.menuConfirmed ? order.menuItemLabel + " ×" + order.mealCount : "尚未点菜";
+            string meal = order.menuConfirmed ? order.menuItemLabel + " ×" + order.mealCount : SimTranslation.T("RSR.UI.NotOrdered");
             string title = meal;
             Text.WordWrap = false;
             Widgets.Label(new Rect(rect.x + 6f, rect.y + 4f, Mathf.Max(40f, rect.width - 142f), line), title.Truncate(rect.width - 142f));
@@ -126,23 +127,23 @@ namespace RimSimRestaurantExtension.UI
             int id = order.state == RestaurantOrderState.Cooking || order.state == RestaurantOrderState.ChefBringingToPass
                 ? order.cookThingId : order.waiterThingId;
             Map map = Find.Maps.FirstOrDefault(item => item.uniqueID == order.mapId);
-            string employee = selfService ? "顾客自行取餐" : (RestaurantOrderUtility.FindThingById(map, id) as Pawn)?.LabelShortCap ?? "等待员工接单";
+            string employee = selfService ? SimTranslation.T("RSR.UI.CustomerSelfService") : (RestaurantOrderUtility.FindThingById(map, id) as Pawn)?.LabelShortCap ?? SimTranslation.T("RSR.UI.WaitingStaff");
             int began = order.menuConfirmed ? order.orderedTick : order.seatedTick >= 0 ? order.seatedTick : order.createdTick;
             int ended = order.deliveredTick > 0 ? order.deliveredTick : order.IsTerminal ? order.completedTick : Find.TickManager.TicksGame;
-            string detail = $"负责员工：{employee} · 等待 {Mathf.Max(0, ended - began) / 60} 秒 · 订单 {order.price:F0} · 已付 {order.paidAmount:F0}";
+            string detail = SimTranslation.T("RSR.UI.OrderSummary", (employee).Named("employee"), (Mathf.Max(0, ended - began) / 60).Named("seconds"), (order.price.ToString("F0")).Named("price"), (order.paidAmount.ToString("F0")).Named("paid"));
             DrawText(new Rect(rect.x + 6f, rect.y + line + 6f, rect.width - 12f, line), detail);
             string issue = order.failReason.NullOrEmpty() ? order.blockReason : order.failReason;
             if (issue.NullOrEmpty())
             {
-                if (order.state == RestaurantOrderState.WaitingOrder) issue = "等待能到达顾客旁的服务员";
-                else if (order.state == RestaurantOrderState.WaitingCook) issue = "等待厨师、灶台与足量可预约食材";
-                else if (order.state == RestaurantOrderState.ChefBringingToPass && order.cookThingId < 0) issue = "等待厨师恢复已有成品的出餐运输";
-                else if (order.state == RestaurantOrderState.ReadyToDeliver) issue = "等待服务员及可达的取餐、交付位置";
-                else if (order.state == RestaurantOrderState.AwaitingCheckout) issue = "用餐完成，等待框架收银付款";
+                if (order.state == RestaurantOrderState.WaitingOrder) issue = SimTranslation.T("RSR.UI.WaitingReachableWaiter");
+                else if (order.state == RestaurantOrderState.WaitingCook) issue = SimTranslation.T("RSR.UI.WaitingKitchen");
+                else if (order.state == RestaurantOrderState.ChefBringingToPass && order.cookThingId < 0) issue = SimTranslation.T("RSR.UI.WaitingPassTransfer");
+                else if (order.state == RestaurantOrderState.ReadyToDeliver) issue = SimTranslation.T("RSR.UI.WaitingDelivery");
+                else if (order.state == RestaurantOrderState.AwaitingCheckout) issue = SimTranslation.T("RSR.UI.WaitingCheckout");
                 else issue = order.selectionReason;
             }
             DrawText(new Rect(rect.x + 6f, rect.y + line * 2f + 8f, rect.width - 12f, line),
-                $"第 {order.round} 轮 · 来源 {(selfService ? "传送带" : order.stockProduct ? order.sourceCabinet?.LabelCap.ToString() ?? "货柜已移除" : "厨房制作")} · 已接受 {order.acceptedCount}/{order.mealCount}");
+                SimTranslation.T("RSR.UI.OrderSource", (order.round).Named("round"), (selfService ? SimTranslation.T("RSR.UI.ConveyorSource") : order.stockProduct ? order.sourceCabinet?.LabelCap.ToString() ?? SimTranslation.T("RSR.UI.CabinetRemoved") : SimTranslation.T("RSR.UI.KitchenSource")).Named("source"), (order.acceptedCount).Named("accepted"), (order.mealCount).Named("count")));
             DrawText(new Rect(rect.x + 6f, rect.y + line * 3f + 10f, rect.width - 12f, line), issue ?? "");
             Text.WordWrap = true;
         }
@@ -152,7 +153,7 @@ namespace RimSimRestaurantExtension.UI
         {
             var shown = shops.Where(shop => Matches(context.SearchText, shop.label)).ToList();
             if (shown.Count == 0)
-            { RestaurantBusinessUiUtility.DrawEmpty(rect, "没有匹配的餐厅，请检查搜索条件或先建设餐厅接待台。"); return; }
+            { RestaurantBusinessUiUtility.DrawEmpty(rect, SimTranslation.T("RSR.UI.NoRestaurants")); return; }
             float line = RestaurantUiStyle.LineHeight(GameFont.Small);
             float row = Mathf.Max(line * 2f + 16f, RestaurantUiStyle.ControlHeight() + 12f);
             var view = new Rect(0f, 0f, rect.width - 16f, Mathf.Max(rect.height, row * shown.Count));
@@ -166,9 +167,9 @@ namespace RimSimRestaurantExtension.UI
                     ShopUiVisualUtility.DrawTableRowBackground(cell, i, false);
                     DrawText(new Rect(6f, cell.y + 4f, cell.width - 190f, line), shop.label);
                     string issue = RestaurantBusinessAvailability.Snapshot(shop);
-                    DrawText(new Rect(6f, cell.y + line + 8f, cell.width - 190f, line), issue.NullOrEmpty() ? "当前经营检查通过" : issue);
-                    if (RestaurantUiStyle.DrawPrimaryButton(new Rect(cell.xMax - 180f, cell.y + 6f, 82f, row - 12f), "管理")) context.OpenShop(shop);
-                    if (RestaurantUiStyle.DrawSecondaryButton(new Rect(cell.xMax - 90f, cell.y + 6f, 82f, row - 12f), "定位")) context.JumpToShop(shop);
+                    DrawText(new Rect(6f, cell.y + line + 8f, cell.width - 190f, line), issue.NullOrEmpty() ? SimTranslation.T("RSR.UI.BusinessReady") : issue);
+                    if (RestaurantUiStyle.DrawPrimaryButton(new Rect(cell.xMax - 180f, cell.y + 6f, 82f, row - 12f), SimTranslation.T("RSR.UI.Manage"))) context.OpenShop(shop);
+                    if (RestaurantUiStyle.DrawSecondaryButton(new Rect(cell.xMax - 90f, cell.y + 6f, 82f, row - 12f), SimTranslation.T("RSR.UI.Locate"))) context.JumpToShop(shop);
                 }
             }
             finally { Widgets.EndScrollView(); }
@@ -183,9 +184,9 @@ namespace RimSimRestaurantExtension.UI
         //查询顾客名称，职责是让离图历史订单仍有可识别身份。
         private static string CustomerName(RestaurantOrder order)
         {
-            if (order == null) return "顾客已离开";
+            if (order == null) return SimTranslation.T("RSR.UI.CustomerLeft");
             Map map = Find.Maps.FirstOrDefault(item => item.uniqueID == order.mapId);
-            return RestaurantOrderUtility.FindCustomer(map, order)?.LabelShortCap ?? $"顾客 #{order.customerThingId}";
+            return RestaurantOrderUtility.FindCustomer(map, order)?.LabelShortCap ?? SimTranslation.T("RSR.UI.CustomerId", (order.customerThingId).Named("id"));
         }
 
         //匹配框架搜索词，职责是为餐厅和订单使用同一搜索输入。

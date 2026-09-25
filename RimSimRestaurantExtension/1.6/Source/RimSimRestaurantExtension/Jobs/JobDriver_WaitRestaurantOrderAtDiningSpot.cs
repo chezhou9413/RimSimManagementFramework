@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System.Collections.Generic;
 using System.Linq;
 using RimSimRestaurantExtension.Dining;
@@ -65,7 +66,7 @@ namespace RimSimRestaurantExtension.Jobs
             finish.initAction = () =>
             {
                 if (!RestaurantSessionSettlement.Finish(pawn, Session))
-                { RestaurantSessionUtility.Abort(Session, "用餐记账或收银交接失败"); EndJobWith(JobCondition.Incompletable); }
+                { RestaurantSessionUtility.Abort(Session, SimTranslation.T("RSR.Issue.SettlementFailed")); EndJobWith(JobCondition.Incompletable); }
             };
             yield return Toils_Jump.JumpIf(finish, () => Session.ReadyForCheckout);
             Toil prepare = ToilMaker.MakeToil("RestaurantPrepareTableProduct");
@@ -142,7 +143,7 @@ namespace RimSimRestaurantExtension.Jobs
             if (order == null || order.mealConsumed || order.IsTerminal) return;
             Thing meal = order.goods.FirstOrDefault(t => t != null && !t.Destroyed);
             if (meal == null || !RestaurantOrderStock.Usable(order, meal))
-            { RestaurantOrderUtility.FailOrder(order, "桌面商品已丢失或不能继续食用"); return; }
+            { RestaurantOrderUtility.FailOrder(order, SimTranslation.T("RSR.Issue.TableFoodUnavailable")); return; }
             order.meal = meal;
             order.mealThingId = meal.thingIDNumber;
             if (order.mode == RestaurantDeliveryMode.TakeAway) return;
@@ -150,7 +151,7 @@ namespace RimSimRestaurantExtension.Jobs
                 || meal.holdingOwner == pawn.inventory.innerContainer || meal.holdingOwner == pawn.carryTracker.innerContainer;
             if (!owned || pawn.carryTracker.CarriedThing != null && pawn.carryTracker.CarriedThing != meal
                 || !RestaurantMealTransferUtility.Transfer(order, pawn.carryTracker.innerContainer))
-            { RestaurantOrderUtility.FailOrder(order, "本人餐品无法从托盘转到手中"); return; }
+            { RestaurantOrderUtility.FailOrder(order, SimTranslation.T("RSR.Issue.TrayTransferFailed")); return; }
             meal.SetForbidden(false, false);
             job.SetTarget(TargetIndex.A, meal);
             //与原版寻找进食桌面一致，让有朝向的餐品面向实际用餐格。
@@ -189,7 +190,7 @@ namespace RimSimRestaurantExtension.Jobs
             if (order?.meal != null && pawn.carryTracker.CarriedThing == order.meal && session.tray?.Spawned == true)
                 RestaurantMealTransferUtility.Transfer(order, session.tray.GetDirectlyHeldThings());
             if (condition == JobCondition.InterruptForced) return;
-            if (condition != JobCondition.Succeeded) RestaurantSessionUtility.Abort(session, "顾客用餐中断：" + condition);
+            if (condition != JobCondition.Succeeded) RestaurantSessionUtility.Abort(session, SimTranslation.T("RSR.Issue.DiningInterrupted", (condition.ToString()).Named("condition")));
         }
     }
 }

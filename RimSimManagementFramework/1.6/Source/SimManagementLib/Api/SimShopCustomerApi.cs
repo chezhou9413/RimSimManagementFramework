@@ -83,36 +83,36 @@ namespace SimManagementLib.Api
         //向顾客当前待结账金额追加费用，负责让外部长期会话接入现有收银流程。
         public static SimApiResult AddCustomerBill(Pawn customer, float amount)
         {
-            if (customer == null) return SimApiResult.Fail("顾客无效");
-            if (amount <= 0f) return SimApiResult.Fail("账单金额无效");
+            if (customer == null) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.CustomerInvalid"));
+            if (amount <= 0f) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.BillAmountInvalid"));
             LordJob_CustomerVisit visit = GetCustomerVisit(customer);
-            if (visit == null) return SimApiResult.Fail("顾客访问状态不存在");
+            if (visit == null) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.VisitMissing"));
             return visit.AddCustomerBill(customer.thingIDNumber, amount)
                 ? SimApiResult.Success()
-                : SimApiResult.Fail("账单追加失败");
+                : SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.BillAppendFailed"));
         }
 
         //确保顾客待付款金额至少达到指定值，负责让外部服务在多次收尾时避免重复追加账单。
         public static SimApiResult EnsureCustomerBillAtLeast(Pawn customer, float amount)
         {
-            if (customer == null) return SimApiResult.Fail("顾客无效");
-            if (amount <= 0f) return SimApiResult.Fail("账单金额无效");
+            if (customer == null) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.CustomerInvalid"));
+            if (amount <= 0f) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.BillAmountInvalid"));
             LordJob_CustomerVisit visit = GetCustomerVisit(customer);
-            if (visit == null) return SimApiResult.Fail("顾客访问状态不存在");
+            if (visit == null) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.VisitMissing"));
             float current = visit.GetCartValue(customer.thingIDNumber);
             if (current >= amount) return SimApiResult.Success();
             return visit.AddCustomerBill(customer.thingIDNumber, amount - current)
                 ? SimApiResult.Success()
-                : SimApiResult.Fail("账单同步失败");
+                : SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.BillSyncFailed"));
         }
 
         //追加顾客服务订单，负责让外部服务型玩法同步服务票据和收银账单。
         public static SimApiResult AddCustomerServiceOrder(Pawn customer, CustomerServiceOrder order)
         {
-            if (customer == null) return SimApiResult.Fail("顾客无效");
-            if (order == null) return SimApiResult.Fail("服务订单无效");
+            if (customer == null) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.CustomerInvalid"));
+            if (order == null) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.ServiceOrderInvalid"));
             LordJob_CustomerVisit visit = GetCustomerVisit(customer);
-            if (visit == null) return SimApiResult.Fail("顾客访问状态不存在");
+            if (visit == null) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.VisitMissing"));
             visit.AddServiceOrder(customer.thingIDNumber, order);
             return SimApiResult.Success();
         }
@@ -120,9 +120,9 @@ namespace SimManagementLib.Api
         //标记顾客准备进入结账阶段，负责让外部长期会话在到期时交还给默认收银流程。
         public static SimApiResult MarkCustomerReadyForCheckout(Pawn customer)
         {
-            if (customer == null) return SimApiResult.Fail("顾客无效");
+            if (customer == null) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.CustomerInvalid"));
             LordJob_CustomerVisit visit = GetCustomerVisit(customer);
-            if (visit == null) return SimApiResult.Fail("顾客访问状态不存在");
+            if (visit == null) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.VisitMissing"));
             visit.MarkPawnReadyForCheckout(customer.thingIDNumber);
             return SimApiResult.Success();
         }
@@ -235,13 +235,13 @@ namespace SimManagementLib.Api
         //创建并保存顾客动作订单。
         public static SimApiResult<CustomerActionOrder> CreateActionOrder(CustomerActionContext context)
         {
-            if (context?.actionDef == null) return SimApiResult<CustomerActionOrder>.Fail("动作定义无效");
+            if (context?.actionDef == null) return SimApiResult<CustomerActionOrder>.Fail(SimTranslation.T("RSMF.Api.Error.ActionInvalid"));
             GameComp.GameComponent_CustomerActionOrderManager manager = SimShopApi.CustomerActionOrderManager;
-            if (manager == null) return SimApiResult<CustomerActionOrder>.Fail("顾客动作订单管理器不可用");
+            if (manager == null) return SimApiResult<CustomerActionOrder>.Fail(SimTranslation.T("RSMF.Api.Error.ActionManagerUnavailable"));
             CustomerActionWorker worker = context.actionDef.Worker;
-            if (worker == null) return SimApiResult<CustomerActionOrder>.Fail("动作 Worker 无效");
+            if (worker == null) return SimApiResult<CustomerActionOrder>.Fail(SimTranslation.T("RSMF.Api.Error.ActionWorkerInvalid"));
             CustomerActionOrder order = worker.CreateOrder(context);
-            if (order == null) return SimApiResult<CustomerActionOrder>.Fail("Worker 未创建动作订单");
+            if (order == null) return SimApiResult<CustomerActionOrder>.Fail(SimTranslation.T("RSMF.Api.Error.ActionOrderNotCreated"));
             if (string.IsNullOrEmpty(order.actionDefName)) order.actionDefName = context.actionDef.defName;
             if (order.customerThingId < 0) order.customerThingId = context.customer?.thingIDNumber ?? -1;
             if (order.shopZoneId < 0) order.shopZoneId = context.shop?.ID ?? -1;
@@ -273,10 +273,10 @@ namespace SimManagementLib.Api
         //标记动作订单开始执行。
         public static SimApiResult StartActionOrder(CustomerActionOrder order)
         {
-            if (order == null) return SimApiResult.Fail("动作订单无效");
+            if (order == null) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.ActionOrderInvalid"));
             if (order.state == CustomerActionOrderState.InProgress) return SimApiResult.Success();
             if (!order.IsActiveState)
-                return SimApiResult.Fail("动作订单已经结束");
+                return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.ActionOrderEnded"));
             order.state = CustomerActionOrderState.InProgress;
             order.startedTick = Find.TickManager?.TicksGame ?? 0;
             SimShopEvents.NotifyCustomerActionOrderStarted(order);
@@ -286,8 +286,8 @@ namespace SimManagementLib.Api
         //标记动作订单等待员工处理。
         public static SimApiResult MarkActionOrderWaitingStaff(CustomerActionOrder order, Pawn staff = null)
         {
-            if (order == null) return SimApiResult.Fail("动作订单无效");
-            if (!order.IsActiveState) return SimApiResult.Fail("动作订单已经结束");
+            if (order == null) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.ActionOrderInvalid"));
+            if (!order.IsActiveState) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.ActionOrderEnded"));
             if (order.state == CustomerActionOrderState.WaitingStaff)
             {
                 if (staff != null) AddOrderStaff(order, staff);
@@ -303,11 +303,11 @@ namespace SimManagementLib.Api
         //尝试让员工加入顾客动作会话订单。
         public static SimApiResult TryAssignActionOrderStaff(Pawn staff, CustomerActionOrder order)
         {
-            if (staff == null) return SimApiResult.Fail("员工无效");
-            if (order == null) return SimApiResult.Fail("动作订单无效");
-            if (!order.IsActiveState) return SimApiResult.Fail("动作订单已经结束");
+            if (staff == null) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.StaffInvalid"));
+            if (order == null) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.ActionOrderInvalid"));
+            if (!order.IsActiveState) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.ActionOrderEnded"));
             CustomerActionSessionWorker worker = order.ActionDef?.Worker as CustomerActionSessionWorker;
-            if (worker == null) return SimApiResult.Fail("动作订单没有会话 Worker");
+            if (worker == null) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.SessionWorkerMissing"));
             CustomerActionContext context = BuildActionContext(FindActionOrderCustomer(staff.Map, order), order);
             if (!worker.CanStaffJoin(context, staff, out string reason))
                 return SimApiResult.Fail(reason);
@@ -331,9 +331,9 @@ namespace SimManagementLib.Api
         //完成顾客动作订单，并在需要时把顾客推向结账阶段。
         public static SimApiResult CompleteActionOrder(CustomerActionOrder order)
         {
-            if (order == null) return SimApiResult.Fail("动作订单无效");
+            if (order == null) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.ActionOrderInvalid"));
             if (order.state == CustomerActionOrderState.Completed) return SimApiResult.Success();
-            if (!order.IsActiveState) return SimApiResult.Fail("动作订单已经取消或失败");
+            if (!order.IsActiveState) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.ActionOrderTerminated"));
             order.state = CustomerActionOrderState.Completed;
             order.completedTick = Find.TickManager?.TicksGame ?? 0;
             SimShopEvents.NotifyCustomerActionOrderCompleted(order);
@@ -343,11 +343,11 @@ namespace SimManagementLib.Api
         //取消或失败顾客动作订单。
         public static SimApiResult CancelActionOrder(CustomerActionOrder order, string reason, bool failed = false)
         {
-            if (order == null) return SimApiResult.Fail("动作订单无效");
+            if (order == null) return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.ActionOrderInvalid"));
             if (order.state == CustomerActionOrderState.Canceled || order.state == CustomerActionOrderState.Failed)
                 return SimApiResult.Success();
             if (order.state == CustomerActionOrderState.Completed)
-                return SimApiResult.Fail("已经完成的动作订单不能取消");
+                return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.CompletedActionCannotCancel"));
             order.state = failed ? CustomerActionOrderState.Failed : CustomerActionOrderState.Canceled;
             order.completedTick = Find.TickManager?.TicksGame ?? 0;
             CustomerActionContext context = BuildActionContext(FindOrderCustomer(order), order);
@@ -408,14 +408,14 @@ namespace SimManagementLib.Api
             orderContext.actionOrderId = created.value.orderId;
             if (!worker.CanStartOrder(orderContext, out _))
             {
-                CancelActionOrder(created.value, "动作订单无法开始", true);
+                CancelActionOrder(created.value, SimTranslation.T("RSMF.Api.Error.ActionCannotStart"), true);
                 return null;
             }
 
             Job job = worker.MakeJobForOrder(orderContext);
             if (job == null)
             {
-                CancelActionOrder(created.value, "动作订单没有可执行 Job", true);
+                CancelActionOrder(created.value, SimTranslation.T("RSMF.Api.Error.ActionJobMissing"), true);
                 return null;
             }
 
@@ -439,19 +439,19 @@ namespace SimManagementLib.Api
                 CustomerActionContext orderContext = BuildActionContext(context.customer, order);
                 if (worker == null || orderContext == null)
                 {
-                    CancelActionOrder(order, "动作订单无法恢复上下文", true);
+                    CancelActionOrder(order, SimTranslation.T("RSMF.Api.Error.ActionContextRestoreFailed"), true);
                     continue;
                 }
                 if (!worker.CanStartOrder(orderContext, out string reason))
                 {
-                    CancelActionOrder(order, reason.NullOrEmpty() ? "动作订单已经无法继续" : reason, true);
+                    CancelActionOrder(order, reason.NullOrEmpty() ? SimTranslation.T("RSMF.Api.Error.ActionCannotContinue") : reason, true);
                     continue;
                 }
 
                 Job resumed = worker.MakeJobForOrder(orderContext);
                 if (resumed == null)
                 {
-                    CancelActionOrder(order, "动作订单无法恢复顾客 Job", true);
+                    CancelActionOrder(order, SimTranslation.T("RSMF.Api.Error.ActionJobRestoreFailed"), true);
                     continue;
                 }
 

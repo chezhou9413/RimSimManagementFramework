@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using UnityEngine;
 using Verse;
 
@@ -50,16 +51,16 @@ namespace RimSimRestaurantExtension.Models
             lastSeenTick = Mathf.Max(0, lastSeenTick);
         }
 
-        //返回面向界面和评价的偏好摘要，职责是把内部评分参数转换为简短中文描述。
+        //返回面向界面和评价的偏好摘要，职责是把内部评分参数转换为当前语言的简短描述。
         public string BuildSummary()
         {
             string diet = dietPreference == RestaurantDietPreference.Vegetarian
-                ? "偏素食"
-                : dietPreference == RestaurantDietPreference.Meat ? "偏肉食" : "饮食随和";
-            string budget = frugality >= 0.7f ? "重视价格" : frugality <= 0.3f ? "愿意消费" : "价格适中";
-            string quality = qualityPreference >= 0.7f ? "追求品质" : qualityPreference <= 0.3f ? "偏好家常" : "品质均衡";
-            string novelty = noveltyPreference >= 0.65f ? "喜欢尝鲜" : noveltyPreference <= 0.35f ? "偏爱熟悉菜" : "偶尔换口味";
-            return $"{diet} · {budget} · {quality} · {novelty} · 常点{preferredPortions}份";
+                ? SimTranslation.T("RSR.Preference.Vegetarian")
+                : dietPreference == RestaurantDietPreference.Meat ? SimTranslation.T("RSR.Preference.Meat") : SimTranslation.T("RSR.Preference.AnyDiet");
+            string budget = frugality >= 0.7f ? SimTranslation.T("RSR.Preference.Frugal") : frugality <= 0.3f ? SimTranslation.T("RSR.Preference.Generous") : SimTranslation.T("RSR.Preference.ModerateBudget");
+            string quality = qualityPreference >= 0.7f ? SimTranslation.T("RSR.Preference.HighQuality") : qualityPreference <= 0.3f ? SimTranslation.T("RSR.Preference.SimpleQuality") : SimTranslation.T("RSR.Preference.BalancedQuality");
+            string novelty = noveltyPreference >= 0.65f ? SimTranslation.T("RSR.Preference.Novelty") : noveltyPreference <= 0.35f ? SimTranslation.T("RSR.Preference.Familiar") : SimTranslation.T("RSR.Preference.OccasionalNovelty");
+            return SimTranslation.T("RSR.Preference.Summary", (diet).Named("diet"), (budget).Named("budget"), (quality).Named("quality"), (novelty).Named("novelty"), (preferredPortions).Named("portions"));
         }
     }
 }

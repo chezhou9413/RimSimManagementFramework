@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using RimWorld;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimMapComp;
@@ -18,12 +19,12 @@ namespace SimManagementLib.SimThingClass
             EnsureUniqueSlots();
             if (!IsEligibleUniqueThing(source) || !source.Spawned || source.Map != Map)
             {
-                reason = "该物品不符合专业货柜上架条件。";
+                reason = SimTranslation.T("RSMF.UniqueGoods.Restock.Ineligible");
                 return false;
             }
             if (IsSourceAssignedAnywhere(source.thingIDNumber))
             {
-                reason = "该物品已经被其他槽位指定。";
+                reason = SimTranslation.T("RSMF.UniqueGoods.Restock.Assigned");
                 return false;
             }
             UniqueGoodsSlotData slot = uniqueSlots.FirstOrDefault(candidate => candidate != null
@@ -31,7 +32,7 @@ namespace SimManagementLib.SimThingClass
                 && IsEligibleUniqueThingForSlot(source, candidate.index));
             if (slot == null)
             {
-                reason = "专业货柜没有可接收该物品的空槽。";
+                reason = SimTranslation.T("RSMF.UniqueGoods.Restock.Full");
                 return false;
             }
 

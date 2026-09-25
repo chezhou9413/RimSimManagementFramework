@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.Business.Tutorial.StorageManagement.AfterImage>Below, you can copy the current shelf's configuration to quickly set up multiple identical shelves at once.\nPlease note that the stock replenishment threshold for shelves defaults to 0, meaning staff will only restock items when they are sold out!</RSMF.Business.Tutorial.StorageManagement.AfterImage>
+  <RSMF.Business.Tutorial.StorageManagement.BeforeImage>Select a shelf and click 'Shelf Management' below to stock items. You can switch between different product categories on the left, but each shelf can only hold items of the same category.</RSMF.Business.Tutorial.StorageManagement.BeforeImage>
+  <RSMF.Business.Tutorial.StorageManagement.Title>How to manage storage</RSMF.Business.Tutorial.StorageManagement.Title>
+</LanguageData>

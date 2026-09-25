@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR.UI.Actions>Actions</RSR.UI.Actions>
+  <RSR.UI.ActiveSessions>Active diners</RSR.UI.ActiveSessions>
+  <RSR.UI.AddDish>Add dish</RSR.UI.AddDish>
+  <RSR.UI.AddIngredient>Add ingredient</RSR.UI.AddIngredient>
+  <RSR.UI.AddRecipe>Add menu recipe</RSR.UI.AddRecipe>
+  <RSR.UI.AddStockFood>Add prepared food</RSR.UI.AddStockFood>
+  <RSR.UI.AllChecksPassed>Ready: facilities, staff, stock and seats are available.</RSR.UI.AllChecksPassed>
+  <RSR.UI.AllFood>All</RSR.UI.AllFood>
+  <RSR.UI.Allowed>Allow</RSR.UI.Allowed>
+  <RSR.UI.AvailableDishes>{count} dishes available</RSR.UI.AvailableDishes>
+  <RSR.UI.AvailableFoods>{count} foods available</RSR.UI.AvailableFoods>
+  <RSR.UI.BasePrice>Base price/portion</RSR.UI.BasePrice>
+  <RSR.UI.BusinessIssue>Business notice: {reason}</RSR.UI.BusinessIssue>
+  <RSR.UI.BusinessPricing>Business and pricing</RSR.UI.BusinessPricing>
+  <RSR.UI.BusinessReady>Ready for business</RSR.UI.BusinessReady>
+  <RSR.UI.BusinessReadyHint>Ready for business. Table service and conveyor diners use restaurant checkout.</RSR.UI.BusinessReadyHint>
+  <RSR.UI.CabinetRemoved>Cabinet removed</RSR.UI.CabinetRemoved>
+  <RSR.UI.CabinetSource>Stock · {cabinet}</RSR.UI.CabinetSource>
+  <RSR.UI.CanCook>Ready to cook</RSR.UI.CanCook>
+  <RSR.UI.Cancel>Cancel</RSR.UI.Cancel>
+  <RSR.UI.CannotConsume>{item} cannot be consumed here</RSR.UI.CannotConsume>
+  <RSR.UI.ConfigureMenuFirst>Configure recipes in the restaurant menu first.</RSR.UI.ConfigureMenuFirst>
+  <RSR.UI.ConfirmDish>Confirm dish</RSR.UI.ConfirmDish>
+  <RSR.UI.ConfirmParameters>Confirm settings</RSR.UI.ConfirmParameters>
+  <RSR.UI.Consume>Dine in</RSR.UI.Consume>
+  <RSR.UI.ConveyorActiveHint>Transport active · Cooks restock when not preparing customer orders.</RSR.UI.ConveyorActiveHint>
+  <RSR.UI.ConveyorAreaHint>The entire line must be inside one restaurant. Adjust the shop area.</RSR.UI.ConveyorAreaHint>
+  <RSR.UI.ConveyorDining>Conveyor self-service</RSR.UI.ConveyorDining>
+  <RSR.UI.ConveyorEmpty>No conveyor food configured\nAdd recipes or prepared food for cooks to restock to your targets.</RSR.UI.ConveyorEmpty>
+  <RSR.UI.ConveyorManager>Conveyor settings</RSR.UI.ConveyorManager>
+  <RSR.UI.ConveyorNoMatch>No matching conveyor food\nAdjust or clear your search.</RSR.UI.ConveyorNoMatch>
+  <RSR.UI.ConveyorPausedHint>Transport active · Automatic restocking paused.</RSR.UI.ConveyorPausedHint>
+  <RSR.UI.ConveyorPowerHint>No power: transport and restocking have stopped. Customers can still take food in front of them.</RSR.UI.ConveyorPowerHint>
+  <RSR.UI.ConveyorSaveHint>Save to apply. Canceling or closing discards changes.</RSR.UI.ConveyorSaveHint>
+  <RSR.UI.ConveyorSource>Conveyor</RSR.UI.ConveyorSource>
+  <RSR.UI.ConveyorStockHeading>Conveyor stock management</RSR.UI.ConveyorStockHeading>
+  <RSR.UI.CoolingHint>Refrigeration active. Stock is available to the restaurant kitchen.</RSR.UI.CoolingHint>
+  <RSR.UI.CopyDish>Duplicate dish</RSR.UI.CopyDish>
+  <RSR.UI.CurrentStock>Current stock</RSR.UI.CurrentStock>
+  <RSR.UI.CustomerId>Customer #{id}</RSR.UI.CustomerId>
+  <RSR.UI.CustomerLeft>Customer has left</RSR.UI.CustomerLeft>
+  <RSR.UI.CustomerSelfService>Customer self-service</RSR.UI.CustomerSelfService>
+  <RSR.UI.DeleteDish>Delete dish</RSR.UI.DeleteDish>
+  <RSR.UI.Delivery>Delivery</RSR.UI.Delivery>
+  <RSR.UI.DiningRecords>Dining records</RSR.UI.DiningRecords>
+  <RSR.UI.DiningWaiting>Dining and waiting</RSR.UI.DiningWaiting>
+  <RSR.UI.Disabled>Disabled</RSR.UI.Disabled>
+  <RSR.UI.DishAndSource>Dish and source</RSR.UI.DishAndSource>
+  <RSR.UI.DishCopyName>{name} copy</RSR.UI.DishCopyName>
+  <RSR.UI.Edit>Edit</RSR.UI.Edit>
+  <RSR.UI.Enable>Enabled</RSR.UI.Enable>
+  <RSR.UI.EnableDish>Enable this dish</RSR.UI.EnableDish>
+  <RSR.UI.EnableRestaurant>Enable restaurant</RSR.UI.EnableRestaurant>
+  <RSR.UI.EnableService>Enable restaurant service</RSR.UI.EnableService>
+  <RSR.UI.FineFood>Fine</RSR.UI.FineFood>
+  <RSR.UI.FoodAndSource>Food and source</RSR.UI.FoodAndSource>
+  <RSR.UI.InCabinet>Stock</RSR.UI.InCabinet>
+  <RSR.UI.InStock>In stock</RSR.UI.InStock>
+  <RSR.UI.InTransit>Incoming</RSR.UI.InTransit>
+  <RSR.UI.IncludeHistory>Include history</RSR.UI.IncludeHistory>
+  <RSR.UI.IngredientsMissing>Not enough ingredients</RSR.UI.IngredientsMissing>
+  <RSR.UI.IngredientsPerPortion>Ingredients and quantities per portion</RSR.UI.IngredientsPerPortion>
+  <RSR.UI.InvalidConveyorStock>Invalid food, quantity or price, or plate targets exceed line capacity.</RSR.UI.InvalidConveyorStock>
+  <RSR.UI.InvalidIngredientCount>Each ingredient quantity must be a whole number between 1 and 100000.</RSR.UI.InvalidIngredientCount>
+  <RSR.UI.InvalidPortions>Portions must be positive whole numbers. The minimum cannot exceed the maximum, and both must fit the meal stack limit.</RSR.UI.InvalidPortions>
+  <RSR.UI.InvalidPrice>The price must be between 1 and 100000.</RSR.UI.InvalidPrice>
+  <RSR.UI.InvalidRecipe>These ingredients do not satisfy a single recipe. Check ingredient types and quantities per portion.</RSR.UI.InvalidRecipe>
+  <RSR.UI.Item>Item</RSR.UI.Item>
+  <RSR.UI.ItemCount>{count} items</RSR.UI.ItemCount>
+  <RSR.UI.ItemsPerPlate>Items/plate</RSR.UI.ItemsPerPlate>
+  <RSR.UI.KitchenHint>Shelves inside the shop supply the kitchen, conveyor stock and cabinets automatically. Refrigerators are used first. Food on tables and loose items are not kitchen stock.</RSR.UI.KitchenHint>
+  <RSR.UI.KitchenRecipe>Recipe · Kitchen</RSR.UI.KitchenRecipe>
+  <RSR.UI.KitchenSource>Kitchen</RSR.UI.KitchenSource>
+  <RSR.UI.KitchenStockHint>Kitchen stock · Set stock targets and restock thresholds</RSR.UI.KitchenStockHint>
+  <RSR.UI.KitchenSupply>Kitchen supplies</RSR.UI.KitchenSupply>
+  <RSR.UI.LavishOtherFood>Lavish and other</RSR.UI.LavishOtherFood>
+  <RSR.UI.LineChanged>The line layout has changed. Reopen its configuration.</RSR.UI.LineChanged>
+  <RSR.UI.LineHeading>{shop} · Line {id} · Configure the entire connected line</RSR.UI.LineHeading>
+  <RSR.UI.LineSummary>Line {id} · {occupied} / {capacity} plates</RSR.UI.LineSummary>
+  <RSR.UI.Locate>Jump to</RSR.UI.Locate>
+  <RSR.UI.Manage>Manage</RSR.UI.Manage>
+  <RSR.UI.MaxMealWait>Maximum wait for food</RSR.UI.MaxMealWait>
+  <RSR.UI.MaxOrderWait>Maximum wait to order</RSR.UI.MaxOrderWait>
+  <RSR.UI.MaxPortions>Max. portions</RSR.UI.MaxPortions>
+  <RSR.UI.MaxRounds>Maximum rounds per visit</RSR.UI.MaxRounds>
+  <RSR.UI.MealProduct>Meal product</RSR.UI.MealProduct>
+  <RSR.UI.MenuCountHint>{count} recipes · Save dishes and service settings in shop management</RSR.UI.MenuCountHint>
+  <RSR.UI.MenuEditor>Edit restaurant dish</RSR.UI.MenuEditor>
+  <RSR.UI.MenuEditorHint>Set the price and ingredients per portion, then save in shop management to apply changes.</RSR.UI.MenuEditorHint>
+  <RSR.UI.MenuEmpty>The menu is empty\nAdd a dish to set its price, ingredients and portion limits.</RSR.UI.MenuEmpty>
+  <RSR.UI.MenuHeading>Restaurant menu</RSR.UI.MenuHeading>
+  <RSR.UI.MenuName>Menu name</RSR.UI.MenuName>
+  <RSR.UI.MenuNoMatch>No matching dishes\nAdjust your search in shop management.</RSR.UI.MenuNoMatch>
+  <RSR.UI.MenuSaveHint>Save in shop management to apply menu and service settings. Closing discards unsaved changes.</RSR.UI.MenuSaveHint>
+  <RSR.UI.MinPortions>Min. portions</RSR.UI.MinPortions>
+  <RSR.UI.MultiplierValue>×{value}</RSR.UI.MultiplierValue>
+  <RSR.UI.NextPage>Next</RSR.UI.NextPage>
+  <RSR.UI.NoConveyor>This restaurant has no conveyor. Build one inside its shop area first.</RSR.UI.NoConveyor>
+  <RSR.UI.NoConveyorFood>No matching food. Adjust your search or choose another source.</RSR.UI.NoConveyorFood>
+  <RSR.UI.NoDiningRecords>No matching dining records\nAdjust your search or enable “Include history”.</RSR.UI.NoDiningRecords>
+  <RSR.UI.NoMenuFood>No matching dishes. Check the search, meal filter or loaded food mods.</RSR.UI.NoMenuFood>
+  <RSR.UI.NoRecipeIngredients>This dish has no available recipe ingredients.</RSR.UI.NoRecipeIngredients>
+  <RSR.UI.NoRestaurant>No restaurant</RSR.UI.NoRestaurant>
+  <RSR.UI.NoRestaurants>No matching restaurants. Adjust your search or build a restaurant reception counter.</RSR.UI.NoRestaurants>
+  <RSR.UI.NoStockMatch>No matching items. Adjust your search.</RSR.UI.NoStockMatch>
+  <RSR.UI.NotOrdered>No order yet</RSR.UI.NotOrdered>
+  <RSR.UI.NotSelected>Not selected</RSR.UI.NotSelected>
+  <RSR.UI.OnSale>For sale</RSR.UI.OnSale>
+  <RSR.UI.OrderSource>Round {round} · Source: {source} · Accepted {accepted}/{count}</RSR.UI.OrderSource>
+  <RSR.UI.OrderSummary>Staff: {employee} · Wait {seconds} s · Order {price} · Paid {paid}</RSR.UI.OrderSummary>
+  <RSR.UI.OverviewHint>View restaurant status and dining records. Totals cover retained records.</RSR.UI.OverviewHint>
+  <RSR.UI.ParameterHeading>Restaurant service settings</RSR.UI.ParameterHeading>
+  <RSR.UI.ParameterHint>Confirm these settings, then save in shop management to apply them.</RSR.UI.ParameterHint>
+  <RSR.UI.Parameters>Service settings</RSR.UI.Parameters>
+  <RSR.UI.PauseRestock>Pause automatic restocking</RSR.UI.PauseRestock>
+  <RSR.UI.PendingPlates>Incoming plates</RSR.UI.PendingPlates>
+  <RSR.UI.PendingStock>Incoming stock</RSR.UI.PendingStock>
+  <RSR.UI.PlateCount>{count} plates</RSR.UI.PlateCount>
+  <RSR.UI.PlateOverCapacity>Targets exceed line capacity. Reduce plate targets before saving.</RSR.UI.PlateOverCapacity>
+  <RSR.UI.PlateStock>Plates in stock</RSR.UI.PlateStock>
+  <RSR.UI.PlateTarget>Plate target</RSR.UI.PlateTarget>
+  <RSR.UI.PlateTargetSummary>{count} enabled · Target {target} / {capacity} plates</RSR.UI.PlateTargetSummary>
+  <RSR.UI.PlateTooltip>{food}\n{source}\nPrice per plate: {price}</RSR.UI.PlateTooltip>
+  <RSR.UI.Portions>Portions</RSR.UI.Portions>
+  <RSR.UI.PreferenceStrength>Preference influence</RSR.UI.PreferenceStrength>
+  <RSR.UI.PreviousPage>Previous</RSR.UI.PreviousPage>
+  <RSR.UI.PriceMultiplier>Menu price multiplier</RSR.UI.PriceMultiplier>
+  <RSR.UI.PricePerItem>Price/item</RSR.UI.PricePerItem>
+  <RSR.UI.PricePerPortion>Price/portion</RSR.UI.PricePerPortion>
+  <RSR.UI.RecipeNote>Ingredients for each portion must satisfy a single recipe for this dish. Recipe filters limit ingredient choices. Confirm the dish, then save in shop management.</RSR.UI.RecipeNote>
+  <RSR.UI.Remove>Remove</RSR.UI.Remove>
+  <RSR.UI.ReorderInterval>Reorder interval</RSR.UI.ReorderInterval>
+  <RSR.UI.Reserved>Reserved</RSR.UI.Reserved>
+  <RSR.UI.RestaurantCount>Restaurants</RSR.UI.RestaurantCount>
+  <RSR.UI.RestaurantOverview>Restaurant business</RSR.UI.RestaurantOverview>
+  <RSR.UI.RestaurantStatus>Restaurant status</RSR.UI.RestaurantStatus>
+  <RSR.UI.RestockSavedTargets>Restock saved targets</RSR.UI.RestockSavedTargets>
+  <RSR.UI.Revenue>Collected</RSR.UI.Revenue>
+  <RSR.UI.RoundsValue>{rounds} rounds (including first)</RSR.UI.RoundsValue>
+  <RSR.UI.SaleStockHint>Restaurant goods · Set stock, prices and delivery modes</RSR.UI.SaleStockHint>
+  <RSR.UI.SaleStockStatus>Listed goods appear on the restaurant menu. Stock and sale rules are configured separately.</RSR.UI.SaleStockStatus>
+  <RSR.UI.SaveConveyor>Save stock rules</RSR.UI.SaveConveyor>
+  <RSR.UI.SaveStock>Save stock settings</RSR.UI.SaveStock>
+  <RSR.UI.SearchConveyorFood>Search dish, food or source</RSR.UI.SearchConveyorFood>
+  <RSR.UI.SearchFood>Search food name or source mod</RSR.UI.SearchFood>
+  <RSR.UI.SearchMenuFood>Search dish name, identifier or source mod</RSR.UI.SearchMenuFood>
+  <RSR.UI.SearchStock>Search stock name or source mod</RSR.UI.SearchStock>
+  <RSR.UI.SecondsValue>{seconds} s</RSR.UI.SecondsValue>
+  <RSR.UI.Select>Select</RSR.UI.Select>
+  <RSR.UI.SelectConveyorFood>Select conveyor food</RSR.UI.SelectConveyorFood>
+  <RSR.UI.SelectConveyorFoodHint>Select food available from the supply source. Cooks will carry it to the conveyor.</RSR.UI.SelectConveyorFoodHint>
+  <RSR.UI.SelectIngredient>Select ingredient</RSR.UI.SelectIngredient>
+  <RSR.UI.SelectMenuFood>Select menu dish</RSR.UI.SelectMenuFood>
+  <RSR.UI.SelectMenuFoodHint>Available ingredients are filled in automatically. You can adjust them in the dish editor.</RSR.UI.SelectMenuFoodHint>
+  <RSR.UI.SelectProduct>Select product</RSR.UI.SelectProduct>
+  <RSR.UI.SessionId>Dining record #{id}</RSR.UI.SessionId>
+  <RSR.UI.SessionPage>{count} dining records · Page {page}/{pages}</RSR.UI.SessionPage>
+  <RSR.UI.SessionSummary>Spent {amount} · Paid {paid} · {rounds} rounds · Cost {cost}</RSR.UI.SessionSummary>
+  <RSR.UI.ShelfStock>Stock · Shop shelves</RSR.UI.ShelfStock>
+  <RSR.UI.ShopShelves>Shelves inside the shop</RSR.UI.ShopShelves>
+  <RSR.UI.SimpleFood>Simple</RSR.UI.SimpleFood>
+  <RSR.UI.StockOverCapacity>Stock targets exceed cabinet capacity. Reduce target quantities.</RSR.UI.StockOverCapacity>
+  <RSR.UI.StockSaveHint>Save to apply; closing discards changes. Reserved stock is allocated to other tasks.</RSR.UI.StockSaveHint>
+  <RSR.UI.StockTarget>Stock target</RSR.UI.StockTarget>
+  <RSR.UI.StockUnavailable>Stock or route unavailable</RSR.UI.StockUnavailable>
+  <RSR.UI.Stored>Stored</RSR.UI.Stored>
+  <RSR.UI.StoredPending>Stored / Incoming</RSR.UI.StoredPending>
+  <RSR.UI.SupplyStatus>Availability</RSR.UI.SupplyStatus>
+  <RSR.UI.TableService>Table service</RSR.UI.TableService>
+  <RSR.UI.TakeAway>Take away</RSR.UI.TakeAway>
+  <RSR.UI.Target>Target</RSR.UI.Target>
+  <RSR.UI.TargetPlates>Target plates</RSR.UI.TargetPlates>
+  <RSR.UI.Threshold>Threshold</RSR.UI.Threshold>
+  <RSR.UI.TotalStockOverCapacity>Total stock targets exceed the cabinet's shared capacity</RSR.UI.TotalStockOverCapacity>
+  <RSR.UI.TotalWaste>Total waste</RSR.UI.TotalWaste>
+  <RSR.UI.UnitPrice>Unit price</RSR.UI.UnitPrice>
+  <RSR.UI.Unpaid>Outstanding</RSR.UI.Unpaid>
+  <RSR.UI.UnpoweredCoolingHint>No power. Food spoils at ambient temperature.</RSR.UI.UnpoweredCoolingHint>
+  <RSR.UI.UsePreferences>Use customer food preferences</RSR.UI.UsePreferences>
+  <RSR.UI.WaitingCheckout>Dining finished; waiting for checkout</RSR.UI.WaitingCheckout>
+  <RSR.UI.WaitingDelivery>Waiting for a waiter and reachable pickup and delivery positions</RSR.UI.WaitingDelivery>
+  <RSR.UI.WaitingKitchen>Waiting for a cook, stove and enough reservable ingredients</RSR.UI.WaitingKitchen>
+  <RSR.UI.WaitingPassTransfer>Waiting for a cook to move the prepared food to the serving counter</RSR.UI.WaitingPassTransfer>
+  <RSR.UI.WaitingReachableWaiter>Waiting for a waiter who can reach the customer</RSR.UI.WaitingReachableWaiter>
+  <RSR.UI.WaitingStaff>Waiting for staff</RSR.UI.WaitingStaff>
+  <RSR.UI.WasteCost>Total waste cost: {cost}</RSR.UI.WasteCost>
+</LanguageData>

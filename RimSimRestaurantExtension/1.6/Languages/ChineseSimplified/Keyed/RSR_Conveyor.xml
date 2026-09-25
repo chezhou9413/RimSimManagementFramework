@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR.Conveyor.CapacityNotice>目标盘数超过线路容量，请调整上架配置</RSR.Conveyor.CapacityNotice>
+  <RSR.Conveyor.MergeNotice>线路合并，保留较早线路配置，请确认上架目标</RSR.Conveyor.MergeNotice>
+  <RSR.Conveyor.MultipleInputs>普通传送带不支持多个上游入口。</RSR.Conveyor.MultipleInputs>
+  <RSR.Conveyor.SplitNotice>线路拆分，请确认上架目标后恢复补货</RSR.Conveyor.SplitNotice>
+</LanguageData>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR_WorkGiver_BringRestaurantMealToPass.gerund>moving prepared meals</RSR_WorkGiver_BringRestaurantMealToPass.gerund>
+  <RSR_WorkGiver_BringRestaurantMealToPass.label>bring meals to serving counter</RSR_WorkGiver_BringRestaurantMealToPass.label>
+  <RSR_WorkGiver_BringRestaurantMealToPass.verb>move meals</RSR_WorkGiver_BringRestaurantMealToPass.verb>
+  <RSR_WorkGiver_CookRestaurantOrder.gerund>cooking restaurant orders</RSR_WorkGiver_CookRestaurantOrder.gerund>
+  <RSR_WorkGiver_CookRestaurantOrder.label>cook restaurant orders</RSR_WorkGiver_CookRestaurantOrder.label>
+  <RSR_WorkGiver_CookRestaurantOrder.verb>cook</RSR_WorkGiver_CookRestaurantOrder.verb>
+  <RSR_WorkGiver_DeliverRestaurantOrder.gerund>delivering food to customers</RSR_WorkGiver_DeliverRestaurantOrder.gerund>
+  <RSR_WorkGiver_DeliverRestaurantOrder.label>deliver restaurant orders</RSR_WorkGiver_DeliverRestaurantOrder.label>
+  <RSR_WorkGiver_DeliverRestaurantOrder.verb>deliver food</RSR_WorkGiver_DeliverRestaurantOrder.verb>
+  <RSR_WorkGiver_RestaurantChefStandby.gerund>standing by in the restaurant kitchen</RSR_WorkGiver_RestaurantChefStandby.gerund>
+  <RSR_WorkGiver_RestaurantChefStandby.label>restaurant kitchen standby</RSR_WorkGiver_RestaurantChefStandby.label>
+  <RSR_WorkGiver_RestaurantChefStandby.verb>stand by</RSR_WorkGiver_RestaurantChefStandby.verb>
+  <RSR_WorkGiver_RestaurantWaiterStandby.gerund>standing by in the restaurant dining area</RSR_WorkGiver_RestaurantWaiterStandby.gerund>
+  <RSR_WorkGiver_RestaurantWaiterStandby.label>restaurant waiter standby</RSR_WorkGiver_RestaurantWaiterStandby.label>
+  <RSR_WorkGiver_RestaurantWaiterStandby.verb>stand by</RSR_WorkGiver_RestaurantWaiterStandby.verb>
+  <RSR_WorkGiver_StockSushiConveyor.gerund>restocking or clearing the restaurant conveyor</RSR_WorkGiver_StockSushiConveyor.gerund>
+  <RSR_WorkGiver_StockSushiConveyor.label>restock restaurant conveyor</RSR_WorkGiver_StockSushiConveyor.label>
+  <RSR_WorkGiver_StockSushiConveyor.verb>restock food</RSR_WorkGiver_StockSushiConveyor.verb>
+  <RSR_WorkGiver_TakeRestaurantOrder.gerund>taking a customer's order</RSR_WorkGiver_TakeRestaurantOrder.gerund>
+  <RSR_WorkGiver_TakeRestaurantOrder.label>take restaurant orders</RSR_WorkGiver_TakeRestaurantOrder.label>
+  <RSR_WorkGiver_TakeRestaurantOrder.verb>take orders</RSR_WorkGiver_TakeRestaurantOrder.verb>
+</LanguageData>

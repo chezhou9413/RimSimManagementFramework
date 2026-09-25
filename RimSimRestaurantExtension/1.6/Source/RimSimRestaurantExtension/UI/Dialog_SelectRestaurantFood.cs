@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,7 +62,7 @@ namespace RimSimRestaurantExtension.UI
                 Rect countRect = new Rect(inner.x, filterRect.yMax + 6f, inner.width, countHeight);
                 Text.Font = GameFont.Tiny;
                 GUI.color = RestaurantUiStyle.MutedText;
-                Widgets.Label(countRect, $"可选餐品 {foods.Count} 项");
+                ShopUiVisualUtility.DrawCellLabel(countRect, SimTranslation.T("RSR.UI.AvailableDishes", (foods.Count).Named("count")));
                 Rect listRect = new Rect(inner.x, countRect.yMax + 4f, inner.width,
                     Mathf.Max(0f, inner.yMax - countRect.yMax - 4f));
                 GUI.color = Color.white;
@@ -80,14 +81,14 @@ namespace RimSimRestaurantExtension.UI
         //绘制标题说明，职责是动态测量中文副标题并说明配方限制。
         private static float DrawTitle(Rect rect)
         {
-            return ShopUiVisualUtility.DrawPageHeading(rect, "选择菜单餐品",
-                "选择后自动填入可用食材，可在菜品编辑中继续调整。", true);
+            return ShopUiVisualUtility.DrawPageHeading(rect, SimTranslation.T("RSR.UI.SelectMenuFood"),
+                SimTranslation.T("RSR.UI.SelectMenuFoodHint"), true);
         }
 
         //绘制搜索栏，职责是支持标签、DefName 和来源模组并提供清空入口。
         private void DrawSearch(Rect rect)
         {
-            string next = ShopUiVisualUtility.DrawSearchField(rect, search, "搜索餐品名称、标识或来源模组");
+            string next = ShopUiVisualUtility.DrawSearchField(rect, search, SimTranslation.T("RSR.UI.SearchMenuFood"));
             if (next != search) { search = next; InvalidateFilter(); }
         }
 
@@ -96,10 +97,10 @@ namespace RimSimRestaurantExtension.UI
         {
             const float gap = 6f;
             float width = (rect.width - gap * 3f) / 4f;
-            DrawFilter(new Rect(rect.x, rect.y, width, rect.height), MealTier.All, "全部");
-            DrawFilter(new Rect(rect.x + width + gap, rect.y, width, rect.height), MealTier.Simple, "家常");
-            DrawFilter(new Rect(rect.x + (width + gap) * 2f, rect.y, width, rect.height), MealTier.Fine, "精致");
-            DrawFilter(new Rect(rect.x + (width + gap) * 3f, rect.y, width, rect.height), MealTier.Lavish, "豪华及其他");
+            DrawFilter(new Rect(rect.x, rect.y, width, rect.height), MealTier.All, SimTranslation.T("RSR.UI.AllFood"));
+            DrawFilter(new Rect(rect.x + width + gap, rect.y, width, rect.height), MealTier.Simple, SimTranslation.T("RSR.UI.SimpleFood"));
+            DrawFilter(new Rect(rect.x + (width + gap) * 2f, rect.y, width, rect.height), MealTier.Fine, SimTranslation.T("RSR.UI.FineFood"));
+            DrawFilter(new Rect(rect.x + (width + gap) * 3f, rect.y, width, rect.height), MealTier.Lavish, SimTranslation.T("RSR.UI.LavishOtherFood"));
         }
 
         //绘制单个筛选按钮，职责是维护选中态并重置滚动位置。
@@ -120,7 +121,7 @@ namespace RimSimRestaurantExtension.UI
                 Text.Font = GameFont.Small;
                 Text.Anchor = TextAnchor.MiddleCenter;
                 GUI.color = RestaurantUiStyle.MutedText;
-                Widgets.Label(rect.ContractedBy(12f), "没有匹配餐品。请检查搜索词、品质筛选或当前加载的餐品模组。" );
+                Widgets.Label(rect.ContractedBy(12f), SimTranslation.T("RSR.UI.NoMenuFood") );
                 Text.Anchor = TextAnchor.UpperLeft;
                 GUI.color = Color.white;
                 return;

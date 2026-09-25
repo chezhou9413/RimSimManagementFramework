@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,17 +34,17 @@ namespace RimSimRestaurantExtension.Conveyor.UI
             using (new RestaurantGuiScope())
             {
                 float h = RestaurantUiStyle.ControlHeight();
-                float y = ShopUiVisualUtility.DrawPageHeading(rect, "选择上架食品", "选择现有货源支持的食品，厨师将搬运实物补餐。", true);
-                string next = ShopUiVisualUtility.DrawSearchField(new Rect(0, y, rect.width, h), search, "搜索食品名称或来源模组");
+                float y = ShopUiVisualUtility.DrawPageHeading(rect, SimTranslation.T("RSR.UI.SelectConveyorFood"), SimTranslation.T("RSR.UI.SelectConveyorFoodHint"), true);
+                string next = ShopUiVisualUtility.DrawSearchField(new Rect(0, y, rect.width, h), search, SimTranslation.T("RSR.UI.SearchFood"));
                 if (next != search) { search = next; scroll = Vector2.zero; }
                 y += h + 8f;
                 var shown = foods.Where(f => RestaurantFoodUtility.MatchesSearch(f, search)).ToList();
                 float line = RestaurantUiStyle.LineHeight(GameFont.Small);
-                ShopUiVisualUtility.DrawCellLabel(new Rect(0, y, rect.width, line), "可选食品 " + shown.Count + " 项", RestaurantUiStyle.MutedText);
+                ShopUiVisualUtility.DrawCellLabel(new Rect(0, y, rect.width, line), SimTranslation.T("RSR.UI.AvailableFoods", (shown.Count).Named("count")), RestaurantUiStyle.MutedText);
                 y += line + 8f;
                 var outer = new Rect(0, y, rect.width, Mathf.Max(0f, rect.height - y - h - 12f));
                 ShopUiVisualUtility.DrawSection(outer);
-                if (shown.Count == 0) RestaurantBusinessUiUtility.DrawEmpty(outer, "没有匹配食品，请调整搜索或选择其他货源。");
+                if (shown.Count == 0) RestaurantBusinessUiUtility.DrawEmpty(outer, SimTranslation.T("RSR.UI.NoConveyorFood"));
                 else
                 {
                     float row = RestaurantFoodRow.Height;
@@ -57,7 +58,7 @@ namespace RimSimRestaurantExtension.Conveyor.UI
                     }
                     finally { Widgets.EndScrollView(); }
                 }
-                if (RestaurantUiStyle.DrawSecondaryButton(new Rect(rect.width - 110f, rect.height - h, 110f, h), "取消")) Close();
+                if (RestaurantUiStyle.DrawSecondaryButton(new Rect(rect.width - 110f, rect.height - h, 110f, h), SimTranslation.T("RSR.UI.Cancel"))) Close();
             }
         }
     }

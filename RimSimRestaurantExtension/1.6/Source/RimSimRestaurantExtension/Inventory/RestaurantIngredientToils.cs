@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System;
 using System.Collections.Generic;
 using RimSimRestaurantExtension.Models;
@@ -33,7 +34,7 @@ namespace RimSimRestaurantExtension.Inventory
             walk.initAction = () =>
             {
                 if (!RestaurantIngredientTransfer.TryGetPickup(job.targetQueueB[0].Thing, out LocalTargetInfo target, out PathEndMode mode))
-                { Stop(driver, resolve(), "出发时取料设施或地面物资已失效"); return; }
+                { Stop(driver, resolve(), SimTranslation.T("RSR.Issue.IngredientSourceLost")); return; }
                 job.SetTarget(TargetIndex.C, target);
                 pawn.pather.StartPath(target, mode);
             };
@@ -53,10 +54,10 @@ namespace RimSimRestaurantExtension.Inventory
             {
                 Thing ingredient = pawn.carryTracker.CarriedThing;
                 if (!RestaurantIngredientTransfer.IsCarryingBatch(pawn, job, resolve()))
-                { Stop(driver, resolve(), "到达灶台时携带食材与当前批次预留不符"); return; }
+                { Stop(driver, resolve(), SimTranslation.T("RSR.Issue.CarriedIngredientMismatch")); return; }
                 int count = ingredient.stackCount;
                 if (!RestaurantIngredientPlacement.TryPlace(pawn, job, ingredient))
-                { Stop(driver, resolve(), "灶台附近没有可独立放置食材的空格"); return; }
+                { Stop(driver, resolve(), SimTranslation.T("RSR.Issue.NoIngredientPlacement")); return; }
                 job.placedThings.Add(new ThingCountClass(ingredient, count));
                 job.countQueue[0] -= count;
                 if (job.countQueue[0] <= 0) { job.countQueue.RemoveAt(0); job.targetQueueB.RemoveAt(0); }
@@ -71,7 +72,7 @@ namespace RimSimRestaurantExtension.Inventory
         //记录取料中断原因，职责是让结束回调在释放认领前保留可以诊断的上下文。
         private static void Stop(JobDriver driver, RestaurantOrder order, string reason)
         {
-            string detail = $"取料失败：{reason}；工作={driver.job.loadID}，位置={driver.pawn.Position}，批次数量={driver.job.count}";
+            string detail = SimTranslation.T("RSR.Issue.IngredientPickupDetails", (reason).Named("reason"), (driver.job.loadID).Named("job"), (driver.pawn.Position).Named("position"), (driver.job.count).Named("count"));
             if (order != null) order.blockReason = detail;
             else RestaurantFlowLog.Failure(order, "厨师取料", detail, driver.pawn);
             driver.EndJobWith(JobCondition.Incompletable);

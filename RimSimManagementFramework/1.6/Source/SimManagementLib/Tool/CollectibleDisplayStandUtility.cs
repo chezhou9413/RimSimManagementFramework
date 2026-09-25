@@ -144,7 +144,7 @@ namespace SimManagementLib.Tool
         {
             Thing inner = GetCollectibleInnerThing(source);
             string label = inner?.LabelCapNoCount ?? source?.LabelCapNoCount ?? "";
-            return source is MinifiedThing ? label + "（已缩小）" : label + "（已摆放）";
+            return SimTranslation.T("RSMF.Collectible.SourceLabel", (label).Named("label"), (source is MinifiedThing ? SimTranslation.T("RSMF.Collectible.Minified") : SimTranslation.T("RSMF.Collectible.Placed")).Named("state"));
         }
 
         //把已摆放收藏品转成缩小物并交给小人携带。

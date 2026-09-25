@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System.Collections.Generic;
 using System.Linq;
 using RimSimRestaurantExtension.Conveyor.Placement;
@@ -71,16 +72,16 @@ namespace RimSimRestaurantExtension.Conveyor.Transport
                 {
                     line.rules = source.rules.Select(rule => rule.Clone()).ToList();
                     line.paused = true;
-                    line.notice = "线路拆分，请确认上架目标后恢复补货";
+                    line.notice = SimTranslation.T("RSR.Conveyor.SplitNotice");
                 }
                 if (previous.Count(l => l.rules.Count > 0) > 1)
-                { line.paused = true; line.notice = "线路合并，保留较早线路配置，请确认上架目标"; }
+                { line.paused = true; line.notice = SimTranslation.T("RSR.Conveyor.MergeNotice"); }
                 line.segments = OrderSegments(component, topology);
                 line.transport.Rebuild(line.segments);
                 line.RefreshShop();
                 if (!component.Any(b => b.thingIDNumber == line.anchorId)) line.anchorId = component.Min(b => b.thingIDNumber);
                 if (line.rules.Where(x => x.enabled).Sum(x => x.target) > component.Count)
-                { line.paused = true; line.notice = "目标盘数超过线路容量，请调整上架配置"; }
+                { line.paused = true; line.notice = SimTranslation.T("RSR.Conveyor.CapacityNotice"); }
                 foreach (var belt in component) { belt.lineId = line.id; index[belt] = line; }
                 result.Add(line);
             }

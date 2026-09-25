@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +27,7 @@ namespace RimSimRestaurantExtension.Tool
         {
             failReason = "";
             chosen = new List<ThingCount>();
-            if (shop?.Map == null || order == null) { failReason = "店铺或订单无效"; return false; }
+            if (shop?.Map == null || order == null) { failReason = SimTranslation.T("RSR.Issue.InvalidShopOrder"); return false; }
             if (order.orderId > 0 && order.menuConfirmed)
             {
                 chosen = Inventory.RestaurantOrderStock.Reserved(order, shop.Map);
@@ -39,11 +40,11 @@ namespace RimSimRestaurantExtension.Tool
                 bool valid = chosen.Count > 0 && chosen.All(t => t.Thing != null && !t.Thing.Destroyed
                     && t.Count <= t.Thing.stackCount && Inventory.RestaurantStockUtility.Reachable(actor, t.Thing, Inventory.RestaurantStockUtility.Key(order)))
                     && order.GetTotalIngredientNeeds().All(n => reservedItems.Where(t => t.Thing.def == n.ThingDef).Sum(t => t.Count) == n.countPerMeal);
-                if (!valid) failReason = "预留食材不足或当前厨师无法取料";
+                if (!valid) failReason = SimTranslation.T("RSR.Issue.ReservedIngredientsUnavailable");
                 return valid;
             }
             bool found = Inventory.RestaurantStockUtility.Select(shop, order, actor, out chosen);
-            if (!found) failReason = "冰箱和店内储存架食材不足或不可达";
+            if (!found) failReason = SimTranslation.T("RSR.Issue.KitchenStockUnavailable");
             return found;
         }
 

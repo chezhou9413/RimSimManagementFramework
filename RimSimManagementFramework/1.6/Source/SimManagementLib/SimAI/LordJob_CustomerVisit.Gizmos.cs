@@ -26,14 +26,14 @@ namespace SimManagementLib.SimAI
 
             yield return new Command_Action
             {
-                defaultLabel = "复制顾客诊断",
-                defaultDesc = "复制该顾客的 Session、Lord、Job、商品匹配和最近行为日志到剪切板。",
+                defaultLabel = SimTranslation.T("RSMF.CustomerDiagnostics.Copy"),
+                defaultDesc = SimTranslation.T("RSMF.CustomerDiagnostics.CopyDescription"),
                 icon = TexCommand.DesirePower,
                 action = () =>
                 {
                     string report = CustomerVisitDebugReportBuilder.Build(p);
                     GUIUtility.systemCopyBuffer = report;
-                    Messages.Message("已复制顾客诊断到剪切板。", MessageTypeDefOf.TaskCompletion, false);
+                    Messages.Message(SimTranslation.T("RSMF.CustomerDiagnostics.Copied"), MessageTypeDefOf.TaskCompletion, false);
                     SimDebugLogger.Journey("RSMF.CustomerDebug", "复制顾客诊断到剪切板", p, GetCurrentShop(p), -1);
                 }
             };

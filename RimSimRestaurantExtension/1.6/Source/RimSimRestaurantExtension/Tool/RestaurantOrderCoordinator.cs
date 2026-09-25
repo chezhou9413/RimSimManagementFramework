@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using RimSimRestaurantExtension.Buildings;
 using RimSimRestaurantExtension.Models;
 using RimWorld;
@@ -53,7 +54,7 @@ namespace RimSimRestaurantExtension.Tool
             var settings = RestaurantOrderUtility.Settings.GetOrCreate(order.shopZoneId);
             if (selected?.IsValid != true || !RestaurantOrderCreationUtility.ValidateSelectionAtOrderTime(customer, shop, settings, selected))
             {
-                RestaurantOrderUtility.FailOrder(order, "交谈后没有符合预算、饮食与库存条件的菜品");
+                RestaurantOrderUtility.FailOrder(order, SimTranslation.T("RSR.Issue.NoSuitableDishAfterTalk"));
                 return false;
             }
             order.stockProduct = selected.menuItem.IsStockProduct;
@@ -63,7 +64,7 @@ namespace RimSimRestaurantExtension.Tool
             order.mealCount = selected.count;
             if (customer.carryTracker.MaxStackSpaceEver(order.mealDef) < order.mealCount)
             {
-                RestaurantOrderUtility.FailOrder(order, "点菜份数超过顾客携带能力");
+                RestaurantOrderUtility.FailOrder(order, SimTranslation.T("RSR.Issue.TooManyPortions"));
                 return false;
             }
             order.ingredients = RestaurantIngredientUtility.BuildNeeds(selected.menuItem, selected.count);
@@ -79,12 +80,12 @@ namespace RimSimRestaurantExtension.Tool
             order.price = selected.totalPrice;
             order.unitPrice = selected.totalPrice / selected.count;
             order.ingredientCost = 0f;
-            order.preferenceSummary = selected.preference?.BuildSummary() ?? "未启用个体偏好";
+            order.preferenceSummary = selected.preference?.BuildSummary() ?? SimTranslation.T("RSR.Preference.Disabled");
             order.preferenceScore = selected.preferenceScore;
             order.selectionReason = selected.selectionReason;
             if (!Inventory.RestaurantOrderStock.Reserve(order, shop))
             {
-                RestaurantOrderUtility.FailOrder(order, "确认时真实库存已不足或被其他订单预留");
+                RestaurantOrderUtility.FailOrder(order, SimTranslation.T("RSR.Issue.StockChanged"));
                 return false;
             }
             order.menuConfirmed = true;

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR.Review.Completed>顾客在原座吃喝或收下商品后完成收银付款</RSR.Review.Completed>
+  <RSR.Review.Order>第{round}轮 {dish} ×{count}，实际接受{accepted}，{status}</RSR.Review.Order>
+  <RSR.Review.PartialFailure>部分餐厅商品服务失败，可酌情影响服务评价</RSR.Review.PartialFailure>
+  <RSR.Review.Session>餐厅用餐共接单{rounds}次；{goods}；实际应付{amount}，已付{paid}</RSR.Review.Session>
+  <RSR.Review.TakeAwayGoods>带走商品</RSR.Review.TakeAwayGoods>
+  <RSR.Review.Unpaid>餐厅付款未完成：{reason}</RSR.Review.Unpaid>
+</LanguageData>

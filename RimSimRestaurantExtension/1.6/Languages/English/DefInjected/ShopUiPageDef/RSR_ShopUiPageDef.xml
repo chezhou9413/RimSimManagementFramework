@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR_BusinessUi_RestaurantOverview.description>View active orders, facility status and customer preference summaries for all restaurants.</RSR_BusinessUi_RestaurantOverview.description>
+  <RSR_BusinessUi_RestaurantOverview.label>restaurant operations</RSR_BusinessUi_RestaurantOverview.label>
+  <RSR_ShopUi_RestaurantSettings.description>Configure restaurant extension settings for this shop.</RSR_ShopUi_RestaurantSettings.description>
+  <RSR_ShopUi_RestaurantSettings.label>restaurant settings</RSR_ShopUi_RestaurantSettings.label>
+</LanguageData>

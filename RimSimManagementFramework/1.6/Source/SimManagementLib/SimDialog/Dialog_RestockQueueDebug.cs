@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using RimWorld;
 using SimManagementLib.Debug;
 using SimManagementLib.SimMapComp;
@@ -18,7 +19,6 @@ namespace SimManagementLib.SimDialog
         private const float HeaderHeight = 72f;
         private const float FooterHeight = 46f;
         private const float Gap = 8f;
-        private const float SummaryCardHeight = 58f;
         private const int MaxRowsPerSection = 120;
         private static readonly Color WindowBg = new Color(0.10f, 0.11f, 0.13f, 1f);
         private static readonly Color PanelBg = new Color(0.15f, 0.17f, 0.20f, 0.95f);
@@ -93,14 +93,14 @@ namespace SimManagementLib.SimDialog
             Rect titleRect = new Rect(rect.x + 12f, rect.y + 8f, rect.width - closeSafeWidth - 24f, Text.LineHeightOf(GameFont.Medium) + 4f);
             Text.Font = GameFont.Medium;
             GUI.color = Color.white;
-            Widgets.Label(titleRect, "补货队列调试");
+            Widgets.Label(titleRect, SimTranslation.T("RSMF.RestockPanel.Title"));
 
             Text.Font = GameFont.Small;
             GUI.color = MutedText;
             string summary = map == null
-                ? "当前没有地图。"
-                : "Map=" + map.uniqueID + " Tick=" + (Find.TickManager?.TicksGame ?? 0) + " 导出路径=" + (string.IsNullOrEmpty(lastExportPath) ? "未导出" : lastExportPath);
-            Widgets.Label(new Rect(rect.x + 12f, titleRect.yMax + 6f, rect.width - 24f, Text.LineHeightOf(GameFont.Small) + 6f), summary);
+                ? SimTranslation.T("RSMF.RestockPanel.NoMap")
+                : SimTranslation.T("RSMF.RestockPanel.Summary", (map.uniqueID).Named("map"), (Find.TickManager?.TicksGame ?? 0).Named("tick"), (string.IsNullOrEmpty(lastExportPath) ? SimTranslation.T("RSMF.RestockPanel.NotExported") : lastExportPath).Named("path"));
+            SimManagementLib.Api.ShopUiVisualUtility.DrawCellLabel(new Rect(rect.x + 12f, titleRect.yMax + 6f, rect.width - 24f, Text.LineHeightOf(GameFont.Small) + 6f), summary, MutedText);
         }
 
         //绘制主体滚动区，职责是展示 dirty、ready 和 blocked 队列。
@@ -117,13 +117,13 @@ namespace SimManagementLib.SimDialog
             try
             {
                 float y = 0f;
-                y += DrawSummaryCards(new Rect(0f, y, viewWidth, SummaryCardHeight));
+                y += DrawSummaryCards(new Rect(0f, y, viewWidth, SummaryCardHeight(viewWidth)));
                 y += Gap;
                 y += DrawDirtySection(new Rect(0f, y, viewWidth, 1f));
                 y += Gap;
-                y += DrawTaskSection(new Rect(0f, y, viewWidth, 1f), "Ready", snapshot?.ReadyTasks, ReadyText);
+                y += DrawTaskSection(new Rect(0f, y, viewWidth, 1f), SimTranslation.T("RSMF.RestockPanel.Ready"), snapshot?.ReadyTasks, ReadyText);
                 y += Gap;
-                DrawTaskSection(new Rect(0f, y, viewWidth, 1f), "Blocked", snapshot?.BlockedTasks, BlockedText);
+                DrawTaskSection(new Rect(0f, y, viewWidth, 1f), SimTranslation.T("RSMF.RestockPanel.Blocked"), snapshot?.BlockedTasks, BlockedText);
             }
             finally
             {
@@ -145,18 +145,18 @@ namespace SimManagementLib.SimDialog
             Rect exportRect = new Rect(copyRect.xMax + Gap, y, buttonWidth, buttonHeight);
             Rect closeRect = new Rect(exportRect.xMax + Gap, y, buttonWidth, buttonHeight);
 
-            if (Widgets.ButtonText(refreshRect, "刷新"))
+            if (Widgets.ButtonText(refreshRect, SimTranslation.T("RSMF.RestockPanel.Refresh")))
                 RefreshSnapshot();
-            if (Widgets.ButtonText(rebuildRect, "重建队列"))
+            if (Widgets.ButtonText(rebuildRect, SimTranslation.T("RSMF.RestockPanel.Rebuild")))
             {
                 map?.GetComponent<MapComponent_RestockTaskQueue>()?.ResetAndRebuildAll("调试面板重建队列");
                 RefreshSnapshot();
             }
-            if (Widgets.ButtonText(copyRect, "复制完整日志"))
+            if (Widgets.ButtonText(copyRect, SimTranslation.T("RSMF.RestockPanel.Copy")))
                 CopyReport();
-            if (Widgets.ButtonText(exportRect, "导出日志文件"))
+            if (Widgets.ButtonText(exportRect, SimTranslation.T("RSMF.RestockPanel.Export")))
                 ExportReport();
-            if (Widgets.ButtonText(closeRect, "关闭"))
+            if (Widgets.ButtonText(closeRect, SimTranslation.T("RSMF.RestockPanel.Close")))
                 Close();
         }
 
@@ -165,28 +165,52 @@ namespace SimManagementLib.SimDialog
         {
             float cardGap = 8f;
             float cardWidth = (rect.width - cardGap * 3f) / 4f;
-            string requestText = "普通 " + (snapshot?.BulkRequestCount ?? 0) + "  专业 " + (snapshot?.UniqueRequestCount ?? 0);
-            string stateText = "就绪 " + (snapshot?.ReadyCount ?? 0) + "  等待 " + (snapshot?.BlockedCount ?? 0);
-            string leaseText = "租约 " + (snapshot?.LeaseCount ?? 0) + "  最老 " + (snapshot?.OldestRequestAge ?? 0) + "t";
-            string budgetText = "需求 " + (snapshot?.DemandChecksUsed ?? 0) + "/8  派工 " + (snapshot?.DispatchAttemptsUsed ?? 0) + "/4\n员工 " + (snapshot?.IdlePawnChecksUsed ?? 0) + "/4  查询 " + (snapshot?.ReachQueriesUsed ?? 0) + "/4";
-            DrawSummaryCard(new Rect(rect.x, rect.y, cardWidth, rect.height), "Requests", requestText, DirtyText);
-            DrawSummaryCard(new Rect(rect.x + (cardWidth + cardGap), rect.y, cardWidth, rect.height), "State", stateText, ReadyText);
-            DrawSummaryCard(new Rect(rect.x + (cardWidth + cardGap) * 2f, rect.y, cardWidth, rect.height), "Lease / Age", leaseText, BlockedText);
-            DrawSummaryCard(new Rect(rect.x + (cardWidth + cardGap) * 3f, rect.y, cardWidth, rect.height), "Budget", budgetText, MutedText);
+            string[] values = SummaryValues();
+            string[] titles = { SimTranslation.T("RSMF.RestockPanel.RequestsTitle"), SimTranslation.T("RSMF.RestockPanel.StateTitle"),
+                SimTranslation.T("RSMF.RestockPanel.LeaseTitle"), SimTranslation.T("RSMF.RestockPanel.BudgetTitle") };
+            Color[] colors = { DirtyText, ReadyText, BlockedText, MutedText };
+            for (int i = 0; i < values.Length; i++)
+                DrawSummaryCard(new Rect(rect.x + (cardWidth + cardGap) * i, rect.y, cardWidth, rect.height), titles[i], values[i], colors[i]);
             return rect.height;
         }
 
-        //绘制单个概要卡片，职责是用稳定高度显示短文本。
+        //取得概要译文，职责是让卡片测量与实际绘制共享完整参数和换行。
+        private string[] SummaryValues()
+        {
+            return new[]
+            {
+                SimTranslation.T("RSMF.RestockPanel.Requests", (snapshot?.BulkRequestCount ?? 0).Named("bulk"), (snapshot?.UniqueRequestCount ?? 0).Named("unique")),
+                SimTranslation.T("RSMF.RestockPanel.State", (snapshot?.ReadyCount ?? 0).Named("ready"), (snapshot?.BlockedCount ?? 0).Named("blocked")),
+                SimTranslation.T("RSMF.RestockPanel.Leases", (snapshot?.LeaseCount ?? 0).Named("count"), (snapshot?.OldestRequestAge ?? 0).Named("age")),
+                SimTranslation.T("RSMF.RestockPanel.Limits", (snapshot?.DemandChecksUsed ?? 0).Named("demand"), (snapshot?.DispatchAttemptsUsed ?? 0).Named("dispatch"), (snapshot?.IdlePawnChecksUsed ?? 0).Named("staff"), (snapshot?.ReachQueriesUsed ?? 0).Named("reach"))
+            };
+        }
+
+        //按当前语言测量概要卡片，职责是容纳多行译文并保持滚动内容高度一致。
+        private float SummaryCardHeight(float width)
+        {
+            Text.Font = GameFont.Small;
+            Text.WordWrap = true;
+            float contentWidth = Mathf.Max(1f, (width - 24f) / 4f - 16f);
+            float valueHeight = Text.LineHeightOf(GameFont.Small);
+            foreach (string value in SummaryValues())
+                valueHeight = Mathf.Max(valueHeight, Text.CalcHeight(value, contentWidth));
+            return Text.LineHeightOf(GameFont.Tiny) + valueHeight + 22f;
+        }
+
+        //绘制单个概要卡片，职责是保留标题行并完整显示按译文测量的数值。
         private static void DrawSummaryCard(Rect rect, string title, string value, Color valueColor)
         {
             Widgets.DrawBoxSolid(rect, RowBg);
             DrawBorder(rect);
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
-            Widgets.Label(new Rect(rect.x + 8f, rect.y + 6f, rect.width - 16f, Text.LineHeightOf(GameFont.Tiny) + 2f), title);
+            SimManagementLib.Api.ShopUiVisualUtility.DrawCellLabel(new Rect(rect.x + 8f, rect.y + 6f, rect.width - 16f, Text.LineHeightOf(GameFont.Tiny) + 2f), title, MutedText, GameFont.Tiny);
             Text.Font = GameFont.Small;
             GUI.color = valueColor;
-            Widgets.Label(new Rect(rect.x + 8f, rect.y + 26f, rect.width - 16f, rect.height - 30f), value);
+            float valueY = rect.y + Text.LineHeightOf(GameFont.Tiny) + 12f;
+            Text.WordWrap = true;
+            Widgets.Label(new Rect(rect.x + 8f, valueY, rect.width - 16f, rect.yMax - valueY - 6f), value);
         }
 
         //绘制 dirty 队列段落，职责是展示等待处理的货柜和商品键。
@@ -194,7 +218,7 @@ namespace SimManagementLib.SimDialog
         {
             List<RestockTaskKey> dirty = snapshot?.DirtyTasks;
             float y = rect.y;
-            y += DrawSectionHeader(new Rect(rect.x, y, rect.width, 1f), "Dirty 等待重算", dirty?.Count ?? 0, DirtyText);
+            y += DrawSectionHeader(new Rect(rect.x, y, rect.width, 1f), SimTranslation.T("RSMF.RestockPanel.Dirty"), dirty?.Count ?? 0, DirtyText);
             int count = Math.Min(dirty?.Count ?? 0, MaxRowsPerSection);
             for (int i = 0; i < count; i++)
             {
@@ -203,7 +227,7 @@ namespace SimManagementLib.SimDialog
                 y += DrawTextRow(new Rect(rect.x, y, rect.width, 1f), text, DirtyText);
             }
             if ((dirty?.Count ?? 0) > count)
-                y += DrawTextRow(new Rect(rect.x, y, rect.width, 1f), "剩余省略: " + ((dirty?.Count ?? 0) - count), MutedText);
+                y += DrawTextRow(new Rect(rect.x, y, rect.width, 1f), SimTranslation.T("RSMF.RestockPanel.Omitted", ((dirty?.Count ?? 0) - count).Named("count")), MutedText);
             return y - rect.y;
         }
 
@@ -216,7 +240,7 @@ namespace SimManagementLib.SimDialog
             for (int i = 0; i < count; i++)
                 y += DrawTaskRow(new Rect(rect.x, y, rect.width, 1f), tasks[i], color);
             if ((tasks?.Count ?? 0) > count)
-                y += DrawTextRow(new Rect(rect.x, y, rect.width, 1f), "剩余省略: " + ((tasks?.Count ?? 0) - count), MutedText);
+                y += DrawTextRow(new Rect(rect.x, y, rect.width, 1f), SimTranslation.T("RSMF.RestockPanel.Omitted", ((tasks?.Count ?? 0) - count).Named("count")), MutedText);
             return y - rect.y;
         }
 
@@ -236,16 +260,15 @@ namespace SimManagementLib.SimDialog
         //绘制补货任务行，职责是展示任务关键字段并按文本高度自适应。
         private static float DrawTaskRow(Rect rect, RestockTask task, Color color)
         {
-            string text = task == null
-                ? "null task"
-                : FormatQueueKey(task.Key)
-                  + " need=" + task.NeededCount
-                  + " supply=" + task.SupplyId
-                  + " created=" + task.CreatedTick
-                  + " checked=" + task.LastCheckedTick
-                  + " retry=" + task.RetryTick
-                  + " reason=" + task.StateReason;
+            string text = FormatTask(task);
             return DrawTextRow(rect, text, color);
+        }
+
+        //生成补货行的完整译文，职责是让绘制和高度测量使用相同内容。
+        private static string FormatTask(RestockTask task)
+        {
+            if (task == null) return SimTranslation.T("RSMF.RestockPanel.MissingTask");
+            return SimTranslation.T("RSMF.RestockPanel.TaskDetails", (FormatQueueKey(task.Key)).Named("target"), (task.NeededCount).Named("needed"), (task.SupplyId).Named("supply"), (task.CreatedTick).Named("created"), (task.LastCheckedTick).Named("checked"), (task.RetryTick).Named("retry"), (task.StateReason).Named("reason"));
         }
 
         //绘制自适应文本行，职责是避免中文和长原因文本裁切。
@@ -265,7 +288,7 @@ namespace SimManagementLib.SimDialog
         //计算滚动内容高度，职责是让滚动条准确覆盖全部可变高度行。
         private float CalculateViewHeight(float width)
         {
-            float height = SummaryCardHeight + Gap;
+            float height = SummaryCardHeight(width) + Gap;
             height += CalculateDirtyHeight(width) + Gap;
             height += CalculateTaskSectionHeight(width, snapshot?.ReadyTasks) + Gap;
             height += CalculateTaskSectionHeight(width, snapshot?.BlockedTasks);
@@ -295,7 +318,7 @@ namespace SimManagementLib.SimDialog
             for (int i = 0; i < count; i++)
             {
                 RestockTask task = tasks[i];
-                string text = task == null ? "null task" : FormatQueueKey(task.Key) + " need=" + task.NeededCount + " supply=" + task.SupplyId + " created=" + task.CreatedTick + " checked=" + task.LastCheckedTick + " retry=" + task.RetryTick + " reason=" + task.StateReason;
+                string text = FormatTask(task);
                 height += Mathf.Ceil(Text.CalcHeight(text, width - 16f)) + 14f;
             }
             if ((tasks?.Count ?? 0) > count)
@@ -307,8 +330,8 @@ namespace SimManagementLib.SimDialog
         private static string FormatQueueKey(RestockTaskKey key)
         {
             if (key.Kind == RestockRequestKind.Unique)
-                return "kind=unique storage=" + key.StorageId + " slot=" + key.SlotIndex + " source=" + key.SourceThingId;
-            return "kind=bulk storage=" + key.StorageId + " def=" + (key.ThingDef?.defName ?? "null");
+                return SimTranslation.T("RSMF.RestockPanel.UniqueTarget", (key.StorageId).Named("storage"), (key.SlotIndex).Named("slot"), (key.SourceThingId).Named("source"));
+            return SimTranslation.T("RSMF.RestockPanel.BulkTarget", (key.StorageId).Named("storage"), (key.ThingDef?.defName ?? "null").Named("def"));
         }
 
         //复制完整补货报告，职责是方便玩家直接粘贴到日志网站。
@@ -316,7 +339,7 @@ namespace SimManagementLib.SimDialog
         {
             string report = RestockDebugReportBuilder.Build(map);
             GUIUtility.systemCopyBuffer = report;
-            Messages.Message("已复制完整补货日志。", MessageTypeDefOf.TaskCompletion, false);
+            Messages.Message(SimTranslation.T("RSMF.RestockPanel.Copied"), MessageTypeDefOf.TaskCompletion, false);
         }
 
         //导出完整补货报告，职责是把排查日志写入配置目录。
@@ -325,7 +348,7 @@ namespace SimManagementLib.SimDialog
             string report = RestockDebugReportBuilder.Build(map);
             lastExportPath = ExportText(report);
             GUIUtility.systemCopyBuffer = lastExportPath;
-            Messages.Message("已导出补货日志，并复制路径。", MessageTypeDefOf.TaskCompletion, false);
+            Messages.Message(SimTranslation.T("RSMF.RestockPanel.Exported"), MessageTypeDefOf.TaskCompletion, false);
         }
 
         //导出文本文件，职责是统一生成 UTF-8 无 BOM 日志。

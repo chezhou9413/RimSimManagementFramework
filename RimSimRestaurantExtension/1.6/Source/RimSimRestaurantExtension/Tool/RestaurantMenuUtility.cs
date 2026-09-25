@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -196,9 +197,9 @@ namespace RimSimRestaurantExtension.Tool
         //构造点菜理由，职责是把偏好评分转换为订单详情和评价可读文本。
         private static string BuildSelectionReason(RestaurantMenuItem item, int count, RestaurantCustomerPreference preference)
         {
-            if (preference == null) return $"从当前可售菜单中选择 {count} 份";
-            string favorite = item.id == preference.favoriteMenuItemId ? "常点菜" : item.id == preference.lastMenuItemId ? "熟悉口味" : "换个口味";
-            return $"{favorite}；{preference.BuildSummary()}";
+            if (preference == null) return SimTranslation.T("RSR.Preference.SelectionCount", (count).Named("count"));
+            string favorite = item.id == preference.favoriteMenuItemId ? SimTranslation.T("RSR.Preference.FavoriteDish") : item.id == preference.lastMenuItemId ? SimTranslation.T("RSR.Preference.FamiliarTaste") : SimTranslation.T("RSR.Preference.DifferentTaste");
+            return SimTranslation.T("RSR.Preference.SelectionReason", (favorite).Named("favorite"), (preference.BuildSummary()).Named("summary"));
         }
 
         //生成缓存键，职责是区分顾客、店铺和点餐台上的独立选择流程。

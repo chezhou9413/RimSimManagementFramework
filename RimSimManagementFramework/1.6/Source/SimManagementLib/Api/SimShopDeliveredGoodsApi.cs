@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System.Linq;
 using SimManagementLib.SimThingClass;
 using Verse;
@@ -13,7 +14,7 @@ namespace SimManagementLib.Api
             if (customer?.inventory == null || order == null || order.customerThingId != customer.thingIDNumber
                 || !ReferenceEquals(order, SimShopCustomerApi.GetActionOrder(order.orderId))
                 || thing?.holdingOwner != customer.inventory.innerContainer || key.NullOrEmpty())
-                return SimApiResult.Fail("已交付商品的顾客、动作或持有关系无效");
+                return SimApiResult.Fail(SimTranslation.T("RSMF.Api.Error.DeliveredGoodsInvalid"));
             if (!order.deliveredThings.Any(r => r.thing == thing))
                 order.deliveredThings.Add(new ActionDeliveredThing { key = key, thing = thing, source = source });
             return SimApiResult.Success();

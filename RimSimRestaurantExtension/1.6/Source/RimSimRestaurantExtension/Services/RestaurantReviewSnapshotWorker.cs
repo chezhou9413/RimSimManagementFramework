@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System.Linq;
 using RimSimRestaurantExtension.Dining;
 using RimSimRestaurantExtension.Tool;
@@ -18,20 +19,20 @@ namespace RimSimRestaurantExtension.Services
                 .OrderByDescending(s => s.sessionId).FirstOrDefault();
             if (session == null) return;
             string goods = string.Join("；", session.Orders.Select(o =>
-                $"第{o.round}轮 {o.menuItemLabel} ×{o.mealCount}，实际接受{o.acceptedCount}，{RestaurantBusinessUiState(o)}"));
+                SimTranslation.T("RSR.Review.Order", (o.round).Named("round"), (o.menuItemLabel).Named("dish"), (o.mealCount).Named("count"), (o.acceptedCount).Named("accepted"), (RestaurantBusinessUiState(o)).Named("status"))));
             context.snapshot.serviceSummary = Append(context.snapshot.serviceSummary,
-                $"餐厅用餐共接单{session.rounds}次；{goods}；实际应付{session.Amount:F0}，已付{session.Orders.Sum(o => o.paidAmount):F0}");
+                SimTranslation.T("RSR.Review.Session", (session.rounds).Named("rounds"), (goods).Named("goods"), (session.Amount.ToString("F0")).Named("amount"), (session.Orders.Sum(o => o.paidAmount).ToString("F0")).Named("paid")));
             context.snapshot.postPurchaseSummary = Append(context.snapshot.postPurchaseSummary,
-                session.state == RestaurantSessionState.Completed ? "顾客在原座吃喝或收下商品后完成收银付款"
-                    : "餐厅付款未完成：" + session.reason);
+                session.state == RestaurantSessionState.Completed ? SimTranslation.T("RSR.Review.Completed")
+                    : SimTranslation.T("RSR.Review.Unpaid", (session.reason).Named("reason")));
             if (session.Orders.Any(o => !o.failReason.NullOrEmpty()))
-                context.snapshot.personalityBiasSummary = Append(context.snapshot.personalityBiasSummary, "部分餐厅商品服务失败，可酌情影响服务评价");
+                context.snapshot.personalityBiasSummary = Append(context.snapshot.personalityBiasSummary, SimTranslation.T("RSR.Review.PartialFailure"));
         }
 
         //说明子订单体验，职责是区分现场食用、带走和失败原因。
         private static string RestaurantBusinessUiState(Models.RestaurantOrder order) =>
             !order.failReason.NullOrEmpty() ? order.failReason
-                : order.mode == Inventory.RestaurantDeliveryMode.TakeAway ? "带走商品" : "现场吃喝";
+                : order.mode == Inventory.RestaurantDeliveryMode.TakeAway ? SimTranslation.T("RSR.Review.TakeAwayGoods") : SimTranslation.T("RSR.UI.Consume");
 
         //追加餐厅摘要，职责是保留框架已有购物和服务评价内容。
         private static string Append(string existing, string text) =>

@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using RimSimRestaurantExtension.Models;
 using RimSimRestaurantExtension.Tool;
 using SimManagementLib.Api;
@@ -82,7 +83,7 @@ namespace RimSimRestaurantExtension.Services
             if (context?.customer == null || session == null || session.IsTerminal
                 || session.state == Dining.RestaurantSessionState.AwaitingCheckout)
             {
-                reason = "用餐会话已结束";
+                reason = SimTranslation.T("RSR.Issue.SessionEnded");
                 return false;
             }
             if (!Dining.RestaurantSessionUtility.Validate(session, context.customer.Map, out reason)) return false;

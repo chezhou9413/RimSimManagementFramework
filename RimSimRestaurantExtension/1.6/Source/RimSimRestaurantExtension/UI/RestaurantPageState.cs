@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using RimSimRestaurantExtension.GameComp;
 using UnityEngine;
+using Verse;
 
 namespace RimSimRestaurantExtension.UI
 {
@@ -10,6 +11,7 @@ namespace RimSimRestaurantExtension.UI
         public RestaurantShopSettings draft;
         public string selectedId = "";
         public Vector2 scroll;
+        public LoadedLanguage menuStatusLanguage;
         public readonly Dictionary<string, (int tick, string issue)> menuStatus = new Dictionary<string, (int, string)>();
     }
 }

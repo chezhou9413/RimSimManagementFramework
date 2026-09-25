@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System.Collections.Generic;
 using System.Linq;
 using RimSimRestaurantExtension.Models;
@@ -18,28 +19,28 @@ namespace RimSimRestaurantExtension.Jobs
             RestaurantOrder order = ResolveOrder();
             Thing stove = job.GetTarget(TargetIndex.A).Thing;
             if (order == null || order.state != RestaurantOrderState.WaitingCook || !RestaurantCookingUtility.CanCookOrderAt(stove, order))
-                return RejectReservation(order, "订单状态或灶台配方已失效");
+                return RejectReservation(order, SimTranslation.T("RSR.Issue.InvalidCookingOrder"));
             if (!pawn.Reserve(stove, job, 1, -1, null, errorOnFailed))
-                return RejectReservation(order, "无法预约灶台");
+                return RejectReservation(order, SimTranslation.T("RSR.Issue.StoveReservation"));
             if (stove.def.hasInteractionCell && !pawn.ReserveSittableOrSpot(stove.InteractionCell, job, errorOnFailed))
-                return RejectReservation(order, "无法预约灶台交互格");
+                return RejectReservation(order, SimTranslation.T("RSR.Issue.StoveCellReservation"));
 
             List<LocalTargetInfo> ingredients = job.GetTargetQueue(TargetIndex.B);
             if (ingredients.NullOrEmpty() || job.countQueue == null || job.countQueue.Count != ingredients.Count)
-                return RejectReservation(order, "Job 食材目标与数量队列不完整");
+                return RejectReservation(order, SimTranslation.T("RSR.Issue.IngredientQueueIncomplete"));
             for (int i = 0; i < ingredients.Count; i++)
             {
                 int count = job.countQueue[i];
                 Thing source = ingredients[i].Thing;
                 if (source == null || source.Destroyed || count <= 0 || count > source.stackCount
                     || pawn.carryTracker.MaxStackSpaceEver(source.def) <= 0)
-                    return RejectReservation(order, $"第 {i + 1} 组食材无效或无法携带，数量={count}");
+                    return RejectReservation(order, SimTranslation.T("RSR.Issue.IngredientBatchInvalid", (i + 1).Named("batch"), (count).Named("count")));
                 if (!source.Spawned || pawn.Reserve(ingredients[i], job, 1, count, null, errorOnFailed)) continue;
-                return RejectReservation(order, $"无法预约第 {i + 1} 组食材，数量={count}");
+                return RejectReservation(order, SimTranslation.T("RSR.Issue.IngredientBatchReservation", (i + 1).Named("batch"), (count).Named("count")));
             }
 
             return RestaurantOrderCoordinator.ClaimCooking(order, pawn, stove)
-                || RejectReservation(order, "订单暂不可认领，等待重新检查");
+                || RejectReservation(order, SimTranslation.T("RSR.Issue.OrderClaimUnavailable"));
         }
 
         //处理尚未建立 Toil 的预约失败，职责是记录原因并阻止原版立即再次派发相同厨房工作。
@@ -137,7 +138,7 @@ namespace RimSimRestaurantExtension.Jobs
         {
             RestaurantOrder order = ResolveOrder();
             if (RestaurantKitchenUtility.Produce(pawn, job.GetTarget(TargetIndex.A).Thing, order, job)) return;
-            if (order?.mealProduced != true) RestaurantOrderUtility.FailOrder(order, "出餐前核实失败：实际食材不足或产物不可生成");
+            if (order?.mealProduced != true) RestaurantOrderUtility.FailOrder(order, SimTranslation.T("RSR.Issue.ProductionValidation"));
             EndJobWith(JobCondition.Incompletable);
         }
 

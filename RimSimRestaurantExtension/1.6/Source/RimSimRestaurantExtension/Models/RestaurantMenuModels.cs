@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -58,7 +59,7 @@ namespace RimSimRestaurantExtension.Models
         public ThingDef MealDef => DefDatabase<ThingDef>.GetNamedSilentFail(mealDefName);
 
         //返回菜单显示名，负责在 UI、订单和提示中使用稳定文本。
-        public string DisplayLabel => string.IsNullOrEmpty(label) ? MealDef?.LabelCap.RawText ?? "无效餐品" : label;
+        public string DisplayLabel => string.IsNullOrEmpty(label) ? MealDef?.LabelCap.RawText ?? SimTranslation.T("RSR.Food.InvalidMeal") : label;
 
         //读写菜单项，并在读档后夹紧价格和份数范围。
         public void ExposeData()

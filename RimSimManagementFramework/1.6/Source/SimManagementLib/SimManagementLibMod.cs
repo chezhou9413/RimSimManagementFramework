@@ -372,12 +372,12 @@ namespace SimManagementLib
             Settings.maxFinanceBillRecords = (int)list.Slider(Settings.maxFinanceBillRecords, 200f, 50000f);
             list.Label(SimTranslation.T("RSMF.Settings.FinanceLogPageSize", Settings.financeLogPageSize.Named("count")));
             Settings.financeLogPageSize = (int)list.Slider(Settings.financeLogPageSize, 10f, 200f);
-            list.CheckboxLabeled("启用顾客行程调试日志", ref Settings.enableJourneyDebugLog, "输出到 RimWorld 存档数据目录下的 RimSimManagementFramework/Logs/journey-debug.log。");
-            list.CheckboxLabeled("同步调试日志到游戏日志", ref Settings.mirrorJourneyDebugLogToGameLog, "仅排查问题时开启，会增加游戏日志输出。");
-            list.Label($"行程调试日志最大体积：{Settings.journeyDebugLogMaxBytes / 1024} KB");
+            list.CheckboxLabeled(SimTranslation.T("RSMF.Settings.JourneyLog.Enable"), ref Settings.enableJourneyDebugLog, SimTranslation.T("RSMF.Settings.JourneyLog.Location"));
+            list.CheckboxLabeled(SimTranslation.T("RSMF.Settings.JourneyLog.Mirror"), ref Settings.mirrorJourneyDebugLogToGameLog, SimTranslation.T("RSMF.Settings.JourneyLog.MirrorTip"));
+            list.Label(SimTranslation.T("RSMF.Settings.JourneyLog.MaxSize", (Settings.journeyDebugLogMaxBytes / 1024).Named("size")));
             Settings.journeyDebugLogMaxBytes = (int)list.Slider(Settings.journeyDebugLogMaxBytes, 262144f, 16777216f);
             Rect clearJourneyLogRect = list.GetRect(32f);
-            if (Widgets.ButtonText(clearJourneyLogRect, "清空顾客行程调试日志"))
+            if (Widgets.ButtonText(clearJourneyLogRect, SimTranslation.T("RSMF.Settings.JourneyLog.Clear")))
                 SimDebugLogger.ClearJourneyLog();
 
             list.GapLine();

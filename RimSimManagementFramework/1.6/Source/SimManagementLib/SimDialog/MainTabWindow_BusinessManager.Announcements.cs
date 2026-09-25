@@ -6,11 +6,10 @@ using Verse;
 
 namespace SimManagementLib.SimDialog
 {
+    //组织公告页面，职责是显示公告内容并管理未读状态。
     public partial class MainTabWindow_BusinessManager
     {
-        /// <summary>
-        /// 绘制内置公告页，负责展示已读历史并提供手动检查入口。
-        /// </summary>
+        //绘制内置公告页，负责展示已读历史并提供手动检查入口。
         private void DrawAnnouncementsPage(Rect rect)
         {
             AnnouncementClientState.Tick();
@@ -34,10 +33,7 @@ namespace SimManagementLib.SimDialog
                 GUI.color = oldColor;
             }
         }
-
-        /// <summary>
-        /// 绘制公告页顶部工具栏，负责处理手动检查按钮和当前状态文本。
-        /// </summary>
+        //绘制公告页顶部工具栏，负责处理手动检查按钮和当前状态文本。
         private void DrawAnnouncementHeader(Rect rect)
         {
             Widgets.DrawBoxSolid(rect, CPanelAlt);
@@ -45,7 +41,7 @@ namespace SimManagementLib.SimDialog
             float buttonWidth = 140f;
             Rect buttonRect = new Rect(inner.x, inner.y + (inner.height - 32f) / 2f, buttonWidth, 32f);
             bool canClick = !AnnouncementClientState.IsChecking();
-            if (SimUiStyle.DrawSecondaryButton(buttonRect, SimTranslation.TOrFallback("RSMF.Announcement.CheckNow", "Check now"), canClick, GameFont.Small))
+            if (SimUiStyle.DrawSecondaryButton(buttonRect, SimTranslation.T("RSMF.Announcement.CheckNow"), canClick, GameFont.Small))
                 AnnouncementClientState.TryManualCheck();
 
             Rect statusRect = new Rect(buttonRect.xMax + 10f, inner.y, Mathf.Max(1f, inner.width - buttonWidth - 10f), inner.height);
@@ -55,10 +51,7 @@ namespace SimManagementLib.SimDialog
             GUI.color = CDim;
             Widgets.Label(statusRect, AnnouncementClientState.StatusText);
         }
-
-        /// <summary>
-        /// 绘制已读公告历史，负责离线展示本机保存的公告快照。
-        /// </summary>
+        //绘制已读公告历史，负责离线展示本机保存的公告快照。
         private void DrawAnnouncementHistory(Rect rect)
         {
             List<AnnouncementReadRecord> history = AnnouncementClientState.GetReadHistory();
@@ -69,7 +62,7 @@ namespace SimManagementLib.SimDialog
                 Text.Anchor = TextAnchor.MiddleCenter;
                 Text.WordWrap = true;
                 GUI.color = CDim;
-                Widgets.Label(rect.ContractedBy(18f), SimTranslation.TOrFallback("RSMF.Announcement.HistoryEmpty", "No read announcements yet."));
+                Widgets.Label(rect.ContractedBy(18f), SimTranslation.T("RSMF.Announcement.HistoryEmpty"));
                 return;
             }
 

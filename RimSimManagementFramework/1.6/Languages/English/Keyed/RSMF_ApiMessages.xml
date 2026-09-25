@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.Api.Error.StaffInvalid>Invalid staff member.</RSMF.Api.Error.StaffInvalid>
+  <RSMF.Api.Error.ActionOrderNotJoinable>Staff cannot join this action order.</RSMF.Api.Error.ActionOrderNotJoinable>
+  <RSMF.Api.Error.CustomerInvalid>Invalid customer.</RSMF.Api.Error.CustomerInvalid>
+  <RSMF.Api.Error.ActionDisabled>This action is disabled.</RSMF.Api.Error.ActionDisabled>
+  <RSMF.Api.Error.ContextInvalid>Invalid customer context.</RSMF.Api.Error.ContextInvalid>
+  <RSMF.Api.Error.KindMismatch>Customer type does not match.</RSMF.Api.Error.KindMismatch>
+  <RSMF.Api.Error.InterestMismatch>Customer interests do not match.</RSMF.Api.Error.InterestMismatch>
+  <RSMF.Api.Error.ActionTargetMissing>The shop has no target for this action.</RSMF.Api.Error.ActionTargetMissing>
+  <RSMF.Api.Error.ActionOrderInvalid>Invalid action order.</RSMF.Api.Error.ActionOrderInvalid>
+  <RSMF.Api.Error.ServiceInvalid>Invalid service definition.</RSMF.Api.Error.ServiceInvalid>
+  <RSMF.Api.Error.ProviderInvalid>Invalid service provider.</RSMF.Api.Error.ProviderInvalid>
+  <RSMF.Api.Error.OrderNotPreparable>This order cannot be prepared.</RSMF.Api.Error.OrderNotPreparable>
+  <RSMF.Api.Error.BillAmountInvalid>Invalid bill amount.</RSMF.Api.Error.BillAmountInvalid>
+  <RSMF.Api.Error.VisitMissing>The customer visit no longer exists.</RSMF.Api.Error.VisitMissing>
+  <RSMF.Api.Error.BillAppendFailed>Could not add to the bill.</RSMF.Api.Error.BillAppendFailed>
+  <RSMF.Api.Error.BillSyncFailed>Could not update the bill.</RSMF.Api.Error.BillSyncFailed>
+  <RSMF.Api.Error.ServiceOrderInvalid>Invalid service order.</RSMF.Api.Error.ServiceOrderInvalid>
+  <RSMF.Api.Error.ActionInvalid>Invalid action definition.</RSMF.Api.Error.ActionInvalid>
+  <RSMF.Api.Error.ActionManagerUnavailable>The customer action order manager is unavailable.</RSMF.Api.Error.ActionManagerUnavailable>
+  <RSMF.Api.Error.ActionWorkerInvalid>Invalid action worker.</RSMF.Api.Error.ActionWorkerInvalid>
+  <RSMF.Api.Error.ActionOrderNotCreated>The worker did not create an action order.</RSMF.Api.Error.ActionOrderNotCreated>
+  <RSMF.Api.Error.ActionOrderEnded>This action order has ended.</RSMF.Api.Error.ActionOrderEnded>
+  <RSMF.Api.Error.SessionWorkerMissing>This action order has no session worker.</RSMF.Api.Error.SessionWorkerMissing>
+  <RSMF.Api.Error.ActionOrderTerminated>This action order was cancelled or failed.</RSMF.Api.Error.ActionOrderTerminated>
+  <RSMF.Api.Error.CompletedActionCannotCancel>A completed action order cannot be cancelled.</RSMF.Api.Error.CompletedActionCannotCancel>
+  <RSMF.Api.Error.ActionCannotStart>This action order cannot start.</RSMF.Api.Error.ActionCannotStart>
+  <RSMF.Api.Error.ActionJobMissing>This action order has no executable job.</RSMF.Api.Error.ActionJobMissing>
+  <RSMF.Api.Error.ActionContextRestoreFailed>Could not restore the action order context.</RSMF.Api.Error.ActionContextRestoreFailed>
+  <RSMF.Api.Error.ActionCannotContinue>This action order can no longer continue.</RSMF.Api.Error.ActionCannotContinue>
+  <RSMF.Api.Error.ActionJobRestoreFailed>Could not restore the customer job for this action order.</RSMF.Api.Error.ActionJobRestoreFailed>
+  <RSMF.Api.Error.DeliveredGoodsInvalid>Invalid customer, action or holder for the delivered goods.</RSMF.Api.Error.DeliveredGoodsInvalid>
+  <RSMF.Api.Error.ActionOwnerMismatch>The action order does not match the customer or shop.</RSMF.Api.Error.ActionOwnerMismatch>
+  <RSMF.Api.Error.SuborderBillInvalid>Invalid suborder bill identifier, quantity, amount or cost.</RSMF.Api.Error.SuborderBillInvalid>
+  <RSMF.Api.Error.ActionOrderNotManaged>Use an action order stored by the framework manager.</RSMF.Api.Error.ActionOrderNotManaged>
+  <RSMF.Api.Error.ActionBillInvalid>Invalid action bill quantity, amount or cost.</RSMF.Api.Error.ActionBillInvalid>
+  <RSMF.Api.Error.FinanceContextUnavailable>The finance manager or customer's current shop is unavailable.</RSMF.Api.Error.FinanceContextUnavailable>
+  <RSMF.Api.Error.ServiceNameInvalid>Invalid service definition name.</RSMF.Api.Error.ServiceNameInvalid>
+  <RSMF.Api.Error.PositiveQuantityAmountRequired>Quantity and amount must be greater than zero.</RSMF.Api.Error.PositiveQuantityAmountRequired>
+  <RSMF.Api.Error.FinanceManagerUnavailable>The finance manager is unavailable.</RSMF.Api.Error.FinanceManagerUnavailable>
+  <RSMF.Api.Error.FinanceLineInvalid>Invalid financial line item.</RSMF.Api.Error.FinanceLineInvalid>
+  <RSMF.Api.Error.PositiveAmountRequired>The amount must be greater than zero.</RSMF.Api.Error.PositiveAmountRequired>
+  <RSMF.Api.Error.PreparedWorkerUnregistered>No prepared-order worker is registered for this service.</RSMF.Api.Error.PreparedWorkerUnregistered>
+  <RSMF.Api.Error.PreparedManagerUnavailable>The prepared-order manager is unavailable.</RSMF.Api.Error.PreparedManagerUnavailable>
+  <RSMF.Api.Error.OrderNotCreated>The worker did not create an order.</RSMF.Api.Error.OrderNotCreated>
+  <RSMF.Api.Error.OrderMissing>The order does not exist.</RSMF.Api.Error.OrderMissing>
+  <RSMF.Api.Error.OrderCannotPay>The current order state does not allow payment.</RSMF.Api.Error.OrderCannotPay>
+  <RSMF.Api.Error.OrderInvalid>Invalid order.</RSMF.Api.Error.OrderInvalid>
+  <RSMF.Api.Error.OrderCannotClaim>This order cannot be claimed.</RSMF.Api.Error.OrderCannotClaim>
+  <RSMF.Api.Error.OrderWorkerMissing>The order has no worker.</RSMF.Api.Error.OrderWorkerMissing>
+  <RSMF.Api.Error.OrderCannotStart>The current order state does not allow preparation to start.</RSMF.Api.Error.OrderCannotStart>
+  <RSMF.Api.Error.OrderCannotComplete>The current order state does not allow preparation to finish.</RSMF.Api.Error.OrderCannotComplete>
+  <RSMF.Api.Error.OrderCannotDeliver>The order is not ready for delivery.</RSMF.Api.Error.OrderCannotDeliver>
+  <RSMF.Api.Error.RegisteredBillImmutable>A registered suborder bill cannot be changed: {key}</RSMF.Api.Error.RegisteredBillImmutable>
+</LanguageData>

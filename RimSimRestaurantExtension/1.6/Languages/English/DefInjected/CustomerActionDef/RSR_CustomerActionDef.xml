@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR_Action_RestaurantDining.description>Waiters take seated customers' orders and show item icons. Kitchen dishes are cooked and served; cabinet goods are collected directly. Waiters deliver both to the customer's table. Customers eat, drink or accept goods at their seats and may place additional orders while waiting or eating. They pay at the same shop's cash register once all orders are handled.</RSR_Action_RestaurantDining.description>
+  <RSR_Action_RestaurantDining.label>order and dine at restaurant</RSR_Action_RestaurantDining.label>
+</LanguageData>

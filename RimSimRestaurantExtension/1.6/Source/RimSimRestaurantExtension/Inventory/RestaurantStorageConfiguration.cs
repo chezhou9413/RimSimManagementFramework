@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System.Linq;
 using RimSimRestaurantExtension.Buildings;
 using RimSimRestaurantExtension.Tool;
@@ -14,9 +15,9 @@ namespace RimSimRestaurantExtension.Inventory
                 if (order.mapId != cabinet.Map.uniqueID) continue;
                 var reserved = RestaurantOrderStock.Reserved(order, cabinet.Map);
                 if (reserved.Any(t => t.Thing?.ParentHolder == cabinet && !cabinet.AllowsInventoryItem(t.Thing.def)))
-                    RestaurantOrderUtility.CancelOrder(order, "预留物品已被货柜筛选排除");
+                    RestaurantOrderUtility.CancelOrder(order, SimTranslation.T("RSR.Issue.ReservedItemFiltered"));
                 else if (order.stockProduct && order.sourceCabinet == cabinet && !cabinet.Rule(order.mealDef).onSale)
-                    RestaurantOrderUtility.CancelOrder(order, "已预留商品停止上架");
+                    RestaurantOrderUtility.CancelOrder(order, SimTranslation.T("RSR.Issue.ReservedItemOffSale"));
             }
             RestaurantBusinessAvailability.Reset();
             RestaurantMenuUtility.ResetSelections();

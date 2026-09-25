@@ -26,6 +26,25 @@ namespace RimSimRestaurantExtension.UI
             return ShopUiVisualUtility.ControlHeight(font);
         }
 
+        //绘制单行开关，职责是为勾选框保留宽度并用悬浮提示显示完整译文。
+        public static void DrawCheckbox(Rect rect, string label, ref bool value)
+        {
+            bool oldWrap = Text.WordWrap;
+            TextAnchor oldAnchor = Text.Anchor;
+            try
+            {
+                Text.WordWrap = false;
+                Text.Anchor = TextAnchor.MiddleLeft;
+                Widgets.CheckboxLabeled(rect, label.Truncate(Mathf.Max(1f, rect.width - 30f)), ref value);
+                TooltipHandler.TipRegion(rect, label);
+            }
+            finally
+            {
+                Text.WordWrap = oldWrap;
+                Text.Anchor = oldAnchor;
+            }
+        }
+
         //保留页面容器入口，职责是避免扩展在框架已经绘制的页面区域上重复覆盖整页背景。
         public static void DrawPanel(Rect rect)
         {

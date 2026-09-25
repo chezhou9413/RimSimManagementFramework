@@ -128,7 +128,7 @@ namespace SimManagementLib.SimMapComp
             if (!storagesById.TryGetValue(task.StorageId, out Building_SimContainer storage)
                 || !CanPawnUseRequest(pawn, storage, task.Kind))
             {
-                task.StateReason = "当前员工无权执行该货柜补货";
+                task.StateReason = SimTranslation.T("RSMF.RestockReason.StaffNotAllowed");
                 task.RetryTick = now + TemporaryRetryTicks;
                 return null;
             }
@@ -136,19 +136,19 @@ namespace SimManagementLib.SimMapComp
                 && !sourceResolver.HasPotentialBulkSupply(storage, task.ThingDef))
             {
                 task.SupplyId = -1;
-                task.StateReason = storage.RestockSourceIssue.NullOrEmpty() ? "绑定货源没有可用于补货的物资" : storage.RestockSourceIssue;
+                task.StateReason = storage.RestockSourceIssue.NullOrEmpty() ? SimTranslation.T("RSMF.RestockReason.LinkedSourceEmpty") : storage.RestockSourceIssue;
                 task.RetryTick = now + MissingSupplyRetryTicks;
                 return null;
             }
             if (!ignoreBudget && !budget.TryUseReachQuery())
             {
-                task.StateReason = "等待货柜可达查询预算";
+                task.StateReason = SimTranslation.T("RSMF.RestockReason.WaitCabinetReach");
                 task.RetryTick = now + TemporaryRetryTicks;
                 return null;
             }
             if (!pawn.CanReach(storage.InventoryInteractionTarget, storage.InventoryInteractionEndMode, Danger.Deadly))
             {
-                task.StateReason = "当前员工无法到达货柜";
+                task.StateReason = SimTranslation.T("RSMF.RestockReason.CabinetUnreachable");
                 task.RetryTick = now + TemporaryRetryTicks;
                 return null;
             }
@@ -164,13 +164,13 @@ namespace SimManagementLib.SimMapComp
             if (needed <= 0)
             {
                 task.NeededCount = 0;
-                task.StateReason = "等待途中补货";
+                task.StateReason = SimTranslation.T("RSMF.RestockReason.InTransit");
                 task.RetryTick = now + TemporaryRetryTicks;
                 return null;
             }
             if (!ignoreBudget && !budget.TryUseReachQuery())
             {
-                task.StateReason = "等待货源区域搜索预算";
+                task.StateReason = SimTranslation.T("RSMF.RestockReason.WaitSourceSearch");
                 task.RetryTick = now + TemporaryRetryTicks;
                 return null;
             }
@@ -187,7 +187,7 @@ namespace SimManagementLib.SimMapComp
             if (supply == null)
             {
                 task.SupplyId = -1;
-                task.StateReason = deepSearched ? "没有当前员工可用的普通货源" : "等待深度货源搜索";
+                task.StateReason = deepSearched ? SimTranslation.T("RSMF.RestockReason.BulkSourceUnavailable") : SimTranslation.T("RSMF.RestockReason.WaitDeepSearch");
                 task.RetryTick = now + MissingSupplyRetryTicks;
                 return null;
             }
@@ -196,7 +196,7 @@ namespace SimManagementLib.SimMapComp
             int amount = Math.Min(needed, Math.Min(carryMax, map.GetComponent<MapComponent_InventoryReservations>().Available(supply)));
             if (amount <= 0)
             {
-                task.StateReason = "当前员工可搬运数量为 0";
+                task.StateReason = SimTranslation.T("RSMF.RestockReason.NoCarryCapacity");
                 task.RetryTick = now + TemporaryRetryTicks;
                 return null;
             }
@@ -206,7 +206,7 @@ namespace SimManagementLib.SimMapComp
             job.plantDefToSow = task.ThingDef;
             job.workGiverDef = GetWorkGiverDef(RestockRequestKind.Bulk);
             task.SupplyId = supply.thingIDNumber;
-            task.StateReason = "Job 已创建，等待预预约";
+            task.StateReason = SimTranslation.T("RSMF.RestockReason.JobCreated");
             task.RetryTick = now + 1;
             return job;
         }
@@ -221,7 +221,7 @@ namespace SimManagementLib.SimMapComp
             }
             if (leases.HasLease(task.Key))
             {
-                task.StateReason = "专业补货任务执行中";
+                task.StateReason = SimTranslation.T("RSMF.RestockReason.UniqueInProgress");
                 task.RetryTick = now + TemporaryRetryTicks;
                 return null;
             }
@@ -241,31 +241,31 @@ namespace SimManagementLib.SimMapComp
             }
             if (source == null || !source.Spawned || source.Map != map)
             {
-                task.StateReason = deepSearched ? "专业货源暂时不在地图上" : "等待专业货源索引批扫";
+                task.StateReason = deepSearched ? SimTranslation.T("RSMF.RestockReason.UniqueNotSpawned") : SimTranslation.T("RSMF.RestockReason.WaitUniqueIndex");
                 task.RetryTick = now + MissingSupplyRetryTicks;
                 return null;
             }
             if (!storage.IsEligiblePendingSource(task.SlotIndex, source))
             {
-                task.StateReason = "专业货源当前不符合槽位条件";
+                task.StateReason = SimTranslation.T("RSMF.RestockReason.UniqueIneligible");
                 task.RetryTick = now + MissingSupplyRetryTicks;
                 return null;
             }
             if (source.IsForbidden(pawn) || !pawn.CanReserve(source))
             {
-                task.StateReason = "专业货源暂时禁用或已被预约";
+                task.StateReason = SimTranslation.T("RSMF.RestockReason.UniqueReserved");
                 task.RetryTick = now + TemporaryRetryTicks;
                 return null;
             }
             if (!ignoreBudget && !budget.TryUseReachQuery())
             {
-                task.StateReason = "等待专业货源可达查询预算";
+                task.StateReason = SimTranslation.T("RSMF.RestockReason.WaitUniqueReach");
                 task.RetryTick = now + TemporaryRetryTicks;
                 return null;
             }
             if (!pawn.CanReach(source, PathEndMode.ClosestTouch, Danger.Deadly))
             {
-                task.StateReason = "当前员工无法到达专业货源";
+                task.StateReason = SimTranslation.T("RSMF.RestockReason.UniqueUnreachable");
                 task.RetryTick = now + TemporaryRetryTicks;
                 return null;
             }
@@ -275,7 +275,7 @@ namespace SimManagementLib.SimMapComp
             job.haulMode = HaulMode.ToCellNonStorage;
             job.workGiverDef = GetWorkGiverDef(RestockRequestKind.Unique);
             task.SupplyId = source.thingIDNumber;
-            task.StateReason = "专业 Job 已创建，等待预预约";
+            task.StateReason = SimTranslation.T("RSMF.RestockReason.UniqueJobCreated");
             task.RetryTick = now + 1;
             return job;
         }

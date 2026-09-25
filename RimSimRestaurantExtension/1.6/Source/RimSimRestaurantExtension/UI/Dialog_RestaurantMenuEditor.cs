@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -47,11 +48,11 @@ namespace RimSimRestaurantExtension.UI
             using (new RestaurantGuiScope())
             {
                 float row = RestaurantUiStyle.ControlHeight() + 8f;
-                float top = ShopUiVisualUtility.DrawPageHeading(rect, "编辑餐厅菜品", "配置每份售价与食材；确认后仍需在商店管理中统一保存。", true);
+                float top = ShopUiVisualUtility.DrawPageHeading(rect, SimTranslation.T("RSR.UI.MenuEditor"), SimTranslation.T("RSR.UI.MenuEditorHint"), true);
                 float errorHeight = error.NullOrEmpty() ? 0f : Text.CalcHeight(error, rect.width) + 8f;
                 Rect body = new Rect(0f, top, rect.width, Mathf.Max(0f, rect.height - top - row - errorHeight - 8f));
                 float width = body.width - 16f;
-                string note = "每份原料必须满足该餐品的同一个生产配方。原料选择受配方过滤限制；菜品确认后仍需在店铺窗口统一保存。";
+                string note = SimTranslation.T("RSR.UI.RecipeNote");
                 float noteHeight = Text.CalcHeight(note, width);
                 Rect view = new Rect(0f, 0f, width, Mathf.Max(body.height, row * (8 + draft.ingredients.Count) + noteHeight + 12f));
                 Widgets.BeginScrollView(body, ref scroll, view);
@@ -63,8 +64,8 @@ namespace RimSimRestaurantExtension.UI
                     Widgets.Label(new Rect(0f, rect.height - row - errorHeight, rect.width, errorHeight), error);
                     GUI.color = Color.white;
                 }
-                if (RestaurantUiStyle.DrawSecondaryButton(new Rect(0f, rect.height - row + 8f, 100f, row - 8f), "取消")) Close();
-                if (RestaurantUiStyle.DrawPrimaryButton(new Rect(rect.width - 150f, rect.height - row + 8f, 150f, row - 8f), "确认菜品草稿"))
+                if (RestaurantUiStyle.DrawSecondaryButton(new Rect(0f, rect.height - row + 8f, 100f, row - 8f), SimTranslation.T("RSR.UI.Cancel"))) Close();
+                if (RestaurantUiStyle.DrawPrimaryButton(new Rect(rect.width - 150f, rect.height - row + 8f, 150f, row - 8f), SimTranslation.T("RSR.UI.ConfirmDish")))
                 {
                     if (!Validate()) return;
                     confirm(draft.Clone());
@@ -77,36 +78,36 @@ namespace RimSimRestaurantExtension.UI
         private void DrawForm(float width, float row, string note, float noteHeight)
         {
             float y = 0f;
-            draft.label = Field(width, y, row, "菜单名称", draft.label); y += row;
-            Widgets.Label(new Rect(0f, y, 110f, row - 8f), "餐品产物");
+            draft.label = Field(width, y, row, SimTranslation.T("RSR.UI.MenuName"), draft.label); y += row;
+            ShopUiVisualUtility.DrawCellLabel(new Rect(0f, y, 110f, row - 8f), SimTranslation.T("RSR.UI.MealProduct"));
             RestaurantUiStyle.DrawThingIconOrMissing(new Rect(114f, y, row - 8f, row - 8f), draft.MealDef);
             float labelWidth = Mathf.Max(80f, width - 266f);
-            Widgets.Label(new Rect(160f, y, labelWidth, row - 8f), (draft.MealDef?.LabelCap.ToString() ?? "未选择").Truncate(labelWidth));
-            if (RestaurantUiStyle.DrawSecondaryButton(new Rect(width - 96f, y, 96f, row - 8f), "选择产物"))
+            Widgets.Label(new Rect(160f, y, labelWidth, row - 8f), (draft.MealDef?.LabelCap.ToString() ?? SimTranslation.T("RSR.UI.NotSelected")).Truncate(labelWidth));
+            if (RestaurantUiStyle.DrawSecondaryButton(new Rect(width - 96f, y, 96f, row - 8f), SimTranslation.T("RSR.UI.SelectProduct")))
                 Find.WindowStack.Add(new Dialog_SelectRestaurantFood(SelectFood));
             y += row;
-            price = Field(width, y, row, "每份基础售价", price); y += row;
-            minimum = Field(width, y, row, "最少份数", minimum); y += row;
-            maximum = Field(width, y, row, "最多份数", maximum); y += row;
-            Widgets.CheckboxLabeled(new Rect(0f, y, width, row - 8f), "启用此菜品", ref draft.enabled); y += row;
+            price = Field(width, y, row, SimTranslation.T("RSR.UI.BasePrice"), price); y += row;
+            minimum = Field(width, y, row, SimTranslation.T("RSR.UI.MinPortions"), minimum); y += row;
+            maximum = Field(width, y, row, SimTranslation.T("RSR.UI.MaxPortions"), maximum); y += row;
+            RestaurantUiStyle.DrawCheckbox(new Rect(0f, y, width, row - 8f), SimTranslation.T("RSR.UI.EnableDish"), ref draft.enabled); y += row;
             ShopUiVisualUtility.DrawTableHeaderBackground(new Rect(0f, y, width, row - 8f));
-            ShopUiVisualUtility.DrawCellLabel(new Rect(8f, y, width - 16f, row - 8f), "每份食材与数量"); y += row;
+            ShopUiVisualUtility.DrawCellLabel(new Rect(8f, y, width - 16f, row - 8f), SimTranslation.T("RSR.UI.IngredientsPerPortion")); y += row;
             foreach (var ingredient in draft.ingredients.ToList())
             {
                 if (!counts.TryGetValue(ingredient, out string count)) count = ingredient.countPerMeal.ToString();
                 float selectWidth = width - 190f;
                 if (RestaurantUiStyle.DrawSecondaryButton(new Rect(0f, y, selectWidth, row - 8f),
-                    (ingredient.ThingDef?.LabelCap.ToString() ?? "选择原料").Truncate(selectWidth - 12f)))
+                    (ingredient.ThingDef?.LabelCap.ToString() ?? SimTranslation.T("RSR.UI.SelectIngredient")).Truncate(selectWidth - 12f)))
                     SelectIngredient(ingredient);
                 counts[ingredient] = Widgets.TextField(new Rect(selectWidth + 8f, y, 96f, row - 8f), count);
-                if (RestaurantUiStyle.DrawDangerButton(new Rect(width - 76f, y, 76f, row - 8f), "移除"))
+                if (RestaurantUiStyle.DrawDangerButton(new Rect(width - 76f, y, 76f, row - 8f), SimTranslation.T("RSR.UI.Remove")))
                 {
                     draft.ingredients.Remove(ingredient);
                     counts.Remove(ingredient);
                 }
                 y += row;
             }
-            if (RestaurantUiStyle.DrawSecondaryButton(new Rect(0f, y, 130f, row - 8f), "添加食材"))
+            if (RestaurantUiStyle.DrawSecondaryButton(new Rect(0f, y, 130f, row - 8f), SimTranslation.T("RSR.UI.AddIngredient")))
                 SelectIngredient(null);
             y += row;
             Widgets.Label(new Rect(0f, y, width, noteHeight), note);
@@ -141,7 +142,7 @@ namespace RimSimRestaurantExtension.UI
                 target.thingDefName = food.defName;
                 if (ingredient == null) draft.ingredients.Add(target);
             })).ToList();
-            if (options.Count == 0) { error = "该餐品没有可选生产原料。"; return; }
+            if (options.Count == 0) { error = SimTranslation.T("RSR.UI.NoRecipeIngredients"); return; }
             Find.WindowStack.Add(new FloatMenu(options));
         }
 
@@ -150,22 +151,22 @@ namespace RimSimRestaurantExtension.UI
         {
             if (!float.TryParse(price, NumberStyles.Float, CultureInfo.InvariantCulture, out float unitPrice)
                 || float.IsNaN(unitPrice) || float.IsInfinity(unitPrice) || unitPrice < 1f || unitPrice > 100000f)
-            { error = "售价必须在 1 到 100000 之间。"; return false; }
+            { error = SimTranslation.T("RSR.UI.InvalidPrice"); return false; }
             if (!int.TryParse(minimum, out int min) || !int.TryParse(maximum, out int max)
                 || min < 1 || max < min || max > (draft.MealDef?.stackLimit ?? 0))
-            { error = "份数必须为正整数，且最少份数不大于最多份数和餐品堆叠上限。"; return false; }
+            { error = SimTranslation.T("RSR.UI.InvalidPortions"); return false; }
             foreach (var ingredient in draft.ingredients)
             {
                 string count = counts.TryGetValue(ingredient, out var input) ? input : ingredient.countPerMeal.ToString();
                 if (!int.TryParse(count, out int amount) || amount < 1 || amount > 100000)
-                { error = "每份食材数量必须为 1 到 100000 的整数。"; return false; }
+                { error = SimTranslation.T("RSR.UI.InvalidIngredientCount"); return false; }
                 ingredient.countPerMeal = amount;
             }
             var preview = new RestaurantOrder { mealDef = draft.MealDef, mealCount = 1,
                 ingredients = RestaurantIngredientUtility.BuildNeeds(draft, 1) };
             if (!RestaurantCookingUtility.GetProductionRecipes(draft.MealDef)
                 .Any(recipe => RestaurantCookingUtility.CanRecipeUseOrderIngredients(recipe, preview)))
-            { error = "这组食材无法满足同一个生产配方，请核对原料种类和每份数量。"; return false; }
+            { error = SimTranslation.T("RSR.UI.InvalidRecipe"); return false; }
             draft.unitPrice = unitPrice;
             draft.minCount = min;
             draft.maxCount = max;

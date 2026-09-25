@@ -12,11 +12,10 @@ using Verse;
 
 namespace SimManagementLib.SimDialog
 {
+    //管理网络蓝图界面，职责是展示查询结果并处理下载、上传与错误提示。
     public partial class MainTabWindow_BusinessManager
     {
-        /// <summary>
-        /// 绘制网络蓝图子页，负责状态栏、分页列表和详情面板布局。
-        /// </summary>
+        //绘制网络蓝图子页，负责状态栏、分页列表和详情面板布局。
         private void DrawBlueprintNetworkPage(Rect rect)
         {
             float topHeight = CalculateBlueprintNetworkTopBarHeight(rect.width);
@@ -39,10 +38,7 @@ namespace SimManagementLib.SimDialog
             DrawBlueprintNetworkListPanel(listRect);
             DrawBlueprintNetworkDetailPanel(detailRect);
         }
-
-        /// <summary>
-        /// 绘制网络蓝图顶部状态和筛选栏。
-        /// </summary>
+        //绘制网络蓝图顶部状态和筛选栏。
         private void DrawBlueprintNetworkTopBar(Rect rect)
         {
             Widgets.DrawBoxSolid(rect, new Color(0f, 0f, 0f, 0.22f));
@@ -77,10 +73,7 @@ namespace SimManagementLib.SimDialog
             DrawBlueprintNetworkPager(pagerRect);
             ResetText();
         }
-
-        /// <summary>
-        /// 绘制蓝图码直达区域，负责让玩家输入蓝图码后直接查看详情或下载。
-        /// </summary>
+        //绘制蓝图码直达区域，负责让玩家输入蓝图码后直接查看详情或下载。
         private void DrawBlueprintNetworkCodeBar(Rect rect)
         {
             float lineHeight = Mathf.Max(30f, Text.LineHeightOf(GameFont.Tiny) + 10f);
@@ -114,10 +107,7 @@ namespace SimManagementLib.SimDialog
 
             ResetText();
         }
-
-        /// <summary>
-        /// 绘制网络蓝图状态行，负责展示 Steam 和服务预检结果。
-        /// </summary>
+        //绘制网络蓝图状态行，负责展示 Steam 和服务预检结果。
         private void DrawBlueprintNetworkStatusLine(Rect rect)
         {
             string steamStatus = BuildSteamStatusLine();
@@ -146,10 +136,7 @@ namespace SimManagementLib.SimDialog
             Widgets.Label(new Rect(rect.x, y, rect.width, Mathf.Max(messageHeight, rect.yMax - y)), message ?? "");
             ResetText();
         }
-
-        /// <summary>
-        /// 绘制网络蓝图分类标签。
-        /// </summary>
+        //绘制网络蓝图分类标签。
         private void DrawBlueprintNetworkSortTabs(Rect rect)
         {
             BlueprintNetworkSortMode[] modes =
@@ -180,10 +167,7 @@ namespace SimManagementLib.SimDialog
                 x += width + 8f;
             }
         }
-
-        /// <summary>
-        /// 绘制网络蓝图分页栏。
-        /// </summary>
+        //绘制网络蓝图分页栏。
         private void DrawBlueprintNetworkPager(Rect rect)
         {
             BlueprintNetworkPagedListData paged = blueprintNetworkPagedList ?? new BlueprintNetworkPagedListData();
@@ -216,10 +200,7 @@ namespace SimManagementLib.SimDialog
                 RefreshBlueprintNetworkList();
             ResetText();
         }
-
-        /// <summary>
-        /// 绘制网络蓝图列表面板。
-        /// </summary>
+        //绘制网络蓝图列表面板。
         private void DrawBlueprintNetworkListPanel(Rect rect)
         {
             Widgets.DrawBoxSolid(rect, new Color(0f, 0f, 0f, 0.20f));
@@ -255,10 +236,7 @@ namespace SimManagementLib.SimDialog
 
             Widgets.EndScrollView();
         }
-
-        /// <summary>
-        /// 绘制单条网络蓝图列表记录。
-        /// </summary>
+        //绘制单条网络蓝图列表记录。
         private void DrawBlueprintNetworkListRow(Rect row, BlueprintNetworkListItemData item, int index)
         {
             bool selected = blueprintNetworkDetail != null && blueprintNetworkDetail.blueprintCode == item.blueprintCode;
@@ -307,10 +285,7 @@ namespace SimManagementLib.SimDialog
             if (Widgets.ButtonInvisible(new Rect(row.x, row.y, row.width - 106f, row.height), false))
                 OpenBlueprintNetworkDetail(item.blueprintCode);
         }
-
-        /// <summary>
-        /// 绘制网络蓝图详情面板。
-        /// </summary>
+        //绘制网络蓝图详情面板。
         private void DrawBlueprintNetworkDetailPanel(Rect rect)
         {
             Widgets.DrawBoxSolid(rect, new Color(0f, 0f, 0f, 0.20f));
@@ -341,10 +316,7 @@ namespace SimManagementLib.SimDialog
             Widgets.EndScrollView();
             DrawDetailActions(actionsRect, detail, compatibility);
         }
-
-        /// <summary>
-        /// 绘制详情标题行。
-        /// </summary>
+        //绘制详情标题行。
         private void DrawDetailTitleLine(Rect rect, BlueprintNetworkDetailData detail)
         {
             Text.Font = GameFont.Small;
@@ -353,10 +325,7 @@ namespace SimManagementLib.SimDialog
             Widgets.Label(rect, detail.name ?? SimTranslation.T("RSMF.Common.UnnamedShop"));
             ResetText();
         }
-
-        /// <summary>
-        /// 绘制详情元信息行。
-        /// </summary>
+        //绘制详情元信息行。
         private void DrawDetailMetaLine(Rect rect, BlueprintNetworkDetailData detail)
         {
             Text.Font = GameFont.Tiny;
@@ -370,10 +339,7 @@ namespace SimManagementLib.SimDialog
                 FormatBlueprintDisplayTime(detail.createdAt).Named("time")));
             ResetText();
         }
-
-        /// <summary>
-        /// 绘制详情说明段落。
-        /// </summary>
+        //绘制详情说明段落。
         private void DrawDetailParagraph(Rect rect, string text)
         {
             Widgets.DrawBoxSolid(rect, new Color(1f, 1f, 1f, 0.03f));
@@ -385,10 +351,7 @@ namespace SimManagementLib.SimDialog
             Widgets.Label(rect.ContractedBy(6f), text ?? "");
             ResetText();
         }
-
-        /// <summary>
-        /// 绘制蓝图码展示行。
-        /// </summary>
+        //绘制蓝图码展示行。
         private void DrawDetailCodeLine(Rect rect, string blueprintCode)
         {
             Text.Font = GameFont.Tiny;
@@ -398,10 +361,7 @@ namespace SimManagementLib.SimDialog
             Widgets.Label(rect, SimTranslation.T("RSMF.Blueprint.Network.CodeLine", (blueprintCode ?? "").Named("code")));
             ResetText();
         }
-
-        /// <summary>
-        /// 绘制兼容状态摘要。
-        /// </summary>
+        //绘制兼容状态摘要。
         private void DrawCompatibilitySummary(Rect rect, BlueprintCompatibilityCheckResult compatibility)
         {
             string text = compatibility.IsCompatible
@@ -414,10 +374,7 @@ namespace SimManagementLib.SimDialog
             Widgets.Label(rect, text);
             ResetText();
         }
-
-        /// <summary>
-        /// 绘制依赖模组列表。
-        /// </summary>
+        //绘制依赖模组列表。
         private void DrawRequiredModsList(Rect rect, List<ShopBlueprintRequiredModData> requiredMods, BlueprintCompatibilityCheckResult compatibility)
         {
             Widgets.DrawBoxSolid(rect, new Color(1f, 1f, 1f, 0.03f));
@@ -459,10 +416,7 @@ namespace SimManagementLib.SimDialog
             }
             Widgets.EndScrollView();
         }
-
-        /// <summary>
-        /// 绘制单个依赖模组行。
-        /// </summary>
+        //绘制单个依赖模组行。
         private void DrawRequiredModRow(Rect rect, ShopBlueprintRequiredModData mod, bool missing)
         {
             Widgets.DrawBoxSolid(rect, new Color(1f, 1f, 1f, 0.02f));
@@ -490,10 +444,7 @@ namespace SimManagementLib.SimDialog
             if (SimUiStyle.DrawSecondaryButton(openRect, SimTranslation.T("RSMF.Blueprint.Network.OpenWorkshop"), canOpenWorkshop, GameFont.Tiny))
                 Application.OpenURL(mod.steamWorkshopUrl);
         }
-
-        /// <summary>
-        /// 绘制详情操作按钮。
-        /// </summary>
+        //绘制详情操作按钮。
         private void DrawDetailActions(Rect rect, BlueprintNetworkDetailData detail, BlueprintCompatibilityCheckResult compatibility)
         {
             float buttonHeight = Mathf.Max(30f, Text.LineHeightOf(GameFont.Tiny) + 10f);
@@ -520,10 +471,7 @@ namespace SimManagementLib.SimDialog
             if (SimUiStyle.DrawDangerButton(bottomRight, SimTranslation.T("RSMF.Blueprint.Network.DeleteMine"), isMine && blueprintNetworkDetailTask == null, GameFont.Tiny))
                 DeleteMyBlueprintNetworkDetail(detail);
         }
-
-        /// <summary>
-        /// 负责尝试打开网络蓝图标签并执行前置检查。
-        /// </summary>
+        //负责尝试打开网络蓝图标签并执行前置检查。
         private void TryOpenBlueprintNetworkTab()
         {
             blueprintShowNetworkTab = true;
@@ -543,10 +491,7 @@ namespace SimManagementLib.SimDialog
             if (blueprintNetworkPagedList == null && blueprintNetworkListTask == null)
                 RefreshBlueprintNetworkList();
         }
-
-        /// <summary>
-        /// 切换网络蓝图排序模式并重置分页。
-        /// </summary>
+        //切换网络蓝图排序模式并重置分页。
         private void SwitchBlueprintNetworkSortMode(BlueprintNetworkSortMode mode)
         {
             if (blueprintNetworkSortMode == mode)
@@ -561,10 +506,7 @@ namespace SimManagementLib.SimDialog
             blueprintNetworkModScrollPos = Vector2.zero;
             RefreshBlueprintNetworkList();
         }
-
-        /// <summary>
-        /// 翻页并刷新当前网络蓝图列表。
-        /// </summary>
+        //翻页并刷新当前网络蓝图列表。
         private void ChangeBlueprintNetworkPage(int page)
         {
             blueprintNetworkPage = Math.Max(1, page);
@@ -572,19 +514,13 @@ namespace SimManagementLib.SimDialog
             blueprintNetworkDetailScrollPos = Vector2.zero;
             RefreshBlueprintNetworkList();
         }
-
-        /// <summary>
-        /// 发起网络蓝图服务状态检查。
-        /// </summary>
+        //发起网络蓝图服务状态检查。
         private void RefreshBlueprintNetworkStatus()
         {
             EnsureBlueprintNetworkCts();
             blueprintNetworkStatusTask = BlueprintNetworkApiClient.GetStatusAsync(blueprintNetworkCts.Token);
         }
-
-        /// <summary>
-        /// 发起网络蓝图分页列表请求。
-        /// </summary>
+        //发起网络蓝图分页列表请求。
         private void RefreshBlueprintNetworkList()
         {
             if (blueprintSteamSession == null || !blueprintSteamSession.IsAvailable)
@@ -611,10 +547,7 @@ namespace SimManagementLib.SimDialog
                 activePackageIds,
                 blueprintNetworkCts.Token);
         }
-
-        /// <summary>
-        /// 拉取网络蓝图详情。
-        /// </summary>
+        //拉取网络蓝图详情。
         private void OpenBlueprintNetworkDetail(string blueprintCode)
         {
             if (string.IsNullOrWhiteSpace(blueprintCode))
@@ -627,10 +560,7 @@ namespace SimManagementLib.SimDialog
             blueprintNetworkModScrollPos = Vector2.zero;
             blueprintNetworkDetailTask = BlueprintNetworkApiClient.GetDetailAsync(blueprintCode, blueprintNetworkCts.Token);
         }
-
-        /// <summary>
-        /// 轮询并收取网络蓝图异步任务结果。
-        /// </summary>
+        //轮询并收取网络蓝图异步任务结果。
         private void PollBlueprintNetworkTasks()
         {
             PollStatusTask();
@@ -638,10 +568,7 @@ namespace SimManagementLib.SimDialog
             PollDetailTask();
             PollRemotePreviewTasks();
         }
-
-        /// <summary>
-        /// 上传本地蓝图到网络平台。
-        /// </summary>
+        //上传本地蓝图到网络平台。
         private async void UploadBlueprintRecordToNetwork(ShopBlueprintLocalRecord record)
         {
             if (record?.Data == null)
@@ -679,10 +606,7 @@ namespace SimManagementLib.SimDialog
 
             ExecuteBlueprintUpload(record);
         }
-
-        /// <summary>
-        /// 执行本地蓝图上传，并在成功后同步本地远端来源信息。
-        /// </summary>
+        //执行本地蓝图上传，并在成功后同步本地远端来源信息。
         private async void ExecuteBlueprintUpload(ShopBlueprintLocalRecord record)
         {
             if (record?.Data == null)
@@ -717,10 +641,7 @@ namespace SimManagementLib.SimDialog
                 Messages.Message(message, MessageTypeDefOf.RejectInput, false);
             }
         }
-
-        /// <summary>
-        /// 下载网络蓝图并导入本地蓝图库。
-        /// </summary>
+        //下载网络蓝图并导入本地蓝图库。
         private async void DownloadBlueprintNetworkDetail(BlueprintNetworkDetailData detail, BlueprintCompatibilityCheckResult compatibility)
         {
             if (detail == null)
@@ -756,10 +677,7 @@ namespace SimManagementLib.SimDialog
                 Messages.Message(message, MessageTypeDefOf.RejectInput, false);
             }
         }
-
-        /// <summary>
-        /// 通过顶部输入框中的蓝图码打开详情。
-        /// </summary>
+        //通过顶部输入框中的蓝图码打开详情。
         private void OpenBlueprintNetworkDetailByCodeInput()
         {
             string blueprintCode = (blueprintNetworkCodeBuffer ?? "").Trim();
@@ -772,10 +690,7 @@ namespace SimManagementLib.SimDialog
 
             OpenBlueprintNetworkDetail(blueprintCode);
         }
-
-        /// <summary>
-        /// 通过顶部输入框中的蓝图码直接拉取详情并执行导入。
-        /// </summary>
+        //通过顶部输入框中的蓝图码直接拉取详情并执行导入。
         private async void DownloadBlueprintByCodeInput()
         {
             string blueprintCode = (blueprintNetworkCodeBuffer ?? "").Trim();
@@ -838,10 +753,7 @@ namespace SimManagementLib.SimDialog
                 Messages.Message(message, MessageTypeDefOf.RejectInput, false);
             }
         }
-
-        /// <summary>
-        /// 删除自己上传的网络蓝图。
-        /// </summary>
+        //删除自己上传的网络蓝图。
         private async void DeleteMyBlueprintNetworkDetail(BlueprintNetworkDetailData detail)
         {
             if (detail == null || blueprintSteamSession == null || !blueprintSteamSession.IsAvailable)
@@ -870,10 +782,7 @@ namespace SimManagementLib.SimDialog
                 }
             }));
         }
-
-        /// <summary>
-        /// 点赞当前网络蓝图详情。
-        /// </summary>
+        //点赞当前网络蓝图详情。
         private async void LikeBlueprintNetworkDetail(BlueprintNetworkDetailData detail)
         {
             if (detail == null)
@@ -906,20 +815,14 @@ namespace SimManagementLib.SimDialog
                 Messages.Message(SimTranslation.T("RSMF.Blueprint.Network.Error.LikeFailedWithMessage", GetSafeBlueprintNetworkErrorMessage(ex).Named("message")), MessageTypeDefOf.RejectInput, false);
             }
         }
-
-        /// <summary>
-        /// 复制蓝图码到系统剪贴板。
-        /// </summary>
+        //复制蓝图码到系统剪贴板。
         private void CopyBlueprintCode(string blueprintCode)
         {
             GUIUtility.systemCopyBuffer = blueprintCode ?? "";
             blueprintNetworkMessage = SimTranslation.T("RSMF.Blueprint.Network.CodeCopied");
             Messages.Message(blueprintNetworkMessage, MessageTypeDefOf.PositiveEvent, false);
         }
-
-        /// <summary>
-        /// 同步本地蓝图的远端上传信息，避免重复上传并让列表能识别已上传状态。
-        /// </summary>
+        //同步本地蓝图的远端上传信息，避免重复上传并让列表能识别已上传状态。
         private void SyncUploadedBlueprintRecord(ShopBlueprintLocalRecord record, BlueprintNetworkDetailData detail)
         {
             if (record?.Data == null || detail == null || string.IsNullOrWhiteSpace(detail.blueprintCode))
@@ -933,10 +836,7 @@ namespace SimManagementLib.SimDialog
                 Log.Warning("[RSMF 网络蓝图] 上传成功后同步本地蓝图状态失败：" + (error ?? "未知错误"));
             ReloadBlueprintRecords();
         }
-
-        /// <summary>
-        /// 取消网络蓝图页正在进行的请求。
-        /// </summary>
+        //取消网络蓝图页正在进行的请求。
         private void CancelBlueprintNetworkRequests()
         {
             if (blueprintNetworkCts == null)
@@ -973,10 +873,7 @@ namespace SimManagementLib.SimDialog
             if (blueprintRemotePreviewTasks != null)
                 blueprintRemotePreviewTasks.Clear();
         }
-
-        /// <summary>
-        /// 确保网络蓝图请求令牌存在。
-        /// </summary>
+        //确保网络蓝图请求令牌存在。
         private void EnsureBlueprintNetworkCts()
         {
             if (blueprintNetworkCts == null || blueprintNetworkCts.IsCancellationRequested)
@@ -985,10 +882,7 @@ namespace SimManagementLib.SimDialog
                 blueprintNetworkCts = new CancellationTokenSource();
             }
         }
-
-        /// <summary>
-        /// 收取服务状态异步任务结果。
-        /// </summary>
+        //收取服务状态异步任务结果。
         private void PollStatusTask()
         {
             if (blueprintNetworkStatusTask == null || !blueprintNetworkStatusTask.IsCompleted)
@@ -1010,10 +904,7 @@ namespace SimManagementLib.SimDialog
 
             blueprintNetworkStatusTask = null;
         }
-
-        /// <summary>
-        /// 收取分页列表异步任务结果。
-        /// </summary>
+        //收取分页列表异步任务结果。
         private void PollListTask()
         {
             if (blueprintNetworkListTask == null || !blueprintNetworkListTask.IsCompleted)
@@ -1038,10 +929,7 @@ namespace SimManagementLib.SimDialog
 
             blueprintNetworkListTask = null;
         }
-
-        /// <summary>
-        /// 收取详情异步任务结果。
-        /// </summary>
+        //收取详情异步任务结果。
         private void PollDetailTask()
         {
             if (blueprintNetworkDetailTask == null || !blueprintNetworkDetailTask.IsCompleted)
@@ -1059,10 +947,7 @@ namespace SimManagementLib.SimDialog
 
             blueprintNetworkDetailTask = null;
         }
-
-        /// <summary>
-        /// 计算网络蓝图顶部栏高度，负责为多行状态和分页区域预留空间。
-        /// </summary>
+        //计算网络蓝图顶部栏高度，负责为多行状态和分页区域预留空间。
         private float CalculateBlueprintNetworkTopBarHeight(float width)
         {
             float innerWidth = Mathf.Max(240f, width - 20f);
@@ -1073,10 +958,7 @@ namespace SimManagementLib.SimDialog
             float pagerHeight = Mathf.Max(28f, Text.LineHeightOf(GameFont.Tiny) + 8f);
             return 20f + titleHeight + 6f + statusHeight + 8f + codeBarHeight + 8f + tabsHeight + 8f + pagerHeight;
         }
-
-        /// <summary>
-        /// 计算蓝图码输入栏高度，负责给输入框和按钮预留安全空间。
-        /// </summary>
+        //计算蓝图码输入栏高度，负责给输入框和按钮预留安全空间。
         private float CalculateBlueprintNetworkCodeBarHeight(float width)
         {
             float lineHeight = Mathf.Max(30f, Text.LineHeightOf(GameFont.Tiny) + 10f);
@@ -1086,10 +968,7 @@ namespace SimManagementLib.SimDialog
             bool wrapButtons = labelWidth + 160f + buttonWidth * 2f + gap * 3f > width;
             return wrapButtons ? lineHeight * 2f + 6f : lineHeight;
         }
-
-        /// <summary>
-        /// 计算网络蓝图状态区高度，负责容纳状态文本与错误提示换行。
-        /// </summary>
+        //计算网络蓝图状态区高度，负责容纳状态文本与错误提示换行。
         private float CalculateBlueprintNetworkStatusLineHeight(float width)
         {
             string message = !string.IsNullOrWhiteSpace(blueprintNetworkError) ? blueprintNetworkError : blueprintNetworkMessage;
@@ -1101,10 +980,7 @@ namespace SimManagementLib.SimDialog
                 : Mathf.Max(lineHeight, Text.CalcHeight(message, Mathf.Max(220f, width)));
             return steamHeight + 2f + serviceHeight + 4f + messageHeight;
         }
-
-        /// <summary>
-        /// 计算分类标签区高度，负责让按钮在宽度不足时自动换行。
-        /// </summary>
+        //计算分类标签区高度，负责让按钮在宽度不足时自动换行。
         private float CalculateBlueprintNetworkSortTabsHeight(float width)
         {
             BlueprintNetworkSortMode[] modes =
@@ -1134,10 +1010,7 @@ namespace SimManagementLib.SimDialog
 
             return y + buttonHeight;
         }
-
-        /// <summary>
-        /// 计算详情内容总高度，负责驱动详情滚动区域。
-        /// </summary>
+        //计算详情内容总高度，负责驱动详情滚动区域。
         private float CalculateBlueprintNetworkDetailContentHeight(float width, BlueprintNetworkDetailData detail, BlueprintCompatibilityCheckResult compatibility)
         {
             float titleHeight = Mathf.Max(24f, Text.LineHeightOf(GameFont.Small) + 4f);
@@ -1149,10 +1022,7 @@ namespace SimManagementLib.SimDialog
             float modsHeight = CalculateRequiredModsListHeight(width, detail.requiredMods);
             return previewHeight + 8f + titleHeight + 6f + metaHeight + 8f + descHeight + 8f + codeHeight + 8f + compatibilityHeight + 8f + modsHeight;
         }
-
-        /// <summary>
-        /// 在面板中央绘制安全换行的提示文本，避免长中文跨出当前面板并与邻近区域重叠。
-        /// </summary>
+        //在面板中央绘制安全换行的提示文本，避免长中文跨出当前面板并与邻近区域重叠。
         private void DrawCenteredPanelMessage(Rect rect, string text, Color color)
         {
             Rect inner = rect.ContractedBy(14f);
@@ -1163,29 +1033,20 @@ namespace SimManagementLib.SimDialog
             Widgets.Label(inner, text ?? "");
             ResetText();
         }
-
-        /// <summary>
-        /// 计算网络蓝图列表单行高度，负责给中文统计文本和按钮留出足够空间。
-        /// </summary>
+        //计算网络蓝图列表单行高度，负责给中文统计文本和按钮留出足够空间。
         private float CalculateBlueprintNetworkListRowHeight()
         {
             float titleHeight = Mathf.Max(24f, Text.LineHeightOf(GameFont.Small) + 4f);
             float metaHeight = Mathf.Max(20f, Text.LineHeightOf(GameFont.Tiny) + 4f);
             return Mathf.Max(94f, 14f + titleHeight + metaHeight * 2f + 8f);
         }
-
-        /// <summary>
-        /// 计算详情操作区高度，负责避免中文按钮在双行区域内发生裁切。
-        /// </summary>
+        //计算详情操作区高度，负责避免中文按钮在双行区域内发生裁切。
         private float CalculateBlueprintNetworkActionAreaHeight()
         {
             float buttonHeight = Mathf.Max(30f, Text.LineHeightOf(GameFont.Tiny) + 10f);
             return buttonHeight * 2f + 6f;
         }
-
-        /// <summary>
-        /// 绘制详情滚动内容，负责把预览、说明和依赖列表按顺序排布。
-        /// </summary>
+        //绘制详情滚动内容，负责把预览、说明和依赖列表按顺序排布。
         private void DrawBlueprintNetworkDetailContent(Rect rect, BlueprintNetworkDetailData detail, BlueprintCompatibilityCheckResult compatibility)
         {
             float y = rect.y;
@@ -1222,10 +1083,7 @@ namespace SimManagementLib.SimDialog
             Rect modsRect = new Rect(rect.x, y, rect.width, modsHeight);
             DrawRequiredModsList(modsRect, detail.requiredMods, compatibility);
         }
-
-        /// <summary>
-        /// 计算依赖模组列表区域高度，负责为滚动列表预留安全空间。
-        /// </summary>
+        //计算依赖模组列表区域高度，负责为滚动列表预留安全空间。
         private float CalculateRequiredModsListHeight(float width, List<ShopBlueprintRequiredModData> requiredMods)
         {
             float titleHeight = Mathf.Max(18f, Text.LineHeightOf(GameFont.Tiny) + 4f);
@@ -1236,10 +1094,7 @@ namespace SimManagementLib.SimDialog
             float visibleRows = Mathf.Min(4f, requiredMods.Count);
             return 12f + titleHeight + 6f + visibleRows * rowHeight + 6f;
         }
-
-        /// <summary>
-        /// 构建详情元信息文本，负责统一绘制前的高度测量与展示内容。
-        /// </summary>
+        //构建详情元信息文本，负责统一绘制前的高度测量与展示内容。
         private string BuildDetailMetaText(BlueprintNetworkDetailData detail)
         {
             return SimTranslation.T("RSMF.Blueprint.Network.DetailMeta",
@@ -1248,28 +1103,19 @@ namespace SimManagementLib.SimDialog
                 detail.downloadCount.Named("downloads"),
                 FormatBlueprintDisplayTime(detail.createdAt).Named("time"));
         }
-
-        /// <summary>
-        /// 构建详情蓝图码文本，负责统一绘制前的高度测量与展示内容。
-        /// </summary>
+        //构建详情蓝图码文本，负责统一绘制前的高度测量与展示内容。
         private string BuildDetailCodeText(string blueprintCode)
         {
             return SimTranslation.T("RSMF.Blueprint.Network.CodeLine", (blueprintCode ?? "").Named("code"));
         }
-
-        /// <summary>
-        /// 构建兼容状态文本，负责统一绘制前的高度测量与展示内容。
-        /// </summary>
+        //构建兼容状态文本，负责统一绘制前的高度测量与展示内容。
         private string BuildCompatibilitySummaryText(BlueprintCompatibilityCheckResult compatibility)
         {
             return compatibility.IsCompatible
                 ? SimTranslation.T("RSMF.Blueprint.Network.Compatible")
                 : SimTranslation.T("RSMF.Blueprint.Network.MissingCount", compatibility.MissingMods.Count.Named("count"));
         }
-
-        /// <summary>
-        /// 绘制远端蓝图预览图，负责在没有缓存时显示占位。
-        /// </summary>
+        //绘制远端蓝图预览图，负责在没有缓存时显示占位。
         private void DrawBlueprintRemotePreview(Rect rect, string previewUrl)
         {
             if (TryDrawCachedRemotePreview(rect, previewUrl))
@@ -1277,10 +1123,7 @@ namespace SimManagementLib.SimDialog
 
             DrawBlueprintPreview(rect, ResolveRemotePreviewPath(previewUrl));
         }
-
-        /// <summary>
-        /// 返回网络排序标签文本。
-        /// </summary>
+        //返回网络排序标签文本。
         private string GetBlueprintNetworkSortLabel(BlueprintNetworkSortMode mode)
         {
             switch (mode)
@@ -1297,10 +1140,7 @@ namespace SimManagementLib.SimDialog
                     return SimTranslation.T("RSMF.Blueprint.Network.Sort.Latest");
             }
         }
-
-        /// <summary>
-        /// 构建 Steam 状态展示文本。
-        /// </summary>
+        //构建 Steam 状态展示文本。
         private string BuildSteamStatusLine()
         {
             if (blueprintSteamSession == null || !blueprintSteamSession.IsAvailable)
@@ -1310,10 +1150,7 @@ namespace SimManagementLib.SimDialog
                 blueprintSteamSession.PersonaName.Named("name"),
                 blueprintSteamSession.SteamId.Named("id"));
         }
-
-        /// <summary>
-        /// 构建服务状态展示文本。
-        /// </summary>
+        //构建服务状态展示文本。
         private string BuildServiceStatusLine()
         {
             if (blueprintNetworkStatus == null || !blueprintNetworkStatus.available)
@@ -1322,10 +1159,7 @@ namespace SimManagementLib.SimDialog
             return SimTranslation.T("RSMF.Blueprint.Network.ServiceStatusOnline",
                 (blueprintNetworkStatus.version ?? SimTranslation.T("RSMF.Common.Unknown")).Named("version"));
         }
-
-        /// <summary>
-        /// 将详情或列表中的作者 SteamId 转成展示文本。
-        /// </summary>
+        //将详情或列表中的作者 SteamId 转成展示文本。
         private string BuildAuthorDisplayName(string steamId)
         {
             if (string.IsNullOrWhiteSpace(steamId))
@@ -1338,10 +1172,7 @@ namespace SimManagementLib.SimDialog
 
             return steamId;
         }
-
-        /// <summary>
-        /// 格式化网络蓝图时间字符串。
-        /// </summary>
+        //格式化网络蓝图时间字符串。
         private string FormatBlueprintDisplayTime(string createdAt)
         {
             if (string.IsNullOrWhiteSpace(createdAt))
@@ -1352,10 +1183,7 @@ namespace SimManagementLib.SimDialog
 
             return createdAt;
         }
-
-        /// <summary>
-        /// 从详情兼容结果拼出缺失模组提示文本。
-        /// </summary>
+        //从详情兼容结果拼出缺失模组提示文本。
         private string BuildMissingModsMessage(BlueprintCompatibilityCheckResult compatibility)
         {
             if (compatibility == null || compatibility.MissingMods.NullOrEmpty())
@@ -1364,10 +1192,7 @@ namespace SimManagementLib.SimDialog
             string names = string.Join(SimTranslation.T("RSMF.Common.ListSeparator"), compatibility.MissingMods.Select(GetRequiredModDisplayName).ToArray());
             return SimTranslation.T("RSMF.Blueprint.Network.Error.ImportMissingModsWithList", names.Named("mods"));
         }
-
-        /// <summary>
-        /// 返回依赖模组显示名。
-        /// </summary>
+        //返回依赖模组显示名。
         private string GetRequiredModDisplayName(ShopBlueprintRequiredModData mod)
         {
             if (mod == null)
@@ -1378,10 +1203,7 @@ namespace SimManagementLib.SimDialog
                 return mod.packageId;
             return SimTranslation.T("RSMF.Common.Unknown");
         }
-
-        /// <summary>
-        /// 负责把预览 URL 映射为本地缓存路径，目前先复用下载后本地蓝图预览。
-        /// </summary>
+        //负责把预览 URL 映射为本地缓存路径，目前先复用下载后本地蓝图预览。
         private string ResolveRemotePreviewPath(string previewUrl)
         {
             if (blueprintRecords.NullOrEmpty() || string.IsNullOrWhiteSpace(blueprintNetworkDetail?.blueprintCode))
@@ -1393,10 +1215,7 @@ namespace SimManagementLib.SimDialog
                 string.Equals(record.Data.remoteBlueprintCode, blueprintNetworkDetail.blueprintCode, StringComparison.OrdinalIgnoreCase));
             return imported?.PreviewPath;
         }
-
-        /// <summary>
-        /// 尝试绘制已缓存的远端预览图。
-        /// </summary>
+        //尝试绘制已缓存的远端预览图。
         private bool TryDrawCachedRemotePreview(Rect rect, string previewUrl)
         {
             if (string.IsNullOrWhiteSpace(previewUrl) || blueprintRemotePreviewCache == null)
@@ -1416,10 +1235,7 @@ namespace SimManagementLib.SimDialog
             GUI.DrawTexture(rect.ContractedBy(4f), texture, ScaleMode.ScaleToFit);
             return true;
         }
-
-        /// <summary>
-        /// 负责同步拉取一次远端预览图并缓存在当前窗口生命周期内。
-        /// </summary>
+        //负责同步拉取一次远端预览图并缓存在当前窗口生命周期内。
         private void TryCacheRemotePreview(string previewUrl)
         {
             if (string.IsNullOrWhiteSpace(previewUrl)
@@ -1431,10 +1247,7 @@ namespace SimManagementLib.SimDialog
 
             blueprintRemotePreviewTasks[previewUrl] = DownloadRemotePreviewAsync(previewUrl);
         }
-
-        /// <summary>
-        /// 轮询远端预览图下载任务，并把结果转成纹理缓存。
-        /// </summary>
+        //轮询远端预览图下载任务，并把结果转成纹理缓存。
         private void PollRemotePreviewTasks()
         {
             if (blueprintRemotePreviewTasks == null || blueprintRemotePreviewTasks.Count == 0)
@@ -1456,10 +1269,7 @@ namespace SimManagementLib.SimDialog
                 blueprintRemotePreviewTasks.Remove(url);
             }
         }
-
-        /// <summary>
-        /// 异步下载一张远端预览图。
-        /// </summary>
+        //异步下载一张远端预览图。
         private async Task<byte[]> DownloadRemotePreviewAsync(string previewUrl)
         {
             previewUrl = StringEncodingUtility.SanitizeUtf16(previewUrl);
@@ -1486,10 +1296,7 @@ namespace SimManagementLib.SimDialog
                 return request.downloadHandler?.data;
             }
         }
-
-        /// <summary>
-        /// 把下载到的 PNG/JPG 数据转成可绘制纹理。
-        /// </summary>
+        //把下载到的 PNG/JPG 数据转成可绘制纹理。
         private Texture2D CreatePreviewTexture(byte[] bytes)
         {
             if (bytes == null || bytes.Length <= 0)
@@ -1502,10 +1309,7 @@ namespace SimManagementLib.SimDialog
             UnityEngine.Object.Destroy(texture);
             return null;
         }
-
-        /// <summary>
-        /// 提取任务异常里的可展示错误信息。
-        /// </summary>
+        //提取任务异常里的可展示错误信息。
         private string ExtractTaskError(Task task, string fallback)
         {
             Exception ex = task.Exception?.GetBaseException();
@@ -1513,10 +1317,7 @@ namespace SimManagementLib.SimDialog
                 return fallback;
             return fallback + " " + GetSafeBlueprintNetworkErrorMessage(ex);
         }
-
-        /// <summary>
-        /// 负责把网络蓝图异常文本脱敏，避免把服务地址直接显示给玩家或写入日志。
-        /// </summary>
+        //负责把网络蓝图异常文本脱敏，避免把服务地址直接显示给玩家或写入日志。
         private string GetSafeBlueprintNetworkErrorMessage(Exception ex)
         {
             string message = ex?.GetBaseException()?.Message ?? SimTranslation.T("RSMF.Common.Unknown");
@@ -1524,8 +1325,8 @@ namespace SimManagementLib.SimDialog
                 return SimTranslation.T("RSMF.Common.Unknown");
 
             string sanitized = message.Replace("https://", string.Empty).Replace("http://", string.Empty);
-            sanitized = sanitized.Replace("chezhou.icu", "网络蓝图服务");
-            sanitized = sanitized.Replace("blueprint-api", "服务接口");
+            sanitized = sanitized.Replace("chezhou.icu", SimTranslation.T("RSMF.BlueprintNetwork.ServiceName"));
+            sanitized = sanitized.Replace("blueprint-api", SimTranslation.T("RSMF.BlueprintNetwork.EndpointName"));
             sanitized = sanitized.Replace("/api/blueprints", string.Empty);
             sanitized = sanitized.Replace("/api/admin", string.Empty);
             return sanitized;

@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System.Linq;
 using RimSimRestaurantExtension.Conveyor.Transport;
 using RimSimRestaurantExtension.Dining;
@@ -28,9 +29,9 @@ namespace RimSimRestaurantExtension.Conveyor.Dining
             var map = Find.Maps.FirstOrDefault(m => m.uniqueID == session.mapId);
             var customer = RestaurantOrderUtility.FindThingById(map, session.customerId) as Pawn;
             if (customer?.Spawned != true || customer.Dead || map == null)
-            { RestaurantSessionUtility.Abort(session, "自助用餐顾客已不可用"); return; }
+            { RestaurantSessionUtility.Abort(session, SimTranslation.T("RSR.Issue.SelfServiceCustomerUnavailable")); return; }
             if (RestaurantOrderUtility.FindShopById(map, session.shopId) == null)
-            { RestaurantSessionUtility.Abort(session, "自助用餐所属商店已不存在"); return; }
+            { RestaurantSessionUtility.Abort(session, SimTranslation.T("RSR.Issue.SelfServiceShopRemoved")); return; }
             if (!RestaurantDiningSpotUtility.IsDiningSpotValid(customer, session.Anchor))
             { EndAtLostSeat(customer, session); return; }
             if (session.state == RestaurantSessionState.Serving && session.tray?.Spawned != true)
@@ -46,9 +47,9 @@ namespace RimSimRestaurantExtension.Conveyor.Dining
             { session.stopOrdering = true; return; }
             float budget = RestaurantProductMenuUtility.RemainingBudget(customer, belt.Line.Shop);
             if (!eating && !belt.Line.rules.Any(r => r.enabled && r.price * r.portions <= budget))
-            { session.stopOrdering = true; session.reason = "没有剩余预算内的上架食品"; return; }
+            { session.stopOrdering = true; session.reason = SimTranslation.T("RSR.Issue.NoAffordableConveyorFood"); return; }
             if (!eating && Find.TickManager.TicksGame - session.lastOrderTick >= settings.maxWaitTicks)
-            { session.stopOrdering = true; session.reason = "等待传送带餐品超时"; return; }
+            { session.stopOrdering = true; session.reason = SimTranslation.T("RSR.Issue.ConveyorTimeout"); return; }
             if (eating || session.rounds > 0 && Find.TickManager.TicksGame - session.lastOrderTick < settings.reorderIntervalTicks) return;
             if (!session.wantedConveyorRule.NullOrEmpty()
                 && belt.Line.rules.Any(r => r.id == session.wantedConveyorRule && r.enabled)) return;
@@ -93,7 +94,7 @@ namespace RimSimRestaurantExtension.Conveyor.Dining
                 meal = food, mealThingId = food.thingIDNumber, mealDef = food.def, mealCount = food.stackCount,
                 menuItemId = rule.id, menuItemLabel = rule.Label, unitPrice = rule.price, price = rule.price * food.stackCount,
                 ingredientCost = plate.cost, createdTick = now, orderedTick = now, deliveredTick = now, lastProgressTick = now,
-                round = session.rounds + 1, selectionReason = "从面前传送带自行取餐"
+                round = session.rounds + 1, selectionReason = SimTranslation.T("RSR.Preference.ConveyorPickup")
             });
             order.goods.Add(food);
             session.orderIds.Add(order.orderId);
@@ -106,7 +107,7 @@ namespace RimSimRestaurantExtension.Conveyor.Dining
         private static void EndAtLostSeat(Pawn customer, RestaurantDiningSession session)
         {
             session.stopOrdering = true;
-            session.reason = "传送带餐位已失效";
+            session.reason = SimTranslation.T("RSR.Issue.ConveyorSeatInvalid");
             foreach (var order in session.Orders.Where(o => !o.IsTerminal && !o.mealConsumed).ToList())
             {
                 if (order.meal != null && customer.carryTracker.CarriedThing == order.meal && session.tray?.Spawned == true)

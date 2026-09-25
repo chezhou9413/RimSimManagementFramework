@@ -81,7 +81,8 @@ namespace SimManagementLib.Api
                 GUI.color = Color.white;
                 float line = LineHeight(GameFont.Tiny);
                 if (rect.height >= line)
-                    Widgets.Label(new Rect(rect.x + 2f, rect.center.y - line / 2f, rect.width - 4f, line), label ?? "");
+                    Widgets.Label(new Rect(rect.x + 2f, rect.center.y - line / 2f, rect.width - 4f, line), (label ?? "").Truncate(Mathf.Max(1f, rect.width - 4f)));
+                if (!label.NullOrEmpty()) TooltipHandler.TipRegion(rect, label);
             }
             finally
             {
@@ -134,7 +135,7 @@ namespace SimManagementLib.Api
                 GUI.color = selected ? Color.white : normalTextColor;
                 float line = LineHeight(GameFont.Small);
                 if (rect.height >= line)
-                    Widgets.Label(new Rect(rect.x + 2f, rect.center.y - line / 2f, rect.width - 4f, line), label ?? "");
+                    Widgets.Label(new Rect(rect.x + 2f, rect.center.y - line / 2f, rect.width - 4f, line), (label ?? "").Truncate(Mathf.Max(1f, rect.width - 4f)));
                 return !selected && Widgets.ButtonInvisible(rect, false);
             }
             finally

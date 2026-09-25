@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using RimSimRestaurantExtension.GameComp;
 using SimManagementLib.Api;
 using UnityEngine;
@@ -30,10 +31,10 @@ namespace RimSimRestaurantExtension.UI
             using (new RestaurantGuiScope())
             {
                 float h = RestaurantUiStyle.ControlHeight();
-                float top = ShopUiVisualUtility.DrawPageHeading(rect, "餐厅运行参数", "确认返回商店管理后，点击统一保存才会生效。", true);
+                float top = ShopUiVisualUtility.DrawPageHeading(rect, SimTranslation.T("RSR.UI.ParameterHeading"), SimTranslation.T("RSR.UI.ParameterHint"), true);
                 float footer = rect.height - h;
                 float line = RestaurantUiStyle.LineHeight(GameFont.Small);
-                const string kitchenHint = "将储存架放入商店区域，即可自动供厨房取料、传送带现货补餐及货柜补货。冰箱仍优先供料；桌面餐品和普通散落物品不会作为后厨库存。";
+                string kitchenHint = SimTranslation.T("RSR.UI.KitchenHint");
                 Text.Font = GameFont.Small;
                 Text.WordWrap = true;
                 float hintHeight = Text.CalcHeight(kitchenHint, rect.width - 32f);
@@ -44,21 +45,21 @@ namespace RimSimRestaurantExtension.UI
                 Widgets.BeginScrollView(outer, ref scroll, view);
                 try
                 {
-                    float y = Section(view.width, 0f, "经营与定价");
-                    Widgets.CheckboxLabeled(new Rect(8f, y, view.width - 16f, h), "启用餐厅服务", ref draft.enabled); y += h + 8f;
-                    Widgets.CheckboxLabeled(new Rect(8f, y, view.width - 16f, h), "按顾客偏好选择菜品", ref draft.useCustomerPreferences); y += h + 8f;
-                    draft.priceMultiplier = Slider(view.width, ref y, "菜单价格倍率", draft.priceMultiplier.ToString("F2") + " 倍", draft.priceMultiplier, 0.1f, 5f, 0.05f);
-                    draft.preferenceStrength = Slider(view.width, ref y, "顾客偏好影响", draft.preferenceStrength.ToString("F1"), draft.preferenceStrength, 0f, 2f, 0.1f);
-                    y = Section(view.width, y, "用餐与等待");
-                    draft.maxServiceWaitTicks = Mathf.RoundToInt(Slider(view.width, ref y, "最长等待接单", draft.maxServiceWaitTicks / 60 + " 秒",
+                    float y = Section(view.width, 0f, SimTranslation.T("RSR.UI.BusinessPricing"));
+                    RestaurantUiStyle.DrawCheckbox(new Rect(8f, y, view.width - 16f, h), SimTranslation.T("RSR.UI.EnableService"), ref draft.enabled); y += h + 8f;
+                    RestaurantUiStyle.DrawCheckbox(new Rect(8f, y, view.width - 16f, h), SimTranslation.T("RSR.UI.UsePreferences"), ref draft.useCustomerPreferences); y += h + 8f;
+                    draft.priceMultiplier = Slider(view.width, ref y, SimTranslation.T("RSR.UI.PriceMultiplier"), SimTranslation.T("RSR.UI.MultiplierValue", (draft.priceMultiplier.ToString("F2")).Named("value")), draft.priceMultiplier, 0.1f, 5f, 0.05f);
+                    draft.preferenceStrength = Slider(view.width, ref y, SimTranslation.T("RSR.UI.PreferenceStrength"), draft.preferenceStrength.ToString("F1"), draft.preferenceStrength, 0f, 2f, 0.1f);
+                    y = Section(view.width, y, SimTranslation.T("RSR.UI.DiningWaiting"));
+                    draft.maxServiceWaitTicks = Mathf.RoundToInt(Slider(view.width, ref y, SimTranslation.T("RSR.UI.MaxOrderWait"), SimTranslation.T("RSR.UI.SecondsValue", (draft.maxServiceWaitTicks / 60).Named("seconds")),
                         draft.maxServiceWaitTicks / 60f, 100f, 500f, 10f) * 60f);
-                    draft.maxWaitTicks = Mathf.RoundToInt(Slider(view.width, ref y, "最长等待餐品", draft.maxWaitTicks / 60 + " 秒",
+                    draft.maxWaitTicks = Mathf.RoundToInt(Slider(view.width, ref y, SimTranslation.T("RSR.UI.MaxMealWait"), SimTranslation.T("RSR.UI.SecondsValue", (draft.maxWaitTicks / 60).Named("seconds")),
                         draft.maxWaitTicks / 60f, 100f, 500f, 10f) * 60f);
-                    draft.maxOrderRounds = Mathf.RoundToInt(Slider(view.width, ref y, "每次用餐最多轮数", draft.maxOrderRounds + " 轮（含首次）",
+                    draft.maxOrderRounds = Mathf.RoundToInt(Slider(view.width, ref y, SimTranslation.T("RSR.UI.MaxRounds"), SimTranslation.T("RSR.UI.RoundsValue", (draft.maxOrderRounds).Named("rounds")),
                         draft.maxOrderRounds, 1f, 5f, 1f));
-                    draft.reorderIntervalTicks = Mathf.RoundToInt(Slider(view.width, ref y, "追加用餐间隔", draft.reorderIntervalTicks / 60 + " 秒",
+                    draft.reorderIntervalTicks = Mathf.RoundToInt(Slider(view.width, ref y, SimTranslation.T("RSR.UI.ReorderInterval"), SimTranslation.T("RSR.UI.SecondsValue", (draft.reorderIntervalTicks / 60).Named("seconds")),
                         draft.reorderIntervalTicks / 60f, 2f, 200f, 2f) * 60f);
-                    y = Section(view.width, y, "后厨货源");
+                    y = Section(view.width, y, SimTranslation.T("RSR.UI.KitchenSupply"));
                     GUI.color = RestaurantUiStyle.MutedText;
                     Text.Anchor = TextAnchor.UpperLeft;
                     Text.WordWrap = true;
@@ -66,8 +67,8 @@ namespace RimSimRestaurantExtension.UI
                     GUI.color = Color.white;
                 }
                 finally { Widgets.EndScrollView(); }
-                if (RestaurantUiStyle.DrawSecondaryButton(new Rect(0, footer, 110f, h), "取消")) Close();
-                if (RestaurantUiStyle.DrawPrimaryButton(new Rect(rect.width - 150f, footer, 150f, h), "确认参数草稿")) Confirm();
+                if (RestaurantUiStyle.DrawSecondaryButton(new Rect(0, footer, 110f, h), SimTranslation.T("RSR.UI.Cancel"))) Close();
+                if (RestaurantUiStyle.DrawPrimaryButton(new Rect(rect.width - 150f, footer, 150f, h), SimTranslation.T("RSR.UI.ConfirmParameters"))) Confirm();
             }
         }
 

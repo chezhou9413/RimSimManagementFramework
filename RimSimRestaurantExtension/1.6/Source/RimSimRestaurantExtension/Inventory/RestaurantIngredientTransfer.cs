@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System;
 using System.Linq;
 using RimSimRestaurantExtension.Buildings;
@@ -15,29 +16,29 @@ namespace RimSimRestaurantExtension.Inventory
         public static bool Prepare(Pawn pawn, Job job, RestaurantOrder order, out string reason)
         {
             reason = "";
-            if (order == null || order.IsTerminal) { reason = "取料订单已结束或不存在"; return false; }
+            if (order == null || order.IsTerminal) { reason = SimTranslation.T("RSR.Issue.IngredientOrderEnded"); return false; }
             RestaurantOrderStock.Validate(order, pawn.Map);
             if (order.IsTerminal) { reason = order.failReason; return false; }
             if (job.targetQueueB.NullOrEmpty() || job.countQueue == null
                 || job.targetQueueB.Count != job.countQueue.Count || job.countQueue[0] <= 0)
-            { reason = "取料目标与数量队列不一致"; return false; }
+            { reason = SimTranslation.T("RSR.Issue.IngredientQueueMismatch"); return false; }
             if (pawn.carryTracker.CarriedThing != null)
             {
                 if (IsCarryingBatch(pawn, job, order)) return true;
-                reason = $"厨师手中已有不属于当前批次的物品：{pawn.carryTracker.CarriedThing}";
+                reason = SimTranslation.T("RSR.Issue.CookCarryingOtherItem", (pawn.carryTracker.CarriedThing).Named("item"));
                 return false;
             }
             Thing source = job.targetQueueB[0].Thing;
             if (source == null || source.Destroyed || source.MapHeld != pawn.Map)
-            { reason = "取料目标已毁坏或离开地图"; return false; }
+            { reason = SimTranslation.T("RSR.Issue.IngredientTargetGone"); return false; }
             int reserved = RestaurantOrderStock.Reserved(order, pawn.Map).Where(t => t.Thing == source).Sum(t => t.Count);
             if (reserved < job.countQueue[0] || source.stackCount < reserved)
-            { reason = $"{source} 数量不符：队列剩余={job.countQueue[0]}，本单预留={reserved}，实物={source.stackCount}"; return false; }
+            { reason = SimTranslation.T("RSR.Issue.IngredientCountMismatch", (source).Named("item"), (job.countQueue[0]).Named("queued"), (reserved).Named("reserved"), (source.stackCount).Named("actual")); return false; }
             job.count = Math.Min(job.countQueue[0], Math.Min(pawn.carryTracker.MaxStackSpaceEver(source.def),
                 pawn.carryTracker.innerContainer.GetCountCanAccept(source, false)));
-            if (job.count <= 0) { reason = $"厨师无法携带一件 {source.def.label}"; return false; }
+            if (job.count <= 0) { reason = SimTranslation.T("RSR.Issue.CookCannotCarry", (source.def.label).Named("item")); return false; }
             if (!TryGetPickup(source, out LocalTargetInfo target, out _))
-            { reason = $"{source} 已不在可取料的冰箱或地面"; return false; }
+            { reason = SimTranslation.T("RSR.Issue.IngredientLocationInvalid", (source).Named("item")); return false; }
             job.SetTarget(TargetIndex.C, target);
             return true;
         }
@@ -73,7 +74,7 @@ namespace RimSimRestaurantExtension.Inventory
             Thing source = job.targetQueueB[0].Thing;
             if (!TryGetPickup(source, out LocalTargetInfo target, out PathEndMode mode)
                 || !pawn.CanReachImmediate(target, mode))
-            { reason = $"尚未到达 {source} 的取料位置：厨师={pawn.Position}，目标={target}"; return false; }
+            { reason = SimTranslation.T("RSR.Issue.IngredientNotReached", (source).Named("item"), (pawn.Position).Named("position"), (target).Named("target")); return false; }
             Thing taken = pawn.Map.GetComponent<MapComponent_InventoryReservations>().Extract(
                 RestaurantStockUtility.Key(order), source, job.count, pawn.carryTracker.innerContainer, out reason);
             if (taken == null) return false;

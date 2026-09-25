@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System.Collections.Generic;
 using System.Linq;
 using RimSimRestaurantExtension.Models;
@@ -75,7 +76,7 @@ namespace RimSimRestaurantExtension.Inventory
                 if (order.goods.Any(t => t != null && !t.Destroyed && !Usable(order, t))
                     || order.goods.Where(t => t != null && !t.Destroyed).Sum(t => t.stackCount) + order.acceptedCount != order.mealCount
                     || order.goods.Any(t => t != null && !t.Destroyed && (!t.SpawnedOrAnyParentSpawned || t.MapHeld != map)))
-                    RestaurantOrderUtility.FailOrder(order, "订单实物丢失、腐坏或数量发生变化");
+                    RestaurantOrderUtility.FailOrder(order, SimTranslation.T("RSR.Issue.PhysicalStockChanged"));
                 else if (!order.mealDelivered) RestaurantMealTransferUtility.Protect(order);
                 return;
             }
@@ -84,24 +85,24 @@ namespace RimSimRestaurantExtension.Inventory
             if (!order.stockProduct && reserved.Any(t => t.Thing != null && !t.Thing.Destroyed
                 && !IsWithdrawn(order, t.Thing, map) && !IsCurrentKitchenSource(currentShop, t.Thing)))
             {
-                RestaurantOrderUtility.FailOrder(order, "已预留食材的冰箱或店内储存架已失效");
+                RestaurantOrderUtility.FailOrder(order, SimTranslation.T("RSR.Issue.ReservedStorageInvalid"));
                 return;
             }
             if (reserved.Count == 0 && !order.stockProduct && order.state == RestaurantOrderState.WaitingCook)
             {
                 if (Find.TickManager.TicksGame < order.nextCookingAttemptTick) return;
                 var shop = RestaurantOrderUtility.FindShopById(map, order.shopZoneId);
-                if (!Reserve(order, shop)) order.blockReason = "制作中断后，店内后厨货源暂时不足";
+                if (!Reserve(order, shop)) order.blockReason = SimTranslation.T("RSR.Issue.KitchenStockAfterInterruption");
                 return;
             }
             int invalid = reserved.FindIndex(t => t.Thing == null || t.Thing.Destroyed || t.Count <= 0 || t.Count > t.Thing.stackCount);
             if (invalid >= 0)
             {
                 ThingCount item = reserved[invalid];
-                RestaurantOrderUtility.FailOrder(order, $"已预留的真实物资已毁坏或数量不足：{item.Thing}，预留={item.Count}，实物={item.Thing?.stackCount ?? 0}");
+                RestaurantOrderUtility.FailOrder(order, SimTranslation.T("RSR.Issue.ReservedStockCount", (item.Thing).Named("item"), (item.Count).Named("reserved"), (item.Thing?.stackCount ?? 0).Named("actual")));
             }
             else if (order.stockProduct && (order.sourceCabinet?.Spawned != true || reserved.Sum(t => t.Count) != order.mealCount))
-                RestaurantOrderUtility.FailOrder(order, "商品柜已移除或已预留商品丢失");
+                RestaurantOrderUtility.FailOrder(order, SimTranslation.T("RSR.Issue.ReservedCabinetGoodsMissing"));
         }
 
         //检查食材是否已经搬离货源，职责是允许灶台旁及厨师携带中的实物继续制作。

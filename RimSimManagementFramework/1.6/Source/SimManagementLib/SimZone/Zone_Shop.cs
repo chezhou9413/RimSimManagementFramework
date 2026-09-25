@@ -14,9 +14,7 @@ using Verse;
 
 namespace SimManagementLib.SimZone
 {
-    /// <summary>
-    /// 表示玩家划定的商店区域，负责营业条件验证、店员岗位绑定和商店管理入口。
-    /// </summary>
+    //表示玩家划定的商店区域，负责营业条件验证、店员岗位绑定和商店管理入口。
     public partial class Zone_Shop : Zone
     {
         private static readonly FieldInfo ZoneGridField = AccessTools.Field(typeof(ZoneManager), "zoneGrid");
@@ -36,26 +34,17 @@ namespace SimManagementLib.SimZone
         }
 
         protected override Color NextZoneColor => new Color(0.9f, 0.7f, 0.2f, 0.3f);
-
-        /// <summary>
-        /// 判断商店区域当前是否满足营业条件。
-        /// </summary>
+        //判断商店区域当前是否满足营业条件。
         public bool IsValidShop()
         {
             return GetCachedValidShopNow(out _);
         }
-
-        /// <summary>
-        /// 判断商店区域当前是否允许营业，要求设施有效且营业开关和日程均允许。
-        /// </summary>
+        //判断商店区域当前是否允许营业，要求设施有效且营业开关和日程均允许。
         public bool IsOpenNow()
         {
             return GetCachedOpenNow();
         }
-
-        /// <summary>
-        /// 返回商店当前是否能接待顾客和安排店员工作的说明文本。
-        /// </summary>
+        //返回商店当前是否能接待顾客和安排店员工作的说明文本。
         public string GetOpenStatusMessage()
         {
             if (!ComputeValidShopNow(out string validationMessage))
@@ -69,38 +58,26 @@ namespace SimManagementLib.SimZone
 
             return SimTranslation.T("RSMF.Zone.OpenStatus.Open");
         }
-
-        /// <summary>
-        /// 返回商店营业日程数据，并在旧存档缺失时创建默认配置。
-        /// </summary>
+        //返回商店营业日程数据，并在旧存档缺失时创建默认配置。
         public ShopScheduleData GetSchedule()
         {
             if (schedule == null)
                 schedule = new ShopScheduleData();
             return schedule;
         }
-
-        /// <summary>
-        /// 用指定日程覆盖商店当前营业设置。
-        /// </summary>
+        //用指定日程覆盖商店当前营业设置。
         public void ApplySchedule(ShopScheduleData newSchedule)
         {
             GetSchedule().CopyFrom(newSchedule);
             InvalidateShopRuntimeCache();
         }
-
-        /// <summary>
-        /// 返回商店区域当前营业条件的说明文本。
-        /// </summary>
+        //返回商店区域当前营业条件的说明文本。
         public string GetValidationMessage()
         {
             GetCachedValidShopNow(out string message);
             return message;
         }
-
-        /// <summary>
-        /// 实时扫描区域内设施和室内状态，计算商店是否可以营业。
-        /// </summary>
+        //实时扫描区域内设施和室内状态，计算商店是否可以营业。
         private bool ComputeValidShopNow(out string message)
         {
             if (Map == null || Cells == null || Cells.Count == 0)
@@ -167,10 +144,7 @@ namespace SimManagementLib.SimZone
             message = SimTranslation.T("RSMF.Zone.Validation.Valid");
             return true;
         }
-
-        /// <summary>
-        /// 修复先划商店区再建造设施时可能被旧区划重叠逻辑切掉的设施占用格。
-        /// </summary>
+        //修复先划商店区再建造设施时可能被旧区划重叠逻辑切掉的设施占用格。
         private void RepairEmbeddedFacilityCoverage()
         {
             if (Map == null || Cells == null || Cells.Count == 0) return;
@@ -220,10 +194,7 @@ namespace SimManagementLib.SimZone
             if (changed)
                 CheckContiguous();
         }
-
-        /// <summary>
-        /// 判断设施占用格是否像是被商店区域包围或部分覆盖，需要重新纳入商店区。
-        /// </summary>
+        //判断设施占用格是否像是被商店区域包围或部分覆盖，需要重新纳入商店区。
         private bool ShouldRepairFacilityCoverage(Thing thing)
         {
             if (thing == null || thing.Destroyed || thing.Map != Map) return false;
@@ -254,10 +225,7 @@ namespace SimManagementLib.SimZone
 
             return CountAdjacentShopCells(rect) >= GetRequiredAdjacentShopCells(rect);
         }
-
-        /// <summary>
-        /// 统计设施占用矩形周围紧邻的商店格数量，用于区分内部洞和区域外设施。
-        /// </summary>
+        //统计设施占用矩形周围紧邻的商店格数量，用于区分内部洞和区域外设施。
         private int CountAdjacentShopCells(CellRect rect)
         {
             int count = 0;
@@ -277,10 +245,7 @@ namespace SimManagementLib.SimZone
 
             return count;
         }
-
-        /// <summary>
-        /// 根据设施占用面积返回自动修复所需的最小邻接商店格数量。
-        /// </summary>
+        //根据设施占用面积返回自动修复所需的最小邻接商店格数量。
         private static int GetRequiredAdjacentShopCells(CellRect rect)
         {
             int area = rect.Area;
@@ -288,10 +253,7 @@ namespace SimManagementLib.SimZone
             if (area <= 3) return 4;
             return 6;
         }
-
-        /// <summary>
-        /// 返回指定岗位当前仍在本地图可工作的员工，负责给 WorkGiver 权限判断和工作分配使用。
-        /// </summary>
+        //返回指定岗位当前仍在本地图可工作的员工，负责给 WorkGiver 权限判断和工作分配使用。
         public List<Pawn> GetAssignedPawns(string roleDefName)
         {
             if (roleAssignments.NullOrEmpty() || string.IsNullOrEmpty(roleDefName))
@@ -304,10 +266,7 @@ namespace SimManagementLib.SimZone
                 .Distinct()
                 .ToList();
         }
-
-        /// <summary>
-        /// 返回指定岗位的分配记录，负责让 UI 显示和移除已经离图或引用失效的历史员工。
-        /// </summary>
+        //返回指定岗位的分配记录，负责让 UI 显示和移除已经离图或引用失效的历史员工。
         public List<ShopRoleAssignment> GetAssignedPawnRecords(string roleDefName, bool includeUnavailable)
         {
             if (roleAssignments.NullOrEmpty() || string.IsNullOrEmpty(roleDefName))
@@ -318,10 +277,7 @@ namespace SimManagementLib.SimZone
                 .Where(a => a != null && a.roleDefName == roleDefName && (includeUnavailable || a.HasUsablePawnOn(Map)))
                 .ToList();
         }
-
-        /// <summary>
-        /// 把员工加入指定岗位，并负责启用该岗位关联的原版工作类型。
-        /// </summary>
+        //把员工加入指定岗位，并负责启用该岗位关联的原版工作类型。
         public void AddAssignedPawn(string roleDefName, Pawn pawn, int maxCount)
         {
             if (string.IsNullOrEmpty(roleDefName) || pawn == null) return;
@@ -347,37 +303,25 @@ namespace SimManagementLib.SimZone
             roleAssignments.Add(assignment);
             ActivateRoleWorkTypes(roleDefName, pawn);
         }
-
-        /// <summary>
-        /// 从指定岗位移除员工。
-        /// </summary>
+        //从指定岗位移除员工。
         public void RemoveAssignedPawn(string roleDefName, Pawn pawn)
         {
             if (string.IsNullOrEmpty(roleDefName) || pawn == null || roleAssignments == null) return;
             roleAssignments.RemoveAll(a => a == null || (a.roleDefName == roleDefName && a.MatchesPawn(pawn)));
         }
-
-        /// <summary>
-        /// 从指定岗位移除一条员工分配记录，负责处理 Pawn 已离图或引用失效时的清理入口。
-        /// </summary>
+        //从指定岗位移除一条员工分配记录，负责处理 Pawn 已离图或引用失效时的清理入口。
         public void RemoveAssignedPawnRecord(string roleDefName, ShopRoleAssignment assignment)
         {
             if (string.IsNullOrEmpty(roleDefName) || assignment == null || roleAssignments == null) return;
             roleAssignments.RemoveAll(a => a == null || (a.roleDefName == roleDefName && ReferenceEquals(a, assignment)));
         }
-
-        /// <summary>
-        /// 清空指定岗位的员工分配。
-        /// </summary>
+        //清空指定岗位的员工分配。
         public void ClearAssignedPawns(string roleDefName)
         {
             if (string.IsNullOrEmpty(roleDefName) || roleAssignments == null) return;
             roleAssignments.RemoveAll(a => a == null || a.roleDefName == roleDefName);
         }
-
-        /// <summary>
-        /// 启用岗位关联的工作类型，负责避免已分配员工因为工作优先级为零而不扫描岗位工作。
-        /// </summary>
+        //启用岗位关联的工作类型，负责避免已分配员工因为工作优先级为零而不扫描岗位工作。
         private static void ActivateRoleWorkTypes(string roleDefName, Pawn pawn)
         {
             if (pawn?.workSettings == null || string.IsNullOrEmpty(roleDefName)) return;
@@ -416,10 +360,7 @@ namespace SimManagementLib.SimZone
                     pawn.workSettings.SetPriority(hauling, 4);
             }
         }
-
-        /// <summary>
-        /// 激活当前店铺已分配员工的岗位工作类型，负责兼容已有存档中的岗位分配。
-        /// </summary>
+        //激活当前店铺已分配员工的岗位工作类型，负责兼容已有存档中的岗位分配。
         private void ActivateAssignedRoleWorkTypes()
         {
             if (roleAssignments.NullOrEmpty()) return;
@@ -431,10 +372,7 @@ namespace SimManagementLib.SimZone
                 ActivateRoleWorkTypes(assignment.roleDefName, assignment.pawn);
             }
         }
-
-        /// <summary>
-        /// 整理岗位分配记录，负责移除空记录并为旧存档补齐员工显示快照。
-        /// </summary>
+        //整理岗位分配记录，负责移除空记录并为旧存档补齐员工显示快照。
         private void NormalizeRoleAssignments()
         {
             if (roleAssignments == null)
@@ -451,10 +389,7 @@ namespace SimManagementLib.SimZone
                     assignment.CapturePawn(assignment.pawn);
             }
         }
-
-        /// <summary>
-        /// 创建商店区域搬迁快照，负责保存区划格、员工分配和营业日程。
-        /// </summary>
+        //创建商店区域搬迁快照，负责保存区划格、员工分配和营业日程。
         public MoveableShopZone CreateMoveableZoneSnapshot()
         {
             return new MoveableShopZone
@@ -470,10 +405,7 @@ namespace SimManagementLib.SimZone
                 schedule = schedule?.Clone() ?? new ShopScheduleData()
             };
         }
-
-        /// <summary>
-        /// 应用商店区域搬迁快照，负责恢复区划显示、员工分配和营业日程。
-        /// </summary>
+        //应用商店区域搬迁快照，负责恢复区划显示、员工分配和营业日程。
         public void ApplyMoveableZoneSnapshot(MoveableShopZone snapshot)
         {
             if (snapshot == null) return;
@@ -498,18 +430,12 @@ namespace SimManagementLib.SimZone
             text += "\n" + SimTranslation.T("RSMF.Zone.Inspect.OpenStatus", GetOpenStatusMessage().Named("status"));
             return text;
         }
-
-        /// <summary>
-        /// 将格子加入商店区域，并允许商店区覆盖普通建筑占用格。
-        /// </summary>
+        //将格子加入商店区域，并允许商店区覆盖普通建筑占用格。
         public override void AddCell(IntVec3 c)
         {
             EnsureShopCell(c, true);
         }
-
-        /// <summary>
-        /// 确保指定格子属于当前商店区域，负责让划区和设施覆盖修复在已有建筑上保持幂等且不刷红字。
-        /// </summary>
+        //确保指定格子属于当前商店区域，负责让划区和设施覆盖修复在已有建筑上保持幂等且不刷红字。
         private bool EnsureShopCell(IntVec3 c, bool notifyHomeArea)
         {
             if (Map == null || !c.InBounds(Map))
@@ -542,10 +468,7 @@ namespace SimManagementLib.SimZone
 
             return addedToCells || gridChanged;
         }
-
-        /// <summary>
-        /// 将商店区域写入原版区划网格，用于绕过原版不可覆盖建筑检查后的格子登记。
-        /// </summary>
+        //将商店区域写入原版区划网格，用于绕过原版不可覆盖建筑检查后的格子登记。
         private bool AddShopZoneGridCell(IntVec3 c)
         {
             Zone[] zoneGrid = ZoneGridField?.GetValue(zoneManager) as Zone[];
@@ -603,8 +526,8 @@ namespace SimManagementLib.SimZone
 
             yield return new Command_Action
             {
-                defaultLabel = "套餐传输",
-                defaultDesc = "导出或导入当前商店区域的套餐 Base64。",
+                defaultLabel = SimTranslation.T("RSMF.MenuTransfer.Command"),
+                defaultDesc = SimTranslation.T("RSMF.MenuTransfer.CommandDescription"),
                 icon = ContentFinder<Texture2D>.Get("UI/Buttons/Copy", true),
                 action = delegate
                 {

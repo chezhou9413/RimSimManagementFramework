@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR.UI.Actions>操作</RSR.UI.Actions>
+  <RSR.UI.ActiveSessions>进行中用餐</RSR.UI.ActiveSessions>
+  <RSR.UI.AddDish>添加菜品</RSR.UI.AddDish>
+  <RSR.UI.AddIngredient>添加食材</RSR.UI.AddIngredient>
+  <RSR.UI.AddRecipe>添加餐厅菜谱</RSR.UI.AddRecipe>
+  <RSR.UI.AddStockFood>添加现成食品</RSR.UI.AddStockFood>
+  <RSR.UI.AllChecksPassed>正常：当前设施、员工、库存与餐位检查通过。</RSR.UI.AllChecksPassed>
+  <RSR.UI.AllFood>全部</RSR.UI.AllFood>
+  <RSR.UI.Allowed>允许</RSR.UI.Allowed>
+  <RSR.UI.AvailableDishes>可选餐品 {count} 项</RSR.UI.AvailableDishes>
+  <RSR.UI.AvailableFoods>可选食品 {count} 项</RSR.UI.AvailableFoods>
+  <RSR.UI.BasePrice>每份基础售价</RSR.UI.BasePrice>
+  <RSR.UI.BusinessIssue>当前经营提示：{reason}</RSR.UI.BusinessIssue>
+  <RSR.UI.BusinessPricing>经营与定价</RSR.UI.BusinessPricing>
+  <RSR.UI.BusinessReady>当前经营检查通过</RSR.UI.BusinessReady>
+  <RSR.UI.BusinessReadyHint>当前营业检查通过 · 堂食与传送带自助均使用餐厅收银。</RSR.UI.BusinessReadyHint>
+  <RSR.UI.CabinetRemoved>货柜已移除</RSR.UI.CabinetRemoved>
+  <RSR.UI.CabinetSource>现货 · {cabinet}</RSR.UI.CabinetSource>
+  <RSR.UI.CanCook>可制作</RSR.UI.CanCook>
+  <RSR.UI.Cancel>取消</RSR.UI.Cancel>
+  <RSR.UI.CannotConsume>{item} 无法现场吃喝</RSR.UI.CannotConsume>
+  <RSR.UI.ConfigureMenuFirst>请先在餐厅菜单中配置菜谱。</RSR.UI.ConfigureMenuFirst>
+  <RSR.UI.ConfirmDish>确认菜品草稿</RSR.UI.ConfirmDish>
+  <RSR.UI.ConfirmParameters>确认参数草稿</RSR.UI.ConfirmParameters>
+  <RSR.UI.Consume>现场吃喝</RSR.UI.Consume>
+  <RSR.UI.ConveyorActiveHint>运输正常 · 厨师优先处理顾客订单，空闲时补餐。</RSR.UI.ConveyorActiveHint>
+  <RSR.UI.ConveyorAreaHint>线路需要完整位于同一家餐厅，请调整经营区域。</RSR.UI.ConveyorAreaHint>
+  <RSR.UI.ConveyorDining>传送带自助</RSR.UI.ConveyorDining>
+  <RSR.UI.ConveyorEmpty>尚未配置上架食品\n添加餐厅菜谱或现成食品，厨师就会按目标补餐。</RSR.UI.ConveyorEmpty>
+  <RSR.UI.ConveyorManager>传送带管理</RSR.UI.ConveyorManager>
+  <RSR.UI.ConveyorNoMatch>没有匹配的上架食品\n请调整或清空搜索条件。</RSR.UI.ConveyorNoMatch>
+  <RSR.UI.ConveyorPausedHint>运输正常 · 自动补餐已暂停。</RSR.UI.ConveyorPausedHint>
+  <RSR.UI.ConveyorPowerHint>供电中断：运输与补餐已停止，顾客仍可取走面前的食品。</RSR.UI.ConveyorPowerHint>
+  <RSR.UI.ConveyorSaveHint>保存后生效；取消或关闭会丢弃本次更改。</RSR.UI.ConveyorSaveHint>
+  <RSR.UI.ConveyorSource>传送带</RSR.UI.ConveyorSource>
+  <RSR.UI.ConveyorStockHeading>传送带上架管理</RSR.UI.ConveyorStockHeading>
+  <RSR.UI.CoolingHint>通电保鲜 · 库存供餐厅厨房取用。</RSR.UI.CoolingHint>
+  <RSR.UI.CopyDish>复制菜品</RSR.UI.CopyDish>
+  <RSR.UI.CurrentStock>当前库存</RSR.UI.CurrentStock>
+  <RSR.UI.CustomerId>顾客 #{id}</RSR.UI.CustomerId>
+  <RSR.UI.CustomerLeft>顾客已离开</RSR.UI.CustomerLeft>
+  <RSR.UI.CustomerSelfService>顾客自行取餐</RSR.UI.CustomerSelfService>
+  <RSR.UI.DeleteDish>删除菜品</RSR.UI.DeleteDish>
+  <RSR.UI.Delivery>交付</RSR.UI.Delivery>
+  <RSR.UI.DiningRecords>用餐记录</RSR.UI.DiningRecords>
+  <RSR.UI.DiningWaiting>用餐与等待</RSR.UI.DiningWaiting>
+  <RSR.UI.Disabled>已停用</RSR.UI.Disabled>
+  <RSR.UI.DishAndSource>菜品与货源</RSR.UI.DishAndSource>
+  <RSR.UI.DishCopyName>{name} 副本</RSR.UI.DishCopyName>
+  <RSR.UI.Edit>编辑</RSR.UI.Edit>
+  <RSR.UI.Enable>启用</RSR.UI.Enable>
+  <RSR.UI.EnableDish>启用此菜品</RSR.UI.EnableDish>
+  <RSR.UI.EnableRestaurant>启用餐厅</RSR.UI.EnableRestaurant>
+  <RSR.UI.EnableService>启用餐厅服务</RSR.UI.EnableService>
+  <RSR.UI.FineFood>精致</RSR.UI.FineFood>
+  <RSR.UI.FoodAndSource>食品与货源</RSR.UI.FoodAndSource>
+  <RSR.UI.InCabinet>柜中</RSR.UI.InCabinet>
+  <RSR.UI.InStock>柜中有货</RSR.UI.InStock>
+  <RSR.UI.InTransit>途中</RSR.UI.InTransit>
+  <RSR.UI.IncludeHistory>包含历史记录</RSR.UI.IncludeHistory>
+  <RSR.UI.IngredientsMissing>食材不足</RSR.UI.IngredientsMissing>
+  <RSR.UI.IngredientsPerPortion>每份食材与数量</RSR.UI.IngredientsPerPortion>
+  <RSR.UI.InvalidConveyorStock>食品、数量或售价无效，或目标盘数超过线路容量。</RSR.UI.InvalidConveyorStock>
+  <RSR.UI.InvalidIngredientCount>每份食材数量必须为 1 到 100000 的整数。</RSR.UI.InvalidIngredientCount>
+  <RSR.UI.InvalidPortions>份数必须为正整数，且最少份数不大于最多份数和餐品堆叠上限。</RSR.UI.InvalidPortions>
+  <RSR.UI.InvalidPrice>售价必须在 1 到 100000 之间。</RSR.UI.InvalidPrice>
+  <RSR.UI.InvalidRecipe>这组食材无法满足同一个生产配方，请核对原料种类和每份数量。</RSR.UI.InvalidRecipe>
+  <RSR.UI.Item>物品</RSR.UI.Item>
+  <RSR.UI.ItemCount>{count} 件</RSR.UI.ItemCount>
+  <RSR.UI.ItemsPerPlate>每盘件数</RSR.UI.ItemsPerPlate>
+  <RSR.UI.KitchenHint>将储存架放入商店区域，即可自动供厨房取料、传送带现货补餐及货柜补货。冰箱仍优先供料；桌面餐品和普通散落物品不会作为后厨库存。</RSR.UI.KitchenHint>
+  <RSR.UI.KitchenRecipe>菜谱 · 厨房制作</RSR.UI.KitchenRecipe>
+  <RSR.UI.KitchenSource>厨房制作</RSR.UI.KitchenSource>
+  <RSR.UI.KitchenStockHint>后厨库存 · 配置储存目标与补货阈值</RSR.UI.KitchenStockHint>
+  <RSR.UI.KitchenSupply>后厨货源</RSR.UI.KitchenSupply>
+  <RSR.UI.LavishOtherFood>豪华及其他</RSR.UI.LavishOtherFood>
+  <RSR.UI.LineChanged>线路结构已变化，请重新打开配置。</RSR.UI.LineChanged>
+  <RSR.UI.LineHeading>{shop} · 线路 {id} · 配置整条相连线路</RSR.UI.LineHeading>
+  <RSR.UI.LineSummary>线路 {id} · {occupied} / {capacity} 盘</RSR.UI.LineSummary>
+  <RSR.UI.Locate>定位</RSR.UI.Locate>
+  <RSR.UI.Manage>管理</RSR.UI.Manage>
+  <RSR.UI.MaxMealWait>最长等待餐品</RSR.UI.MaxMealWait>
+  <RSR.UI.MaxOrderWait>最长等待接单</RSR.UI.MaxOrderWait>
+  <RSR.UI.MaxPortions>最多份数</RSR.UI.MaxPortions>
+  <RSR.UI.MaxRounds>每次用餐最多轮数</RSR.UI.MaxRounds>
+  <RSR.UI.MealProduct>餐品产物</RSR.UI.MealProduct>
+  <RSR.UI.MenuCountHint>菜谱 {count} 项 · 菜品与运行参数随商店统一保存</RSR.UI.MenuCountHint>
+  <RSR.UI.MenuEditor>编辑餐厅菜品</RSR.UI.MenuEditor>
+  <RSR.UI.MenuEditorHint>配置每份售价与食材；确认后仍需在商店管理中统一保存。</RSR.UI.MenuEditorHint>
+  <RSR.UI.MenuEmpty>菜单还是空的\n添加菜品后，可设置售价、食材与每次点餐份数。</RSR.UI.MenuEmpty>
+  <RSR.UI.MenuHeading>餐厅菜单</RSR.UI.MenuHeading>
+  <RSR.UI.MenuName>菜单名称</RSR.UI.MenuName>
+  <RSR.UI.MenuNoMatch>没有匹配菜品\n请调整商店管理窗口的搜索条件。</RSR.UI.MenuNoMatch>
+  <RSR.UI.MenuSaveHint>菜单与参数在统一保存后生效；关闭窗口会丢弃未保存内容。</RSR.UI.MenuSaveHint>
+  <RSR.UI.MinPortions>最少份数</RSR.UI.MinPortions>
+  <RSR.UI.MultiplierValue>{value} 倍</RSR.UI.MultiplierValue>
+  <RSR.UI.NextPage>下一页</RSR.UI.NextPage>
+  <RSR.UI.NoConveyor>本店尚无传送带，请先铺设并划入餐厅区域。</RSR.UI.NoConveyor>
+  <RSR.UI.NoConveyorFood>没有匹配食品，请调整搜索或选择其他货源。</RSR.UI.NoConveyorFood>
+  <RSR.UI.NoDiningRecords>没有匹配的用餐记录\n可以调整搜索条件，或勾选“包含历史记录”。</RSR.UI.NoDiningRecords>
+  <RSR.UI.NoMenuFood>没有匹配餐品。请检查搜索词、品质筛选或当前加载的餐品模组。</RSR.UI.NoMenuFood>
+  <RSR.UI.NoRecipeIngredients>该餐品没有可选生产原料。</RSR.UI.NoRecipeIngredients>
+  <RSR.UI.NoRestaurant>未归属餐厅</RSR.UI.NoRestaurant>
+  <RSR.UI.NoRestaurants>没有匹配的餐厅，请检查搜索条件或先建设餐厅接待台。</RSR.UI.NoRestaurants>
+  <RSR.UI.NoStockMatch>没有匹配物品，请调整搜索条件。</RSR.UI.NoStockMatch>
+  <RSR.UI.NotOrdered>尚未点菜</RSR.UI.NotOrdered>
+  <RSR.UI.NotSelected>未选择</RSR.UI.NotSelected>
+  <RSR.UI.OnSale>上架</RSR.UI.OnSale>
+  <RSR.UI.OrderSource>第 {round} 轮 · 来源 {source} · 已接受 {accepted}/{count}</RSR.UI.OrderSource>
+  <RSR.UI.OrderSummary>负责员工：{employee} · 等待 {seconds} 秒 · 订单 {price} · 已付 {paid}</RSR.UI.OrderSummary>
+  <RSR.UI.OverviewHint>查看当前经营情况与用餐记录 · 金额统计基于保留的用餐记录</RSR.UI.OverviewHint>
+  <RSR.UI.ParameterHeading>餐厅运行参数</RSR.UI.ParameterHeading>
+  <RSR.UI.ParameterHint>确认返回商店管理后，点击统一保存才会生效。</RSR.UI.ParameterHint>
+  <RSR.UI.Parameters>运行参数</RSR.UI.Parameters>
+  <RSR.UI.PauseRestock>暂停自动补餐</RSR.UI.PauseRestock>
+  <RSR.UI.PendingPlates>补餐在途</RSR.UI.PendingPlates>
+  <RSR.UI.PendingStock>补货在途</RSR.UI.PendingStock>
+  <RSR.UI.PlateCount>{count} 盘</RSR.UI.PlateCount>
+  <RSR.UI.PlateOverCapacity>目标超过线路容量，请减少目标盘数后保存。</RSR.UI.PlateOverCapacity>
+  <RSR.UI.PlateStock>餐盘库存</RSR.UI.PlateStock>
+  <RSR.UI.PlateTarget>上架目标</RSR.UI.PlateTarget>
+  <RSR.UI.PlateTargetSummary>已启用 {count} 项 · 目标 {target} / {capacity} 盘</RSR.UI.PlateTargetSummary>
+  <RSR.UI.PlateTooltip>{food}\n{source}\n整盘售价：{price}</RSR.UI.PlateTooltip>
+  <RSR.UI.Portions>份数</RSR.UI.Portions>
+  <RSR.UI.PreferenceStrength>顾客偏好影响</RSR.UI.PreferenceStrength>
+  <RSR.UI.PreviousPage>上一页</RSR.UI.PreviousPage>
+  <RSR.UI.PriceMultiplier>菜单价格倍率</RSR.UI.PriceMultiplier>
+  <RSR.UI.PricePerItem>单件售价</RSR.UI.PricePerItem>
+  <RSR.UI.PricePerPortion>售价/份</RSR.UI.PricePerPortion>
+  <RSR.UI.RecipeNote>每份原料必须满足该餐品的同一个生产配方。原料选择受配方过滤限制；菜品确认后仍需在店铺窗口统一保存。</RSR.UI.RecipeNote>
+  <RSR.UI.Remove>移除</RSR.UI.Remove>
+  <RSR.UI.ReorderInterval>追加用餐间隔</RSR.UI.ReorderInterval>
+  <RSR.UI.Reserved>预留</RSR.UI.Reserved>
+  <RSR.UI.RestaurantCount>餐厅数量</RSR.UI.RestaurantCount>
+  <RSR.UI.RestaurantOverview>餐厅经营</RSR.UI.RestaurantOverview>
+  <RSR.UI.RestaurantStatus>餐厅状态</RSR.UI.RestaurantStatus>
+  <RSR.UI.RestockSavedTargets>按已保存目标补货</RSR.UI.RestockSavedTargets>
+  <RSR.UI.Revenue>已收款</RSR.UI.Revenue>
+  <RSR.UI.RoundsValue>{rounds} 轮（含首次）</RSR.UI.RoundsValue>
+  <RSR.UI.SaleStockHint>餐厅商品 · 配置库存、售价与交付方式</RSR.UI.SaleStockHint>
+  <RSR.UI.SaleStockStatus>上架商品进入餐厅菜单，库存与销售规则独立设置。</RSR.UI.SaleStockStatus>
+  <RSR.UI.SaveConveyor>保存上架配置</RSR.UI.SaveConveyor>
+  <RSR.UI.SaveStock>保存库存设置</RSR.UI.SaveStock>
+  <RSR.UI.SearchConveyorFood>搜索菜品名称、食品名称或货源</RSR.UI.SearchConveyorFood>
+  <RSR.UI.SearchFood>搜索食品名称或来源模组</RSR.UI.SearchFood>
+  <RSR.UI.SearchMenuFood>搜索餐品名称、标识或来源模组</RSR.UI.SearchMenuFood>
+  <RSR.UI.SearchStock>搜索库存物品名称或来源模组</RSR.UI.SearchStock>
+  <RSR.UI.SecondsValue>{seconds} 秒</RSR.UI.SecondsValue>
+  <RSR.UI.Select>选择</RSR.UI.Select>
+  <RSR.UI.SelectConveyorFood>选择上架食品</RSR.UI.SelectConveyorFood>
+  <RSR.UI.SelectConveyorFoodHint>选择现有货源支持的食品，厨师将搬运实物补餐。</RSR.UI.SelectConveyorFoodHint>
+  <RSR.UI.SelectIngredient>选择原料</RSR.UI.SelectIngredient>
+  <RSR.UI.SelectMenuFood>选择菜单餐品</RSR.UI.SelectMenuFood>
+  <RSR.UI.SelectMenuFoodHint>选择后自动填入可用食材，可在菜品编辑中继续调整。</RSR.UI.SelectMenuFoodHint>
+  <RSR.UI.SelectProduct>选择产物</RSR.UI.SelectProduct>
+  <RSR.UI.SessionId>用餐记录 #{id}</RSR.UI.SessionId>
+  <RSR.UI.SessionPage>匹配 {count} 次用餐 · 第 {page}/{pages} 页</RSR.UI.SessionPage>
+  <RSR.UI.SessionSummary>已消费 {amount} · 已付 {paid} · {rounds} 轮 · 成本 {cost}</RSR.UI.SessionSummary>
+  <RSR.UI.ShelfStock>现货 · 店内储存架</RSR.UI.ShelfStock>
+  <RSR.UI.ShopShelves>商店区域内的储存架</RSR.UI.ShopShelves>
+  <RSR.UI.SimpleFood>家常</RSR.UI.SimpleFood>
+  <RSR.UI.StockOverCapacity>目标库存超过货柜容量，请减少目标数量。</RSR.UI.StockOverCapacity>
+  <RSR.UI.StockSaveHint>保存后生效；关闭丢弃本次更改。预留库存已分配给其他任务。</RSR.UI.StockSaveHint>
+  <RSR.UI.StockTarget>库存目标</RSR.UI.StockTarget>
+  <RSR.UI.StockUnavailable>现货或路线不足</RSR.UI.StockUnavailable>
+  <RSR.UI.Stored>现存</RSR.UI.Stored>
+  <RSR.UI.StoredPending>现存 / 补餐在途</RSR.UI.StoredPending>
+  <RSR.UI.SupplyStatus>供货状态</RSR.UI.SupplyStatus>
+  <RSR.UI.TableService>普通堂食</RSR.UI.TableService>
+  <RSR.UI.TakeAway>带走</RSR.UI.TakeAway>
+  <RSR.UI.Target>目标</RSR.UI.Target>
+  <RSR.UI.TargetPlates>目标盘数</RSR.UI.TargetPlates>
+  <RSR.UI.Threshold>阈值</RSR.UI.Threshold>
+  <RSR.UI.TotalStockOverCapacity>目标库存总数超过货柜共享容量</RSR.UI.TotalStockOverCapacity>
+  <RSR.UI.TotalWaste>累计损耗</RSR.UI.TotalWaste>
+  <RSR.UI.UnitPrice>单价</RSR.UI.UnitPrice>
+  <RSR.UI.Unpaid>待收款</RSR.UI.Unpaid>
+  <RSR.UI.UnpoweredCoolingHint>供电中断 · 食品按环境温度腐坏。</RSR.UI.UnpoweredCoolingHint>
+  <RSR.UI.UsePreferences>按顾客偏好选择菜品</RSR.UI.UsePreferences>
+  <RSR.UI.WaitingCheckout>用餐完成，等待框架收银付款</RSR.UI.WaitingCheckout>
+  <RSR.UI.WaitingDelivery>等待服务员及可达的取餐、交付位置</RSR.UI.WaitingDelivery>
+  <RSR.UI.WaitingKitchen>等待厨师、灶台与足量可预约食材</RSR.UI.WaitingKitchen>
+  <RSR.UI.WaitingPassTransfer>等待厨师恢复已有成品的出餐运输</RSR.UI.WaitingPassTransfer>
+  <RSR.UI.WaitingReachableWaiter>等待能到达顾客旁的服务员</RSR.UI.WaitingReachableWaiter>
+  <RSR.UI.WaitingStaff>等待员工接单</RSR.UI.WaitingStaff>
+  <RSR.UI.WasteCost>累计损耗成本：{cost}</RSR.UI.WasteCost>
+</LanguageData>

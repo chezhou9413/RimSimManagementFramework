@@ -152,8 +152,8 @@ namespace SimManagementLib.SimService
 
             Building_CollectibleDisplayStand stand = provider as Building_CollectibleDisplayStand;
             int count = Mathf.Max(0, stand?.DisplayedCollectibleCount ?? 0);
-            string label = provider?.LabelCap ?? def?.DisplayLabel ?? "收藏品展台";
-            order.providerLabel = label + "（" + count + "件展品）";
+            string label = provider?.LabelCap ?? def?.DisplayLabel ?? SimTranslation.T("RSMF.Service.DisplayStand.FallbackLabel");
+            order.providerLabel = SimTranslation.T("RSMF.Service.DisplayStand.OrderLabel", (label).Named("label"), (count).Named("count"));
         }
 
         //在参观期间让顾客面向展台中心。

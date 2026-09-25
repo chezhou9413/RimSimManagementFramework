@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System.Collections.Generic;
 using RimSimRestaurantExtension.Conveyor.Rendering;
 using RimSimRestaurantExtension.Conveyor.Transport;
@@ -60,7 +61,7 @@ namespace RimSimRestaurantExtension.Conveyor.Placement
             var path = Prefix(cells);
             var plan = ConveyorPlacementPlanner.Plan(Map, path, placingRot);
             if (!ConveyorLinks.Valid(Map, plan))
-            { Messages.Message("普通传送带不支持多个上游入口。", MessageTypeDefOf.RejectInput, false); return; }
+            { Messages.Message(SimTranslation.T("RSR.Conveyor.MultipleInputs"), MessageTypeDefOf.RejectInput, false); return; }
             var old = placingRot;
             foreach (var pair in plan)
             {

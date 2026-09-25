@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System.Collections.Generic;
 using System.Linq;
 using RimSimRestaurantExtension.Buildings;
@@ -16,6 +17,7 @@ namespace RimSimRestaurantExtension.Tool
     {
         private static readonly Dictionary<Zone_Shop, (int tick, string issue)> snapshots =
             new Dictionary<Zone_Shop, (int, string)>();
+        private static LoadedLanguage snapshotLanguage;
 
         //清除跨游戏快照，职责是让新游戏和读档重新检查设施。
         public static void Reset()
@@ -26,8 +28,13 @@ namespace RimSimRestaurantExtension.Tool
         //取得短周期经营提示，职责是避免界面每帧遍历库存与路径，并支持手动刷新立即重算。
         public static string Snapshot(Zone_Shop shop, bool refresh = false)
         {
+            if (snapshotLanguage != LanguageDatabase.activeLanguage)
+            {
+                snapshots.Clear();
+                snapshotLanguage = LanguageDatabase.activeLanguage;
+            }
             int now = Find.TickManager?.TicksGame ?? 0;
-            if (shop == null) return "商店不存在";
+            if (shop == null) return SimTranslation.T("RSR.Issue.NoShop");
             if (!refresh && snapshots.TryGetValue(shop, out var cached) && now - cached.tick < 120) return cached.issue;
             string issue = CheckShop(shop, RestaurantOrderUtility.Settings?.GetOrCreate(shop.ID));
             snapshots[shop] = (now, issue);
@@ -38,22 +45,22 @@ namespace RimSimRestaurantExtension.Tool
         public static string CheckOrder(Zone_Shop shop, RestaurantOrder order)
         {
             Thing pass = RestaurantOrderCreationUtility.FindOrderCounter(shop);
-            if (!(pass is Building_RestaurantPass)) return "缺少接待与出餐台";
+            if (!(pass is Building_RestaurantPass)) return SimTranslation.T("RSR.Issue.NoPass");
             if (order.stockProduct)
             {
                 var menu = Inventory.RestaurantProductMenuUtility.StockMenus(shop).FirstOrDefault(m => m.sourceCabinet == order.sourceCabinet && m.MealDef == order.mealDef);
                 if (menu == null || !Inventory.RestaurantProductMenuUtility.Available(shop, menu, order.mealCount))
-                    return "柜中现货不足或服务员取货路线受阻";
+                    return SimTranslation.T("RSR.Issue.StockOrPickupBlocked");
                 bool delivery = shop.Map.mapPawns.AllPawnsSpawned.Any(pawn =>
                     RestaurantStaffAvailabilityUtility.IsAvailableNow(pawn)
                     && SimShopStaffApi.IsAssignedToWorkGiver(shop, pawn, DefOfRefs.RSR_WorkGiver_DeliverRestaurantOrder)
                     && pawn.CanReach(menu.sourceCabinet.InventoryInteractionTarget, menu.sourceCabinet.InventoryInteractionEndMode, Danger.Some)
                     && pawn.carryTracker.MaxStackSpaceEver(menu.MealDef) >= order.mealCount
                     && (!order.seatCell.IsValid || RestaurantDiningSpotUtility.TryFindDeliveryCell(pawn, order, out _)));
-                return delivery ? "" : "没有能从商品柜到达顾客旁的服务员";
+                return delivery ? "" : SimTranslation.T("RSR.Issue.NoCabinetWaiter");
             }
             var stoves = RestaurantCookingUtility.FindUsableStoves(shop, order);
-            if (stoves.Count == 0) return "没有兼容配方且可工作的灶台";
+            if (stoves.Count == 0) return SimTranslation.T("RSR.Issue.NoStove");
             bool cook = shop.Map.mapPawns.AllPawnsSpawned.Any(pawn =>
                 RestaurantStaffAvailabilityUtility.IsAvailableNow(pawn)
                 && SimShopStaffApi.IsAssignedToWorkGiver(shop, pawn, DefOfRefs.RSR_WorkGiver_CookRestaurantOrder)
@@ -62,36 +69,36 @@ namespace RimSimRestaurantExtension.Tool
                 && stoves.Any(stove => RestaurantCookingUtility.CanPawnCookOrderAt(pawn, stove, order)
                     && pawn.CanReach(stove, PathEndMode.InteractionCell, Danger.Some))
                 && RestaurantIngredientUtility.TryFindIngredientThingCounts(pawn, shop, order, out _, out _));
-            if (!cook) return "食材不足、被预约，或没有能取料并送到出餐台的厨师";
+            if (!cook) return SimTranslation.T("RSR.Issue.NoCookOrIngredients");
             bool waiter = shop.Map.mapPawns.AllPawnsSpawned.Any(pawn =>
                 RestaurantStaffAvailabilityUtility.IsAvailableNow(pawn)
                 && SimShopStaffApi.IsAssignedToWorkGiver(shop, pawn, DefOfRefs.RSR_WorkGiver_DeliverRestaurantOrder)
                 && pawn.CanReach(pass, PathEndMode.Touch, Danger.Some)
                 && (order.mealDef == null || pawn.carryTracker.MaxStackSpaceEver(order.mealDef) >= order.mealCount)
                 && (!order.seatCell.IsValid || RestaurantDiningSpotUtility.TryFindDeliveryCell(pawn, order, out _)));
-            return waiter ? "" : "没有能从出餐台到达顾客旁的服务员";
+            return waiter ? "" : SimTranslation.T("RSR.Issue.NoPassWaiter");
         }
 
         //检查店铺配置和至少一道可制作菜单，职责是不把单纯启用误报为可营业。
         public static string CheckShop(Zone_Shop shop, RestaurantShopSettings settings)
         {
-            if (shop?.Map == null) return "商店区域不可用";
-            if (settings?.enabled != true) return "餐厅已停用";
+            if (shop?.Map == null) return SimTranslation.T("RSR.Issue.ShopUnavailable");
+            if (settings?.enabled != true) return SimTranslation.T("RSR.Issue.RestaurantDisabled");
             if (!(RestaurantOrderCreationUtility.FindOrderCounter(shop) is Building_RestaurantPass))
-                return "缺少接待与出餐台";
+                return SimTranslation.T("RSR.Issue.NoPass");
             var registers = shop.Cells.SelectMany(cell => cell.GetThingList(shop.Map))
                 .OfType<Building_CashRegister>().Distinct().ToList();
-            if (registers.Count == 0) return "店内缺少收银台";
-            if (!registers.Any(register => register.IsManned)) return "当前没有在岗收银员";
+            if (registers.Count == 0) return SimTranslation.T("RSR.Issue.NoRegister");
+            if (!registers.Any(register => register.IsManned)) return SimTranslation.T("RSR.Issue.NoCashier");
             if (Conveyor.Dining.ConveyorDiningAvailability.HasOffer(shop)) return "";
             var menus = Inventory.RestaurantProductMenuUtility.AllMenus(shop, settings);
-            if (menus.Count == 0) return "没有启用的有效菜单";
-            string last = "没有可制作菜单";
+            if (menus.Count == 0) return SimTranslation.T("RSR.Issue.NoEnabledMenu");
+            string last = SimTranslation.T("RSR.Issue.NoCookableMenu");
             foreach (var menu in menus)
             {
                 if ((menu.IsStockProduct ? !Inventory.RestaurantProductMenuUtility.Available(shop, menu, menu.minCount) : !RestaurantIngredientUtility.HasIngredients(null, shop, menu, menu.minCount)))
                 {
-                    last = "食材不足：" + menu.DisplayLabel;
+                    last = SimTranslation.T("RSR.Issue.MenuIngredients", (menu.DisplayLabel).Named("dish"));
                     continue;
                 }
                 var preview = new RestaurantOrder
@@ -106,7 +113,7 @@ namespace RimSimRestaurantExtension.Tool
                     bool seats = shop.Map.mapPawns.AllPawnsSpawned.Any(pawn =>
                         RestaurantStaffAvailabilityUtility.IsAvailableNow(pawn)
                         && RestaurantDiningSpotUtility.TryFindDiningSpot(pawn, shop, out _, out _));
-                    return seats ? "" : "没有可用且可达的桌椅餐位";
+                    return seats ? "" : SimTranslation.T("RSR.Issue.NoSeats");
                 }
             }
             return last;
@@ -119,7 +126,7 @@ namespace RimSimRestaurantExtension.Tool
             if (!reason.NullOrEmpty()) return false;
             if (customer?.Map != shop.Map || customer.carryTracker.CarriedThing != null)
             {
-                reason = "顾客当前无法接收堂食餐品";
+                reason = SimTranslation.T("RSR.Issue.CustomerCannotDine");
                 return false;
             }
             bool checkout = shop.Cells.SelectMany(cell => cell.GetThingList(shop.Map))
@@ -127,17 +134,17 @@ namespace RimSimRestaurantExtension.Tool
                 .Any(register => register.IsManned && customer.CanReach(register, PathEndMode.Touch, Danger.Some));
             if (!checkout)
             {
-                reason = "顾客无法到达同店收银台";
+                reason = SimTranslation.T("RSR.Issue.CustomerCannotCheckout");
                 return false;
             }
             if (RestaurantOrderUtility.HasActiveCustomerOrder(customer, shop))
             {
-                reason = "顾客已有餐厅订单";
+                reason = SimTranslation.T("RSR.Issue.CustomerHasOrder");
                 return false;
             }
             if (!RestaurantDiningSpotUtility.TryFindDiningSpot(customer, shop, out IntVec3 seat, out Thing table))
             {
-                reason = "当前满座或顾客无法到达餐位";
+                reason = SimTranslation.T("RSR.Issue.SeatsFullOrBlocked");
                 return false;
             }
             var preview = new RestaurantOrder
@@ -149,7 +156,7 @@ namespace RimSimRestaurantExtension.Tool
                 return Conveyor.Dining.ConveyorDiningAvailability.CanServe(customer, shop, belt);
             if (!RestaurantStaffAvailabilityUtility.HasWaiterForOrder(shop, preview))
             {
-                reason = "服务员无法到达顾客旁";
+                reason = SimTranslation.T("RSR.Issue.WaiterCannotReach");
                 return false;
             }
             var settings = RestaurantOrderUtility.Settings.GetOrCreate(shop.ID);
@@ -157,7 +164,7 @@ namespace RimSimRestaurantExtension.Tool
                 Inventory.RestaurantProductMenuUtility.Accepts(customer, menu)
                 && menu.unitPrice * settings.priceMultiplier * menu.minCount <= SimShopCustomerApi.GetRemainingBudget(customer, shop)
                 && (menu.IsStockProduct ? Inventory.RestaurantProductMenuUtility.Available(shop, menu, menu.minCount, customer) : RestaurantIngredientUtility.HasIngredients(customer, shop, menu, menu.minCount)));
-            if (!affordable) reason = "没有预算与饮食条件允许的菜单";
+            if (!affordable) reason = SimTranslation.T("RSR.Issue.NoSuitableMenu");
             return affordable;
         }
     }

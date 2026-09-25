@@ -1,3 +1,4 @@
+using SimManagementLib.Tool;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,8 +26,8 @@ namespace RimSimRestaurantExtension.Conveyor.UI
             if (shown.Count == 0)
             {
                 RestaurantBusinessUiUtility.DrawEmpty(rect, draft.Count == 0
-                    ? "尚未配置上架食品\n添加餐厅菜谱或现成食品，厨师就会按目标补餐。"
-                    : "没有匹配的上架食品\n请调整或清空搜索条件。");
+                    ? SimTranslation.T("RSR.UI.ConveyorEmpty")
+                    : SimTranslation.T("RSR.UI.ConveyorNoMatch"));
                 return;
             }
             float width = Mathf.Max(850f, rect.width - 16f);
@@ -47,7 +48,7 @@ namespace RimSimRestaurantExtension.Conveyor.UI
         private void DrawRow(Rect rect, ConveyorStockRule rule, ConveyorLine line, List<ConveyorStockRule> draft, int index)
         {
             float[] widths = { 44f, rect.width - 542f, 88f, 88f, 96f, 142f, 84f };
-            string[] labels = { "启用", "食品与货源", "每盘件数", "目标盘数", "单件售价", "现存 / 补餐在途", "操作" };
+            string[] labels = { SimTranslation.T("RSR.UI.Enable"), SimTranslation.T("RSR.UI.FoodAndSource"), SimTranslation.T("RSR.UI.ItemsPerPlate"), SimTranslation.T("RSR.UI.TargetPlates"), SimTranslation.T("RSR.UI.PricePerItem"), SimTranslation.T("RSR.UI.StoredPending"), SimTranslation.T("RSR.UI.Actions") };
             bool header = rule == null;
             if (header) ShopUiVisualUtility.DrawTableHeaderBackground(rect);
             else ShopUiVisualUtility.DrawTableRowBackground(rect, index, rule.enabled);
@@ -68,7 +69,7 @@ namespace RimSimRestaurantExtension.Conveyor.UI
                     ShopUiVisualUtility.DrawCellLabel(new Rect(textX, cell.y + 6f, textWidth, h), rule.Label,
                         rule.enabled ? Color.white : RestaurantUiStyle.MutedText);
                     ShopUiVisualUtility.DrawCellLabel(new Rect(textX, cell.y + h + 8f, textWidth, h), Source(rule), RestaurantUiStyle.MutedText);
-                    TooltipHandler.TipRegion(cell, rule.Label + "\n" + Source(rule) + "\n整盘售价：" + (rule.price * rule.portions).ToString("F1"));
+                    TooltipHandler.TipRegion(cell, SimTranslation.T("RSR.UI.PlateTooltip", (rule.Label).Named("food"), (Source(rule)).Named("source"), ((rule.price * rule.portions).ToString("F1")).Named("price")));
                 }
                 else if (i == 2) Number(field, rule.id + "/portions", ref rule.portions, 1, rule.Food?.stackLimit ?? 1);
                 else if (i == 3) Number(field, rule.id + "/target", ref rule.target, 0, line.segments.Count);
@@ -81,13 +82,13 @@ namespace RimSimRestaurantExtension.Conveyor.UI
                 }
                 else if (i == 5) ShopUiVisualUtility.DrawCellLabel(field,
                     line.Count(rule.id) + " / " + ConveyorStockPlanner.Pending(line, rule.id));
-                else if (RestaurantUiStyle.DrawDangerButton(field, "移除")) draft.Remove(rule);
+                else if (RestaurantUiStyle.DrawDangerButton(field, SimTranslation.T("RSR.UI.Remove"))) draft.Remove(rule);
             }
         }
 
         //显示食品来源，职责是让制作与搬运分支拥有清晰可读的名称。
         private static string Source(ConveyorStockRule rule) =>
-            rule.menu != null ? "菜谱 · 厨房制作" : rule.cabinet != null ? "现货 · " + rule.cabinet.LabelCap : "现货 · 店内储存架";
+            rule.menu != null ? SimTranslation.T("RSR.UI.KitchenRecipe") : rule.cabinet != null ? SimTranslation.T("RSR.UI.CabinetSource", (rule.cabinet.LabelCap.ToString()).Named("cabinet")) : SimTranslation.T("RSR.UI.ShelfStock");
 
         //保留数字输入缓冲，职责是避免重绘覆盖正在编辑的数量。
         private void Number(Rect rect, string key, ref int value, int minimum, int maximum)
