@@ -9,4 +9,13 @@
         </value>
     </Operation>
 
+    <Operation Class="PatchOperationAdd" MayRequire="Ludeon.RimWorld.Biotech">
+        <xpath>/Defs/RecipeDef[defName="ResurrectLightMech"]/fixedIngredientFilter/thingDefs</xpath>
+        <value>
+            <li>Corpse_RSMF_Mech_Restorer</li>
+            <li>Corpse_RSMF_Mech_Service</li>
+        </value>
+    </Operation>
+
+
 </Patch>
