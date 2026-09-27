@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.Business.Extensions.Official>Official extensions</RSMF.Business.Extensions.Official>
+  <RSMF.Business.Extensions.Community>Community extensions</RSMF.Business.Extensions.Community>
+  <RSMF.Business.Extensions.PageSummary>{checked}/{total} installed or subscribed on this page. Open a Steam page to view and subscribe.</RSMF.Business.Extensions.PageSummary>
+  <RSMF.Business.Extensions.Item.Restaurant.Label>RimSMF:Restaurant</RSMF.Business.Extensions.Item.Restaurant.Label>
+  <RSMF.Business.Extensions.Item.Restaurant.Description>The official restaurant extension adds customer orders, cooking, table service and checkout, with menus, kitchen stock and conveyor dining.</RSMF.Business.Extensions.Item.Restaurant.Description>
+</LanguageData>

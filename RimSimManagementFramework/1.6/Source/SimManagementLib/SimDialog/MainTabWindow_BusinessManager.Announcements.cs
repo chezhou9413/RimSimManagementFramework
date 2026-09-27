@@ -12,7 +12,6 @@ namespace SimManagementLib.SimDialog
         //绘制内置公告页，负责展示已读历史并提供手动检查入口。
         private void DrawAnnouncementsPage(Rect rect)
         {
-            AnnouncementClientState.Tick();
             GameFont oldFont = Text.Font;
             TextAnchor oldAnchor = Text.Anchor;
             bool oldWordWrap = Text.WordWrap;
@@ -40,7 +39,7 @@ namespace SimManagementLib.SimDialog
             Rect inner = rect.ContractedBy(8f);
             float buttonWidth = 140f;
             Rect buttonRect = new Rect(inner.x, inner.y + (inner.height - 32f) / 2f, buttonWidth, 32f);
-            bool canClick = !AnnouncementClientState.IsChecking();
+            bool canClick = !Find.WindowStack.IsOpen<Dialog_Announcements>();
             if (SimUiStyle.DrawSecondaryButton(buttonRect, SimTranslation.T("RSMF.Announcement.CheckNow"), canClick, GameFont.Small))
                 AnnouncementClientState.TryManualCheck();
 

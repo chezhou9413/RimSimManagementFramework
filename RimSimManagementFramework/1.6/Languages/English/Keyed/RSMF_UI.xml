@@ -1083,8 +1083,8 @@
   <RSMF.ShopUi.Page.Main.Staff.Label>Staff</RSMF.ShopUi.Page.Main.Staff.Label>
   <RSMF.ShopUi.Page.Main.Staff.Description>Business manager page for shop staff.</RSMF.ShopUi.Page.Main.Staff.Description>
   <RSMF.Announcement.PopupTitle>Business announcements</RSMF.Announcement.PopupTitle>
-  <RSMF.Announcement.CheckNow>Check now</RSMF.Announcement.CheckNow>
-  <RSMF.Announcement.HistoryEmpty>No read announcements yet. New announcements found online are saved here for offline viewing.</RSMF.Announcement.HistoryEmpty>
+  <RSMF.Announcement.CheckNow>Check local notices</RSMF.Announcement.CheckNow>
+  <RSMF.Announcement.HistoryEmpty>No read announcements yet. Local announcements are saved here after they appear.</RSMF.Announcement.HistoryEmpty>
   <RSMF.Announcement.EmptyUnread>No new announcements.</RSMF.Announcement.EmptyUnread>
   <RSMF.Announcement.Untitled>Untitled announcement</RSMF.Announcement.Untitled>
   <RSMF.Announcement.EmptyBody>This announcement has no content.</RSMF.Announcement.EmptyBody>
@@ -1092,11 +1092,9 @@
   <RSMF.Announcement.Meta.Published>Published: {time}</RSMF.Announcement.Meta.Published>
   <RSMF.Announcement.Meta.Read>Read: {time}</RSMF.Announcement.Meta.Read>
   <RSMF.Announcement.Meta.PublishedAndRead>Published: {published} · read: {read}</RSMF.Announcement.Meta.PublishedAndRead>
-  <RSMF.Announcement.Status.Idle>Announcements are checked once when the business manager opens.</RSMF.Announcement.Status.Idle>
-  <RSMF.Announcement.Status.Checking>Checking for new announcements...</RSMF.Announcement.Status.Checking>
-  <RSMF.Announcement.Status.Waiting>Announcements cannot be checked right now. Try again later.</RSMF.Announcement.Status.Waiting>
-  <RSMF.Announcement.Status.NoNew>No unread announcements.</RSMF.Announcement.Status.NoNew>
-  <RSMF.Announcement.Status.NewRead>New announcements were added to read history.</RSMF.Announcement.Status.NewRead>
+  <RSMF.Announcement.Status.Idle>Local announcements are checked in the main menu and when the business manager opens.</RSMF.Announcement.Status.Idle>
+  <RSMF.Announcement.Status.NoNew>No unread local announcements.</RSMF.Announcement.Status.NoNew>
+  <RSMF.Announcement.Status.NewRead>Local announcements were displayed and saved to history.</RSMF.Announcement.Status.NewRead>
 
   <RSMF.Business.Tutorial.Empty>No tutorials are configured.</RSMF.Business.Tutorial.Empty>
   <RSMF.Business.Tutorial.ImageMissing>Image not found</RSMF.Business.Tutorial.ImageMissing>

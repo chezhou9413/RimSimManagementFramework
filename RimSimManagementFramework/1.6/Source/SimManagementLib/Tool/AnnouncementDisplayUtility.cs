@@ -5,17 +5,12 @@ using Verse;
 
 namespace SimManagementLib.Tool
 {
-    /// <summary>
-    /// 提供公告 UI 的通用格式化和测量方法，负责让弹窗与历史页保持一致布局。
-    /// </summary>
+    //提供公告 UI 的通用格式化和测量方法，负责让弹窗与历史页保持一致布局。
     public static class AnnouncementDisplayUtility
     {
         private const float CardPadding = 10f;
         private const float CardGap = 10f;
-
-        /// <summary>
-        /// 格式化公告时间，负责把后端 ISO 时间转换成本机短时间文本。
-        /// </summary>
+        //格式化公告时间，负责把公告 ISO 时间转换成本机短时间文本。
         public static string FormatDisplayTime(string rawTime)
         {
             if (string.IsNullOrWhiteSpace(rawTime))
@@ -26,58 +21,40 @@ namespace SimManagementLib.Tool
 
             return StringEncodingUtility.SanitizeUtf16(rawTime);
         }
-
-        /// <summary>
-        /// 计算联网公告卡片高度，负责为滚动区域提供准确 viewRect 高度。
-        /// </summary>
-        public static float CalcNetworkCardHeight(AnnouncementNetworkItemData item, float width)
+        //计算本地公告卡片高度，负责为滚动区域提供准确 viewRect 高度。
+        public static float CalcAnnouncementCardHeight(AnnouncementItemData item, float width)
         {
             string title = string.IsNullOrWhiteSpace(item?.title) ? SimTranslation.TOrFallback("RSMF.Announcement.Untitled", "Untitled") : item.title;
             string body = string.IsNullOrWhiteSpace(item?.body) ? SimTranslation.TOrFallback("RSMF.Announcement.EmptyBody", "No content.") : item.body;
             return CalcCardHeight(title, BuildPublishedMeta(item?.publishedAt), body, width);
         }
-
-        /// <summary>
-        /// 计算已读公告卡片高度，负责为历史滚动区域提供准确 viewRect 高度。
-        /// </summary>
+        //计算已读公告卡片高度，负责为历史滚动区域提供准确 viewRect 高度。
         public static float CalcHistoryCardHeight(AnnouncementReadRecord record, float width)
         {
             string title = string.IsNullOrWhiteSpace(record?.title) ? SimTranslation.TOrFallback("RSMF.Announcement.Untitled", "Untitled") : record.title;
             string body = string.IsNullOrWhiteSpace(record?.body) ? SimTranslation.TOrFallback("RSMF.Announcement.EmptyBody", "No content.") : record.body;
             return CalcCardHeight(title, BuildHistoryMeta(record), body, width);
         }
-
-        /// <summary>
-        /// 绘制联网公告卡片，负责在弹窗中展示标题、发布时间和正文。
-        /// </summary>
-        public static void DrawNetworkCard(Rect rect, AnnouncementNetworkItemData item, Color panelColor, Color dimColor)
+        //绘制本地公告卡片，负责在弹窗中展示标题、发布时间和正文。
+        public static void DrawAnnouncementCard(Rect rect, AnnouncementItemData item, Color panelColor, Color dimColor)
         {
             string title = string.IsNullOrWhiteSpace(item?.title) ? SimTranslation.TOrFallback("RSMF.Announcement.Untitled", "Untitled") : item.title;
             string body = string.IsNullOrWhiteSpace(item?.body) ? SimTranslation.TOrFallback("RSMF.Announcement.EmptyBody", "No content.") : item.body;
             DrawCard(rect, title, BuildPublishedMeta(item?.publishedAt), body, panelColor, dimColor);
         }
-
-        /// <summary>
-        /// 绘制已读公告卡片，负责在历史页展示本机保存的公告快照。
-        /// </summary>
+        //绘制已读公告卡片，负责在历史页展示本机保存的公告快照。
         public static void DrawHistoryCard(Rect rect, AnnouncementReadRecord record, Color panelColor, Color dimColor)
         {
             string title = string.IsNullOrWhiteSpace(record?.title) ? SimTranslation.TOrFallback("RSMF.Announcement.Untitled", "Untitled") : record.title;
             string body = string.IsNullOrWhiteSpace(record?.body) ? SimTranslation.TOrFallback("RSMF.Announcement.EmptyBody", "No content.") : record.body;
             DrawCard(rect, title, BuildHistoryMeta(record), body, panelColor, dimColor);
         }
-
-        /// <summary>
-        /// 返回公告卡片之间的间距，负责让外部滚动布局使用一致间距。
-        /// </summary>
+        //返回公告卡片之间的间距，负责让外部滚动布局使用一致间距。
         public static float Gap()
         {
             return CardGap;
         }
-
-        /// <summary>
-        /// 计算通用公告卡片高度，负责根据标题、元信息和正文动态测量。
-        /// </summary>
+        //计算通用公告卡片高度，负责根据标题、元信息和正文动态测量。
         private static float CalcCardHeight(string title, string meta, string body, float width)
         {
             float textWidth = Mathf.Max(80f, width - CardPadding * 2f);
@@ -100,10 +77,7 @@ namespace SimManagementLib.Tool
                 Text.WordWrap = oldWordWrap;
             }
         }
-
-        /// <summary>
-        /// 绘制通用公告卡片，负责按测量高度排布标题、元信息和正文。
-        /// </summary>
+        //绘制通用公告卡片，负责按测量高度排布标题、元信息和正文。
         private static void DrawCard(Rect rect, string title, string meta, string body, Color panelColor, Color dimColor)
         {
             GameFont oldFont = Text.Font;
@@ -142,10 +116,7 @@ namespace SimManagementLib.Tool
                 GUI.color = oldColor;
             }
         }
-
-        /// <summary>
-        /// 构建公告发布时间文本，负责在无时间时给出兜底元信息。
-        /// </summary>
+        //构建公告发布时间文本，负责在无时间时给出兜底元信息。
         private static string BuildPublishedMeta(string publishedAt)
         {
             string time = FormatDisplayTime(publishedAt);
@@ -153,10 +124,7 @@ namespace SimManagementLib.Tool
                 ? SimTranslation.TOrFallback("RSMF.Announcement.Meta.NoTime", "Published")
                 : SimTranslation.T("RSMF.Announcement.Meta.Published", time.Named("time"));
         }
-
-        /// <summary>
-        /// 构建历史公告元信息，负责同时展示发布时间和读取时间。
-        /// </summary>
+        //构建历史公告元信息，负责同时展示发布时间和读取时间。
         private static string BuildHistoryMeta(AnnouncementReadRecord record)
         {
             string published = FormatDisplayTime(record?.publishedAt);

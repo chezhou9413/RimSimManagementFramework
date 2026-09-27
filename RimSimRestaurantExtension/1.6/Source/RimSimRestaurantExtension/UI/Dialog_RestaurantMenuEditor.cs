@@ -136,14 +136,14 @@ namespace RimSimRestaurantExtension.UI
                 .SelectMany(recipe => recipe.ingredients.SelectMany(slot => slot.filter.AllowedThingDefs
                     .Where(food => slot.IsFixedIngredient || recipe.fixedIngredientFilter.Allows(food))))
                 .Distinct().OrderBy(food => food.label).ToList();
-            var options = allowed.Select(food => new FloatMenuOption(food.LabelCap, () =>
+            if (allowed.Count == 0) { error = SimTranslation.T("RSR.UI.NoRecipeIngredients"); return; }
+            Find.WindowStack.Add(new Dialog_SelectRestaurantFood(food =>
             {
                 var target = ingredient ?? new RestaurantIngredientRequirement();
                 target.thingDefName = food.defName;
                 if (ingredient == null) draft.ingredients.Add(target);
-            })).ToList();
-            if (options.Count == 0) { error = SimTranslation.T("RSR.UI.NoRecipeIngredients"); return; }
-            Find.WindowStack.Add(new FloatMenu(options));
+                error = "";
+            }, allowed));
         }
 
         //校验编辑结果，职责是拒绝非法数字和无法满足同一个生产配方的食材组合。

@@ -12,7 +12,7 @@ namespace RimSimRestaurantExtension.UI
         public static float Height => Mathf.Max(48f, RestaurantUiStyle.LineHeight(GameFont.Small) * 2f + 4f) + 16f;
 
         //绘制可选择的食品条目，职责是保留长名称提示并按实际中文行高定位摘要。
-        public static bool Draw(Rect rect, ThingDef food, int index)
+        public static bool Draw(Rect rect, ThingDef food, int index, bool ingredient = false)
         {
             using (new RestaurantGuiScope())
             {
@@ -24,7 +24,8 @@ namespace RimSimRestaurantExtension.UI
                 float line = RestaurantUiStyle.LineHeight(GameFont.Small);
                 ShopUiVisualUtility.DrawCellLabel(new Rect(x, rect.y + 8f, width, line), food.LabelCap);
                 ShopUiVisualUtility.DrawCellLabel(new Rect(x, rect.y + line + 12f, width, line),
-                    RestaurantFoodUtility.BuildFoodSummary(food), RestaurantUiStyle.MutedText);
+                    ingredient ? RestaurantFoodModFilter.SourceName(food.modContentPack) + " · " + food.defName
+                        : RestaurantFoodUtility.BuildFoodSummary(food), RestaurantUiStyle.MutedText);
                 return RestaurantUiStyle.DrawPrimaryButton(button, SimTranslation.T("RSR.UI.Select"))
                     || Widgets.ButtonInvisible(new Rect(rect.x, rect.y, button.x - rect.x - 4f, rect.height), false);
             }

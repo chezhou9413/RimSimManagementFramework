@@ -1,3 +1,4 @@
+using SimManagementLib.Api;
 using SimManagementLib.Pojo;
 using SimManagementLib.Tool;
 using System.Collections.Generic;
@@ -6,73 +7,117 @@ using Verse;
 
 namespace SimManagementLib.SimDialog
 {
-    //展示未读公告弹窗，负责一次性呈现本次联网发现的新公告。
+    //展示本地公告，职责是分页呈现简介、截图和工坊入口并记录实际展示的公告。
     public sealed class Dialog_Announcements : Window
     {
-        private readonly List<AnnouncementNetworkItemData> announcements;
+        private readonly List<AnnouncementItemData> announcements;
+        private AnnouncementScreenshotGallery gallery;
         private Vector2 scrollPos;
-        //初始化公告弹窗，负责复制公告列表并配置标准关闭按钮。
-        public Dialog_Announcements(List<AnnouncementNetworkItemData> announcements)
+        private int page;
+
+        //初始化公告窗口，职责是复制本次未读列表并配置关闭与输入行为。
+        public Dialog_Announcements(List<AnnouncementItemData> announcements)
         {
-            this.announcements = announcements ?? new List<AnnouncementNetworkItemData>();
+            this.announcements = new List<AnnouncementItemData>(announcements);
             doCloseX = true;
-            doCloseButton = true;
-            closeOnAccept = true;
+            closeOnAccept = false;
             closeOnCancel = true;
-            absorbInputAroundWindow = false;
-            optionalTitle = SimTranslation.T("RSMF.Announcement.PopupTitle");
+            absorbInputAroundWindow = true;
         }
 
-        public override Vector2 InitialSize => new Vector2(760f, 560f);
-        //绘制公告弹窗内容，负责用滚动区域避免长正文裁剪到底部关闭按钮。
+        public override Vector2 InitialSize => new Vector2(Mathf.Min(960f, UI.screenWidth - 48f), Mathf.Min(790f, UI.screenHeight - 48f));
+
+        //在窗口成功打开后展示第一页，职责是只将玩家实际打开的公告记为已读。
+        public override void PostOpen()
+        {
+            base.PostOpen();
+            ShowPage(0);
+        }
+
+        //切换当前公告，职责是清理滚动和截图选择状态并持久化当前条目的已读标识。
+        private void ShowPage(int index)
+        {
+            page = index;
+            scrollPos = Vector2.zero;
+            gallery = new AnnouncementScreenshotGallery(announcements[page].screenshotPaths);
+            AnnouncementClientState.MarkAsRead(new List<AnnouncementItemData> { announcements[page] });
+        }
+
+        //绘制公告界面，职责是为标题、正文画廊和固定操作栏保留空间并恢复绘制状态。
         public override void DoWindowContents(Rect inRect)
         {
             GameFont oldFont = Text.Font;
             TextAnchor oldAnchor = Text.Anchor;
-            bool oldWordWrap = Text.WordWrap;
+            bool oldWrap = Text.WordWrap;
             Color oldColor = GUI.color;
             try
             {
-                Rect bodyRect = new Rect(inRect.x, inRect.y, inRect.width, Mathf.Max(1f, inRect.height - Window.FooterRowHeight));
-                DrawAnnouncementList(bodyRect);
+                Text.Font = GameFont.Small;
+                Text.Anchor = TextAnchor.UpperLeft;
+                Text.WordWrap = true;
+                GUI.color = Color.white;
+                AnnouncementItemData item = announcements[page];
+                string hint = SimTranslation.T(item.popupOnce ? "RSMF.Announcement.OnceHint" : "RSMF.Announcement.PopupTitle");
+                float top = ShopUiVisualUtility.DrawPageHeading(inRect, item.title, hint, true);
+                float control = ShopUiVisualUtility.ControlHeight();
+                float footerHeight = control + (announcements.Count > 1 ? control + 8f : 0f);
+                Rect body = new Rect(inRect.x, inRect.y + top, inRect.width,
+                    Mathf.Max(0f, inRect.height - top - footerHeight - 12f));
+                DrawBody(body, item);
+                DrawFooter(new Rect(inRect.x, inRect.yMax - footerHeight, inRect.width, footerHeight), item, control);
             }
             finally
             {
                 Text.Font = oldFont;
                 Text.Anchor = oldAnchor;
-                Text.WordWrap = oldWordWrap;
+                Text.WordWrap = oldWrap;
                 GUI.color = oldColor;
             }
         }
-        //绘制公告列表，负责按正文实际高度创建滚动视图。
-        private void DrawAnnouncementList(Rect rect)
+
+        //绘制公告正文与本地截图，职责是按真实文本高度滚动显示内容并保持底部按钮可见。
+        private void DrawBody(Rect rect, AnnouncementItemData item)
         {
-            if (announcements.NullOrEmpty())
+            float width = Mathf.Max(1f, rect.width - 18f);
+            float introHeight = Text.CalcHeight(item.body, width - 24f) + 24f;
+            float galleryHeight = gallery.Height(width);
+            Rect view = new Rect(0f, 0f, width, Mathf.Max(rect.height, introHeight + 12f + galleryHeight));
+            Widgets.BeginScrollView(rect, ref scrollPos, view);
+            try
             {
-                Text.Anchor = TextAnchor.MiddleCenter;
-                Text.Font = GameFont.Small;
-                Text.WordWrap = true;
-                GUI.color = Color.white;
-                Widgets.Label(rect, SimTranslation.T("RSMF.Announcement.EmptyUnread"));
-                return;
+                Rect intro = new Rect(0f, 0f, width, introHeight);
+                ShopUiVisualUtility.DrawSection(intro);
+                Widgets.Label(intro.ContractedBy(12f), item.body);
+                gallery.Draw(new Rect(0f, intro.yMax + 12f, width, galleryHeight));
+            }
+            finally { Widgets.EndScrollView(); }
+        }
+
+        //绘制固定操作栏，职责是提供关闭、公告翻页和前往工坊订阅的明确入口。
+        private void DrawFooter(Rect rect, AnnouncementItemData item, float control)
+        {
+            if (announcements.Count > 1)
+            {
+                if (ShopUiVisualUtility.DrawSecondaryButton(new Rect(rect.x, rect.y, 120f, control),
+                    SimTranslation.T("RSMF.Announcement.Previous"), page > 0))
+                    ShowPage(page - 1);
+                if (ShopUiVisualUtility.DrawSecondaryButton(new Rect(rect.xMax - 120f, rect.y, 120f, control),
+                    SimTranslation.T("RSMF.Announcement.Next"), page < announcements.Count - 1))
+                    ShowPage(page + 1);
+                ShopUiVisualUtility.DrawCellLabel(new Rect(rect.x + 132f, rect.y, rect.width - 264f, control),
+                    SimTranslation.T("RSMF.Announcement.Page", (page + 1).Named("page"), announcements.Count.Named("count")));
             }
 
-            float viewWidth = Mathf.Max(1f, rect.width - 18f);
-            float totalHeight = AnnouncementDisplayUtility.Gap();
-            for (int i = 0; i < announcements.Count; i++)
-                totalHeight += AnnouncementDisplayUtility.CalcNetworkCardHeight(announcements[i], viewWidth) + AnnouncementDisplayUtility.Gap();
+            float buttonWidth = Mathf.Min(240f, (rect.width - 12f) / 2f);
+            float y = rect.yMax - control;
+            if (ShopUiVisualUtility.DrawSecondaryButton(new Rect(rect.x, y, buttonWidth, control),
+                SimTranslation.T("RSMF.Announcement.Close")))
+                Close();
 
-            Rect viewRect = new Rect(0f, 0f, viewWidth, Mathf.Max(rect.height, totalHeight));
-            Widgets.BeginScrollView(rect, ref scrollPos, viewRect);
-            float y = AnnouncementDisplayUtility.Gap();
-            for (int i = 0; i < announcements.Count; i++)
-            {
-                float height = AnnouncementDisplayUtility.CalcNetworkCardHeight(announcements[i], viewWidth);
-                Rect cardRect = new Rect(0f, y, viewWidth, height);
-                AnnouncementDisplayUtility.DrawNetworkCard(cardRect, announcements[i], new Color(1f, 1f, 1f, 0.06f), new Color(0.72f, 0.72f, 0.72f, 1f));
-                y += height + AnnouncementDisplayUtility.Gap();
-            }
-            Widgets.EndScrollView();
+            if (!string.IsNullOrWhiteSpace(item.workshopUrl)
+                && ShopUiVisualUtility.DrawPrimaryButton(new Rect(rect.xMax - buttonWidth, y, buttonWidth, control),
+                    SimTranslation.T("RSMF.Announcement.Subscribe")))
+                BusinessExtensionRecommendationUtility.OpenWorkshopUrl(item.workshopUrl);
         }
     }
 }

@@ -10,11 +10,14 @@ using Verse;
 
 namespace RimSimRestaurantExtension.UI
 {
-    //显示餐厅菜单餐品选择器，职责是搜索所有存在普通制作配方的原版及模组餐品。
+    //显示餐厅食品选择器，职责是按名称、品质及模组筛选餐品或配方允许的食材。
     public class Dialog_SelectRestaurantFood : Window
     {
         private static float RowHeight => RestaurantFoodRow.Height;
         private readonly Action<ThingDef> onSelected;
+        private readonly List<ThingDef> candidates;
+        private readonly RestaurantFoodModFilter modFilter;
+        private readonly bool selectingIngredient;
         private Vector2 scrollPosition;
         private string search = "";
         private MealTier tier = MealTier.All;
@@ -23,20 +26,29 @@ namespace RimSimRestaurantExtension.UI
         private MealTier filteredTier;
 
         public override Vector2 InitialSize => new Vector2(
-            Mathf.Min(780f, Mathf.Max(420f, Verse.UI.screenWidth - 80f)),
-            Mathf.Min(650f, Mathf.Max(420f, Verse.UI.screenHeight - 100f)));
+            Mathf.Min(980f, Verse.UI.screenWidth - 48f),
+            Mathf.Min(720f, Verse.UI.screenHeight - 48f));
 
         //创建餐品选择窗口，职责是保存选择回调并启用标准关闭行为。
         public Dialog_SelectRestaurantFood(Action<ThingDef> onSelected)
+            : this(onSelected, null)
+        {
+        }
+
+        //建立候选快照，职责是让食材选择遵守调用者的配方限制并共用食品浏览界面。
+        public Dialog_SelectRestaurantFood(Action<ThingDef> onSelected, IEnumerable<ThingDef> allowedIngredients)
         {
             this.onSelected = onSelected;
+            selectingIngredient = allowedIngredients != null;
+            candidates = (allowedIngredients ?? RestaurantFoodUtility.AllMenuFoods()).Distinct().ToList();
+            modFilter = new RestaurantFoodModFilter(candidates);
             doCloseX = true;
-            closeOnClickedOutside = true;
+            closeOnAccept = false;
             absorbInputAroundWindow = true;
             forcePause = false;
         }
 
-        //绘制窗口内容，职责是按安全控件高度分配搜索、品质筛选和滚动列表。
+        //绘制窗口内容，职责是为来源侧栏、搜索、品质筛选和取消按钮保留独立空间。
         public override void DoWindowContents(Rect inRect)
         {
             GameFont oldFont = Text.Font;
@@ -55,19 +67,27 @@ namespace RimSimRestaurantExtension.UI
                 float controlHeight = RestaurantUiStyle.ControlHeight();
                 Rect searchRect = new Rect(inner.x, inner.y + titleHeight + 8f, inner.width, controlHeight);
                 DrawSearch(searchRect);
-                Rect filterRect = new Rect(inner.x, searchRect.yMax + 6f, inner.width, controlHeight);
-                DrawFilters(filterRect);
+                float bodyTop = searchRect.yMax + 8f;
+                float footerTop = inner.yMax - controlHeight;
+                float sourceWidth = Mathf.Min(250f, inner.width * 0.32f);
+                Rect sourceRect = new Rect(inner.x, bodyTop, sourceWidth, Mathf.Max(0f, footerTop - bodyTop - 8f));
+                if (modFilter.Draw(sourceRect)) InvalidateFilter();
+                Rect results = new Rect(sourceRect.xMax + 10f, bodyTop, inner.width - sourceWidth - 10f, sourceRect.height);
+                float contentTop = results.y;
+                if (!selectingIngredient)
+                {
+                    DrawFilters(new Rect(results.x, contentTop, results.width, controlHeight));
+                    contentTop += controlHeight + 6f;
+                }
                 List<ThingDef> foods = GetFilteredFoods();
-                float countHeight = RestaurantUiStyle.LineHeight(GameFont.Tiny);
-                Rect countRect = new Rect(inner.x, filterRect.yMax + 6f, inner.width, countHeight);
-                Text.Font = GameFont.Tiny;
-                GUI.color = RestaurantUiStyle.MutedText;
-                ShopUiVisualUtility.DrawCellLabel(countRect, SimTranslation.T("RSR.UI.AvailableDishes", (foods.Count).Named("count")));
-                Rect listRect = new Rect(inner.x, countRect.yMax + 4f, inner.width,
-                    Mathf.Max(0f, inner.yMax - countRect.yMax - 4f));
-                GUI.color = Color.white;
+                float countHeight = RestaurantUiStyle.LineHeight(GameFont.Small);
+                Rect countRect = new Rect(results.x, contentTop, results.width, countHeight);
+                ShopUiVisualUtility.DrawCellLabel(countRect, SimTranslation.T("RSR.UI.AvailableFoods", foods.Count.Named("count")), RestaurantUiStyle.MutedText);
+                Rect listRect = new Rect(results.x, countRect.yMax + 4f, results.width,
+                    Mathf.Max(0f, results.yMax - countRect.yMax - 4f));
                 ShopUiVisualUtility.DrawSection(listRect);
                 DrawFoodList(listRect, foods);
+                if (RestaurantUiStyle.DrawSecondaryButton(new Rect(inner.x, footerTop, 100f, controlHeight), SimTranslation.T("RSR.UI.Cancel"))) Close();
             }
             finally
             {
@@ -78,17 +98,18 @@ namespace RimSimRestaurantExtension.UI
             }
         }
 
-        //绘制标题说明，职责是动态测量中文副标题并说明配方限制。
-        private static float DrawTitle(Rect rect)
+        //绘制标题说明，职责是区分菜单产物和受配方限制的食材选择。
+        private float DrawTitle(Rect rect)
         {
-            return ShopUiVisualUtility.DrawPageHeading(rect, SimTranslation.T("RSR.UI.SelectMenuFood"),
-                SimTranslation.T("RSR.UI.SelectMenuFoodHint"), true);
+            return ShopUiVisualUtility.DrawPageHeading(rect,
+                SimTranslation.T(selectingIngredient ? "RSR.UI.SelectIngredient" : "RSR.UI.SelectMenuFood"),
+                SimTranslation.T(selectingIngredient ? "RSR.UI.SelectIngredientHint" : "RSR.UI.SelectMenuFoodHint"), true);
         }
 
         //绘制搜索栏，职责是支持标签、DefName 和来源模组并提供清空入口。
         private void DrawSearch(Rect rect)
         {
-            string next = ShopUiVisualUtility.DrawSearchField(rect, search, SimTranslation.T("RSR.UI.SearchMenuFood"));
+            string next = ShopUiVisualUtility.DrawSearchField(rect, search, SimTranslation.T("RSR.UI.SearchFoodSelection"));
             if (next != search) { search = next; InvalidateFilter(); }
         }
 
@@ -121,7 +142,7 @@ namespace RimSimRestaurantExtension.UI
                 Text.Font = GameFont.Small;
                 Text.Anchor = TextAnchor.MiddleCenter;
                 GUI.color = RestaurantUiStyle.MutedText;
-                Widgets.Label(rect.ContractedBy(12f), SimTranslation.T("RSR.UI.NoMenuFood") );
+                Widgets.Label(rect.ContractedBy(12f), SimTranslation.T("RSR.UI.NoFoodSelectionMatch"));
                 Text.Anchor = TextAnchor.UpperLeft;
                 GUI.color = Color.white;
                 return;
@@ -131,11 +152,13 @@ namespace RimSimRestaurantExtension.UI
             Widgets.BeginScrollView(rect, ref scrollPosition, viewRect);
             try
             {
-                float y = 0f;
-                for (int i = 0; i < foods.Count; i++)
+                //只绘制可见行，职责是避免大型食品模组列表逐帧绘制全部图标。
+                float stride = RowHeight + 5f;
+                int first = Mathf.Max(0, Mathf.FloorToInt(scrollPosition.y / stride));
+                int last = Mathf.Min(foods.Count, Mathf.CeilToInt((scrollPosition.y + rect.height) / stride));
+                for (int i = first; i < last; i++)
                 {
-                    DrawFoodRow(new Rect(0f, y, viewWidth, RowHeight), foods[i]);
-                    y += RowHeight + 5f;
+                    DrawFoodRow(new Rect(0f, i * stride, viewWidth, RowHeight), foods[i], i);
                 }
             }
             finally
@@ -144,10 +167,10 @@ namespace RimSimRestaurantExtension.UI
             }
         }
 
-        //绘制单个餐品行，职责是显示图标、营养、来源、配方数量和明确选择按钮。
-        private void DrawFoodRow(Rect rect, ThingDef def)
+        //绘制单个食品行，职责是显示图标和来源并在选择后回写草稿、关闭选择窗口。
+        private void DrawFoodRow(Rect rect, ThingDef def, int index)
         {
-            if (!RestaurantFoodRow.Draw(rect, def, 0)) return;
+            if (!RestaurantFoodRow.Draw(rect, def, index, selectingIngredient)) return;
             onSelected?.Invoke(def);
             Close();
         }
@@ -159,8 +182,9 @@ namespace RimSimRestaurantExtension.UI
             if (filteredCache != null && filteredSearch == key && filteredTier == tier) return filteredCache;
             filteredSearch = key;
             filteredTier = tier;
-            filteredCache = RestaurantFoodUtility.AllMenuFoods()
-                .Where(def => MatchesTier(def) && RestaurantFoodUtility.MatchesSearch(def, key))
+            filteredCache = candidates
+                .Where(def => modFilter.Allows(def) && (selectingIngredient || MatchesTier(def))
+                    && RestaurantFoodUtility.MatchesSearch(def, key))
                 .ToList();
             return filteredCache;
         }
@@ -175,7 +199,7 @@ namespace RimSimRestaurantExtension.UI
             return true;
         }
 
-        //清理筛选缓存，职责是让搜索或品质变化立即刷新列表并回到顶部。
+        //清理筛选缓存，职责是让搜索、来源或品质变化立即刷新列表并回到顶部。
         private void InvalidateFilter()
         {
             filteredCache = null;

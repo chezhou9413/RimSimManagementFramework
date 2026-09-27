@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <SimManagementLib.SimDef.AnnouncementDef>
+    <defName>RSMF_Announcement_RestaurantRelease</defName>
+    <label>RimSMF:Restaurant is available now</label>
+    <description>Build a restaurant in your colony. Set menus and prices, assign cooks and servers, and welcome customers for table service or conveyor dining. Requires RimSimManagementFramework. Open the Steam page below to subscribe.</description>
+    <titleKey>RSMF.Announcement.Restaurant.Title</titleKey>
+    <bodyKey>RSMF.Announcement.Restaurant.Body</bodyKey>
+    <enabled>true</enabled>
+    <popupOnce>true</popupOnce>
+    <mainMenuOnly>true</mainMenuOnly>
+    <workshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3807662479</workshopUrl>
+    <screenshotPaths>
+      <li>UI/Announcements/RestaurantRelease/Dining</li>
+      <li>UI/Announcements/RestaurantRelease/Conveyor</li>
+      <li>UI/Announcements/RestaurantRelease/Overview</li>
+      <li>UI/Announcements/RestaurantRelease/Tutorial</li>
+    </screenshotPaths>
+    <revision>1</revision>
+    <order>100</order>
+    <publishedAt>2026-09-27T00:00:00+08:00</publishedAt>
+  </SimManagementLib.SimDef.AnnouncementDef>
+</Defs>

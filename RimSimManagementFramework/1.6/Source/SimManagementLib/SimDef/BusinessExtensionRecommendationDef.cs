@@ -4,9 +4,7 @@ using Verse;
 
 namespace SimManagementLib.SimDef
 {
-    /// <summary>
-    /// 提供推荐扩展展示和检测所需字段，负责让本地 Def 与服务端数据共用 UI 逻辑。
-    /// </summary>
+    //提供推荐扩展展示和检测所需字段，职责是统一推荐条目的 UI 数据接口。
     public interface IBusinessExtensionRecommendation
     {
         int Order { get; }
@@ -19,13 +17,11 @@ namespace SimManagementLib.SimDef
         string PreviewTexturePath { get; }
         string PreviewImageUrl { get; }
     }
-
-    /// <summary>
-    /// 声明经商管理推荐扩展，负责让 XML 配置扩展入口、检测条件和展示素材。
-    /// </summary>
+    //声明经商管理推荐扩展，职责是让 XML 配置官方分类、扩展入口、检测条件和展示素材。
     public class BusinessExtensionRecommendationDef : Def, IBusinessExtensionRecommendation
     {
         public int order;
+        public bool official;
         public string labelKey = "";
         public string descriptionKey = "";
         public List<string> packageIds = new List<string>();
@@ -41,10 +37,7 @@ namespace SimManagementLib.SimDef
         public string WorkshopUrl => workshopUrl;
         public string PreviewTexturePath => previewTexturePath;
         public string PreviewImageUrl => previewImageUrl;
-
-        /// <summary>
-        /// 返回扩展显示名称，负责优先使用翻译并在缺失时回退到 Def 标签。
-        /// </summary>
+        //返回扩展显示名称，负责优先使用翻译并在缺失时回退到 Def 标签。
         public string DisplayLabel
         {
             get
@@ -55,10 +48,7 @@ namespace SimManagementLib.SimDef
                 return SimTranslation.TOrFallback(labelKey, fallback);
             }
         }
-
-        /// <summary>
-        /// 返回扩展简介，负责优先使用翻译并在缺失时回退到 Def 描述。
-        /// </summary>
+        //返回扩展简介，负责优先使用翻译并在缺失时回退到 Def 描述。
         public string DisplayDescription
         {
             get

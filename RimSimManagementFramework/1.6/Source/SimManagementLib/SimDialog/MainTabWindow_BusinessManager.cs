@@ -94,6 +94,12 @@ namespace SimManagementLib.SimDialog
             base.PreOpen();
             uiContext.Window = this;
             EnsurePages();
+        }
+
+        //在经营窗口进入窗口栈后展示公告，职责是让公告获得焦点并显示在经营界面上方。
+        public override void PostOpen()
+        {
+            base.PostOpen();
             AnnouncementClientState.TryCheckOnBusinessManagerOpen();
         }
         //关闭经营管理窗口前清理网络蓝图异步任务，负责避免后台请求继续占用资源。
@@ -120,7 +126,6 @@ namespace SimManagementLib.SimDialog
                     return;
 
                 EnsurePages();
-                AnnouncementClientState.Tick();
                 uiContext.Window = this;
                 uiContext.WindowRect = inRect;
 

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.Announcement.PopupTitle>框架公告</RSMF.Announcement.PopupTitle>
+  <RSMF.Announcement.CheckNow>检查本地公告</RSMF.Announcement.CheckNow>
+  <RSMF.Announcement.HistoryEmpty>暂无已读公告。本地公告显示后会保存在这里，可随时回看。</RSMF.Announcement.HistoryEmpty>
+  <RSMF.Announcement.EmptyUnread>没有未读公告。</RSMF.Announcement.EmptyUnread>
+  <RSMF.Announcement.Untitled>未命名公告</RSMF.Announcement.Untitled>
+  <RSMF.Announcement.EmptyBody>这条公告没有正文。</RSMF.Announcement.EmptyBody>
+  <RSMF.Announcement.Meta.NoTime>公告</RSMF.Announcement.Meta.NoTime>
+  <RSMF.Announcement.Meta.Published>发布于：{time}</RSMF.Announcement.Meta.Published>
+  <RSMF.Announcement.Meta.Read>阅读于：{time}</RSMF.Announcement.Meta.Read>
+  <RSMF.Announcement.Meta.PublishedAndRead>发布于：{published} · 阅读于：{read}</RSMF.Announcement.Meta.PublishedAndRead>
+  <RSMF.Announcement.Status.Idle>本地公告会在主菜单和打开经商管理时自动检查。</RSMF.Announcement.Status.Idle>
+  <RSMF.Announcement.Status.NoNew>没有未读的本地公告。</RSMF.Announcement.Status.NoNew>
+  <RSMF.Announcement.Status.NewRead>本地公告已显示并保存到历史记录。</RSMF.Announcement.Status.NewRead>
+  <RSMF.Announcement.Restaurant.Title>边缘餐厅正式发布 · RimSMF:Restaurant</RSMF.Announcement.Restaurant.Title>
+  <RSMF.Announcement.Restaurant.Body>把殖民地的小店变成一家餐厅：自定义菜单和价格，安排厨师备餐、服务员送餐，让顾客入座点餐、用餐并结账。也可以布置传送带，经营自助餐厅。\n\n这是边缘模拟经营框架的官方扩展，需要启用框架。点击下方按钮前往 Steam 创意工坊订阅。</RSMF.Announcement.Restaurant.Body>
+  <RSMF.Announcement.OnceHint>此公告只自动弹出一次，关闭后不会再次提醒。</RSMF.Announcement.OnceHint>
+  <RSMF.Announcement.Close>关闭公告</RSMF.Announcement.Close>
+  <RSMF.Announcement.Subscribe>立即订阅 · 前往 Steam</RSMF.Announcement.Subscribe>
+  <RSMF.Announcement.Screenshots>工坊截图 {index}/{count} · 点击缩略图切换</RSMF.Announcement.Screenshots>
+  <RSMF.Announcement.Previous>上一条公告</RSMF.Announcement.Previous>
+  <RSMF.Announcement.Next>下一条公告</RSMF.Announcement.Next>
+  <RSMF.Announcement.Page>公告 {page}/{count}</RSMF.Announcement.Page>
+</LanguageData>

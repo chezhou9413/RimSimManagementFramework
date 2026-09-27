@@ -194,6 +194,7 @@
     <Compile Include="Tool\RestaurantStandbyUtility.cs" />
     <Compile Include="Tool\RestaurantStaffAvailabilityUtility.cs" />
     <Compile Include="UI\Dialog_SelectRestaurantFood.cs" />
+    <Compile Include="UI\FoodSelection\RestaurantFoodModFilter.cs" />
     <Compile Include="UI\BusinessPageWorker_RestaurantExtension.cs" />
     <Compile Include="UI\RestaurantBusinessUiUtility.cs" />
     <Compile Include="UI\RestaurantUiStyle.cs" />

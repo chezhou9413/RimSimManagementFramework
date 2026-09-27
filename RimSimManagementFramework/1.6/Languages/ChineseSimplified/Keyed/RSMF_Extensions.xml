@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.Business.Extensions.Official>官方扩展</RSMF.Business.Extensions.Official>
+  <RSMF.Business.Extensions.Community>社区扩展</RSMF.Business.Extensions.Community>
+  <RSMF.Business.Extensions.PageSummary>本页已安装或订阅 {checked}/{total} 项 · 点击 Steam 页面查看和订阅扩展。</RSMF.Business.Extensions.PageSummary>
+  <RSMF.Business.Extensions.Item.Restaurant.Label>RimSMF:Restaurant · 边缘餐厅</RSMF.Business.Extensions.Item.Restaurant.Label>
+  <RSMF.Business.Extensions.Item.Restaurant.Description>框架官方餐厅扩展，提供顾客点餐、厨师制作、服务员送餐与收银结账，支持餐厅菜单、厨房库存和传送带自助用餐。</RSMF.Business.Extensions.Item.Restaurant.Description>
+</LanguageData>

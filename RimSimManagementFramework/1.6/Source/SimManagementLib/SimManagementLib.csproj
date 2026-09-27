@@ -184,7 +184,10 @@
     <Compile Include="Pojo\CollectibleDisplaySlotData.cs" />
     <Compile Include="Pojo\SignImageData.cs" />
     <Compile Include="Pojo\ShopAnalyticsState.cs" />
-    <Compile Include="Pojo\AnnouncementNetworkModels.cs" />
+    <Compile Include="Pojo\Announcements\AnnouncementItemData.cs" />
+    <Compile Include="Pojo\Announcements\AnnouncementReadRecord.cs" />
+    <Compile Include="SimDef\AnnouncementDef.cs" />
+    <Compile Include="Patch\Announcements\Patch_UIRootEntry_Announcements.cs" />
     <Compile Include="Pojo\BlueprintNetworkModels.cs" />
     <Compile Include="Pojo\ShopScheduleData.cs" />
     <Compile Include="Pojo\ShopBlueprintData.cs" />
@@ -287,6 +290,8 @@
     <Compile Include="SimDialog\Designator_PlaceShopBlueprint.cs" />
     <Compile Include="SimDialog\Designator_SaveShopBlueprintRect.cs" />
     <Compile Include="SimDialog\BusinessPageWorker_Extensions.cs" />
+    <Compile Include="SimDialog\BusinessPageWorker_Extensions.Previews.cs" />
+    <Compile Include="SimDialog\Extensions\ExtensionRecommendationPageState.cs" />
     <Compile Include="SimDialog\BusinessPageWorker_Tutorial.cs" />
     <Compile Include="SimDialog\MainTabWindow_BusinessManager.cs" />
     <Compile Include="SimDialog\MainTabWindow_BusinessManager.Api.cs" />
@@ -333,6 +338,7 @@
     <Compile Include="SimDialog\Dialog_CustomerReviewAiSettings.Injector.cs" />
     <Compile Include="SimDialog\Dialog_CustomerReviewAiSettings.cs" />
     <Compile Include="SimDialog\Dialog_Announcements.cs" />
+    <Compile Include="SimDialog\Announcements\AnnouncementScreenshotGallery.cs" />
     <Compile Include="SimDialog\Dialog_RegisterSelectedGoodsCategory.cs" />
     <Compile Include="SimDialog\Dialog_CustomSignEditor.cs" />
     <Compile Include="SimDialog\Dialog_CustomSignTransfer.cs" />
@@ -438,7 +444,6 @@
     <Compile Include="Tool\PurchaseOutcomeCatalog.cs" />
     <Compile Include="Tool\AnnouncementClientState.cs" />
     <Compile Include="Tool\AnnouncementDisplayUtility.cs" />
-    <Compile Include="Tool\AnnouncementNetworkApiClient.cs" />
     <Compile Include="Tool\BlueprintDependencyCollector.cs" />
     <Compile Include="Tool\BlueprintEndpointCodec.cs" />
     <Compile Include="Tool\BlueprintExternalConfigBridge.cs" />
