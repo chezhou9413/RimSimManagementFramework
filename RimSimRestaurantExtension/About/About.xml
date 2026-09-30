@@ -14,6 +14,9 @@
       <steamWorkshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3736621496</steamWorkshopUrl>
     </li>
   </modDependencies>
+  <incompatibleWith>
+    <li>sz.yaopt</li>
+  </incompatibleWith>
   <loadAfter>
     <li>chezhou.Framework.RimSimManagementFramework</li>
   </loadAfter>
