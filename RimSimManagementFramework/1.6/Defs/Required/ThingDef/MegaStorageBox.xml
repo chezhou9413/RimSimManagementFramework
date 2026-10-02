@@ -366,8 +366,8 @@
                 <offMessage>Off for plant resting period</offMessage>
             </li>
             <li Class="CompProperties_Glower">
-                <overlightRadius>7.0</overlightRadius>
-                <glowRadius>3</glowRadius>
+                <overlightRadius>0</overlightRadius>
+                <glowRadius>2</glowRadius>
                 <glowColor>(370,370,370,0)</glowColor>
             </li>
             <li Class="SimManagementLib.SimThingComp.CompProperties_ProgressStageGraphic">
@@ -429,8 +429,8 @@
                 <offMessage>Off for plant resting period</offMessage>
             </li>
             <li Class="CompProperties_Glower">
-                <overlightRadius>7.0</overlightRadius>
-                <glowRadius>3</glowRadius>
+                <overlightRadius>0</overlightRadius>
+                <glowRadius>2</glowRadius>
                 <glowColor>(370,370,370,0)</glowColor>
             </li>
             <li Class="SimManagementLib.SimThingComp.CompProperties_ProgressStageGraphic">
@@ -491,8 +491,8 @@
                 <offMessage>Off for plant resting period</offMessage>
             </li>
             <li Class="CompProperties_Glower">
-                <overlightRadius>7.0</overlightRadius>
-                <glowRadius>8</glowRadius>
+                <overlightRadius>0</overlightRadius>
+                <glowRadius>2</glowRadius>
                 <glowColor>(370,370,370,0)</glowColor>
             </li>
             <li Class="SimManagementLib.SimThingComp.CompProperties_ProgressStageGraphic">
@@ -564,8 +564,8 @@
                 <offMessage>Off for plant resting period</offMessage>
             </li>
             <li Class="CompProperties_Glower">
-                <overlightRadius>7.0</overlightRadius>
-                <glowRadius>8</glowRadius>
+                <overlightRadius>0</overlightRadius>
+                <glowRadius>2</glowRadius>
                 <glowColor>(370,370,370,0)</glowColor>
             </li>
         </comps>
