@@ -58,6 +58,12 @@ namespace RimSimRestaurantExtension.UI
                 if (RestaurantUiStyle.DrawPrimaryButton(new Rect(rect.xMax - 110f, y, 110f, h), SimTranslation.T("RSR.UI.AddDish")))
                     OpenEditor(context, state, new RestaurantMenuItem { id = GameComp.RestaurantShopSettings.MakeMenuId() }, true);
                 y += h + 10f;
+                float transferWidth = (rect.width - 8f) / 2f;
+                if (RestaurantUiStyle.DrawSecondaryButton(new Rect(rect.x, y, transferWidth, h), SimTranslation.T("RSR.Transfer.Export")))
+                    Find.WindowStack.Add(new Dialog_RestaurantSettingsTransfer(state.draft, false));
+                if (RestaurantUiStyle.DrawSecondaryButton(new Rect(rect.x + transferWidth + 8f, y, transferWidth, h), SimTranslation.T("RSR.Transfer.Import")))
+                    Find.WindowStack.Add(new Dialog_RestaurantSettingsTransfer(state.draft, true, () => state.menuStatus.Clear()));
+                y += h + 10f;
                 RestaurantMenuTable.Draw(new Rect(rect.x, y, rect.width, Mathf.Max(0f, rect.yMax - y)), context, state,
                     (item, adding) => OpenEditor(context, state, item, adding));
             }

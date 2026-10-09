@@ -37,7 +37,7 @@ namespace RimSimRestaurantExtension.Jobs
             Thing provider = job.GetTarget(TargetIndex.C).Thing;
             if (provider?.Spawned != true) return false;
             var shop = SimShopServiceApi.FindShop(pawn.Map, provider.Position);
-            return shop != null && shop.ContainsCell(job.targetA.Cell)
+            return shop != null && RestaurantStandbyUtility.CanContinueAt(pawn, shop, job.targetA.Cell)
                 && RestaurantOrderUtility.CanRestaurantStaffWorkAt(shop)
                 && RestaurantOrderUtility.Settings.GetOrCreate(shop.ID).enabled
                 && SimShopStaffApi.IsAssignedToWorkGiver(shop, pawn, job.workGiverDef);

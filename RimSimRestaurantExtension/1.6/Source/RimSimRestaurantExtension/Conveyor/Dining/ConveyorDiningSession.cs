@@ -46,7 +46,7 @@ namespace RimSimRestaurantExtension.Conveyor.Dining
             if (!eating && (session.rounds >= settings.maxOrderRounds || (customer.needs?.food?.NutritionWanted ?? 0f) <= 0.05f))
             { session.stopOrdering = true; return; }
             float budget = RestaurantProductMenuUtility.RemainingBudget(customer, belt.Line.Shop);
-            if (!eating && !belt.Line.rules.Any(r => r.enabled && r.price * r.portions <= budget))
+            if (!eating && !belt.Line.rules.Any(r => r.enabled && ShopPricingUtility.ApplyCashierPrice(belt.Line.Shop, r.price) * r.portions <= budget))
             { session.stopOrdering = true; session.reason = SimTranslation.T("RSR.Issue.NoAffordableConveyorFood"); return; }
             if (!eating && Find.TickManager.TicksGame - session.lastOrderTick >= settings.maxWaitTicks)
             { session.stopOrdering = true; session.reason = SimTranslation.T("RSR.Issue.ConveyorTimeout"); return; }
@@ -63,7 +63,7 @@ namespace RimSimRestaurantExtension.Conveyor.Dining
                     ingredients = source.Food.TryGetComp<CompIngredients>()?.ingredients.Select(d =>
                         new RestaurantIngredientRequirement { thingDefName = d.defName, countPerMeal = 1 }).ToList()
                         ?? new System.Collections.Generic.List<RestaurantIngredientRequirement>() };
-                return RestaurantMenuUtility.ScoreMenuItem(menu, source.Food.stackCount, rule.price,
+                return RestaurantMenuUtility.ScoreMenuItem(menu, source.Food.stackCount, ShopPricingUtility.ApplyCashierPrice(belt.Line.Shop, rule.price),
                     RestaurantProductMenuUtility.RemainingBudget(customer, belt.Line.Shop), preference, settings.preferenceStrength);
             });
             session.wantedConveyorRule = selected.plate.ruleId;
@@ -81,6 +81,7 @@ namespace RimSimRestaurantExtension.Conveyor.Dining
             var food = belt.Food;
             var plate = belt.plate;
             var rule = ConveyorDiningAvailability.Rule(belt);
+            float unitPrice = ShopPricingUtility.ApplyCashierPrice(belt.Line.Shop, rule.price);
             if (!belt.GetDirectlyHeldThings().TryTransferToContainer(food, session.tray.GetDirectlyHeldThings(), false))
                 throw new System.InvalidOperationException("自助餐盘无法转入顾客托盘");
             belt.plate = null;
@@ -92,7 +93,7 @@ namespace RimSimRestaurantExtension.Conveyor.Dining
                 tableThingId = session.tableId, seatCell = session.seat, state = RestaurantOrderState.Dining,
                 stockProduct = true, mode = RestaurantDeliveryMode.Consume, menuConfirmed = true, mealProduced = true, mealDelivered = true,
                 meal = food, mealThingId = food.thingIDNumber, mealDef = food.def, mealCount = food.stackCount,
-                menuItemId = rule.id, menuItemLabel = rule.Label, unitPrice = rule.price, price = rule.price * food.stackCount,
+                menuItemId = rule.id, menuItemLabel = rule.Label, unitPrice = unitPrice, price = unitPrice * food.stackCount,
                 ingredientCost = plate.cost, createdTick = now, orderedTick = now, deliveredTick = now, lastProgressTick = now,
                 round = session.rounds + 1, selectionReason = SimTranslation.T("RSR.Preference.ConveyorPickup")
             });

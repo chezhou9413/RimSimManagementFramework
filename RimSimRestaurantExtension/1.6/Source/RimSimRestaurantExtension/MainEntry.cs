@@ -15,6 +15,7 @@ namespace RimSimRestaurantExtension
             Buildings.Rendering.RestaurantBarConstructionNotifications.Install();
             Conveyor.Placement.ConveyorConstructionHooks.Install();
             Inventory.RestaurantRefrigeration.Install();
+            WorkGivers.RestaurantForcedCooking.Install();
             SimShopCheckoutApi.RegisterCheckoutWorker(new RestaurantCheckoutWorker());
             SimShopReviewApi.RegisterSnapshotWorker(new RestaurantReviewSnapshotWorker());
         }

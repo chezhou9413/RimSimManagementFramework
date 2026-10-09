@@ -1,6 +1,8 @@
 using RimWorld;
 using RimSimRestaurantExtension.Models;
 using SimManagementLib.SimZone;
+using SimManagementLib.SimAI;
+using SimManagementLib.SimThingClass;
 using System.Collections.Generic;
 using System.Linq;
 using Verse;
@@ -74,11 +76,12 @@ namespace RimSimRestaurantExtension.Tool
         {
             result = IntVec3.Invalid;
             if (pawn?.Map == null || shop?.Cells == null) return false;
+            HashSet<IntVec3> workCells = CollectWorkCells(pawn, shop);
 
             //续班优先保留已预约的位置，避免同岗员工反复交换站位。
             if (pawn.CurJobDef == DefOfRefs.RSR_RestaurantStandby
                 && pawn.CurJob.targetA.Cell == pawn.Position && shop.ContainsCell(pawn.Position)
-                && CanStandAt(pawn, pawn.Position))
+                && !workCells.Contains(pawn.Position) && CanStandAt(pawn, pawn.Position))
             {
                 result = pawn.Position;
                 return true;
@@ -86,17 +89,47 @@ namespace RimSimRestaurantExtension.Tool
             //先按距离排序，再逐格验证路径，避免每次派工对全店格子执行寻路检查。
             foreach (var cell in shop.Cells.OrderBy(c => c.DistanceToSquared(near)))
             {
-                if (!CanStandAt(pawn, cell)) continue;
+                if (workCells.Contains(cell) || !CanStandAt(pawn, cell)) continue;
                 result = cell;
                 return true;
             }
             return false;
         }
 
+        //续班时重查工作格，及时让开新建设施及已经登记的结账队列。
+        public static bool CanContinueAt(Pawn pawn, Zone_Shop shop, IntVec3 cell)
+        {
+            return shop.ContainsCell(cell) && !CollectWorkCells(pawn, shop).Contains(cell)
+                && CanStandAt(pawn, cell);
+        }
+
+        //收集建筑操作格和收银队列，待机员工不能预约这些业务必需位置。
+        private static HashSet<IntVec3> CollectWorkCells(Pawn pawn, Zone_Shop shop)
+        {
+            var cells = new HashSet<IntVec3>();
+            foreach (var building in shop.Cells.SelectMany(c => c.GetThingList(shop.Map)).OfType<Building>().Distinct())
+            {
+                if (building.def.hasInteractionCell) cells.Add(building.InteractionCell);
+                if (building is Building_CashRegister register)
+                    cells.Add(CheckoutQueueCellUtility.FindServiceCell(register, pawn));
+            }
+            foreach (var customer in shop.Map.mapPawns.AllPawnsSpawned)
+            {
+                Job current = customer.CurJob;
+                if (current?.def.defName != "Customer_PayAtRegister"
+                    || !(current.targetA.Thing is Building_CashRegister register)
+                    || !shop.ContainsCell(register.Position)) continue;
+                cells.Add(current.targetB.Cell);
+                cells.Add(current.targetC.Cell);
+            }
+            return cells;
+        }
+
         //核对站位可用性，职责是避让顾客座椅、储存架、建筑主体及其他员工预约。
         private static bool CanStandAt(Pawn pawn, IntVec3 cell)
         {
             return cell.Standable(pawn.Map) && cell.GetEdifice(pawn.Map) == null
+                && !cell.GetThingList(pawn.Map).Any(t => t is Pawn other && other != pawn)
                 && !cell.IsForbidden(pawn) && pawn.CanReserve(cell)
                 && pawn.CanReach(cell, PathEndMode.OnCell, Danger.Some);
         }

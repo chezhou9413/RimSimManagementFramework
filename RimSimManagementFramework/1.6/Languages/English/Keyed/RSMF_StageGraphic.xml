@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.StageGraphic.Choose>Shelf appearance</RSMF.StageGraphic.Choose>
+  <RSMF.StageGraphic.Hint>Follow the stock level automatically, or lock the appearance to an existing stock stage. Actual inventory is unaffected.</RSMF.StageGraphic.Hint>
+  <RSMF.StageGraphic.Auto>Follow stock level</RSMF.StageGraphic.Auto>
+  <RSMF.StageGraphic.Fixed>Keep {fill} stock appearance</RSMF.StageGraphic.Fixed>
+</LanguageData>

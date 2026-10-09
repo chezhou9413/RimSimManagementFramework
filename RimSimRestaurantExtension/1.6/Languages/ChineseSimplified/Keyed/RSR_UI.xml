@@ -70,10 +70,10 @@
   <RSR.UI.Item>物品</RSR.UI.Item>
   <RSR.UI.ItemCount>{count} 件</RSR.UI.ItemCount>
   <RSR.UI.ItemsPerPlate>每盘件数</RSR.UI.ItemsPerPlate>
-  <RSR.UI.KitchenHint>将储存架放入商店区域，即可自动供厨房取料、传送带现货补餐及货柜补货。冰箱仍优先供料；桌面餐品和普通散落物品不会作为后厨库存。</RSR.UI.KitchenHint>
+  <RSR.UI.KitchenHint>冰箱可直接从殖民地储存区和储存架补货。厨师优先从本店冰箱取料，也可使用店内储存架；食品柜与传送带仍使用本店货源。桌面餐品和散落物品不作为仓储库存。</RSR.UI.KitchenHint>
   <RSR.UI.KitchenRecipe>菜谱 · 厨房制作</RSR.UI.KitchenRecipe>
   <RSR.UI.KitchenSource>厨房制作</RSR.UI.KitchenSource>
-  <RSR.UI.KitchenStockHint>后厨库存 · 配置储存目标与补货阈值</RSR.UI.KitchenStockHint>
+  <RSR.UI.KitchenStockHint>后厨库存 · 从殖民地仓储补货，配置目标与补货阈值</RSR.UI.KitchenStockHint>
   <RSR.UI.KitchenSupply>后厨货源</RSR.UI.KitchenSupply>
   <RSR.UI.LavishOtherFood>豪华及其他</RSR.UI.LavishOtherFood>
   <RSR.UI.LineChanged>线路结构已变化，请重新打开配置。</RSR.UI.LineChanged>
@@ -88,7 +88,7 @@
   <RSR.UI.MealProduct>餐品产物</RSR.UI.MealProduct>
   <RSR.UI.MenuCountHint>菜谱 {count} 项 · 菜品与运行参数随商店统一保存</RSR.UI.MenuCountHint>
   <RSR.UI.MenuEditor>编辑餐厅菜品</RSR.UI.MenuEditor>
-  <RSR.UI.MenuEditorHint>配置每份售价与食材；确认后仍需在商店管理中统一保存。</RSR.UI.MenuEditorHint>
+  <RSR.UI.MenuEditorHint>配置基础售价与每份食材；成交价计入当班收银员的交易价格改善，确认后仍需统一保存。</RSR.UI.MenuEditorHint>
   <RSR.UI.MenuEmpty>菜单还是空的\n添加菜品后，可设置售价、食材与每次点餐份数。</RSR.UI.MenuEmpty>
   <RSR.UI.MenuHeading>餐厅菜单</RSR.UI.MenuHeading>
   <RSR.UI.MenuName>菜单名称</RSR.UI.MenuName>
@@ -129,7 +129,7 @@
   <RSR.UI.PriceMultiplier>菜单价格倍率</RSR.UI.PriceMultiplier>
   <RSR.UI.PricePerItem>单件售价</RSR.UI.PricePerItem>
   <RSR.UI.PricePerPortion>售价/份</RSR.UI.PricePerPortion>
-  <RSR.UI.RecipeNote>每份原料必须满足该餐品的同一个生产配方。原料选择受配方过滤限制；菜品确认后仍需在店铺窗口统一保存。</RSR.UI.RecipeNote>
+  <RSR.UI.RecipeNote>每份原料必须满足同一个配方。批量配方按份折算用料和工时，整数原料向上取整。殖民地仓储食材需先补入本店冰箱；确认后在店铺窗口统一保存。</RSR.UI.RecipeNote>
   <RSR.UI.Remove>移除</RSR.UI.Remove>
   <RSR.UI.ReorderInterval>追加用餐间隔</RSR.UI.ReorderInterval>
   <RSR.UI.Reserved>预留</RSR.UI.Reserved>
@@ -153,7 +153,7 @@
   <RSR.UI.SelectConveyorFoodHint>选择现有货源支持的食品，厨师将搬运实物补餐。</RSR.UI.SelectConveyorFoodHint>
   <RSR.UI.SelectIngredient>选择原料</RSR.UI.SelectIngredient>
   <RSR.UI.SelectMenuFood>选择菜单餐品</RSR.UI.SelectMenuFood>
-  <RSR.UI.SelectMenuFoodHint>选择后自动填入可用食材，可在菜品编辑中继续调整。</RSR.UI.SelectMenuFoodHint>
+  <RSR.UI.SelectMenuFoodHint>显示可供人类食用且有营养的食品；普通单产物配方可现做，其他食品可通过货柜热注册销售现货。</RSR.UI.SelectMenuFoodHint>
   <RSR.UI.SelectProduct>选择产物</RSR.UI.SelectProduct>
   <RSR.UI.SessionId>用餐记录 #{id}</RSR.UI.SessionId>
   <RSR.UI.SessionPage>匹配 {count} 次用餐 · 第 {page}/{pages} 页</RSR.UI.SessionPage>

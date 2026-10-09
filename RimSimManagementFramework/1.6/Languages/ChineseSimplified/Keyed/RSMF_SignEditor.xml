@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.CustomSign.SaveClose>保存并关闭</RSMF.CustomSign.SaveClose>
+  <RSMF.CustomSign.CanvasHelp>点击图层并拖动即可定位。右侧可精确输入大小与角度；居中和重置可找回移出画布的图片。</RSMF.CustomSign.CanvasHelp>
+  <RSMF.CustomSign.InheritedPreview>此朝向正在复用南面图层。添加图片后可单独设置此面；西面与东面共用图层并镜像显示。</RSMF.CustomSign.InheritedPreview>
+  <RSMF.CustomSign.EmptyLayers>当前面还没有图层。使用底部按钮从图库添加或导入图片。</RSMF.CustomSign.EmptyLayers>
+  <RSMF.CustomSign.LayerForward>上移一层</RSMF.CustomSign.LayerForward>
+  <RSMF.CustomSign.LayerBackward>下移一层</RSMF.CustomSign.LayerBackward>
+  <RSMF.CustomSign.ShowLayer>显示此图层</RSMF.CustomSign.ShowLayer>
+  <RSMF.CustomSign.ReplaceImage>替换图片</RSMF.CustomSign.ReplaceImage>
+  <RSMF.CustomSign.Center>居中</RSMF.CustomSign.Center>
+  <RSMF.CustomSign.ResetTransform>重置变换</RSMF.CustomSign.ResetTransform>
+  <RSMF.CustomSign.LockAspect>等比缩放</RSMF.CustomSign.LockAspect>
+  <RSMF.CustomSign.ExactPosition>精确位置</RSMF.CustomSign.ExactPosition>
+  <RSMF.CustomSign.OffsetX>横向位置</RSMF.CustomSign.OffsetX>
+  <RSMF.CustomSign.OffsetY>纵向位置</RSMF.CustomSign.OffsetY>
+  <RSMF.CustomSign.OffsetHelp>位置相对当前招牌面：0 为中心，范围为 -1 到 1。等比缩放会保持当前宽高比例；关闭后可分别拉伸。</RSMF.CustomSign.OffsetHelp>
+  <RSMF.CustomSign.GalleryHelp>先查看大图，再选择要使用的图片。导入的图片会保留在本地图库中，方便反复使用。</RSMF.CustomSign.GalleryHelp>
+  <RSMF.CustomSign.EmptyGallery>没有符合条件的图片。可以清空搜索，或使用下方按钮导入 PNG、JPG 图片。</RSMF.CustomSign.EmptyGallery>
+</LanguageData>

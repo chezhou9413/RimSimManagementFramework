@@ -7,6 +7,7 @@ using SimManagementLib.Api;
 using SimManagementLib.SimZone;
 using Verse;
 using Verse.AI;
+using SimManagementLib.Tool;
 
 namespace RimSimRestaurantExtension.WorkGivers
 {
@@ -74,8 +75,19 @@ namespace RimSimRestaurantExtension.WorkGivers
             {
                 return null;
             }
-            if (!pawn.CanReserveAndReach(table, PathEndMode.InteractionCell, Danger.Some)) return null;
-            return RestaurantOrderUtility.FindCookOrder(pawn, shop, table);
+            if (!pawn.CanReserveAndReach(table, PathEndMode.InteractionCell, Danger.Some))
+            {
+                JobFailReason.Is(SimTranslation.T("RSR.Issue.StoveReservation"));
+                return null;
+            }
+            if (table.def.hasInteractionCell && !pawn.CanReserveSittableOrSpot(table.InteractionCell, table))
+            {
+                JobFailReason.Is(SimTranslation.T("RSR.Issue.StoveCellReservation"));
+                return null;
+            }
+            RestaurantOrder order = RestaurantOrderUtility.FindCookOrder(pawn, shop, table);
+            if (order == null) JobFailReason.Is(SimTranslation.T("RSR.Issue.NoCookOrIngredients"));
+            return order;
         }
     }
 }

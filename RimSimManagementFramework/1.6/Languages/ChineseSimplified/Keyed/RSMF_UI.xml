@@ -746,7 +746,7 @@
   <RSMF.CustomGoods.ReplaceModeTip>用导入内容替换本地自定义商品。</RSMF.CustomGoods.ReplaceModeTip>
   <RSMF.CustomGoods.MergeModeTip>保留本地内容，只追加导入内容。</RSMF.CustomGoods.MergeModeTip>
   <RSMF.CustomSign.EditorTitle>自定义招牌编辑器</RSMF.CustomSign.EditorTitle>
-  <RSMF.CustomSign.EditorDescription>改动会实时显示在地图上的招牌建筑。图片会复制进本地图库，存档只保存引用。</RSMF.CustomSign.EditorDescription>
+  <RSMF.CustomSign.EditorDescription>添加图片，在画布中拖动定位，再调整大小和角度。点击保存后应用到招牌，取消或关闭窗口会丢弃本次编辑。</RSMF.CustomSign.EditorDescription>
   <RSMF.CustomSign.DoneClose>完成关闭</RSMF.CustomSign.DoneClose>
   <RSMF.CustomSign.SaveSuccess>招牌图案已保存。</RSMF.CustomSign.SaveSuccess>
   <RSMF.CustomSign.ImportPath>从路径导入</RSMF.CustomSign.ImportPath>

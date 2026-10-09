@@ -19,6 +19,7 @@ namespace RimSimRestaurantExtension.UI
         private readonly Dictionary<string, GoodsItemData> draft;
         private readonly Dictionary<ThingDef, RestaurantStockRule> rules;
         private readonly List<ThingDef> items;
+        private readonly List<ThingDef> registeredProducts;
         private Vector2 scroll;
         private string search = "";
         public override Vector2 InitialSize => new Vector2(Mathf.Min(1040f, Verse.UI.screenWidth - 48f), Mathf.Min(740f, Verse.UI.screenHeight - 48f));
@@ -29,6 +30,7 @@ namespace RimSimRestaurantExtension.UI
             this.cabinet = cabinet;
             draft = cabinet.Goods.CloneItemData();
             items = cabinet.ActiveDefs.OrderBy(t => t.label).ToList();
+            registeredProducts = cabinet.registeredProducts.ToList();
             rules = cabinet.saleRules.ToDictionary(r => r.item, r => r.Clone());
             foreach (var item in items)
             {
@@ -63,7 +65,10 @@ namespace RimSimRestaurantExtension.UI
                 ShopUiVisualUtility.DrawNotice(new Rect(0, y, rect.width, statusHeight), status,
                     cabinet.IsRefrigerator && !cabinet.IsCooling || !cabinet.RestockSourceIssue.NullOrEmpty());
                 y += statusHeight + 8f;
-                string next = ShopUiVisualUtility.DrawSearchField(new Rect(0, y, rect.width, h), search, SimTranslation.T("RSR.UI.SearchStock"));
+                float registerWidth = Mathf.Max(140f, Text.CalcSize(SimTranslation.T("RSR.UI.RegisterProduct")).x + 24f);
+                string next = ShopUiVisualUtility.DrawSearchField(new Rect(0, y, rect.width - registerWidth - 8f, h), search, SimTranslation.T("RSR.UI.SearchStock"));
+                if (RestaurantUiStyle.DrawSecondaryButton(new Rect(rect.width - registerWidth, y, registerWidth, h), SimTranslation.T("RSR.UI.RegisterProduct")))
+                    OpenRegistration();
                 if (next != search) { search = next; scroll = Vector2.zero; }
                 y += h + 10f;
                 float footer = rect.height - h - RestaurantUiStyle.LineHeight(GameFont.Small) - 12f;
@@ -98,6 +103,25 @@ namespace RimSimRestaurantExtension.UI
                 if (RestaurantUiStyle.DrawSecondaryButton(new Rect(rect.width - 266f, bottom, 106f, h), SimTranslation.T("RSR.UI.Cancel"))) Close();
                 if (RestaurantUiStyle.DrawPrimaryButton(new Rect(rect.width - 150f, bottom, 150f, h), SimTranslation.T("RSR.UI.SaveStock"), !over)) Save();
             }
+        }
+
+        //在草稿中登记额外食品，关闭窗口不会改变货柜运行配置。
+        private void OpenRegistration()
+        {
+            var candidates = DefDatabase<ThingDef>.AllDefsListForReading.Where(t =>
+                (cabinet.IsRefrigerator ? t.category == ThingCategory.Item && t.EverHaulable && !t.IsCorpse
+                    : RestaurantFoodUtility.IsEdibleProduct(t)) && cabinet.Goods.AllowsThingDef(t) && !items.Contains(t));
+            Find.WindowStack.Add(new Dialog_SelectRestaurantFood(item =>
+            {
+                registeredProducts.Add(item);
+                items.Add(item);
+                items.Sort((a, b) => string.Compare(a.label, b.label, System.StringComparison.CurrentCulture));
+                draft[item.defName] = new GoodsItemData { enabled = true, count = 1,
+                    price = Mathf.Max(1f, item.BaseMarketValue * 1.5f) };
+                rules[item] = new RestaurantStockRule { item = item, mode = RestaurantDeliveryMode.Consume, portions = 1 };
+                search = item.label;
+                scroll = Vector2.zero;
+            }, candidates, registeringProduct: true));
         }
 
         //绘制物品与库存列，职责是按实际字体高度布局数量和销售控件。
@@ -145,6 +169,8 @@ namespace RimSimRestaurantExtension.UI
             { Messages.Message(SimTranslation.T("RSR.UI.TotalStockOverCapacity"), MessageTypeDefOf.RejectInput, false); return; }
             var invalid = rules.Values.FirstOrDefault(r => r.onSale && r.mode == RestaurantDeliveryMode.Consume && r.item.ingestible == null);
             if (invalid != null) { Messages.Message(SimTranslation.T("RSR.UI.CannotConsume", (invalid.item.LabelCap.ToString()).Named("item")), MessageTypeDefOf.RejectInput, false); return; }
+            cabinet.registeredProducts = registeredProducts.ToList();
+            cabinet.RegisterCatalog();
             cabinet.Goods.ApplySettings(cabinet.CatalogId, draft);
             cabinet.saleRules = rules.Values.Select(r => r.Clone()).ToList();
             RestaurantStorageConfiguration.Apply(cabinet);

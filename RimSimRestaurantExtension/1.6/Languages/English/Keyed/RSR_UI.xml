@@ -70,10 +70,10 @@
   <RSR.UI.Item>Item</RSR.UI.Item>
   <RSR.UI.ItemCount>{count} items</RSR.UI.ItemCount>
   <RSR.UI.ItemsPerPlate>Items/plate</RSR.UI.ItemsPerPlate>
-  <RSR.UI.KitchenHint>Shelves inside the shop supply the kitchen, conveyor stock and cabinets automatically. Refrigerators are used first. Food on tables and loose items are not kitchen stock.</RSR.UI.KitchenHint>
+  <RSR.UI.KitchenHint>Refrigerators restock directly from colony stockpiles and shelves. Cooks use restaurant refrigerators first, then shelves inside the shop. Food cabinets and conveyors still use restaurant supplies. Table food and loose items are not storage stock.</RSR.UI.KitchenHint>
   <RSR.UI.KitchenRecipe>Recipe · Kitchen</RSR.UI.KitchenRecipe>
   <RSR.UI.KitchenSource>Kitchen</RSR.UI.KitchenSource>
-  <RSR.UI.KitchenStockHint>Kitchen stock · Set stock targets and restock thresholds</RSR.UI.KitchenStockHint>
+  <RSR.UI.KitchenStockHint>Kitchen stock · Restock from colony storage; set targets and thresholds</RSR.UI.KitchenStockHint>
   <RSR.UI.KitchenSupply>Kitchen supplies</RSR.UI.KitchenSupply>
   <RSR.UI.LavishOtherFood>Lavish and other</RSR.UI.LavishOtherFood>
   <RSR.UI.LineChanged>The line layout has changed. Reopen its configuration.</RSR.UI.LineChanged>
@@ -88,7 +88,7 @@
   <RSR.UI.MealProduct>Meal product</RSR.UI.MealProduct>
   <RSR.UI.MenuCountHint>{count} recipes · Save dishes and service settings in shop management</RSR.UI.MenuCountHint>
   <RSR.UI.MenuEditor>Edit restaurant dish</RSR.UI.MenuEditor>
-  <RSR.UI.MenuEditorHint>Set the price and ingredients per portion, then save in shop management to apply changes.</RSR.UI.MenuEditorHint>
+  <RSR.UI.MenuEditorHint>Set the base price and ingredients per portion. Quotes include the on-duty cashier’s trade price improvement. Save in shop management to apply changes.</RSR.UI.MenuEditorHint>
   <RSR.UI.MenuEmpty>The menu is empty\nAdd a dish to set its price, ingredients and portion limits.</RSR.UI.MenuEmpty>
   <RSR.UI.MenuHeading>Restaurant menu</RSR.UI.MenuHeading>
   <RSR.UI.MenuName>Menu name</RSR.UI.MenuName>
@@ -129,7 +129,7 @@
   <RSR.UI.PriceMultiplier>Menu price multiplier</RSR.UI.PriceMultiplier>
   <RSR.UI.PricePerItem>Price/item</RSR.UI.PricePerItem>
   <RSR.UI.PricePerPortion>Price/portion</RSR.UI.PricePerPortion>
-  <RSR.UI.RecipeNote>Ingredients for each portion must satisfy a single recipe for this dish. Recipe filters limit ingredient choices. Confirm the dish, then save in shop management.</RSR.UI.RecipeNote>
+  <RSR.UI.RecipeNote>Ingredients must satisfy one recipe. Batch recipes scale ingredients and work per portion, rounding ingredient counts up. Supplies in colony storage must reach the restaurant refrigerator first. Confirm, then save in shop management.</RSR.UI.RecipeNote>
   <RSR.UI.Remove>Remove</RSR.UI.Remove>
   <RSR.UI.ReorderInterval>Reorder interval</RSR.UI.ReorderInterval>
   <RSR.UI.Reserved>Reserved</RSR.UI.Reserved>
@@ -153,7 +153,7 @@
   <RSR.UI.SelectConveyorFoodHint>Select food available from the supply source. Cooks will carry it to the conveyor.</RSR.UI.SelectConveyorFoodHint>
   <RSR.UI.SelectIngredient>Select ingredient</RSR.UI.SelectIngredient>
   <RSR.UI.SelectMenuFood>Select menu dish</RSR.UI.SelectMenuFood>
-  <RSR.UI.SelectMenuFoodHint>Available ingredients are filled in automatically. You can adjust them in the dish editor.</RSR.UI.SelectMenuFoodHint>
+  <RSR.UI.SelectMenuFoodHint>Shows nutritious food edible by humans. Ordinary single-product recipes can be cooked; other foods can be registered in cabinets and sold from stock.</RSR.UI.SelectMenuFoodHint>
   <RSR.UI.SelectProduct>Select product</RSR.UI.SelectProduct>
   <RSR.UI.SessionId>Dining record #{id}</RSR.UI.SessionId>
   <RSR.UI.SessionPage>{count} dining records · Page {page}/{pages}</RSR.UI.SessionPage>

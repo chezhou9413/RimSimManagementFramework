@@ -4,7 +4,7 @@
   <RSR_WorkGiver_BringRestaurantMealToPass.verb>Serve</RSR_WorkGiver_BringRestaurantMealToPass.verb>
   <RSR_WorkGiver_CookRestaurantOrder.gerund>Cooking restaurant order</RSR_WorkGiver_CookRestaurantOrder.gerund>
   <RSR_WorkGiver_CookRestaurantOrder.label>Cook restaurant order</RSR_WorkGiver_CookRestaurantOrder.label>
-  <RSR_WorkGiver_CookRestaurantOrder.verb>Cook</RSR_WorkGiver_CookRestaurantOrder.verb>
+  <RSR_WorkGiver_CookRestaurantOrder.verb>cook restaurant order at</RSR_WorkGiver_CookRestaurantOrder.verb>
   <RSR_WorkGiver_DeliverRestaurantOrder.gerund>Delivering meal to customer</RSR_WorkGiver_DeliverRestaurantOrder.gerund>
   <RSR_WorkGiver_DeliverRestaurantOrder.label>Deliver restaurant order</RSR_WorkGiver_DeliverRestaurantOrder.label>
   <RSR_WorkGiver_DeliverRestaurantOrder.verb>Deliver</RSR_WorkGiver_DeliverRestaurantOrder.verb>

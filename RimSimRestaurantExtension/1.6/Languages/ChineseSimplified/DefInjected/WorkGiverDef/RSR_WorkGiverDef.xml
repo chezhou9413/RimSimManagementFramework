@@ -5,7 +5,7 @@
   <RSR_WorkGiver_BringRestaurantMealToPass.verb>出餐</RSR_WorkGiver_BringRestaurantMealToPass.verb>
   <RSR_WorkGiver_CookRestaurantOrder.gerund>正在制作餐厅订单</RSR_WorkGiver_CookRestaurantOrder.gerund>
   <RSR_WorkGiver_CookRestaurantOrder.label>制作餐厅订单</RSR_WorkGiver_CookRestaurantOrder.label>
-  <RSR_WorkGiver_CookRestaurantOrder.verb>制作</RSR_WorkGiver_CookRestaurantOrder.verb>
+  <RSR_WorkGiver_CookRestaurantOrder.verb>制作餐厅订单</RSR_WorkGiver_CookRestaurantOrder.verb>
   <RSR_WorkGiver_DeliverRestaurantOrder.gerund>正在给顾客送餐</RSR_WorkGiver_DeliverRestaurantOrder.gerund>
   <RSR_WorkGiver_DeliverRestaurantOrder.label>送达餐厅订单</RSR_WorkGiver_DeliverRestaurantOrder.label>
   <RSR_WorkGiver_DeliverRestaurantOrder.verb>送餐</RSR_WorkGiver_DeliverRestaurantOrder.verb>

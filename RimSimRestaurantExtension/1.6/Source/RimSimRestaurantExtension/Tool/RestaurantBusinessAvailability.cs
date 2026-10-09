@@ -162,7 +162,8 @@ namespace RimSimRestaurantExtension.Tool
             var settings = RestaurantOrderUtility.Settings.GetOrCreate(shop.ID);
             bool affordable = Inventory.RestaurantProductMenuUtility.AllMenus(shop, settings).Any(menu =>
                 Inventory.RestaurantProductMenuUtility.Accepts(customer, menu)
-                && menu.unitPrice * settings.priceMultiplier * menu.minCount <= SimShopCustomerApi.GetRemainingBudget(customer, shop)
+                && ShopPricingUtility.ApplyCashierPrice(shop, UnityEngine.Mathf.Max(1f, menu.unitPrice * settings.priceMultiplier))
+                    * menu.minCount <= SimShopCustomerApi.GetRemainingBudget(customer, shop)
                 && (menu.IsStockProduct ? Inventory.RestaurantProductMenuUtility.Available(shop, menu, menu.minCount, customer) : RestaurantIngredientUtility.HasIngredients(customer, shop, menu, menu.minCount)));
             if (!affordable) reason = SimTranslation.T("RSR.Issue.NoSuitableMenu");
             return affordable;

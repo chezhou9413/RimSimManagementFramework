@@ -152,10 +152,10 @@ namespace SimManagementLib.Tool
 
             return combos
                 .Where(c => c != null && !c.items.NullOrEmpty())
-                .Where(c => GetComboEffectivePrice(c) <= budget)
-                .Where(c => !CustomerPriceUtility.EvaluateCombo(GetComboEffectivePrice(c), GetComboReferenceValue(c), sensitivity).rejected)
+                .Where(c => GetComboEffectivePrice(zone, c) <= budget)
+                .Where(c => !CustomerPriceUtility.EvaluateCombo(GetComboEffectivePrice(zone, c), GetComboReferenceValue(c), sensitivity).rejected)
                 .Where(c => HasEnoughStockForCombo(zone, c))
-                .OrderByDescending(GetComboEffectivePrice)
+                .OrderByDescending(c => GetComboEffectivePrice(zone, c))
                 .ToList();
         }
 
@@ -178,7 +178,7 @@ namespace SimManagementLib.Tool
                 if (matchesCustomer != null && !matchesCustomer(combo)) continue;
                 if (!HasEnoughStockForCombo(zone, combo)) continue;
 
-                float price = GetComboEffectivePrice(combo);
+                float price = GetComboEffectivePrice(zone, combo);
                 CustomerPriceEvaluation evaluation = CustomerPriceUtility.EvaluateCombo(price, GetComboReferenceValue(combo), sensitivity);
                 if (!evaluation.rejected) continue;
 
@@ -242,7 +242,7 @@ namespace SimManagementLib.Tool
                     entry.Thing.Destroy(DestroyMode.Vanish);
             }
 
-            paidPrice = GetComboEffectivePrice(combo);
+            paidPrice = GetComboEffectivePrice(zone, combo);
             return paidPrice > 0f;
         }
 
@@ -265,10 +265,10 @@ namespace SimManagementLib.Tool
         }
 
         //计算套餐成交价，职责是统一配置价格与商品参考价。
-        private static float GetComboEffectivePrice(ComboData combo)
+        public static float GetComboEffectivePrice(Zone zone, ComboData combo)
         {
             if (combo == null) return 0f;
-            if (combo.totalPrice > 0f) return combo.totalPrice;
+            if (combo.totalPrice > 0f) return ShopPricingUtility.ApplyCashierPrice(zone as Zone_Shop, combo.totalPrice);
 
             float estimated = 0f;
             if (!combo.items.NullOrEmpty())
@@ -280,7 +280,7 @@ namespace SimManagementLib.Tool
                 }
             }
 
-            return estimated > 0f ? estimated : 1f;
+            return ShopPricingUtility.ApplyCashierPrice(zone as Zone_Shop, estimated > 0f ? estimated : 1f);
         }
 
         //返回套餐按商品市价计算的参考价值。

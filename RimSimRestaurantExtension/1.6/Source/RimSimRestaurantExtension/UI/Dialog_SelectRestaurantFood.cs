@@ -18,6 +18,7 @@ namespace RimSimRestaurantExtension.UI
         private readonly List<ThingDef> candidates;
         private readonly RestaurantFoodModFilter modFilter;
         private readonly bool selectingIngredient;
+        private readonly bool registeringProduct;
         private Vector2 scrollPosition;
         private string search = "";
         private MealTier tier = MealTier.All;
@@ -36,9 +37,10 @@ namespace RimSimRestaurantExtension.UI
         }
 
         //建立候选快照，职责是让食材选择遵守调用者的配方限制并共用食品浏览界面。
-        public Dialog_SelectRestaurantFood(Action<ThingDef> onSelected, IEnumerable<ThingDef> allowedIngredients)
+        public Dialog_SelectRestaurantFood(Action<ThingDef> onSelected, IEnumerable<ThingDef> allowedIngredients, bool registeringProduct = false)
         {
             this.onSelected = onSelected;
+            this.registeringProduct = registeringProduct;
             selectingIngredient = allowedIngredients != null;
             candidates = (allowedIngredients ?? RestaurantFoodUtility.AllMenuFoods()).Distinct().ToList();
             modFilter = new RestaurantFoodModFilter(candidates);
@@ -102,8 +104,8 @@ namespace RimSimRestaurantExtension.UI
         private float DrawTitle(Rect rect)
         {
             return ShopUiVisualUtility.DrawPageHeading(rect,
-                SimTranslation.T(selectingIngredient ? "RSR.UI.SelectIngredient" : "RSR.UI.SelectMenuFood"),
-                SimTranslation.T(selectingIngredient ? "RSR.UI.SelectIngredientHint" : "RSR.UI.SelectMenuFoodHint"), true);
+                SimTranslation.T(registeringProduct ? "RSR.UI.RegisterProduct" : selectingIngredient ? "RSR.UI.SelectIngredient" : "RSR.UI.SelectMenuFood"),
+                SimTranslation.T(registeringProduct ? "RSR.UI.RegisterProductHint" : selectingIngredient ? "RSR.UI.SelectIngredientHint" : "RSR.UI.SelectMenuFoodHint"), true);
         }
 
         //绘制搜索栏，职责是支持标签、DefName 和来源模组并提供清空入口。
@@ -170,7 +172,8 @@ namespace RimSimRestaurantExtension.UI
         //绘制单个食品行，职责是显示图标和来源并在选择后回写草稿、关闭选择窗口。
         private void DrawFoodRow(Rect rect, ThingDef def, int index)
         {
-            if (!RestaurantFoodRow.Draw(rect, def, index, selectingIngredient)) return;
+            if (!RestaurantFoodRow.Draw(rect, def, index, selectingIngredient,
+                selectingIngredient || RestaurantFoodUtility.IsMenuFood(def))) return;
             onSelected?.Invoke(def);
             Close();
         }

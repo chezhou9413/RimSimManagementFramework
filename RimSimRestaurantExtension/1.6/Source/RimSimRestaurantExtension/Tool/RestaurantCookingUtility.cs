@@ -13,6 +13,8 @@ namespace RimSimRestaurantExtension.Tool
     //提供餐厅厨房设施和产出工具，职责是让菜单、派工和实际制作共同遵守原版配方约束。
     public static class RestaurantCookingUtility
     {
+        private static Dictionary<ThingDef, List<RecipeDef>> productionRecipes;
+
         //返回店内可处理指定订单的工作台，职责是同时验证工作格、能源、配方和菜单食材。
         public static List<Building_WorkTable> FindUsableStoves(Zone_Shop shop, RestaurantProductionRequest order = null)
         {
@@ -85,10 +87,10 @@ namespace RimSimRestaurantExtension.Tool
         public static List<RecipeDef> GetProductionRecipes(ThingDef mealDef)
         {
             if (mealDef == null) return new List<RecipeDef>();
-            return DefDatabase<RecipeDef>.AllDefsListForReading
-                .Where(recipe => IsRestaurantProductionRecipe(recipe)
-                    && recipe.products[0].thingDef == mealDef)
-                .ToList();
+            if (productionRecipes == null)
+                productionRecipes = DefDatabase<RecipeDef>.AllDefsListForReading.Where(IsRestaurantProductionRecipe)
+                    .GroupBy(recipe => recipe.products[0].thingDef).ToDictionary(group => group.Key, group => group.ToList());
+            return productionRecipes.TryGetValue(mealDef, out var recipes) ? recipes : new List<RecipeDef>();
         }
 
         //判断餐品是否存在可识别的普通生产配方，职责是阻止界面创建永远无法制作的菜单。
@@ -113,7 +115,7 @@ namespace RimSimRestaurantExtension.Tool
                 .FirstOrDefault();
         }
 
-        //判断菜单食材能否满足配方，职责是按原版 IngredientValueGetter 计算整单批次数量并避免凭空出餐。
+        //按原版食材价值检查订单，批量配方按点单份数折算需求。
         public static bool CanRecipeUseOrderIngredients(RecipeDef recipe, RestaurantProductionRequest order)
         {
             if (recipe == null || order == null || recipe.ingredients.NullOrEmpty()) return false;
@@ -123,23 +125,27 @@ namespace RimSimRestaurantExtension.Tool
             if (needs.Any(need => !recipe.ingredients.Any(slot => AllowsIngredient(recipe, slot, need.ThingDef))))
                 return false;
             int output = Mathf.Max(1, recipe.products[0].count);
-            int batches = Mathf.CeilToInt(order.mealCount / (float)output);
+            float batches = order.mealCount / (float)output;
             Dictionary<ThingDef, int> available = needs
                 .GroupBy(need => need.ThingDef)
                 .ToDictionary(group => group.Key, group => group.Sum(need => need.countPerMeal));
 
-            IEnumerable<IngredientCount> slots = recipe.ingredients.OrderByDescending(slot => slot.IsFixedIngredient);
-            foreach (IngredientCount slot in slots)
+            foreach (IngredientCount slot in OrderedIngredientSlots(recipe))
             {
                 float requiredValue = slot.GetBaseCount() * batches;
                 int usedKinds = 0;
-                foreach (ThingDef def in available.Keys.ToList())
+                var candidates = available.Keys.Where(def => AllowsIngredient(recipe, slot, def))
+                    .OrderByDescending(def => available[def]).ToList();
+                if (!recipe.allowMixingIngredients)
+                    candidates = candidates.Where(def => available[def] * recipe.IngredientValueGetter.ValuePerUnitOf(def)
+                        + 0.0001f >= requiredValue).Take(1).ToList();
+                foreach (ThingDef def in candidates)
                 {
                     int count = available[def];
                     if (count <= 0 || !AllowsIngredient(recipe, slot, def)) continue;
                     float valuePerUnit = recipe.IngredientValueGetter.ValuePerUnitOf(def);
                     if (valuePerUnit <= 0f) continue;
-                    int take = Mathf.Min(count, Mathf.CeilToInt(requiredValue / valuePerUnit));
+                    int take = Mathf.Min(count, Mathf.CeilToInt((requiredValue - 0.0001f) / valuePerUnit));
                     if (take <= 0) continue;
                     available[def] -= take;
                     requiredValue -= take * valuePerUnit;
@@ -152,14 +158,21 @@ namespace RimSimRestaurantExtension.Tool
             return true;
         }
 
+        //优先分配固定和可选范围更小的食材槽，避免通用槽抢走专用原料。
+        internal static IEnumerable<IngredientCount> OrderedIngredientSlots(RecipeDef recipe)
+        {
+            return recipe.ingredients.OrderByDescending(slot => slot.IsFixedIngredient)
+                .ThenBy(slot => slot.filter.AllowedThingDefs.Count(def => AllowsIngredient(recipe, slot, def)));
+        }
+
         //计算订单制作时长，职责是按真实配方批次、厨师速度和工作台速度换算工作量。
         public static int GetCookTicks(Pawn cook, Thing stove, RestaurantProductionRequest order)
         {
             RecipeDef recipe = GetRecipeForOrder(order, stove as Building_WorkTable);
             float work = recipe?.WorkAmountTotal(null) ?? 900f;
             int output = Mathf.Max(1, recipe?.products?.FirstOrDefault()?.count ?? 1);
-            int batches = Mathf.CeilToInt(Mathf.Max(1, order?.mealCount ?? 1) / (float)output);
-            work *= Mathf.Max(1, batches);
+            float batches = Mathf.Max(1, order?.mealCount ?? 1) / (float)output;
+            work *= batches;
             if (cook != null && recipe?.workSpeedStat != null)
                 work /= Mathf.Max(0.1f, cook.GetStatValue(recipe.workSpeedStat));
             if (stove != null && recipe?.workTableSpeedStat != null)
@@ -186,16 +199,17 @@ namespace RimSimRestaurantExtension.Tool
             (stove as Building_WorkTable)?.UsedThisTick();
         }
 
-        //判断配方是否为单一餐品产出的普通制作配方，职责是排除手术、特殊产物和副产品流程。
+        //接受单产物普通食品配方，特殊产物和副产品需要走现货销售。
         private static bool IsRestaurantProductionRecipe(RecipeDef recipe)
         {
             ThingDef product = recipe?.products?.Count == 1 ? recipe.products[0]?.thingDef : null;
-            return recipe != null && !recipe.IsSurgery && product != null && recipe.products[0].count == 1
-                && product?.ingestible?.IsMeal == true && product.IsNutritionGivingIngestible;
+            return recipe != null && !recipe.IsSurgery && product != null && recipe.products[0].count > 0
+                && recipe.specialProducts.NullOrEmpty()
+                && RestaurantFoodUtility.IsEdibleProduct(product) && product.IsNutritionGivingIngestible;
         }
 
         //判断食材是否能填入指定配方槽，职责是同时遵守槽过滤器与配方总过滤器。
-        private static bool AllowsIngredient(RecipeDef recipe, IngredientCount slot, ThingDef def)
+        internal static bool AllowsIngredient(RecipeDef recipe, IngredientCount slot, ThingDef def)
         {
             return recipe != null && slot != null && def != null
                 && slot.filter.Allows(def)

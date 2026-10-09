@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR.Issue.UseRestaurantCooking>Use “cook restaurant order”; stove bills do not represent customer orders</RSR.Issue.UseRestaurantCooking>
+  <RSR.UI.RegisterProduct>Register product</RSR.UI.RegisterProduct>
+  <RSR.UI.RegisterProductHint>Add an extra item to this cabinet. Set its stock target and sale status, then save to apply.</RSR.UI.RegisterProductHint>
+  <RSR.UI.StockOnly>Stock only</RSR.UI.StockOnly>
+  <RSR.UI.StockOnlyFood>No supported single-product cooking recipe. Register this item in a food or drinks cabinet to sell existing stock.</RSR.UI.StockOnlyFood>
+  <RSR.UI.AutoColonyIngredients>Use available colony ingredients</RSR.UI.AutoColonyIngredients>
+  <RSR.UI.ManualIngredients>Edit ingredients and quantities manually</RSR.UI.ManualIngredients>
+  <RSR.UI.NoUsableRecipe>No currently usable workbench or recipe in this restaurant can make this dish.</RSR.UI.NoUsableRecipe>
+  <RSR.UI.AutoIngredientsMissing>Not enough stock for the minimum order size. Missing recipe ingredients: {ingredient}</RSR.UI.AutoIngredientsMissing>
+  <RSR.UI.AutoIngredientsDone>Ingredients selected from available stock. Supplies in colony storage must be restocked into this restaurant’s refrigerator before cooking.</RSR.UI.AutoIngredientsDone>
+  <RSR.Transfer.Export>Export restaurant Base64</RSR.Transfer.Export>
+  <RSR.Transfer.Import>Import restaurant Base64</RSR.Transfer.Import>
+  <RSR.Transfer.ExportHint>Share the current menu and operating settings. Staff, buildings, inventory and active orders are excluded.</RSR.Transfer.ExportHint>
+  <RSR.Transfer.ImportHint>Paste the shared text. Import replaces the current settings draft; save in shop management to apply it, or close that window to discard it.</RSR.Transfer.ImportHint>
+  <RSR.Transfer.Copy>Copy</RSR.Transfer.Copy>
+  <RSR.Transfer.Paste>Paste</RSR.Transfer.Paste>
+  <RSR.Transfer.Apply>Replace settings draft</RSR.Transfer.Apply>
+  <RSR.Transfer.Imported>Settings imported into the draft. Save in shop management to apply them.</RSR.Transfer.Imported>
+  <RSR.Transfer.Empty>The import text is empty.</RSR.Transfer.Empty>
+  <RSR.Transfer.Format>Unsupported restaurant settings format.</RSR.Transfer.Format>
+  <RSR.Transfer.InvalidMenu>Menu data is incomplete.</RSR.Transfer.InvalidMenu>
+  <RSR.Transfer.MissingDef>This game is missing an item definition: {def}</RSR.Transfer.MissingDef>
+  <RSR.Transfer.InvalidDish>Invalid recipe, price, portion count or ingredients for dish: {dish}</RSR.Transfer.InvalidDish>
+  <RSR.Transfer.InvalidParameters>Operating settings are outside the allowed ranges.</RSR.Transfer.InvalidParameters>
+  <RSR.Transfer.Error>Import failed: {reason}</RSR.Transfer.Error>
+</LanguageData>

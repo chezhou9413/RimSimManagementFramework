@@ -6,6 +6,7 @@ using SimManagementLib.Api;
 using SimManagementLib.SimZone;
 using UnityEngine;
 using Verse;
+using SimManagementLib.Tool;
 
 namespace RimSimRestaurantExtension.Tool
 {
@@ -56,7 +57,7 @@ namespace RimSimRestaurantExtension.Tool
             }
             if (!Inventory.RestaurantProductMenuUtility.Accepts(customer, menu)) return false;
 
-            float unitPrice = Mathf.Max(1f, menu.unitPrice * settings.priceMultiplier);
+            float unitPrice = ShopPricingUtility.ApplyCashierPrice(shop, Mathf.Max(1f, menu.unitPrice * settings.priceMultiplier));
             float totalPrice = unitPrice * selection.count;
             if (totalPrice > Inventory.RestaurantProductMenuUtility.RemainingBudget(customer, shop)) return false;
             if (menu.IsStockProduct ? !Inventory.RestaurantProductMenuUtility.Available(shop, menu, selection.count, customer)

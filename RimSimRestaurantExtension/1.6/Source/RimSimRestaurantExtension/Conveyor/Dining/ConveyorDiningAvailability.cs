@@ -8,6 +8,7 @@ using RimSimRestaurantExtension.Tool;
 using RimWorld;
 using SimManagementLib.SimZone;
 using Verse;
+using SimManagementLib.Tool;
 
 namespace RimSimRestaurantExtension.Conveyor.Dining
 {
@@ -46,7 +47,7 @@ namespace RimSimRestaurantExtension.Conveyor.Dining
             if (rule == null || shop == null || !source.Line.SameShop || !customer.WillEat(source.Food, customer, true, false)
                 || customer.carryTracker.MaxStackSpaceEver(source.Food.def) < source.Food.stackCount) return false;
             var session = RestaurantOrderUtility.OrderManager.ForCustomer(customer.thingIDNumber, shop.ID);
-            return rule.price * source.Food.stackCount <= RestaurantProductMenuUtility.RemainingBudget(customer, shop)
+            return ShopPricingUtility.ApplyCashierPrice(shop, rule.price) * source.Food.stackCount <= RestaurantProductMenuUtility.RemainingBudget(customer, shop)
                 && (customer.needs?.food?.NutritionWanted ?? 0f) - (session?.ExpectedNutrition ?? 0f) > 0.05f;
         }
 

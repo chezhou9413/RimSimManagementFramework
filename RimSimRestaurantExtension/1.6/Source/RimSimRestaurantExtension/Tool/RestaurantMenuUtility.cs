@@ -101,7 +101,7 @@ namespace RimSimRestaurantExtension.Tool
                 RestaurantMenuItem item = items[i];
                 if (!Inventory.RestaurantProductMenuUtility.Accepts(customer, item) || !Inventory.RestaurantProductMenuUtility.WantsMore(customer, shop, item))
                     continue;
-                float unitPrice = Mathf.Max(1f, item.unitPrice * settings.priceMultiplier);
+                float unitPrice = ShopPricingUtility.ApplyCashierPrice(shop, Mathf.Max(1f, item.unitPrice * settings.priceMultiplier));
                 int maxByBudget = Mathf.FloorToInt(remainingBudget / unitPrice);
                 int maxCount = Mathf.Min(item.maxCount, Mathf.Min(item.MealDef.stackLimit, maxByBudget));
                 if (maxCount < item.minCount) continue;

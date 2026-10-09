@@ -85,7 +85,8 @@ namespace RimSimRestaurantExtension.Tool
                     .ThenBy(def => def.BaseMarketValue)
                     .FirstOrDefault();
                 if (selected == null) return new List<RestaurantIngredientRequirement>();
-                int count = Math.Max(1, slot.CountRequiredOfFor(selected, recipe));
+                int count = Math.Max(1, UnityEngine.Mathf.CeilToInt(slot.CountRequiredOfFor(selected, recipe)
+                    / (float)recipe.products[0].count));
                 totals[selected.defName] = totals.TryGetValue(selected.defName, out int current) ? current + count : count;
             }
             return totals.Select(pair => new RestaurantIngredientRequirement

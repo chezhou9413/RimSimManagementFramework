@@ -224,7 +224,7 @@ namespace SimManagementLib.Tool
                 {
                     Thing thing = uniqueContainer.GetStoredThing(slot);
                     if (thing == null || !ThingMatchesCustomer(kind, fallbackDef, thing.def)) continue;
-                    float price = Mathf.Max(1f, slot.price > 0f ? slot.price : thing.MarketValue);
+                    float price = ShopPricingUtility.GetContainerPrice(storage, Mathf.Max(1f, slot.price > 0f ? slot.price : thing.MarketValue));
                     if (price <= remainingBudget && !CustomerPriceUtility.EvaluateMarketValue(thing.MarketValue, price, uniqueSensitivity).rejected)
                         return true;
                 }

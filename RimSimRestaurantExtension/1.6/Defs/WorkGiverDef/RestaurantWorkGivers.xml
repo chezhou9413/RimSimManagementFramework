@@ -6,7 +6,7 @@
     <giverClass>RimSimRestaurantExtension.WorkGivers.WorkGiver_CookRestaurantOrder</giverClass>
     <workType>Sim_ServiceWork</workType>
     <priorityInType>92</priorityInType>
-    <verb>制作</verb>
+    <verb>制作餐厅订单</verb>
     <gerund>正在制作餐厅订单</gerund>
     <requiredCapacities>
       <li>Manipulation</li>

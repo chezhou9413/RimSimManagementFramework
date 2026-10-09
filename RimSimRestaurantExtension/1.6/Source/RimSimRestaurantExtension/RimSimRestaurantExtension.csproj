@@ -39,6 +39,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="UnityEngine">
       <HintPath>E:\捷豹\rimworlddll\UnityEngine.dll</HintPath>
       <Private>False</Private>
@@ -130,6 +131,7 @@
     <Compile Include="Inventory\RestaurantProductMenuUtility.cs" />
     <Compile Include="Inventory\RestaurantProductDef.cs" />
     <Compile Include="Inventory\RestaurantKitchenStorage.cs" />
+    <Compile Include="Inventory\RestaurantColonyStorage.cs" />
     <Compile Include="Inventory\RestaurantOrderStock.cs" />
     <Compile Include="Inventory\RestaurantIngredientToils.cs" />
     <Compile Include="Inventory\RestaurantIngredientPlacement.cs" />
@@ -176,6 +178,9 @@
     <Compile Include="Jobs\JobDriver_WaitRestaurantOrderAtDiningSpot.cs" />
     <Compile Include="MainEntry.cs" />
     <Compile Include="Models\RestaurantMenuModels.cs" />
+    <Compile Include="Models\RestaurantSettingsTransferPackage.cs" />
+    <Compile Include="Tool\RestaurantSettingsTransferUtility.cs" />
+    <Compile Include="UI\Dialog_RestaurantSettingsTransfer.cs" />
     <Compile Include="Models\RestaurantOrder.cs" />
     <Compile Include="Models\RestaurantPreferenceModels.cs" />
     <Compile Include="Services\RestaurantCustomerActionWorker.cs" />
@@ -186,6 +191,7 @@
     <Compile Include="Tool\RestaurantFoodUtility.cs" />
     <Compile Include="Tool\RestaurantFlowLog.cs" />
     <Compile Include="Tool\RestaurantIngredientUtility.cs" />
+    <Compile Include="Tool\RestaurantMenuIngredientPlanner.cs" />
     <Compile Include="Tool\RestaurantActionUtility.cs" />
     <Compile Include="Tool\RestaurantJobUtility.cs" />
     <Compile Include="Tool\RestaurantMenuUtility.cs" />
@@ -203,6 +209,7 @@
     <Compile Include="UI\RestaurantBarIcon.cs" />
     <Compile Include="UI\ShopPageWorker_RestaurantSettings.cs" />
     <Compile Include="WorkGivers\WorkGiver_CookRestaurantOrder.cs" />
+    <Compile Include="WorkGivers\RestaurantForcedCooking.cs" />
     <Compile Include="WorkGivers\WorkGiver_DeliverRestaurantOrder.cs" />
     <Compile Include="WorkGivers\WorkGiver_RestaurantStandby.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

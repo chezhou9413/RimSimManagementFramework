@@ -17,33 +17,45 @@ namespace RimSimRestaurantExtension.Buildings
     public sealed class Building_RestaurantStorage : Building_SimContainer
     {
         public List<RestaurantStockRule> saleRules = new List<RestaurantStockRule>();
+        public List<ThingDef> registeredProducts = new List<ThingDef>();
+        private static readonly RestaurantProductDef RegisteredFoodDefaults = new RestaurantProductDef
+        { defaultPrice = -1f, defaultCount = 1, deliveryMode = RestaurantDeliveryMode.Consume };
         public RestaurantStorageExtension Settings => def.GetModExtension<RestaurantStorageExtension>();
         public bool IsRefrigerator => Settings.refrigerated;
         public bool IsCooling => IsRefrigerator && GetComp<CompPowerTrader>()?.PowerOn == true;
         public Zone_Shop Shop => SimShopServiceApi.FindShop(Map, Position);
-        public string CatalogId => "RestaurantStorage/" + def.defName;
+        public string CatalogId => "RestaurantStorage/" + thingIDNumber;
         public ThingComp_GoodsData Goods => GetComp<ThingComp_GoodsData>();
         public override bool AllowsCustomerSelfPurchase => false;
-        public override IEnumerable<ThingDef> ActiveDefs => GoodsCatalog.GetItems(CatalogId).Select(i => i.thingDef);
+        public override IEnumerable<ThingDef> ActiveDefs
+        {
+            get
+            {
+                if (GoodsCatalog.GetCategory(CatalogId) == null) RegisterCatalog();
+                return GoodsCatalog.GetItems(CatalogId).Select(i => i.thingDef);
+            }
+        }
         public override LocalTargetInfo InventoryInteractionTarget => Settings.wallMounted ? (LocalTargetInfo)Position : this;
         public override PathEndMode InventoryInteractionEndMode => Settings.wallMounted ? PathEndMode.OnCell : PathEndMode.Touch;
         public override string RestockSourceIssue => Shop == null ? SimTranslation.T("RSR.Issue.CabinetOutsideShop")
-            : RestaurantKitchenStorage.Cells(Shop).Any() ? "" : SimTranslation.T("RSR.Issue.NoKitchenShelves");
+            : IsRefrigerator || RestaurantKitchenStorage.Cells(Shop).Any() ? "" : SimTranslation.T("RSR.Issue.NoKitchenShelves");
 
         //判断物品是否属于建筑配置并被玩家允许。
         public override bool AllowsInventoryItem(ThingDef item)
         {
-            return Settings.products.Any(p => p.Allows(item)) && Goods.FindItemData(item)?.enabled == true;
+            return Product(item) != null && Goods.FindItemData(item)?.enabled == true;
         }
 
-        //限制补货来源，职责是只允许从本店区域内的储存架搬运。
+        //冰箱从殖民地仓储补货，销售柜仍从本店储存架取得商品。
         public override bool AllowsRestockSource(Thing source)
         {
-            return RestaurantKitchenStorage.Contains(Shop, source);
+            return IsRefrigerator ? RestaurantColonyStorage.Contains(Map, source)
+                : RestaurantKitchenStorage.Contains(Shop, source);
         }
 
         //查找商品默认规则，职责是按建筑 XML 配置顺序解析重叠商品范围。
-        public RestaurantProductDef Product(ThingDef item) => Settings.products.FirstOrDefault(p => p.Allows(item));
+        public RestaurantProductDef Product(ThingDef item) => Settings.products.FirstOrDefault(p => p.Allows(item))
+            ?? (registeredProducts.Contains(item) ? RegisteredFoodDefaults : null);
 
         //查找或创建未上架规则，职责是避免未配置商品自动销售。
         public RestaurantStockRule Rule(ThingDef item)
@@ -70,7 +82,7 @@ namespace RimSimRestaurantExtension.Buildings
         public void RegisterCatalog()
         {
             GoodsCatalog.RegisterCategory(CatalogId, LabelCap, DefDatabase<ThingDef>.AllDefsListForReading
-                .Where(t => t.category == ThingCategory.Item && t.EverHaulable && Settings.products.Any(p => p.Allows(t))), replace: true);
+                .Where(t => t.category == ThingCategory.Item && t.EverHaulable && Product(t) != null), replace: true);
         }
 
         //保存额外销售规则，职责是不改变物品自身的品质、成分或腐坏进度。
@@ -78,6 +90,12 @@ namespace RimSimRestaurantExtension.Buildings
         {
             base.ExposeData();
             Scribe_Collections.Look(ref saleRules, "restaurantSaleRules", LookMode.Deep);
+            Scribe_Collections.Look(ref registeredProducts, "registeredProducts", LookMode.Def);
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                registeredProducts = registeredProducts ?? new List<ThingDef>();
+                registeredProducts.RemoveAll(t => t == null);
+            }
         }
 
         //创建独立草稿窗口，职责是集中管理库存和上架规则。

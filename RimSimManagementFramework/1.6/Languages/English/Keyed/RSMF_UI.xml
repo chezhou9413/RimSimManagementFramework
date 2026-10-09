@@ -746,7 +746,7 @@
   <RSMF.CustomGoods.ReplaceModeTip>Replace local custom goods with imported content.</RSMF.CustomGoods.ReplaceModeTip>
   <RSMF.CustomGoods.MergeModeTip>Keep local content and append imported content.</RSMF.CustomGoods.MergeModeTip>
   <RSMF.CustomSign.EditorTitle>Custom sign editor</RSMF.CustomSign.EditorTitle>
-  <RSMF.CustomSign.EditorDescription>Changes are shown on the map sign in real time. Images are copied into the local gallery; saves only store references.</RSMF.CustomSign.EditorDescription>
+  <RSMF.CustomSign.EditorDescription>Add an image, drag it on the canvas, then adjust its size and angle. Save to apply your design; canceling or closing discards these edits.</RSMF.CustomSign.EditorDescription>
   <RSMF.CustomSign.DoneClose>Done</RSMF.CustomSign.DoneClose>
   <RSMF.CustomSign.SaveSuccess>Sign pattern saved.</RSMF.CustomSign.SaveSuccess>
   <RSMF.CustomSign.ImportPath>Import path</RSMF.CustomSign.ImportPath>

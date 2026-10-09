@@ -22,8 +22,9 @@ namespace SimManagementLib.SimAI
             if (IsServiceCellStructurallyUsable(map, mirrored, pawn))
                 return mirrored;
 
-            if (CellFinder.TryFindRandomCellNear(register.Position, map, 3, c => IsServiceCellStructurallyUsable(map, c, pawn), out IntVec3 found))
-                return found;
+            //固定遍历顺序，让值班避让和不同顾客得到同一服务锚点。
+            foreach (IntVec3 cell in GenRadial.RadialCellsAround(register.Position, 3f, false))
+                if (cell != cashierCell && IsServiceCellStructurallyUsable(map, cell, pawn)) return cell;
 
             if (IsServiceCellStructurallyUsable(map, register.Position, pawn))
                 return register.Position;

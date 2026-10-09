@@ -8,19 +8,19 @@ using Verse;
 
 namespace RimSimRestaurantExtension.Tool
 {
-    //收集和筛选餐厅可售食物 Def，职责是只向菜单提供确实存在普通生产配方的餐品。
+    //收集餐厅食品并区分可制作菜品和只能供应现货的商品。
     public static class RestaurantFoodUtility
     {
         private static List<ThingDef> cachedFoods;
 
-        //返回所有适合作为餐厅菜单产物的食物，职责是缓存稳定的 Def 列表供选择器使用。
+        //缓存全部有营养的可食用商品，选择界面另行标明制作能力。
         public static List<ThingDef> AllMenuFoods()
         {
             if (cachedFoods != null)
                 return cachedFoods;
 
             cachedFoods = DefDatabase<ThingDef>.AllDefsListForReading
-                .Where(IsMenuFood)
+                .Where(def => IsEdibleProduct(def) && def.IsNutritionGivingIngestible)
                 .OrderByDescending(def => def.ingestible?.IsMeal == true)
                 .ThenBy(def => def.LabelCap.ToString())
                 .ThenBy(def => def.defName)
@@ -28,13 +28,17 @@ namespace RimSimRestaurantExtension.Tool
             return cachedFoods;
         }
 
-        //判断物品是否能作为菜单餐品，职责是排除非餐品、不可食用物和没有生产配方的假菜单。
+        //识别可供人类食用的可搬运食品，酒水不受营养值限制。
+        public static bool IsEdibleProduct(ThingDef def)
+        {
+            return def != null && def.category == ThingCategory.Item && def.EverHaulable
+                && !def.IsCorpse && def.ingestible?.HumanEdible == true;
+        }
+
+        //厨房菜单只接受能由普通配方制作的食品，不依赖原版正餐分类。
         public static bool IsMenuFood(ThingDef def)
         {
-            if (def == null || def.IsCorpse || def.IsDrug) return false;
-            if (!def.IsNutritionGivingIngestible || def.ingestible == null) return false;
-            return def.ingestible.HumanEdible
-                && def.ingestible.IsMeal
+            return IsEdibleProduct(def) && def.IsNutritionGivingIngestible
                 && RestaurantCookingUtility.HasProductionRecipe(def);
         }
 

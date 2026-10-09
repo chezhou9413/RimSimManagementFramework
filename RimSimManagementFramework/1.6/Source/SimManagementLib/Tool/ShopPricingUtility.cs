@@ -2,35 +2,52 @@ using SimManagementLib.SimThingClass;
 using SimManagementLib.SimThingComp;
 using UnityEngine;
 using Verse;
+using RimWorld;
+using SimManagementLib.SimZone;
+using SimManagementLib.Api;
 
 namespace SimManagementLib.Tool
 {
-    /// <summary>
-    /// 统一计算商店商品的顾客购买价格，保证预算判断和实际购买使用同一套规则。
-    /// </summary>
+    //统一顾客报价，使预算检查与确认购买采用相同的收银员加成。
     public static class ShopPricingUtility
     {
-        /// <summary>
-        /// 返回指定货柜中指定商品的单件售价，优先使用货柜配置价，其次使用库存实例市价，最后回退到 Def 市价。
-        /// </summary>
+        //按货柜配置或实物市价报价，确认购买后由账单保存金额。
         public static float GetUnitPrice(Building_SimContainer storage, ThingDef thingDef)
         {
             if (thingDef == null) return 1f;
 
             float configuredPrice = GetConfiguredPrice(storage, thingDef);
             if (configuredPrice > 0f)
-                return Mathf.Max(1f, configuredPrice);
+                return GetContainerPrice(storage, Mathf.Max(1f, configuredPrice));
 
             float storedMarketValue = GetStoredMarketValue(storage, thingDef);
             if (storedMarketValue > 0f)
-                return Mathf.Max(1f, storedMarketValue);
+                return GetContainerPrice(storage, Mathf.Max(1f, storedMarketValue));
 
-            return Mathf.Max(1f, thingDef.BaseMarketValue);
+            return GetContainerPrice(storage, Mathf.Max(1f, thingDef.BaseMarketValue));
         }
 
-        /// <summary>
-        /// 读取货柜对指定商品的启用配置价，未启用或未配置时返回零。
-        /// </summary>
+        //自动售货机独立收款，普通货柜使用本店收银员的交易能力。
+        public static float GetContainerPrice(Building_SimContainer storage, float basePrice)
+        {
+            return storage?.Map == null || VendingMachineUtility.IsVendingMachine(storage) ? basePrice
+                : ApplyCashierPrice(SimShopServiceApi.FindShop(storage.Map, storage.Position), basePrice);
+        }
+
+        //由当班收银员中最高的交易价格改善形成报价，结账时不再重复加成。
+        public static float ApplyCashierPrice(Zone_Shop shop, float basePrice)
+        {
+            if (shop == null || basePrice <= 0f) return basePrice;
+            float improvement = float.NegativeInfinity;
+            foreach (var register in ShopDataUtility.GetCashRegisterSnapshotInZone(shop))
+            {
+                Pawn cashier = register.CurrentCashier;
+                if (cashier != null) improvement = Mathf.Max(improvement, cashier.GetStatValue(StatDefOf.TradePriceImprovement));
+            }
+            return float.IsNegativeInfinity(improvement) ? basePrice : Mathf.Max(1f, basePrice * (1f + improvement));
+        }
+
+        //读取货柜的商品配置价。
         private static float GetConfiguredPrice(Building_SimContainer storage, ThingDef thingDef)
         {
             ThingComp_GoodsData comp = storage?.GetComp<ThingComp_GoodsData>();
@@ -38,9 +55,7 @@ namespace SimManagementLib.Tool
             return data != null && data.price > 0f ? data.price : 0f;
         }
 
-        /// <summary>
-        /// 从货柜虚拟库存中读取首个同类商品实例的市价，找不到库存时返回零。
-        /// </summary>
+        //从货柜库存中读取首个同类商品的市价。
         private static float GetStoredMarketValue(Building_SimContainer storage, ThingDef thingDef)
         {
             ThingOwner heldThings = storage?.GetDirectlyHeldThings();

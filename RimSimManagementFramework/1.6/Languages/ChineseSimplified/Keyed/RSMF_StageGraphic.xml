@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.StageGraphic.Choose>货架外观</RSMF.StageGraphic.Choose>
+  <RSMF.StageGraphic.Hint>让贴图随库存变化，或固定使用某个库存阶段的外观。不会改变实际库存。</RSMF.StageGraphic.Hint>
+  <RSMF.StageGraphic.Auto>随库存自动变化</RSMF.StageGraphic.Auto>
+  <RSMF.StageGraphic.Fixed>固定为 {fill} 货量外观</RSMF.StageGraphic.Fixed>
+</LanguageData>

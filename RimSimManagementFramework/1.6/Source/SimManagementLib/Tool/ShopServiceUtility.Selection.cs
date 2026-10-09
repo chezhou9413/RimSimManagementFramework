@@ -47,7 +47,7 @@ namespace SimManagementLib.Tool
                     ShopServiceDef def = slot.ServiceDef;
                     if (def == null || (categoryIds != null && categoryIds.Count > 0 && !categoryIds.Contains(def.serviceCategoryId))) continue;
                     if (!def.Worker.CanUse(pawn, candidate, shop, out _) || !CanAcceptMoreUsers(candidate, def)) continue;
-                    float quote = def.Worker.GetPrice(pawn, candidate, shop);
+                    float quote = ShopPricingUtility.ApplyCashierPrice(shop, def.Worker.GetPrice(pawn, candidate, shop));
                     float reference = def.Worker.GetReferencePrice(pawn, candidate, shop);
                     if (float.IsNaN(quote) || float.IsInfinity(quote) || quote < 0f
                         || float.IsNaN(reference) || float.IsInfinity(reference) || reference < 0f)

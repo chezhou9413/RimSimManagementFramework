@@ -79,8 +79,8 @@ namespace SimManagementLib.SimAI
                     if (!combos.NullOrEmpty())
                     {
                         ComboData targetCombo = combos
-                            .OrderByDescending(c => GetComboPurchaseScore(lordJob, pId, c))
-                            .ThenByDescending(c => GetComboEffectivePrice(c))
+                            .OrderByDescending(c => GetComboPurchaseScore(lordJob, pId, shopZone, c))
+                            .ThenByDescending(c => ShopDataUtility.GetComboEffectivePrice(shopZone, c))
                             .FirstOrDefault();
                         if (targetCombo != null && ShopDataUtility.TryPurchaseCombo(shopZone, targetCombo, out float comboPrice))
                         {
@@ -134,7 +134,7 @@ namespace SimManagementLib.SimAI
                     {
                         Thing thing = uniqueContainer.GetStoredThing(slot);
                         if (thing == null || !CustomerShoppingMatchUtility.ThingMatchesCustomer(lordJob, thing.def)) continue;
-                        float unitPrice = Mathf.Max(1f, slot.price > 0f ? slot.price : thing.MarketValue);
+                        float unitPrice = ShopPricingUtility.GetContainerPrice(uniqueContainer, Mathf.Max(1f, slot.price > 0f ? slot.price : thing.MarketValue));
                         CustomerPriceEvaluation evaluation = CustomerPriceUtility.EvaluateMarketValue(thing.MarketValue, unitPrice, lordJob.GetPriceSensitivity(pId));
                         if (evaluation.rejected)
                         {
@@ -279,7 +279,7 @@ namespace SimManagementLib.SimAI
         }
 
         //计算套餐对指定顾客的偏好得分，负责让更符合偏好的套餐优先被购买。
-        private static float GetComboPurchaseScore(LordJob_CustomerVisit lordJob, int pawnId, ComboData combo)
+        private static float GetComboPurchaseScore(LordJob_CustomerVisit lordJob, int pawnId, Zone_Shop shop, ComboData combo)
         {
             if (combo == null || combo.items.NullOrEmpty()) return 0f;
 
@@ -291,7 +291,7 @@ namespace SimManagementLib.SimAI
                 score += lordJob.GetPreferenceMultiplier(pawnId, item.def) * item.count;
             }
 
-            CustomerPriceEvaluation price = CustomerPriceUtility.EvaluateCombo(GetComboEffectivePrice(combo), ShopDataUtility.GetComboReferenceValue(combo), lordJob.GetPriceSensitivity(pawnId));
+            CustomerPriceEvaluation price = CustomerPriceUtility.EvaluateCombo(ShopDataUtility.GetComboEffectivePrice(shop, combo), ShopDataUtility.GetComboReferenceValue(combo), lordJob.GetPriceSensitivity(pawnId));
             return score * Mathf.Max(0.001f, price.purchaseWeight);
         }
 
@@ -312,14 +312,6 @@ namespace SimManagementLib.SimAI
         {
             string label = def?.label ?? def?.defName ?? "未知商品";
             return $"商品 {label} 售价约为市价 {price.ratio:F1} 倍，顾客认为价格远高于市价而拒绝购买";
-        }
-
-        //返回套餐实际售价，负责给排序和价格评估使用。
-        private static float GetComboEffectivePrice(ComboData combo)
-        {
-            if (combo == null) return 0f;
-            if (combo.totalPrice > 0f) return combo.totalPrice;
-            return ShopDataUtility.GetComboReferenceValue(combo);
         }
 
         //判断当前商店是否已经没有顾客可购买的目标内容，负责让单人顾客快速结束无效浏览。

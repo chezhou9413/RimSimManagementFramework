@@ -198,7 +198,7 @@ namespace SimManagementLib.SimThingClass
                 || !IsEligibleUniqueThingForSlot(thing, slot.index)) return null;
 
             marketValue = Mathf.Max(1f, thing.MarketValue);
-            price = Mathf.Max(1f, slot.price > 0f ? slot.price : marketValue);
+            price = ShopPricingUtility.GetContainerPrice(this, Mathf.Max(1f, slot.price > 0f ? slot.price : marketValue));
             Thing taken = VirtualStorage.Take(thing, 1);
             if (taken == null) return null;
             slot.reservedCustomerId = customerId;

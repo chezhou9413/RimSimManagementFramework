@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR.Issue.UseRestaurantCooking>请使用“制作餐厅订单”，原版灶台账单不对应顾客订单</RSR.Issue.UseRestaurantCooking>
+  <RSR.UI.RegisterProduct>热注册商品</RSR.UI.RegisterProduct>
+  <RSR.UI.RegisterProductHint>将额外物品加入本货柜。返回后设置库存目标和上架状态，保存后生效。</RSR.UI.RegisterProductHint>
+  <RSR.UI.StockOnly>仅现货</RSR.UI.StockOnly>
+  <RSR.UI.StockOnlyFood>没有可用于餐厅的普通单产物配方。请在食品柜或酒柜中热注册，以现货形式销售。</RSR.UI.StockOnlyFood>
+  <RSR.UI.AutoColonyIngredients>使用殖民地现有食材配料</RSR.UI.AutoColonyIngredients>
+  <RSR.UI.ManualIngredients>手动编辑食材和数量</RSR.UI.ManualIngredients>
+  <RSR.UI.NoUsableRecipe>店内没有当前可用且能制作这道菜的工作台或配方。</RSR.UI.NoUsableRecipe>
+  <RSR.UI.AutoIngredientsMissing>库存不足以满足最少点单份数，缺少配方所需原料：{ingredient}</RSR.UI.AutoIngredientsMissing>
+  <RSR.UI.AutoIngredientsDone>已按现有库存配置食材。殖民地仓储中的原料需先补入本店冰箱，厨师才能取用。</RSR.UI.AutoIngredientsDone>
+  <RSR.Transfer.Export>导出餐厅设置 Base64</RSR.Transfer.Export>
+  <RSR.Transfer.Import>导入餐厅设置 Base64</RSR.Transfer.Import>
+  <RSR.Transfer.ExportHint>分享当前菜单和经营参数，不包含员工、建筑、库存或进行中的订单。</RSR.Transfer.ExportHint>
+  <RSR.Transfer.ImportHint>粘贴分享文本。导入会替换当前设置草稿；关闭店铺窗口可放弃，统一保存后才生效。</RSR.Transfer.ImportHint>
+  <RSR.Transfer.Copy>复制</RSR.Transfer.Copy>
+  <RSR.Transfer.Paste>粘贴</RSR.Transfer.Paste>
+  <RSR.Transfer.Apply>替换设置草稿</RSR.Transfer.Apply>
+  <RSR.Transfer.Imported>已导入设置草稿，请在店铺窗口保存后生效。</RSR.Transfer.Imported>
+  <RSR.Transfer.Empty>导入内容为空。</RSR.Transfer.Empty>
+  <RSR.Transfer.Format>不是受支持的餐厅设置分享格式。</RSR.Transfer.Format>
+  <RSR.Transfer.InvalidMenu>菜单数据不完整。</RSR.Transfer.InvalidMenu>
+  <RSR.Transfer.MissingDef>当前游戏缺少物品定义：{def}</RSR.Transfer.MissingDef>
+  <RSR.Transfer.InvalidDish>菜品的配方、价格、份数或食材无效：{dish}</RSR.Transfer.InvalidDish>
+  <RSR.Transfer.InvalidParameters>经营参数超出允许范围。</RSR.Transfer.InvalidParameters>
+  <RSR.Transfer.Error>无法导入：{reason}</RSR.Transfer.Error>
+</LanguageData>

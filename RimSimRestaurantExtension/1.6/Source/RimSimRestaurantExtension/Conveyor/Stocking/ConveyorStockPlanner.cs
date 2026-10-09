@@ -81,7 +81,8 @@ namespace RimSimRestaurantExtension.Conveyor.Stocking
                     foreach (var stove in RestaurantCookingUtility.FindUsableStoves(line.Shop, task))
                     {
                         if (!RestaurantCookingUtility.CanPawnCookOrderAt(pawn, stove, task)
-                            || !pawn.CanReserveAndReach(stove, PathEndMode.InteractionCell, Danger.Some)) continue;
+                            || !pawn.CanReserveAndReach(stove, PathEndMode.InteractionCell, Danger.Some)
+                            || stove.def.hasInteractionCell && !pawn.CanReserveSittableOrSpot(stove.InteractionCell, stove)) continue;
                         if (!RestaurantStockUtility.Select(line.Shop, task, pawn, out stock)) continue;
                         task.stove = stove;
                         task.recipe = RestaurantCookingUtility.GetRecipeForOrder(task, stove);

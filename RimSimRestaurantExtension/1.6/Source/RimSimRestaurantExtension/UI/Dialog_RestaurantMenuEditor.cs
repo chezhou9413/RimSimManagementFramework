@@ -24,6 +24,7 @@ namespace RimSimRestaurantExtension.UI
         private string minimum;
         private string maximum;
         private string error = "";
+        private bool editIngredients;
         public override Vector2 InitialSize => new Vector2(Mathf.Min(680f, Verse.UI.screenWidth - 48f), Mathf.Min(720f, Verse.UI.screenHeight - 48f));
 
         //建立编辑副本与数字输入缓冲，职责是让关闭子窗口丢弃修改。
@@ -54,7 +55,7 @@ namespace RimSimRestaurantExtension.UI
                 float width = body.width - 16f;
                 string note = SimTranslation.T("RSR.UI.RecipeNote");
                 float noteHeight = Text.CalcHeight(note, width);
-                Rect view = new Rect(0f, 0f, width, Mathf.Max(body.height, row * (8 + draft.ingredients.Count) + noteHeight + 12f));
+                Rect view = new Rect(0f, 0f, width, Mathf.Max(body.height, row * (10 + draft.ingredients.Count) + noteHeight + 12f));
                 Widgets.BeginScrollView(body, ref scroll, view);
                 try { DrawForm(view.width, row, note, noteHeight); }
                 finally { Widgets.EndScrollView(); }
@@ -92,8 +93,21 @@ namespace RimSimRestaurantExtension.UI
             RestaurantUiStyle.DrawCheckbox(new Rect(0f, y, width, row - 8f), SimTranslation.T("RSR.UI.EnableDish"), ref draft.enabled); y += row;
             ShopUiVisualUtility.DrawTableHeaderBackground(new Rect(0f, y, width, row - 8f));
             ShopUiVisualUtility.DrawCellLabel(new Rect(8f, y, width - 16f, row - 8f), SimTranslation.T("RSR.UI.IngredientsPerPortion")); y += row;
+            if (RestaurantUiStyle.DrawPrimaryButton(new Rect(0f, y, width, row - 8f), SimTranslation.T("RSR.UI.AutoColonyIngredients")))
+                FillFromColony();
+            y += row;
+            RestaurantUiStyle.DrawCheckbox(new Rect(0f, y, width, row - 8f), SimTranslation.T("RSR.UI.ManualIngredients"), ref editIngredients);
+            y += row;
             foreach (var ingredient in draft.ingredients.ToList())
             {
+                if (!editIngredients)
+                {
+                    ShopUiVisualUtility.DrawCellLabel(new Rect(8f, y, width - 16f, row - 8f),
+                        (ingredient.ThingDef?.LabelCap.ToString() ?? ingredient.thingDefName) + " × "
+                        + (counts.TryGetValue(ingredient, out string input) ? input : ingredient.countPerMeal.ToString()));
+                    y += row;
+                    continue;
+                }
                 if (!counts.TryGetValue(ingredient, out string count)) count = ingredient.countPerMeal.ToString();
                 float selectWidth = width - 190f;
                 if (RestaurantUiStyle.DrawSecondaryButton(new Rect(0f, y, selectWidth, row - 8f),
@@ -107,10 +121,22 @@ namespace RimSimRestaurantExtension.UI
                 }
                 y += row;
             }
-            if (RestaurantUiStyle.DrawSecondaryButton(new Rect(0f, y, 130f, row - 8f), SimTranslation.T("RSR.UI.AddIngredient")))
+            if (editIngredients && RestaurantUiStyle.DrawSecondaryButton(new Rect(0f, y, 130f, row - 8f), SimTranslation.T("RSR.UI.AddIngredient")))
                 SelectIngredient(null);
             y += row;
             Widgets.Label(new Rect(0f, y, width, noteHeight), note);
+        }
+
+        //一键替换配料草稿，按最少点单份数检查实际库存。
+        private void FillFromColony()
+        {
+            if (!int.TryParse(minimum, out int portions) || portions < 1 || portions > (draft.MealDef?.stackLimit ?? 0))
+            { error = SimTranslation.T("RSR.UI.InvalidPortions"); return; }
+            if (!RestaurantMenuIngredientPlanner.TryFill(shop, draft, portions, out string message))
+            { error = message; return; }
+            counts.Clear();
+            error = "";
+            Verse.Messages.Message(message, RimWorld.MessageTypeDefOf.PositiveEvent, false);
         }
 
         //绘制单个输入字段，职责是为标签和输入框使用统一行高。

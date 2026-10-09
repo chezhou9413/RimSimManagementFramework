@@ -4,6 +4,7 @@ using RimSimRestaurantExtension.Models;
 using RimWorld;
 using SimManagementLib.Api;
 using Verse;
+using System.Linq;
 
 namespace RimSimRestaurantExtension.Tool
 {
@@ -68,7 +69,8 @@ namespace RimSimRestaurantExtension.Tool
                 return false;
             }
             order.ingredients = RestaurantIngredientUtility.BuildNeeds(selected.menuItem, selected.count);
-            order.recipe = order.stockProduct ? null : RestaurantCookingUtility.GetRecipeForOrder(order);
+            order.recipe = order.stockProduct ? null : RestaurantCookingUtility.FindUsableStoves(shop, order)
+                .Select(stove => RestaurantCookingUtility.GetRecipeForOrder(order, stove)).FirstOrDefault();
             string issue = RestaurantBusinessAvailability.CheckOrder(shop, order);
             if (!issue.NullOrEmpty())
             {

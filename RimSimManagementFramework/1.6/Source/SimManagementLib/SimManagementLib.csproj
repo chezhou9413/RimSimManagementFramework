@@ -341,6 +341,11 @@
     <Compile Include="SimDialog\Announcements\AnnouncementScreenshotGallery.cs" />
     <Compile Include="SimDialog\Dialog_RegisterSelectedGoodsCategory.cs" />
     <Compile Include="SimDialog\Dialog_CustomSignEditor.cs" />
+    <Compile Include="SimDialog\Dialog_CustomSignEditor.Layers.cs" />
+    <Compile Include="SimDialog\Dialog_CustomSignEditor.Preview.cs" />
+    <Compile Include="SimDialog\Dialog_SignImageBrowser.cs" />
+    <Compile Include="SimDialog\Dialog_SignImagePathImport.cs" />
+    <Compile Include="Tool\CustomSignPreviewUtility.cs" />
     <Compile Include="SimDialog\Dialog_CustomSignTransfer.cs" />
     <Compile Include="SimMapComp\CustomerArrivalShopContext.cs" />
     <Compile Include="SimMapComp\CustomerArrivalRuntime.cs" />
