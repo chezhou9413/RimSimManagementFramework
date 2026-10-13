@@ -1111,6 +1111,9 @@
   <RSMF.Business.Extensions.Item.FufuA.Description>为 FufuA 主题经营内容提供经商管理兼容入口。</RSMF.Business.Extensions.Item.FufuA.Description>
   <RSMF.Business.Extensions.Item.FufuB.Label>RSMF：FufuB 扩展</RSMF.Business.Extensions.Item.FufuB.Label>
   <RSMF.Business.Extensions.Item.FufuB.Description>为 FufuB 主题经营内容提供经商管理兼容入口。</RSMF.Business.Extensions.Item.FufuB.Description>
+  <RSMF.Business.Extensions.Item.BusinessInternet.Label>RSMF：商业网络扩展</RSMF.Business.Extensions.Item.BusinessInternet.Label>
+  <RSMF.Business.Extensions.Item.BusinessInternet.Description>为商业网络主题经营内容提供经商管理兼容入口。</RSMF.Business.Extensions.Item.BusinessInternet.Description>
+
   <RSMF.ShopUi.Page.Shop.Overview.Label>概览</RSMF.ShopUi.Page.Shop.Overview.Label>
   <RSMF.ShopUi.Page.Shop.Overview.Description>单店铺管理窗口的概览页。</RSMF.ShopUi.Page.Shop.Overview.Description>
   <RSMF.ShopUi.Page.Shop.BusinessHours.Label>营业时间</RSMF.ShopUi.Page.Shop.BusinessHours.Label>

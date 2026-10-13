@@ -71,4 +71,16 @@
     <workshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3741999388</workshopUrl>
     <previewImageUrl>https://images.steamusercontent.com/ugc/11143629598777163694/E93DC34FD37DFB3AACA7C7C4555B53C989CAC4B7/</previewImageUrl>
   </SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+
+  <SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+    <defName>RSMF_ExtensionRecommendation_BusinessInternet</defName>
+    <label>RSMF Business Internet extension</label>
+    <description>Compatibility extension for Business Internet-themed business content.</description>
+    <labelKey>RSMF.Business.Extensions.Item.BusinessInternet.Label</labelKey>
+    <descriptionKey>RSMF.Business.Extensions.Item.BusinessInternet.Description</descriptionKey>
+    <order>450</order>
+    <publishedFileId>3815327367</publishedFileId>
+    <workshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3815327367</workshopUrl>
+    <!-- <previewImageUrl>https://images.steamusercontent.com/ugc/11143629598777163694/E93DC34FD37DFB3AACA7C7C4555B53C989CAC4B7/</previewImageUrl> -->
+  </SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
 </Defs>

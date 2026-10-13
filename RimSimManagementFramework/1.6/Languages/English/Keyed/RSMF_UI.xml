@@ -1098,6 +1098,11 @@
 
   <RSMF.Business.Tutorial.Empty>No tutorials are configured.</RSMF.Business.Tutorial.Empty>
   <RSMF.Business.Tutorial.ImageMissing>Image not found</RSMF.Business.Tutorial.ImageMissing>
+
+  <RSMF.Business.Tutorial.QA.Title>QA</RSMF.Business.Tutorial.QA.Title>
+  <RSMF.Business.Tutorial.QA.BeforeImage>Why isn't my character performing restocking/service tasks?\nThere are many possible reasons for this issue.\nFirst, any multithreaded optimization mods have a high probability of causing this situation.\nSecond, please enter the "Employee Configuration" interface of your shop, as having the same character perform both restocking and service work has a probability of causing this situation.\nAfter that, please check the priority of the characters performing restocking/service tasks in the "Work" menu bar; it might be that your character is being occupied by more important tasks.</RSMF.Business.Tutorial.QA.BeforeImage>
+  <RSMF.Business.Tutorial.QA.AfterImage>Additionally, it's also possible that your character's needs in other areas are too low, such as food, leading them to engage in other activities. In such cases, waiting for a moment usually resolves the issue.</RSMF.Business.Tutorial.QA.AfterImage>
+
   <RSMF.Business.Tutorial.StartBusiness.Title>How to start business</RSMF.Business.Tutorial.StartBusiness.Title>
   <RSMF.Business.Tutorial.StartBusiness.BeforeImage>First designate an indoor shop area, then place at least one storage building and one cash register inside it. A shop will not become valid if the area is empty, outdoors, or missing core facilities.</RSMF.Business.Tutorial.StartBusiness.BeforeImage>
   <RSMF.Business.Tutorial.StartBusiness.AfterImage>Open storage management to configure sale goods, target stock, and prices, then use shop management to set business hours and staff. When the facilities are valid, the shop is within business hours, and it is not manually closed, customers will start visiting.\nPlease note that if there are any hostile objects or assaults exceeding 1000 points in your current map, including those in the fog of war, the shop will be unable to operate normally.</RSMF.Business.Tutorial.StartBusiness.AfterImage>

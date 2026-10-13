@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+
+  <SimManagementLib.SimDef.BusinessTutorialDef>
+    <defName>Sim_BusinessTutorial_QA</defName>
+    <label>QA</label>
+    <order>1</order>
+    <titleKey>RSMF.Business.Tutorial.QA.Title</titleKey>
+    <title>QA</title>
+    <textBeforeImageKey>RSMF.Business.Tutorial.QA.BeforeImage</textBeforeImageKey>
+    <textBeforeImage>为什么我的角色不进行补货/服务等工作?\n导致这种状况出现的可能性有很多。\n首先,任何的多线程类优化模组都有极大地概率造成此种情况。\n其次,请先进入您商店的"店员配置"界面,同一名角色同时承担补货与服务工作会有概率造成此种情况。\n在此之后,请于"工作"菜单栏中检查您进行补货/服务等工作的角色的对应优先级,可能是您的角色被其他更重要的事情占据了优先级。</textBeforeImage>
+    <imageMaxHeight>180</imageMaxHeight>
+    <textAfterImageKey>RSMF.Business.Tutorial.QA.AfterImage</textAfterImageKey>
+    <textAfterImage>除此之外,同样有可能是您的角色在其他方面的需求条过低,如饮食等,导致其需要进行其他方面的活动,这种情况下一般等待片刻即可。</textAfterImage>
+  </SimManagementLib.SimDef.BusinessTutorialDef>
+
   <SimManagementLib.SimDef.BusinessTutorialDef>
     <defName>Sim_BusinessTutorial_StartBusiness</defName>
     <label>How to start business</label>

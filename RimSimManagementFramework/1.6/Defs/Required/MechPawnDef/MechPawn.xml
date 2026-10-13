@@ -75,10 +75,12 @@
         <description>一台小型的服务机器，用于将殖民者从繁杂的收银工作中解脱出来</description>
         <statBases>
             <MoveSpeed>5.0</MoveSpeed>
+            <FoodPoisonChance>0.001</FoodPoisonChance>
         </statBases>
         <race>
             <mechEnabledWorkTypes>
                 <li>Sim_ServiceWork</li>
+                <li>Cooking</li>
             </mechEnabledWorkTypes>
             <lifeStageAges>
                 <li>
