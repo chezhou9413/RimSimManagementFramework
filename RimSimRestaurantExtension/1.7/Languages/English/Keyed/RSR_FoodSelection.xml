@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR.UI.FoodSourceMods>Source mods</RSR.UI.FoodSourceMods>
+  <RSR.UI.AllFoodMods>All sources</RSR.UI.AllFoodMods>
+  <RSR.UI.SearchFoodMods>Search mod name or package ID</RSR.UI.SearchFoodMods>
+  <RSR.UI.UnknownFoodSource>Unspecified source</RSR.UI.UnknownFoodSource>
+  <RSR.UI.SelectIngredientHint>Only ingredients allowed by this dish's recipes are shown. Click a food or Select to return to the editor.</RSR.UI.SelectIngredientHint>
+  <RSR.UI.SearchFoodSelection>Search food name, DefName or source mod</RSR.UI.SearchFoodSelection>
+  <RSR.UI.NoFoodSelectionMatch>No matching food. Adjust the search, source mod or quality filter.</RSR.UI.NoFoodSelectionMatch>
+</LanguageData>

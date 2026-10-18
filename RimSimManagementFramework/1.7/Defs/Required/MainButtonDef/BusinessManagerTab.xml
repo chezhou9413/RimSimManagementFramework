@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <!-- 底部主标签：经商管理。主窗口里的分页在 MainTabWindow_BusinessManager 里扩展。 -->
+  <MainButtonDef>
+    <defName>Sim_BusinessManager</defName>
+    <label>经商管理</label>
+    <description>管理殖民地所有商店的套餐、货柜配置与财务流水。</description>
+    <tabWindowClass>SimManagementLib.SimDialog.MainTabWindow_BusinessManager</tabWindowClass>
+    <order>66</order>
+    <closesWorldView>true</closesWorldView>
+  </MainButtonDef>
+</Defs>

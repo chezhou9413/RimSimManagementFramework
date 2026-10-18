@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR_Action_RestaurantDining.description>顾客入座后由服务员交谈接单并弹出商品图标。厨房菜品经制作出餐，柜中现货直接取货，服务员统一交入本人桌面。顾客原座吃喝或收下商品，等待和进食期间可按需求追加，全部处理完毕后到同店收银台统一付款。</RSR_Action_RestaurantDining.description>
+  <RSR_Action_RestaurantDining.label>餐厅点菜用餐</RSR_Action_RestaurantDining.label>
+</LanguageData>

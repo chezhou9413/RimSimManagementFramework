@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR.Issue.ActionInterrupted>餐厅动作中断</RSR.Issue.ActionInterrupted>
+  <RSR.Issue.ActionMissing>框架用餐动作已结束或丢失</RSR.Issue.ActionMissing>
+  <RSR.Issue.CabinetOutsideShop>货柜未放在餐厅商店区域内</RSR.Issue.CabinetOutsideShop>
+  <RSR.Issue.CarriedIngredientMismatch>到达灶台时携带食材与当前批次预留不符</RSR.Issue.CarriedIngredientMismatch>
+  <RSR.Issue.CheckoutFailed>结账失败：{reason}</RSR.Issue.CheckoutFailed>
+  <RSR.Issue.CheckoutPendingOrders>顾客尚有接单请求、未处理商品或制作配送订单</RSR.Issue.CheckoutPendingOrders>
+  <RSR.Issue.CheckoutTimeout>收银等待超时</RSR.Issue.CheckoutTimeout>
+  <RSR.Issue.ConversationBlocked>顾客旁的交谈位置受阻或已被预约</RSR.Issue.ConversationBlocked>
+  <RSR.Issue.ConveyorSeatInvalid>传送带餐位已失效</RSR.Issue.ConveyorSeatInvalid>
+  <RSR.Issue.ConveyorTimeout>等待传送带餐品超时</RSR.Issue.ConveyorTimeout>
+  <RSR.Issue.CookCannotCarry>厨师无法携带一件 {item}</RSR.Issue.CookCannotCarry>
+  <RSR.Issue.CookCarryingOtherItem>厨师手中已有不属于当前批次的物品：{item}</RSR.Issue.CookCarryingOtherItem>
+  <RSR.Issue.CustomerCannotCheckout>顾客无法到达同店收银台</RSR.Issue.CustomerCannotCheckout>
+  <RSR.Issue.CustomerCannotDine>顾客当前无法接收堂食餐品</RSR.Issue.CustomerCannotDine>
+  <RSR.Issue.CustomerHasOrder>顾客已有餐厅订单</RSR.Issue.CustomerHasOrder>
+  <RSR.Issue.CustomerLeftMap>顾客已离开地图</RSR.Issue.CustomerLeftMap>
+  <RSR.Issue.DiningInterrupted>顾客用餐中断：{condition}</RSR.Issue.DiningInterrupted>
+  <RSR.Issue.DiningSatisfied>需求已满足或没有符合剩余预算的商品</RSR.Issue.DiningSatisfied>
+  <RSR.Issue.IngredientBatchInvalid>第 {batch} 组食材无效或无法携带，数量={count}</RSR.Issue.IngredientBatchInvalid>
+  <RSR.Issue.IngredientBatchReservation>无法预约第 {batch} 组食材，数量={count}</RSR.Issue.IngredientBatchReservation>
+  <RSR.Issue.IngredientCountMismatch>{item} 数量不符：队列剩余={queued}，本单预留={reserved}，实物={actual}</RSR.Issue.IngredientCountMismatch>
+  <RSR.Issue.IngredientLocationInvalid>{item} 已不在可取料的冰箱或地面</RSR.Issue.IngredientLocationInvalid>
+  <RSR.Issue.IngredientNotReached>尚未到达 {item} 的取料位置：厨师={position}，目标={target}</RSR.Issue.IngredientNotReached>
+  <RSR.Issue.IngredientOrderEnded>取料订单已结束或不存在</RSR.Issue.IngredientOrderEnded>
+  <RSR.Issue.IngredientPickupDetails>取料失败：{reason}；工作={job}，位置={position}，批次数量={count}</RSR.Issue.IngredientPickupDetails>
+  <RSR.Issue.IngredientQueueIncomplete>Job 食材目标与数量队列不完整</RSR.Issue.IngredientQueueIncomplete>
+  <RSR.Issue.IngredientQueueMismatch>取料目标与数量队列不一致</RSR.Issue.IngredientQueueMismatch>
+  <RSR.Issue.IngredientSourceLost>出发时取料设施或地面物资已失效</RSR.Issue.IngredientSourceLost>
+  <RSR.Issue.IngredientTargetGone>取料目标已毁坏或离开地图</RSR.Issue.IngredientTargetGone>
+  <RSR.Issue.InvalidCookingOrder>订单状态或灶台配方已失效</RSR.Issue.InvalidCookingOrder>
+  <RSR.Issue.InvalidShopOrder>店铺或订单无效</RSR.Issue.InvalidShopOrder>
+  <RSR.Issue.KitchenStockAfterInterruption>制作中断后，店内后厨货源暂时不足</RSR.Issue.KitchenStockAfterInterruption>
+  <RSR.Issue.KitchenStockUnavailable>冰箱和店内储存架食材不足或不可达</RSR.Issue.KitchenStockUnavailable>
+  <RSR.Issue.MealTimeout>等待上菜超时</RSR.Issue.MealTimeout>
+  <RSR.Issue.MenuIngredients>食材不足：{dish}</RSR.Issue.MenuIngredients>
+  <RSR.Issue.NoAcceptedGoods>没有已接受的商品，本次用餐结束</RSR.Issue.NoAcceptedGoods>
+  <RSR.Issue.NoAffordableConveyorFood>没有剩余预算内的上架食品</RSR.Issue.NoAffordableConveyorFood>
+  <RSR.Issue.NoCabinetWaiter>没有能从商品柜到达顾客旁的服务员</RSR.Issue.NoCabinetWaiter>
+  <RSR.Issue.NoCashier>当前没有在岗收银员</RSR.Issue.NoCashier>
+  <RSR.Issue.NoCookOrIngredients>食材不足、被预约，或没有能取料并送到出餐台的厨师</RSR.Issue.NoCookOrIngredients>
+  <RSR.Issue.NoCookableMenu>没有可制作菜单</RSR.Issue.NoCookableMenu>
+  <RSR.Issue.NoDeliveryWaiter>暂无服务员能够完整取餐并到达顾客旁</RSR.Issue.NoDeliveryWaiter>
+  <RSR.Issue.NoEnabledMenu>没有启用的有效菜单</RSR.Issue.NoEnabledMenu>
+  <RSR.Issue.NoIngredientPlacement>灶台附近没有可独立放置食材的空格</RSR.Issue.NoIngredientPlacement>
+  <RSR.Issue.NoKitchenShelves>商店区域内尚未放置后厨储存架</RSR.Issue.NoKitchenShelves>
+  <RSR.Issue.NoOrderWaiter>当前没有可工作的接单服务员</RSR.Issue.NoOrderWaiter>
+  <RSR.Issue.NoPass>缺少接待与出餐台</RSR.Issue.NoPass>
+  <RSR.Issue.NoPassWaiter>没有能从出餐台到达顾客旁的服务员</RSR.Issue.NoPassWaiter>
+  <RSR.Issue.NoRegister>店内缺少收银台</RSR.Issue.NoRegister>
+  <RSR.Issue.NoSeats>没有可用且可达的桌椅餐位</RSR.Issue.NoSeats>
+  <RSR.Issue.NoShop>商店不存在</RSR.Issue.NoShop>
+  <RSR.Issue.NoStove>没有兼容配方且可工作的灶台</RSR.Issue.NoStove>
+  <RSR.Issue.NoSuitableDishAfterTalk>交谈后没有符合预算、饮食与库存条件的菜品</RSR.Issue.NoSuitableDishAfterTalk>
+  <RSR.Issue.NoSuitableMenu>没有预算与饮食条件允许的菜单</RSR.Issue.NoSuitableMenu>
+  <RSR.Issue.OrderClaimUnavailable>订单暂不可认领，等待重新检查</RSR.Issue.OrderClaimUnavailable>
+  <RSR.Issue.OrderSeatUnavailable>顾客餐位或餐桌已不可用</RSR.Issue.OrderSeatUnavailable>
+  <RSR.Issue.OrderStoveUnavailable>本单需要的兼容灶台已不可用</RSR.Issue.OrderStoveUnavailable>
+  <RSR.Issue.OrderTimeout>等待服务员接单超时</RSR.Issue.OrderTimeout>
+  <RSR.Issue.PassRemoved>接待与出餐台已移除</RSR.Issue.PassRemoved>
+  <RSR.Issue.PassUnavailable>点餐台已不可用或被移出餐厅区域</RSR.Issue.PassUnavailable>
+  <RSR.Issue.PhysicalStockChanged>订单实物丢失、腐坏或数量发生变化</RSR.Issue.PhysicalStockChanged>
+  <RSR.Issue.ProductionValidation>出餐前核实失败：实际食材不足或产物不可生成</RSR.Issue.ProductionValidation>
+  <RSR.Issue.ReservedCabinetGoodsMissing>商品柜已移除或已预留商品丢失</RSR.Issue.ReservedCabinetGoodsMissing>
+  <RSR.Issue.ReservedIngredientsUnavailable>预留食材不足或当前厨师无法取料</RSR.Issue.ReservedIngredientsUnavailable>
+  <RSR.Issue.ReservedItemFiltered>预留物品已被货柜筛选排除</RSR.Issue.ReservedItemFiltered>
+  <RSR.Issue.ReservedItemOffSale>已预留商品停止上架</RSR.Issue.ReservedItemOffSale>
+  <RSR.Issue.ReservedStockCount>已预留的真实物资已毁坏或数量不足：{item}，预留={reserved}，实物={actual}</RSR.Issue.ReservedStockCount>
+  <RSR.Issue.ReservedStorageInvalid>已预留食材的冰箱或店内储存架已失效</RSR.Issue.ReservedStorageInvalid>
+  <RSR.Issue.RestaurantDisabled>餐厅已停用</RSR.Issue.RestaurantDisabled>
+  <RSR.Issue.RestaurantRemoved>餐厅商店区域已不存在</RSR.Issue.RestaurantRemoved>
+  <RSR.Issue.SeatUnavailable>餐桌或座位已不可用</RSR.Issue.SeatUnavailable>
+  <RSR.Issue.SeatsFullOrBlocked>当前满座或顾客无法到达餐位</RSR.Issue.SeatsFullOrBlocked>
+  <RSR.Issue.SelfServiceCustomerUnavailable>自助用餐顾客已不可用</RSR.Issue.SelfServiceCustomerUnavailable>
+  <RSR.Issue.SelfServiceShopRemoved>自助用餐所属商店已不存在</RSR.Issue.SelfServiceShopRemoved>
+  <RSR.Issue.SessionEnded>用餐会话已结束</RSR.Issue.SessionEnded>
+  <RSR.Issue.SessionMissing>用餐会话或地图已不存在</RSR.Issue.SessionMissing>
+  <RSR.Issue.SettlementFailed>用餐记账或收银交接失败</RSR.Issue.SettlementFailed>
+  <RSR.Issue.ShopUnavailable>商店区域不可用</RSR.Issue.ShopUnavailable>
+  <RSR.Issue.StockChanged>确认时真实库存已不足或被其他订单预留</RSR.Issue.StockChanged>
+  <RSR.Issue.StockOrPickupBlocked>柜中现货不足或服务员取货路线受阻</RSR.Issue.StockOrPickupBlocked>
+  <RSR.Issue.StoveCellReservation>无法预约灶台交互格</RSR.Issue.StoveCellReservation>
+  <RSR.Issue.StoveReservation>无法预约灶台</RSR.Issue.StoveReservation>
+  <RSR.Issue.TableFoodUnavailable>桌面商品已丢失或不能继续食用</RSR.Issue.TableFoodUnavailable>
+  <RSR.Issue.TooManyPortions>点菜份数超过顾客携带能力</RSR.Issue.TooManyPortions>
+  <RSR.Issue.TrayMissing>本人桌面托盘已丢失</RSR.Issue.TrayMissing>
+  <RSR.Issue.TrayTransferFailed>本人餐品无法从托盘转到手中</RSR.Issue.TrayTransferFailed>
+  <RSR.Issue.WaiterCannotReach>服务员无法到达顾客旁</RSR.Issue.WaiterCannotReach>
+</LanguageData>

@@ -1,0 +1,20 @@
+﻿<LanguageData>
+  <FillCollectibleDisplayStand.gerund>filling collectible display stand</FillCollectibleDisplayStand.gerund>
+  <FillCollectibleDisplayStand.label>Fill Collectible Display Stand</FillCollectibleDisplayStand.label>
+  <FillCollectibleDisplayStand.verb>fill collectible display stand</FillCollectibleDisplayStand.verb>
+  <RestockMegaStorage.gerund>restocking</RestockMegaStorage.gerund>
+  <RestockMegaStorage.label>Restock Cabinet</RestockMegaStorage.label>
+  <RestockMegaStorage.verb>restock</RestockMegaStorage.verb>
+  <Sim_WorkGiver_CollectCashRegisterSilver.gerund>Withdrawing cash from business building</Sim_WorkGiver_CollectCashRegisterSilver.gerund>
+  <Sim_WorkGiver_CollectCashRegisterSilver.label>Collect and haul cash from business building</Sim_WorkGiver_CollectCashRegisterSilver.label>
+  <Sim_WorkGiver_CollectCashRegisterSilver.verb>Haul</Sim_WorkGiver_CollectCashRegisterSilver.verb>
+  <Sim_WorkGiver_ManCashRegister.gerund>Working at cash register</Sim_WorkGiver_ManCashRegister.gerund>
+  <Sim_WorkGiver_ManCashRegister.label>Cash register duty</Sim_WorkGiver_ManCashRegister.label>
+  <Sim_WorkGiver_ManCashRegister.verb>Man</Sim_WorkGiver_ManCashRegister.verb>
+  <Sim_WorkGiver_PrepareShopOrder.gerund>Processing customer orders</Sim_WorkGiver_PrepareShopOrder.gerund>
+  <Sim_WorkGiver_PrepareShopOrder.label>Process customer orders</Sim_WorkGiver_PrepareShopOrder.label>
+  <Sim_WorkGiver_PrepareShopOrder.verb>Process</Sim_WorkGiver_PrepareShopOrder.verb>
+  <WithdrawFromMegaStorage.gerund>withdrawing excess goods</WithdrawFromMegaStorage.gerund>
+  <WithdrawFromMegaStorage.label>Remove excess goods from cabinet</WithdrawFromMegaStorage.label>
+  <WithdrawFromMegaStorage.verb>withdraw</WithdrawFromMegaStorage.verb>
+</LanguageData>

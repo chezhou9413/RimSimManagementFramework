@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.Bubble.PickCombo>Picked bundle: {comboName}</RSMF.Bubble.PickCombo>
+  <RSMF.Bubble.NoSuitableGoods>No suitable goods</RSMF.Bubble.NoSuitableGoods>
+  <RSMF.Bubble.TakeItem>Take {item}</RSMF.Bubble.TakeItem>
+  <RSMF.Bubble.TakeItemCount>Take {item} x{count}</RSMF.Bubble.TakeItemCount>
+  <RSMF.Bubble.SelectService>Service: {service}</RSMF.Bubble.SelectService>
+  <RSMF.Bubble.ServiceCompleted>Service done: {service}</RSMF.Bubble.ServiceCompleted>
+  <RSMF.Bubble.VendingNoSuitableGoods>No suitable vending goods</RSMF.Bubble.VendingNoSuitableGoods>
+  <RSMF.Bubble.VendingAutoBuy>Auto bought {item}</RSMF.Bubble.VendingAutoBuy>
+  <RSMF.Bubble.VendingAutoBuyCount>Auto bought {item} x{count}</RSMF.Bubble.VendingAutoBuyCount>
+  <RSMF.Bubble.DrugUseInShop>Using in shop</RSMF.Bubble.DrugUseInShop>
+  <RSMF.Bubble.CheckoutQueueTimeout>Queue timed out, items returned</RSMF.Bubble.CheckoutQueueTimeout>
+  <RSMF.Bubble.CheckoutSilver>Paid {amount}</RSMF.Bubble.CheckoutSilver>
+</LanguageData>

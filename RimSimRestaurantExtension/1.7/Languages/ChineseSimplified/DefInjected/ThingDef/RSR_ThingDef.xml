@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR_BarCounter.description>可供顾客原座用餐的餐厅桌面。只与相邻的同类吧台连接。</RSR_BarCounter.description>
+  <RSR_BarCounter.label>拼接吧台桌</RSR_BarCounter.label>
+  <RSR_BarStool.description>可在餐桌或吧台旁入座用餐。</RSR_BarStool.description>
+  <RSR_BarStool.label>餐厅高脚椅</RSR_BarStool.label>
+  <RSR_BoothSofa.description>两个占用格可分别预约，供两名顾客独立用餐。</RSR_BoothSofa.description>
+  <RSR_BoothSofa.label>双人卡座沙发</RSR_BoothSofa.label>
+  <RSR_DiningChair.description>可在餐桌或吧台旁入座用餐。</RSR_DiningChair.description>
+  <RSR_DiningChair.label>餐厅餐椅</RSR_DiningChair.label>
+  <RSR_DiningTableRectangular.description>可供顾客原座用餐的餐厅桌面。在相邻格摆放餐椅后形成餐位。</RSR_DiningTableRectangular.description>
+  <RSR_DiningTableRectangular.label>餐厅长桌</RSR_DiningTableRectangular.label>
+  <RSR_DiningTableSquare.description>可供顾客原座用餐的餐厅桌面。在相邻格摆放餐椅后形成餐位。</RSR_DiningTableSquare.description>
+  <RSR_DiningTableSquare.label>餐厅方桌</RSR_DiningTableSquare.label>
+  <RSR_KitchenStorageCabinet.description>餐厅配送专用商品柜。设置库存目标、售价与上架状态后，由服务员送到顾客桌面。补货从本店商店区域内的储存架取货，未配置品种不会自动补货。</RSR_KitchenStorageCabinet.description>
+  <RSR_KitchenStorageCabinet.label>落地厨房杂物柜</RSR_KitchenStorageCabinet.label>
+  <RSR_Refrigerator.description>厨房专用冷藏库存。通电只暂停腐坏，断电后继续按环境温度腐坏。厨师优先使用冰箱内食材。补货从本店商店区域内的储存架取货，未配置品种不会自动补货。</RSR_Refrigerator.description>
+  <RSR_Refrigerator.label>餐厅冰箱</RSR_Refrigerator.label>
+  <RSR_RestaurantOrderCounter.description>餐厅接待与出餐设施。顾客在桌椅入座后由服务员交谈点菜；厨师把成品存入此台，服务员再整单送到顾客的私人桌面托盘。餐品在容器中独立保存，会正常腐坏。柜中现货由服务员直接配送，所有追加订单处理完毕后统一前往收银台付款。</RSR_RestaurantOrderCounter.description>
+  <RSR_RestaurantOrderCounter.label>餐厅接待与出餐台</RSR_RestaurantOrderCounter.label>
+  <RSR_SushiConveyor.description>单向运输餐盘的餐厅桌面。在四向相邻格摆放椅子后，顾客可自行拿取经过面前的食品，并到餐厅收银台结账。点击任意一段配置整条线路的上架食品。</RSR_SushiConveyor.description>
+  <RSR_SushiConveyor.label>旋转寿司传送带</RSR_SushiConveyor.label>
+  <RSR_TableTray.label>餐位餐品</RSR_TableTray.label>
+  <RSR_WallCabinet.description>餐厅配送专用商品柜。设置库存目标、售价与上架状态后，由服务员送到顾客桌面。补货从本店商店区域内的储存架取货，未配置品种不会自动补货。</RSR_WallCabinet.description>
+  <RSR_WallCabinet.label>壁挂橱柜</RSR_WallCabinet.label>
+  <RSR_WallWineCabinet.description>餐厅配送专用商品柜。设置库存目标、售价与上架状态后，由服务员送到顾客桌面。补货从本店商店区域内的储存架取货，未配置品种不会自动补货。</RSR_WallWineCabinet.description>
+  <RSR_WallWineCabinet.label>壁挂酒柜</RSR_WallWineCabinet.label>
+</LanguageData>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <SimManagementLib.SimDef.ShopUiPageDef>
+    <defName>Sim_BusinessUi_Main_Advisor</defName>
+    <label>Business advisor</label>
+    <labelKey>RSMF.Business.Advisor.Tab</labelKey>
+    <scope>BusinessManager</scope>
+    <order>350</order>
+    <workerClass>SimManagementLib.SimDialog.BusinessPageWorker_Advisor</workerClass>
+  </SimManagementLib.SimDef.ShopUiPageDef>
+</Defs>

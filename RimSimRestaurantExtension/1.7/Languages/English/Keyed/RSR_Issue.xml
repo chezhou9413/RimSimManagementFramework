@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR.Issue.ActionInterrupted>Restaurant action interrupted</RSR.Issue.ActionInterrupted>
+  <RSR.Issue.ActionMissing>Dining action has ended or is missing</RSR.Issue.ActionMissing>
+  <RSR.Issue.CabinetOutsideShop>Cabinet is outside the restaurant shop area</RSR.Issue.CabinetOutsideShop>
+  <RSR.Issue.CarriedIngredientMismatch>Carried ingredients do not match this batch's reservation on arrival at the stove</RSR.Issue.CarriedIngredientMismatch>
+  <RSR.Issue.CheckoutFailed>Checkout failed: {reason}</RSR.Issue.CheckoutFailed>
+  <RSR.Issue.CheckoutPendingOrders>Customer still has order requests, unhandled goods or orders being prepared or delivered</RSR.Issue.CheckoutPendingOrders>
+  <RSR.Issue.CheckoutTimeout>Timed out waiting for checkout</RSR.Issue.CheckoutTimeout>
+  <RSR.Issue.ConversationBlocked>Conversation position beside the customer is blocked or reserved</RSR.Issue.ConversationBlocked>
+  <RSR.Issue.ConveyorSeatInvalid>Conveyor dining seat is no longer valid</RSR.Issue.ConveyorSeatInvalid>
+  <RSR.Issue.ConveyorTimeout>Timed out waiting for conveyor food</RSR.Issue.ConveyorTimeout>
+  <RSR.Issue.CookCannotCarry>Cook cannot carry even one {item}</RSR.Issue.CookCannotCarry>
+  <RSR.Issue.CookCarryingOtherItem>Cook is carrying an item outside this batch: {item}</RSR.Issue.CookCarryingOtherItem>
+  <RSR.Issue.CustomerCannotCheckout>Customer cannot reach this shop's cash register</RSR.Issue.CustomerCannotCheckout>
+  <RSR.Issue.CustomerCannotDine>Customer cannot receive dine-in food</RSR.Issue.CustomerCannotDine>
+  <RSR.Issue.CustomerHasOrder>Customer already has a restaurant order</RSR.Issue.CustomerHasOrder>
+  <RSR.Issue.CustomerLeftMap>Customer has left the map</RSR.Issue.CustomerLeftMap>
+  <RSR.Issue.DiningInterrupted>Dining interrupted: {condition}</RSR.Issue.DiningInterrupted>
+  <RSR.Issue.DiningSatisfied>Needs are satisfied or no goods fit the remaining budget</RSR.Issue.DiningSatisfied>
+  <RSR.Issue.IngredientBatchInvalid>Ingredient batch {batch} is invalid or cannot be carried, count={count}</RSR.Issue.IngredientBatchInvalid>
+  <RSR.Issue.IngredientBatchReservation>Cannot reserve ingredient batch {batch}, count={count}</RSR.Issue.IngredientBatchReservation>
+  <RSR.Issue.IngredientCountMismatch>{item} quantity mismatch: queued={queued}, reserved={reserved}, actual={actual}</RSR.Issue.IngredientCountMismatch>
+  <RSR.Issue.IngredientLocationInvalid>{item} is no longer in an accessible refrigerator or on the ground</RSR.Issue.IngredientLocationInvalid>
+  <RSR.Issue.IngredientNotReached>Ingredient pickup position for {item} not reached: cook={position}, target={target}</RSR.Issue.IngredientNotReached>
+  <RSR.Issue.IngredientOrderEnded>Ingredient collection order has ended or does not exist</RSR.Issue.IngredientOrderEnded>
+  <RSR.Issue.IngredientPickupDetails>Ingredient pickup failed: {reason}; job={job}, position={position}, batch count={count}</RSR.Issue.IngredientPickupDetails>
+  <RSR.Issue.IngredientQueueIncomplete>Ingredient targets or quantity queue are incomplete</RSR.Issue.IngredientQueueIncomplete>
+  <RSR.Issue.IngredientQueueMismatch>Ingredient targets do not match the quantity queue</RSR.Issue.IngredientQueueMismatch>
+  <RSR.Issue.IngredientSourceLost>Ingredient storage or ground stock was unavailable at departure</RSR.Issue.IngredientSourceLost>
+  <RSR.Issue.IngredientTargetGone>Ingredient target was destroyed or left the map</RSR.Issue.IngredientTargetGone>
+  <RSR.Issue.InvalidCookingOrder>Order state or stove recipe is no longer valid</RSR.Issue.InvalidCookingOrder>
+  <RSR.Issue.InvalidShopOrder>Invalid shop or order</RSR.Issue.InvalidShopOrder>
+  <RSR.Issue.KitchenStockAfterInterruption>Kitchen stock is temporarily insufficient after cooking was interrupted</RSR.Issue.KitchenStockAfterInterruption>
+  <RSR.Issue.KitchenStockUnavailable>Refrigerator and shelf ingredients are insufficient or unreachable</RSR.Issue.KitchenStockUnavailable>
+  <RSR.Issue.MealTimeout>Timed out waiting for food</RSR.Issue.MealTimeout>
+  <RSR.Issue.MenuIngredients>Not enough ingredients: {dish}</RSR.Issue.MenuIngredients>
+  <RSR.Issue.NoAcceptedGoods>No goods were accepted; dining has ended</RSR.Issue.NoAcceptedGoods>
+  <RSR.Issue.NoAffordableConveyorFood>No conveyor food fits the remaining budget</RSR.Issue.NoAffordableConveyorFood>
+  <RSR.Issue.NoCabinetWaiter>No waiter can reach the customer from the cabinet</RSR.Issue.NoCabinetWaiter>
+  <RSR.Issue.NoCashier>No cashier on duty</RSR.Issue.NoCashier>
+  <RSR.Issue.NoCookOrIngredients>Ingredients are insufficient or reserved, or no cook can collect them and deliver to the serving counter</RSR.Issue.NoCookOrIngredients>
+  <RSR.Issue.NoCookableMenu>No dishes can be prepared</RSR.Issue.NoCookableMenu>
+  <RSR.Issue.NoDeliveryWaiter>No waiter can collect the full order and reach the customer</RSR.Issue.NoDeliveryWaiter>
+  <RSR.Issue.NoEnabledMenu>No valid dishes enabled</RSR.Issue.NoEnabledMenu>
+  <RSR.Issue.NoIngredientPlacement>No free cell near the stove for a separate ingredient stack</RSR.Issue.NoIngredientPlacement>
+  <RSR.Issue.NoKitchenShelves>No kitchen shelves in the shop area</RSR.Issue.NoKitchenShelves>
+  <RSR.Issue.NoOrderWaiter>No waiter is available to take the order</RSR.Issue.NoOrderWaiter>
+  <RSR.Issue.NoPass>No reception and serving counter</RSR.Issue.NoPass>
+  <RSR.Issue.NoPassWaiter>No waiter can reach the customer from the serving counter</RSR.Issue.NoPassWaiter>
+  <RSR.Issue.NoRegister>No cash register in the shop</RSR.Issue.NoRegister>
+  <RSR.Issue.NoSeats>No available, reachable table seat</RSR.Issue.NoSeats>
+  <RSR.Issue.NoShop>Shop no longer exists</RSR.Issue.NoShop>
+  <RSR.Issue.NoStove>No working stove supports the recipe</RSR.Issue.NoStove>
+  <RSR.Issue.NoSuitableDishAfterTalk>No dish meets budget, dietary and stock requirements after ordering</RSR.Issue.NoSuitableDishAfterTalk>
+  <RSR.Issue.NoSuitableMenu>No dishes meet the customer's budget and dietary requirements</RSR.Issue.NoSuitableMenu>
+  <RSR.Issue.OrderClaimUnavailable>Order cannot be claimed yet; awaiting another check</RSR.Issue.OrderClaimUnavailable>
+  <RSR.Issue.OrderSeatUnavailable>Customer's seat or table is unavailable</RSR.Issue.OrderSeatUnavailable>
+  <RSR.Issue.OrderStoveUnavailable>The compatible stove required by this order is unavailable</RSR.Issue.OrderStoveUnavailable>
+  <RSR.Issue.OrderTimeout>Timed out waiting for a waiter to take the order</RSR.Issue.OrderTimeout>
+  <RSR.Issue.PassRemoved>Reception and serving counter removed</RSR.Issue.PassRemoved>
+  <RSR.Issue.PassUnavailable>Order counter is unavailable or outside the restaurant</RSR.Issue.PassUnavailable>
+  <RSR.Issue.PhysicalStockChanged>Order goods are missing, spoiled or have changed in quantity</RSR.Issue.PhysicalStockChanged>
+  <RSR.Issue.ProductionValidation>Pre-production check failed: insufficient ingredients or product cannot be created</RSR.Issue.ProductionValidation>
+  <RSR.Issue.ReservedCabinetGoodsMissing>Cabinet removed or reserved goods missing</RSR.Issue.ReservedCabinetGoodsMissing>
+  <RSR.Issue.ReservedIngredientsUnavailable>Reserved ingredients are insufficient or unreachable by the cook</RSR.Issue.ReservedIngredientsUnavailable>
+  <RSR.Issue.ReservedItemFiltered>Reserved item excluded by the cabinet filter</RSR.Issue.ReservedItemFiltered>
+  <RSR.Issue.ReservedItemOffSale>Reserved goods are no longer for sale</RSR.Issue.ReservedItemOffSale>
+  <RSR.Issue.ReservedStockCount>Reserved goods are destroyed or insufficient: {item}, reserved={reserved}, actual={actual}</RSR.Issue.ReservedStockCount>
+  <RSR.Issue.ReservedStorageInvalid>The refrigerator or shelf holding reserved ingredients is unavailable</RSR.Issue.ReservedStorageInvalid>
+  <RSR.Issue.RestaurantDisabled>Restaurant disabled</RSR.Issue.RestaurantDisabled>
+  <RSR.Issue.RestaurantRemoved>Restaurant shop area no longer exists</RSR.Issue.RestaurantRemoved>
+  <RSR.Issue.SeatUnavailable>Table or seat is unavailable</RSR.Issue.SeatUnavailable>
+  <RSR.Issue.SeatsFullOrBlocked>All seats are occupied or unreachable</RSR.Issue.SeatsFullOrBlocked>
+  <RSR.Issue.SelfServiceCustomerUnavailable>Self-service customer unavailable</RSR.Issue.SelfServiceCustomerUnavailable>
+  <RSR.Issue.SelfServiceShopRemoved>Self-service restaurant no longer exists</RSR.Issue.SelfServiceShopRemoved>
+  <RSR.Issue.SessionEnded>Dining session has ended</RSR.Issue.SessionEnded>
+  <RSR.Issue.SessionMissing>Dining session or map no longer exists</RSR.Issue.SessionMissing>
+  <RSR.Issue.SettlementFailed>Dining accounting or checkout handoff failed</RSR.Issue.SettlementFailed>
+  <RSR.Issue.ShopUnavailable>Shop area unavailable</RSR.Issue.ShopUnavailable>
+  <RSR.Issue.StockChanged>Stock is insufficient or reserved by another order at confirmation</RSR.Issue.StockChanged>
+  <RSR.Issue.StockOrPickupBlocked>Insufficient cabinet stock or waiter pickup route blocked</RSR.Issue.StockOrPickupBlocked>
+  <RSR.Issue.StoveCellReservation>Cannot reserve the stove's interaction cell</RSR.Issue.StoveCellReservation>
+  <RSR.Issue.StoveReservation>Cannot reserve the stove</RSR.Issue.StoveReservation>
+  <RSR.Issue.TableFoodUnavailable>Table goods are missing or can no longer be consumed</RSR.Issue.TableFoodUnavailable>
+  <RSR.Issue.TooManyPortions>Ordered portions exceed the customer's carrying capacity</RSR.Issue.TooManyPortions>
+  <RSR.Issue.TrayMissing>Customer's table tray is missing</RSR.Issue.TrayMissing>
+  <RSR.Issue.TrayTransferFailed>Customer's food could not be moved from the tray to their hands</RSR.Issue.TrayTransferFailed>
+  <RSR.Issue.WaiterCannotReach>Waiter cannot reach the customer</RSR.Issue.WaiterCannotReach>
+</LanguageData>

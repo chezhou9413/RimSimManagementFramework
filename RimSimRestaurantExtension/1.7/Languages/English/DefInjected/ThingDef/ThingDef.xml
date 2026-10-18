@@ -1,0 +1,27 @@
+﻿<LanguageData>
+  <RSR_BarCounter.description>A restaurant tabletop where customers can dine in place. Connects only to adjacent bar counters of the same type.</RSR_BarCounter.description>
+  <RSR_BarCounter.label>Modular Bar Counter</RSR_BarCounter.label>
+  <RSR_BarStool.description>Allows seating and dining at a dining table or bar counter.</RSR_BarStool.description>
+  <RSR_BarStool.label>Restaurant Bar Stool</RSR_BarStool.label>
+  <RSR_BoothSofa.description>Its two occupied cells can be reserved separately, allowing two customers to dine independently.</RSR_BoothSofa.description>
+  <RSR_BoothSofa.label>Two-Person Booth Sofa</RSR_BoothSofa.label>
+  <RSR_DiningChair.description>Allows seating and dining at a dining table or bar counter.</RSR_DiningChair.description>
+  <RSR_DiningChair.label>Restaurant Dining Chair</RSR_DiningChair.label>
+  <RSR_DiningTableRectangular.description>A restaurant tabletop where customers can dine in place. Placing dining chairs in adjacent cells creates dining spots.</RSR_DiningTableRectangular.description>
+  <RSR_DiningTableRectangular.label>Restaurant Long Table</RSR_DiningTableRectangular.label>
+  <RSR_DiningTableSquare.description>A restaurant tabletop where customers can dine in place. Placing dining chairs in adjacent cells creates dining spots.</RSR_DiningTableSquare.description>
+  <RSR_DiningTableSquare.label>Restaurant Square Table</RSR_DiningTableSquare.label>
+  <RSR_KitchenStorageCabinet.description>A product cabinet dedicated to restaurant delivery. After setting stock targets, prices, and stock status, waiters deliver items to customers' tables. Restocking takes goods from storage shelves within this store's shop area; unconfigured item types will not be restocked automatically.</RSR_KitchenStorageCabinet.description>
+  <RSR_KitchenStorageCabinet.label>Floor Kitchen Utility Cabinet</RSR_KitchenStorageCabinet.label>
+  <RSR_Refrigerator.description>Refrigerated storage dedicated to the kitchen. When powered, spoilage is only paused; when unpowered, spoilage continues according to ambient temperature. Chefs prioritize using ingredients in the refrigerator. Restocking takes goods from storage shelves within this store's shop area; unconfigured item types will not be restocked automatically.</RSR_Refrigerator.description>
+  <RSR_Refrigerator.label>Restaurant Refrigerator</RSR_Refrigerator.label>
+  <RSR_RestaurantOrderCounter.description>Restaurant reception and serving facility. After customers are seated at tables, waiters take orders through conversation; chefs store finished dishes in this counter, and waiters then deliver the entire order to the customer's private table tray. Meals are stored independently in containers and spoil normally. In-stock items in the counter are delivered directly by waiters; after all additional orders are handled, customers pay together at the cash register.</RSR_RestaurantOrderCounter.description>
+  <RSR_RestaurantOrderCounter.label>Restaurant Reception and Serving Counter</RSR_RestaurantOrderCounter.label>
+  <RSR_SushiConveyor.description>A restaurant tabletop that transports plates one-way. After placing chairs in the four adjacent cells, customers can take food passing in front of them and pay at the restaurant cash register. Click any segment to configure the stocked food for the entire line.</RSR_SushiConveyor.description>
+  <RSR_SushiConveyor.label>Rotating Sushi Conveyor</RSR_SushiConveyor.label>
+  <RSR_TableTray.label>Table Meal</RSR_TableTray.label>
+  <RSR_WallCabinet.description>A product cabinet dedicated to restaurant delivery. After setting stock targets, prices, and stock status, waiters deliver items to customers' tables. Restocking takes goods from storage shelves within this store's shop area; unconfigured item types will not be restocked automatically.</RSR_WallCabinet.description>
+  <RSR_WallCabinet.label>Wall Cabinet</RSR_WallCabinet.label>
+  <RSR_WallWineCabinet.description>A product cabinet dedicated to restaurant delivery. After setting stock targets, prices, and stock status, waiters deliver items to customers' tables. Restocking takes goods from storage shelves within this store's shop area; unconfigured item types will not be restocked automatically.</RSR_WallWineCabinet.description>
+  <RSR_WallWineCabinet.label>Wall Wine Cabinet</RSR_WallWineCabinet.label>
+</LanguageData>

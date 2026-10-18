@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.Announcement.Restaurant.Title>RimSMF:Restaurant is available now</RSMF.Announcement.Restaurant.Title>
+  <RSMF.Announcement.Restaurant.Body>Turn your colony shop into a restaurant. Set menus and prices, assign cooks and servers, and welcome customers to order, dine and pay. Add a conveyor for self-service dining.\n\nThis official extension requires RimSimManagementFramework. Use the button below to open Steam Workshop and subscribe.</RSMF.Announcement.Restaurant.Body>
+  <RSMF.Announcement.OnceHint>This announcement appears automatically only once. Closing it dismisses future reminders.</RSMF.Announcement.OnceHint>
+  <RSMF.Announcement.Close>Close announcement</RSMF.Announcement.Close>
+  <RSMF.Announcement.Subscribe>Subscribe on Steam</RSMF.Announcement.Subscribe>
+  <RSMF.Announcement.Screenshots>Workshop screenshots {index}/{count} · Click a thumbnail to switch</RSMF.Announcement.Screenshots>
+  <RSMF.Announcement.Previous>Previous notice</RSMF.Announcement.Previous>
+  <RSMF.Announcement.Next>Next notice</RSMF.Announcement.Next>
+  <RSMF.Announcement.Page>Announcement {page}/{count}</RSMF.Announcement.Page>
+</LanguageData>

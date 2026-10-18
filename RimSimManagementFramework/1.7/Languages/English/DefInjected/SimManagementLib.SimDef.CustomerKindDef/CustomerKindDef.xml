@@ -1,0 +1,41 @@
+﻿<LanguageData>
+  <BasicSimCustomerKind.label>Regular Customer</BasicSimCustomerKind.label>
+  <BasicSimCustomerKind.spawnProfiles.0.label>Quickly buy and back</BasicSimCustomerKind.spawnProfiles.0.label>
+  <BasicSimCustomerKind.spawnProfiles.1.label>High consumption and leisurely browsing</BasicSimCustomerKind.spawnProfiles.1.label>
+
+  <SimCustomer_AddictiveSeeker.label>Addictive Customer</SimCustomer_AddictiveSeeker.label>
+  <SimCustomer_AddictiveSeeker.spawnProfiles.0.label>Drug-seeking behavior</SimCustomer_AddictiveSeeker.spawnProfiles.0.label>
+  <SimCustomer_AddictiveSeeker.spawnProfiles.1.label>Seeking at midnight</SimCustomer_AddictiveSeeker.spawnProfiles.1.label>
+
+  <SimCustomer_Collector.label>High-Spending Collector Customer</SimCustomer_Collector.label>
+  <SimCustomer_Collector.spawnProfiles.0.label>Weapons collection</SimCustomer_Collector.spawnProfiles.0.label>
+  <SimCustomer_Collector.spawnProfiles.1.label>Appearing collection</SimCustomer_Collector.spawnProfiles.1.label>
+
+  <SimCustomer_NightMarket.label>Night Market Customer</SimCustomer_NightMarket.label>
+  <SimCustomer_NightMarket.spawnProfiles.0.label>Night snack lover</SimCustomer_NightMarket.spawnProfiles.0.label>
+  <SimCustomer_NightMarket.spawnProfiles.1.label>Leisurely browsing at midnight</SimCustomer_NightMarket.spawnProfiles.1.label>
+
+  <SimCustomer_PracticalFamily.label>Practical Family Customer</SimCustomer_PracticalFamily.label>
+  <SimCustomer_PracticalFamily.spawnProfiles.0.label>Shopping for supply</SimCustomer_PracticalFamily.spawnProfiles.0.label>
+  <SimCustomer_PracticalFamily.spawnProfiles.1.label>Homely dinner</SimCustomer_PracticalFamily.spawnProfiles.1.label>
+
+  <SimCustomer_WorkdayOffice.label>Commuting White-Collar Customer</SimCustomer_WorkdayOffice.label>
+  <SimCustomer_WorkdayOffice.spawnProfiles.0.label>Quickly buy lunch</SimCustomer_WorkdayOffice.spawnProfiles.0.label>
+  <SimCustomer_WorkdayOffice.spawnProfiles.1.label>Buy after work</SimCustomer_WorkdayOffice.spawnProfiles.1.label>
+
+  <Sim_CollectibleDisplayCustomerKind.label>Collectible Display Stand Customer</Sim_CollectibleDisplayCustomerKind.label>
+
+  <Sim_ToiletCustomerKind.label>Toilet Customer</Sim_ToiletCustomerKind.label>
+
+  <Test_BasicCustomer.label>Basic Customer</Test_BasicCustomer.label>
+  <Test_BasicCustomer.spawnProfiles.0.label>Office worker</Test_BasicCustomer.spawnProfiles.0.label>
+  <Test_BasicCustomer.spawnProfiles.1.label>night owl</Test_BasicCustomer.spawnProfiles.1.label>
+
+  <SimCustomer_ArmsDealer.label>Arms Dealer</SimCustomer_ArmsDealer.label>
+  <SimCustomer_ArmsDealer.spawnProfiles.0.label>Melee Weapon Specialist</SimCustomer_ArmsDealer.spawnProfiles.0.label>
+  <SimCustomer_ArmsDealer.spawnProfiles.1.label>Firearm Specialist</SimCustomer_ArmsDealer.spawnProfiles.1.label>
+  <SimCustomer_ArmsDealer.spawnProfiles.2.label>Ammunition Specialist</SimCustomer_ArmsDealer.spawnProfiles.2.label>
+
+  <SimCustomer_BodypartDealer.label>Body Part Dealer</SimCustomer_BodypartDealer.label>
+
+</LanguageData>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR.Building.ConfigureConveyor>传送带上架配置</RSR.Building.ConfigureConveyor>
+  <RSR.Building.ConfigureConveyorDesc>配置整条线路的食品、目标盘数和售价。</RSR.Building.ConfigureConveyorDesc>
+  <RSR.Building.DeliveryStock>餐厅配送库存</RSR.Building.DeliveryStock>
+  <RSR.Building.LineOutsideShop>线路必须位于同一家餐厅</RSR.Building.LineOutsideShop>
+  <RSR.Building.LinePaused>补货暂停</RSR.Building.LinePaused>
+  <RSR.Building.LineRunning>运行中</RSR.Building.LineRunning>
+  <RSR.Building.LineStock>\n线路 {id}：{occupied}/{capacity} 盘\n</RSR.Building.LineStock>
+  <RSR.Building.LineUnpowered>断电，停止运输与补货</RSR.Building.LineUnpowered>
+  <RSR.Building.Refrigerated>厨房冷藏库存：通电保鲜</RSR.Building.Refrigerated>
+  <RSR.Building.RefrigeratorUnpowered>厨房冷藏库存：断电，按环境温度腐坏</RSR.Building.RefrigeratorUnpowered>
+  <RSR.Building.WaitingMeals>\n待取餐品：{count}</RSR.Building.WaitingMeals>
+</LanguageData>

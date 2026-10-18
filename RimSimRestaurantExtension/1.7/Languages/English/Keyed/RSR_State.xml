@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR.State.AwaitingCheckout>Awaiting payment</RSR.State.AwaitingCheckout>
+  <RSR.State.BringingToPass>Moving to serving counter</RSR.State.BringingToPass>
+  <RSR.State.Canceled>Canceled</RSR.State.Canceled>
+  <RSR.State.CheckingOut>Preparing to pay</RSR.State.CheckingOut>
+  <RSR.State.Completed>Completed</RSR.State.Completed>
+  <RSR.State.Cooking>Cooking</RSR.State.Cooking>
+  <RSR.State.Delivering>Delivering</RSR.State.Delivering>
+  <RSR.State.Eating>Dining</RSR.State.Eating>
+  <RSR.State.Failed>Failed</RSR.State.Failed>
+  <RSR.State.Incomplete>Incomplete</RSR.State.Incomplete>
+  <RSR.State.Paid>Paid</RSR.State.Paid>
+  <RSR.State.ReadyToDeliver>Ready to deliver</RSR.State.ReadyToDeliver>
+  <RSR.State.Seating>Taking a seat</RSR.State.Seating>
+  <RSR.State.TakingOrder>Taking order</RSR.State.TakingOrder>
+  <RSR.State.WaitingCook>Waiting to cook</RSR.State.WaitingCook>
+  <RSR.State.WaitingOrder>Waiting to order</RSR.State.WaitingOrder>
+</LanguageData>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.CustomSign.SaveClose>Save and close</RSMF.CustomSign.SaveClose>
+  <RSMF.CustomSign.CanvasHelp>Click and drag a layer to position it. Use the controls for precise size and angle. Center or reset brings an off-canvas image back into view.</RSMF.CustomSign.CanvasHelp>
+  <RSMF.CustomSign.InheritedPreview>This direction currently uses the south layers. Add an image to configure it separately. West shares and mirrors the east layers.</RSMF.CustomSign.InheritedPreview>
+  <RSMF.CustomSign.EmptyLayers>No layers on this face. Use the buttons below to add a gallery image or import a picture.</RSMF.CustomSign.EmptyLayers>
+  <RSMF.CustomSign.LayerForward>Move forward</RSMF.CustomSign.LayerForward>
+  <RSMF.CustomSign.LayerBackward>Move backward</RSMF.CustomSign.LayerBackward>
+  <RSMF.CustomSign.ShowLayer>Show this layer</RSMF.CustomSign.ShowLayer>
+  <RSMF.CustomSign.ReplaceImage>Replace image</RSMF.CustomSign.ReplaceImage>
+  <RSMF.CustomSign.Center>Center</RSMF.CustomSign.Center>
+  <RSMF.CustomSign.ResetTransform>Reset transform</RSMF.CustomSign.ResetTransform>
+  <RSMF.CustomSign.LockAspect>Lock aspect ratio</RSMF.CustomSign.LockAspect>
+  <RSMF.CustomSign.ExactPosition>Exact position</RSMF.CustomSign.ExactPosition>
+  <RSMF.CustomSign.OffsetX>Offset X</RSMF.CustomSign.OffsetX>
+  <RSMF.CustomSign.OffsetY>Offset Y</RSMF.CustomSign.OffsetY>
+  <RSMF.CustomSign.OffsetHelp>Position is relative to the sign face: 0 is the center, with a range of -1 to 1. Lock aspect ratio preserves the current proportions; disable it to stretch each axis independently.</RSMF.CustomSign.OffsetHelp>
+  <RSMF.CustomSign.GalleryHelp>Browse large previews before choosing an image. Imported pictures stay in your local gallery for reuse.</RSMF.CustomSign.GalleryHelp>
+  <RSMF.CustomSign.EmptyGallery>No matching images. Clear the search or import a PNG or JPG using the button below.</RSMF.CustomSign.EmptyGallery>
+</LanguageData>

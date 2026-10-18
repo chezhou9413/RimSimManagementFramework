@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR.Issue.UseRestaurantCooking>Use “cook restaurant order”; stove bills do not represent customer orders</RSR.Issue.UseRestaurantCooking>
+  <RSR.UI.RegisterProduct>Register product</RSR.UI.RegisterProduct>
+  <RSR.UI.RegisterProductHint>Register extra goods using the same rules as regular cabinets, including non-food items. Set stock targets and sale status, then save. Non-edible goods default to takeaway.</RSR.UI.RegisterProductHint>
+  <RSR.UI.StockOnly>Stock only</RSR.UI.StockOnly>
+  <RSR.UI.StockOnlyFood>No supported single-product cooking recipe. Choose Sell from stock under Add dish, or list this item in a food or drinks cabinet.</RSR.UI.StockOnlyFood>
+  <RSR.UI.SellStock>Sell from stock</RSR.UI.SellStock>
+  <RSR.UI.StockMenuEditorHint>Select a sales cabinet in this shop and a product. Saving updates the cabinet and menu immediately.</RSR.UI.StockMenuEditorHint>
+  <RSR.UI.StockCabinet>Source cabinet</RSR.UI.StockCabinet>
+  <RSR.UI.SelectStockCabinet>Select shop cabinet</RSR.UI.SelectStockCabinet>
+  <RSR.UI.StockProduct>Stock product</RSR.UI.StockProduct>
+  <RSR.UI.StockOrderPortions>Portions per order</RSR.UI.StockOrderPortions>
+  <RSR.UI.SaveStockMenu>Save stock settings</RSR.UI.SaveStockMenu>
+  <RSR.UI.StockMenuNote>Waiters collect actual items from this cabinet; no cooking recipe is required. Cabinets restock from shelves in this shop. A stock target of 0 disables automatic restocking. Listed products appear on the menu and can be ordered when enough stock is available. Saving applies immediately; cancel or close to discard this edit.</RSR.UI.StockMenuNote>
+  <RSR.UI.NoStockCabinetHint>Build and select a cupboard, wine cabinet or sundries cabinet inside this shop. Refrigerators supply kitchen ingredients.</RSR.UI.NoStockCabinetHint>
+  <RSR.UI.SelectStockFoodHint>Select the product to sell from stock.</RSR.UI.SelectStockFoodHint>
+  <RSR.UI.SelectStockProductHint>Choose a product allowed by this cabinet. Search or filter by source mod. No cooking recipe is required; saving registers the product.</RSR.UI.SelectStockProductHint>
+  <RSR.UI.StockMenuInventory>Stored {stored} · Reserved {reserved} · Incoming {pending}</RSR.UI.StockMenuInventory>
+  <RSR.UI.InvalidStockTarget>The stock target must be an integer from 0 to {capacity}. Combined targets must fit within the cabinet capacity.</RSR.UI.InvalidStockTarget>
+  <RSR.UI.AutoColonyIngredients>Use available colony ingredients</RSR.UI.AutoColonyIngredients>
+  <RSR.UI.ManualIngredients>Edit ingredients and quantities manually</RSR.UI.ManualIngredients>
+  <RSR.UI.NoUsableRecipe>No currently usable workbench or recipe in this restaurant can make this dish.</RSR.UI.NoUsableRecipe>
+  <RSR.UI.AutoIngredientsMissing>Not enough stock for the minimum order size. Missing recipe ingredients: {ingredient}</RSR.UI.AutoIngredientsMissing>
+  <RSR.UI.AutoIngredientsDone>Ingredients selected from available stock. Supplies in colony storage must be restocked into this restaurant’s refrigerator before cooking.</RSR.UI.AutoIngredientsDone>
+  <RSR.Transfer.Export>Export restaurant Base64</RSR.Transfer.Export>
+  <RSR.Transfer.Import>Import restaurant Base64</RSR.Transfer.Import>
+  <RSR.Transfer.ExportHint>Share the current menu and operating settings. Staff, buildings, inventory and active orders are excluded.</RSR.Transfer.ExportHint>
+  <RSR.Transfer.ImportHint>Paste the shared text. Import replaces the current settings draft; save in shop management to apply it, or close that window to discard it.</RSR.Transfer.ImportHint>
+  <RSR.Transfer.Copy>Copy</RSR.Transfer.Copy>
+  <RSR.Transfer.Paste>Paste</RSR.Transfer.Paste>
+  <RSR.Transfer.Apply>Replace settings draft</RSR.Transfer.Apply>
+  <RSR.Transfer.Imported>Settings imported into the draft. Save in shop management to apply them.</RSR.Transfer.Imported>
+  <RSR.Transfer.Empty>The import text is empty.</RSR.Transfer.Empty>
+  <RSR.Transfer.Format>Unsupported restaurant settings format.</RSR.Transfer.Format>
+  <RSR.Transfer.InvalidMenu>Menu data is incomplete.</RSR.Transfer.InvalidMenu>
+  <RSR.Transfer.MissingDef>This game is missing an item definition: {def}</RSR.Transfer.MissingDef>
+  <RSR.Transfer.InvalidDish>Invalid recipe, price, portion count or ingredients for dish: {dish}</RSR.Transfer.InvalidDish>
+  <RSR.Transfer.InvalidParameters>Operating settings are outside the allowed ranges.</RSR.Transfer.InvalidParameters>
+  <RSR.Transfer.Error>Import failed: {reason}</RSR.Transfer.Error>
+</LanguageData>

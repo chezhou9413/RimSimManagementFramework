@@ -1,0 +1,11 @@
+﻿<LanguageData>
+  <BasicSimCustomerKind.label>Regular Customer</BasicSimCustomerKind.label>
+  <SimCustomer_AddictiveSeeker.label>Addictive Customer</SimCustomer_AddictiveSeeker.label>
+  <SimCustomer_Collector.label>High-Spending Collector Customer</SimCustomer_Collector.label>
+  <SimCustomer_NightMarket.label>Night Market Customer</SimCustomer_NightMarket.label>
+  <SimCustomer_PracticalFamily.label>Practical Family Customer</SimCustomer_PracticalFamily.label>
+  <SimCustomer_WorkdayOffice.label>Commuting White-Collar Customer</SimCustomer_WorkdayOffice.label>
+  <Sim_CollectibleDisplayCustomerKind.label>Collectible Display Stand Customer</Sim_CollectibleDisplayCustomerKind.label>
+  <Sim_ToiletCustomerKind.label>Toilet Customer</Sim_ToiletCustomerKind.label>
+  <Test_BasicCustomer.label>Basic Customer</Test_BasicCustomer.label>
+</LanguageData>

@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+  <WorkGiverDef>
+    <defName>Sim_WorkGiver_ManCashRegister</defName>
+    <label>收银台值班</label>
+    <giverClass>SimManagementLib.SimWorkGiver.WorkGiver_ManCashRegister</giverClass>
+    <workType>Sim_ServiceWork</workType>
+    <priorityInType>100</priorityInType>
+    <verb>值班</verb>
+    <gerund>正在收银台值班</gerund>
+    <requiredCapacities>
+      <li>Manipulation</li>
+      <li>Talking</li>
+    </requiredCapacities>
+  </WorkGiverDef>
+
+  <!-- 服务人员把经营建筑里达到阈值的白银统一搬走。 -->
+  <WorkGiverDef>
+    <defName>Sim_WorkGiver_CollectCashRegisterSilver</defName>
+    <label>经营建筑取现搬运</label>
+    <giverClass>SimManagementLib.SimWorkGiver.WorkGiver_CollectCashRegisterSilver</giverClass>
+    <workType>Sim_ServiceWork</workType>
+    <priorityInType>95</priorityInType>
+    <verb>搬运</verb>
+    <gerund>正在从经营建筑取现</gerund>
+    <requiredCapacities>
+      <li>Manipulation</li>
+    </requiredCapacities>
+  </WorkGiverDef>
+
+  <!-- 服务人员处理外部 API 创建的待处理订单。 -->
+  <WorkGiverDef>
+    <defName>Sim_WorkGiver_PrepareShopOrder</defName>
+    <label>处理顾客订单</label>
+    <giverClass>SimManagementLib.SimWorkGiver.WorkGiver_PrepareShopOrder</giverClass>
+    <workType>Sim_ServiceWork</workType>
+    <priorityInType>90</priorityInType>
+    <verb>处理</verb>
+    <gerund>正在处理顾客订单</gerund>
+    <requiredCapacities>
+      <li>Manipulation</li>
+    </requiredCapacities>
+  </WorkGiverDef>
+</Defs>

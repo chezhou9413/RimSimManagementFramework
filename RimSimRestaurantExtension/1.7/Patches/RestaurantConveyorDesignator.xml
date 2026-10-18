@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/DesignationCategoryDef[defName="SimManagementBuildings"]/specialDesignatorClasses</xpath>
+    <value><li>RimSimRestaurantExtension.Conveyor.Placement.Designator_BuildSushiConveyor</li></value>
+  </Operation>
+</Patch>
+

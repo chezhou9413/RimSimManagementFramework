@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.Business.Advisor.Tab>经营顾问</RSMF.Business.Advisor.Tab>
+  <RSMF.Business.Advisor.Generate>生成总结与建议</RSMF.Business.Advisor.Generate>
+  <RSMF.Business.Advisor.Cancel>取消生成</RSMF.Business.Advisor.Cancel>
+  <RSMF.Business.Advisor.Cancelled>已取消本次分析。</RSMF.Business.Advisor.Cancelled>
+  <RSMF.Business.Advisor.Settings>LLM 设置</RSMF.Business.Advisor.Settings>
+  <RSMF.Business.Advisor.Disclosure>点击生成后，将所选期间的收入、利润及当前店铺、库存、岗位和服务统计发送给已配置的模型。建议仅供参考，不会自动修改经营设置；最近一次报告随存档保存。</RSMF.Business.Advisor.Disclosure>
+  <RSMF.Business.Advisor.NeedsConfig>请先在 LLM 设置中启用通用 LLM，并配置接口地址、密钥和模型。经营顾问不要求开启顾客 AI 点评。</RSMF.Business.Advisor.NeedsConfig>
+  <RSMF.Business.Advisor.Running>正在生成经营总结与建议…</RSMF.Business.Advisor.Running>
+  <RSMF.Business.Advisor.Empty>尚无经营报告。选择周期后点击“生成总结与建议”，可查看经营现状、主要问题和按优先级排列的具体建议。</RSMF.Business.Advisor.Empty>
+  <RSMF.Business.Advisor.Stamp>数据快照：第 {day} 天 · 最近 {days} 天（含未结束的当日）</RSMF.Business.Advisor.Stamp>
+  <RSMF.Business.Advisor.ShowReport>查看报告</RSMF.Business.Advisor.ShowReport>
+  <RSMF.Business.Advisor.ShowSnapshot>查看分析依据</RSMF.Business.Advisor.ShowSnapshot>
+  <RSMF.Business.Finance.RecordedProfit>累计账面利润</RSMF.Business.Finance.RecordedProfit>
+  <RSMF.Business.Finance.TodayProfit>今日账面利润</RSMF.Business.Finance.TodayProfit>
+  <RSMF.Business.Finance.AccountingNote>账面利润 = 实收 − 账单中已登记的成本。未登记的工资、建造及原料成本不在其中；今日数据尚未结束。旧账中被截为零的亏损不追溯重算。</RSMF.Business.Finance.AccountingNote>
+  <RSMF.Business.Finance.Period>{days} 天</RSMF.Business.Finance.Period>
+  <RSMF.Business.Finance.Candle.Title>经营 K 线 · 累计账面利润</RSMF.Business.Finance.Candle.Title>
+  <RSMF.Business.Finance.Candle.Note>每根 K 线记录一天内累计账面利润的开、高、低、收。高低点从启用此功能后的成交开始记录，更早历史不补造；今日未收盘。利润仅扣已登记账单成本。</RSMF.Business.Finance.Candle.Note>
+  <RSMF.Business.Finance.Candle.Legend>绿色：当日盈利　红色：当日亏损　灰色：持平　悬停查看明细</RSMF.Business.Finance.Candle.Legend>
+  <RSMF.Business.Finance.Candle.Volume>每日实收</RSMF.Business.Finance.Candle.Volume>
+  <RSMF.Business.Finance.Candle.ShopRank>累计实收 · 店铺排名</RSMF.Business.Finance.Candle.ShopRank>
+  <RSMF.Business.Finance.Candle.Mix>累计账单明细 · 收入构成</RSMF.Business.Finance.Candle.Mix>
+  <RSMF.Business.Finance.Candle.Tooltip>第 {day} 天
+开：{open}　高：{high}
+低：{low}　收：{close}
+记录区间利润：{profit}
+当日实收：{revenue}
+记录成交笔数：{bills}</RSMF.Business.Finance.Candle.Tooltip>
+  <RSMF.Business.Finance.Candle.Live>今日尚未结束，收盘值为当前值。</RSMF.Business.Finance.Candle.Live>
+  <RSMF.Business.Finance.Candle.Partial>本日从中途开始采集，开高低收及成交笔数仅涵盖记录区间。</RSMF.Business.Finance.Candle.Partial>
+  <RSMF.Business.Finance.Chart.Other>其他</RSMF.Business.Finance.Chart.Other>
+  <RSMF.Llm.EmptyResponse>接口返回成功，但没有可读取的模型文本。请检查模型与接口响应格式。</RSMF.Llm.EmptyResponse>
+  <RSMF.Llm.AnthropicSampling>Anthropic 使用模型默认采样参数，避免新模型拒绝自定义温度。温度滑块只用于 OpenAI 兼容接口的点评。</RSMF.Llm.AnthropicSampling>
+  <RSMF.Business.Advisor.Enable>启用经营顾问</RSMF.Business.Advisor.Enable>
+  <RSMF.Business.Advisor.EnableHint>同时开启统一 LLM 后，经商管理显示顾问子页。顾问可查询经营数据、殖民者工作和打包源码，并提交建造与工作指令。修改殖民地遵循下方审批设置。发送聊天会把问题及所需数据发送到顾问接口。</RSMF.Business.Advisor.EnableHint>
+  <RSMF.Business.Advisor.AutoApprove>全自动审批并执行顾问方案</RSMF.Business.Advisor.AutoApprove>
+  <RSMF.Business.Advisor.AutoApproveHint>默认关闭，每批方案由玩家批准。开启后，本任务需要的建造、拆除、原版指令及人员工作调整会在校验后直接执行，方案与进度仍可查看；已完成操作不会自动撤销。可随时停止，关闭全自动会停止剩余自动执行步骤。助手不能修改此开关。任务错误会反馈给顾问调整后重试，重试计入已有轮数限额，0 为无限；重复失败会延长等待。</RSMF.Business.Advisor.AutoApproveHint>
+  <RSMF.Business.Advisor.AutoApprovalActive>全自动审批</RSMF.Business.Advisor.AutoApprovalActive>
+  <RSMF.Business.Advisor.ManualApprovalActive>手动审批</RSMF.Business.Advisor.ManualApprovalActive>
+  <RSMF.Business.Advisor.AutoReadOnlyHint>全自动审批已开启 · 方案校验后直接执行 · 可随时停止任务</RSMF.Business.Advisor.AutoReadOnlyHint>
+  <RSMF.Business.Advisor.Model>顾问模型（留空沿用统一模型；独立接口必须填写）</RSMF.Business.Advisor.Model>
+  <RSMF.Business.Advisor.RoundLimit>单次任务的模型请求轮数上限（0 = 无限）</RSMF.Business.Advisor.RoundLimit>
+  <RSMF.Business.Advisor.RoundLimitHint>默认 0。每次发送玩家消息开始一个任务，每次调用模型计 1 轮，包含查询和审批后的继续分析。达到正数限额后停止；可随时点击“停止任务”。接口自身的限制仍由供应商决定。</RSMF.Business.Advisor.RoundLimitHint>
+  <RSMF.Business.Advisor.RoundLimitReached>本次任务已达到玩家设置的 {limit} 轮上限。可在“LLM 设置 → 经营顾问”调高限额或设为 0（无限），再发送消息继续。</RSMF.Business.Advisor.RoundLimitReached>
+  <RSMF.Business.Advisor.AnalyzingLimited>顾问正在分析（{round}/{limit} 轮）</RSMF.Business.Advisor.AnalyzingLimited>
+  <RSMF.Business.Advisor.AnalyzingUnlimited>顾问正在分析（第 {round} 轮 · 无限额）</RSMF.Business.Advisor.AnalyzingUnlimited>
+  <RSMF.Business.Advisor.SeparateConnection>使用顾问独立接口</RSMF.Business.Advisor.SeparateConnection>
+  <RSMF.Business.Advisor.SeparateHint>关闭时沿用统一地址和密钥，但仍可指定不同模型。评价设置不会被更改。</RSMF.Business.Advisor.SeparateHint>
+  <RSMF.Business.Advisor.JsonMode>使用接口 JSON 输出约束（OpenAI 兼容）</RSMF.Business.Advisor.JsonMode>
+  <RSMF.Business.Advisor.JsonModeHint>默认开启。若模型或网关不支持 response_format / json_object，请关闭此项。关闭后仍要求 JSON 并校验任务状态；纯文字或缺失状态会反馈给顾问修正，不会被误判为任务完成。操作遵循当前审批设置。</RSMF.Business.Advisor.JsonModeHint>
+  <RSMF.Business.Advisor.TaskCompleted>顾问已完成本轮任务</RSMF.Business.Advisor.TaskCompleted>
+  <RSMF.Business.Advisor.TaskBlocked>任务受阻，详见顾问说明</RSMF.Business.Advisor.TaskBlocked>
+  <RSMF.Business.Advisor.TaskNeedsInput>等待玩家补充信息</RSMF.Business.Advisor.TaskNeedsInput>
+  <RSMF.Business.Advisor.AnthropicOutputHint>Anthropic 使用原生 Messages 接口和统一 JSON 提示词，读取文本块，不发送 OpenAI 的 response_format 参数。回复同样经过校验，操作遵循当前审批设置。</RSMF.Business.Advisor.AnthropicOutputHint>
+  <RSMF.Business.Advisor.JsonModeRejected>接口拒绝 JSON 输出参数。可在“LLM 设置 → 经营顾问”关闭“使用接口 JSON 输出约束”，再发送消息。详情保留接口原文。</RSMF.Business.Advisor.JsonModeRejected>
+  <RSMF.Business.Advisor.Name>顾问名称</RSMF.Business.Advisor.Name>
+  <RSMF.Business.Advisor.Personality>人格设定（最多 8000 字符）</RSMF.Business.Advisor.Personality>
+  <RSMF.Business.Advisor.Expectations>经营期望与交流偏好（最多 8000 字符）</RSMF.Business.Advisor.Expectations>
+  <RSMF.Business.Advisor.ProfilePath>人格文件路径：TXT，或 JSON {"name":"名称","personality":"人格","expectations":"期望"}</RSMF.Business.Advisor.ProfilePath>
+  <RSMF.Business.Advisor.AvatarPath>头像图片路径：PNG / JPG，导入到本地图库</RSMF.Business.Advisor.AvatarPath>
+  <RSMF.Business.Advisor.ClearAvatar>移除头像</RSMF.Business.Advisor.ClearAvatar>
+  <RSMF.Business.Advisor.Import>导入</RSMF.Business.Advisor.Import>
+  <RSMF.Business.Advisor.Imported>导入完成。</RSMF.Business.Advisor.Imported>
+  <RSMF.Business.Advisor.CacheHint>规则与聊天历史保持稳定前缀，查询按需分页。Anthropic 启用前缀缓存，OpenAI 兼容接口依供应商自动缓存；界面只显示实际返回的用量，未知不等于零。模型、接口或人格变化会使相应缓存重建。</RSMF.Business.Advisor.CacheHint>
+  <RSMF.Business.Advisor.ReadOnlyHint>查询无需批准 · 修改殖民地先审阅方案 · 关闭窗口会停止当前任务</RSMF.Business.Advisor.ReadOnlyHint>
+  <RSMF.Business.Advisor.Clear>清空对话</RSMF.Business.Advisor.Clear>
+  <RSMF.Business.Advisor.ClearConfirm>清空本存档顾问的聊天、查询记录和模型上下文，并取消未完成请求及待批准操作？已经执行的修改会保留。</RSMF.Business.Advisor.ClearConfirm>
+  <RSMF.Business.Advisor.Summary>经营总结</RSMF.Business.Advisor.Summary>
+  <RSMF.Business.Advisor.Advice>经营建议</RSMF.Business.Advisor.Advice>
+  <RSMF.Business.Advisor.Diagnose>诊断店铺</RSMF.Business.Advisor.Diagnose>
+  <RSMF.Business.Advisor.Trace>查询过程</RSMF.Business.Advisor.Trace>
+  <RSMF.Business.Advisor.HideTrace>收起查询过程</RSMF.Business.Advisor.HideTrace>
+  <RSMF.Business.Advisor.CurrentModel>当前模型：</RSMF.Business.Advisor.CurrentModel>
+  <RSMF.Business.Advisor.Conversation>对话</RSMF.Business.Advisor.Conversation>
+  <RSMF.Business.Advisor.Ready>就绪 · 可以直接提问，或选择经营总结、建议与诊断。</RSMF.Business.Advisor.Ready>
+  <RSMF.Business.Advisor.Stopped>已停止：</RSMF.Business.Advisor.Stopped>
+  <RSMF.Business.Advisor.PlainTextResponse>收到普通文字回复 · 本轮未发起查询或操作</RSMF.Business.Advisor.PlainTextResponse>
+  <RSMF.Business.Advisor.PlainTextResponseHint>模型没有返回工具协议，内容已作为聊天显示。没有从文字或示例中提取操作；若仍需查询或调整，请发送后续要求。</RSMF.Business.Advisor.PlainTextResponseHint>
+  <RSMF.Business.Advisor.ResponseInvalid>顾问的结构化回复格式不正确或不完整，本轮查询和操作均未执行。错误详情保留了返回片段。</RSMF.Business.Advisor.ResponseInvalid>
+  <RSMF.Business.Advisor.ResponseTruncated>接口回复被输出或上下文额度截断，本轮回复中的查询和操作均未执行。顾问会收到反馈并尝试缩小批次。</RSMF.Business.Advisor.ResponseTruncated>
+  <RSMF.Business.Advisor.ProviderResponseInvalid>接口响应不符合当前供应商协议或没有文本正文。请核对供应商与接口地址；详情保留返回片段。</RSMF.Business.Advisor.ProviderResponseInvalid>
+  <RSMF.Business.Advisor.ResponseFieldsInvalid>需要 reply 字符串、queries 数组和 actions 数组；查询必须包含 topic，操作必须包含 kind，回复不能全部为空。</RSMF.Business.Advisor.ResponseFieldsInvalid>
+  <RSMF.Business.Advisor.ResponseExcerpt>模型返回片段：</RSMF.Business.Advisor.ResponseExcerpt>
+  <RSMF.Business.Advisor.ErrorDetails>错误详情</RSMF.Business.Advisor.ErrorDetails>
+  <RSMF.Business.Advisor.InputHint>Enter 发送 · Shift+Enter 换行</RSMF.Business.Advisor.InputHint>
+  <RSMF.Business.Advisor.MarkArea>标记区块</RSMF.Business.Advisor.MarkArea>
+  <RSMF.Business.Advisor.MarkAreaHint>在地图上拖动框选矩形，单击可选一格。完成后自动返回，区块随下一条消息发给顾问；标记不修改地图。请先结束当前任务再标记。</RSMF.Business.Advisor.MarkAreaHint>
+  <RSMF.Business.Advisor.MarkAreaMouseHint>拖动框选区块 · 右键 / Esc 取消</RSMF.Business.Advisor.MarkAreaMouseHint>
+  <RSMF.Business.Advisor.MarkedArea>区块 · {map} · ({x}, {z}) → ({maxX}, {maxZ}) · {width}×{height}</RSMF.Business.Advisor.MarkedArea>
+  <RSMF.Business.Advisor.MarkedAreaHint>此范围将随下一条消息发送。可输入“在这里布置货架”等要求；执行修改仍需批准。</RSMF.Business.Advisor.MarkedAreaHint>
+  <RSMF.Business.Advisor.MarkedAreaAttachment>玩家标记区块（精确范围，边界包含最大坐标；不代表批准修改）：</RSMF.Business.Advisor.MarkedAreaAttachment>
+  <RSMF.Business.Advisor.MarkedAreaUnavailable>标记对应的地图已不可用，请移除附件或重新标记区块。</RSMF.Business.Advisor.MarkedAreaUnavailable>
+  <RSMF.Business.Advisor.RemoveArea>移除区块</RSMF.Business.Advisor.RemoveArea>
+  <RSMF.Business.Advisor.TraceEmpty>顾问查询店铺、顾客、财务或源码后，这里会显示查询范围和结果；点击记录可展开详情。</RSMF.Business.Advisor.TraceEmpty>
+  <RSMF.Business.Advisor.TraceEmptyShort>尚无查询记录。</RSMF.Business.Advisor.TraceEmptyShort>
+  <RSMF.Business.Advisor.ChatEmptyShort>在下方输入问题，或点击经营总结、建议与诊断。</RSMF.Business.Advisor.ChatEmptyShort>
+  <RSMF.Llm.Error.InvalidModel>模型名称无效。请填写当前供应商提供的 API 模型标识，不要包含反引号、引号或空白。</RSMF.Llm.Error.InvalidModel>
+  <RSMF.Llm.Error.ModelRejected>接口不接受当前模型。请在 LLM 设置核对模型名称，经营顾问的独立模型会覆盖统一模型。</RSMF.Llm.Error.ModelRejected>
+  <RSMF.Llm.Error.Authentication>接口认证或权限失败，请检查当前接口对应的 API 密钥和模型访问权限。</RSMF.Llm.Error.Authentication>
+  <RSMF.Llm.Error.RateLimit>接口触发限流，请查看错误详情并稍后手动重试。</RSMF.Llm.Error.RateLimit>
+  <RSMF.Business.Advisor.SummaryPrompt>请查询近期经营数据，总结收入、账面利润、店铺人气和主要瓶颈，标明数据范围。</RSMF.Business.Advisor.SummaryPrompt>
+  <RSMF.Business.Advisor.AdvicePrompt>请查询当前经营数据，给出有依据且按优先级排列的改善建议；需要修改时先提交明确方案。</RSMF.Business.Advisor.AdvicePrompt>
+  <RSMF.Business.Advisor.DiagnosePrompt>请先查询当前选择对象与店铺，诊断店铺为什么不营业、缺货或没有顾客；结合运行数据及框架源码说明原因。</RSMF.Business.Advisor.DiagnosePrompt>
+  <RSMF.Business.Advisor.ChatEmpty>可以询问经营情况、顾客和人气、框架机制，或让顾问提出货架、岗位、营业日程及店铺布局方案。查询过程可展开查看。界面保留最近 500 条聊天和 300 条过程记录。</RSMF.Business.Advisor.ChatEmpty>
+  <RSMF.Business.Advisor.Send>发送</RSMF.Business.Advisor.Send>
+  <RSMF.Business.Advisor.Stop>停止任务</RSMF.Business.Advisor.Stop>
+  <RSMF.Business.Advisor.PendingApproval>等待批准 · {count} 项操作</RSMF.Business.Advisor.PendingApproval>
+  <RSMF.Business.Advisor.PlanDetails>查看详情</RSMF.Business.Advisor.PlanDetails>
+  <RSMF.Business.Advisor.ApproveInline>批准执行</RSMF.Business.Advisor.ApproveInline>
+  <RSMF.Business.Advisor.ApprovalHint>请核对具体操作、范围和放置方式。批准后逐步执行；遇到冲突会暂停本批并反馈给顾问重新规划，手动模式的新方案仍需批准，已完成步骤保留。普通模式下达蓝图和工作指令，由殖民者执行；上帝模式遵循原版即时行为。切换模式后旧方案需重新生成。</RSMF.Business.Advisor.ApprovalHint>
+  <RSMF.Business.Advisor.Reject>拒绝方案</RSMF.Business.Advisor.Reject>
+  <RSMF.Business.Advisor.Approve>批准并执行上述操作</RSMF.Business.Advisor.Approve>
+  <RSMF.Business.Advisor.Role.user>玩家</RSMF.Business.Advisor.Role.user>
+  <RSMF.Business.Advisor.Role.assistant>经营顾问</RSMF.Business.Advisor.Role.assistant>
+  <RSMF.Business.Advisor.Role.system>执行器</RSMF.Business.Advisor.Role.system>
+</LanguageData>

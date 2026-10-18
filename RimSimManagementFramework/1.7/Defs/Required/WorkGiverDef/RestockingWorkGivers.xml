@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <WorkGiverDef>
+    <defName>RestockMegaStorage</defName>
+    <label>补货柜</label>
+    <giverClass>SimManagementLib.SimWorkGiver.WorkGiver_RestockMegaStorage</giverClass>
+    <workType>Restocking</workType>
+    <priorityInType>100</priorityInType>
+    <scanThings>false</scanThings>
+    <verb>restock</verb>
+    <gerund>补货</gerund>
+    <requiredCapacities>
+      <li>Manipulation</li>
+    </requiredCapacities>
+  </WorkGiverDef>
+
+  <WorkGiverDef>
+    <defName>WithdrawFromMegaStorage</defName>
+    <label>清理货柜多余商品</label>
+    <giverClass>SimManagementLib.SimWorkGiver.WorkGiver_WithdrawFromMegaStorage</giverClass>
+    <workType>Hauling</workType>
+    <priorityInType>70</priorityInType>
+    <verb>withdraw</verb>
+    <gerund>清理货柜多余商品</gerund>
+    <requiredCapacities>
+      <li>Manipulation</li>
+    </requiredCapacities>
+  </WorkGiverDef>
+
+  <WorkGiverDef>
+    <defName>RestockUniqueGoodsContainer</defName>
+    <label>补充专业货柜</label>
+    <giverClass>SimManagementLib.SimWorkGiver.WorkGiver_RestockUniqueGoodsContainer</giverClass>
+    <workType>Restocking</workType>
+    <priorityInType>105</priorityInType>
+    <scanThings>false</scanThings>
+    <verb>restock unique goods</verb>
+    <gerund>上架单件商品</gerund>
+    <requiredCapacities>
+      <li>Manipulation</li>
+    </requiredCapacities>
+  </WorkGiverDef>
+
+  <WorkGiverDef>
+    <defName>FillCollectibleDisplayStand</defName>
+    <label>布置收藏品展台</label>
+    <giverClass>SimManagementLib.SimWorkGiver.WorkGiver_FillCollectibleDisplayStand</giverClass>
+    <workType>Hauling</workType>
+    <priorityInType>72</priorityInType>
+    <verb>fill collectible display stand</verb>
+    <gerund>布置收藏品展台</gerund>
+    <requiredCapacities>
+      <li>Manipulation</li>
+    </requiredCapacities>
+  </WorkGiverDef>
+</Defs>

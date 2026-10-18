@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <SimManagementLib.SimDef.ShopStaffRoleDef>
+    <defName>SimShopRole_Cashier</defName>
+    <label>收银</label>
+    <description>负责收银台值班和店内收银相关工作。</description>
+    <maxAssignedPawns>10</maxAssignedPawns>
+    <requiredThingClasses>
+      <li>SimManagementLib.SimThingClass.Building_CashRegister</li>
+    </requiredThingClasses>
+    <workGivers>
+      <li>Sim_WorkGiver_ManCashRegister</li>
+    </workGivers>
+    <requiredWorkType>Sim_ServiceWork</requiredWorkType>
+    <jobDefs>
+      <li>Sim_ManCashRegister</li>
+    </jobDefs>
+  </SimManagementLib.SimDef.ShopStaffRoleDef>
+
+  <SimManagementLib.SimDef.ShopStaffRoleDef>
+    <defName>SimShopRole_Restocker</defName>
+    <label>补货</label>
+    <description>负责货柜补货和货柜库存整理工作。</description>
+    <maxAssignedPawns>10</maxAssignedPawns>
+    <requiredThingClasses>
+      <li>SimManagementLib.SimThingClass.Building_SimContainer</li>
+    </requiredThingClasses>
+    <workGivers>
+      <li>RestockMegaStorage</li>
+      <li>RestockUniqueGoodsContainer</li>
+      <li>WithdrawFromMegaStorage</li>
+    </workGivers>
+    <requiredWorkType>Restocking</requiredWorkType>
+    <jobDefs>
+      <li>DepositToMegaStorage</li>
+      <li>RestockUniqueGoodsContainer</li>
+      <li>WithdrawFromMegaStorage</li>
+    </jobDefs>
+  </SimManagementLib.SimDef.ShopStaffRoleDef>
+</Defs>

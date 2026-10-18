@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR.UI.FoodSourceMods>来源 Mod</RSR.UI.FoodSourceMods>
+  <RSR.UI.AllFoodMods>全部来源</RSR.UI.AllFoodMods>
+  <RSR.UI.SearchFoodMods>搜索 Mod 名称或标识</RSR.UI.SearchFoodMods>
+  <RSR.UI.UnknownFoodSource>未标注来源</RSR.UI.UnknownFoodSource>
+  <RSR.UI.SelectIngredientHint>仅显示当前菜品配方允许的食材；点击食品或“选择”返回菜品编辑。</RSR.UI.SelectIngredientHint>
+  <RSR.UI.SearchFoodSelection>搜索食品名称、DefName 或来源 Mod</RSR.UI.SearchFoodSelection>
+  <RSR.UI.NoFoodSelectionMatch>没有匹配的食品。请调整搜索、来源 Mod 或品质筛选。</RSR.UI.NoFoodSelectionMatch>
+</LanguageData>

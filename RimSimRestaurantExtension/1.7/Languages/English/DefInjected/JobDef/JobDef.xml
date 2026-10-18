@@ -1,0 +1,9 @@
+﻿<LanguageData>
+  <RSR_BringRestaurantMealToPass.reportString>Bringing meal to the serving counter.</RSR_BringRestaurantMealToPass.reportString>
+  <RSR_CookRestaurantOrder.reportString>Cooking restaurant order.</RSR_CookRestaurantOrder.reportString>
+  <RSR_DeliverRestaurantOrder.reportString>Delivering meal to customer.</RSR_DeliverRestaurantOrder.reportString>
+  <RSR_RestaurantStandby.reportString>Standing by at restaurant.</RSR_RestaurantStandby.reportString>
+  <RSR_StockSushiConveyor.reportString>Restocking or clearing restaurant conveyor.</RSR_StockSushiConveyor.reportString>
+  <RSR_TakeRestaurantOrder.reportString>Talking with customer to take order.</RSR_TakeRestaurantOrder.reportString>
+  <RSR_WaitRestaurantOrderAtDiningSpot.reportString>Waiting at restaurant seat for meal.</RSR_WaitRestaurantOrderAtDiningSpot.reportString>
+</LanguageData>

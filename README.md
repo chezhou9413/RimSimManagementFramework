@@ -10,9 +10,13 @@ RimSimFramework/                 Git 仓库根目录
     About/
     Content/
     1.6/
+    1.7/
+    Source/SimManagementLib/
   RimSimRestaurantExtension/     餐厅 Mod
     About/
     1.6/
+    1.7/
+    Source/RimSimRestaurantExtension/
     Docs/
   compile_modSelf.bat
   compile_modSelf.ps1
@@ -24,7 +28,9 @@ RimSimFramework/                 Git 仓库根目录
 
 ## 编译与部署
 
-在本目录执行 `compile_modSelf.bat`，只编译框架和餐厅，默认使用 Debug 配置。MSBuild 通过餐厅项目引用先构建框架，再构建餐厅。程序集分别输出到两个 Mod 自己的 `1.6/Assemblies` 目录。
+在本目录执行 `compile_modSelf.bat`，默认使用 .NET 10 SDK 编译 RimWorld 1.7 的 Release 配置。餐厅项目引用框架项目，先构建框架，再构建餐厅。程序集分别输出到两个 Mod 自己的 `1.7/Assemblies` 目录。
+
+两个 Mod 各自在根目录 `Source` 中维护唯一一份源码和 .NET 10 工程，后续只面向 RimWorld 1.7 开发与编译。`1.7` 包含独立的 Defs、语言、贴图和程序集，加载时不依赖 `1.6` 或 `Content`。`1.6` 的程序集与资源保留在原提交状态，框架的旧版仍加载 `Content`；这些旧版内容冻结，不再更新或重新编译。本次未提交的功能和修复仅进入 1.7。
 
 执行 `deploy_modSelf.bat`，会先编译，再同时部署两个 Mod 到：
 
@@ -38,12 +44,17 @@ RimSimFramework/                 Git 仓库根目录
 PowerShell 参数：
 
 ```powershell
+.\compile_modSelf.ps1
 .\compile_modSelf.ps1 -Configuration Debug
 .\deploy_modSelf.ps1 -DryRun
 .\deploy_modSelf.ps1 -SkipBuild
 ```
 
-`-DryRun` 仅列出并核对两个 Mod 的路径；`-SkipBuild` 使用已有 Debug 程序集部署两者。部署支持 `-TargetModsPath` 指定其他游戏 Mods 目录；编译和部署均支持 `-MSBuildPath`，默认使用本机 `E:\VS\MSBuild\Current\Bin\MSBuild.exe`。原版程序集依赖位于 `E:\捷豹\rimworlddll`。
+`-DryRun` 仅列出并核对两个 Mod 的路径；`-SkipBuild` 使用已有程序集部署两者。编译和部署入口只接受 1.7，默认编译 Release。部署保留冻结的 1.6 运行文件。游戏运行时会拒绝部署，请先退出游戏。
+
+1.7 直接引用游戏根目录的 `Assembly-CSharp.dll`、`UnityStubs.dll`、`Waylith.dll`，默认游戏路径为 `E:\steam\steamapps\common\RimWorld`；Harmony 引用为 `E:\steam\steamapps\workshop\content\294100\2009463077\1.7\Assemblies\0Harmony.dll`。这些依赖不复制进 Mod 的程序集目录。编译可用 `-RimWorldPath` 和 `-HarmonyPath` 指定位置。
+
+部署支持 `-TargetModsPath` 指定其他游戏 Mods 目录，并从其父目录读取 1.7 引用；`-HarmonyPath` 可单独指定 Harmony。
 
 游戏中仍需同时启用两个 Mod，并将框架排在餐厅之前。更新后需要重启游戏加载程序集。
 

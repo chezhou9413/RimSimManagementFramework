@@ -1,17 +1,19 @@
 ﻿param(
     [switch]$DryRun,
     [switch]$SkipBuild,
+    [ValidateSet('1.7')]
+    [string]$Version = '1.7',
     [string]$TargetModsPath = 'E:\steam\steamapps\common\RimWorld\Mods',
-    [string]$MSBuildPath = 'E:\VS\MSBuild\Current\Bin\MSBuild.exe'
+    [string]$HarmonyPath = 'E:\steam\steamapps\workshop\content\294100\2009463077\1.7\Assemblies\0Harmony.dll'
 )
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
-#校验模组内容，职责是确保每个待部署目录拥有元数据、加载配置和编译程序集。
+#校验待部署目录的元数据、加载配置和目标版本程序集。
 function Assert-ModLayout {
     param([string]$Path, [string]$Assembly)
-    foreach ($relative in @('About\About.xml', 'LoadFolders.xml', "1.6\Assemblies\$Assembly")) {
+    foreach ($relative in @('About\About.xml', 'LoadFolders.xml', "$Version\Assemblies\$Assembly")) {
         if (-not (Test-Path -LiteralPath (Join-Path $Path $relative) -PathType Leaf)) {
             throw "模组缺少必要文件：$Path\$relative"
         }
@@ -73,9 +75,15 @@ if ($DryRun) {
     return
 }
 
-#默认先构建两个程序集，职责是避免框架接口与餐厅引用版本不一致。
+#运行中的游戏持有旧程序集，部署前要求先退出游戏。
+$gameProcesses = @(Get-Process -Name RimWorld, RimWorldWin64 -ErrorAction SilentlyContinue)
+if ($gameProcesses.Count -gt 0) {
+    throw 'RimWorld 正在运行，请先退出游戏再部署框架与餐厅。'
+}
+
+#按目标版本先构建两个程序集，保持框架接口与餐厅引用一致。
 if (-not $SkipBuild) {
-    & (Join-Path $PSScriptRoot 'compile_modSelf.ps1') -Configuration Debug -MSBuildPath $MSBuildPath
+    & (Join-Path $PSScriptRoot 'compile_modSelf.ps1') -Version $Version -RimWorldPath (Split-Path $TargetModsPath -Parent) -HarmonyPath $HarmonyPath
 }
 
 #先准备两个完整目录，职责是在复制或验证失败时保持现有安装不变。

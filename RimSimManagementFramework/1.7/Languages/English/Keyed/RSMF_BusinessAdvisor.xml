@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.Business.Advisor.Tab>Business advisor</RSMF.Business.Advisor.Tab>
+  <RSMF.Business.Advisor.Generate>Generate summary and advice</RSMF.Business.Advisor.Generate>
+  <RSMF.Business.Advisor.Cancel>Cancel generation</RSMF.Business.Advisor.Cancel>
+  <RSMF.Business.Advisor.Cancelled>Analysis cancelled.</RSMF.Business.Advisor.Cancelled>
+  <RSMF.Business.Advisor.Settings>LLM settings</RSMF.Business.Advisor.Settings>
+  <RSMF.Business.Advisor.Disclosure>Generating a report sends revenue, recorded profit, and current shop, stock, staffing and service statistics to your configured model. Advice never changes shop settings automatically. The latest report is saved with this game.</RSMF.Business.Advisor.Disclosure>
+  <RSMF.Business.Advisor.NeedsConfig>Enable the shared LLM and configure its endpoint, key and model in LLM settings first. Customer AI reviews do not need to be enabled.</RSMF.Business.Advisor.NeedsConfig>
+  <RSMF.Business.Advisor.Running>Generating business summary and advice…</RSMF.Business.Advisor.Running>
+  <RSMF.Business.Advisor.Empty>No report yet. Select a period and generate a summary and advice to review performance, problems and prioritized actions.</RSMF.Business.Advisor.Empty>
+  <RSMF.Business.Advisor.Stamp>Snapshot: day {day} · Last {days} days (includes unfinished today)</RSMF.Business.Advisor.Stamp>
+  <RSMF.Business.Advisor.ShowReport>View report</RSMF.Business.Advisor.ShowReport>
+  <RSMF.Business.Advisor.ShowSnapshot>View source data</RSMF.Business.Advisor.ShowSnapshot>
+  <RSMF.Business.Finance.RecordedProfit>Recorded profit · total</RSMF.Business.Finance.RecordedProfit>
+  <RSMF.Business.Finance.TodayProfit>Recorded profit · today</RSMF.Business.Finance.TodayProfit>
+  <RSMF.Business.Finance.AccountingNote>Recorded profit = received silver minus costs registered on bills. Unregistered wages, construction and ingredient costs are excluded. Today is unfinished. Losses previously clamped to zero are not reconstructed.</RSMF.Business.Finance.AccountingNote>
+  <RSMF.Business.Finance.Period>{days} days</RSMF.Business.Finance.Period>
+  <RSMF.Business.Finance.Candle.Title>Business candles · Cumulative recorded profit</RSMF.Business.Finance.Candle.Title>
+  <RSMF.Business.Finance.Candle.Note>Each candle shows daily open, high, low and close of cumulative recorded profit. Intraday extremes are recorded from new sales only; older history is not reconstructed. Today remains open. Only registered bill costs are deducted.</RSMF.Business.Finance.Candle.Note>
+  <RSMF.Business.Finance.Candle.Legend>Green: gain · Red: loss · Gray: flat · Hover for details</RSMF.Business.Finance.Candle.Legend>
+  <RSMF.Business.Finance.Candle.Volume>Daily received silver</RSMF.Business.Finance.Candle.Volume>
+  <RSMF.Business.Finance.Candle.ShopRank>Lifetime received silver · Shops</RSMF.Business.Finance.Candle.ShopRank>
+  <RSMF.Business.Finance.Candle.Mix>Lifetime bill lines · Revenue mix</RSMF.Business.Finance.Candle.Mix>
+  <RSMF.Business.Finance.Candle.Tooltip>Day {day}
+Open: {open} · High: {high}
+Low: {low} · Close: {close}
+Profit in recorded interval: {profit}
+Daily received silver: {revenue}
+Recorded transactions: {bills}</RSMF.Business.Finance.Candle.Tooltip>
+  <RSMF.Business.Finance.Candle.Live>Today is unfinished; close is the current value.</RSMF.Business.Finance.Candle.Live>
+  <RSMF.Business.Finance.Candle.Partial>Recording started partway through this day. OHLC and transaction count cover only the recorded interval.</RSMF.Business.Finance.Candle.Partial>
+  <RSMF.Business.Finance.Chart.Other>Other</RSMF.Business.Finance.Chart.Other>
+  <RSMF.Llm.EmptyResponse>The request succeeded but returned no readable model text. Check the model and API response format.</RSMF.Llm.EmptyResponse>
+  <RSMF.Llm.AnthropicSampling>Anthropic uses model-default sampling because newer models reject custom temperatures. The temperature slider applies only to reviews through OpenAI-compatible APIs.</RSMF.Llm.AnthropicSampling>
+  <RSMF.Business.Advisor.Enable>Enable business advisor</RSMF.Business.Advisor.Enable>
+  <RSMF.Business.Advisor.EnableHint>With unified LLM enabled, this adds an advisor page to Business Manager. The advisor can query business data, colonist work and bundled source, and propose construction and work orders. Changes follow the approval setting below. Chat sends your question and requested data to the advisor provider.</RSMF.Business.Advisor.EnableHint>
+  <RSMF.Business.Advisor.AutoApprove>Automatically approve and execute advisor plans</RSMF.Business.Advisor.AutoApprove>
+  <RSMF.Business.Advisor.AutoApproveHint>Off by default: review each plan manually. When enabled, construction, removal, vanilla orders and colonist work changes needed for the task execute after validation. Plans and progress remain visible; completed changes are not rolled back. Stop at any time; disabling this option stops remaining automatic execution. The advisor cannot change this setting. Errors are returned for replanning. Retries count toward the existing task round limit; 0 is unlimited. Repeated failures increase the delay.</RSMF.Business.Advisor.AutoApproveHint>
+  <RSMF.Business.Advisor.AutoApprovalActive>Automatic approval</RSMF.Business.Advisor.AutoApprovalActive>
+  <RSMF.Business.Advisor.ManualApprovalActive>Manual approval</RSMF.Business.Advisor.ManualApprovalActive>
+  <RSMF.Business.Advisor.AutoReadOnlyHint>Automatic approval enabled · Validated plans execute directly · Stop at any time</RSMF.Business.Advisor.AutoReadOnlyHint>
+  <RSMF.Business.Advisor.Model>Advisor model (blank inherits unified model; required for separate connection)</RSMF.Business.Advisor.Model>
+  <RSMF.Business.Advisor.RoundLimit>Model request rounds per task (0 = unlimited)</RSMF.Business.Advisor.RoundLimit>
+  <RSMF.Business.Advisor.RoundLimitHint>Default: 0. Each player message starts a task. Each model request counts as one round, including analysis after queries and approvals. A positive limit stops further requests. Use Stop task at any time. Provider limits still apply.</RSMF.Business.Advisor.RoundLimitHint>
+  <RSMF.Business.Advisor.RoundLimitReached>This task reached your limit of {limit} rounds. Increase it or set it to 0 (unlimited) in LLM settings → Business advisor, then send a message to continue.</RSMF.Business.Advisor.RoundLimitReached>
+  <RSMF.Business.Advisor.AnalyzingLimited>Advisor is analyzing (round {round}/{limit})</RSMF.Business.Advisor.AnalyzingLimited>
+  <RSMF.Business.Advisor.AnalyzingUnlimited>Advisor is analyzing (round {round} · unlimited)</RSMF.Business.Advisor.AnalyzingUnlimited>
+  <RSMF.Business.Advisor.SeparateConnection>Use a separate advisor connection</RSMF.Business.Advisor.SeparateConnection>
+  <RSMF.Business.Advisor.SeparateHint>When off, reuse the unified endpoint and key with the advisor model override. Review settings remain independent.</RSMF.Business.Advisor.SeparateHint>
+  <RSMF.Business.Advisor.JsonMode>Request JSON output mode (OpenAI compatible)</RSMF.Business.Advisor.JsonMode>
+  <RSMF.Business.Advisor.JsonModeHint>Enabled by default. Turn this off if your model or gateway rejects response_format / json_object. JSON and task state are still validated. Plain text or missing state is returned to the advisor for correction instead of ending the task. Actions follow the current approval setting.</RSMF.Business.Advisor.JsonModeHint>
+  <RSMF.Business.Advisor.TaskCompleted>Advisor has completed this task</RSMF.Business.Advisor.TaskCompleted>
+  <RSMF.Business.Advisor.TaskBlocked>Task blocked — see the advisor's explanation</RSMF.Business.Advisor.TaskBlocked>
+  <RSMF.Business.Advisor.TaskNeedsInput>Waiting for player input</RSMF.Business.Advisor.TaskNeedsInput>
+  <RSMF.Business.Advisor.AnthropicOutputHint>Anthropic uses the native Messages API and the shared JSON prompt. Text blocks are read without sending OpenAI's response_format parameter. Replies are validated and actions follow the current approval setting.</RSMF.Business.Advisor.AnthropicOutputHint>
+  <RSMF.Business.Advisor.JsonModeRejected>The API rejected JSON output parameters. Turn off Request JSON output mode in LLM settings → Business advisor, then send your message again. Details include the original API error.</RSMF.Business.Advisor.JsonModeRejected>
+  <RSMF.Business.Advisor.Name>Advisor name</RSMF.Business.Advisor.Name>
+  <RSMF.Business.Advisor.Personality>Personality (up to 8000 characters)</RSMF.Business.Advisor.Personality>
+  <RSMF.Business.Advisor.Expectations>Business expectations and communication preferences (up to 8000 characters)</RSMF.Business.Advisor.Expectations>
+  <RSMF.Business.Advisor.ProfilePath>Profile file path: TXT or JSON {"name":"Name","personality":"Personality","expectations":"Expectations"}</RSMF.Business.Advisor.ProfilePath>
+  <RSMF.Business.Advisor.AvatarPath>Avatar image path: PNG / JPG, imported to the local image library</RSMF.Business.Advisor.AvatarPath>
+  <RSMF.Business.Advisor.ClearAvatar>Remove avatar</RSMF.Business.Advisor.ClearAvatar>
+  <RSMF.Business.Advisor.Import>Import</RSMF.Business.Advisor.Import>
+  <RSMF.Business.Advisor.Imported>Import complete.</RSMF.Business.Advisor.Imported>
+  <RSMF.Business.Advisor.CacheHint>Rules and conversation history form a stable prefix; queries return requested pages only. Anthropic prefix caching is enabled; OpenAI-compatible caching depends on the provider. Usage shows reported values only; unknown is not zero. Model, connection or persona changes can invalidate the cache.</RSMF.Business.Advisor.CacheHint>
+  <RSMF.Business.Advisor.ReadOnlyHint>Queries need no approval · Review colony changes first · Closing this window stops the task</RSMF.Business.Advisor.ReadOnlyHint>
+  <RSMF.Business.Advisor.Clear>Clear conversation</RSMF.Business.Advisor.Clear>
+  <RSMF.Business.Advisor.ClearConfirm>Clear this save's chat, query log and model context, and cancel pending requests and plans? Completed changes will remain.</RSMF.Business.Advisor.ClearConfirm>
+  <RSMF.Business.Advisor.Summary>Summary</RSMF.Business.Advisor.Summary>
+  <RSMF.Business.Advisor.Advice>Advice</RSMF.Business.Advisor.Advice>
+  <RSMF.Business.Advisor.Diagnose>Diagnose shops</RSMF.Business.Advisor.Diagnose>
+  <RSMF.Business.Advisor.Trace>Query activity</RSMF.Business.Advisor.Trace>
+  <RSMF.Business.Advisor.HideTrace>Hide activity</RSMF.Business.Advisor.HideTrace>
+  <RSMF.Business.Advisor.CurrentModel>Current model: </RSMF.Business.Advisor.CurrentModel>
+  <RSMF.Business.Advisor.Conversation>Conversation</RSMF.Business.Advisor.Conversation>
+  <RSMF.Business.Advisor.Ready>Ready · Ask a question or choose a summary, advice or diagnosis.</RSMF.Business.Advisor.Ready>
+  <RSMF.Business.Advisor.Stopped>Stopped: </RSMF.Business.Advisor.Stopped>
+  <RSMF.Business.Advisor.PlainTextResponse>Plain text received · No queries or actions started this round</RSMF.Business.Advisor.PlainTextResponse>
+  <RSMF.Business.Advisor.PlainTextResponseHint>The model did not return the tool protocol, so its response is shown as chat. No actions were extracted from prose or examples. Send a follow-up if queries or changes are still needed.</RSMF.Business.Advisor.PlainTextResponseHint>
+  <RSMF.Business.Advisor.ResponseInvalid>The advisor returned malformed or incomplete structured data. No queries or actions from this response were executed. Error details include an excerpt.</RSMF.Business.Advisor.ResponseInvalid>
+  <RSMF.Business.Advisor.ResponseTruncated>The API truncated its reply because of an output or context limit. No queries or actions from this reply were executed. The advisor will receive feedback and try smaller batches.</RSMF.Business.Advisor.ResponseTruncated>
+  <RSMF.Business.Advisor.ProviderResponseInvalid>The API response does not match the selected provider protocol or contains no text. Check the provider and endpoint. Details include an excerpt of the response.</RSMF.Business.Advisor.ProviderResponseInvalid>
+  <RSMF.Business.Advisor.ResponseFieldsInvalid>A reply string, queries array and actions array are required. Queries need topic; actions need kind. The response cannot be entirely empty.</RSMF.Business.Advisor.ResponseFieldsInvalid>
+  <RSMF.Business.Advisor.ResponseExcerpt>Model response excerpt:</RSMF.Business.Advisor.ResponseExcerpt>
+  <RSMF.Business.Advisor.ErrorDetails>Error details</RSMF.Business.Advisor.ErrorDetails>
+  <RSMF.Business.Advisor.InputHint>Enter to send · Shift+Enter for a new line</RSMF.Business.Advisor.InputHint>
+  <RSMF.Business.Advisor.MarkArea>Mark area</RSMF.Business.Advisor.MarkArea>
+  <RSMF.Business.Advisor.MarkAreaHint>Drag a rectangle on the map, or click to select one cell. Return automatically with an attachment for your next message. Marking does not change the map. Finish the current task before marking.</RSMF.Business.Advisor.MarkAreaHint>
+  <RSMF.Business.Advisor.MarkAreaMouseHint>Drag to mark · Right-click / Esc to cancel</RSMF.Business.Advisor.MarkAreaMouseHint>
+  <RSMF.Business.Advisor.MarkedArea>Area · {map} · ({x}, {z}) → ({maxX}, {maxZ}) · {width}×{height}</RSMF.Business.Advisor.MarkedArea>
+  <RSMF.Business.Advisor.MarkedAreaHint>This area will accompany your next message. Ask to arrange shelves here, for example. Changes still require approval.</RSMF.Business.Advisor.MarkedAreaHint>
+  <RSMF.Business.Advisor.MarkedAreaAttachment>Player-marked area (exact bounds, maximum coordinates included; not approval to make changes):</RSMF.Business.Advisor.MarkedAreaAttachment>
+  <RSMF.Business.Advisor.MarkedAreaUnavailable>The marked map is no longer available. Remove the attachment or mark another area.</RSMF.Business.Advisor.MarkedAreaUnavailable>
+  <RSMF.Business.Advisor.RemoveArea>Remove area</RSMF.Business.Advisor.RemoveArea>
+  <RSMF.Business.Advisor.TraceEmpty>Queries about shops, customers, finances or source code appear here with their scope and results. Click an entry to expand its details.</RSMF.Business.Advisor.TraceEmpty>
+  <RSMF.Business.Advisor.TraceEmptyShort>No query activity yet.</RSMF.Business.Advisor.TraceEmptyShort>
+  <RSMF.Business.Advisor.ChatEmptyShort>Type a question below or choose summary, advice or diagnosis.</RSMF.Business.Advisor.ChatEmptyShort>
+  <RSMF.Llm.Error.InvalidModel>Invalid model name. Use the API model ID supplied by your provider without backticks, quotes or whitespace.</RSMF.Llm.Error.InvalidModel>
+  <RSMF.Llm.Error.ModelRejected>The API rejected this model. Check the model in LLM settings; an advisor model overrides the shared model.</RSMF.Llm.Error.ModelRejected>
+  <RSMF.Llm.Error.Authentication>Authentication or permission failed. Check the API key for this endpoint and its model access.</RSMF.Llm.Error.Authentication>
+  <RSMF.Llm.Error.RateLimit>The API rate limit was reached. Check the details and retry manually later.</RSMF.Llm.Error.RateLimit>
+  <RSMF.Business.Advisor.SummaryPrompt>Query recent business data and summarize revenue, recorded profit, shop popularity and bottlenecks. State the data scope.</RSMF.Business.Advisor.SummaryPrompt>
+  <RSMF.Business.Advisor.AdvicePrompt>Query current business data and suggest evidence-based improvements in priority order. Submit a concrete plan before making changes.</RSMF.Business.Advisor.AdvicePrompt>
+  <RSMF.Business.Advisor.DiagnosePrompt>Inspect current selection and shops, then diagnose closure, stock shortages or lack of customers using runtime data and framework source.</RSMF.Business.Advisor.DiagnosePrompt>
+  <RSMF.Business.Advisor.ChatEmpty>Ask about business results, customers, popularity or framework behavior, or request plans for shelves, staff, opening hours and shop layouts. Expand activity entries to inspect evidence. The UI retains the latest 500 chat entries and 300 activity entries.</RSMF.Business.Advisor.ChatEmpty>
+  <RSMF.Business.Advisor.Send>Send</RSMF.Business.Advisor.Send>
+  <RSMF.Business.Advisor.Stop>Stop task</RSMF.Business.Advisor.Stop>
+  <RSMF.Business.Advisor.PendingApproval>Awaiting approval · {count} operations</RSMF.Business.Advisor.PendingApproval>
+  <RSMF.Business.Advisor.PlanDetails>View details</RSMF.Business.Advisor.PlanDetails>
+  <RSMF.Business.Advisor.ApproveInline>Approve and run</RSMF.Business.Advisor.ApproveInline>
+  <RSMF.Business.Advisor.ApprovalHint>Review the exact operations, area and placement mode. Execution checks each target. Conflicts pause the batch and return feedback for replanning; revised plans still need approval in manual mode. Completed changes remain. Normal mode issues blueprints and work orders for colonists; god mode follows vanilla instant behavior. Changing modes invalidates old plans.</RSMF.Business.Advisor.ApprovalHint>
+  <RSMF.Business.Advisor.Reject>Reject plan</RSMF.Business.Advisor.Reject>
+  <RSMF.Business.Advisor.Approve>Approve and execute these operations</RSMF.Business.Advisor.Approve>
+  <RSMF.Business.Advisor.Role.user>Player</RSMF.Business.Advisor.Role.user>
+  <RSMF.Business.Advisor.Role.assistant>Advisor</RSMF.Business.Advisor.Role.assistant>
+  <RSMF.Business.Advisor.Role.system>Controller</RSMF.Business.Advisor.Role.system>
+</LanguageData>

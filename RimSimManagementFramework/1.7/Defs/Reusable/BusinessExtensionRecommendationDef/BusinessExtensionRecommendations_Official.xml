@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+    <defName>RSMF_ExtensionRecommendation_Restaurant</defName>
+    <label>RimSMF:Restaurant</label>
+    <description>Official restaurant extension with dining, cooking, table service and conveyor dining.</description>
+    <labelKey>RSMF.Business.Extensions.Item.Restaurant.Label</labelKey>
+    <descriptionKey>RSMF.Business.Extensions.Item.Restaurant.Description</descriptionKey>
+    <official>true</official>
+    <order>100</order>
+    <packageIds>
+      <li>chezhou.rimsim.restaurantextension</li>
+    </packageIds>
+    <publishedFileId>3807662479</publishedFileId>
+    <workshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3807662479</workshopUrl>
+    <previewImageUrl>https://images.steamusercontent.com/ugc/16561991563147992436/F0B56BC7DC89D63828C3961CF451455747624890/</previewImageUrl>
+  </SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+</Defs>

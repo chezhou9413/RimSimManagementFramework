@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+    <ThingCategoryDef>
+        <defName>SimCheques</defName>
+        <label>支票</label>
+        <parent>Items</parent>
+    </ThingCategoryDef>
+
+    <ThingDef Name="ChequeBase" Abstract="true">
+        <thingClass>ThingWithComps</thingClass>
+        <statBases>
+            <Mass>0.01</Mass>
+            <MaxHitPoints>100</MaxHitPoints>
+            <DeteriorationRate>0</DeteriorationRate>
+            <Beauty>2</Beauty>
+        </statBases>
+        <category>Item</category>
+        <drawerType>MapMeshOnly</drawerType>
+        <resourceReadoutPriority>Middle</resourceReadoutPriority>
+        <useHitPoints>true</useHitPoints>
+        <selectable>true</selectable>
+        <altitudeLayer>Item</altitudeLayer>
+        <thingCategories>
+            <li>SimCheques</li>
+        </thingCategories>
+        <stackLimit>75</stackLimit>
+        <graphicData>
+            <graphicClass>Graphic_Single</graphicClass>
+			<drawSize>1.2</drawSize>    
+        </graphicData>
+        <alwaysHaulable>true</alwaysHaulable>
+        <drawGUIOverlay>true</drawGUIOverlay>
+        <rotatable>false</rotatable>
+        <pathCost>14</pathCost>
+        <allowedArchonexusCount>-1</allowedArchonexusCount>
+        <comps>
+            <li Class="CompProperties_Forbiddable"/>
+        </comps>
+    </ThingDef>
+
+    <ThingDef ParentName="ChequeBase">
+        <defName>Sim_1000Cheque</defName>
+        <label>1,000银支票</label>
+        <description>一张面值为1,000银的支票，在普通人眼里与废纸无异，但却能在银行里兑换1,000银</description>
+        <graphicData>
+			<texPath>Things/Item/Cheque/1000Cheque</texPath>
+		</graphicData>
+    </ThingDef>
+
+    <ThingDef ParentName="ChequeBase">
+        <defName>Sim_10000Cheque</defName>
+        <label>10,000银支票</label>
+        <description>一张面值为10,000银的支票，在普通人眼里与废纸无异，但却能在银行里兑换10,000银</description>
+        <graphicData>
+			<texPath>Things/Item/Cheque/10000Cheque</texPath>
+		</graphicData>
+    </ThingDef>
+
+    <ThingDef ParentName="ChequeBase">
+        <defName>Sim_100000Cheque</defName>
+        <label>100,000银支票</label>
+        <description>一张面值为100,000银的支票，在普通人眼里与废纸无异，但却能在银行里兑换100,000银</description>
+        <graphicData>
+			<texPath>Things/Item/Cheque/100000Cheque</texPath>
+		</graphicData>
+    </ThingDef>
+
+    <ThingDef ParentName="ChequeBase">
+        <defName>Sim_1000000Cheque</defName>
+        <label>1,000,000银支票</label>
+        <description>一张面值为1,000,000银的支票，据说在整个边缘世界，也仅有2张流通</description>
+        <graphicData>
+			<texPath>Things/Item/Cheque/1000000Cheque</texPath>
+		</graphicData>
+        <comps>
+            <li Class="SimManagementLib.SimThingComp.CompProperties_DisplayStandCollectible" />
+        </comps>
+    </ThingDef>
+
+</Defs>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR_Role_RestaurantChef.description>Uses reserved ingredients from the shop's refrigerators first, then its shelves. Carries the entire prepared order to the reception and serving counter. If cooking is already complete, only transportation resumes.</RSR_Role_RestaurantChef.description>
+  <RSR_Role_RestaurantChef.label>restaurant cook</RSR_Role_RestaurantChef.label>
+  <RSR_Role_RestaurantWaiter.description>Prioritizes collecting meals from the serving counter or stocked goods from cabinets and delivering them to the customer's table tray. Then takes initial or additional orders at tables and stands by when idle.</RSR_Role_RestaurantWaiter.description>
+  <RSR_Role_RestaurantWaiter.label>restaurant waiter</RSR_Role_RestaurantWaiter.label>
+</LanguageData>

@@ -1,0 +1,9 @@
+﻿<LanguageData>
+  <SimShop_NeutralCustomerFaction.description>A hidden neutral faction used by the shop system to host temporary customer identities.</SimShop_NeutralCustomerFaction.description>
+  <SimShop_NeutralCustomerFaction.fixedName>Shop Customer</SimShop_NeutralCustomerFaction.fixedName>
+  <SimShop_NeutralCustomerFaction.label>Shop Customer</SimShop_NeutralCustomerFaction.label>
+  <SimShop_NeutralCustomerFaction.leaderTitle>Customer Representative</SimShop_NeutralCustomerFaction.leaderTitle>
+  <SimShop_NeutralCustomerFaction.messageDefendersAttacking>{0} from {1} are attacking your {2}.</SimShop_NeutralCustomerFaction.messageDefendersAttacking>
+  <SimShop_NeutralCustomerFaction.pawnSingular>Customer</SimShop_NeutralCustomerFaction.pawnSingular>
+  <SimShop_NeutralCustomerFaction.pawnsPlural>Customers</SimShop_NeutralCustomerFaction.pawnsPlural>
+</LanguageData>

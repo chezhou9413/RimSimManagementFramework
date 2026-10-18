@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.Api.Error.StaffInvalid>员工无效</RSMF.Api.Error.StaffInvalid>
+  <RSMF.Api.Error.ActionOrderNotJoinable>动作订单不可加入</RSMF.Api.Error.ActionOrderNotJoinable>
+  <RSMF.Api.Error.CustomerInvalid>顾客无效</RSMF.Api.Error.CustomerInvalid>
+  <RSMF.Api.Error.ActionDisabled>动作未启用</RSMF.Api.Error.ActionDisabled>
+  <RSMF.Api.Error.ContextInvalid>顾客上下文无效</RSMF.Api.Error.ContextInvalid>
+  <RSMF.Api.Error.KindMismatch>顾客类型不匹配</RSMF.Api.Error.KindMismatch>
+  <RSMF.Api.Error.InterestMismatch>顾客兴趣不匹配</RSMF.Api.Error.InterestMismatch>
+  <RSMF.Api.Error.ActionTargetMissing>店铺缺少动作目标</RSMF.Api.Error.ActionTargetMissing>
+  <RSMF.Api.Error.ActionOrderInvalid>动作订单无效</RSMF.Api.Error.ActionOrderInvalid>
+  <RSMF.Api.Error.ServiceInvalid>服务定义无效</RSMF.Api.Error.ServiceInvalid>
+  <RSMF.Api.Error.ProviderInvalid>服务建筑无效</RSMF.Api.Error.ProviderInvalid>
+  <RSMF.Api.Error.OrderNotPreparable>订单不可制作</RSMF.Api.Error.OrderNotPreparable>
+  <RSMF.Api.Error.BillAmountInvalid>账单金额无效</RSMF.Api.Error.BillAmountInvalid>
+  <RSMF.Api.Error.VisitMissing>顾客访问状态不存在</RSMF.Api.Error.VisitMissing>
+  <RSMF.Api.Error.BillAppendFailed>账单追加失败</RSMF.Api.Error.BillAppendFailed>
+  <RSMF.Api.Error.BillSyncFailed>账单同步失败</RSMF.Api.Error.BillSyncFailed>
+  <RSMF.Api.Error.ServiceOrderInvalid>服务订单无效</RSMF.Api.Error.ServiceOrderInvalid>
+  <RSMF.Api.Error.ActionInvalid>动作定义无效</RSMF.Api.Error.ActionInvalid>
+  <RSMF.Api.Error.ActionManagerUnavailable>顾客动作订单管理器不可用</RSMF.Api.Error.ActionManagerUnavailable>
+  <RSMF.Api.Error.ActionWorkerInvalid>动作 Worker 无效</RSMF.Api.Error.ActionWorkerInvalid>
+  <RSMF.Api.Error.ActionOrderNotCreated>Worker 未创建动作订单</RSMF.Api.Error.ActionOrderNotCreated>
+  <RSMF.Api.Error.ActionOrderEnded>动作订单已经结束</RSMF.Api.Error.ActionOrderEnded>
+  <RSMF.Api.Error.SessionWorkerMissing>动作订单没有会话 Worker</RSMF.Api.Error.SessionWorkerMissing>
+  <RSMF.Api.Error.ActionOrderTerminated>动作订单已经取消或失败</RSMF.Api.Error.ActionOrderTerminated>
+  <RSMF.Api.Error.CompletedActionCannotCancel>已经完成的动作订单不能取消</RSMF.Api.Error.CompletedActionCannotCancel>
+  <RSMF.Api.Error.ActionCannotStart>动作订单无法开始</RSMF.Api.Error.ActionCannotStart>
+  <RSMF.Api.Error.ActionJobMissing>动作订单没有可执行 Job</RSMF.Api.Error.ActionJobMissing>
+  <RSMF.Api.Error.ActionContextRestoreFailed>动作订单无法恢复上下文</RSMF.Api.Error.ActionContextRestoreFailed>
+  <RSMF.Api.Error.ActionCannotContinue>动作订单已经无法继续</RSMF.Api.Error.ActionCannotContinue>
+  <RSMF.Api.Error.ActionJobRestoreFailed>动作订单无法恢复顾客 Job</RSMF.Api.Error.ActionJobRestoreFailed>
+  <RSMF.Api.Error.DeliveredGoodsInvalid>已交付商品的顾客、动作或持有关系无效</RSMF.Api.Error.DeliveredGoodsInvalid>
+  <RSMF.Api.Error.ActionOwnerMismatch>动作订单与顾客或商店不匹配</RSMF.Api.Error.ActionOwnerMismatch>
+  <RSMF.Api.Error.SuborderBillInvalid>子订单账单标识、数量、金额或成本无效</RSMF.Api.Error.SuborderBillInvalid>
+  <RSMF.Api.Error.ActionOrderNotManaged>必须使用框架管理器保存的动作订单</RSMF.Api.Error.ActionOrderNotManaged>
+  <RSMF.Api.Error.ActionBillInvalid>动作账单数量、金额或成本无效</RSMF.Api.Error.ActionBillInvalid>
+  <RSMF.Api.Error.FinanceContextUnavailable>财务管理器或顾客当前商店不可用</RSMF.Api.Error.FinanceContextUnavailable>
+  <RSMF.Api.Error.ServiceNameInvalid>服务定义名无效</RSMF.Api.Error.ServiceNameInvalid>
+  <RSMF.Api.Error.PositiveQuantityAmountRequired>数量和金额必须大于零</RSMF.Api.Error.PositiveQuantityAmountRequired>
+  <RSMF.Api.Error.FinanceManagerUnavailable>财务管理器不可用</RSMF.Api.Error.FinanceManagerUnavailable>
+  <RSMF.Api.Error.FinanceLineInvalid>财务明细无效</RSMF.Api.Error.FinanceLineInvalid>
+  <RSMF.Api.Error.PositiveAmountRequired>金额必须大于零</RSMF.Api.Error.PositiveAmountRequired>
+  <RSMF.Api.Error.PreparedWorkerUnregistered>服务未注册现做订单 Worker</RSMF.Api.Error.PreparedWorkerUnregistered>
+  <RSMF.Api.Error.PreparedManagerUnavailable>现做订单管理器不可用</RSMF.Api.Error.PreparedManagerUnavailable>
+  <RSMF.Api.Error.OrderNotCreated>Worker 未创建订单</RSMF.Api.Error.OrderNotCreated>
+  <RSMF.Api.Error.OrderMissing>订单不存在</RSMF.Api.Error.OrderMissing>
+  <RSMF.Api.Error.OrderCannotPay>订单状态不允许付款</RSMF.Api.Error.OrderCannotPay>
+  <RSMF.Api.Error.OrderInvalid>订单无效</RSMF.Api.Error.OrderInvalid>
+  <RSMF.Api.Error.OrderCannotClaim>订单不可认领</RSMF.Api.Error.OrderCannotClaim>
+  <RSMF.Api.Error.OrderWorkerMissing>订单缺少 Worker</RSMF.Api.Error.OrderWorkerMissing>
+  <RSMF.Api.Error.OrderCannotStart>订单状态不允许开始制作</RSMF.Api.Error.OrderCannotStart>
+  <RSMF.Api.Error.OrderCannotComplete>订单状态不允许完成制作</RSMF.Api.Error.OrderCannotComplete>
+  <RSMF.Api.Error.OrderCannotDeliver>订单尚未可交付</RSMF.Api.Error.OrderCannotDeliver>
+  <RSMF.Api.Error.RegisteredBillImmutable>已经登记的子订单账单不能改变：{key}</RSMF.Api.Error.RegisteredBillImmutable>
+</LanguageData>

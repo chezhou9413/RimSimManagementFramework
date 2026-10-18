@@ -1,12 +1,12 @@
 # 餐厅贴图资源清单
 
-来源：用户提供的 `餐厅组.zip`，共 61 张 PNG，按英文名称整理到餐厅 Mod 的 `1.6/Textures`。本次入库保持原图字节、尺寸和透明通道不变。
+来源：用户提供的 `餐厅组.zip`，共 61 张 PNG，按英文名称整理到餐厅 Mod 的 `1.7/Textures`。本次入库保持原图字节、尺寸和透明通道不变。
 
 ## 命名与目录规则
 
 - 文件统一使用 `RSR_` 前缀和英文用途名称，减少与其他 Mod 的贴图路径冲突。
-- 建筑资源根目录：`1.6/Textures/Things/Building/Restaurant`，按家具类型分子目录。
-- 独立图标目录：`1.6/Textures/UI/Icons/Buildings/Restaurant`。
+- 建筑资源根目录：`1.7/Textures/Things/Building/Restaurant`，按家具类型分子目录。
+- 独立图标目录：`1.7/Textures/UI/Icons/Buildings/Restaurant`。
 - 正面为 `_south`，背面为 `_north`，侧面为 `_east`。原包没有独立西向图，接入时可在允许翻转的情况下复用东向图。
 - 多方向染色蒙版紧接方向加 `m`，例如 `RSR_DiningChair_southm.png`；单图、图集和图标的染色蒙版使用 `_m`，例如 `RSR_DiningTable1x1_m.png`。后缀已按原版 `Graphic_Multi` 与 `Graphic_Single` 源码核对。
 - 1×2 餐桌按默认纵向占地命名：竖向为 `_north`，横向为 `_east`；南向与西向可由原版方向复用处理。
@@ -41,7 +41,7 @@
 
 ## 原名与新路径对照
 
-下表的目标路径相对于餐厅 Mod 的 `1.6/Textures`。
+下表的目标路径相对于餐厅 Mod 的 `1.7/Textures`。
 
 | 原压缩包路径 | 英文目标路径 | 尺寸 |
 | --- | --- | --- |

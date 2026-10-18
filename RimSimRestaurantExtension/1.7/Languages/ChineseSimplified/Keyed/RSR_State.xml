@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR.State.AwaitingCheckout>待付款</RSR.State.AwaitingCheckout>
+  <RSR.State.BringingToPass>厨师出餐中</RSR.State.BringingToPass>
+  <RSR.State.Canceled>已取消</RSR.State.Canceled>
+  <RSR.State.CheckingOut>准备结账</RSR.State.CheckingOut>
+  <RSR.State.Completed>已完成</RSR.State.Completed>
+  <RSR.State.Cooking>制作中</RSR.State.Cooking>
+  <RSR.State.Delivering>送餐中</RSR.State.Delivering>
+  <RSR.State.Eating>用餐中</RSR.State.Eating>
+  <RSR.State.Failed>失败</RSR.State.Failed>
+  <RSR.State.Incomplete>未完成</RSR.State.Incomplete>
+  <RSR.State.Paid>已付款</RSR.State.Paid>
+  <RSR.State.ReadyToDeliver>待送餐</RSR.State.ReadyToDeliver>
+  <RSR.State.Seating>前往座位</RSR.State.Seating>
+  <RSR.State.TakingOrder>接单中</RSR.State.TakingOrder>
+  <RSR.State.WaitingCook>待制作</RSR.State.WaitingCook>
+  <RSR.State.WaitingOrder>等待接单</RSR.State.WaitingOrder>
+</LanguageData>

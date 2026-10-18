@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+    <defName>RSMF_ExtensionRecommendation_HAR</defName>
+    <label>RSMF HAR extension</label>
+    <description>Compatibility extension for Humanoid Alien Races shops and customers.</description>
+    <labelKey>RSMF.Business.Extensions.Item.HAR.Label</labelKey>
+    <descriptionKey>RSMF.Business.Extensions.Item.HAR.Description</descriptionKey>
+    <order>100</order>
+    <publishedFileId>3736684046</publishedFileId>
+    <workshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3736684046</workshopUrl>
+    <previewImageUrl>https://images.steamusercontent.com/ugc/13658989607528122332/9F30B9AF825086800E5BC96E16ADDA6AB3727FE6/</previewImageUrl>
+  </SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+
+  <SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+    <defName>RSMF_ExtensionRecommendation_Milira</defName>
+    <label>RSMF Milira extension</label>
+    <description>Compatibility extension for Milira-themed business content.</description>
+    <labelKey>RSMF.Business.Extensions.Item.Milira.Label</labelKey>
+    <descriptionKey>RSMF.Business.Extensions.Item.Milira.Description</descriptionKey>
+    <order>150</order>
+    <publishedFileId>3736604730</publishedFileId>
+    <workshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3736604730</workshopUrl>
+    <previewImageUrl>https://images.steamusercontent.com/ugc/13029575387958291371/9B3C94FD45EDC1D230A94450E0311CACE72075C0/</previewImageUrl>
+  </SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+
+  <SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+    <defName>RSMF_ExtensionRecommendation_Woffen</defName>
+    <label>RSMF Woffen extension</label>
+    <description>Compatibility extension for Woffen-themed business content.</description>
+    <labelKey>RSMF.Business.Extensions.Item.Woffen.Label</labelKey>
+    <descriptionKey>RSMF.Business.Extensions.Item.Woffen.Description</descriptionKey>
+    <order>200</order>
+    <publishedFileId>3737464034</publishedFileId>
+    <workshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3737464034</workshopUrl>
+    <previewImageUrl>https://images.steamusercontent.com/ugc/15080978195341314381/8893B033CC0F20FB45CA182EEF8270866CAD4A14/</previewImageUrl>
+  </SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+
+  <SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+    <defName>RSMF_ExtensionRecommendation_Takeout</defName>
+    <label>RSMF takeout extension</label>
+    <description>Compatibility extension for takeout-themed business content.</description>
+    <labelKey>RSMF.Business.Extensions.Item.Takeout.Label</labelKey>
+    <descriptionKey>RSMF.Business.Extensions.Item.Takeout.Description</descriptionKey>
+    <order>300</order>
+    <publishedFileId>3738454505</publishedFileId>
+    <workshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3738454505</workshopUrl>
+    <previewImageUrl>https://images.steamusercontent.com/ugc/9528026292726803886/AD26F371A832050BF460056E8C051A433E25B744/</previewImageUrl>
+  </SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+
+  <SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+    <defName>RSMF_ExtensionRecommendation_FufuA</defName>
+    <label>RSMF fufuA extension</label>
+    <description>Compatibility extension for fufuA-themed business content.</description>
+    <labelKey>RSMF.Business.Extensions.Item.FufuA.Label</labelKey>
+    <descriptionKey>RSMF.Business.Extensions.Item.FufuA.Description</descriptionKey>
+    <order>350</order>
+    <publishedFileId>3741989068</publishedFileId>
+    <workshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3741989068</workshopUrl>
+    <previewImageUrl>https://images.steamusercontent.com/ugc/14015537340969664240/482276F6D96C76A2EF3D849B57FC793ED7448D07/</previewImageUrl>
+  </SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+
+  <SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+    <defName>RSMF_ExtensionRecommendation_FufuB</defName>
+    <label>RSMF fufuB extension</label>
+    <description>Compatibility extension for fufuB-themed business content.</description>
+    <labelKey>RSMF.Business.Extensions.Item.FufuB.Label</labelKey>
+    <descriptionKey>RSMF.Business.Extensions.Item.FufuB.Description</descriptionKey>
+    <order>400</order>
+    <publishedFileId>3741999388</publishedFileId>
+    <workshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3741999388</workshopUrl>
+    <previewImageUrl>https://images.steamusercontent.com/ugc/11143629598777163694/E93DC34FD37DFB3AACA7C7C4555B53C989CAC4B7/</previewImageUrl>
+  </SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+
+  <SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+    <defName>RSMF_ExtensionRecommendation_BusinessInternet</defName>
+    <label>Linia Dining Network</label>
+    <description>Expands the galactic dining network with ingredient market information, recurring supply contracts, branch management, and raids on rival restaurants.</description>
+    <labelKey>RSMF.Business.Extensions.Item.BusinessInternet.Label</labelKey>
+    <descriptionKey>RSMF.Business.Extensions.Item.BusinessInternet.Description</descriptionKey>
+    <order>450</order>
+    <publishedFileId>3815327367</publishedFileId>
+    <workshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3815327367</workshopUrl>
+    <previewImageUrl>https://images.steamusercontent.com/ugc/13683542956224908059/0CA33E2E20B2AE9C56D6DB609C5676042B1B2C98/</previewImageUrl>
+  </SimManagementLib.SimDef.BusinessExtensionRecommendationDef>
+</Defs>

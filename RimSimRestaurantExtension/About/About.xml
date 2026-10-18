@@ -4,6 +4,7 @@
   <author>追踪虫 and Migua</author>
   <supportedVersions>
     <li>1.6</li>
+    <li>1.7</li>
   </supportedVersions>
   <description>模拟经营框架的餐厅扩展。顾客会按预算、饥饿程度和个体偏好点菜，由分配岗位的厨师制作、服务员送餐，并在实际用餐完成后统一结账。</description>
   <packageId>chezhou.rimsim.restaurantextension</packageId>

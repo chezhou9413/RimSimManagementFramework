@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <SimManagementLib.SimDef.BusinessTutorialDef>
+    <defName>Sim_BusinessTutorial_QA</defName>
+    <label>QA</label>
+    <order>1</order>
+    <titleKey>RSMF.Business.Tutorial.QA.Title</titleKey>
+    <title>QA</title>
+    <textBeforeImageKey>RSMF.Business.Tutorial.QA.BeforeImage</textBeforeImageKey>
+    <textBeforeImage>为什么我的角色不进行补货/服务等工作?\n导致这种状况出现的可能性有很多。\n首先,任何的多线程类优化模组都有极大地概率造成此种情况。\n其次,请先进入您商店的"店员配置"界面,同一名角色同时承担补货与服务工作会有概率造成此种情况。\n在此之后,请于"工作"菜单栏中检查您进行补货/服务等工作的角色的对应优先级,可能是您的角色被其他更重要的事情占据了优先级。</textBeforeImage>
+    <imageMaxHeight>180</imageMaxHeight>
+    <textAfterImageKey>RSMF.Business.Tutorial.QA.AfterImage</textAfterImageKey>
+    <textAfterImage>除此之外,同样有可能是您的角色在其他方面的需求条过低,如饮食等,导致其需要进行其他方面的活动,这种情况下一般等待片刻即可。</textAfterImage>
+  </SimManagementLib.SimDef.BusinessTutorialDef>
+
+  <SimManagementLib.SimDef.BusinessTutorialDef>
+    <defName>Sim_BusinessTutorial_StartBusiness</defName>
+    <label>How to start business</label>
+    <order>100</order>
+    <titleKey>RSMF.Business.Tutorial.StartBusiness.Title</titleKey>
+    <title>怎么开始经营</title>
+    <textBeforeImageKey>RSMF.Business.Tutorial.StartBusiness.BeforeImage</textBeforeImageKey>
+    <textBeforeImage>先划定一个室内商店区，并在区域里放置至少一个货柜和一个收银台。</textBeforeImage>
+    <imagePath>Things/Building/CashRegister/Sim_CashRegister_south</imagePath>
+    <imageMaxHeight>180</imageMaxHeight>
+    <textAfterImageKey>RSMF.Business.Tutorial.StartBusiness.AfterImage</textAfterImageKey>
+    <textAfterImage>打开货柜管理配置上架商品、目标库存和售价，再到商店管理里设置营业时间与店员。设施有效、商店处于营业时间并且没有手动停业时，顾客就会开始来店购物。\n请注意，如果您当前的地图内，包括处于迷雾中的，存在任意敌对物体或超过1000点的袭击，商店将无法正常营业。</textAfterImage>
+  </SimManagementLib.SimDef.BusinessTutorialDef>
+
+  <SimManagementLib.SimDef.BusinessTutorialDef>
+    <defName>Sim_BusinessTutorial_CloseUi</defName>
+    <label>How to close UI</label>
+    <order>200</order>
+    <titleKey>RSMF.Business.Tutorial.CloseUi.Title</titleKey>
+    <title>怎么关闭 UI</title>
+    <textBeforeImageKey>RSMF.Business.Tutorial.CloseUi.BeforeImage</textBeforeImageKey>
+    <textBeforeImage>经商管理主界面可以按 Esc 关闭，也可以再次点击底部的经商管理主标签关闭。</textBeforeImage>
+    <textAfterImageKey>RSMF.Business.Tutorial.CloseUi.AfterImage</textAfterImageKey>
+    <textAfterImage>商店、货柜、店员、招牌等弹窗可以按右上角 X 关闭，也可以按 Esc 关闭。部分配置窗口带有保存按钮，关闭前请先保存需要保留的设置。</textAfterImage>
+  </SimManagementLib.SimDef.BusinessTutorialDef>
+
+  <SimManagementLib.SimDef.BusinessTutorialDef>
+    <defName>Sim_BusinessTutorial_StorageManagement</defName>
+    <label>How to manage storage</label>
+    <order>300</order>
+    <titleKey>RSMF.Business.Tutorial.StorageManagement.Title</titleKey>
+    <title>怎么管理货柜</title>
+    <textBeforeImageKey>RSMF.Business.Tutorial.StorageManagement.BeforeImage</textBeforeImageKey>
+    <textBeforeImage>选择某一货架，点击下方的货架管理即可上架物品，可以从左侧切换不同的商品种类，但每个货架只能放同种类的商品。</textBeforeImage>
+    <textAfterImageKey>RSMF.Business.Tutorial.StorageManagement.AfterImage</textAfterImageKey>
+    <textAfterImage>下方可以复制当前货柜的配置以快速同时配置多个相同的货柜。\n请注意，货柜的商品补货阈值默认为0，即店员只会在商品售罄时进行补货！</textAfterImage>
+  </SimManagementLib.SimDef.BusinessTutorialDef>
+
+  <SimManagementLib.SimDef.BusinessTutorialDef>
+    <defName>Sim_BusinessTutorial_HotRegisteringItems</defName>
+    <label>How to Hot Registering Items</label>
+    <order>400</order>
+    <titleKey>RSMF.Business.Tutorial.HotRegisteringItems.Title</titleKey>
+    <title>怎么快速注册商品</title>
+    <textBeforeImageKey>RSMF.Business.Tutorial.HotRegisteringItems.BeforeImage</textBeforeImageKey>
+    <textBeforeImage>如果您想要上架其他MOD物品但又苦于暂时没有兼容补丁，那么可以选择物品热注册功能。\n打开模拟经营框架建筑菜单，点击快捷注册商品，在列表中搜索商品或按来源 Mod 筛选。可选择多种商品，再点击选择商品分类，为它们选择对应分类，最后点击注册到此类即可生效。无需地图上已有这些物品。</textBeforeImage>
+    <textAfterImageKey>RSMF.Business.Tutorial.HotRegisteringItems.AfterImage</textAfterImageKey>
+    <textAfterImage>在MOD设置界面同样可以进行物品热注册，您也可以选择将您的注册信息一键转换成base64格式，并将其分享给他人，使得其他人可以获取您已经热注册过的商品列表。</textAfterImage>
+  </SimManagementLib.SimDef.BusinessTutorialDef>
+
+  <SimManagementLib.SimDef.BusinessTutorialDef>
+    <defName>Sim_BusinessTutorial_OperatingHours</defName>
+    <label>How to Set Operating Hours</label>
+    <order>500</order>
+    <titleKey>RSMF.Business.Tutorial.OperatingHours.Title</titleKey>
+    <title>怎么设置营业时间</title>
+    <textBeforeImageKey>RSMF.Business.Tutorial.OperatingHours.BeforeImage</textBeforeImageKey>
+    <textBeforeImage>选择已划定的商店区域，点击下方的商店管理，再点选左侧的营业时间即可对营业日程进行管理，默认为全天营业。</textBeforeImage>
+  </SimManagementLib.SimDef.BusinessTutorialDef>
+
+  <SimManagementLib.SimDef.BusinessTutorialDef>
+    <defName>Sim_BusinessTutorial_CustomerReviewFeature</defName>
+    <label>How to Use Customer Review Feature</label>
+    <order>600</order>
+    <titleKey>RSMF.Business.Tutorial.CustomerReviewFeature.Title</titleKey>
+    <title>怎么使用顾客评价功能</title>
+    <textBeforeImageKey>RSMF.Business.Tutorial.CustomerReviewFeature.BeforeImage</textBeforeImageKey>
+    <textBeforeImage>进入MOD设置界面，勾选启用顾客选项功能，并调试接入好API，并重启游戏。\n选择最下方导航栏中的经商管理，即可发现UI中多出有顾客评价选单，点击进入即可查看开启本功能之后您的顾客给予的评价。</textBeforeImage>
+    <textAfterImageKey>RSMF.Business.Tutorial.CustomerReviewFeature.AfterImage</textAfterImageKey>
+    <textAfterImage>如果勾选启用重型模式，则会在大幅度增加TOKEN消耗并提升性能表现的同时，新增一项可以回怼顾客评论的功能。</textAfterImage>
+  </SimManagementLib.SimDef.BusinessTutorialDef>
+
+  <SimManagementLib.SimDef.BusinessTutorialDef>
+    <defName>Sim_BusinessTutorial_CustomizableItemsAndCustomerTypes</defName>
+    <label>How to Use Customizable Items and Customer Types</label>
+    <order>700</order>
+    <titleKey>RSMF.Business.Tutorial.CustomizableItemsAndCustomerTypes.Title</titleKey>
+    <title>怎么使用可定制商品和顾客类型</title>
+    <textBeforeImageKey>RSMF.Business.Tutorial.CustomizableItemsAndCustomerTypes.BeforeImage</textBeforeImageKey>
+    <textBeforeImage>进入MOD设置界面，下滑可见打开自定义商品/顾客注册面板，切记一定要在编辑之后保存！</textBeforeImage>
+  </SimManagementLib.SimDef.BusinessTutorialDef>
+
+</Defs>

@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+  <JobDef>
+    <defName>Sim_ManCashRegister</defName>
+    <driverClass>SimManagementLib.SimAI.JobDriver_ManCashRegister</driverClass>
+    <reportString>正在收银台值班。</reportString>
+    <casualInterruptible>true</casualInterruptible>
+    <allowOpportunisticPrefix>true</allowOpportunisticPrefix>
+  </JobDef>
+
+  <JobDef>
+    <defName>Sim_CollectCashRegisterSilver</defName>
+    <driverClass>SimManagementLib.SimAI.JobDriver_CollectCashRegisterSilver</driverClass>
+    <reportString>正在从经营建筑取出白银并搬运入库。</reportString>
+    <casualInterruptible>true</casualInterruptible>
+  </JobDef>
+
+  <JobDef>
+    <defName>Sim_PrepareShopOrder</defName>
+    <driverClass>SimManagementLib.SimAI.JobDriver_PrepareShopOrder</driverClass>
+    <reportString>正在处理顾客订单。</reportString>
+    <casualInterruptible>true</casualInterruptible>
+  </JobDef>
+</Defs>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR.Preference.AnyDiet>饮食随和</RSR.Preference.AnyDiet>
+  <RSR.Preference.BalancedQuality>品质均衡</RSR.Preference.BalancedQuality>
+  <RSR.Preference.ConveyorPickup>从面前传送带自行取餐</RSR.Preference.ConveyorPickup>
+  <RSR.Preference.DifferentTaste>换个口味</RSR.Preference.DifferentTaste>
+  <RSR.Preference.Disabled>未启用个体偏好</RSR.Preference.Disabled>
+  <RSR.Preference.Familiar>偏爱熟悉菜</RSR.Preference.Familiar>
+  <RSR.Preference.FamiliarTaste>熟悉口味</RSR.Preference.FamiliarTaste>
+  <RSR.Preference.FavoriteDish>常点菜</RSR.Preference.FavoriteDish>
+  <RSR.Preference.Frugal>重视价格</RSR.Preference.Frugal>
+  <RSR.Preference.Generous>愿意消费</RSR.Preference.Generous>
+  <RSR.Preference.HighQuality>追求品质</RSR.Preference.HighQuality>
+  <RSR.Preference.Meat>偏肉食</RSR.Preference.Meat>
+  <RSR.Preference.ModerateBudget>价格适中</RSR.Preference.ModerateBudget>
+  <RSR.Preference.Novelty>喜欢尝鲜</RSR.Preference.Novelty>
+  <RSR.Preference.OccasionalNovelty>偶尔换口味</RSR.Preference.OccasionalNovelty>
+  <RSR.Preference.SelectionCount>从当前可售菜单中选择 {count} 份</RSR.Preference.SelectionCount>
+  <RSR.Preference.SelectionReason>{favorite}；{summary}</RSR.Preference.SelectionReason>
+  <RSR.Preference.SimpleQuality>偏好家常</RSR.Preference.SimpleQuality>
+  <RSR.Preference.Summary>{diet} · {budget} · {quality} · {novelty} · 常点{portions}份</RSR.Preference.Summary>
+  <RSR.Preference.Vegetarian>偏素食</RSR.Preference.Vegetarian>
+</LanguageData>

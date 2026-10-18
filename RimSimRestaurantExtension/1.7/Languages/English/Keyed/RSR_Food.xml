@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR.Food.DefaultFine>Fine vegetable meal</RSR.Food.DefaultFine>
+  <RSR.Food.DefaultLavish>Lavish restaurant meal</RSR.Food.DefaultLavish>
+  <RSR.Food.DefaultSimple>Simple rice meal</RSR.Food.DefaultSimple>
+  <RSR.Food.Edible>Edible food</RSR.Food.Edible>
+  <RSR.Food.Fine>Fine meal</RSR.Food.Fine>
+  <RSR.Food.InvalidFood>Invalid food</RSR.Food.InvalidFood>
+  <RSR.Food.InvalidMeal>Invalid meal</RSR.Food.InvalidMeal>
+  <RSR.Food.Lavish>Lavish meal</RSR.Food.Lavish>
+  <RSR.Food.NoNutrition>No nutrition data</RSR.Food.NoNutrition>
+  <RSR.Food.Simple>Everyday meal</RSR.Food.Simple>
+  <RSR.Food.Summary>Nutrition {nutrition} · {quality} · {source}</RSR.Food.Summary>
+</LanguageData>

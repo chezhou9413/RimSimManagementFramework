@@ -1,0 +1,526 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <!-- 默认商品分类。新增分类时复制一个 GoodsDef 改 defName 即可。 -->
+
+  <SimManagementLib.SimDef.GoodsDef>
+    <defName>Goods_Foods</defName>
+    <label>食物（综合）</label>
+    <GoodsList>
+      <li>RawRice</li>
+      <li>RawPotatoes</li>
+      <li>RawCorn</li>
+      <li>RawBerries</li>
+      <li>RawFungus</li>
+      <li>RawAgave</li>
+      <li>MealSurvivalPack</li>
+      <li>MealSimple</li>
+      <li>MealFine</li>
+      <li>MealLavish</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Salmon</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Guppy</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey,Ludeon.RimWorld.Biotech">Fish_Toxfish</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Flounder</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Tilapia</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Dogfish</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Tuna</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Frostfish</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Bluefish</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Piranha</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Marlin</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Bass</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Catfish</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Fish_Cod</li>
+      <li>Meat_Chicken</li>
+      <li>Meat_Human</li>
+      <li>Meat_Megaspider</li>
+      <li>Meat_Pig</li>
+      <li>Meat_Tortoise</li>
+      <!--li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Mastodon</li-->
+      <li>Meat_Dromedary</li>
+      <li>Meat_Husky</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_PrairieDog</li>
+      <li>Meat_Megasloth</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Panda</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Gorilla</li>
+      <li>Meat_Elephant</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_HermitCrab</li>
+      <li>Meat_Goat</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Wolf_Great</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_MonitorLizard</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_ColossusToad</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Megavole</li>
+      <li>Meat_Warg</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">Meat_Twisted</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_LabradorRetriever</li>
+      <li>Meat_Thrumbo</li>
+      <li>Meat_Squirrel</li>
+      <li>Meat_Chinchilla</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Meat_Toxalope</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Otter</li>
+      <li>Meat_Capybara</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Mink</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Meat_WasteRat</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Hippo</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_BogHound</li>
+      <li>Meat_Raccoon</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_SeaLion</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Walrus</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Seal</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_SeaTurtle</li>
+      <li>Meat_Turkey</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Bear_Grizzly</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_LavaSnail</li>
+      <li>Meat_Boomalope</li>
+      <li>Meat_Boomrat</li>
+      <li>Meat_Cow</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Bullfrog</li>
+      <li>Meat_Yak</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Rhinoceros</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Armadillo</li>
+      <li>Meat_Fox_Fennec</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Wolverine</li>
+      <li>Meat_Wolf_Timber</li>
+      <li>Meat_Lynx</li>
+      <li>Meat_Cat</li>
+      <li>Meat_Monkey</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Badger</li>
+      <li>Meat_Gazelle</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Alligator</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_StoneCrab</li>
+      <li>Meat_YorkshireTerrier</li>
+      <li>Meat_Sheep</li>
+      <li>Meat_Alpaca</li>
+      <li>Meat_Cougar</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Tiger</li>
+      <li>Meat_Cobra</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Porcupine</li>
+      <li>Meat_Hare</li>
+      <li>Meat_Ibex</li>
+      <li>Meat_Bison</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Cat_Scimitar</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_AlphaThrumbo</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Alphabeaver</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Muffalo</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Horse</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Elk</li>
+      <li>Meat_Caribou</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Donkey</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Moose</li>
+      <li>Meat_Iguana</li>
+      <li>Meat_Cassowary</li>
+      <li>Meat_Chicken</li>
+      <li>Meat_Duck</li>
+      <li>Meat_Deer</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Meat_Muskox</li>
+      <li>Meat_Panther</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">Meat_Twisted</li>
+    </GoodsList>
+  </SimManagementLib.SimDef.GoodsDef>
+
+  <SimManagementLib.SimDef.GoodsDef>
+    <defName>Goods_Meals</defName>
+    <label>即食餐品</label>
+    <GoodsList>
+      <li>MealSurvivalPack</li>
+      <li>MealSimple</li>
+      <li>MealFine</li>
+      <li>MealLavish</li>
+    </GoodsList>
+  </SimManagementLib.SimDef.GoodsDef>
+
+  <SimManagementLib.SimDef.GoodsDef>
+    <defName>Goods_Medicine</defName>
+    <label>药品</label>
+    <GoodsList>
+      <li>MedicineHerbal</li>
+      <li>MedicineIndustrial</li>
+      <li>MedicineUltratech</li>
+      <li>Penoxycyline</li>
+      <li>MechSerumResurrector</li>
+      <li>MechSerumHealer</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">MindNumbSerum</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">JuggernautSerum</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">SentienceCatalyst</li>
+    </GoodsList>
+  </SimManagementLib.SimDef.GoodsDef>
+
+  <SimManagementLib.SimDef.GoodsDef>
+    <defName>Goods_Drugs</defName>
+    <label>饮品与药物</label>
+    <GoodsList>
+      <li>Beer</li>
+      <li>SmokeleafJoint</li>
+      <li>PsychiteTea</li>
+      <li>Ambrosia</li>
+      <li>WakeUp</li>
+      <li>GoJuice</li>
+      <li>Yayo</li>
+      <li>Flake</li>
+      <li>MechSerumResurrector</li>
+      <li>MechSerumHealer</li>
+    </GoodsList>
+  </SimManagementLib.SimDef.GoodsDef>
+
+  <SimManagementLib.SimDef.GoodsDef>
+    <defName>Goods_AddictiveDrugs</defName>
+    <label>成瘾品</label>
+    <GoodsList>
+      <li>SmokeleafJoint</li>
+      <li>PsychiteTea</li>
+      <li>Ambrosia</li>
+      <li>WakeUp</li>
+      <li>GoJuice</li>
+      <li>Yayo</li>
+      <li>Flake</li>
+    </GoodsList>
+  </SimManagementLib.SimDef.GoodsDef>
+
+  <SimManagementLib.SimDef.GoodsDef>
+    <defName>Goods_ResourcesBasic</defName>
+    <label>基础资源</label>
+    <GoodsList>
+      <li>Steel</li>
+      <li>WoodLog</li>
+      <li>Cloth</li>
+      <li>DevilstrandCloth</li>
+      <li>Silver</li>
+      <li>Gold</li>
+      <li>Plasteel</li>
+      <li>Uranium</li>
+      <li>ComponentIndustrial</li>
+      <li>ComponentSpacer</li>
+      <li>BlocksGranite</li>
+      <li>BlocksLimestone</li>
+      <li>BlocksMarble</li>
+      <li>BlocksSlate</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">BlocksVacstone</li>
+      <li>BlocksSandstone</li>
+      <li>RawHops</li>
+      <li>SmokeleafLeaves</li>
+      <li>Dye</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">Bioferrite</li>
+      <li>PsychoidLeaves</li>
+      <li>Jade</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">GravlitePanel</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Obsidian</li>
+      <li>WoolSheep</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">WoolMastodon</li>
+      <li>WoolMegasloth</li>
+      <li>WoolAlpaca</li>
+      <li>WoolBison</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">WoolMuffalo</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">WoolMuskox</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Leather_Mastodon</li>
+      <li>Leather_Human</li>
+      <li>Leather_Heavy</li>
+      <li>Leather_Thrumbo</li>
+      <li>Leather_Plain</li>
+      <li>Leather_Patch</li>
+      <li>Leather_Chinchilla</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Leather_Mink</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Leather_Hippo</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Leather_Sealskin</li>
+      <li>Leather_Bear</li>
+      <li>Leather_Rhinoceros</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Leather_Armadillo</li>
+      <li>Leather_Fox</li>
+      <li>Leather_Dog</li>
+      <li>Leather_Wolf</li>
+      <li>Leather_Pig</li>
+      <li>Leather_Bluefur</li>
+      <li>Leather_Lizard</li>
+      <li>Leather_GuineaPig</li>
+      <li>Leather_Elephant</li>
+      <li>Leather_Panthera</li>
+      <li>Leather_Light</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Leather_AlphaThrumbo</li>
+      <li>Leather_Camel</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">Leather_Dread</li>
+      <li>Leather_Bird</li>
+      <li>Synthread</li>
+      <li>Cloth</li>
+      <li>Hyperweave</li>
+      <li>DevilstrandCloth</li>
+      <li>Leather_Light</li>
+    </GoodsList>
+  </SimManagementLib.SimDef.GoodsDef>
+
+  <SimManagementLib.SimDef.GoodsDef>
+    <defName>Goods_ApparelBasic</defName>
+    <label>基础服饰</label>
+    <GoodsList>
+      <li>Apparel_AdvancedHelmet</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_AirwireHeadset</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorCataphract</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorCataphractPhoenix</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorCataphractPrestige</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorHelmetCataphract</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorHelmetCataphractPrestige</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_ArmorHelmetMechCommander</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_ArmorHelmetMechlordHelmet</li>
+      <li>Apparel_ArmorHelmetRecon</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorHelmetReconPrestige</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorLocust</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorMarineGrenadier</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorMarineHelmetPrestige</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorMarinePrestige</li>
+      <li>Apparel_ArmorRecon</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorReconPrestige</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_ArrayHeadset</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_AuthorityCap</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_Bandolier</li>
+      <li>Apparel_BasicShirt</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_Beret</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">Apparel_BiomutationLance</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_Blindfold</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_BodyStrap</li>
+      <li>Apparel_BowlerHat</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_Broadwrap</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_Burka</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Apparel_CerebrexNode</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">Apparel_CeremonialCultistMask</li>
+      <li>Apparel_ClothMask</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_Collar</li>
+      <li>Apparel_CollarShirt</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_Coronet</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_Corset</li>
+      <li>Apparel_CowboyHat</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_Crown</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_CrownStellic</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">Apparel_CultistMask</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">Apparel_DeadlifePack</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">Apparel_DisruptorFlarePack</li>
+      <li>Apparel_Duster</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_EltexSkullcap</li>
+      <li>Apparel_FirefoampopPack</li>
+      <li>Apparel_FlakJacket</li>
+      <li>Apparel_FlakPants</li>
+      <li>Apparel_FlakVest</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_Flophat</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_GasMask</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_Gunlink</li>
+      <li>Apparel_HatHood</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_HatLadies</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_HatTop</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_Headwrap</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_HeavyShield</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_IntegratorHeadset</li>
+      <li>Apparel_Jacket</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_KidHelmet</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_KidPants</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_KidParka</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_KidRomper</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_KidShirt</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_KidTribal</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">Apparel_LabCoat</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_MechlordSuit</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_PackBandwidth</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_PackBroadshield</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_PackControl</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Apparel_PackHunter</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_PackJump</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_PackTox</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">Apparel_PackTurret</li>
+      <li>Apparel_Pants</li>
+      <li>Apparel_Parka</li>
+      <li>Apparel_PlateArmor</li>
+      <li>Apparel_PowerArmor</li>
+      <li>Apparel_PowerArmorHelmet</li>
+      <li>Apparel_PsychicFoilHelmet</li>
+      <li>Apparel_PsychicInsanityLance</li>
+      <li>Apparel_PsychicShockLance</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_PsyfocusHelmet</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_PsyfocusRobe</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_PsyfocusShirt</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_PsyfocusVest</li>
+      <li>Apparel_Robe</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_RobeRoyal</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_Sash</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_Shadecone</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">Apparel_ShardPsychicInsanityLance</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">Apparel_ShardPsychicShockLance</li>
+      <li>Apparel_ShieldBelt</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ShirtRuffle</li>
+      <li>Apparel_SimpleHelmet</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_Slicecap</li>
+      <li>Apparel_SmokepopBelt</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_Tailcap</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_TortureCrown</li>
+      <li>Apparel_TribalA</li>
+      <li>Apparel_TribalHeaddress</li>
+      <li>Apparel_Tuque</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Apparel_Vacsuit</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey,Ludeon.RimWorld.Biotech">Apparel_VacsuitChildren</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Apparel_VacsuitHelmet</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_VestRoyal</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Apparel_VisageMask</li>
+      <li>Apparel_WarMask</li>
+      <li>Apparel_WarVeil</li>
+      <li MayRequireAnyOf="Ludeon.RimWorld.Royalty,Ludeon.RimWorld.Biotech">Apparel_Cape</li>
+    </GoodsList>
+  </SimManagementLib.SimDef.GoodsDef>
+
+  <SimManagementLib.SimDef.GoodsDef>
+    <defName>Goods_MeleeWeapons</defName>
+    <label>近战武器</label>
+    <GoodsList>
+      <li>MeleeWeapon_Knife</li>
+      <li>MeleeWeapon_Club</li>
+      <li>MeleeWeapon_Gladius</li>
+      <li>MeleeWeapon_Mace</li>
+      <li>MeleeWeapon_LongSword</li>
+      <li>MeleeWeapon_Spear</li>
+      <li>MeleeWeapon_Ikwa</li>
+      <li>MeleeWeapon_BreachAxe</li>
+    </GoodsList>
+  </SimManagementLib.SimDef.GoodsDef>
+
+  <SimManagementLib.SimDef.GoodsDef>
+    <defName>Goods_Weapons</defName>
+    <label>枪械</label>
+    <GoodsList>
+      <li>Gun_Revolver</li>
+      <li>Gun_Autopistol</li>
+      <li>Gun_BoltActionRifle</li>
+      <li>Gun_PumpShotgun</li>
+      <li>Gun_AssaultRifle</li>
+      <li>Gun_SniperRifle</li>
+      <li>Gun_LMG</li>
+      <li>Gun_HeavySMG</li>
+      <li>Gun_ChainShotgun</li>
+      <li>Gun_ChargeRifle</li>
+      <li>Gun_ChargeLance</li>
+      <li>Gun_EmpLauncher</li>
+      <li>Gun_SmokeLauncher</li>
+      <li>Gun_TripleRocket</li>
+      <li>Gun_MachinePistol</li>
+      <li>Gun_Minigun</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">Gun_HellcatRifle</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Gun_BeamGraser</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Odyssey">Gun_BeamRepeater</li>
+      <li>Gun_DoomsdayRocket</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Gun_ToxbombLauncher</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">Gun_Incinerator</li>
+      <li>Gun_IncendiaryLauncher</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly,Ludeon.RimWorld.Odyssey">Gun_HellcatRifle_Unique</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Gun_Revolver_Unique</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Gun_BoltActionRifle_Unique</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Gun_SniperRifle_Unique</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Gun_ChargeRifle_Unique</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Gun_ChargeLance_Unique</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Gun_AssaultRifle_Unique</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey,Ludeon.RimWorld.Biotech">Gun_BeamRepeater_Unique</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Gun_LMG_Unique</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Gun_Minigun_Unique</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Gun_HeavySMG_Unique</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Gun_ChainShotgun_Unique</li>
+    </GoodsList>
+  </SimManagementLib.SimDef.GoodsDef>
+
+  <SimManagementLib.SimDef.GoodsDef>
+    <defName>Goods_Ammo</defName>
+    <label>弹药</label>
+    <GoodsList>
+      <li>Shell_EMP</li>
+      <li>Weapon_GrenadeEMP</li>
+      <li>Shell_AntigrainWarhead</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">Shell_Deadlife</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Shell_Toxic</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Weapon_GrenadeTox</li>
+      <li>Shell_Firefoam</li>
+      <li>Shell_Smoke</li>
+      <li>Shell_Incendiary</li>
+      <li>Weapon_GrenadeFrag</li>
+      <li>Shell_HighExplosive</li>
+    </GoodsList>
+  </SimManagementLib.SimDef.GoodsDef>
+
+  <SimManagementLib.SimDef.GoodsDef>
+    <defName>Goods_BodyParts</defName>
+    <label>身体部件</label>
+    <GoodsList>
+      <li MayRequire="Ludeon.RimWorld.Biotech">BionicHeart</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">BionicEye</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">BionicEar</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">BionicStomach</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">BionicSpine</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">BionicLeg</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">BionicArm</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">BionicTongue</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">CircadianHalfCycler</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">Immunoenhancer</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">Coagulator</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">LearningAssistant</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">RevenantVertebrae</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">LoveEnhancer</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">HealingEnhancer</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">DetoxifierLung</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">DetoxifierKidney</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">DetoxifierStomach</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">NuclearStomach</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">CircadianAssistant</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">ArmorskinGland</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">StoneskinGland</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">Neurocalculator</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">AestheticShaper</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">AestheticNose</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech,Ludeon.RimWorld.Royalty">GastroAnalyzer</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey,Ludeon.RimWorld.Royalty">VacskinGland</li>
+      <li>DeathAcidifier</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">ToughskinGland</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">ReprocessorStomach</li>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">PilotAssistant</li>
+      <li>Joywire</li>
+      <li>SimpleProstheticHeart</li>
+      <li>SimpleProstheticLeg</li>
+      <li>SimpleProstheticArm</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">FieldHand</li>
+      <li>PowerClaw</li>
+      <li>CochlearImplant</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">PsychicHarmonizer</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">PsychicSensitizer</li>
+      <li>Heart</li>
+      <li>Lung</li>
+      <li>Liver</li>
+      <li>Kidney</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">HandTalon</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">DrillArm</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">ControlSublink</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">ControlSublinkHigh</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">Mechlink</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">MechFormfeeder</li>
+      <li>Painstopper</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">VenomTalon</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">VenomFangs</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">AdrenalHeart</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">RepairProbe</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">ElbowBlade</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">KneeSpike</li>
+      <li>ArchotechEye</li>
+      <li>ArchotechArm</li>
+      <li>ArchotechLeg</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">RemoteShielder</li>
+      <li MayRequire="Ludeon.RimWorld.Biotech">RemoteRepairer</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">CorrosiveHeart</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">MetalbloodHeart</li>
+      <li MayRequire="Ludeon.RimWorld.Royalty">Mindscrew</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">GhoulPlating</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">GhoulBarbs</li>
+      <li MayRequireAnyOf="Ludeon.RimWorld.Royalty,Ludeon.RimWorld.Biotech">PsychicAmplifier</li>
+    </GoodsList>
+  </SimManagementLib.SimDef.GoodsDef>
+
+  <SimManagementLib.SimDef.GoodsDef>
+    <defName>Goods_Books</defName>
+    <label>书籍</label>
+    <GoodsList>
+      <li MayRequire="Ludeon.RimWorld.Odyssey">Map</li>
+      <li>Novel</li>
+      <li>Schematic</li>
+      <li>TextBook</li>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">Tome</li>
+    </GoodsList>
+  </SimManagementLib.SimDef.GoodsDef>
+
+  <!-- 需要扩展时请继续复制 SimManagementLib.SimDef.GoodsDef 节点。 -->
+</Defs>

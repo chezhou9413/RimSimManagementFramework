@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+  <!-- 顾客在店内选商品阶段的思维入口。 -->
+  <DutyDef>
+    <defName>Customer_BrowseShelf</defName>
+    <alwaysShowWeapon>false</alwaysShowWeapon>
+    <threatDisabled>true</threatDisabled>
+    <thinkNode Class="ThinkNode_Priority">
+      <subNodes>
+        <li Class="SimManagementLib.SimAI.JobGiver_Customer_RunExternalAction" />
+        <li Class="SimManagementLib.SimAI.JobGiver_Customer_SelectPaidService" />
+        <li Class="SimManagementLib.SimAI.JobGiver_Customer_BrowseAndPick" />
+        <li Class="JobGiver_WanderNearDutyLocation">
+          <wanderRadius>5</wanderRadius>
+        </li>
+      </subNodes>
+    </thinkNode>
+  </DutyDef>
+
+  <!-- 顾客进入结账阶段后的思维入口。 -->
+  <DutyDef>
+    <defName>Customer_Checkout</defName>
+    <alwaysShowWeapon>false</alwaysShowWeapon>
+    <threatDisabled>true</threatDisabled>
+    <thinkNode Class="ThinkNode_Priority">
+      <subNodes>
+        <li Class="SimManagementLib.SimAI.JobGiver_CustomerCheckout" />
+        <li Class="JobGiver_WanderNearDutyLocation">
+          <wanderRadius>3</wanderRadius>
+        </li>
+      </subNodes>
+    </thinkNode>
+  </DutyDef>
+
+  <!-- 顾客前往自动售货机时的思维入口。 -->
+  <DutyDef>
+    <defName>Customer_UseVendingMachine</defName>
+    <alwaysShowWeapon>false</alwaysShowWeapon>
+    <threatDisabled>true</threatDisabled>
+    <thinkNode Class="ThinkNode_Priority">
+      <subNodes>
+        <li Class="SimManagementLib.SimAI.JobGiver_Customer_UseVendingMachine" />
+        <li Class="JobGiver_WanderNearDutyLocation">
+          <wanderRadius>3</wanderRadius>
+        </li>
+      </subNodes>
+    </thinkNode>
+  </DutyDef>
+</Defs>

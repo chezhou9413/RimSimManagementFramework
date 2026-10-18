@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.PageManager.Title>Manage pages</RSMF.PageManager.Title>
+  <RSMF.PageManager.ShowAll>Show all</RSMF.PageManager.ShowAll>
+  <RSMF.PageManager.Reset>Reset</RSMF.PageManager.Reset>
+  <RSMF.PageManager.ResetHint>Show all pages in their registered order.</RSMF.PageManager.ResetHint>
+  <RSMF.PageManager.Visible>Show</RSMF.PageManager.Visible>
+  <RSMF.PageManager.Page>Page</RSMF.PageManager.Page>
+  <RSMF.PageManager.Order>Order</RSMF.PageManager.Order>
+  <RSMF.PageManager.Up>Up</RSMF.PageManager.Up>
+  <RSMF.PageManager.Down>Down</RSMF.PageManager.Down>
+  <RSMF.PageManager.Empty>No business pages are available.</RSMF.PageManager.Empty>
+  <RSMF.PageManager.HideTab>Hide tab</RSMF.PageManager.HideTab>
+  <RSMF.PageManager.ShowTab>Show tab</RSMF.PageManager.ShowTab>
+  <RSMF.PageManager.NoDescription>This page has no description.</RSMF.PageManager.NoDescription>
+  <RSMF.PageManager.ApplyHint>Apply to refresh the business tabs.</RSMF.PageManager.ApplyHint>
+  <RSMF.PageManager.OnePageRequired>Keep at least one page visible.</RSMF.PageManager.OnePageRequired>
+  <RSMF.PageManager.Apply>Apply</RSMF.PageManager.Apply>
+  <RSMF.PageManager.Summary>{visible} / {total} pages visible. Use Up and Down to reorder tabs.</RSMF.PageManager.Summary>
+  <RSMF.MenuTransfer.Export>Export bundles</RSMF.MenuTransfer.Export>
+  <RSMF.MenuTransfer.Import>Import bundles</RSMF.MenuTransfer.Import>
+  <RSMF.MenuTransfer.NoValidBundles>No valid bundles to import.</RSMF.MenuTransfer.NoValidBundles>
+  <RSMF.MenuTransfer.ExportHelp>Copy the Base64 text below to import it into another shop. Only bundles are exported.</RSMF.MenuTransfer.ExportHelp>
+  <RSMF.MenuTransfer.Copy>Copy to clipboard</RSMF.MenuTransfer.Copy>
+  <RSMF.MenuTransfer.Copied>Bundle Base64 copied.</RSMF.MenuTransfer.Copied>
+  <RSMF.MenuTransfer.ImportHelp>Paste bundle Base64. Imported bundles are added to this shop without removing existing bundles.</RSMF.MenuTransfer.ImportHelp>
+  <RSMF.MenuTransfer.Paste>Paste clipboard</RSMF.MenuTransfer.Paste>
+  <RSMF.MenuTransfer.Confirm>Import</RSMF.MenuTransfer.Confirm>
+  <RSMF.MenuTransfer.ParseFailed>Could not parse bundle Base64.</RSMF.MenuTransfer.ParseFailed>
+  <RSMF.MenuTransfer.Imported>Imported {count} bundles</RSMF.MenuTransfer.Imported>
+  <RSMF.MenuTransfer.Skipped>; skipped {items} items and {bundles} empty bundles</RSMF.MenuTransfer.Skipped>
+  <RSMF.MenuTransfer.MissingItems>; missing items: {items}</RSMF.MenuTransfer.MissingItems>
+  <RSMF.MenuTransfer.Command>Transfer bundles</RSMF.MenuTransfer.Command>
+  <RSMF.MenuTransfer.CommandDescription>Export or import Base64 bundles for this shop zone.</RSMF.MenuTransfer.CommandDescription>
+  <RSMF.Search.Label>Search</RSMF.Search.Label>
+  <RSMF.Search.Clear>Clear</RSMF.Search.Clear>
+  <RSMF.Search.Hint>Search by name</RSMF.Search.Hint>
+  <RSMF.UniqueGoods.Inspect.Stored>Unique items: {count}/{capacity}</RSMF.UniqueGoods.Inspect.Stored>
+  <RSMF.UniqueGoods.Inspect.Pending>  Awaiting restock: {count}</RSMF.UniqueGoods.Inspect.Pending>
+  <RSMF.UniqueGoods.Inspect.Reserved>  Reserved by customers: {count}</RSMF.UniqueGoods.Inspect.Reserved>
+  <RSMF.UniqueGoods.Restock.Ineligible>This item cannot be stocked in this specialty cabinet.</RSMF.UniqueGoods.Restock.Ineligible>
+  <RSMF.UniqueGoods.Restock.Assigned>This item is already assigned to another slot.</RSMF.UniqueGoods.Restock.Assigned>
+  <RSMF.UniqueGoods.Restock.Full>This specialty cabinet has no free slot for the item.</RSMF.UniqueGoods.Restock.Full>
+  <RSMF.Collectible.Minified>Minified</RSMF.Collectible.Minified>
+  <RSMF.Collectible.Placed>Placed</RSMF.Collectible.Placed>
+  <RSMF.Collectible.SourceLabel>{label} ({state})</RSMF.Collectible.SourceLabel>
+  <RSMF.Service.DisplayStand.FallbackLabel>Collectible display stand</RSMF.Service.DisplayStand.FallbackLabel>
+  <RSMF.Service.DisplayStand.OrderLabel>{label} ({count} exhibits)</RSMF.Service.DisplayStand.OrderLabel>
+  <RSMF.CustomerDiagnostics.Copy>Copy customer diagnostics</RSMF.CustomerDiagnostics.Copy>
+  <RSMF.CustomerDiagnostics.CopyDescription>Copy this customer's session, lord, job, product matching and recent activity log to the clipboard.</RSMF.CustomerDiagnostics.CopyDescription>
+  <RSMF.CustomerDiagnostics.Copied>Customer diagnostics copied to the clipboard.</RSMF.CustomerDiagnostics.Copied>
+  <RSMF.Business.Pages.Select>Pages</RSMF.Business.Pages.Select>
+  <RSMF.CustomerReview.Split.BudgetSignalFreeService>A free service was completed without spending money. Being free is not a reason for a negative review; judge the wait, completion and service itself.</RSMF.CustomerReview.Split.BudgetSignalFreeService>
+  <RSMF.Settings.JourneyLog.Enable>Enable customer journey logging</RSMF.Settings.JourneyLog.Enable>
+  <RSMF.Settings.JourneyLog.Location>Write to RimSimManagementFramework/Logs/journey-debug.log in the RimWorld save data folder.</RSMF.Settings.JourneyLog.Location>
+  <RSMF.Settings.JourneyLog.Mirror>Mirror journey logs to the game log</RSMF.Settings.JourneyLog.Mirror>
+  <RSMF.Settings.JourneyLog.MirrorTip>Enable only for troubleshooting; this increases game log output.</RSMF.Settings.JourneyLog.MirrorTip>
+  <RSMF.Settings.JourneyLog.Clear>Clear customer journey log</RSMF.Settings.JourneyLog.Clear>
+  <RSMF.Settings.JourneyLog.MaxSize>Maximum journey log size: {size} KB</RSMF.Settings.JourneyLog.MaxSize>
+  <RSMF.BlueprintNetwork.ServiceName>Blueprint service</RSMF.BlueprintNetwork.ServiceName>
+  <RSMF.BlueprintNetwork.EndpointName>Service endpoint</RSMF.BlueprintNetwork.EndpointName>
+  <RSMF.BlueprintNetwork.EmptyPath>Cannot upload: the blueprint file path is empty.</RSMF.BlueprintNetwork.EmptyPath>
+  <RSMF.BlueprintNetwork.FileMissing>The blueprint file to upload was not found.</RSMF.BlueprintNetwork.FileMissing>
+  <RSMF.BlueprintNetwork.CodeMissing>The server returned no blueprint code; details cannot be retrieved.</RSMF.BlueprintNetwork.CodeMissing>
+  <RSMF.BlueprintNetwork.ConnectionFailed>Network connection failed</RSMF.BlueprintNetwork.ConnectionFailed>
+  <RSMF.BlueprintNetwork.NoResponse>No response</RSMF.BlueprintNetwork.NoResponse>
+  <RSMF.BlueprintNetwork.SyncFailed>Could not synchronize the local blueprint before uploading: {reason}</RSMF.BlueprintNetwork.SyncFailed>
+  <RSMF.BlueprintNetwork.RequestFailed>{method} request failed: {reason}</RSMF.BlueprintNetwork.RequestFailed>
+  <RSMF.BlueprintNetwork.ReadErrorFailed>Could not read the error response: {reason}</RSMF.BlueprintNetwork.ReadErrorFailed>
+  <RSMF.Announcements.ServiceUnavailable>The announcement service is unavailable.</RSMF.Announcements.ServiceUnavailable>
+  <RSMF.Staff.Unknown>Unknown staff member</RSMF.Staff.Unknown>
+</LanguageData>

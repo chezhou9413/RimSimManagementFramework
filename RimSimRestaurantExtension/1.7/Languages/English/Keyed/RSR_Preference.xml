@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR.Preference.AnyDiet>Flexible diet</RSR.Preference.AnyDiet>
+  <RSR.Preference.BalancedQuality>Balanced quality preference</RSR.Preference.BalancedQuality>
+  <RSR.Preference.ConveyorPickup>Self-service from the conveyor in front of the seat</RSR.Preference.ConveyorPickup>
+  <RSR.Preference.DifferentTaste>Trying something different</RSR.Preference.DifferentTaste>
+  <RSR.Preference.Disabled>Individual preferences disabled</RSR.Preference.Disabled>
+  <RSR.Preference.Familiar>Prefers familiar dishes</RSR.Preference.Familiar>
+  <RSR.Preference.FamiliarTaste>Familiar taste</RSR.Preference.FamiliarTaste>
+  <RSR.Preference.FavoriteDish>Favorite dish</RSR.Preference.FavoriteDish>
+  <RSR.Preference.Frugal>Price-conscious</RSR.Preference.Frugal>
+  <RSR.Preference.Generous>Willing to spend</RSR.Preference.Generous>
+  <RSR.Preference.HighQuality>Seeks quality</RSR.Preference.HighQuality>
+  <RSR.Preference.Meat>Prefers meat</RSR.Preference.Meat>
+  <RSR.Preference.ModerateBudget>Moderate budget</RSR.Preference.ModerateBudget>
+  <RSR.Preference.Novelty>Enjoys new dishes</RSR.Preference.Novelty>
+  <RSR.Preference.OccasionalNovelty>Occasionally tries new dishes</RSR.Preference.OccasionalNovelty>
+  <RSR.Preference.SelectionCount>Selected {count} portions from the available menu</RSR.Preference.SelectionCount>
+  <RSR.Preference.SelectionReason>{favorite}; {summary}</RSR.Preference.SelectionReason>
+  <RSR.Preference.SimpleQuality>Prefers simple meals</RSR.Preference.SimpleQuality>
+  <RSR.Preference.Summary>{diet} · {budget} · {quality} · {novelty} · Usually orders {portions} portions</RSR.Preference.Summary>
+  <RSR.Preference.Vegetarian>Prefers vegetables</RSR.Preference.Vegetarian>
+</LanguageData>

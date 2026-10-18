@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="SimManagementLib.csproj" />
+  <Project Path="../../../RimSimRestaurantExtension/Source/RimSimRestaurantExtension/RimSimRestaurantExtension.csproj" />
+</Solution>

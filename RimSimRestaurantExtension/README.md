@@ -2,7 +2,7 @@
 
 这是一个面向开源学习的 RimSimManagementFramework 扩展示例。它演示如何把一个“餐厅”玩法接入模拟经营框架的服务、岗位、订单、UI、表情、评价和调试入口。
 
-项目位于主工程 Git 仓库的 `RimSimRestaurantExtension`，与 `RimSimManagementFramework` 目录同级，与框架共同管理源码、Defs 和文档。本目录直接包含 `About`、`LoadFolders.xml` 和 `1.6`，仍作为独立 Mod 加载，游戏内中文文本保留。
+项目位于主工程 Git 仓库的 `RimSimRestaurantExtension`，与 `RimSimManagementFramework` 目录同级，与框架共同管理源码、Defs 和文档。本目录直接包含 `About`、`LoadFolders.xml`、`1.6` 和 `1.7`，支持 RimWorld 1.6 与 1.7，仍作为独立 Mod 加载，游戏内中文文本保留。
 
 ## 功能闭环
 
@@ -40,7 +40,7 @@
 
 ## 编译
 
-在已配置 MSBuild 的开发者命令提示符中进入：
+安装 .NET 10 SDK 后，在命令提示符中进入：
 
 ```bat
 cd /d E:\RimModDev\RimSimFramework\RimSimRestaurantExtension
@@ -52,12 +52,14 @@ cd /d E:\RimModDev\RimSimFramework\RimSimRestaurantExtension
 build.bat
 ```
 
-项目通过仓库内相对路径引用框架工程，MSBuild 会先编译框架。主工程解决方案也包含本扩展，可在仓库根目录运行 `compile_modSelf.bat` 统一编译。
+默认构建 1.7 Release，项目通过仓库内相对路径引用框架工程，`dotnet build` 会先编译框架。框架的 `Source/SimManagementLib/SimManagementLib.slnx` 也包含本扩展，可在仓库根目录运行 `compile_modSelf.bat` 统一编译。
+
+唯一源码和工程位于根目录 `Source/RimSimRestaurantExtension`，后续只维护 1.7。1.7 的 Defs、语言、贴图和程序集独立放在 `1.7`；1.6 的运行文件冻结，不再更新或重新编译。
 
 生成 DLL 位于：
 
 ```text
-1.6\Assemblies\RimSimRestaurantExtension.dll
+1.7\Assemblies\RimSimRestaurantExtension.dll
 ```
 
 ## 安全部署

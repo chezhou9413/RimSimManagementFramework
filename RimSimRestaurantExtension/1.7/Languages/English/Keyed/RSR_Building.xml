@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR.Building.ConfigureConveyor>Configure conveyor stock</RSR.Building.ConfigureConveyor>
+  <RSR.Building.ConfigureConveyorDesc>Configure food, target plate counts and prices for the entire line.</RSR.Building.ConfigureConveyorDesc>
+  <RSR.Building.DeliveryStock>Restaurant delivery stock</RSR.Building.DeliveryStock>
+  <RSR.Building.LineOutsideShop>The entire line must be inside one restaurant</RSR.Building.LineOutsideShop>
+  <RSR.Building.LinePaused>Restocking paused</RSR.Building.LinePaused>
+  <RSR.Building.LineRunning>Running</RSR.Building.LineRunning>
+  <RSR.Building.LineStock>\nLine {id}: {occupied}/{capacity} plates\n</RSR.Building.LineStock>
+  <RSR.Building.LineUnpowered>No power; transport and restocking stopped</RSR.Building.LineUnpowered>
+  <RSR.Building.Refrigerated>Kitchen refrigerated stock: refrigeration active</RSR.Building.Refrigerated>
+  <RSR.Building.RefrigeratorUnpowered>Kitchen refrigerated stock: no power, spoiling at ambient temperature</RSR.Building.RefrigeratorUnpowered>
+  <RSR.Building.WaitingMeals>\nMeals awaiting pickup: {count}</RSR.Building.WaitingMeals>
+</LanguageData>
