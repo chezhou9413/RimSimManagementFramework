@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.Settings.ShowShopOperatingAlerts>显示商店经营受阻警报</RSMF.Settings.ShowShopOperatingAlerts>
+  <RSMF.Settings.ShowShopOperatingAlertsTip>在屏幕右侧显示营业时间内的设施、收银、商品和服务问题。悬停查看原因，点击定位。默认开启；手动停业、非营业时间和正常满座不提示。</RSMF.Settings.ShowShopOperatingAlertsTip>
+  <RSMF.Alert.Shop.Label.Outdoor>商店部分区域在室外</RSMF.Alert.Shop.Label.Outdoor>
+  <RSMF.Alert.Shop.Label.MissingRegister>商店缺少收银台</RSMF.Alert.Shop.Label.MissingRegister>
+  <RSMF.Alert.Shop.Label.MissingSalesFacility>商店缺少营业设施</RSMF.Alert.Shop.Label.MissingSalesFacility>
+  <RSMF.Alert.Shop.Label.Cashier>收银台无人值守</RSMF.Alert.Shop.Label.Cashier>
+  <RSMF.Alert.Shop.Label.NoStock>商店商品缺货</RSMF.Alert.Shop.Label.NoStock>
+  <RSMF.Alert.Shop.Label.NoOfferConfigured>商店未设置营业内容</RSMF.Alert.Shop.Label.NoOfferConfigured>
+  <RSMF.Alert.Shop.Label.NoMatchingCustomers>商店没有匹配的客群</RSMF.Alert.Shop.Label.NoMatchingCustomers>
+  <RSMF.Alert.Shop.Label.Reputation>商店声望不足</RSMF.Alert.Shop.Label.Reputation>
+  <RSMF.Alert.Shop.Label.Service>商店服务受阻</RSMF.Alert.Shop.Label.Service>
+  <RSMF.Alert.Shop.LabelCount>{label}（{count}）</RSMF.Alert.Shop.LabelCount>
+  <RSMF.Alert.Shop.Explanation>以下商店需要处理此问题：</RSMF.Alert.Shop.Explanation>
+  <RSMF.Alert.Shop.Entry>{shop}\n{reason}</RSMF.Alert.Shop.Entry>
+  <RSMF.Alert.Shop.More>另有 {count} 项问题，点击警报可继续循环定位。</RSMF.Alert.Shop.More>
+  <RSMF.Alert.Shop.Jump>左键定位下一项，右键定位上一项；悬停高亮问题位置。</RSMF.Alert.Shop.Jump>
+  <RSMF.Alert.Shop.NoCashier>收银台无人值守，无法正常接客。请检查收银岗位、工作安排和到岗路线。</RSMF.Alert.Shop.NoCashier>
+  <RSMF.Alert.Shop.ServiceIssue>{service}服务受阻：{reason}</RSMF.Alert.Shop.ServiceIssue>
+  <RSMF.Alert.Shop.NoStock>可售商品已缺货。请检查货柜库存、补货来源和上架设置。</RSMF.Alert.Shop.NoStock>
+  <RSMF.Alert.Shop.NoOfferConfigured>尚未设置营业内容。请在货柜中配置商品与目标库存，或启用服务设施。</RSMF.Alert.Shop.NoOfferConfigured>
+  <RSMF.Alert.Shop.NoMatchingCustomers>现有商品或服务不匹配任何可生成的客群。请检查商品分类与顾客类型配置。</RSMF.Alert.Shop.NoMatchingCustomers>
+</LanguageData>

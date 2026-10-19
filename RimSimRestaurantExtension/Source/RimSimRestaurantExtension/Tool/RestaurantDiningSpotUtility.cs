@@ -11,7 +11,8 @@ namespace RimSimRestaurantExtension.Tool
     public static class RestaurantDiningSpotUtility
     {
         //查找顾客可达的桌椅餐位，职责是同时验证商店边界、订单占用、预约与相邻进食桌面。
-        public static bool TryFindDiningSpot(Pawn customer, Zone_Shop shop, out IntVec3 seatCell, out Thing table, RestaurantOrder ignoredOrder = null)
+        public static bool TryFindDiningSpot(Pawn customer, Zone_Shop shop, out IntVec3 seatCell, out Thing table,
+            RestaurantOrder ignoredOrder = null, bool ignoreOccupancy = false)
         {
             seatCell = IntVec3.Invalid;
             table = null;
@@ -21,7 +22,8 @@ namespace RimSimRestaurantExtension.Tool
                 .Distinct().OrderBy(cell => cell.DistanceToSquared(customer.Position));
             foreach (var cell in candidates)
             {
-                if (!IsAvailableSeat(customer, shop, cell, ignoredOrder) || !IsUsableCell(customer, cell)) continue;
+                if ((!ignoreOccupancy && !IsAvailableSeat(customer, shop, cell, ignoredOrder))
+                    || !IsUsableCell(customer, cell, ignoreOccupancy)) continue;
                 foreach (var direction in GenAdj.CardinalDirections)
                 {
                     IntVec3 adjacent = cell + direction;
@@ -96,13 +98,13 @@ namespace RimSimRestaurantExtension.Tool
         }
 
         //判断餐位格是否可达且可预约，职责是拒绝墙体、危险路径和被其他 Job 占用的位置。
-        public static bool IsUsableCell(Pawn pawn, IntVec3 cell)
+        public static bool IsUsableCell(Pawn pawn, IntVec3 cell, bool ignoreReservation = false)
         {
             return pawn?.Map != null
                 && cell.IsValid
                 && cell.InBounds(pawn.Map)
                 && !cell.Impassable(pawn.Map)
-                && pawn.CanReserveSittableOrSpot(cell)
+                && (ignoreReservation || pawn.CanReserveSittableOrSpot(cell))
                 && pawn.CanReach(cell, PathEndMode.OnCell, Danger.Some);
         }
 

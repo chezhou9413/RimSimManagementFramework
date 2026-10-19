@@ -80,7 +80,7 @@ namespace RimSimRestaurantExtension.Tool
         }
 
         //检查店铺配置和至少一道可制作菜单，职责是不把单纯启用误报为可营业。
-        public static string CheckShop(Zone_Shop shop, RestaurantShopSettings settings)
+        public static string CheckShop(Zone_Shop shop, RestaurantShopSettings settings, bool ignoreSeatOccupancy = false, bool ignoreCashier = false)
         {
             if (shop?.Map == null) return SimTranslation.T("RSR.Issue.ShopUnavailable");
             if (settings?.enabled != true) return SimTranslation.T("RSR.Issue.RestaurantDisabled");
@@ -89,7 +89,7 @@ namespace RimSimRestaurantExtension.Tool
             var registers = shop.Cells.SelectMany(cell => cell.GetThingList(shop.Map))
                 .OfType<Building_CashRegister>().Distinct().ToList();
             if (registers.Count == 0) return SimTranslation.T("RSR.Issue.NoRegister");
-            if (!registers.Any(register => register.IsManned)) return SimTranslation.T("RSR.Issue.NoCashier");
+            if (!ignoreCashier && !registers.Any(register => register.IsManned)) return SimTranslation.T("RSR.Issue.NoCashier");
             if (Conveyor.Dining.ConveyorDiningAvailability.HasOffer(shop)) return "";
             var menus = Inventory.RestaurantProductMenuUtility.AllMenus(shop, settings);
             if (menus.Count == 0) return SimTranslation.T("RSR.Issue.NoEnabledMenu");
@@ -112,7 +112,7 @@ namespace RimSimRestaurantExtension.Tool
                 {
                     bool seats = shop.Map.mapPawns.AllPawnsSpawned.Any(pawn =>
                         RestaurantStaffAvailabilityUtility.IsAvailableNow(pawn)
-                        && RestaurantDiningSpotUtility.TryFindDiningSpot(pawn, shop, out _, out _));
+                        && RestaurantDiningSpotUtility.TryFindDiningSpot(pawn, shop, out _, out _, ignoreOccupancy: ignoreSeatOccupancy));
                     return seats ? "" : SimTranslation.T("RSR.Issue.NoSeats");
                 }
             }

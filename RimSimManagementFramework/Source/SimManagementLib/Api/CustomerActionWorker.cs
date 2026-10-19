@@ -61,6 +61,14 @@ namespace SimManagementLib.Api
             return "";
         }
 
+        //向经营警报提供原因和设施位置，扩展可排除主动停用或正常满座。
+        public virtual bool TryGetOperatingAlert(Zone_Shop shop, out string reason, out Thing target)
+        {
+            reason = GetAttractionBlockReason(shop);
+            target = reason.NullOrEmpty() ? null : FindDefaultTargetThing(shop);
+            return !reason.NullOrEmpty();
+        }
+
         //判断动作是否能吸引指定顾客类型，职责是让外部经营扩展进入框架的到客匹配流程。
         public virtual bool CanAttractCustomer(Zone_Shop shop, RuntimeCustomerKind customerKind)
         {

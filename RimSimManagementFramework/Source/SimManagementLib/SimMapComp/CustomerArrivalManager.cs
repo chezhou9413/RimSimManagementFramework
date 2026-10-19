@@ -387,7 +387,7 @@ namespace SimManagementLib.SimMapComp
         }
 
         //汇总商店有货商品 Def，职责是让顾客类型匹配不再为每个类型重复扫描货柜。
-        private static HashSet<ThingDef> CollectStockedDefs(Zone_Shop shop)
+        internal static HashSet<ThingDef> CollectStockedDefs(Zone_Shop shop)
         {
             HashSet<ThingDef> result = new HashSet<ThingDef>();
             IReadOnlyList<Building_SimContainer> storages = ShopDataUtility.GetStorageSnapshotInZone(shop);
@@ -424,7 +424,7 @@ namespace SimManagementLib.SimMapComp
         }
 
         //判断原子商店快照是否匹配顾客类型，职责是只遍历聚合后的 Def 和分类集合。
-        private static bool SnapshotMatchesKind(HashSet<ThingDef> stockedDefs, HashSet<string> serviceCategoryIds, RuntimeCustomerKind kind)
+        internal static bool SnapshotMatchesKind(HashSet<ThingDef> stockedDefs, HashSet<string> serviceCategoryIds, RuntimeCustomerKind kind)
         {
             List<string> goodsTargets = kind.targetGoodsCategoryIds;
             List<string> serviceTargets = kind.targetServiceCategoryIds;

@@ -25,6 +25,19 @@ namespace RimSimRestaurantExtension.Services
             return base.IsAttractionAvailable(shop) ? RestaurantBusinessAvailability.Snapshot(shop, refresh) : "";
         }
 
+        //报告堂食服务的问题并定位出餐台，主动停用和座位占满不触发警报。
+        public override bool TryGetOperatingAlert(Zone_Shop shop, out string reason, out Thing target)
+        {
+            reason = "";
+            target = null;
+            if (!base.IsAttractionAvailable(shop)) return false;
+            var settings = RestaurantOrderUtility.Settings.GetOrCreate(shop.ID);
+            if (!settings.enabled) return false;
+            reason = RestaurantBusinessAvailability.CheckShop(shop, settings, ignoreSeatOccupancy: true, ignoreCashier: true);
+            target = RestaurantOrderCreationUtility.FindOrderCounter(shop);
+            return !reason.NullOrEmpty();
+        }
+
         //检查是否可以入座，职责是保持点菜与库存承诺发生在员工交谈之后。
         public override bool CanRun(CustomerActionContext context, out string reason)
         {

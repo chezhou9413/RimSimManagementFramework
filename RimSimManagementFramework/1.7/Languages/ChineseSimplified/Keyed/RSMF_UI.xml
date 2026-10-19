@@ -7,9 +7,8 @@
   <RSMF.Zone.OpenStatus.OutOfSchedule>当前不在营业时间内：{schedule}。</RSMF.Zone.OpenStatus.OutOfSchedule>
   <RSMF.Zone.OpenStatus.Open>商店正在营业中。</RSMF.Zone.OpenStatus.Open>
   <RSMF.Zone.Validation.Empty>区域为空。</RSMF.Zone.Validation.Empty>
-  <RSMF.Zone.Validation.OutdoorCells>存在 {count} 个室外格，例如 {cell}。</RSMF.Zone.Validation.OutdoorCells>
-  <RSMF.Zone.Validation.MissingStorageServiceAndRegister>缺少货柜、服务建筑和收银台。</RSMF.Zone.Validation.MissingStorageServiceAndRegister>
-  <RSMF.Zone.Validation.MissingStorageOrService>缺少货柜或服务建筑。</RSMF.Zone.Validation.MissingStorageOrService>
+  <RSMF.Zone.Validation.OutdoorCells>商店有部分区域位于室外，请检查屋顶与围墙，或调整商店范围。</RSMF.Zone.Validation.OutdoorCells>
+  <RSMF.Zone.Validation.MissingStorageOrService>缺少营业设施。放置货柜或服务建筑即可。</RSMF.Zone.Validation.MissingStorageOrService>
   <RSMF.Zone.Validation.MissingCashRegister>缺少收银台。</RSMF.Zone.Validation.MissingCashRegister>
   <RSMF.Zone.Validation.Valid>商店设施有效。</RSMF.Zone.Validation.Valid>
   <RSMF.Checkout.NoReachableRegister>找不到可到达的收银台，顾客放弃本次结账并离店。</RSMF.Checkout.NoReachableRegister>

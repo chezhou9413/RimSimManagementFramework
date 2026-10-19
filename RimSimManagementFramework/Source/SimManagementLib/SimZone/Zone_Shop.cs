@@ -80,56 +80,30 @@ namespace SimManagementLib.SimZone
         //实时扫描区域内设施和室内状态，计算商店是否可以营业。
         private bool ComputeValidShopNow(out string message)
         {
+            RepairEmbeddedFacilityCoverage();
+            return CheckShopFacilities(out message, out _);
+        }
+
+        //只读取营业设施条件，并指出问题格，供警报定位使用。
+        internal bool CheckShopFacilities(out string message, out IntVec3 problemCell)
+        {
+            problemCell = IntVec3.Invalid;
             if (Map == null || Cells == null || Cells.Count == 0)
             {
                 message = SimTranslation.T("RSMF.Zone.Validation.Empty");
                 return false;
             }
 
-            RepairEmbeddedFacilityCoverage();
-
-            bool hasStorage = false;
-            bool hasCashRegister = false;
-            bool hasServiceProvider = false;
-            int outdoorCount = 0;
-            IntVec3 firstOutdoorCell = IntVec3.Invalid;
-
-            foreach (IntVec3 cell in Cells)
+            ReadShopFacilityConditions(out bool hasSalesFacility, out bool hasCashRegister, out IntVec3 firstOutdoorCell);
+            problemCell = Cells[0];
+            if (firstOutdoorCell.IsValid)
             {
-                Room room = cell.GetRoom(Map);
-                bool indoors = Map.roofGrid.Roofed(cell) || (room != null && !room.PsychologicallyOutdoors);
-                if (!indoors)
-                {
-                    outdoorCount++;
-                    if (!firstOutdoorCell.IsValid)
-                        firstOutdoorCell = cell;
-                }
-
-                List<Thing> things = Map.thingGrid.ThingsListAt(cell);
-                foreach (Thing thing in things)
-                {
-                    if (thing is Building_SimContainer) hasStorage = true;
-                    if (thing is Building_CashRegister) hasCashRegister = true;
-                    if (ShopServiceUtility.HasEnabledService(thing)) hasServiceProvider = true;
-                }
-            }
-
-            if (outdoorCount > 0)
-            {
-                message = SimTranslation.T("RSMF.Zone.Validation.OutdoorCells", outdoorCount.Named("count"), firstOutdoorCell.Named("cell"));
+                problemCell = firstOutdoorCell;
+                message = SimTranslation.T("RSMF.Zone.Validation.OutdoorCells");
                 return false;
             }
 
-            if (!hasStorage && !hasServiceProvider)
-                hasServiceProvider = CustomerActionAttractionUtility.HasAvailableProvider(this);
-
-            if (!hasStorage && !hasServiceProvider && !hasCashRegister)
-            {
-                message = SimTranslation.T("RSMF.Zone.Validation.MissingStorageServiceAndRegister");
-                return false;
-            }
-
-            if (!hasStorage && !hasServiceProvider)
+            if (!hasSalesFacility)
             {
                 message = SimTranslation.T("RSMF.Zone.Validation.MissingStorageOrService");
                 return false;
@@ -143,6 +117,28 @@ namespace SimManagementLib.SimZone
 
             message = SimTranslation.T("RSMF.Zone.Validation.Valid");
             return true;
+        }
+
+        //一次读取所有独立设施条件，让警报同时显示多项缺失而不修改区划。
+        internal void ReadShopFacilityConditions(out bool hasSalesFacility, out bool hasCashRegister, out IntVec3 firstOutdoorCell)
+        {
+            hasSalesFacility = false;
+            hasCashRegister = false;
+            firstOutdoorCell = IntVec3.Invalid;
+            foreach (IntVec3 cell in Cells)
+            {
+                Room room = cell.GetRoom(Map);
+                bool indoors = Map.roofGrid.Roofed(cell) || (room != null && !room.PsychologicallyOutdoors);
+                if (!indoors && !firstOutdoorCell.IsValid)
+                    firstOutdoorCell = cell;
+                foreach (Thing thing in Map.thingGrid.ThingsListAt(cell))
+                {
+                    if (thing is Building_SimContainer || ShopServiceUtility.HasEnabledService(thing)) hasSalesFacility = true;
+                    if (thing is Building_CashRegister) hasCashRegister = true;
+                }
+            }
+            if (!hasSalesFacility)
+                hasSalesFacility = CustomerActionAttractionUtility.HasAvailableProvider(this);
         }
         //修复先划商店区再建造设施时可能被旧区划重叠逻辑切掉的设施占用格。
         private void RepairEmbeddedFacilityCoverage()

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.Settings.ShowShopOperatingAlerts>Show shop operating alerts</RSMF.Settings.ShowShopOperatingAlerts>
+  <RSMF.Settings.ShowShopOperatingAlertsTip>Show facility, checkout, stock and service problems on the right during business hours. Hover for reasons and click to locate them. Enabled by default; manual closures, closed hours and occupied seats do not trigger alerts.</RSMF.Settings.ShowShopOperatingAlertsTip>
+  <RSMF.Alert.Shop.Label.Outdoor>Shop partly outdoors</RSMF.Alert.Shop.Label.Outdoor>
+  <RSMF.Alert.Shop.Label.MissingRegister>Shop needs cash register</RSMF.Alert.Shop.Label.MissingRegister>
+  <RSMF.Alert.Shop.Label.MissingSalesFacility>Shop needs sales facility</RSMF.Alert.Shop.Label.MissingSalesFacility>
+  <RSMF.Alert.Shop.Label.Cashier>Cash register unstaffed</RSMF.Alert.Shop.Label.Cashier>
+  <RSMF.Alert.Shop.Label.NoStock>Shop out of stock</RSMF.Alert.Shop.Label.NoStock>
+  <RSMF.Alert.Shop.Label.NoOfferConfigured>Shop offers not configured</RSMF.Alert.Shop.Label.NoOfferConfigured>
+  <RSMF.Alert.Shop.Label.NoMatchingCustomers>No matching shop customers</RSMF.Alert.Shop.Label.NoMatchingCustomers>
+  <RSMF.Alert.Shop.Label.Reputation>Shop reputation too low</RSMF.Alert.Shop.Label.Reputation>
+  <RSMF.Alert.Shop.Label.Service>Shop service blocked</RSMF.Alert.Shop.Label.Service>
+  <RSMF.Alert.Shop.LabelCount>{label} ({count})</RSMF.Alert.Shop.LabelCount>
+  <RSMF.Alert.Shop.Explanation>These shops need this issue resolved:</RSMF.Alert.Shop.Explanation>
+  <RSMF.Alert.Shop.Entry>{shop}\n{reason}</RSMF.Alert.Shop.Entry>
+  <RSMF.Alert.Shop.More>{count} more issues. Keep clicking the alert to cycle through them.</RSMF.Alert.Shop.More>
+  <RSMF.Alert.Shop.Jump>Left-click for the next issue, right-click for the previous one. Hover to highlight problem locations.</RSMF.Alert.Shop.Jump>
+  <RSMF.Alert.Shop.NoCashier>No cash register is staffed, preventing normal customer arrivals. Check cashier assignments, work schedules and access.</RSMF.Alert.Shop.NoCashier>
+  <RSMF.Alert.Shop.ServiceIssue>{service} is blocked: {reason}</RSMF.Alert.Shop.ServiceIssue>
+  <RSMF.Alert.Shop.NoStock>Sale goods are out of stock. Check stock, restocking sources and sale settings.</RSMF.Alert.Shop.NoStock>
+  <RSMF.Alert.Shop.NoOfferConfigured>The shop has no offers configured. Configure goods and target stock in a cabinet, or enable a service facility.</RSMF.Alert.Shop.NoOfferConfigured>
+  <RSMF.Alert.Shop.NoMatchingCustomers>The current goods or services do not match any customer type that can be generated. Check goods categories and customer configuration.</RSMF.Alert.Shop.NoMatchingCustomers>
+</LanguageData>

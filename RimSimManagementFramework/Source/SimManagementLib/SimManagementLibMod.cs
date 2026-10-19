@@ -17,6 +17,7 @@ namespace SimManagementLib
     {
         public bool showCustomerArrivalMessage = true;
         public bool showCustomerInspectDetails = true;
+        public bool showShopOperatingAlerts = true;
         public int customerArrivalCheckIntervalTicks = 500;
         public int maxFinanceBillRecords = 2000;
         public int financeLogPageSize = 30;
@@ -87,6 +88,7 @@ namespace SimManagementLib
             base.ExposeData();
             Scribe_Values.Look(ref showCustomerArrivalMessage, "showCustomerArrivalMessage", true);
             Scribe_Values.Look(ref showCustomerInspectDetails, "showCustomerInspectDetails", true);
+            Scribe_Values.Look(ref showShopOperatingAlerts, "showShopOperatingAlerts", true);
             Scribe_Values.Look(ref customerArrivalCheckIntervalTicks, "customerArrivalCheckIntervalTicks", 500);
             Scribe_Values.Look(ref maxFinanceBillRecords, "maxFinanceBillRecords", 2000);
             Scribe_Values.Look(ref financeLogPageSize, "financeLogPageSize", 30);
@@ -387,6 +389,10 @@ namespace SimManagementLib
             list.Label(SimTranslation.T("RSMF.Settings.CustomerSystem"));
             list.CheckboxLabeled(SimTranslation.T("RSMF.Settings.ShowCustomerArrivalMessage"), ref Settings.showCustomerArrivalMessage, SimTranslation.T("RSMF.Settings.ShowCustomerArrivalMessageTip"));
             list.CheckboxLabeled(SimTranslation.T("RSMF.Settings.ShowCustomerInspectDetails"), ref Settings.showCustomerInspectDetails, SimTranslation.T("RSMF.Settings.ShowCustomerInspectDetailsTip"));
+            string operatingAlertLabel = SimTranslation.T("RSMF.Settings.ShowShopOperatingAlerts");
+            list.CheckboxLabeled(operatingAlertLabel, ref Settings.showShopOperatingAlerts,
+                SimTranslation.T("RSMF.Settings.ShowShopOperatingAlertsTip"),
+                Mathf.Max(Text.LineHeight, Text.CalcHeight(operatingAlertLabel, viewRect.width - 30f)));
             bool oldShowExtensionRecommendationPage = Settings.showExtensionRecommendationPage;
             list.CheckboxLabeled(SimTranslation.T("RSMF.Settings.ShowExtensionRecommendationPage"), ref Settings.showExtensionRecommendationPage, SimTranslation.T("RSMF.Settings.ShowExtensionRecommendationPageTip"));
             if (oldShowExtensionRecommendationPage != Settings.showExtensionRecommendationPage)
@@ -438,6 +444,7 @@ namespace SimManagementLib
             {
                 Settings.showCustomerArrivalMessage = true;
                 Settings.showCustomerInspectDetails = true;
+                Settings.showShopOperatingAlerts = true;
                 Settings.customerArrivalCheckIntervalTicks = 500;
                 Settings.maxFinanceBillRecords = 2000;
                 Settings.financeLogPageSize = 30;

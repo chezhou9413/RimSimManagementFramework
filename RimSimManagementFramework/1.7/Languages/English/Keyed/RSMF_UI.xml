@@ -7,9 +7,8 @@
   <RSMF.Zone.OpenStatus.OutOfSchedule>Outside business hours: {schedule}.</RSMF.Zone.OpenStatus.OutOfSchedule>
   <RSMF.Zone.OpenStatus.Open>The shop is open.</RSMF.Zone.OpenStatus.Open>
   <RSMF.Zone.Validation.Empty>The area is empty.</RSMF.Zone.Validation.Empty>
-  <RSMF.Zone.Validation.OutdoorCells>There are {count} outdoor cells, for example {cell}.</RSMF.Zone.Validation.OutdoorCells>
-  <RSMF.Zone.Validation.MissingStorageServiceAndRegister>Missing storage, service building, and cash register.</RSMF.Zone.Validation.MissingStorageServiceAndRegister>
-  <RSMF.Zone.Validation.MissingStorageOrService>Missing storage or service building.</RSMF.Zone.Validation.MissingStorageOrService>
+  <RSMF.Zone.Validation.OutdoorCells>Part of the shop is outdoors. Check its roof and walls, or adjust the shop area.</RSMF.Zone.Validation.OutdoorCells>
+  <RSMF.Zone.Validation.MissingStorageOrService>Missing a sales facility. Place a goods cabinet or a service building.</RSMF.Zone.Validation.MissingStorageOrService>
   <RSMF.Zone.Validation.MissingCashRegister>Missing cash register.</RSMF.Zone.Validation.MissingCashRegister>
   <RSMF.Zone.Validation.Valid>Shop facilities are valid.</RSMF.Zone.Validation.Valid>
   <RSMF.Checkout.NoReachableRegister>No reachable cash register was found, so the customer abandons this checkout and leaves.</RSMF.Checkout.NoReachableRegister>
