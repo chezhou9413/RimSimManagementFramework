@@ -57,6 +57,13 @@ namespace SimManagementLib.Api
     {
         private static readonly List<CustomerReviewSnapshotWorker> Workers = new List<CustomerReviewSnapshotWorker>();
 
+        //直接保存玩法已计算的评价，不经过模型请求或评价快照队列。
+        public static SimApiResult RecordDirectReview(CustomerReviewRecord record)
+        {
+            var manager = Current.Game?.GetComponent<GameComp.GameComponent_CustomerReviewManager>();
+            return manager == null ? SimApiResult.Fail("顾客评价管理器不可用") : manager.RecordDirectReview(record);
+        }
+
         /// <summary>
         /// 注册评价快照扩展策略。
         /// </summary>

@@ -79,6 +79,18 @@ namespace RimSimRestaurantExtension.Inventory
                 RestaurantStockUtility.Key(order), source, job.count, pawn.carryTracker.innerContainer, out reason);
             if (taken == null) return false;
             job.SetTarget(TargetIndex.B, taken);
+            //已搬走的数量不再占用原堆；分批取料只保留尚未提取的份额。
+            if (source.Spawned && pawn.HasReserved(source, job))
+            {
+                pawn.Map.reservationManager.Release(source, pawn, job);
+                int remaining = job.countQueue[0] - job.count;
+                if (remaining > 0 && !pawn.Reserve(source, job,
+                    RestaurantStockUtility.MaxIngredientReservers, remaining, errorOnFailed: false))
+                {
+                    reason = SimTranslation.T("RSR.Issue.IngredientBatchReservation", 1.Named("batch"), remaining.Named("count"));
+                    return false;
+                }
+            }
             return true;
         }
     }

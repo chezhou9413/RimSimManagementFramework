@@ -129,14 +129,17 @@ namespace SimManagementLib.Api
 
             Rect viewRect = new Rect(0f, 0f, viewWidth, Mathf.Max(rect.height + 1f, viewHeight));
             Widgets.BeginScrollView(rect, ref context.ScrollPosition, viewRect);
-            float y = 0f;
-            for (int i = 0; i < rows.Count; i++)
+            try
             {
-                float rowHeight = Mathf.Max(Text.LineHeightOf(GameFont.Small) + 12f, GetRowHeight(rows[i], context));
-                DrawRow(new Rect(0f, y, viewRect.width, rowHeight), rows[i], i, context);
-                y += rowHeight;
+                float y = 0f;
+                for (int i = 0; i < rows.Count; i++)
+                {
+                    float rowHeight = Mathf.Max(Text.LineHeightOf(GameFont.Small) + 12f, GetRowHeight(rows[i], context));
+                    DrawRow(new Rect(0f, y, viewRect.width, rowHeight), rows[i], i, context);
+                    y += rowHeight;
+                }
             }
-            Widgets.EndScrollView();
+            finally { Widgets.EndScrollView(); }
         }
     }
     //提供表单草稿页面模板，负责统一创建、应用和丢弃配置草稿。

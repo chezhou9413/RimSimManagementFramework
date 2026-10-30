@@ -480,7 +480,7 @@
   <RSMF.ShopManager.Sidebar.Overview>Inventory overview</RSMF.ShopManager.Sidebar.Overview>
   <RSMF.ShopManager.Sidebar.Schedule>Business settings</RSMF.ShopManager.Sidebar.Schedule>
   <RSMF.ShopManager.Sidebar.Goods>Stock goods</RSMF.ShopManager.Sidebar.Goods>
-  <RSMF.ShopManager.Sidebar.Services>Service setup</RSMF.ShopManager.Sidebar.Services>
+  <RSMF.ShopManager.Sidebar.Services>Services</RSMF.ShopManager.Sidebar.Services>
   <RSMF.ShopManager.CombosHeader>Bundles  ({count})</RSMF.ShopManager.CombosHeader>
   <RSMF.ShopManager.StorageHeader>Storages ({count})</RSMF.ShopManager.StorageHeader>
   <RSMF.ShopManager.NoStorageSelected>Select a storage building to manage it separately.</RSMF.ShopManager.NoStorageSelected>
@@ -1061,8 +1061,8 @@
   <RSMF.ShopUi.Error.PageDrawFailed>Page drawing failed.</RSMF.ShopUi.Error.PageDrawFailed>
   <RSMF.ShopUi.Page.Main.Tutorial.Label>Tutorial</RSMF.ShopUi.Page.Main.Tutorial.Label>
   <RSMF.ShopUi.Page.Main.Tutorial.Description>Business manager tutorial page.</RSMF.ShopUi.Page.Main.Tutorial.Description>
-  <RSMF.ShopUi.Page.Main.Shops.Label>Shop management</RSMF.ShopUi.Page.Main.Shops.Label>
-  <RSMF.ShopUi.Page.Main.Shops.Description>Business manager page for shop management.</RSMF.ShopUi.Page.Main.Shops.Description>
+  <RSMF.ShopUi.Page.Main.Shops.Label>Operations</RSMF.ShopUi.Page.Main.Shops.Label>
+  <RSMF.ShopUi.Page.Main.Shops.Description>View all shops and business summaries, and open individual shop settings.</RSMF.ShopUi.Page.Main.Shops.Description>
   <RSMF.ShopUi.Page.Main.Vending.Label>Vending</RSMF.ShopUi.Page.Main.Vending.Label>
   <RSMF.ShopUi.Page.Main.Vending.Description>Business manager page for vending machines.</RSMF.ShopUi.Page.Main.Vending.Description>
   <RSMF.ShopUi.Page.Main.Finance.Label>Finance</RSMF.ShopUi.Page.Main.Finance.Label>
@@ -1157,7 +1157,7 @@
   <RSMF.ShopUi.Page.Shop.BusinessHours.Description>Shop manager business hours page.</RSMF.ShopUi.Page.Shop.BusinessHours.Description>
   <RSMF.ShopUi.Page.Shop.Goods.Label>Goods</RSMF.ShopUi.Page.Shop.Goods.Label>
   <RSMF.ShopUi.Page.Shop.Goods.Description>Shop manager goods page.</RSMF.ShopUi.Page.Shop.Goods.Description>
-  <RSMF.ShopUi.Page.Shop.Services.Label>Services</RSMF.ShopUi.Page.Shop.Services.Label>
+  <RSMF.ShopUi.Page.Shop.Services.Label>General services</RSMF.ShopUi.Page.Shop.Services.Label>
   <RSMF.ShopUi.Page.Shop.Services.Description>Shop manager services page.</RSMF.ShopUi.Page.Shop.Services.Description>
   <RSMF.ShopUi.Page.Shop.ComboEdit.Label>Combo editor</RSMF.ShopUi.Page.Shop.ComboEdit.Label>
   <RSMF.ShopUi.Page.Shop.ComboEdit.Description>Shop manager combo editor page.</RSMF.ShopUi.Page.Shop.ComboEdit.Description>

@@ -34,6 +34,7 @@ namespace RimSimRestaurantExtension.Conveyor.Stocking
         {
             var shop = line?.Shop;
             return shop != null && line.SameShop && shop.IsOpenNow()
+                && RestaurantCookingUtility.CanPawnCook(pawn)
                 && RestaurantOrderUtility.Settings.GetOrCreate(shop.ID).enabled
                 && !RestaurantOrderUtility.HasBlockingPriorityJobOrNeed(pawn)
                 && SimShopStaffApi.IsAssignedToWorkGiver(shop, pawn, DefOfRefs.RSR_WorkGiver_CookRestaurantOrder)

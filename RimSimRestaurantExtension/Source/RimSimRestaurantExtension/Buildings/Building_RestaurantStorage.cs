@@ -95,6 +95,9 @@ namespace RimSimRestaurantExtension.Buildings
             Scribe_Collections.Look(ref registeredProducts, "registeredProducts", LookMode.Def);
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
+                //物品定义移除后不能继续作为库存管理草稿的字典键。
+                saleRules = saleRules ?? new List<RestaurantStockRule>();
+                saleRules.RemoveAll(rule => rule?.item == null);
                 registeredProducts = registeredProducts ?? new List<ThingDef>();
                 registeredProducts.RemoveAll(t => t == null);
             }

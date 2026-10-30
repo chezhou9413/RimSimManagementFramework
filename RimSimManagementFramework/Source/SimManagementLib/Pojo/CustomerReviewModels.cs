@@ -3,13 +3,12 @@ using Verse;
 
 namespace SimManagementLib.Pojo
 {
-    /// <summary>
-    /// 定义顾客点评生成供应商类型，负责在设置和存档中区分不同大模型接口。
-    /// </summary>
+    //区分模型供应商与玩法直接计算的评价来源。
     public enum CustomerReviewProvider
     {
         OpenAICompatible,
-        Anthropic
+        Anthropic,
+        Simulation
     }
 
     /// <summary>

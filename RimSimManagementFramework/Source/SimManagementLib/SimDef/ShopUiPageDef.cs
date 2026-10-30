@@ -19,6 +19,10 @@ namespace SimManagementLib.SimDef
         public string descriptionKey = "";
         public bool defaultVisible = true;
         public bool showInNavigation = true;
+        //单店服务页统一显示在“服务管理”内，仅影响 ShopManager 导航。
+        public bool isServicePage;
+        //经营汇总页统一显示在主窗口的“运营总览”内。
+        public bool isOperationsPage;
         public List<string> requiredModPackageIds = new List<string>();
 
         [Unsaved] private ShopUiPageWorker workerInt;

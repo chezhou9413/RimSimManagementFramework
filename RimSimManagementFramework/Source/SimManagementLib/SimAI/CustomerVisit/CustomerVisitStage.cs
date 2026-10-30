@@ -12,6 +12,7 @@ namespace SimManagementLib.SimAI.CustomerVisit
         WaitingCheckout,
         Checkout,
         PostCheckout,
+        LongStay,
         Leaving,
         Ended
     }

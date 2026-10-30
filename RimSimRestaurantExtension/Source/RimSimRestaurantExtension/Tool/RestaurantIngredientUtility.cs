@@ -38,7 +38,8 @@ namespace RimSimRestaurantExtension.Tool
                 }
                 var reservedItems = chosen;
                 bool valid = chosen.Count > 0 && chosen.All(t => t.Thing != null && !t.Thing.Destroyed
-                    && t.Count <= t.Thing.stackCount && Inventory.RestaurantStockUtility.Reachable(actor, t.Thing, Inventory.RestaurantStockUtility.Key(order)))
+                    && t.Count <= t.Thing.stackCount && Inventory.RestaurantStockUtility.Reachable(actor, t.Thing,
+                        Inventory.RestaurantStockUtility.Key(order), t.Count))
                     && order.GetTotalIngredientNeeds().All(n => reservedItems.Where(t => t.Thing.def == n.ThingDef).Sum(t => t.Count) == n.countPerMeal);
                 if (!valid) failReason = SimTranslation.T("RSR.Issue.ReservedIngredientsUnavailable");
                 return valid;
@@ -70,18 +71,26 @@ namespace RimSimRestaurantExtension.Tool
             }).ToList();
         }
 
-        //为新选择的餐品生成一份有效食材配置，职责是按当前商店兼容配方优先选择库存最多的原料。
+        //按本店库存组合一份配料，允许混料的配方可由多种肉类或蔬菜共同满足营养需求。
         public static List<RestaurantIngredientRequirement> BuildDefaultMenuIngredients(Zone_Shop shop, ThingDef mealDef)
         {
             RecipeDef recipe = FindMenuRecipe(shop, mealDef);
             if (recipe == null || recipe.ingredients.NullOrEmpty()) return new List<RestaurantIngredientRequirement>();
+            var inventory = recipe.ingredients.SelectMany(slot => slot.filter.AllowedThingDefs
+                    .Where(def => RestaurantCookingUtility.AllowsIngredient(recipe, slot, def)))
+                .Distinct().Where(def => recipe.IngredientValueGetter.ValuePerUnitOf(def) > 0f)
+                .ToDictionary(def => def, def => CountAvailable(null, shop, def));
+            if (RestaurantMenuIngredientPlanner.TryAllocate(recipe, inventory, out var ingredients, out _))
+                return ingredients;
+
+            //库存不足时仍给出完整配方草稿，供玩家补货或手动调整。
             Dictionary<string, int> totals = new Dictionary<string, int>();
             for (int i = 0; i < recipe.ingredients.Count; i++)
             {
                 IngredientCount slot = recipe.ingredients[i];
-                ThingDef selected = slot.filter.AllowedThingDefs
-                    .Where(def => def != null && (slot.IsFixedIngredient || recipe.fixedIngredientFilter.Allows(def)))
-                    .OrderByDescending(def => CountAvailable(null, shop, def))
+                ThingDef selected = inventory.Keys
+                    .Where(def => RestaurantCookingUtility.AllowsIngredient(recipe, slot, def))
+                    .OrderByDescending(def => inventory[def])
                     .ThenBy(def => def.BaseMarketValue)
                     .FirstOrDefault();
                 if (selected == null) return new List<RestaurantIngredientRequirement>();

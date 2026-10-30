@@ -71,6 +71,7 @@ namespace SimManagementLib.GameComp
         public override void ExposeData()
         {
             base.ExposeData();
+            ExposeImmediateTransactions();
 
             Scribe_Values.Look(ref totalIncome, "totalIncome", 0f);
 

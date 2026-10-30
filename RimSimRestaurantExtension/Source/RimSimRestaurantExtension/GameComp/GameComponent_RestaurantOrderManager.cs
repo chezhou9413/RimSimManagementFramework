@@ -84,6 +84,12 @@ namespace RimSimRestaurantExtension.GameComp
             Scribe_Values.Look(ref nextOrderId, "restaurantNextOrderId", 1);
             if (Scribe.mode != LoadSaveMode.PostLoadInit) return;
             orders = orders ?? new List<RestaurantOrder>();
+            sessions = sessions ?? new List<Dining.RestaurantDiningSession>();
+            //深度读取失败的记录会留下空项，先报告并移除，避免索引和总览统计中断。
+            int missingOrders = orders.RemoveAll(order => order == null);
+            int missingSessions = sessions.RemoveAll(session => session == null);
+            if (missingOrders > 0 || missingSessions > 0)
+                Log.Warning($"[RimSimRestaurantExtension] 餐厅读档发现空记录：订单 {missingOrders} 条，用餐会话 {missingSessions} 条。已跳过空项，其他记录保留。");
             RebuildIndices();
         }
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
+  <RSR.Issue.CookingUnavailable>无法烹饪：烹饪工作、技能或配方所需属性不可用</RSR.Issue.CookingUnavailable>
   <RSR.Issue.ActionInterrupted>餐厅动作中断</RSR.Issue.ActionInterrupted>
   <RSR.Issue.ActionMissing>框架用餐动作已结束或丢失</RSR.Issue.ActionMissing>
   <RSR.Issue.CabinetOutsideShop>货柜未放在餐厅商店区域内</RSR.Issue.CabinetOutsideShop>

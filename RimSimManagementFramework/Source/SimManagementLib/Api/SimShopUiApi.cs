@@ -53,6 +53,15 @@ namespace SimManagementLib.Api
             return pageDef;
         }
 
+        //注册服务子页，沿用普通页面的可见性、排序和统一保存流程。
+        public static ShopUiPageDef RegisterRuntimeServicePage(string defName, string label, int order, Type workerClass, bool replace = false)
+        {
+            ShopUiPageDef page = RegisterRuntimePage(defName, label, ShopUiPageScope.ShopManager, order, workerClass, replace);
+            page.isServicePage = true;
+            RequestRefresh();
+            return page;
+        }
+
         //请求窗口重建页面缓存。
         public static void RequestRefresh()
         {

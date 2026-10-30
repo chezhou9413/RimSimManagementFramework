@@ -1,5 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Defs>
+  <DutyDef>
+    <defName>Customer_LongStay</defName>
+    <alwaysShowWeapon>false</alwaysShowWeapon>
+    <threatDisabled>true</threatDisabled>
+    <thinkNode Class="ThinkNode_Priority">
+      <subNodes>
+        <li Class="SimManagementLib.SimAI.JobGiver_CustomerLongStay" />
+        <li Class="JobGiver_WanderNearDutyLocation"><wanderRadius>3</wanderRadius></li>
+      </subNodes>
+    </thinkNode>
+  </DutyDef>
   <!-- 顾客在店内选商品阶段的思维入口。 -->
   <DutyDef>
     <defName>Customer_BrowseShelf</defName>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.ShopManager.ServicePages.SaveAll>保存全部设置</RSMF.ShopManager.ServicePages.SaveAll>
+  <RSMF.ShopManager.ServicePages.SaveTip>切换服务保留草稿。保存将应用本窗口全部设置；取消或关闭会丢弃尚未提交的修改。</RSMF.ShopManager.ServicePages.SaveTip>
+  <RSMF.ShopManager.ServicePages.SaveFailed>部分页面保存失败，窗口和草稿已保留。请检查错误日志；其他页面可能已提交。</RSMF.ShopManager.ServicePages.SaveFailed>
+</LanguageData>

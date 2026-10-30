@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.ServiceEditor.Empty>No matching services.</RSMF.ServiceEditor.Empty>
+  <RSMF.ServiceEditor.Edit>Edit</RSMF.ServiceEditor.Edit>
+  <RSMF.ServiceEditor.Apply>Apply to draft</RSMF.ServiceEditor.Apply>
+  <RSMF.ServiceEditor.Hint>Confirm updates the window draft. Save all settings to apply.</RSMF.ServiceEditor.Hint>
+  <RSMF.ServiceEditor.SortProvider>Sort: facility name</RSMF.ServiceEditor.SortProvider>
+  <RSMF.ServiceEditor.SortService>Sort: service name</RSMF.ServiceEditor.SortService>
+  <RSMF.ServiceEditor.DefaultPrice>Default pricing</RSMF.ServiceEditor.DefaultPrice>
+  <RSMF.ServiceEditor.Enabled>Enabled</RSMF.ServiceEditor.Enabled>
+  <RSMF.ServiceEditor.Disabled>Paused</RSMF.ServiceEditor.Disabled>
+</LanguageData>

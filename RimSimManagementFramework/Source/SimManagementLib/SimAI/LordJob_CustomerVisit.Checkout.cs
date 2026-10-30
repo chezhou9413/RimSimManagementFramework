@@ -201,6 +201,7 @@ namespace SimManagementLib.SimAI
             Tool.SimDebugLogger.Journey("RSMF.Checkout", reason ?? "零账单顾客离店", pawn, shopZone, -1);
 
             forceLeaveAfterCheckout.Add(pawnId);
+            if (TryReturnPawnToLongStay(pawn)) return;
             lord.ReceiveMemo("Customer_CheckoutCompleted");
         }
         //判断所有仍在地图上的顾客是否都已准备结账。
@@ -272,6 +273,8 @@ namespace SimManagementLib.SimAI
             if (allDone)
             {
                 Pawn pawn = FirstActivePawn();
+                if (pawn != null && SimShopCustomerApi.HasRunningCustomerActionOrder(pawn)) return;
+                if (TryReturnPawnToLongStay(pawn)) return;
                 if (pawn != null && !ShouldForceLeaveGroupAfterCheckout() && TryMovePawnToNextShop(pawn))
                 {
                     Tool.SimDebugLogger.Journey("RSMF.Checkout", "结账完成，顾客前往下一家店", pawn, GetCurrentShop(pawn), -1);

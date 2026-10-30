@@ -60,7 +60,6 @@ namespace RimSimRestaurantExtension.Tool
         public static void FailOrder(RestaurantOrder order, string reason)
         {
             if (order == null || order.IsTerminal) return;
-            RestaurantFlowLog.Failure(order, "订单失败", reason ?? "未提供原因");
             order.state = RestaurantOrderState.Failed;
             order.failReason = reason ?? "";
             order.completedTick = Find.TickManager?.TicksGame ?? 0;
@@ -72,7 +71,6 @@ namespace RimSimRestaurantExtension.Tool
         public static void CancelOrder(RestaurantOrder order, string reason)
         {
             if (order == null || order.IsTerminal) return;
-            RestaurantFlowLog.Failure(order, "订单取消", reason ?? "未提供原因");
             order.state = RestaurantOrderState.Canceled;
             order.failReason = reason ?? "";
             order.completedTick = Find.TickManager?.TicksGame ?? 0;
@@ -88,7 +86,6 @@ namespace RimSimRestaurantExtension.Tool
             order.completedTick = Find.TickManager?.TicksGame ?? 0;
             order.TouchProgress();
             ReleaseMealLock(order);
-            RestaurantFlowLog.Stage(order, "订单完成");
         }
 
         //判断订单是否超过上菜等待上限，职责是只限制员工尚未交付的阶段而不打断顾客进食。

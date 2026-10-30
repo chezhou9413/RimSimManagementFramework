@@ -79,7 +79,7 @@ namespace SimManagementLib.Api
                 && MatchesInterest(customerKind);
         }
 
-        //返回动作本次选择权重，默认使用 Def 权重。
+        //返回动作本次选择权重，默认使用 Def 权重；仅有限正数参与选择，零表示本次不选。
         public virtual float GetSelectionWeight(CustomerActionContext context)
         {
             return def?.selectionWeight ?? 1f;

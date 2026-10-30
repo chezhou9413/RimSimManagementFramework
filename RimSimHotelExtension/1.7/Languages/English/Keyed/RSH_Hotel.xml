@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSH.Debug.PowerConnectionFailed>Hotel district facility could not connect to power: </RSH.Debug.PowerConnectionFailed>
+  <RSH.Review.StaySummary>Settled {NIGHTS} nights for {PAID} silver; final satisfaction {SCORE}/100.</RSH.Review.StaySummary>
+  <RSH.Text.4GuestRooms2SingleAnd2Double>4 guest rooms (2 single and 2 double beds), both spas, 10 lockers, an ATM, two stocked stores and 3 assigned staff. </RSH.Text.4GuestRooms2SingleAnd2Double>
+  <RSH.Text.AcceptNewStays>Accept new stays</RSH.Text.AcceptNewStays>
+  <RSH.Text.AcceptSpaAdmissions>Accept spa admissions</RSH.Text.AcceptSpaAdmissions>
+  <RSH.Text.AccommodationPrepayment>Accommodation prepayment</RSH.Text.AccommodationPrepayment>
+  <RSH.Text.AccountBalanceOrTodaySWithdrawalAllowanceIs>Account balance or today's withdrawal allowance is exhausted</RSH.Text.AccountBalanceOrTodaySWithdrawalAllowanceIs>
+  <RSH.Text.AComplete3731AreaInsideTheMap>A complete 37×31 area inside the map is required.</RSH.Text.AComplete3731AreaInsideTheMap>
+  <RSH.Text.Admission>Admission</RSH.Text.Admission>
+  <RSH.Text.AdmissionsAndPricing>Admissions and pricing</RSH.Text.AdmissionsAndPricing>
+  <RSH.Text.AdmissionsAndTicketPrices>Admissions and ticket prices</RSH.Text.AdmissionsAndTicketPrices>
+  <RSH.Text.AdmissionsOpen>Admissions open</RSH.Text.AdmissionsOpen>
+  <RSH.Text.AdmissionsPaused>Admissions paused</RSH.Text.AdmissionsPaused>
+  <RSH.Text.AllowEligibleGuestsToExtendTheirStay>Allow eligible guests to extend their stay</RSH.Text.AllowEligibleGuestsToExtendTheirStay>
+  <RSH.Text.AlreadyBathedTodayOrStillOnCooldown>Already bathed today or still on cooldown</RSH.Text.AlreadyBathedTodayOrStillOnCooldown>
+  <RSH.Text.AlreadyStayingOrHasAnUnpaidBill>Already staying or has an unpaid bill</RSH.Text.AlreadyStayingOrHasAnUnpaidBill>
+  <RSH.Text.ApparelItems> apparel items</RSH.Text.ApparelItems>
+  <RSH.Text.ApparelLockers>Apparel lockers</RSH.Text.ApparelLockers>
+  <RSH.Text.AProductShelfIsOutsideItsShopZone>A product shelf is outside its shop zone.</RSH.Text.AProductShelfIsOutsideItsShopZone>
+  <RSH.Text.ARentalBedIsOutsideTheHotelZone>A rental bed is outside the hotel zone.</RSH.Text.ARentalBedIsOutsideTheHotelZone>
+  <RSH.Text.ARequiredProductIsMissingFromTheCurrent>A required product is missing from the current catalog: </RSH.Text.ARequiredProductIsMissingFromTheCurrent>
+  <RSH.Text.ATMs>ATMs</RSH.Text.ATMs>
+  <RSH.Text.ATMStatus>ATM status</RSH.Text.ATMStatus>
+  <RSH.Text.ATMWithdrawalFee>ATM withdrawal fee</RSH.Text.ATMWithdrawalFee>
+  <RSH.Text.AvailableTotalATMs>Available / total ATMs</RSH.Text.AvailableTotalATMs>
+  <RSH.Text.AverageSatisfaction>Average satisfaction</RSH.Text.AverageSatisfaction>
+  <RSH.Text.BathingCanceled>Bathing canceled</RSH.Text.BathingCanceled>
+  <RSH.Text.BathingInTheHotSpring>Bathing in the hot spring.</RSH.Text.BathingInTheHotSpring>
+  <RSH.Text.BathingSlots>Bathing slots</RSH.Text.BathingSlots>
+  <RSH.Text.BedCurrentPosition>Bed / current position</RSH.Text.BedCurrentPosition>
+  <RSH.Text.BedOrFundsAreNoLongerAvailable>Bed or funds are no longer available</RSH.Text.BedOrFundsAreNoLongerAvailable>
+  <RSH.Text.BedsInZone>Beds in zone</RSH.Text.BedsInZone>
+  <RSH.Text.BedUnavailable>Bed unavailable</RSH.Text.BedUnavailable>
+  <RSH.Text.BookedGuests>Booked guests</RSH.Text.BookedGuests>
+  <RSH.Text.BookedStartedNights>Booked / started nights</RSH.Text.BookedStartedNights>
+  <RSH.Text.BookingAndSpendingDetails>Booking and spending details</RSH.Text.BookingAndSpendingDetails>
+  <RSH.Text.BookingDaysLeft>Booking / days left</RSH.Text.BookingDaysLeft>
+  <RSH.Text.CanceledPurchaseRefund>Canceled purchase refund</RSH.Text.CanceledPurchaseRefund>
+  <RSH.Text.CannotAffordTheMinimumStayAndMealReserve>Cannot afford the minimum stay and meal reserve</RSH.Text.CannotAffordTheMinimumStayAndMealReserve>
+  <RSH.Text.CannotReachTheSpaOrLocker>Cannot reach the spa or locker</RSH.Text.CannotReachTheSpaOrLocker>
+  <RSH.Text.CheckedOut>Checked out</RSH.Text.CheckedOut>
+  <RSH.Text.CheckingIn>Checking in</RSH.Text.CheckingIn>
+  <RSH.Text.CheckingOut>Checking out</RSH.Text.CheckingOut>
+  <RSH.Text.ClosedUnpoweredDamaged>Closed / unpowered / damaged</RSH.Text.ClosedUnpoweredDamaged>
+  <RSH.Text.ClothingCouldNotBeStockedInAShelf>Clothing could not be stocked in a shelf slot: </RSH.Text.ClothingCouldNotBeStockedInAShelf>
+  <RSH.Text.CurrentActivity>Current activity</RSH.Text.CurrentActivity>
+  <RSH.Text.CurrentPriceSilverAdmission>Current price (silver / admission)</RSH.Text.CurrentPriceSilverAdmission>
+  <RSH.Text.DailyLimitPerGuestSilver>Daily limit per guest (silver)</RSH.Text.DailyLimitPerGuestSilver>
+  <RSH.Text.DebugClothingStore>Debug clothing store</RSH.Text.DebugClothingStore>
+  <RSH.Text.DebugFoodStore>Debug food store</RSH.Text.DebugFoodStore>
+  <RSH.Text.DebugSpaHotel>Debug spa hotel</RSH.Text.DebugSpaHotel>
+  <RSH.Text.DepartedGuest>Departed guest</RSH.Text.DepartedGuest>
+  <RSH.Text.DiscretionarySpendingUsedAllowance>Discretionary spending: used / allowance</RSH.Text.DiscretionarySpendingUsedAllowance>
+  <RSH.Text.DoubleBedSilverWholeBedNight>Double bed · silver / whole bed / night</RSH.Text.DoubleBedSilverWholeBedNight>
+  <RSH.Text.EarnedNightlyRoomRevenue>Earned nightly room revenue</RSH.Text.EarnedNightlyRoomRevenue>
+  <RSH.Text.EatingPurchasedFood>Eating purchased food</RSH.Text.EatingPurchasedFood>
+  <RSH.Text.ElectricityIsDisabledByACurrentGameCondition>Electricity is disabled by a current game condition.</RSH.Text.ElectricityIsDisabledByACurrentGameCondition>
+  <RSH.Text.ExtensionPrepayment>Extension prepayment</RSH.Text.ExtensionPrepayment>
+  <RSH.Text.FacilitiesWereCreatedButAShopIsInvalid>Facilities were created, but a shop is invalid: </RSH.Text.FacilitiesWereCreatedButAShopIsInvalid>
+  <RSH.Text.FeePerWithdrawalSilver>Fee per withdrawal (silver)</RSH.Text.FeePerWithdrawalSilver>
+  <RSH.Text.FreeLocker>Free locker</RSH.Text.FreeLocker>
+  <RSH.Text.FreeTotalLockers>Free / total lockers</RSH.Text.FreeTotalLockers>
+  <RSH.Text.GoingToStoreApparelInALocker>Going to store apparel in a locker.</RSH.Text.GoingToStoreApparelInALocker>
+  <RSH.Text.GoingToTheReservedSpaSlot>Going to the reserved spa slot.</RSH.Text.GoingToTheReservedSpaSlot>
+  <RSH.Text.GuestIsCheckingInOrOut>Guest is checking in or out</RSH.Text.GuestIsCheckingInOrOut>
+  <RSH.Text.GuestOrReceptionBecameUnavailable>Guest or reception became unavailable</RSH.Text.GuestOrReceptionBecameUnavailable>
+  <RSH.Text.GuestRegister>Guest register</RSH.Text.GuestRegister>
+  <RSH.Text.Guests>Guests</RSH.Text.Guests>
+  <RSH.Text.Guests2>Guests</RSH.Text.Guests2>
+  <RSH.Text.GuestsStaying>Guests staying</RSH.Text.GuestsStaying>
+  <RSH.Text.GuestWalletHasInsufficientFunds>Guest wallet has insufficient funds</RSH.Text.GuestWalletHasInsufficientFunds>
+  <RSH.Text.HeldPrepayments>Held prepayments</RSH.Text.HeldPrepayments>
+  <RSH.Text.HeldPrepaymentSilver>Held prepayment (silver)</RSH.Text.HeldPrepaymentSilver>
+  <RSH.Text.HideDetails>Hide details</RSH.Text.HideDetails>
+  <RSH.Text.Hotel>Hotel</RSH.Text.Hotel>
+  <RSH.Text.HotelAccommodation>Hotel accommodation</RSH.Text.HotelAccommodation>
+  <RSH.Text.HotelDistrictCreated>Hotel district created: </RSH.Text.HotelDistrictCreated>
+  <RSH.Text.HotelDistrictCreationFailed>Hotel district creation failed: </RSH.Text.HotelDistrictCreationFailed>
+  <RSH.Text.HotelOperations>Hotel operations</RSH.Text.HotelOperations>
+  <RSH.Text.HotelReceptionIsPaused>Hotel reception is paused</RSH.Text.HotelReceptionIsPaused>
+  <RSH.Text.HotelReceptionOrCashierDefinitionsAreMissing>Hotel reception or cashier definitions are missing.</RSH.Text.HotelReceptionOrCashierDefinitionsAreMissing>
+  <RSH.Text.HotSprings>Hot springs</RSH.Text.HotSprings>
+  <RSH.Text.LocateHotel>Locate hotel</RSH.Text.LocateHotel>
+  <RSH.Text.LockerRemoved>Locker removed</RSH.Text.LockerRemoved>
+  <RSH.Text.LookingForAMeal>Looking for a meal</RSH.Text.LookingForAMeal>
+  <RSH.Text.ManageAdmissionPricesBathingCapacityQueuesAndStored>Manage admission prices, bathing capacity, queues and stored apparel.</RSH.Text.ManageAdmissionPricesBathingCapacityQueuesAndStored>
+  <RSH.Text.ManageHotel>Manage hotel</RSH.Text.ManageHotel>
+  <RSH.Text.MissingBuildingDefinition>Missing building definition: </RSH.Text.MissingBuildingDefinition>
+  <RSH.Text.MonitorOccupancyRoomRevenueAndOperatingIssuesAcross>Monitor occupancy, room revenue and operating issues across your hotels.</RSH.Text.MonitorOccupancyRoomRevenueAndOperatingIssuesAcross>
+  <RSH.Text.NextPage>Next page</RSH.Text.NextPage>
+  <RSH.Text.NoAffordableMealsAreAvailable>No affordable meals are available</RSH.Text.NoAffordableMealsAreAvailable>
+  <RSH.Text.NoAffordableReachableSpaWithLockersIsOpen>No affordable, reachable spa with lockers is open</RSH.Text.NoAffordableReachableSpaWithLockersIsOpen>
+  <RSH.Text.NoFoodIsAvailableForPurchase>No food is available for purchase</RSH.Text.NoFoodIsAvailableForPurchase>
+  <RSH.Text.NoHotelReceptionDesk>No hotel reception desk</RSH.Text.NoHotelReceptionDesk>
+  <RSH.Text.NoMatchingApparelLockersInThisZone>No matching apparel lockers in this zone.</RSH.Text.NoMatchingApparelLockersInThisZone>
+  <RSH.Text.NoMatchingATMsInThisZone>No matching ATMs in this zone.</RSH.Text.NoMatchingATMsInThisZone>
+  <RSH.Text.NoMatchingGuests>No matching guests.</RSH.Text.NoMatchingGuests>
+  <RSH.Text.NoMatchingHotelBedsInThisShopZone>No matching hotel beds in this shop zone.</RSH.Text.NoMatchingHotelBedsInThisShopZone>
+  <RSH.Text.NoMatchingHotelsCreateAShopZoneBuild>No matching hotels. Create a shop zone, build a reception desk, and register rental beds in Rooms.</RSH.Text.NoMatchingHotelsCreateAShopZoneBuild>
+  <RSH.Text.NoMatchingHotSpringsInThisZone>No matching hot springs in this zone.</RSH.Text.NoMatchingHotSpringsInThisZone>
+  <RSH.Text.NoMatchingWithdrawalRecords>No matching withdrawal records.</RSH.Text.NoMatchingWithdrawalRecords>
+  <RSH.Text.NoMoneyMovementsRecorded>No money movements recorded.</RSH.Text.NoMoneyMovementsRecorded>
+  <RSH.Text.NoPhysicalFoodStockCouldBeAdded>No physical food stock could be added.</RSH.Text.NoPhysicalFoodStockCouldBeAdded>
+  <RSH.Text.NotInsideAShopZone>Not inside a shop zone</RSH.Text.NotInsideAShopZone>
+  <RSH.Text.NoUsableReplacementBed>No usable replacement bed</RSH.Text.NoUsableReplacementBed>
+  <RSH.Text.NoVacantRegisteredBeds>No vacant registered beds</RSH.Text.NoVacantRegisteredBeds>
+  <RSH.Text.Occupancy>Occupancy</RSH.Text.Occupancy>
+  <RSH.Text.OccupantApparelCount>Occupant / apparel count</RSH.Text.OccupantApparelCount>
+  <RSH.Text.OccupiedCapacityWaiting>Occupied / capacity / waiting</RSH.Text.OccupiedCapacityWaiting>
+  <RSH.Text.OccupiedTotalSlots>Occupied / total slots</RSH.Text.OccupiedTotalSlots>
+  <RSH.Text.OfferThisBedForRent>Offer this bed for rent</RSH.Text.OfferThisBedForRent>
+  <RSH.Text.OpenBookings>Open bookings</RSH.Text.OpenBookings>
+  <RSH.Text.Operational>Operational</RSH.Text.Operational>
+  <RSH.Text.Operational2>Operational</RSH.Text.Operational2>
+  <RSH.Text.Outdoors>Outdoors</RSH.Text.Outdoors>
+  <RSH.Text.PawnGenerationDidNotProduceAnEligibleService>Pawn generation did not produce an eligible service worker.</RSH.Text.PawnGenerationDidNotProduceAnEligibleService>
+  <RSH.Text.PaymentFollowsReservationOfABathingSlotAnd>Payment follows reservation of a bathing slot and locker. Admission becomes revenue when bathing starts; cancellation before that refunds the payment. One visit per guest per day.</RSH.Text.PaymentFollowsReservationOfABathingSlotAnd>
+  <RSH.Text.PreviousPage>Previous page</RSH.Text.PreviousPage>
+  <RSH.Text.PrincipalMovesFromTravelAccountsToWalletsOnly>Principal moves from travel accounts to wallets; only fees are revenue. Daily limit resets do not create funds. History covers the recent money records retained by the system.</RSH.Text.PrincipalMovesFromTravelAccountsToWalletsOnly>
+  <RSH.Text.Purchase>Purchase</RSH.Text.Purchase>
+  <RSH.Text.RecentMoneyMovementsSilver>Recent money movements (silver)</RSH.Text.RecentMoneyMovementsSilver>
+  <RSH.Text.ReceptionHours>Reception hours: {OPEN}:00–{CLOSE}:00</RSH.Text.ReceptionHours>
+  <RSH.Text.ReceptionIsUnstaffed>Reception is unstaffed</RSH.Text.ReceptionIsUnstaffed>
+  <RSH.Text.ReceptionWaitTimedOut>Reception wait timed out</RSH.Text.ReceptionWaitTimedOut>
+  <RSH.Text.ReceptionWaitTimedOut2>Reception wait timed out</RSH.Text.ReceptionWaitTimedOut2>
+  <RSH.Text.RecordedFeeRevenue>Recorded fee revenue</RSH.Text.RecordedFeeRevenue>
+  <RSH.Text.RecordedPrincipal>Recorded principal</RSH.Text.RecordedPrincipal>
+  <RSH.Text.Refund>Refund</RSH.Text.Refund>
+  <RSH.Text.RefundForUnusedNights>Refund for unused nights</RSH.Text.RefundForUnusedNights>
+  <RSH.Text.RegisteredBeds>Registered beds</RSH.Text.RegisteredBeds>
+  <RSH.Text.RegisterRentalBedsSetPricesAndInspectRooms>Register rental beds, set prices and inspect rooms and bookings.</RSH.Text.RegisterRentalBedsSetPricesAndInspectRooms>
+  <RSH.Text.RentalBeds>Rental beds</RSH.Text.RentalBeds>
+  <RSH.Text.ReservationHasEnded>Reservation has ended</RSH.Text.ReservationHasEnded>
+  <RSH.Text.ReservedBeds>Reserved beds</RSH.Text.ReservedBeds>
+  <RSH.Text.RestingAtTheHotel>Resting at the hotel</RSH.Text.RestingAtTheHotel>
+  <RSH.Text.ReturningToCollectApparel>Returning to collect apparel.</RSH.Text.ReturningToCollectApparel>
+  <RSH.Text.RoomImpressiveness>Room / impressiveness</RSH.Text.RoomImpressiveness>
+  <RSH.Text.RoomPrepayment>Room prepayment</RSH.Text.RoomPrepayment>
+  <RSH.Text.RoomRevenueToday>Room revenue today</RSH.Text.RoomRevenueToday>
+  <RSH.Text.Rooms>Rooms</RSH.Text.Rooms>
+  <RSH.Text.SatisfactionDaysLeft>Satisfaction / days left</RSH.Text.SatisfactionDaysLeft>
+  <RSH.Text.SaveAdmissionSettingsAndPricesForNewSessions>Save admission settings and prices for new sessions.</RSH.Text.SaveAdmissionSettingsAndPricesForNewSessions>
+  <RSH.Text.SaveFeesAndDailyLimitsAmountsAlreadyWithdrawn>Save fees and daily limits; amounts already withdrawn today are preserved.</RSH.Text.SaveFeesAndDailyLimitsAmountsAlreadyWithdrawn>
+  <RSH.Text.SaveRentalSettingsAndPricesForNewBookings>Save rental settings and prices for new bookings; existing stays keep their agreed prices.</RSH.Text.SaveRentalSettingsAndPricesForNewBookings>
+  <RSH.Text.SaveToApplySettingsAndBedRegistrationsCompanions>Save to apply settings and bed registrations. Companions split the double-bed price; existing bookings keep their agreed prices. Pausing admissions preserves current stays.</RSH.Text.SaveToApplySettingsAndBedRegistrationsCompanions>
+  <RSH.Text.SetFeesAndDailyLimitsAndReviewTransfers>Set fees and daily limits, and review transfers from travel accounts to wallets.</RSH.Text.SetFeesAndDailyLimitsAndReviewTransfers>
+  <RSH.Text.SettledAccommodationCharges>Settled accommodation charges</RSH.Text.SettledAccommodationCharges>
+  <RSH.Text.ShopAreaWasRemoved>Shop area was removed</RSH.Text.ShopAreaWasRemoved>
+  <RSH.Text.ShoppingAndLeisure>Shopping and leisure</RSH.Text.ShoppingAndLeisure>
+  <RSH.Text.SingleBedSilverNight>Single bed · silver / night</RSH.Text.SingleBedSilverNight>
+  <RSH.Text.SiteOccupied>Site occupied: </RSH.Text.SiteOccupied>
+  <RSH.Text.SleepingInTheReservedBed>Sleeping in the reserved bed</RSH.Text.SleepingInTheReservedBed>
+  <RSH.Text.SpaAdmissionsClosed>Spa admissions closed</RSH.Text.SpaAdmissionsClosed>
+  <RSH.Text.SpaClosedUnpoweredOrBroken>Spa closed, unpowered or broken</RSH.Text.SpaClosedUnpoweredOrBroken>
+  <RSH.Text.SpaFacilities>Spa facilities</RSH.Text.SpaFacilities>
+  <RSH.Text.SpaFacilityRemoved>Spa facility removed</RSH.Text.SpaFacilityRemoved>
+  <RSH.Text.SpaHasNoPowerOrNeedsRepair>Spa has no power or needs repair</RSH.Text.SpaHasNoPowerOrNeedsRepair>
+  <RSH.Text.SpaSessionIsNoLongerAvailable>Spa session is no longer available</RSH.Text.SpaSessionIsNoLongerAvailable>
+  <RSH.Text.SpaUseInterrupted>Spa use interrupted</RSH.Text.SpaUseInterrupted>
+  <RSH.Text.Spending>Spending</RSH.Text.Spending>
+  <RSH.Text.Staying>Staying</RSH.Text.Staying>
+  <RSH.Text.StayStatus>Stay status</RSH.Text.StayStatus>
+  <RSH.Text.StoneSpaSilverAdmission>Stone spa · silver / admission</RSH.Text.StoneSpaSilverAdmission>
+  <RSH.Text.TheEmployeeCouldNotStartCashierDuty>The employee could not start cashier duty: </RSH.Text.TheEmployeeCouldNotStartCashierDuty>
+  <RSH.Text.TheLockerCouldNotStoreApparel>The locker could not store apparel</RSH.Text.TheLockerCouldNotStoreApparel>
+  <RSH.Text.TheRegisterOrItsStaffInteractionCellIs>The register or its staff interaction cell is unavailable.</RSH.Text.TheRegisterOrItsStaffInteractionCellIs>
+  <RSH.Text.TheShelfCannotSellTheRequiredProducts>The shelf cannot sell the required products.</RSH.Text.TheShelfCannotSellTheRequiredProducts>
+  <RSH.Text.TheSiteMustBeUnfoggedUnzonedAndSupport>The site must be unfogged, unzoned and support heavy foundations. Conflict at: </RSH.Text.TheSiteMustBeUnfoggedUnzonedAndSupport>
+  <RSH.Text.TheSpaCannotOverlapABuildingOrIts>The spa cannot overlap a building or its construction: </RSH.Text.TheSpaCannotOverlapABuildingOrIts>
+  <RSH.Text.TheSpaNeedsAnApparelLocker>The spa needs an apparel locker</RSH.Text.TheSpaNeedsAnApparelLocker>
+  <RSH.Text.TheStaffBedIsUnavailable>The staff bed is unavailable.</RSH.Text.TheStaffBedIsUnavailable>
+  <RSH.Text.ThisBedIsRentedToAGuest>This bed is rented to a guest</RSH.Text.ThisBedIsRentedToAGuest>
+  <RSH.Text.ThisBedIsReservedByABookingUnregister>This bed is reserved by a booking. Unregister it after checkout.</RSH.Text.ThisBedIsReservedByABookingUnregister>
+  <RSH.Text.TimedOutWaitingForAPoolSlotOr>Timed out waiting for a pool slot or locker</RSH.Text.TimedOutWaitingForAPoolSlotOr>
+  <RSH.Text.TodaySArrivalsDepartures>Today's arrivals / departures</RSH.Text.TodaySArrivalsDepartures>
+  <RSH.Text.TotalSpentSilver>Total spent (silver)</RSH.Text.TotalSpentSilver>
+  <RSH.Text.TravelAccountWithdrawal>Travel account withdrawal</RSH.Text.TravelAccountWithdrawal>
+  <RSH.Text.UnableToObtainAnAffordableMeal>Unable to obtain an affordable meal</RSH.Text.UnableToObtainAnAffordableMeal>
+  <RSH.Text.UnpoweredSwitchedOff>Unpowered / switched off</RSH.Text.UnpoweredSwitchedOff>
+  <RSH.Text.Vacant>Vacant</RSH.Text.Vacant>
+  <RSH.Text.VacantRegisteredBeds>Vacant / registered beds</RSH.Text.VacantRegisteredBeds>
+  <RSH.Text.ViewActivitySatisfactionAndFundsExpandAGuest>View activity, satisfaction and funds. Expand a guest for booking details and their eight most recent money movements.</RSH.Text.ViewActivitySatisfactionAndFundsExpandAGuest>
+  <RSH.Text.Waiting>Waiting</RSH.Text.Waiting>
+  <RSH.Text.WaitingCustomers>Waiting customers</RSH.Text.WaitingCustomers>
+  <RSH.Text.WaitingForASpaSlotAndLocker>Waiting for a spa slot and locker.</RSH.Text.WaitingForASpaSlotAndLocker>
+  <RSH.Text.WaitingForCompanions>Waiting for companions</RSH.Text.WaitingForCompanions>
+  <RSH.Text.WalletTravelAccountSilver>Wallet / travel account (silver)</RSH.Text.WalletTravelAccountSilver>
+  <RSH.Text.WithdrawalCompleted>Withdrawal completed</RSH.Text.WithdrawalCompleted>
+  <RSH.Text.WithdrawalFee>Withdrawal / fee</RSH.Text.WithdrawalFee>
+  <RSH.Text.WithdrawalSettings>Withdrawal settings</RSH.Text.WithdrawalSettings>
+  <RSH.Text.WithdrawalsPrincipalFeeSilver>Withdrawals (principal / fee, silver)</RSH.Text.WithdrawalsPrincipalFeeSilver>
+  <RSH.Text.WithdrawingTravelFunds>Withdrawing travel funds</RSH.Text.WithdrawingTravelFunds>
+  <RSH.Text.WoodenSpaSilverAdmission>Wooden spa · silver / admission</RSH.Text.WoodenSpaSilverAdmission>
+  <RSH.Ui.Locate>Locate</RSH.Ui.Locate>
+  <RSH.Ui.RecordDay>Day {DAY}</RSH.Ui.RecordDay>
+  <RSH.Ui.RecordPage>Page {PAGE} / {PAGES} · {COUNT} records</RSH.Ui.RecordPage>
+</LanguageData>

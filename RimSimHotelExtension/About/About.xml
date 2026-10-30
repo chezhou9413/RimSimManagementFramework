@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+  <name>RimSMF:Hotel边缘旅馆</name>
+  <author>追踪虫 and Migua</author>
+  <packageId>chezhou.rimsim.hotelextension</packageId>
+  <supportedVersions><li>1.7</li></supportedVersions>
+  <description>模拟经营框架的旅馆</description>
+  <modDependencies>
+    <li><packageId>chezhou.Framework.RimSimManagementFramework</packageId><displayName>RimSimManagementFramework边缘模拟经营框架</displayName><steamWorkshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3736621496</steamWorkshopUrl></li>
+  </modDependencies>
+  <loadAfter><li>chezhou.Framework.RimSimManagementFramework</li></loadAfter>
+</ModMetaData>

@@ -13,7 +13,7 @@ namespace SimManagementLib.GameComp
     /// <summary>
     /// 管理顾客 AI 点评记录和后台生成队列，负责限速、失败统计、存档和店铺评分汇总。
     /// </summary>
-    public class GameComponent_CustomerReviewManager : GameComponent
+    public partial class GameComponent_CustomerReviewManager : GameComponent
     {
         private const float ForumReplyStrongBonus = 0.18f;
         private const int AvatarCleanupIntervalTicks = 60000;
@@ -46,10 +46,12 @@ namespace SimManagementLib.GameComp
         {
             base.ExposeData();
             Scribe_Collections.Look(ref records, "customerReviewRecords", LookMode.Deep);
+            Scribe_Collections.Look(ref directReviewIds, "customerDirectReviewIds", LookMode.Value);
             Scribe_Collections.Look(ref pendingSnapshots, "customerReviewPendingSnapshots", LookMode.Deep);
             Scribe_Values.Look(ref failedCount, "customerReviewFailedCount", 0);
             Scribe_Values.Look(ref nextAvatarCleanupTick, "customerReviewNextAvatarCleanupTick", 0);
             if (records == null) records = new List<CustomerReviewRecord>();
+            if (directReviewIds == null) directReviewIds = new HashSet<string>();
             if (pendingSnapshots == null) pendingSnapshots = new List<CustomerReviewSnapshot>();
             if (negotiationRequests == null) negotiationRequests = new Dictionary<string, CustomerReviewNegotiationRequest>();
             if (nextAvatarCleanupTick <= 0)

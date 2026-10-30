@@ -2,10 +2,12 @@ using System.Collections.Generic;
 using System.Linq;
 using RimSimRestaurantExtension.GameComp;
 using RimSimRestaurantExtension.Models;
+using RimSimRestaurantExtension.Tool;
 using RimWorld;
 using SimManagementLib.SimDef;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimZone;
+using SimManagementLib.Tool;
 using Verse;
 
 namespace RimSimRestaurantExtension.Debug
@@ -20,6 +22,10 @@ namespace RimSimRestaurantExtension.Debug
             out Zone_Shop shop, out string failReason)
             => TryCreateRestaurant(map, center, false, out shop, out failReason);
 
+        //供组合调试场景在修改地图前检查完整餐厅所需的区域、菜单及岗位。
+        public static bool CanCreateCompleteRestaurant(Map map, IntVec3 center, out string failReason)
+            => TryCreateRestaurant(map, center, false, out _, out failReason, validateOnly: true);
+
         //创建闭环传送带样板店，职责是复用完整餐厅的后厨、库存、员工和营业配置。
         public static bool TryCreateConveyorRestaurant(Map map, IntVec3 center,
             out Zone_Shop shop, out string failReason)
@@ -27,7 +33,7 @@ namespace RimSimRestaurantExtension.Debug
 
         //组装指定用餐布局的样板店，职责是统一预检查与设施生成顺序。
         private static bool TryCreateRestaurant(Map map, IntVec3 center, bool conveyor,
-            out Zone_Shop shop, out string failReason)
+            out Zone_Shop shop, out string failReason, bool validateOnly = false)
         {
             shop = null;
             failReason = "";
@@ -80,6 +86,8 @@ namespace RimSimRestaurantExtension.Debug
             }
 
             if (conveyor && !ConveyorRestaurantLayout.TryValidate(out failReason)) return false;
+            if (!CompleteRestaurantFurnitureUtility.TryValidate(out failReason)) return false;
+            if (validateOnly) return true;
 
             ClearArea(map, outer);
             if (!BuildRoomShell(map, outer, ThingDefOf.Wall, ThingDefOf.Door))
@@ -154,6 +162,13 @@ namespace RimSimRestaurantExtension.Debug
             if (!shop.IsValidShop())
             {
                 failReason = "餐厅生成后未通过商店校验：" + shop.GetValidationMessage();
+                return false;
+            }
+
+            string businessIssue = RestaurantBusinessAvailability.CheckShop(shop, settings);
+            if (!businessIssue.NullOrEmpty())
+            {
+                failReason = SimTranslation.T("RSR.Debug.BusinessCheckFailed", businessIssue.Named("REASON"));
                 return false;
             }
 

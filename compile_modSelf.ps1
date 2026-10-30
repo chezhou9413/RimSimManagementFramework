@@ -11,10 +11,10 @@
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
-#通过餐厅项目引用按依赖顺序编译两个模组，不启动游戏或执行部署。
-$project = Join-Path $PSScriptRoot 'RimSimRestaurantExtension\Source\RimSimRestaurantExtension\RimSimRestaurantExtension.csproj'
+#通过解决方案按依赖顺序编译框架、餐厅和旅馆，不启动游戏或执行部署。
+$project = Join-Path $PSScriptRoot 'RimSimManagementFramework\Source\SimManagementLib\SimManagementLib.slnx'
 if (-not (Test-Path -LiteralPath $project -PathType Leaf)) {
-    throw "找不到餐厅工程：$project"
+    throw "找不到统一解决方案：$project"
 }
 foreach ($reference in @('Assembly-CSharp.dll', 'UnityStubs.dll', 'Waylith.dll')) {
     if (-not (Test-Path -LiteralPath (Join-Path $RimWorldPath $reference) -PathType Leaf)) {
@@ -26,6 +26,6 @@ if (-not (Test-Path -LiteralPath $HarmonyPath -PathType Leaf)) {
 }
 & dotnet build $project -c $Configuration --nologo -v minimal "-p:RimWorldPath=$RimWorldPath" "-p:HarmonyPath=$HarmonyPath"
 if ($LASTEXITCODE -ne 0) {
-    throw "框架与餐厅编译失败，退出码：$LASTEXITCODE"
+    throw "框架、餐厅与旅馆编译失败，退出码：$LASTEXITCODE"
 }
-Write-Host "[SUCCESS] 框架与餐厅扩展 $Version ($Configuration) 编译完成。"
+Write-Host "[SUCCESS] 框架、餐厅与旅馆扩展 $Version ($Configuration) 编译完成。"

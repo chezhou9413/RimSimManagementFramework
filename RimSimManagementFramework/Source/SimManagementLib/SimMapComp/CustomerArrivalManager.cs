@@ -541,7 +541,7 @@ namespace SimManagementLib.SimMapComp
             return true;
         }
         //为指定商店生成一位顾客并绑定顾客 Lord，失败时返回具体原因。
-        private bool TrySpawnCustomerWave(Zone_Shop shop, RuntimeCustomerKind kind, bool showArrivalMessage, bool respectFailureBackoff, out int spawnedCount, out string failReason, out Pawn spawnedPawn)
+        private bool TrySpawnSingleCustomer(Zone_Shop shop, RuntimeCustomerKind kind, bool showArrivalMessage, bool respectFailureBackoff, out int spawnedCount, out string failReason, out Pawn spawnedPawn)
         {
             spawnedCount = 0;
             failReason = string.Empty;
@@ -607,7 +607,6 @@ namespace SimManagementLib.SimMapComp
             spawnedPawn = pawn;
             ClearSpawnFailure(attemptKey);
             CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.Arrival);
-            SimShopEvents.NotifyCustomerArrived(pawn);
 
             if (showArrivalMessage)
             {

@@ -1,4 +1,5 @@
 using RimWorld;
+using SimManagementLib.Api;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimThingComp;
@@ -13,38 +14,42 @@ namespace SimManagementLib.SimDialog
 {
     public partial class Dialog_ShopManager
     {
+        //按钮按实际字体和翻译宽度布局，服务子页统一提交窗口草稿。
         private void DrawBottomBar(Rect rect)
         {
             Widgets.DrawBoxSolid(rect, new Color(0f, 0f, 0f, 0.2f));
             Widgets.DrawLineHorizontal(rect.x, rect.y, rect.width);
-            float btnY = rect.y + (rect.height - 30f) / 2f;
-            ShopUiPageDef currentPage = GetCurrentUiPage();
-            bool showSave = CurrentPageShowsSaveButton(currentPage);
-            string tip = GetCurrentPageSaveTip(currentPage);
-
-            Text.Font = GameFont.Tiny;
-            Text.Anchor = TextAnchor.MiddleLeft;
-            GUI.color = CTextDim;
-            float reservedRight = showSave ? 260f : 150f;
-            Rect tipRect = new Rect(rect.x + 12f, btnY, Mathf.Max(80f, rect.width - reservedRight), 30f);
-            Widgets.Label(tipRect, tip.Truncate(tipRect.width));
-            ResetText();
-
-            float cancelX = showSave ? rect.xMax - 230f : rect.xMax - 120f;
-            if (SimUiStyle.DrawSecondaryButton(new Rect(cancelX, btnY, 100f, 30f), SimTranslation.T("RSMF.ShopManager.Cancel"), true, GameFont.Tiny))
+            ShopUiPageDef page = GetCurrentUiPage();
+            bool showSave = CurrentPageShowsSaveButton(page);
+            string tip = GetCurrentPageSaveTip(page);
+            string cancel = SimTranslation.T("RSMF.ShopManager.Cancel");
+            string save = GetCurrentPageSaveLabel(page);
+            GameFont oldFont = Text.Font;
+            TextAnchor oldAnchor = Text.Anchor;
+            bool oldWrap = Text.WordWrap;
+            Color oldColor = GUI.color;
+            try
             {
-                NotifyAllPagesCancel();
-                Close();
+                Text.Font = GameFont.Small;
+                Text.Anchor = TextAnchor.MiddleLeft;
+                Text.WordWrap = false;
+                GUI.color = Color.white;
+                float height = ShopUiVisualUtility.ControlHeight();
+                float y = rect.y + (rect.height - height) / 2f;
+                float saveWidth = showSave ? Mathf.Min(rect.width * 0.35f, Mathf.Max(110f, Text.CalcSize(save).x + 24f)) : 0f;
+                float cancelWidth = Mathf.Min(rect.width * 0.3f, Mathf.Max(90f, Text.CalcSize(cancel).x + 24f));
+                float cancelX = rect.xMax - 12f - cancelWidth - (showSave ? saveWidth + 8f : 0f);
+                Rect tipRect = new Rect(rect.x + 12f, y, Mathf.Max(0f, cancelX - rect.x - 24f), height);
+                ShopUiVisualUtility.DrawCellLabel(tipRect, tip, CTextDim);
+                if (ShopUiVisualUtility.DrawSecondaryButton(new Rect(cancelX, y, cancelWidth, height), cancel.Truncate(cancelWidth - 8f)))
+                {
+                    NotifyAllPagesCancel();
+                    Close();
+                }
+                if (showSave && ShopUiVisualUtility.DrawPrimaryButton(new Rect(rect.xMax - saveWidth - 12f, y, saveWidth, height), save.Truncate(saveWidth - 8f)))
+                    ApiSaveDrafts(closeAfterSave: true);
             }
-
-            if (!showSave)
-                return;
-
-            Rect saveRect = new Rect(rect.xMax - 120f, btnY, 108f, 30f);
-            if (SimUiStyle.DrawPrimaryButton(saveRect, GetCurrentPageSaveLabel(currentPage), true, GameFont.Tiny))
-            {
-                ApiSaveDrafts(closeAfterSave: true);
-            }
+            finally { Text.Font = oldFont; Text.Anchor = oldAnchor; Text.WordWrap = oldWrap; GUI.color = oldColor; }
         }
 
         /// <summary>
@@ -54,6 +59,7 @@ namespace SimManagementLib.SimDialog
         {
             bool show = true;
             if (page == null) return false;
+            if (page.isServicePage) return true;
             SimManagementLib.Api.SimShopUiApi.SafeInvoke(page, uiContext, "ShowSaveButton", worker => show = worker?.ShowSaveButton(uiContext) != false);
             return show;
         }
@@ -64,6 +70,7 @@ namespace SimManagementLib.SimDialog
         private string GetCurrentPageSaveLabel(ShopUiPageDef page)
         {
             string label = SimTranslation.T("RSMF.ShopManager.Save");
+            if (page?.isServicePage == true) return SimTranslation.T("RSMF.ShopManager.ServicePages.SaveAll");
             if (page == null) return label;
             SimManagementLib.Api.SimShopUiApi.SafeInvoke(page, uiContext, "GetSaveButtonLabel", worker =>
             {
@@ -80,6 +87,7 @@ namespace SimManagementLib.SimDialog
         private string GetCurrentPageSaveTip(ShopUiPageDef page)
         {
             string tip = SimTranslation.T("RSMF.ShopManager.NoSaveNeededTip");
+            if (page?.isServicePage == true) return SimTranslation.T("RSMF.ShopManager.ServicePages.SaveTip");
             if (page == null) return tip;
             SimManagementLib.Api.SimShopUiApi.SafeInvoke(page, uiContext, "GetSaveTip", worker =>
             {
@@ -103,7 +111,11 @@ namespace SimManagementLib.SimDialog
         /// </summary>
         public void ApiSaveDrafts(bool closeAfterSave)
         {
-            NotifyAllPagesSave();
+            if (!NotifyAllPagesSave())
+            {
+                Messages.Message(SimTranslation.T("RSMF.ShopManager.ServicePages.SaveFailed"), MessageTypeDefOf.RejectInput, false);
+                return;
+            }
 
             foreach (Thing provider in serviceProviders)
             {
@@ -130,29 +142,32 @@ namespace SimManagementLib.SimDialog
             Messages.Message(SimTranslation.T("RSMF.ShopManager.SaveSuccess"), MessageTypeDefOf.PositiveEvent, false);
 
             if (closeAfterSave)
-                Close();
-        }
-
-        /// <summary>
-        /// 通知所有页面保存，负责让外部表单页参与保存按钮生命周期。
-        /// </summary>
-        private void NotifyAllPagesSave()
-        {
-            for (int i = 0; i < uiPages.Count; i++)
             {
-                SimManagementLib.Api.SimShopUiApi.SafeInvoke(uiPages[i], uiContext, "OnSave", worker => worker?.OnSave(uiContext));
+                closingAfterSave = true;
+                Close();
             }
         }
 
-        /// <summary>
-        /// 通知所有页面取消，负责让外部表单页清理未保存草稿。
-        /// </summary>
+        //隐藏前已访问的子页也提交草稿，失败时保留窗口并明确提示。
+        private bool NotifyAllPagesSave()
+        {
+            bool success = true;
+            foreach (ShopUiPageDef page in LifecyclePages().ToList())
+            {
+                uiContext.RecordException(null);
+                SimShopUiApi.SafeInvoke(page, uiContext, "OnSave", worker => worker?.OnSave(uiContext));
+                if (uiContext.LastException != null) success = false;
+            }
+            return success;
+        }
+
+        //取消和右上角关闭共用一次清理，不写回未提交设置。
         private void NotifyAllPagesCancel()
         {
-            for (int i = 0; i < uiPages.Count; i++)
-            {
-                SimManagementLib.Api.SimShopUiApi.SafeInvoke(uiPages[i], uiContext, "OnCancel", worker => worker?.OnCancel(uiContext));
-            }
+            if (cancelNotified) return;
+            cancelNotified = true;
+            foreach (ShopUiPageDef page in LifecyclePages().ToList())
+                SimShopUiApi.SafeInvoke(page, uiContext, "OnCancel", worker => worker?.OnCancel(uiContext));
         }
 
         /// <summary>

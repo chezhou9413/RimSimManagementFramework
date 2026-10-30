@@ -1,4 +1,5 @@
 using RimWorld;
+using SimManagementLib.Api;
 using SimManagementLib.GameComp;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimDef;
@@ -20,10 +21,16 @@ namespace SimManagementLib.SimDialog
         /// </summary>
         private void DrawShopManagementPage(Rect rect)
         {
-            List<ShopViewData> shops = CollectAllShops();
+            string search = uiContext.SearchText ?? "";
+            List<ShopViewData> shops = CollectAllShops().Where(entry => search.Length == 0
+                || entry.Zone.label.IndexOf(search, System.StringComparison.OrdinalIgnoreCase) >= 0
+                || (entry.Map.info?.parent?.LabelCap.ToString() ?? "").IndexOf(search, System.StringComparison.OrdinalIgnoreCase) >= 0).ToList();
             if (shops.NullOrEmpty())
             {
-                Widgets.NoneLabel(rect.center.y, rect.width, SimTranslation.T("RSMF.Business.Empty.NoManageableShops"));
+                string message = SimTranslation.T(search.Length == 0
+                    ? "RSMF.Business.Empty.NoManageableShops" : "RSMF.Business.Operations.NoMatches");
+                ShopUiVisualUtility.DrawNotice(new Rect(rect.x, rect.y, rect.width,
+                    ShopUiVisualUtility.NoticeHeight(message, rect.width)), message);
                 return;
             }
 

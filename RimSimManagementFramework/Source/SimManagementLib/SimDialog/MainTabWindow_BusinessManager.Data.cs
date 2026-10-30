@@ -24,7 +24,8 @@ namespace SimManagementLib.SimDialog
 
             foreach (Map map in Find.Maps)
             {
-                if (map == null || !map.IsPlayerHome) continue;
+                //商店区域本身就是管理对象，调试图和临时地图不需要先成为玩家家园。
+                if (map == null) continue;
 
                 foreach (Zone_Shop zone in map.zoneManager.AllZones.OfType<Zone_Shop>())
                 {

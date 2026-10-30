@@ -244,7 +244,7 @@ namespace SimManagementLib.SimMapComp
         //增加记录对应容量，职责是只统计尚未离店的有效阶段。
         private void AddCount(CustomerRuntimeRecord record)
         {
-            if (record == null || record.Stage >= CustomerVisitStage.Leaving) return;
+            if (record == null || record.Stage >= CustomerVisitStage.LongStay) return;
             if (record.ShopId >= 0)
             {
                 Increment(shopCounts, record.ShopId, 1);
@@ -258,7 +258,7 @@ namespace SimManagementLib.SimMapComp
         //减少记录对应容量，职责是清理为零的键并检测负数异常。
         private void RemoveCount(CustomerRuntimeRecord record)
         {
-            if (record == null || record.Stage >= CustomerVisitStage.Leaving) return;
+            if (record == null || record.Stage >= CustomerVisitStage.LongStay) return;
             if (record.ShopId >= 0)
             {
                 Increment(shopCounts, record.ShopId, -1);

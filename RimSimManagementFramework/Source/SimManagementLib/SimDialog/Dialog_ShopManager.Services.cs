@@ -1,3 +1,4 @@
+using SimManagementLib.Api;
 using SimManagementLib.SimService;
 using SimManagementLib.SimThingComp;
 using SimManagementLib.Tool;
@@ -10,121 +11,70 @@ namespace SimManagementLib.SimDialog
 {
     public partial class Dialog_ShopManager
     {
-        /// <summary>
-        /// 绘制服务管理面板，负责展示商店区域内服务建筑及其服务槽位配置。
-        /// </summary>
+        private bool serviceSortByProvider;
+
+        //服务首页只显示经营状态，单项参数通过编辑按钮打开。
         private void DrawServicesPanel(Rect rect)
         {
+            float h = ShopUiVisualUtility.ControlHeight();
+            string sort = SimTranslation.T(serviceSortByProvider ? "RSMF.ServiceEditor.SortProvider" : "RSMF.ServiceEditor.SortService");
+            if (ShopUiVisualUtility.DrawSecondaryButton(new Rect(rect.x, rect.y, Mathf.Min(230f, rect.width), h), sort))
+            {
+                serviceSortByProvider = !serviceSortByProvider;
+                listScroll = Vector2.zero;
+            }
             List<ServiceProviderRow> rows = BuildServiceRows()
                 .Where(r => MatchSearch(r.ProviderLabel) || MatchSearch(r.ServiceLabel))
-                .ToList();
-
-            const float providerW = 150f;
-            const float enabledW = 52f;
-            const float priceOverrideW = 58f;
-            const float capacityW = 80f;
-            const float usersW = 86f;
-
-            Rect headerRect = new Rect(rect.x, rect.y, rect.width, HeaderH);
-            DrawTableHeader(headerRect, delegate
+                .OrderBy(r => serviceSortByProvider ? r.ProviderLabel : r.ServiceLabel)
+                .ThenBy(r => r.Provider.thingIDNumber).ToList();
+            float y = rect.y + h + 8f;
+            float width = Mathf.Max(1f, rect.width - 18f);
+            float editW = Mathf.Max(64f, Text.CalcSize(SimTranslation.T("RSMF.ServiceEditor.Edit")).x + 24f);
+            float remaining = Mathf.Max(1f, width - editW - 28f);
+            var header = new Rect(rect.x, y, width, h);
+            ShopUiVisualUtility.DrawTableHeaderBackground(header);
+            DrawServiceCells(header, remaining, SimTranslation.T("RSMF.ShopManager.ServiceName"),
+                SimTranslation.T("RSMF.ShopManager.OverridePrice"), SimTranslation.T("RSMF.ShopManager.Usage"));
+            y += h + 2f;
+            Rect outer = new Rect(rect.x, y, rect.width, Mathf.Max(0f, rect.yMax - y));
+            float rowHeight = h * 2f + 4f;
+            float contentHeight = rows.Count * rowHeight;
+            listScroll.y = Mathf.Clamp(listScroll.y, 0, Mathf.Max(0f, contentHeight - outer.height));
+            Widgets.BeginScrollView(outer, ref listScroll, new Rect(0, 0, width, Mathf.Max(outer.height, contentHeight)));
+            try
             {
-                float cx = headerRect.xMax - RowPad;
-                cx -= usersW;
-                DrawHdrLabel(new Rect(cx, headerRect.y, usersW, headerRect.height), SimTranslation.T("RSMF.ShopManager.Usage"), TextAnchor.MiddleCenter);
-                cx -= ColGap;
-                cx -= capacityW;
-                DrawHdrLabel(new Rect(cx, headerRect.y, capacityW, headerRect.height), SimTranslation.T("RSMF.ShopManager.Capacity"));
-                cx -= ColGap;
-                cx -= FieldW;
-                DrawHdrLabel(new Rect(cx, headerRect.y, FieldW, headerRect.height), SimTranslation.T("RSMF.ShopManager.OverridePrice"));
-                cx -= ColGap;
-                cx -= priceOverrideW;
-                DrawHdrLabel(new Rect(cx, headerRect.y, priceOverrideW, headerRect.height), SimTranslation.T("RSMF.ShopManager.OverrideEnabled"), TextAnchor.MiddleCenter);
-                cx -= ColGap;
-                cx -= enabledW;
-                DrawHdrLabel(new Rect(cx, headerRect.y, enabledW, headerRect.height), SimTranslation.T("RSMF.ShopManager.Enabled"), TextAnchor.MiddleCenter);
-                cx -= ColGap;
-                cx -= providerW;
-                DrawHdrLabel(new Rect(cx, headerRect.y, providerW, headerRect.height), SimTranslation.T("RSMF.ShopManager.ServiceBuilding"));
-                cx -= ColGap;
-                DrawHdrLabel(new Rect(headerRect.x + RowPad, headerRect.y, cx - headerRect.x - RowPad, headerRect.height), SimTranslation.T("RSMF.ShopManager.ServiceName"));
-            });
-
-            Rect outRect = new Rect(rect.x, headerRect.yMax, rect.width, rect.height - HeaderH);
-            DrawVirtualizedRows(outRect, rows.Count, delegate(int i, Rect row)
-            {
-                DrawServiceRow(row, rows[i], i);
-            });
+                if (rows.Count == 0)
+                    ShopUiVisualUtility.DrawCellLabel(new Rect(8f, 8f, width - 16f, h), SimTranslation.T("RSMF.ServiceEditor.Empty"), CTextMid);
+                int first = Mathf.Max(0, Mathf.FloorToInt(listScroll.y / rowHeight));
+                int last = Mathf.Min(rows.Count, Mathf.CeilToInt((listScroll.y + outer.height) / rowHeight) + 1);
+                for (int i = first; i < last; i++)
+                {
+                    var data = rows[i];
+                    var slot = data.Slot;
+                    Rect row = new Rect(0, i * rowHeight, width, rowHeight);
+                    ShopUiVisualUtility.DrawTableRowBackground(row, i, false);
+                    int active = ShopServiceUtility.CountActiveUsers(data.Provider.Map, data.Provider.thingIDNumber, slot.serviceDefName);
+                    DrawServiceCells(new Rect(0, row.y, width, h), remaining, data.ServiceLabel,
+                        slot.priceOverrideEnabled ? slot.priceOverride.ToString("0.##") : SimTranslation.T("RSMF.ServiceEditor.DefaultPrice"),
+                        $"{active}/{Mathf.Max(1, slot.maxSimultaneousUsers)}");
+                    ShopUiVisualUtility.DrawCellLabel(new Rect(8f, row.y + h, width - 16f, h),
+                        data.ProviderLabel + " · " + SimTranslation.T(slot.enabled ? "RSMF.ServiceEditor.Enabled" : "RSMF.ServiceEditor.Disabled"), CTextMid);
+                    if (ShopUiVisualUtility.DrawSecondaryButton(new Rect(width - editW - 6f, row.y + 2f, editW, h), SimTranslation.T("RSMF.ServiceEditor.Edit")))
+                        Find.WindowStack.Add(new Dialog_ShopServiceEditor(data.ServiceLabel, slot));
+                }
+            }
+            finally { Widgets.EndScrollView(); }
         }
 
-        /// <summary>
-        /// 绘制单条服务配置行，包含启用、价格覆盖、并发和当前占用数量。
-        /// </summary>
-        private void DrawServiceRow(Rect row, ServiceProviderRow data, int index)
+        //表头与数据行共同计算列宽，避免固定列宽侵占服务名称。
+        private static void DrawServiceCells(Rect rect, float width, string name, string price, string usage)
         {
-            const float providerW = 150f;
-            const float enabledW = 52f;
-            const float priceOverrideW = 58f;
-            const float capacityW = 80f;
-            const float usersW = 86f;
-
-            ServiceSlotData slot = data.Slot;
-            bool enabled = slot.enabled;
-            DrawRowBg(row, index, enabled);
-            Widgets.DrawHighlightIfMouseover(row);
-
-            float ctrlY = row.y + (RowH - 24f) / 2f;
-            float rx = row.xMax - RowPad;
-
-            rx -= usersW;
-            int activeUsers = ShopServiceUtility.CountActiveUsers(data.Provider.Map, data.Provider.thingIDNumber, slot.serviceDefName);
-            Text.Anchor = TextAnchor.MiddleCenter;
-            GUI.color = activeUsers >= Mathf.Max(1, slot.maxSimultaneousUsers) ? CStockLow : CTextMid;
-            Widgets.Label(new Rect(rx, row.y, usersW, RowH), $"{activeUsers}/{Mathf.Max(1, slot.maxSimultaneousUsers)}");
-
-            rx -= ColGap;
-            rx -= capacityW;
-            if (slot.capacityBuffer == null) slot.capacityBuffer = Mathf.Max(1, slot.maxSimultaneousUsers).ToString();
-            Widgets.TextFieldNumeric(new Rect(rx, ctrlY, capacityW, 24f), ref slot.maxSimultaneousUsers, ref slot.capacityBuffer, 1, 99);
-
-            rx -= ColGap;
-            rx -= FieldW;
-            if (slot.priceBuffer == null) slot.priceBuffer = slot.priceOverride.ToString("F0");
-            Rect priceRect = new Rect(rx, ctrlY, FieldW, 24f);
-            GUI.color = slot.priceOverrideEnabled ? Color.white : CTextDim;
-            Widgets.TextFieldNumeric(priceRect, ref slot.priceOverride, ref slot.priceBuffer, 0f, 99999f);
-            if (!slot.priceOverrideEnabled)
-                TooltipHandler.TipRegion(priceRect, SimTranslation.T("RSMF.ShopManager.OverridePriceDisabledTip"));
-            GUI.color = Color.white;
-
-            rx -= ColGap;
-            rx -= priceOverrideW;
-            Widgets.Checkbox(rx + (priceOverrideW - CheckSz) / 2f, row.y + (RowH - CheckSz) / 2f, ref slot.priceOverrideEnabled, CheckSz, paintable: true);
-            TooltipHandler.TipRegion(new Rect(rx, row.y, priceOverrideW, RowH), SimTranslation.T("RSMF.ShopManager.OverrideEnabledTip"));
-
-            rx -= ColGap;
-            rx -= enabledW;
-            Widgets.Checkbox(rx + (enabledW - CheckSz) / 2f, row.y + (RowH - CheckSz) / 2f, ref enabled, CheckSz, paintable: true);
-            slot.enabled = enabled;
-
-            rx -= ColGap;
-            rx -= providerW;
-            Text.Anchor = TextAnchor.MiddleLeft;
-            GUI.color = CTextMid;
-            Widgets.Label(new Rect(rx, row.y, providerW, RowH), data.ProviderLabel.Truncate(providerW));
-
-            rx -= ColGap;
-            GUI.color = enabled ? Color.white : CTextDim;
-            Widgets.Label(new Rect(row.x + RowPad, row.y, rx - row.x - RowPad, RowH), data.ServiceLabel.Truncate(rx - row.x - RowPad));
-
-            if (Mouse.IsOver(row) && data.ServiceDef != null && !string.IsNullOrEmpty(data.ServiceDef.description))
-                TooltipHandler.TipRegion(row, data.ServiceDef.description);
-            ResetText();
+            ShopUiVisualUtility.DrawCellLabel(new Rect(rect.x + 8f, rect.y, width * 0.54f - 8f, rect.height), name);
+            ShopUiVisualUtility.DrawCellLabel(new Rect(rect.x + 8f + width * 0.54f, rect.y, width * 0.24f - 8f, rect.height), price);
+            ShopUiVisualUtility.DrawCellLabel(new Rect(rect.x + 8f + width * 0.78f, rect.y, width * 0.22f - 8f, rect.height), usage);
         }
 
-        /// <summary>
-        /// 从服务建筑草稿数据构建可绘制的服务行。
-        /// </summary>
+        //从服务建筑草稿数据构建可绘制的服务行。
         private List<ServiceProviderRow> BuildServiceRows()
         {
             List<ServiceProviderRow> rows = new List<ServiceProviderRow>();
@@ -154,9 +104,7 @@ namespace SimManagementLib.SimDialog
             return rows;
         }
 
-        /// <summary>
-        /// 保存服务管理表格中一行需要展示的建筑、服务和草稿槽位。
-        /// </summary>
+        //保存服务管理表格中一行需要展示的建筑、服务和草稿槽位。
         private sealed class ServiceProviderRow
         {
             public Thing Provider;

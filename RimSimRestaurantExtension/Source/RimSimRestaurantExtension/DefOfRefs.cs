@@ -8,6 +8,8 @@ namespace RimSimRestaurantExtension
     [DefOf]
     public static class DefOfRefs
     {
+        public static WorkTypeDef Cooking;
+        public static StatDef CookSpeed;
         public static ThingDef RSR_RestaurantOrderCounter;
         public static JobDef RSR_TakeRestaurantOrder;
         public static JobDef RSR_BringRestaurantMealToPass;

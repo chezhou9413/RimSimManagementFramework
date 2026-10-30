@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <JobDef><defName>RSH_Reception</defName><driverClass>RimSimHotelExtension.Jobs.JobDriver_HotelReception</driverClass><reportString>Handling accommodation at the hotel reception desk.</reportString><casualInterruptible>false</casualInterruptible></JobDef>
+  <JobDef><defName>RSH_UseAtm</defName><driverClass>RimSimHotelExtension.Jobs.JobDriver_HotelAtm</driverClass><reportString>Withdrawing travel funds.</reportString><casualInterruptible>false</casualInterruptible></JobDef>
+  <JobDef><defName>RSH_UseSpa</defName><driverClass>RimSimHotelExtension.Spa.JobDriver_HotelSpa</driverClass><reportString>Using the hot spring and apparel locker.</reportString><casualInterruptible>false</casualInterruptible><joyKind>Meditative</joyKind></JobDef>
+  <SimManagementLib.SimDef.CustomerActionDef>
+    <defName>RSH_CheckIn</defName><label>hotel check-in</label><description>Check in at reception, reserve a rental bed and begin a persistent hotel stay.</description>
+    <workerClass>RimSimHotelExtension.Services.HotelArrivalWorker</workerClass><createsPersistentOrder>false</createsPersistentOrder><defaultBillAmount>0</defaultBillAmount><selectionWeight>2</selectionWeight><order>470</order>
+    <requiredThingDefs><li>RSH_ServiceDesk</li></requiredThingDefs>
+  </SimManagementLib.SimDef.CustomerActionDef>
+  <SimManagementLib.SimDef.CustomerActionDef>
+    <defName>RSH_Spa</defName><label>hot spring bathing</label><description>Reserve a bathing spot and locker, pay for admission, store clothing and enter the pool. Actual clothing is returned when bathing ends or is interrupted.</description>
+    <workerClass>RimSimHotelExtension.Spa.SpaActionWorker</workerClass><createsPersistentOrder>true</createsPersistentOrder><defaultBillAmount>0</defaultBillAmount><selectionWeight>1.2</selectionWeight><order>475</order>
+    <requiredThingClasses><li>RimSimHotelExtension.Spa.Building_HotelSpa</li></requiredThingClasses>
+  </SimManagementLib.SimDef.CustomerActionDef>
+  <SimManagementLib.SimDef.ShopStaffRoleDef>
+    <defName>RSH_Role_Reception</defName><label>hotel receptionist</label><description>Staffs the hotel reception desk, handles check-in, extensions and check-out, and also serves as a cashier. Uses the framework's service work type.</description>
+    <requiredThingDefs><li>RSH_ServiceDesk</li></requiredThingDefs><maxAssignedPawns>5</maxAssignedPawns>
+    <workGivers><li>Sim_WorkGiver_ManCashRegister</li></workGivers><jobDefs><li>Sim_ManCashRegister</li></jobDefs><requiredWorkType>Sim_ServiceWork</requiredWorkType>
+  </SimManagementLib.SimDef.ShopStaffRoleDef>
+</Defs>

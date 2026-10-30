@@ -4,6 +4,7 @@ using RimSimRestaurantExtension.Inventory;
 using RimWorld;
 using SimManagementLib.SimThingComp;
 using SimManagementLib.SimZone;
+using SimManagementLib.Tool;
 using Verse;
 
 namespace RimSimRestaurantExtension.Debug
@@ -56,10 +57,16 @@ namespace RimSimRestaurantExtension.Debug
                 failReason = "样板酒柜无法存入 30 份 Beer";
                 return false;
             }
-            Thing spareBeer = ThingMaker.MakeThing(beer);
-            spareBeer.stackCount = 60;
-            GenSpawn.Spawn(spareBeer, cells[cells.Count - 1], map);
-            return true;
+            //备用酒水使用空储存格，沿用食材生成器按实际堆叠上限拆分。
+            var reserveCells = cells.Where(cell => cell.GetItemCount(map) == 0).ToList();
+            int requiredCells = (60 + beer.stackLimit - 1) / beer.stackLimit;
+            if (reserveCells.Count < requiredCells)
+            {
+                failReason = SimTranslation.T("RSR.Debug.BeerStorageSpace", requiredCells.Named("REQUIRED"), reserveCells.Count.Named("AVAILABLE"));
+                return false;
+            }
+            return CompleteRestaurantInventoryUtility.TrySpawnStock(map, reserveCells,
+                new Dictionary<ThingDef, int> { [beer] = 60 }, out _, out failReason);
         }
     }
 }

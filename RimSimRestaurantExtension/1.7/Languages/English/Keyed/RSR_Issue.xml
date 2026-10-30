@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
+  <RSR.Issue.CookingUnavailable>Cannot cook: cooking work, skills or required recipe stats are unavailable</RSR.Issue.CookingUnavailable>
   <RSR.Issue.ActionInterrupted>Restaurant action interrupted</RSR.Issue.ActionInterrupted>
   <RSR.Issue.ActionMissing>Dining action has ended or is missing</RSR.Issue.ActionMissing>
   <RSR.Issue.CabinetOutsideShop>Cabinet is outside the restaurant shop area</RSR.Issue.CabinetOutsideShop>

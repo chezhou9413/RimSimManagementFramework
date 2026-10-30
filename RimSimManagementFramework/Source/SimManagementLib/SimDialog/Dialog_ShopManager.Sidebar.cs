@@ -13,37 +13,11 @@ namespace SimManagementLib.SimDialog
 {
     public partial class Dialog_ShopManager
     {
+        //搜索栏沿用框架控件，当前服务的搜索内容随子页保存。
         private void DrawSearchBar(Rect rect)
         {
-            Widgets.DrawBoxSolid(rect, new Color(0f, 0f, 0f, 0.15f));
-            float fieldH = 24f;
-            float fieldY = rect.y + (rect.height - fieldH) / 2f;
-
-            GUI.color = CTextDim;
-            Text.Font = GameFont.Tiny;
-            Text.Anchor = TextAnchor.MiddleLeft;
-            Widgets.Label(new Rect(rect.x + 8f, fieldY, 18f, fieldH), "");
-            GUI.color = Color.white;
-
-            Rect inputRect = new Rect(rect.x + 28f, fieldY, 210f, fieldH);
-            searchQuery = Widgets.TextField(inputRect, searchQuery);
-
-            if (string.IsNullOrEmpty(searchQuery))
-            {
-                GUI.color = CTextDim;
-                Text.Font = GameFont.Tiny;
-                Widgets.Label(new Rect(inputRect.x + 4f, inputRect.y + 2f, inputRect.width, inputRect.height), SimTranslation.T("RSMF.ShopManager.SearchPlaceholder"));
-                GUI.color = Color.white;
-            }
-
-            if (!string.IsNullOrEmpty(searchQuery))
-            {
-                if (SimUiStyle.DrawSecondaryButton(new Rect(inputRect.xMax + 6f, fieldY, 48f, fieldH), SimTranslation.T("RSMF.ShopManager.ClearSearch"), true, GameFont.Tiny))
-                    searchQuery = "";
-            }
-
-            Text.Anchor = TextAnchor.UpperLeft;
-            Widgets.DrawLineHorizontal(rect.x, rect.yMax - 1f, rect.width);
+            searchQuery = ShopUiVisualUtility.DrawSearchField(new Rect(rect.x, rect.y + 4f, rect.width, rect.height - 8f),
+                searchQuery, SimTranslation.T("RSMF.ShopManager.SearchPlaceholder"));
         }
 
         private void DrawSidebar(Rect rect)
@@ -115,7 +89,7 @@ namespace SimManagementLib.SimDialog
             for (int i = 0; i < uiPages.Count; i++)
             {
                 ShopUiPageDef page = uiPages[i];
-                if (page == null) continue;
+                if (page == null || page.isServicePage) continue;
                 SimShopUiApi.SafeInvoke(page, uiContext, "BuildNavigationItems", worker =>
                 {
                     IEnumerable<ShopUiNavigationItem> produced = worker?.BuildNavigationItems(uiContext);
@@ -130,6 +104,15 @@ namespace SimManagementLib.SimDialog
                     }
                 });
             }
+
+            ShopUiPageDef firstService = GetServicePages().FirstOrDefault();
+            if (firstService != null)
+                items.Add(new ShopUiNavigationItem {
+                    pageDef = firstService, id = "SimShop.ServicePages",
+                    label = SimTranslation.T("RSMF.ShopManager.Sidebar.Services"), order = firstService.order,
+                    selected = _ => GetCurrentUiPage()?.isServicePage == true,
+                    activate = _ => OpenServicePages()
+                });
 
             return items
                 .OrderBy(item => item.order)

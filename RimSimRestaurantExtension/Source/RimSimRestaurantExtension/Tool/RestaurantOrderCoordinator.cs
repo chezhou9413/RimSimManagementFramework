@@ -19,7 +19,6 @@ namespace RimSimRestaurantExtension.Tool
             order.failReason = "";
             order.blockReason = "";
             order.TouchProgress();
-            RestaurantFlowLog.Stage(order, state.ToString());
         }
 
         //登记顾客入座，职责是启动接待期限且重试不重置计时。

@@ -171,7 +171,7 @@ namespace SimManagementLib.SimDialog
             string previousDefName = curPageDefName;
             pages.Clear();
             uiContext.Window = this;
-            pages.AddRange(SimShopUiApi.GetPages(ShopUiPageScope.BusinessManager, uiContext));
+            pages.AddRange(SimShopUiApi.GetPages(ShopUiPageScope.BusinessManager, uiContext).FindAll(page => !page.isOperationsPage));
             ApplyBusinessPageOrder();
             PruneBusinessPageSettings();
             if (!string.IsNullOrEmpty(previousDefName))

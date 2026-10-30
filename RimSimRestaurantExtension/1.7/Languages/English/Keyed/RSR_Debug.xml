@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR.Debug.BeerStorageSpace>Reserve beer requires {REQUIRED} empty storage cells, but only {AVAILABLE} remain in the kitchen. Existing ingredients were preserved.</RSR.Debug.BeerStorageSpace>
+  <RSR.Debug.MissingTemplateDef>A definition required by the complete restaurant template is missing: {DEF}</RSR.Debug.MissingTemplateDef>
+  <RSR.Debug.BusinessCheckFailed>The restaurant was created but failed its business availability check: {REASON}</RSR.Debug.BusinessCheckFailed>
+</LanguageData>

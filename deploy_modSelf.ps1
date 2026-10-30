@@ -33,7 +33,7 @@ function Assert-DeploymentPath {
     }
 }
 
-#清理本次部署产生的目录，职责是限制名称并保留正在使用的两个模组目录。
+#清理本次部署产生的目录，限制名称并保留正在使用的模组目录。
 function Remove-DeploymentStage {
     param([string]$Path)
     Assert-DeploymentPath $Path
@@ -45,14 +45,15 @@ function Remove-DeploymentStage {
     }
 }
 
-#建立两个独立模组的部署计划，职责是统一目标游戏并保留各自的发布标识。
+#建立三个独立模组的部署计划，统一目标游戏并保留各自的发布标识。
 if (-not (Test-Path -LiteralPath $TargetModsPath -PathType Container)) {
     throw "找不到游戏 Mods 目录：$TargetModsPath"
 }
 $TargetModsPath = (Resolve-Path -LiteralPath $TargetModsPath).Path.TrimEnd('\')
 $plans = @(
     [pscustomobject]@{ Name = 'RimSimManagementFramework'; Assembly = 'SimManagementLib.dll' },
-    [pscustomobject]@{ Name = 'RimSimRestaurantExtension'; Assembly = 'RimSimRestaurantExtension.dll' }
+    [pscustomobject]@{ Name = 'RimSimRestaurantExtension'; Assembly = 'RimSimRestaurantExtension.dll' },
+    [pscustomobject]@{ Name = 'RimSimHotelExtension'; Assembly = 'RimSimHotelExtension.dll' }
 )
 $stageNames = @()
 foreach ($plan in $plans) {
@@ -71,22 +72,22 @@ foreach ($plan in $plans) {
 }
 
 if ($DryRun) {
-    Write-Host '[DRY-RUN] 两个模组的部署路径已核对；未编译或复制文件。'
+    Write-Host '[DRY-RUN] 三个模组的部署路径已核对；未编译或复制文件。'
     return
 }
 
 #运行中的游戏持有旧程序集，部署前要求先退出游戏。
 $gameProcesses = @(Get-Process -Name RimWorld, RimWorldWin64 -ErrorAction SilentlyContinue)
 if ($gameProcesses.Count -gt 0) {
-    throw 'RimWorld 正在运行，请先退出游戏再部署框架与餐厅。'
+    throw 'RimWorld 正在运行，请先退出游戏再部署框架与扩展。'
 }
 
-#按目标版本先构建两个程序集，保持框架接口与餐厅引用一致。
+#按目标版本构建三个程序集，保持扩展引用的框架接口一致。
 if (-not $SkipBuild) {
     & (Join-Path $PSScriptRoot 'compile_modSelf.ps1') -Version $Version -RimWorldPath (Split-Path $TargetModsPath -Parent) -HarmonyPath $HarmonyPath
 }
 
-#先准备两个完整目录，职责是在复制或验证失败时保持现有安装不变。
+#先准备三个完整目录，在复制或验证失败时保持现有安装不变。
 foreach ($plan in $plans) {
     Assert-ModLayout $plan.Source $plan.Assembly
     if (Test-Path -LiteralPath $plan.Backup) {
@@ -105,7 +106,7 @@ foreach ($plan in $plans) {
     Assert-ModLayout $plan.Temporary $plan.Assembly
 }
 
-#一起切换两份安装，职责是在任一切换失败时恢复已移动的旧安装。
+#一起切换三份安装，在任一切换失败时恢复已移动的旧安装。
 try {
     foreach ($plan in $plans) {
         if (Test-Path -LiteralPath $plan.Target) {
@@ -130,7 +131,7 @@ catch {
     throw
 }
 
-#完成后清理备份，职责是仅在两个模组均已安装成功后释放旧目录。
+#完成后清理备份，仅在三个模组均已安装成功后释放旧目录。
 foreach ($plan in $plans) {
     Remove-DeploymentStage $plan.Backup
     Write-Host "[SUCCESS] 已部署：$($plan.Target)"

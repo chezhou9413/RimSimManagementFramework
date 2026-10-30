@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.ServiceEditor.Empty>没有符合搜索条件的服务。</RSMF.ServiceEditor.Empty>
+  <RSMF.ServiceEditor.Edit>编辑</RSMF.ServiceEditor.Edit>
+  <RSMF.ServiceEditor.Apply>确认修改</RSMF.ServiceEditor.Apply>
+  <RSMF.ServiceEditor.Hint>确认只更新窗口草稿；保存全部设置后生效。</RSMF.ServiceEditor.Hint>
+  <RSMF.ServiceEditor.SortProvider>排序：设施名称</RSMF.ServiceEditor.SortProvider>
+  <RSMF.ServiceEditor.SortService>排序：服务名称</RSMF.ServiceEditor.SortService>
+  <RSMF.ServiceEditor.DefaultPrice>默认报价</RSMF.ServiceEditor.DefaultPrice>
+  <RSMF.ServiceEditor.Enabled>已启用</RSMF.ServiceEditor.Enabled>
+  <RSMF.ServiceEditor.Disabled>已暂停</RSMF.ServiceEditor.Disabled>
+</LanguageData>

@@ -8,6 +8,8 @@ using System.Linq;
 using UnityEngine;
 using Verse;
 using Verse.AI;
+using SimManagementLib.Api;
+using RimWorld;
 
 namespace SimManagementLib.Tool
 {
@@ -17,7 +19,31 @@ namespace SimManagementLib.Tool
         //判断顾客是否会把指定商品当成目标商品。
         public static bool ThingMatchesCustomer(LordJob_CustomerVisit visit, ThingDef thingDef)
         {
+            Pawn pawn = visit?.FirstActivePawn();
+            if (IsFoodVisit(pawn)) return IsSuitableFood(pawn, thingDef);
             return ThingMatchesCustomer(visit?.RuntimeCustomerKind, visit?.customerKind, thingDef);
+        }
+
+        //只读判断本次访问是否为了补充真实食物。
+        internal static bool IsFoodVisit(Pawn pawn) => SimShopCustomerApi.GetCustomerSession(pawn)?.FoodOnly == true;
+
+        //食物分类来自原版营养与种族食性，不识别任何餐饮扩展。
+        internal static bool IsSuitableFood(Pawn pawn, ThingDef def)
+            => pawn != null && def?.ingestible != null && !def.IsDrug && pawn.RaceProps.CanEverEat(def)
+                && def.GetStatValueAbstract(StatDefOf.Nutrition) > 0f;
+
+        //寻找顾客买得起的真实食物，供生活调度与购买筛选共享。
+        internal static bool ShopHasAffordableFood(Pawn pawn, Zone_Shop shop, float budget)
+            => ShopDataUtility.GetStorageSnapshotInZone(shop).Any(storage => StorageHasAffordableFood(storage, pawn, budget));
+
+        //比较实际食物库存、报价和携带能力。
+        private static bool StorageHasAffordableFood(Building_SimContainer storage, Pawn pawn, float budget)
+        {
+            if (storage == null || storage.Destroyed || !storage.AllowsCustomerSelfPurchase || budget <= 0f) return false;
+            return storage.ActiveDefs.Any(def => IsSuitableFood(pawn, def) && storage.CountStored(def) > 0
+                && ShopPricingUtility.GetUnitPrice(storage, def) <= budget
+                && !CustomerPriceUtility.Evaluate(def, ShopPricingUtility.GetUnitPrice(storage, def), GetPriceSensitivity(pawn)).rejected
+                && CustomerPurchaseDeliveryUtility.CanCarryMore(pawn, null, def, 1));
         }
 
         //判断顾客是否会把指定商品当成目标商品，目标商品分类为空时表示可接受任意商品。
@@ -52,7 +78,8 @@ namespace SimManagementLib.Tool
                 }
             }
 
-            return ShopServiceUtility.HasUsableServiceProvider(shop, null, GetTargetServiceCategoryIds(kind, fallbackDef));
+            return ShopServiceUtility.HasUsableServiceProvider(shop, null, GetTargetServiceCategoryIds(kind, fallbackDef))
+                || CustomerActionAttractionUtility.MatchesCustomer(shop, kind);
         }
 
         //判断商店当前是否仍有顾客买得起的目标商品或服务，用于浏览阶段停止无效闲逛。
@@ -64,7 +91,9 @@ namespace SimManagementLib.Tool
         //判断商店当前是否仍有顾客买得起的目标商品或服务。
         public static bool ShopHasMatchingAffordableGoodsOrServices(Pawn pawn, Zone_Shop shop, RuntimeCustomerKind kind, CustomerKindDef fallbackDef, float remainingBudget)
         {
-            if (shop == null || remainingBudget <= 0f) return false;
+            if (shop == null || remainingBudget < 0f) return false;
+
+            if (IsFoodVisit(pawn)) return ShopHasAffordableFood(pawn, shop, remainingBudget);
 
             if (ShopHasMatchingAffordableGoods(pawn, shop, kind, fallbackDef, remainingBudget))
                 return true;
@@ -76,7 +105,7 @@ namespace SimManagementLib.Tool
                 GetTargetServiceCategoryIds(kind, fallbackDef),
                 out _,
                 out _,
-                out _);
+                out _) || SimShopCustomerApi.HasRunnableCustomerAction(pawn, shop, remainingBudget);
         }
 
         //判断商店当前是否仍有顾客买得起的目标商品或套餐，不包含服务。
@@ -88,6 +117,7 @@ namespace SimManagementLib.Tool
         //判断商店当前是否仍有顾客买得起的目标商品或套餐，不包含服务。
         public static bool ShopHasMatchingAffordableGoods(Pawn pawn, Zone_Shop shop, RuntimeCustomerKind kind, CustomerKindDef fallbackDef, float remainingBudget)
         {
+            if (IsFoodVisit(pawn)) return ShopHasAffordableFood(pawn, shop, remainingBudget);
             if (shop == null || remainingBudget <= 0f || !AllowsGoods(kind, fallbackDef)) return false;
 
             foreach (Building_SimContainer storage in ShopDataUtility.GetStorageSnapshotInZone(shop))
@@ -126,6 +156,7 @@ namespace SimManagementLib.Tool
         //返回指定顾客当前买得起且至少含有一个目标商品的套餐。
         public static List<ComboData> GetMatchingAffordableInStockCombos(Zone_Shop shop, LordJob_CustomerVisit visit, Pawn pawn, float remainingBudget)
         {
+            if (IsFoodVisit(pawn)) return new List<ComboData>();
             CustomerPriceSensitivityProps sensitivity = visit != null && pawn != null
                 ? visit.GetPriceSensitivity(pawn.thingIDNumber)
                 : CustomerPriceSensitivityProps.Default();
@@ -215,6 +246,7 @@ namespace SimManagementLib.Tool
         //判断货柜是否至少有一个符合顾客目标分类、有库存且买得起的商品。
         public static bool StorageHasMatchingAffordableStock(Building_SimContainer storage, Pawn pawn, RuntimeCustomerKind kind, CustomerKindDef fallbackDef, float remainingBudget)
         {
+            if (IsFoodVisit(pawn)) return StorageHasAffordableFood(storage, pawn, remainingBudget);
             if (storage == null || !storage.AllowsCustomerSelfPurchase || storage.Destroyed || remainingBudget <= 0f || !AllowsGoods(kind, fallbackDef)) return false;
 
             if (storage is Building_UniqueGoodsContainer uniqueContainer)

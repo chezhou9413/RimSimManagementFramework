@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <SimManagementLib.SimDef.ShopUiPageDef>
+    <defName>RSH_HotelOverview</defName><labelKey>RSH.Ui.OperationsTab</labelKey><label>Hotels</label><scope>BusinessManager</scope><order>470</order><workerClass>RimSimHotelExtension.UI.HotelOverviewPage</workerClass>
+    <isOperationsPage>true</isOperationsPage>
+  </SimManagementLib.SimDef.ShopUiPageDef>
+  <SimManagementLib.SimDef.ShopUiPageDef>
+    <defName>RSH_HotelRooms</defName><labelKey>RSH.Ui.TabRooms</labelKey><label>hotel rooms</label><scope>ShopManager</scope><order>470</order><workerClass>RimSimHotelExtension.UI.HotelRoomsPage</workerClass>
+    <isServicePage>true</isServicePage>
+  </SimManagementLib.SimDef.ShopUiPageDef>
+  <SimManagementLib.SimDef.ShopUiPageDef>
+    <defName>RSH_HotelGuests</defName><labelKey>RSH.Ui.TabGuests</labelKey><label>hotel guests</label><scope>ShopManager</scope><order>471</order><workerClass>RimSimHotelExtension.UI.HotelGuestsPage</workerClass>
+    <isServicePage>true</isServicePage>
+  </SimManagementLib.SimDef.ShopUiPageDef>
+  <SimManagementLib.SimDef.ShopUiPageDef>
+    <defName>RSH_HotelSpa</defName><labelKey>RSH.Ui.TabSpa</labelKey><label>hot spring management</label><scope>ShopManager</scope><order>472</order><workerClass>RimSimHotelExtension.UI.HotelSpaPage</workerClass>
+    <isServicePage>true</isServicePage>
+  </SimManagementLib.SimDef.ShopUiPageDef>
+  <SimManagementLib.SimDef.ShopUiPageDef>
+    <defName>RSH_HotelAtm</defName><labelKey>RSH.Ui.TabAtm</labelKey><label>ATM management</label><scope>ShopManager</scope><order>473</order><workerClass>RimSimHotelExtension.UI.HotelAtmPage</workerClass>
+    <isServicePage>true</isServicePage>
+  </SimManagementLib.SimDef.ShopUiPageDef>
+</Defs>

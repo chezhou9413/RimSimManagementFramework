@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSH.Debug.RestaurantApiMissing>The restaurant extension is enabled, but its complete restaurant debug API is unavailable. Update the restaurant and hotel extensions to matching versions.</RSH.Debug.RestaurantApiMissing>
+  <RSH.Debug.RestaurantPreflightFailed>Restaurant preflight check failed: {REASON}</RSH.Debug.RestaurantPreflightFailed>
+  <RSH.Debug.RestaurantCreationFailed>The hotel, food store and clothing store were created, but restaurant creation did not finish: {REASON}</RSH.Debug.RestaurantCreationFailed>
+  <RSH.Debug.RestaurantName>Debug restaurant</RSH.Debug.RestaurantName>
+  <RSH.Debug.RestaurantCreated>An open restaurant was also created with a menu, ingredients, fuel, dining seats, a cashier, a chef, a waiter and a restocker.</RSH.Debug.RestaurantCreated>
+  <RSH.Debug.RequiredArea>A complete {WIDTH}×{HEIGHT} site inside the map is required.</RSH.Debug.RequiredArea>
+</LanguageData>

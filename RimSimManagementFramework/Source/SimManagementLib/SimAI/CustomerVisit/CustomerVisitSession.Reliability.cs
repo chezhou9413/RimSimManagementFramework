@@ -33,6 +33,13 @@ namespace SimManagementLib.SimAI.CustomerVisit
                 }
             }
 
+            if (stage == CustomerVisitStage.LongStay)
+            {
+                lastProgressTick = now;
+                recoveryCount = 0;
+                return default(CustomerVisitTickResult);
+            }
+
             //持久化外部动作拥有自己的有效性和超时规则，不能按普通浏览停滞强制中断。
             if (SimShopCustomerApi.HasRunningCustomerActionOrder(pawn, currentShopZoneId))
             {
@@ -42,10 +49,22 @@ namespace SimManagementLib.SimAI.CustomerVisit
             }
 
             ShoppingBehaviorProps behavior = visit.GetShoppingBehavior();
-            if (behavior.maxTotalVisitTicks > 0 && now - totalVisitStartTick >= behavior.maxTotalVisitTicks && stage < CustomerVisitStage.Leaving)
+            //行程到期只结束消费，已有账单先结账；收银和购后阶段各用自己的期限。
+            if (behavior.maxTotalVisitTicks > 0 && now - totalVisitStartTick >= behavior.maxTotalVisitTicks
+                && stage < CustomerVisitStage.WaitingCheckout && !CustomerServiceActivityUtility.HasActiveService(pawn))
+            {
+                if (visit.GetAmountOwedForCheckout(pawnId) > 0f)
+                {
+                    const string reason = "顾客总行程达到期限，结清当前账单";
+                    MarkReadyForCheckout(visit, pawn, reason);
+                    return visit.ShouldEnterCheckoutPhaseForSession()
+                        ? CustomerVisitTickResult.Checkout(reason)
+                        : default(CustomerVisitTickResult);
+                }
                 return RequestReliableLeave(visit, pawn, "顾客总行程达到期限");
+            }
 
-            if (pawn?.needs?.food != null && pawn.needs.food.CurCategory >= HungerCategory.UrgentlyHungry && stage < CustomerVisitStage.Leaving)
+            if (!SimShopCustomerApi.HasLongStay(pawn) && pawn?.needs?.food != null && pawn.needs.food.CurCategory >= HungerCategory.UrgentlyHungry && stage < CustomerVisitStage.Leaving)
                 return RequestReliableLeave(visit, pawn, "顾客饥饿过重");
 
             if (stage == CustomerVisitStage.Leaving)

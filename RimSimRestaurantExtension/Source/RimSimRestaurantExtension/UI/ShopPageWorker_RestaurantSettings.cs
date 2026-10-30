@@ -16,7 +16,7 @@ namespace RimSimRestaurantExtension.UI
         //判断餐厅页面是否属于当前店铺，职责是按接待设施挂载页面。
         public override bool CanShow(ShopUiContext context)
         {
-            return RestaurantOrderCreationUtility.FindOrderCounter((context as ShopManagerUiContext)?.Shop) != null;
+            return base.CanShow(context) && RestaurantOrderCreationUtility.FindOrderCounter((context as ShopManagerUiContext)?.Shop) != null;
         }
 
         //获取当前窗口草稿，职责是切页时保留编辑内容。

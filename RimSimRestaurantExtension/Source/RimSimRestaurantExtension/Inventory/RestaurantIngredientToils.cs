@@ -74,7 +74,6 @@ namespace RimSimRestaurantExtension.Inventory
         {
             string detail = SimTranslation.T("RSR.Issue.IngredientPickupDetails", (reason).Named("reason"), (driver.job.loadID).Named("job"), (driver.pawn.Position).Named("position"), (driver.job.count).Named("count"));
             if (order != null) order.blockReason = detail;
-            else RestaurantFlowLog.Failure(order, "厨师取料", detail, driver.pawn);
             driver.EndJobWith(JobCondition.Incompletable);
         }
     }

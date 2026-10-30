@@ -20,6 +20,8 @@ namespace RimSimRestaurantExtension.Jobs
             Thing stove = job.GetTarget(TargetIndex.A).Thing;
             if (order == null || order.state != RestaurantOrderState.WaitingCook || !RestaurantCookingUtility.CanCookOrderAt(stove, order))
                 return RejectReservation(order, SimTranslation.T("RSR.Issue.InvalidCookingOrder"));
+            if (!RestaurantCookingUtility.CanPawnCookOrderAt(pawn, stove, order))
+                return RejectReservation(order, SimTranslation.T("RSR.Issue.CookingUnavailable"));
             if (!pawn.Reserve(stove, job, 1, -1, null, errorOnFailed))
                 return RejectReservation(order, SimTranslation.T("RSR.Issue.StoveReservation"));
             if (stove.def.hasInteractionCell && !pawn.ReserveSittableOrSpot(stove.InteractionCell, job, errorOnFailed))
@@ -35,7 +37,8 @@ namespace RimSimRestaurantExtension.Jobs
                 if (source == null || source.Destroyed || count <= 0 || count > source.stackCount
                     || pawn.carryTracker.MaxStackSpaceEver(source.def) <= 0)
                     return RejectReservation(order, SimTranslation.T("RSR.Issue.IngredientBatchInvalid", (i + 1).Named("batch"), (count).Named("count")));
-                if (!source.Spawned || pawn.Reserve(ingredients[i], job, 1, count, null, errorOnFailed)) continue;
+                if (!source.Spawned || pawn.Reserve(ingredients[i], job,
+                    Inventory.RestaurantStockUtility.MaxIngredientReservers, count, null, errorOnFailed)) continue;
                 return RejectReservation(order, SimTranslation.T("RSR.Issue.IngredientBatchReservation", (i + 1).Named("batch"), (count).Named("count")));
             }
 
@@ -47,7 +50,6 @@ namespace RimSimRestaurantExtension.Jobs
         private bool RejectReservation(RestaurantOrder order, string reason)
         {
             RestaurantOrderUtility.OrderManager.DeferCooking(pawn, order, reason);
-            RestaurantFlowLog.Failure(order, "厨师预约", reason, pawn);
             return false;
         }
 
@@ -57,6 +59,13 @@ namespace RimSimRestaurantExtension.Jobs
             this.FailOn(() => ResolveOrder()?.IsTerminal != false);
             AddFinishAction(HandleJobFinished);
             this.FailOnDespawnedOrNull(TargetIndex.A);
+            this.FailOn(() =>
+            {
+                RestaurantOrder order = ResolveOrder();
+                if (order?.mealProduced != false || RestaurantCookingUtility.CanPawnCook(pawn)) return false;
+                order.blockReason = SimTranslation.T("RSR.Issue.CookingUnavailable");
+                return true;
+            });
 
             Toil init = ToilMaker.MakeToil("RestaurantCookInit");
             init.defaultCompleteMode = ToilCompleteMode.Instant;
@@ -88,6 +97,11 @@ namespace RimSimRestaurantExtension.Jobs
             {
                 RestaurantOrder order = ResolveOrder();
                 ticksLeftThisToil = RestaurantCookingUtility.GetCookTicks(pawn, job.GetTarget(TargetIndex.A).Thing, order);
+                if (ticksLeftThisToil <= 0)
+                {
+                    order.blockReason = SimTranslation.T("RSR.Issue.CookingUnavailable");
+                    EndJobWith(JobCondition.Incompletable);
+                }
             };
             cook.tickAction = () =>
             {
@@ -95,6 +109,12 @@ namespace RimSimRestaurantExtension.Jobs
                 Thing stove = job.GetTarget(TargetIndex.A).Thing;
                 if (order == null || order.state != RestaurantOrderState.Cooking || !RestaurantCookingUtility.CanCookOrderAt(stove, order))
                 {
+                    EndJobWith(JobCondition.Incompletable);
+                    return;
+                }
+                if (!RestaurantCookingUtility.CanPawnCookOrderAt(pawn, stove, order))
+                {
+                    order.blockReason = SimTranslation.T("RSR.Issue.CookingUnavailable");
                     EndJobWith(JobCondition.Incompletable);
                     return;
                 }
@@ -119,7 +139,7 @@ namespace RimSimRestaurantExtension.Jobs
             {
                 RestaurantOrder order = ResolveOrder();
                 int totalTicks = RestaurantCookingUtility.GetCookTicks(pawn, job.GetTarget(TargetIndex.A).Thing, order);
-                return Mathf.Clamp01(1f - ticksLeftThisToil / (float)Mathf.Max(1, totalTicks));
+                return totalTicks > 0 ? Mathf.Clamp01(1f - ticksLeftThisToil / (float)totalTicks) : 0f;
             });
             cook.activeSkill = () => RestaurantCookingUtility
                 .GetRecipeForOrder(ResolveOrder(), job.GetTarget(TargetIndex.A).Thing as Building_WorkTable)?.workSkill;
@@ -166,7 +186,6 @@ namespace RimSimRestaurantExtension.Jobs
             bool failed = condition == JobCondition.Incompletable || condition == JobCondition.Errored;
             //先登记重试边界，避免释放认领后被当前结束回调再次派回同一任务。
             if (failed) RestaurantOrderUtility.OrderManager.DeferCooking(pawn, order, reason);
-            RestaurantFlowLog.Failure(order, "烹饪 Job 中断", reason, pawn);
             if (order?.mealProduced == true) RestaurantMealTransferUtility.DropCarried(pawn, order);
             else ReleaseCarriedIngredient();
             ReleasePlacedIngredients();

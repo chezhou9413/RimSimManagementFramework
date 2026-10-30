@@ -5,6 +5,7 @@ using RimSimRestaurantExtension.Models;
 using RimWorld;
 using SimManagementLib.Api;
 using SimManagementLib.SimZone;
+using SimManagementLib.Tool;
 using UnityEngine;
 using Verse;
 
@@ -60,13 +61,30 @@ namespace RimSimRestaurantExtension.Tool
             return GetRecipeForOrder(order, table) != null;
         }
 
-        //判断厨师能否在工作台制作订单，职责是补充原版配方技能门槛检查。
+        //检查实际烹饪资格，不要求工作面板启用原版烹饪优先级。
+        public static bool CanPawnCook(Pawn cook)
+        {
+            return ShopStaffUtility.CanPawnPerformWorkType(cook, DefOfRefs.Cooking, false)
+                && cook.skills?.GetSkill(SkillDefOf.Cooking).TotallyDisabled != true
+                && !DefOfRefs.CookSpeed.Worker.IsDisabledFor(cook);
+        }
+
+        //检查配方技能和速度属性，避免低门槛配方让技能被禁用的角色开工。
+        private static bool CanPawnUseRecipe(Pawn cook, RecipeDef recipe)
+        {
+            return CanPawnCook(cook) && recipe != null
+                && (recipe.workSkill == null || cook.skills?.GetSkill(recipe.workSkill).TotallyDisabled != true)
+                && recipe.workSpeedStat?.Worker.IsDisabledFor(cook) != true
+                && recipe.PawnSatisfiesSkillRequirements(cook);
+        }
+
+        //判断厨师能否在工作台制作订单，同时核对工作禁用状态和配方技能门槛。
         public static bool CanPawnCookOrderAt(Pawn cook, Thing stove, RestaurantProductionRequest order)
         {
             if (!(stove is Building_WorkTable table) || table.Destroyed || !table.Spawned)
                 return false;
             RecipeDef recipe = GetRecipeForOrder(order, table);
-            return cook != null && recipe != null && recipe.PawnSatisfiesSkillRequirements(cook);
+            return CanPawnUseRecipe(cook, recipe);
         }
 
         //判断商店是否有当前可接单的厨师，职责是把岗位分配、人员状态、灶台和配方技能统一为菜单硬条件。
@@ -165,10 +183,11 @@ namespace RimSimRestaurantExtension.Tool
                 .ThenBy(slot => slot.filter.AllowedThingDefs.Count(def => AllowsIngredient(recipe, slot, def)));
         }
 
-        //计算订单制作时长，职责是按真实配方批次、厨师速度和工作台速度换算工作量。
+        //按真实配方计算制作时长；返回零表示不可开工，由任务结束并释放食材。
         public static int GetCookTicks(Pawn cook, Thing stove, RestaurantProductionRequest order)
         {
             RecipeDef recipe = GetRecipeForOrder(order, stove as Building_WorkTable);
+            if (!CanPawnUseRecipe(cook, recipe)) return 0;
             float work = recipe?.WorkAmountTotal(null) ?? 900f;
             int output = Mathf.Max(1, recipe?.products?.FirstOrDefault()?.count ?? 1);
             float batches = Mathf.Max(1, order?.mealCount ?? 1) / (float)output;

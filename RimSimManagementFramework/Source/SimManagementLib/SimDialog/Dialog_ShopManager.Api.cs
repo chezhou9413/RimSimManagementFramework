@@ -90,6 +90,7 @@ namespace SimManagementLib.SimDialog
             if (combo == null) return;
             if (curCombo != null && curCombo != combo)
                 EnsureComboHasName(curCombo);
+            RememberServiceView();
             curPageDefName = PageComboEdit;
             curCombo = combo;
             listScroll = Vector2.zero;
@@ -105,6 +106,7 @@ namespace SimManagementLib.SimDialog
             EnsureComboHasName(curCombo);
             ComboData newCombo = new ComboData();
             zoneCombos.Add(newCombo);
+            RememberServiceView();
             curPageDefName = PageComboEdit;
             curCombo = newCombo;
             listScroll = Vector2.zero;

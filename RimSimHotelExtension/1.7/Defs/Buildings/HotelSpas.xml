@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ThingDef Name="RSH_SpaBase" ParentName="BuildingBase" Abstract="True">
+    <thingClass>RimSimHotelExtension.Spa.Building_HotelSpa</thingClass>
+    <category>Building</category>
+    <designationCategory>SimManagementBuildings</designationCategory>
+    <drawerType>RealtimeOnly</drawerType>
+    <tickerType>Normal</tickerType>
+    <size>(6,4)</size>
+    <passability>Standable</passability>
+    <pathCost>30</pathCost>
+    <rotatable>true</rotatable>
+    <canOverlapZones>true</canOverlapZones>
+    <fillPercent>0.2</fillPercent>
+    <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
+    <placeWorkers><li>RimSimHotelExtension.Spa.PlaceWorker_HotelSpa</li></placeWorkers>
+    <researchPrerequisites><li>Electricity</li></researchPrerequisites>
+    <comps>
+      <li Class="CompProperties_Flickable" />
+      <li Class="CompProperties_Breakdownable" />
+      <li Class="SimManagementLib.SimThingComp.CompProperties_CashStorage"><maxWithdrawThreshold>50000</maxWithdrawThreshold><defaultWithdrawThreshold>1000</defaultWithdrawThreshold></li>
+    </comps>
+  </ThingDef>
+  <ThingDef ParentName="RSH_SpaBase">
+    <defName>RSH_WoodSpa</defName><label>wooden hot spring</label>
+    <description>A hot spring with four bathing spots. Place it inside a shop zone and provide apparel lockers so hotel guests and other customers can buy admission. Each customer needs an available locker.</description>
+    <graphicData><texPath>Things/Building/Hotel/WoodSpa/Assembled/WoodSpa</texPath><graphicClass>Graphic_Multi</graphicClass><shaderType>Cutout</shaderType><drawSize>(7.5,7.5)</drawSize></graphicData>
+    <costList><WoodLog>200</WoodLog><Steel>80</Steel><ComponentIndustrial>2</ComponentIndustrial></costList>
+    <statBases><MaxHitPoints>350</MaxHitPoints><WorkToBuild>9000</WorkToBuild><Flammability>0.7</Flammability><Beauty>12</Beauty></statBases>
+    <comps><li Class="CompProperties_Power"><compClass>CompPowerTrader</compClass><basePowerConsumption>350</basePowerConsumption></li></comps>
+    <modExtensions><li Class="RimSimHotelExtension.Spa.SpaProperties"><stone>false</stone><textureRoot>Things/Building/Hotel/WoodSpa</textureRoot></li></modExtensions>
+  </ThingDef>
+  <ThingDef ParentName="RSH_SpaBase">
+    <defName>RSH_StoneSpa</defName><label>stone hot spring</label>
+    <description>A hot spring with six bathing spots and longer bathing sessions. Completing a session provides more recreation and hotel satisfaction. Each customer needs an available locker.</description>
+    <graphicData><texPath>Things/Building/Hotel/StoneSpa/Assembled/StoneSpa</texPath><graphicClass>Graphic_Multi</graphicClass><shaderType>Cutout</shaderType><drawSize>(7.5,7.5)</drawSize></graphicData>
+    <stuffCategories><li>Stony</li></stuffCategories><costStuffCount>250</costStuffCount>
+    <costList><Steel>120</Steel><ComponentIndustrial>4</ComponentIndustrial></costList>
+    <statBases><MaxHitPoints>600</MaxHitPoints><WorkToBuild>15000</WorkToBuild><Flammability>0</Flammability><Beauty>18</Beauty></statBases>
+    <comps><li Class="CompProperties_Power"><compClass>CompPowerTrader</compClass><basePowerConsumption>650</basePowerConsumption></li></comps>
+    <modExtensions><li Class="RimSimHotelExtension.Spa.SpaProperties"><stone>true</stone><textureRoot>Things/Building/Hotel/StoneSpa</textureRoot></li></modExtensions>
+  </ThingDef>
+</Defs>

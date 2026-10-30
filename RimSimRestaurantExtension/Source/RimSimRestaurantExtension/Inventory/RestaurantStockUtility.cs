@@ -13,6 +13,9 @@ namespace RimSimRestaurantExtension.Inventory
     //解析厨房真实货源，职责是统一冰箱优先级、店内储存架和跨店预留查询。
     public static class RestaurantStockUtility
     {
+        //食材堆按数量共享，人数由实际可用数量约束；灶台仍单独预约。
+        internal const int MaxIngredientReservers = int.MaxValue;
+
         //取得本店餐厅货柜，职责是保留不同柜体的来源身份。
         public static IEnumerable<Building_RestaurantStorage> Cabinets(Zone_Shop shop)
         {
@@ -25,6 +28,12 @@ namespace RimSimRestaurantExtension.Inventory
         //检查实际取货路径，职责是支持容器前方和地面物品两种交互方式。
         public static bool Reachable(Pawn actor, Thing item, string ownKey = null)
         {
+            return Reachable(actor, item, ownKey, 1);
+        }
+
+        //按本单实际取料数量检查预约，允许不同厨师共享同一食材堆。
+        internal static bool Reachable(Pawn actor, Thing item, string ownKey, int count)
+        {
             if (item == null || item.Destroyed || item.IsBurning()
                 || item.TryGetComp<CompRottable>()?.Stage > RotStage.Fresh) return false;
             bool protectedStock = item.MapHeld?.GetComponent<MapComponent_InventoryReservations>().IsProtected(item) == true;
@@ -33,7 +42,7 @@ namespace RimSimRestaurantExtension.Inventory
             if (item.ParentHolder is Building_RestaurantStorage cabinet)
                 return cabinet.Spawned && actor.CanReach(cabinet.InventoryInteractionTarget, cabinet.InventoryInteractionEndMode, Danger.Some);
             return item.Spawned && (ownKey != null || protectedStock || !item.IsForbidden(actor))
-                && actor.CanReserveAndReach(item, PathEndMode.Touch, Danger.Some);
+                && actor.CanReserveAndReach(item, PathEndMode.Touch, Danger.Some, MaxIngredientReservers, count);
         }
 
         //按冰箱、后厨及距离排序实际物资，职责是不把商店全域地面当厨房库存。
@@ -60,7 +69,11 @@ namespace RimSimRestaurantExtension.Inventory
                 int left = need.countPerMeal;
                 foreach (Thing thing in Sources(shop, need.ThingDef, actor))
                 {
-                    int count = System.Math.Min(left, ledger.Available(thing));
+                    int available = ledger.Available(thing);
+                    if (actor != null && thing.Spawned)
+                        available = System.Math.Min(available,
+                            shop.Map.reservationManager.CanReserveStack(actor, thing, MaxIngredientReservers));
+                    int count = System.Math.Min(left, available);
                     if (count <= 0) continue;
                     result.Add(new ThingCount(thing, count));
                     left -= count;

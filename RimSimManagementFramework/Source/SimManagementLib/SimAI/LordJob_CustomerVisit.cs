@@ -106,6 +106,16 @@ namespace SimManagementLib.SimAI
             LordToil_ExitMap exitToil = new LordToil_ExitMap(LocomotionUrgency.Walk, canDig: false, interruptCurrentJob: true);
             graph.AddToil(exitToil);
 
+            LordToil_CustomerLongStay longStayToil = new LordToil_CustomerLongStay();
+            graph.AddToil(longStayToil);
+            Transition returnToStay = new Transition(checkoutToil, longStayToil);
+            returnToStay.AddSources(travelToil, browseToil);
+            returnToStay.AddTrigger(new Trigger_Memo("Customer_ReturnToLongStay"));
+            graph.AddTransition(returnToStay, highPriority: true);
+            Transition leaveStay = new Transition(longStayToil, travelToil);
+            leaveStay.AddTrigger(new Trigger_Memo("Customer_GoToNextShop"));
+            graph.AddTransition(leaveStay, highPriority: true);
+
             Transition arriveTransition = new Transition(travelToil, browseToil);
             arriveTransition.AddTrigger(new Trigger_Memo("TravelArrived"));
             graph.AddTransition(arriveTransition);

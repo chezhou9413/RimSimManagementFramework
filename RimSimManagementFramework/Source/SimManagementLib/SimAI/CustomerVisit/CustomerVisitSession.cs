@@ -19,6 +19,8 @@ namespace SimManagementLib.SimAI.CustomerVisit
     public partial class CustomerVisitSession : IExposable
     {
         internal int pawnId = -1;
+        internal bool foodOnly;
+        public bool FoodOnly => foodOnly;
         internal CustomerVisitStage stage = CustomerVisitStage.Arriving;
         internal int currentShopZoneId = -1;
         internal IntVec3 currentShopCell = IntVec3.Invalid;
@@ -70,6 +72,7 @@ namespace SimManagementLib.SimAI.CustomerVisit
         public void ExposeData()
         {
             Scribe_Values.Look(ref pawnId, "pawnId", -1);
+            Scribe_Values.Look(ref foodOnly, "foodOnly", false);
             Scribe_Values.Look(ref stage, "stage", CustomerVisitStage.Arriving);
             Scribe_Values.Look(ref currentShopZoneId, "currentShopZoneId", -1);
             Scribe_Values.Look(ref currentShopCell, "currentShopCell", IntVec3.Invalid);
@@ -134,6 +137,8 @@ namespace SimManagementLib.SimAI.CustomerVisit
 
             if (SimShopCustomerApi.HasCustomerVisitExtensions)
                 SimShopCustomerApi.NotifyCustomerVisitExtensionTick(BuildExtensionContext(visit, pawn, "Session Tick"));
+
+            if (stage == CustomerVisitStage.LongStay) return default(CustomerVisitTickResult);
 
             //动作和内置服务执行期间不能提前结账或离店，停滞和安全期限仍由可靠性巡检处理。
             if (SimShopCustomerApi.HasRunningCustomerActionOrder(pawn, currentShopZoneId)
@@ -295,6 +300,8 @@ namespace SimManagementLib.SimAI.CustomerVisit
         {
             if (visit == null || pawn?.Map == null) return false;
             ShoppingBehaviorProps behavior = visit.GetShoppingBehavior();
+            if (behavior.maxTotalVisitTicks > 0 && Find.TickManager.TicksGame - totalVisitStartTick >= behavior.maxTotalVisitTicks)
+                return false;
             Zone_Shop currentShop = GetCurrentShop(visit, pawn);
             if (currentShop == null) return false;
             if (behavior.maxShopsToVisit <= 1) return false;
@@ -320,8 +327,9 @@ namespace SimManagementLib.SimAI.CustomerVisit
         //返回顾客本次访问剩余预算。
         internal float GetRemainingTripBudget(LordJob_CustomerVisit visit, Pawn pawn)
         {
+            if (SimShopCustomerApi.HasLongStay(pawn)) return SimShopCustomerApi.GetAvailableFunds(pawn);
             int budget = visit.GetBudgetForPawn(pawnId);
-            return Mathf.Max(0f, budget - totalSpentAcrossShops);
+            return Mathf.Max(0f, budget - totalSpentAcrossShops - visit.GetAmountOwedForCheckout(pawnId));
         }
         //返回当前店最多浏览次数，负责为无效配置提供保守默认值。
         internal int GetBrowseLimitForVisit(LordJob_CustomerVisit visit)

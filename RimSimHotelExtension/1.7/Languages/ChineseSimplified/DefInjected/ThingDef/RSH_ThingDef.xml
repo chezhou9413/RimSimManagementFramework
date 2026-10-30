@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSH_SingleBed.label>单人旅馆床</RSH_SingleBed.label>
+  <RSH_SingleBed.description>提供给一名旅馆住客的固定床位。在旅馆客房页面登记后可出租，住客外出消费时仍保留其床位。</RSH_SingleBed.description>
+  <RSH_DoubleBed.label>双人旅馆床</RSH_DoubleBed.label>
+  <RSH_DoubleBed.description>按整床出租的双人床，可供一名住客独占或两名同行顾客共同入住。同行顾客分别消费，共同办理续住和退房。</RSH_DoubleBed.description>
+  <RSH_ServiceDesk.label>旅馆服务台</RSH_ServiceDesk.label>
+  <RSH_ServiceDesk.description>旅馆接待与现金保管设施。接待员在此办理入住、续住和退房。住宿预付款按晚转为收入，未开始的整晚可以退款。每家旅馆只使用一个主服务台。</RSH_ServiceDesk.description>
+  <RSH_Atm.label>取钱机</RSH_Atm.label>
+  <RSH_Atm.description>将住客有限旅行账户中的资金转入可消费余额。取款本金不属于营业收入，只有手续费计入机器所属商店。需要电力，每日额度刷新不会生成新的旅行资金。</RSH_Atm.description>
+  <RSH_Locker.label>衣物暂存柜</RSH_Locker.label>
+  <RSH_Locker.description>为一名泡温泉的顾客保管全部实际衣物。顾客结束或中断泡汤后取回；柜体被拆除或损毁时会释放里面的物品。</RSH_Locker.description>
+  <RSH_WoodSpa.label>木制温泉</RSH_WoodSpa.label>
+  <RSH_WoodSpa.description>提供四个固定池位的温泉。划入商店区域并配置暂存柜后，住客和散客均可购票泡汤。每名顾客需要一个空柜。</RSH_WoodSpa.description>
+  <RSH_StoneSpa.label>石制温泉</RSH_StoneSpa.label>
+  <RSH_StoneSpa.description>提供六个固定池位的温泉。使用时间更长，完整泡汤提供更多休闲和住宿满意度。每名顾客需要一个空柜。</RSH_StoneSpa.description>
+</LanguageData>

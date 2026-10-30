@@ -1,4 +1,5 @@
 using RimWorld;
+using SimManagementLib.Api;
 using SimManagementLib.SimDef;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimZone;
@@ -24,6 +25,7 @@ namespace RimSimRestaurantExtension.Debug
             cashierJobDef = DefDatabase<JobDef>.GetNamedSilentFail("Sim_ManCashRegister");
             failReason = "";
             if (cashierRole != null && chefRole != null && waiterRole != null && cashierJobDef != null
+                && DefDatabase<ShopStaffRoleDef>.GetNamedSilentFail("SimShopRole_Restocker") != null
                 && DefOfRefs.RSR_TakeRestaurantOrder != null && DefOfRefs.RSR_BringRestaurantMealToPass != null
                 && DefOfRefs.RSR_WorkGiver_TakeRestaurantOrder != null && DefOfRefs.RSR_WorkGiver_BringRestaurantMealToPass != null)
                 return true;
@@ -38,21 +40,21 @@ namespace RimSimRestaurantExtension.Debug
             JobDef cashierJobDef, out string failReason)
         {
             failReason = "";
-            Pawn cashier = SpawnStaffPawn(map, inner, register.InteractionCell, 0);
-            Pawn chef = SpawnStaffPawn(map, inner, stove.InteractionCell, ChefCookingLevel);
-            Pawn waiter = SpawnStaffPawn(map, inner, inner.CenterCell + IntVec3.South * 2, 0);
-            Pawn restocker = SpawnStaffPawn(map, inner, inner.CenterCell + IntVec3.West, 0);
+            var restockRole = DefDatabase<ShopStaffRoleDef>.GetNamed("SimShopRole_Restocker");
+            Pawn cashier = SpawnStaffPawn(map, inner, register.InteractionCell, cashierRole);
+            Pawn chef = SpawnStaffPawn(map, inner, stove.InteractionCell, chefRole, ChefCookingLevel);
+            Pawn waiter = SpawnStaffPawn(map, inner, inner.CenterCell + IntVec3.South * 2, waiterRole);
+            Pawn restocker = SpawnStaffPawn(map, inner, inner.CenterCell + IntVec3.West, restockRole);
             if (cashier == null || chef == null || waiter == null || restocker == null)
             {
                 failReason = "无法生成全部餐厅员工";
                 return false;
             }
 
-            shop.AddAssignedPawn(cashierRole.defName, cashier, cashierRole.maxAssignedPawns);
-            shop.AddAssignedPawn(chefRole.defName, chef, chefRole.maxAssignedPawns);
-            shop.AddAssignedPawn(waiterRole.defName, waiter, waiterRole.maxAssignedPawns);
-            var restockRole = DefDatabase<ShopStaffRoleDef>.GetNamed("SimShopRole_Restocker");
-            shop.AddAssignedPawn(restockRole.defName, restocker, restockRole.maxAssignedPawns);
+            AssignStaff(shop, cashier, cashierRole);
+            AssignStaff(shop, chef, chefRole);
+            AssignStaff(shop, waiter, waiterRole);
+            AssignStaff(shop, restocker, restockRole);
             Job cashierJob = JobMaker.MakeJob(cashierJobDef, register);
             if (!cashier.jobs.TryTakeOrderedJob(cashierJob, JobTag.MiscWork))
             {
@@ -62,28 +64,34 @@ namespace RimSimRestaurantExtension.Debug
             return true;
         }
 
-        //生成一名测试员工，职责是选择可站立位置并按岗位需要保证最低烹饪技能。
-        private static Pawn SpawnStaffPawn(Map map, CellRect inner, IntVec3 preferredCell, int cookingLevel)
+        //分配岗位并优先执行该岗位工作，使测试餐厅能立即接待顾客。
+        private static void AssignStaff(Zone_Shop shop, Pawn pawn, ShopStaffRoleDef role)
         {
-            Pawn pawn = null;
-            for (int attempt = 0; attempt < 20; attempt++)
-            {
-                Pawn candidate = PawnGenerator.GeneratePawn(PawnKindDefOf.Colonist, Faction.OfPlayer);
-                SkillRecord cooking = candidate.skills?.GetSkill(SkillDefOf.Cooking);
-                if (cookingLevel > 0 && (cooking == null || cooking.TotallyDisabled)) continue;
-                if (cookingLevel > 0)
-                    cooking.levelInt = Mathf.Max(cooking.levelInt, cookingLevel);
-                pawn = candidate;
-                break;
-            }
-            if (pawn == null) return null;
+            shop.AddAssignedPawn(role.defName, pawn, role.maxAssignedPawns);
+            if (role.requiredWorkType != null) pawn.workSettings.SetPriority(role.requiredWorkType, 1);
+        }
 
+        //通过原版生成校验筛选能承担岗位的员工，厨师保证默认菜单所需技能。
+        private static Pawn SpawnStaffPawn(Map map, CellRect inner, IntVec3 preferredCell,
+            ShopStaffRoleDef role, int cookingLevel = 0)
+        {
             IntVec3 spawnCell = preferredCell;
             if (!inner.Contains(spawnCell) || !spawnCell.Standable(map))
             {
                 if (!CellFinder.TryFindRandomCellNear(inner.CenterCell, map, 6,
                         cell => inner.Contains(cell) && cell.Standable(map), out spawnCell))
                     return null;
+            }
+            var request = new PawnGenerationRequest(PawnKindDefOf.Colonist, Faction.OfPlayer,
+                PawnGenerationContext.NonPlayer, forceGenerateNewPawn: true, allowDead: false, allowDowned: false,
+                canGeneratePawnRelations: false, allowAddictions: false, fixedBiologicalAge: 28f, fixedChronologicalAge: 28f,
+                validatorPreGear: candidate => SimShopStaffApi.EvaluateEligibility(candidate, role).Eligible);
+            Pawn pawn = PawnGenerator.GeneratePawn(request);
+            if (pawn == null || !SimShopStaffApi.EvaluateEligibility(pawn, role).Eligible) return null;
+            if (cookingLevel > 0)
+            {
+                SkillRecord cooking = pawn.skills.GetSkill(SkillDefOf.Cooking);
+                cooking.levelInt = Mathf.Max(cooking.levelInt, cookingLevel);
             }
             return GenSpawn.Spawn(pawn, spawnCell, map) as Pawn;
         }

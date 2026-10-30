@@ -48,7 +48,7 @@ namespace SimManagementLib.SimAI
                 if (!checkVisitState)
                     continue;
 
-                CustomerNeedUtility.StabilizeCustomerNeeds(pawn);
+                if (!SimShopCustomerApi.HasLongStay(pawn)) CustomerNeedUtility.StabilizeCustomerNeeds(pawn);
                 CustomerVisitSession session = GetOrCreateSession(pawn);
                 CustomerVisitTickResult result = session != null ? session.Tick(this, pawn) : default(CustomerVisitTickResult);
                 ApplySessionTickResult(pawn, result);
@@ -83,6 +83,7 @@ namespace SimManagementLib.SimAI
                 lord?.ReceiveMemo("Customer_GoToNextShop");
             if (result.requestCheckoutCompletedMemo)
             {
+                if (TryReturnPawnToLongStay(pawn)) return;
                 forceLeaveAfterCheckout.Add(pawn.thingIDNumber);
                 checkoutState.MarkPawnReadyForCheckout(pawn.thingIDNumber);
                 CheckAllCheckoutsDone();
@@ -116,8 +117,17 @@ namespace SimManagementLib.SimAI
             if (shopZone != null)
                 ShopDataUtility.ReturnCartItemsToShop(shopZone, purchasedItems);
 
-            if (GetAmountOwedForCheckout(pawnId) > 0f)
-                CustomerReviewSnapshotBuilder.TryEnqueueReview(pawn, this, shopZone, finance?.GetPendingBillLines(pawn), 0, reason);
+            float amountOwed = GetAmountOwedForCheckout(pawnId);
+            if (amountOwed > 0f)
+            {
+                var lines = finance?.GetPendingBillLines(pawn) ?? new List<FinanceLineItem>();
+                SimShopCheckoutApi.NotifyCheckoutFailed(new ShopCheckoutContext
+                {
+                    customer = pawn, shop = shopZone, internalVisit = this, billLines = lines,
+                    amountOwed = amountOwed, paidSilver = 0, success = false, failReason = reason ?? "访问已结束"
+                });
+                CustomerReviewSnapshotBuilder.TryEnqueueReview(pawn, this, shopZone, lines, 0, reason);
+            }
 
             finance?.ClearPendingBill(pawn);
             ResolveServiceOrdersOnCheckoutFailure(pawnId);

@@ -39,8 +39,8 @@ namespace RimSimRestaurantExtension.Tool
             return false;
         }
 
-        //按槽分配库存，禁止混料的槽必须由一种足量食材满足。
-        private static bool TryAllocate(RecipeDef recipe, Dictionary<ThingDef, int> inventory,
+        //按槽分配库存，供默认配料和一键配料共用；禁止混料的槽必须由一种足量食材满足。
+        internal static bool TryAllocate(RecipeDef recipe, Dictionary<ThingDef, int> inventory,
             out List<RestaurantIngredientRequirement> ingredients, out string message)
         {
             ingredients = new List<RestaurantIngredientRequirement>();

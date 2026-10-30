@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSH.Ui.OperationsTab>Hotels</RSH.Ui.OperationsTab>
+  <RSH.Ui.ChangeRoomPrices>Change room prices</RSH.Ui.ChangeRoomPrices>
+  <RSH.Ui.NightlyPriceDraft>Silver/night (draft)</RSH.Ui.NightlyPriceDraft>
+  <RSH.Ui.BedPriceScope>This price applies to all beds of the same type in this shop. Double beds are priced per whole bed per night. Confirm, then save all settings in the main window. Existing bookings keep their agreed prices.</RSH.Ui.BedPriceScope>
+  <RSH.Ui.WithdrawalSummary>Total principal {PRINCIPAL} silver · Fee revenue {FEES} silver</RSH.Ui.WithdrawalSummary>
+  <RSH.Ui.TabOverview>Hotel operations</RSH.Ui.TabOverview>
+  <RSH.Ui.TabRooms>Rooms</RSH.Ui.TabRooms>
+  <RSH.Ui.TabGuests>Guests</RSH.Ui.TabGuests>
+  <RSH.Ui.TabSpa>Hot springs</RSH.Ui.TabSpa>
+  <RSH.Ui.TabAtm>ATMs</RSH.Ui.TabAtm>
+  <RSH.Ui.ApplyDraft>Apply to draft</RSH.Ui.ApplyDraft>
+  <RSH.Ui.Cancel>Cancel</RSH.Ui.Cancel>
+  <RSH.Ui.Close>Close</RSH.Ui.Close>
+  <RSH.Ui.Details>Details</RSH.Ui.Details>
+  <RSH.Ui.Edit>Edit</RSH.Ui.Edit>
+  <RSH.Ui.DetailHint>View current status and records. Locate takes effect immediately.</RSH.Ui.DetailHint>
+  <RSH.Ui.EditHint>Confirm to return to the list. Use Save all settings in the main window to apply.</RSH.Ui.EditHint>
+  <RSH.Ui.SortName>Sort: name</RSH.Ui.SortName>
+  <RSH.Ui.UnregisteredFirst>Sort: unregistered first</RSH.Ui.UnregisteredFirst>
+  <RSH.Ui.VacantFirst>Sort: vacant first</RSH.Ui.VacantFirst>
+  <RSH.Ui.UnavailableFirst>Sort: unavailable first</RSH.Ui.UnavailableFirst>
+  <RSH.Ui.BusiestFirst>Sort: busiest first</RSH.Ui.BusiestFirst>
+  <RSH.Ui.LowSatisfactionFirst>Sort: lowest satisfaction</RSH.Ui.LowSatisfactionFirst>
+  <RSH.Ui.CheckoutFirst>Sort: earliest checkout</RSH.Ui.CheckoutFirst>
+  <RSH.Ui.Open>Open</RSH.Ui.Open>
+  <RSH.Ui.Paused>Paused</RSH.Ui.Paused>
+  <RSH.Ui.Unavailable>Unavailable</RSH.Ui.Unavailable>
+  <RSH.Ui.Bed>Bed</RSH.Ui.Bed>
+  <RSH.Ui.Rental>Rental</RSH.Ui.Rental>
+  <RSH.Ui.Registered>Registered</RSH.Ui.Registered>
+  <RSH.Ui.Unregistered>Unregistered</RSH.Ui.Unregistered>
+  <RSH.Ui.Facility>Facility</RSH.Ui.Facility>
+  <RSH.Ui.Status>Status</RSH.Ui.Status>
+  <RSH.Ui.SlotsQueue>Used / capacity · queue</RSH.Ui.SlotsQueue>
+  <RSH.Ui.Price>Price (draft)</RSH.Ui.Price>
+  <RSH.Ui.Funds>Wallet / account</RSH.Ui.Funds>
+  <RSH.Ui.Satisfaction>Satisfaction</RSH.Ui.Satisfaction>
+  <RSH.Ui.RoomSettings>Reception &amp; prices</RSH.Ui.RoomSettings>
+  <RSH.Ui.SpaSettings>Admissions &amp; prices</RSH.Ui.SpaSettings>
+  <RSH.Ui.WithdrawalHistory>Withdrawal history</RSH.Ui.WithdrawalHistory>
+  <RSH.Ui.RoomSummary>Beds {TOTAL} · Rental {RENTED} · Occupied {OCCUPIED} · {STATE}\nDraft prices: single {SINGLE}/night · double {DOUBLE}/bed/night</RSH.Ui.RoomSummary>
+  <RSH.Ui.RoomPricingHint>Saved settings apply to new bookings. Companions split the double-bed price; existing bookings keep their prices. Pausing admissions preserves current stays.</RSH.Ui.RoomPricingHint>
+  <RSH.Ui.SpaSummary>Bathing slots {USED}/{TOTAL} · Waiting {QUEUE} · Free lockers {FREE}/{LOCKERS}</RSH.Ui.SpaSummary>
+  <RSH.Ui.AtmSummary>Available ATMs {READY}/{TOTAL} · Draft fee {FEE} silver · Daily limit {LIMIT} silver/guest</RSH.Ui.AtmSummary>
+  <RSH.Ui.GuestSummary>Bookings {BOOKINGS} · Guests {GUESTS} · Average satisfaction {SATISFACTION}</RSH.Ui.GuestSummary>
+</LanguageData>

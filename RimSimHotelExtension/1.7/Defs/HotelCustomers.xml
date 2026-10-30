@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <SimManagementLib.SimDef.CustomerKindDef>
+    <defName>RSH_Traveller</defName><label>hotel traveler</label>
+    <pawnKindDefs><li>Villager</li><li>Town_Trader</li><li>Town_Guard</li></pawnKindDefs>
+    <baseMtbDays>0.5</baseMtbDays><budgetRange>400~1400</budgetRange><queuePatienceRange>2500~5000</queuePatienceRange><activeHourRange>10~22</activeHourRange>
+    <arrivalCurve><points><li>(0,0)</li><li>(9.9,0)</li><li>(10,1)</li><li>(15,1.2)</li><li>(21.9,0.5)</li><li>(22,0)</li><li>(24,0)</li></points></arrivalCurve>
+    <shoppingBehavior><browseTimeRange>300~600</browseTimeRange><maxShelvesToVisit>4</maxShelvesToVisit><maxConsumptionActionsPerShop>3</maxConsumptionActionsPerShop><maxShopsToVisit>1</maxShopsToVisit><queuePatience>2500</queuePatience><maxShopVisitTicks>12000</maxShopVisitTicks><maxTotalVisitTicks>18000</maxTotalVisitTicks></shoppingBehavior>
+  </SimManagementLib.SimDef.CustomerKindDef>
+</Defs>

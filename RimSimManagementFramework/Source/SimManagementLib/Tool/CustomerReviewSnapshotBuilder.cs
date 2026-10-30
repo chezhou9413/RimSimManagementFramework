@@ -628,12 +628,10 @@ namespace SimManagementLib.Tool
             return effects.Count > 0 ? string.Join("；", effects) : "";
         }
 
-        /// <summary>
-        /// 构造异种摘要，负责传入异种名称和简短说明。
-        /// </summary>
+        //构造异种摘要，缺少异种定义时保留其余顾客评价信息。
         private static string BuildXenotypeSummary(Pawn pawn)
         {
-            if (pawn.genes == null)
+            if (pawn.genes?.Xenotype == null)
                 return "无异种数据";
 
             string label = pawn.genes.XenotypeLabelCap;

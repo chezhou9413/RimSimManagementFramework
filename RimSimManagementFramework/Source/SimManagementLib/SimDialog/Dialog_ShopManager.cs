@@ -28,8 +28,8 @@ namespace SimManagementLib.SimDialog
         private const float ColGap = 8f;
         private const float RowPad = 8f;
         private const float HeaderH = 28f;
-        private const float BottomH = 52f;
-        private const float SearchBarH = 36f;
+        private static float BottomH => Mathf.Max(52f, ShopUiVisualUtility.ControlHeight() + 20f);
+        private static float SearchBarH => ShopUiVisualUtility.ControlHeight() + 8f;
         private const float ScrW = 16f;
 
         private static readonly Color CAccent = new Color(0.25f, 0.65f, 0.85f, 1f);
@@ -114,24 +114,7 @@ namespace SimManagementLib.SimDialog
                 .ToList();
             selectedStorageThingId = storages.FirstOrDefault()?.thingIDNumber ?? -1;
 
-            foreach (Thing provider in ShopServiceUtility.GetServiceProvidersInZone(shopZone))
-            {
-                ThingComp_ServiceProvider comp = ShopServiceUtility.GetProviderComp(provider);
-                if (comp == null) continue;
-                comp.EnsureDefaultSlots();
-                serviceProviders.Add(provider);
-                draftServiceData[provider.thingIDNumber] = comp.serviceSlots
-                    .Where(s => s != null)
-                    .Select(s => new ServiceSlotData
-                    {
-                        serviceDefName = s.serviceDefName,
-                        enabled = s.enabled,
-                        priceOverrideEnabled = s.priceOverrideEnabled,
-                        priceOverride = s.priceOverride,
-                        maxSimultaneousUsers = s.maxSimultaneousUsers
-                    })
-                    .ToList();
-            }
+            RefreshServiceProviders();
 
             uiContext.Window = this;
             uiContext.PageSelector = SwitchPage;
@@ -231,31 +214,42 @@ namespace SimManagementLib.SimDialog
             Widgets.DrawBoxSolid(dividerRect, CDivider);
 
             GUI.BeginGroup(mainRect);
-            Rect innerRect = mainRect.AtZero();
-            DrawSearchBar(new Rect(innerRect.x, innerRect.y, innerRect.width, SearchBarH));
-            Rect panelRect = new Rect(innerRect.x, SearchBarH + 4f, innerRect.width, innerRect.height - SearchBarH - 4f);
-
-            DrawCurrentUiPage(panelRect);
-
-            GUI.EndGroup();
+            try
+            {
+                Rect innerRect = mainRect.AtZero();
+                DrawSearchBar(new Rect(innerRect.x, innerRect.y, Mathf.Max(1f, innerRect.width - 30f), SearchBarH));
+                uiContext.SearchText = searchQuery;
+                Rect panelRect = new Rect(innerRect.x, SearchBarH + 4f, innerRect.width, innerRect.height - SearchBarH - 4f);
+                DrawCurrentUiPage(panelRect);
+            }
+            finally { GUI.EndGroup(); }
 
             priceJustCalculated = false;
             DrawBottomBar(bottomRect);
         }
-        //确保店铺管理页面缓存有效，负责从 Def/API 拉取当前可见页。
+        //低频刷新设施可见性；游戏暂停时也能响应新增页面和外部刷新请求。
         private void EnsureUiPages()
         {
-            if (!uiPages.NullOrEmpty() && !SimShopUiApi.ConsumeRefreshRequest())
-                return;
-
-            uiPages.Clear();
+            bool refresh = SimShopUiApi.ConsumeRefreshRequest() || uiContext.RefreshRequested;
+            long now = System.Environment.TickCount64;
+            if (!refresh && now < nextPageVisibilityCheck) return;
+            nextPageVisibilityCheck = now + 1000;
+            uiContext.ClearRefreshRequest();
             uiContext.Window = this;
-            uiPages.AddRange(SimShopUiApi.GetPages(ShopUiPageScope.ShopManager, uiContext));
-            if (uiPages.Count == 0)
-                return;
-
+            RefreshServiceProviders();
+            List<ShopUiPageDef> pages = SimShopUiApi.GetPages(ShopUiPageScope.ShopManager, uiContext);
+            if (refresh)
+                foreach (ShopUiPageDef page in pages)
+                    SimShopUiApi.SafeInvoke(page, uiContext, "OnRefresh", worker => worker?.OnRefresh(uiContext));
+            if (uiPages.SequenceEqual(pages)) return;
+            RememberServiceView();
+            bool wasService = GetCurrentUiPage()?.isServicePage == true;
+            uiPages.Clear();
+            uiPages.AddRange(pages);
+            lastVisibleServiceTab = "";
+            if (uiPages.Count == 0) return;
             if (!uiPages.Any(page => page.defName == curPageDefName))
-                curPageDefName = uiPages[0].defName;
+                curPageDefName = (wasService ? GetServicePages().FirstOrDefault() : null)?.defName ?? uiPages[0].defName;
             NotifyPageOpened(GetCurrentUiPage());
         }
         //返回当前选中的 UI 页面 Def。
@@ -273,32 +267,53 @@ namespace SimManagementLib.SimDialog
                 return;
             }
 
-            SimShopUiApi.SafeInvoke(page, uiContext, "DrawPage", worker => worker?.DrawPage(rect, uiContext));
-            if (uiContext.LastException != null)
-                ShopUiLayoutUtility.DrawErrorState(rect, SimTranslation.T("RSMF.ShopUi.Error.PageDrawFailed"), uiContext.LastException.Message);
+            if (page.isServicePage)
+            {
+                rect = DrawServiceTabs(rect);
+                page = GetCurrentUiPage();
+            }
+            if (rect.height <= 0f) return;
+            GUI.BeginGroup(rect);
+            try
+            {
+                Rect body = rect.AtZero();
+                SimShopUiApi.SafeInvoke(page, uiContext, "DrawPage", worker => worker?.DrawPage(body, uiContext));
+                if (uiContext.LastException != null)
+                    ShopUiLayoutUtility.DrawErrorState(body, SimTranslation.T("RSMF.ShopUi.Error.PageDrawFailed"), uiContext.LastException.Message);
+            }
+            finally { GUI.EndGroup(); }
         }
         //切换到指定页面，负责触发打开生命周期并重置列表滚动。
         private void SwitchPage(string defName)
         {
-            if (string.IsNullOrEmpty(defName))
+            if (string.IsNullOrEmpty(defName) || curPageDefName == defName || !uiPages.Any(page => page.defName == defName))
                 return;
 
+            RememberServiceView();
             curPageDefName = defName;
             if (defName != PageComboEdit)
                 curCombo = null;
             listScroll = Vector2.zero;
             NotifyPageOpened(GetCurrentUiPage());
         }
-        //通知页面已打开，负责触发 Def Worker 的打开生命周期。
+        //服务首次进入才创建草稿，再次进入恢复浏览位置并保留未提交内容。
         private void NotifyPageOpened(ShopUiPageDef page)
         {
             if (page == null) return;
+            if (page.isServicePage) RestoreServiceView(page);
+            uiContext.CurrentPageDefName = page.defName;
+            uiContext.SearchText = searchQuery;
+            uiContext.PageDef = page;
+            uiContext.RecordException(null);
+            if (page.isServicePage && openedServicePages.ContainsKey(page.defName)) return;
             SimShopUiApi.SafeInvoke(page, uiContext, "OnOpen", worker => worker?.OnOpen(uiContext));
+            if (page.isServicePage && uiContext.LastException == null) openedServicePages[page.defName] = page;
         }
         //关闭窗口前清理 UI API 上下文和异步请求。
         public override void PreClose()
         {
             CancelComboAiNameRequest();
+            if (!closingAfterSave) NotifyAllPagesCancel();
             base.PreClose();
             SimShopUiApi.ClearContext(uiContext);
         }

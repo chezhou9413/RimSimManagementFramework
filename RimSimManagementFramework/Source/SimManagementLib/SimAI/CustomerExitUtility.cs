@@ -50,6 +50,9 @@ namespace SimManagementLib.SimAI
                 { customerThingId = pawn.thingIDNumber, includeTerminalOrders = false }))
                 if (order.IsActiveState) SimShopCustomerApi.CancelActionOrder(order, reason ?? "顾客结束访问", true);
 
+            //外部活动先返还托管款和物品，再解除长期钱包与住宿。
+            SimShopCustomerApi.NotifyLongStayInterrupted(pawn, reason);
+
             Lord oldLord = map.lordManager?.LordOf(pawn);
             oldLord?.Notify_PawnLost(pawn, PawnLostCondition.LeftVoluntarily);
             return pawn.Spawned && pawn.Map == map;

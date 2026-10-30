@@ -5,6 +5,7 @@ using RimSimRestaurantExtension.Inventory;
 using RimSimRestaurantExtension.Tool;
 using RimWorld;
 using SimManagementLib.SimMapComp;
+using SimManagementLib.Tool;
 using Verse;
 using Verse.AI;
 
@@ -43,6 +44,8 @@ namespace RimSimRestaurantExtension.Conveyor.Stocking
         {
             AddFinishAction(FinishTask);
             this.FailOn(() => task == null || task.destination?.Spawned != true || task.destination.reservedBy != pawn);
+            this.FailOn(() => !task.cleaning && !task.produced && task.stove != null
+                && !RestaurantCookingUtility.CanPawnCook(pawn));
             Toil upload = Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.Touch);
             Toil cleanup = ToilMaker.MakeToil("SushiClearPlate");
             cleanup.defaultCompleteMode = ToilCompleteMode.Instant;
@@ -62,6 +65,7 @@ namespace RimSimRestaurantExtension.Conveyor.Stocking
                 job.SetTarget(TargetIndex.C, task.stove);
                 rotateToFace = TargetIndex.C;
                 ticksLeftThisToil = RestaurantCookingUtility.GetCookTicks(pawn, task.stove, task);
+                if (ticksLeftThisToil <= 0) Fail(SimTranslation.T("RSR.Issue.CookingUnavailable"));
             };
             //离开烹饪阶段时恢复上架目标，覆盖制作完成和任务中断两种路径。
             cook.AddFinishAction(() => rotateToFace = TargetIndex.A);
@@ -69,10 +73,16 @@ namespace RimSimRestaurantExtension.Conveyor.Stocking
             {
                 if (!RestaurantCookingUtility.CanCookOrderAt(task.stove, task))
                 { Fail("补餐灶台已不可用"); return; }
+                if (!RestaurantCookingUtility.CanPawnCookOrderAt(pawn, task.stove, task))
+                { Fail(SimTranslation.T("RSR.Issue.CookingUnavailable")); return; }
                 RestaurantCookingUtility.NotifyUsedThisTick(task.stove);
                 if (task.recipe.workSkill != null) pawn.skills?.Learn(task.recipe.workSkill, 0.1f * task.recipe.workSkillLearnFactor);
             };
-            cook.WithProgressBar(TargetIndex.C, () => 1f - ticksLeftThisToil / (float)RestaurantCookingUtility.GetCookTicks(pawn, task.stove, task));
+            cook.WithProgressBar(TargetIndex.C, () =>
+            {
+                int totalTicks = RestaurantCookingUtility.GetCookTicks(pawn, task.stove, task);
+                return totalTicks > 0 ? 1f - ticksLeftThisToil / (float)totalTicks : 0f;
+            });
             yield return cook;
             Toil produce = ToilMaker.MakeToil("SushiProduce");
             produce.defaultCompleteMode = ToilCompleteMode.Instant;

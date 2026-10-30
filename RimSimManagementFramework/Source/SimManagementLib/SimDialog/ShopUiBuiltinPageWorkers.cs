@@ -2,6 +2,7 @@ using SimManagementLib.Api;
 using SimManagementLib.Pojo;
 using SimManagementLib.Tool;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace SimManagementLib.SimDialog
@@ -189,6 +190,13 @@ namespace SimManagementLib.SimDialog
     /// </summary>
     public class ShopPageWorker_Services : ShopManagerPageWorker
     {
+        //只有提供通用付费服务的设施才需要此配置页，停业不隐藏配置。
+        public override bool CanShow(ShopUiContext context)
+        {
+            return base.CanShow(context) && context is ShopManagerUiContext shopContext
+                && shopContext.ServiceProviders.Any(provider => provider != null && provider.Spawned);
+        }
+
         /// <summary>
         /// 返回服务页保存提示，负责说明服务槽位修改需要提交。
         /// </summary>

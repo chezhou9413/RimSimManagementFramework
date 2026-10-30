@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <RimSimHotelExtension.Settings.HotelTuningDef>
+    <defName>RSH_DefaultTuning</defName>
+    <minNights>2</minNights><maxNights>7</maxNights><maxTotalNights>10</maxTotalNights>
+    <nightWeights><li>30</li><li>25</li><li>20</li><li>12</li><li>8</li><li>5</li></nightWeights>
+    <companionChance>0.25</companionChance>
+    <receptionOpenHour>10</receptionOpenHour><receptionCloseHour>22</receptionCloseHour>
+    <nightStartHour>18</nightStartHour><checkoutHour>10</checkoutHour>
+    <minRenewalNights>1</minRenewalNights><maxRenewalNights>2</maxRenewalNights><renewalSatisfaction>65</renewalSatisfaction>
+    <renewalLeadTicks>60000</renewalLeadTicks>
+    <initialSatisfaction>70</initialSatisfaction><restedSatisfactionGain>2</restedSatisfactionGain>
+    <sleepRestGainRequired>0.2</sleepRestGainRequired>
+    <missingFoodSatisfactionLoss>10</missingFoodSatisfactionLoss><missingBedSatisfactionLoss>10</missingBedSatisfactionLoss>
+    <sleepStartHour>22</sleepStartHour><wakeHour>7</wakeHour>
+    <roomSatisfactionByStage><li>-4</li><li>-3</li><li>-2</li><li>-1</li><li>0</li><li>1</li><li>2</li><li>3</li><li>4</li><li>4</li></roomSatisfactionByStage>
+    <singlePrice>55</singlePrice><doublePrice>90</doublePrice>
+    <woodSpaPrice>30</woodSpaPrice><stoneSpaPrice>45</stoneSpaPrice>
+    <foodBudgetPerDay>70</foodBudgetPerDay><initialPocketMoney>150</initialPocketMoney><departureReserve>20</departureReserve>
+    <atmFee>2</atmFee><atmDailyLimit>250</atmDailyLimit><atmTargetWallet>300</atmTargetWallet><atmUseTicks>450</atmUseTicks>
+    <receptionTicks>600</receptionTicks><returnReceptionTicks>300</returnReceptionTicks><receptionTimeout>5000</receptionTimeout>
+    <activityInterval>2500</activityInterval><shoppingVisitTicks>5000</shoppingVisitTicks>
+    <woodSpaTicks>3000</woodSpaTicks><stoneSpaTicks>3750</stoneSpaTicks>
+    <spaCooldownTicks>30000</spaCooldownTicks><spaQueuePatienceTicks>2500</spaQueuePatienceTicks>
+    <woodSpaCapacity>4</woodSpaCapacity><stoneSpaCapacity>6</stoneSpaCapacity>
+    <woodSpaJoyGain>0.35</woodSpaJoyGain><stoneSpaJoyGain>0.45</stoneSpaJoyGain>
+    <woodSpaSatisfactionGain>3</woodSpaSatisfactionGain><stoneSpaSatisfactionGain>5</stoneSpaSatisfactionGain>
+    <hungryThreshold>0.45</hungryThreshold><urgentHungerThreshold>0.15</urgentHungerThreshold><sleepThreshold>0.3</sleepThreshold>
+  </RimSimHotelExtension.Settings.HotelTuningDef>
+</Defs>

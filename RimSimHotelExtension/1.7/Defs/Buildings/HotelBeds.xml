@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ThingDef Name="RSH_BedBase" ParentName="BasicBedBase" Abstract="True">
+    <thingClass>RimSimHotelExtension.Buildings.Building_HotelBed</thingClass>
+    <designationCategory>SimManagementBuildings</designationCategory>
+    <canOverlapZones>true</canOverlapZones>
+    <stuffCategories Inherit="False"><li>Woody</li><li>Metallic</li></stuffCategories>
+    <costList><Cloth>30</Cloth></costList>
+    <statBases><MaxHitPoints>180</MaxHitPoints><Beauty>3</Beauty><Comfort>0.8</Comfort><BedRestEffectiveness>1</BedRestEffectiveness><Mass>35</Mass></statBases>
+    <building><paintable>true</paintable></building>
+    <uiOrder>470</uiOrder>
+  </ThingDef>
+  <ThingDef ParentName="RSH_BedBase">
+    <defName>RSH_SingleBed</defName>
+    <label>single hotel bed</label>
+    <description>A reserved bed for one hotel guest. Register it on the hotel rooms page to make it available for booking. The guest keeps the bed while visiting other shops.</description>
+    <size>(1,2)</size><costStuffCount>90</costStuffCount>
+    <graphicData><texPath>Things/Building/Hotel/SingleBed/SingleBed</texPath><graphicClass>Graphic_Multi</graphicClass><shaderType>CutoutComplex</shaderType><drawSize>(3,3)</drawSize></graphicData>
+    <statBases><WorkToBuild>5000</WorkToBuild></statBases>
+  </ThingDef>
+  <ThingDef ParentName="RSH_BedBase">
+    <defName>RSH_DoubleBed</defName>
+    <label>double hotel bed</label>
+    <description>A double bed rented as a whole, for one guest or two traveling companions. Companions shop independently but renew their stay and check out together.</description>
+    <size>(2,2)</size><costStuffCount>150</costStuffCount>
+    <costList><Cloth>50</Cloth></costList>
+    <graphicData><texPath>Things/Building/Hotel/DoubleBed/DoubleBed</texPath><graphicClass>Graphic_Multi</graphicClass><shaderType>CutoutComplex</shaderType><drawSize>(3,3)</drawSize></graphicData>
+    <statBases><WorkToBuild>8000</WorkToBuild><Mass>55</Mass></statBases>
+  </ThingDef>
+</Defs>

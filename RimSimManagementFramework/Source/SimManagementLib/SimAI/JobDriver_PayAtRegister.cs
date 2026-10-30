@@ -220,9 +220,15 @@ namespace SimManagementLib.SimAI
                     SimShopCheckoutApi.NotifyBeforeCheckoutCommit(checkoutContext);
                     silverAmount = SimShopCheckoutApi.ModifyPaidSilver(checkoutContext, checkoutContext.paidSilver);
                     checkoutContext.paidSilver = silverAmount;
+                    SimApiResult debit = SimShopCustomerApi.DebitFunds(pawn, silverAmount, false);
+                    if (!debit.success)
+                    {
+                        lordJob.FailCheckoutAndLeave(pawn, debit.failReason);
+                        checkoutCommitted = true;
+                        return;
+                    }
                     Register.DepositSilver(silverAmount);
                     finance?.CommitCheckout(pawn, Register, silverAmount);
-                    lordJob.RecordShopPayment(pawn, silverAmount);
                     lordJob.ResolveServiceOrdersOnCheckoutPaid(pawn, shopZone);
                     CustomerPurchaseDeliveryUtility.DeliverPurchasedItems(pawn, purchasedItems);
                     lordJob.RecordDeliveredItems(pawnId, purchasedItems);

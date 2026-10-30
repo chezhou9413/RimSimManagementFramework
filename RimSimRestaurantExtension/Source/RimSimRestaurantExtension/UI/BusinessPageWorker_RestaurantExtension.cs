@@ -16,13 +16,21 @@ namespace RimSimRestaurantExtension.UI
     {
         private const int PageSize = 30;
 
+        //设施存在或仍有待处理用餐会话时显示分类，停业和员工缺失不隐藏问题。
+        public override bool CanShow(ShopUiContext context) => base.CanShow(context)
+            && context is BusinessManagerUiContext business && business.GetAllShops().Any(IsOverviewShop);
+
+        //设施拆除后仍保留未完成会话的管理入口。
+        private static bool IsOverviewShop(Zone_Shop shop) => RestaurantBusinessUiUtility.IsRestaurantShop(shop)
+            || RestaurantOrderUtility.OrderManager?.Sessions.Any(session => session.shopId == shop.ID && !session.IsTerminal) == true;
+
         //绘制总览页面，职责是使用窗口状态、框架搜索和统一列表样式。
         public override void DrawBusinessPage(Rect rect, BusinessManagerUiContext context)
         {
             var state = context.GetOrCreatePageState("RimSimRestaurant.Overview", () => new RestaurantOverviewState());
             using (new RestaurantGuiScope())
             {
-                var shops = context.GetAllShops().Where(RestaurantBusinessUiUtility.IsRestaurantShop).ToList();
+                var shops = context.GetAllShops().Where(IsOverviewShop).ToList();
                 var ids = new HashSet<int>(shops.Select(shop => shop.ID));
                 var all = (RestaurantOrderUtility.OrderManager?.Sessions ?? new List<RestaurantDiningSession>())
                     .Where(session => ids.Contains(session.shopId)).ToList();

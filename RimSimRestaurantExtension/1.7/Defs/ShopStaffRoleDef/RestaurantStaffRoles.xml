@@ -2,6 +2,7 @@
 <Defs>
   <SimManagementLib.SimDef.ShopStaffRoleDef>
     <defName>RSR_Role_RestaurantChef</defName>
+    <workerClass>RimSimRestaurantExtension.Staff.ShopStaffRoleWorker_RestaurantChef</workerClass>
     <label>餐厅厨师</label>
     <description>优先取用本店冰箱的预留食材，不足时使用店内储存架。制作后将整单餐品送入接待与出餐台，已出餐订单只恢复运输。</description>
     <maxAssignedPawns>10</maxAssignedPawns>

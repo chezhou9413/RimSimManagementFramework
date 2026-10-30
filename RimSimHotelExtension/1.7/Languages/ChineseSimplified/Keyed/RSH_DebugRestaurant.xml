@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSH.Debug.RestaurantApiMissing>已启用餐厅扩展，但找不到完整餐厅调试入口。请将餐厅和旅馆更新到配套版本。</RSH.Debug.RestaurantApiMissing>
+  <RSH.Debug.RestaurantPreflightFailed>餐厅生成前检查未通过：{REASON}</RSH.Debug.RestaurantPreflightFailed>
+  <RSH.Debug.RestaurantCreationFailed>旅馆、食品店和服装店已生成，但餐厅生成未完成：{REASON}</RSH.Debug.RestaurantCreationFailed>
+  <RSH.Debug.RestaurantName>调试餐厅</RSH.Debug.RestaurantName>
+  <RSH.Debug.RestaurantCreated>已额外生成营业中的完整餐厅，包含菜单、食材、燃料、餐桌座位，以及收银员、厨师、服务员和补货员。</RSH.Debug.RestaurantCreated>
+  <RSH.Debug.RequiredArea>需要地图内完整的 {WIDTH}×{HEIGHT} 用地。</RSH.Debug.RequiredArea>
+</LanguageData>

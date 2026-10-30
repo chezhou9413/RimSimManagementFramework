@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSH_HotelOverview.label>旅馆运营</RSH_HotelOverview.label>
+  <RSH_HotelRooms.label>旅馆客房</RSH_HotelRooms.label>
+  <RSH_HotelGuests.label>旅馆住客</RSH_HotelGuests.label>
+  <RSH_HotelSpa.label>温泉管理</RSH_HotelSpa.label>
+  <RSH_HotelAtm.label>取钱机管理</RSH_HotelAtm.label>
+</LanguageData>

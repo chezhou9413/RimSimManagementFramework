@@ -14,7 +14,7 @@ using Verse.AI;
 namespace SimManagementLib.Api
 {
     //提供顾客系统对外扩展入口，负责查询顾客类型、构建动作上下文和选择外部顾客动作。
-    public static class SimShopCustomerApi
+    public static partial class SimShopCustomerApi
     {
         private static readonly List<CustomerVisitExtension> VisitExtensions = new List<CustomerVisitExtension>();
 
@@ -190,19 +190,17 @@ namespace SimManagementLib.Api
             job = null;
             if (context == null) return false;
             if (TryResumeCustomerActionJob(context, out job)) return true;
-            if (context.remainingBudget <= 0f) return false;
+            if (context.remainingBudget < 0f) return false;
 
             List<CustomerActionCandidate> candidates = new List<CustomerActionCandidate>();
             foreach (CustomerActionDef actionDef in DefDatabase<CustomerActionDef>.AllDefsListForReading.Where(def => def != null))
             {
                 CustomerActionContext localContext = CloneContextForAction(context, actionDef);
                 CustomerActionWorker worker = actionDef.Worker;
-                if (worker == null) continue;
-                if (!worker.CanRun(localContext, out _)) continue;
+                if (!TryGetCustomerActionWeight(localContext, worker, out float weight)) continue;
                 bool persistent = worker.ShouldCreateOrder(localContext);
                 Job candidateJob = persistent ? null : worker.MakeJob(localContext);
                 if (!persistent && candidateJob == null) continue;
-                float weight = Mathf.Max(0.01f, worker.GetSelectionWeight(localContext));
                 candidates.Add(new CustomerActionCandidate(actionDef, localContext, candidateJob, weight, persistent));
             }
 
@@ -224,6 +222,15 @@ namespace SimManagementLib.Api
             }
 
             return false;
+        }
+
+        //动作发现与实际选择共用可执行条件，零权重表示本次不参与选择。
+        private static bool TryGetCustomerActionWeight(CustomerActionContext context, CustomerActionWorker worker, out float weight)
+        {
+            weight = 0f;
+            if (worker == null || !worker.CanRun(context, out _)) return false;
+            weight = worker.GetSelectionWeight(context);
+            return weight > 0f && !float.IsInfinity(weight) && !float.IsNaN(weight);
         }
 
         //通知一个顾客动作已经完成，负责给外部 JobDriver 提供统一完成入口。

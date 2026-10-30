@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSH.Ui.OperationsTab>旅馆</RSH.Ui.OperationsTab>
+  <RSH.Ui.ChangeRoomPrices>修改房价</RSH.Ui.ChangeRoomPrices>
+  <RSH.Ui.NightlyPriceDraft>银／晚（草稿）</RSH.Ui.NightlyPriceDraft>
+  <RSH.Ui.BedPriceScope>此报价适用于本店所有同类型床位；双人床按整床每晚计价。确认后仍需在主窗口保存全部设置，已有住宿合同不改价。</RSH.Ui.BedPriceScope>
+  <RSH.Ui.WithdrawalSummary>累计取款本金 {PRINCIPAL} 银 · 手续费收入 {FEES} 银</RSH.Ui.WithdrawalSummary>
+  <RSH.Ui.TabOverview>旅馆运营</RSH.Ui.TabOverview>
+  <RSH.Ui.TabRooms>客房</RSH.Ui.TabRooms>
+  <RSH.Ui.TabGuests>住客</RSH.Ui.TabGuests>
+  <RSH.Ui.TabSpa>温泉</RSH.Ui.TabSpa>
+  <RSH.Ui.TabAtm>取钱机</RSH.Ui.TabAtm>
+  <RSH.Ui.ApplyDraft>确认修改</RSH.Ui.ApplyDraft>
+  <RSH.Ui.Cancel>取消</RSH.Ui.Cancel>
+  <RSH.Ui.Close>关闭</RSH.Ui.Close>
+  <RSH.Ui.Details>详情</RSH.Ui.Details>
+  <RSH.Ui.Edit>编辑</RSH.Ui.Edit>
+  <RSH.Ui.DetailHint>查看实时状态与记录。定位操作立即执行。</RSH.Ui.DetailHint>
+  <RSH.Ui.EditHint>确认后返回列表；在主窗口保存全部设置后生效。</RSH.Ui.EditHint>
+  <RSH.Ui.SortName>排序：名称</RSH.Ui.SortName>
+  <RSH.Ui.UnregisteredFirst>排序：未登记优先</RSH.Ui.UnregisteredFirst>
+  <RSH.Ui.VacantFirst>排序：空床优先</RSH.Ui.VacantFirst>
+  <RSH.Ui.UnavailableFirst>排序：异常优先</RSH.Ui.UnavailableFirst>
+  <RSH.Ui.BusiestFirst>排序：占用最多</RSH.Ui.BusiestFirst>
+  <RSH.Ui.LowSatisfactionFirst>排序：满意度最低</RSH.Ui.LowSatisfactionFirst>
+  <RSH.Ui.CheckoutFirst>排序：最早退房</RSH.Ui.CheckoutFirst>
+  <RSH.Ui.Open>接待中</RSH.Ui.Open>
+  <RSH.Ui.Paused>已暂停</RSH.Ui.Paused>
+  <RSH.Ui.Unavailable>不可用</RSH.Ui.Unavailable>
+  <RSH.Ui.Bed>床位</RSH.Ui.Bed>
+  <RSH.Ui.Rental>出租</RSH.Ui.Rental>
+  <RSH.Ui.Registered>已登记</RSH.Ui.Registered>
+  <RSH.Ui.Unregistered>未登记</RSH.Ui.Unregistered>
+  <RSH.Ui.Facility>设施</RSH.Ui.Facility>
+  <RSH.Ui.Status>状态</RSH.Ui.Status>
+  <RSH.Ui.SlotsQueue>占用 / 容量 · 排队</RSH.Ui.SlotsQueue>
+  <RSH.Ui.Price>票价（草稿）</RSH.Ui.Price>
+  <RSH.Ui.Funds>钱包 / 账户</RSH.Ui.Funds>
+  <RSH.Ui.Satisfaction>满意度</RSH.Ui.Satisfaction>
+  <RSH.Ui.RoomSettings>接待与房价</RSH.Ui.RoomSettings>
+  <RSH.Ui.SpaSettings>接待与票价</RSH.Ui.SpaSettings>
+  <RSH.Ui.WithdrawalHistory>取款记录</RSH.Ui.WithdrawalHistory>
+  <RSH.Ui.RoomSummary>床位 {TOTAL} · 出租 {RENTED} · 占用 {OCCUPIED} · {STATE}\n草稿报价：单人 {SINGLE}／晚 · 双人 {DOUBLE}／整床／晚</RSH.Ui.RoomSummary>
+  <RSH.Ui.RoomPricingHint>设置保存后生效，仅影响新报价。双人同行各付一半；已成交合同保留原价。暂停接待不影响在住顾客。</RSH.Ui.RoomPricingHint>
+  <RSH.Ui.SpaSummary>池位 {USED}/{TOTAL} · 排队 {QUEUE} · 空闲衣柜 {FREE}/{LOCKERS}</RSH.Ui.SpaSummary>
+  <RSH.Ui.AtmSummary>可用取钱机 {READY}/{TOTAL} · 草稿手续费 {FEE} 银／次 · 每人每日限额 {LIMIT} 银</RSH.Ui.AtmSummary>
+  <RSH.Ui.GuestSummary>住宿合同 {BOOKINGS} · 住客 {GUESTS} · 平均满意度 {SATISFACTION}</RSH.Ui.GuestSummary>
+</LanguageData>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.ShopManager.ServicePages.SaveAll>Save all settings</RSMF.ShopManager.ServicePages.SaveAll>
+  <RSMF.ShopManager.ServicePages.SaveTip>Switching services preserves drafts. Save applies all settings in this window; canceling or closing discards unsubmitted changes.</RSMF.ShopManager.ServicePages.SaveTip>
+  <RSMF.ShopManager.ServicePages.SaveFailed>Some pages could not be saved. The window and drafts remain open. Check the error log; other pages may already have been applied.</RSMF.ShopManager.ServicePages.SaveFailed>
+</LanguageData>

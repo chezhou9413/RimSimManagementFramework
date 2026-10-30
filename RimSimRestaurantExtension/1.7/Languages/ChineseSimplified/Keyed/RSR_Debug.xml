@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSR.Debug.BeerStorageSpace>备用啤酒需要 {REQUIRED} 个空储存格，后厨仅剩 {AVAILABLE} 个；未覆盖已有食材。</RSR.Debug.BeerStorageSpace>
+  <RSR.Debug.MissingTemplateDef>缺少完整餐厅模板需要的定义：{DEF}</RSR.Debug.MissingTemplateDef>
+  <RSR.Debug.BusinessCheckFailed>餐厅生成后未通过营业检查：{REASON}</RSR.Debug.BusinessCheckFailed>
+</LanguageData>

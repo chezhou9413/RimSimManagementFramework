@@ -1,14 +1,26 @@
-using System.Linq;
-using RimSimRestaurantExtension.Buildings;
-using RimSimRestaurantExtension.Inventory;
 using RimWorld;
-using SimManagementLib.SimZone;
+using SimManagementLib.Tool;
 using Verse;
 namespace RimSimRestaurantExtension.Debug
 {
     //布置样板店的补充家具与电力，职责是提供全部餐厅家具及酒水配送的调试入口。
     internal static class CompleteRestaurantFurnitureUtility
     {
+        //在生成商圈前核对模板使用的家具、供电和货源定义。
+        public static bool TryValidate(out string reason)
+        {
+            foreach (string name in new[] { "RSR_BarCounter", "RSR_BarStool", "RSR_BoothSofa",
+                "RSR_DiningTableSquare", "RSR_WallWineCabinet", "RSR_WallCabinet",
+                "RSR_KitchenStorageCabinet", "WoodFiredGenerator", "PowerConduit", "ShelfSmall", "Beer" })
+            {
+                if (DefDatabase<ThingDef>.GetNamedSilentFail(name) != null) continue;
+                reason = SimTranslation.T("RSR.Debug.MissingTemplateDef", name.Named("DEF"));
+                return false;
+            }
+            reason = "";
+            return true;
+        }
+
         //摆放吧台、双人卡座和三种商品柜，职责是覆盖常规桌面与墙体依附布局。
         public static void Spawn(Map map, IntVec3 center)
         {
@@ -30,8 +42,13 @@ namespace RimSimRestaurantExtension.Debug
             var generator = SpawnNamed(map, "WoodFiredGenerator", center + new IntVec3(0, 0, 5), Rot4.North);
             var fuel = generator.TryGetComp<CompRefuelable>();
             fuel.Refuel(fuel.Props.fuelCapacity);
+            CellRect generatorCells = generator.OccupiedRect();
             for (int x = 0; x <= 4; x++)
-                SpawnNamed(map, "PowerConduit", center + new IntVec3(x, 0, 5), Rot4.North);
+            {
+                IntVec3 cell = center + new IntVec3(x, 0, 5);
+                //发电机占地本身导电，同格叠放电线会重复登记电网节点。
+                if (!generatorCells.Contains(cell)) SpawnNamed(map, "PowerConduit", cell, Rot4.North);
+            }
         }
 
         //生成具有适当材质的样板家具，职责是复用样板店的受控建筑放置。
