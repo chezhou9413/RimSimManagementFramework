@@ -138,7 +138,9 @@ namespace SimManagementLib.SimAI.CustomerVisit
             if (SimShopCustomerApi.HasCustomerVisitExtensions)
                 SimShopCustomerApi.NotifyCustomerVisitExtensionTick(BuildExtensionContext(visit, pawn, "Session Tick"));
 
-            if (stage == CustomerVisitStage.LongStay) return default(CustomerVisitTickResult);
+            //离店后的移动由可靠性巡检处理，保留付款或失败原因，不再重复判定空逛并清账。
+            if (stage == CustomerVisitStage.LongStay || stage == CustomerVisitStage.Leaving)
+                return default(CustomerVisitTickResult);
 
             //动作和内置服务执行期间不能提前结账或离店，停滞和安全期限仍由可靠性巡检处理。
             if (SimShopCustomerApi.HasRunningCustomerActionOrder(pawn, currentShopZoneId)
@@ -598,6 +600,7 @@ namespace SimManagementLib.SimAI.CustomerVisit
         private string ExplainNextDecision(LordJob_CustomerVisit visit, Pawn pawn, Zone_Shop shop)
         {
             if (IsMovementUnsafe(pawn, out string safety)) return safety;
+            if (stage == CustomerVisitStage.Leaving) return "正在离开地图，监测移动进展";
             if (stage == CustomerVisitStage.WaitingCheckout) return "等待 Lord 切入结账阶段";
             if (stage == CustomerVisitStage.PostCheckout && visit.NeedsPostCheckoutCompletion(pawnId)) return "等待购后行为完成";
             if (stage == CustomerVisitStage.Browsing && shop == null) return "没有当前商店，下一次 Tick 会离店";

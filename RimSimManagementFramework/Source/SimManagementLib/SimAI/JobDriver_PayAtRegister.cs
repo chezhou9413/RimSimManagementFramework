@@ -35,6 +35,7 @@ namespace SimManagementLib.SimAI
         private int totalWaitTicks;
         private int maxQueueWaitTicks = DefaultMaxQueueWaitTicks;
         private int serviceTicksRequired = ServiceTicks;
+        private int serviceTicksRemaining;
         private bool cachedServiceCanProgress;
         private bool cachedRegisterManned;
         private int continuousUnmannedWaitTicks;
@@ -42,10 +43,23 @@ namespace SimManagementLib.SimAI
 
         private CustomerCheckoutQueueRegistry QueueRegistry => pawn?.Map?.GetComponent<CustomerArrivalManager>()?.CheckoutQueue;
 
+        //登记结账票据，允许多位顾客在同一收银台排队。
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
             //顾客不独占收银台建筑本体，地图级票据负责保证幂等顺序。
             return Register != null && QueueRegistry?.Acquire(pawn, Register) != null;
+        }
+        //保存排队和实际服务进度，读档后继续同一笔结账。
+        public override void ExposeData()
+        {
+            base.ExposeData();
+            Scribe_Values.Look(ref abortedByTimeout, "abortedByTimeout");
+            Scribe_Values.Look(ref totalWaitTicks, "totalWaitTicks");
+            Scribe_Values.Look(ref maxQueueWaitTicks, "maxQueueWaitTicks", DefaultMaxQueueWaitTicks);
+            Scribe_Values.Look(ref serviceTicksRequired, "serviceTicksRequired", ServiceTicks);
+            Scribe_Values.Look(ref serviceTicksRemaining, "serviceTicksRemaining");
+            Scribe_Values.Look(ref continuousUnmannedWaitTicks, "continuousUnmannedWaitTicks");
+            Scribe_Values.Look(ref checkoutCommitted, "checkoutCommitted");
         }
         //构建顾客从排队到付款完成的 Toil 序列。
         protected override IEnumerable<Toil> MakeNewToils()
@@ -130,7 +144,7 @@ namespace SimManagementLib.SimAI
             {
                 float cashierSpeed = GetCashierServiceSpeed();
                 serviceTicksRequired = Mathf.Max(60, Mathf.RoundToInt(ServiceTicks / Mathf.Max(0.2f, cashierSpeed)));
-                ticksLeftThisToil = serviceTicksRequired;
+                serviceTicksRemaining = serviceTicksRequired;
                 cachedServiceCanProgress = false;
                 CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.CheckoutServiceStart);
             };
@@ -141,7 +155,7 @@ namespace SimManagementLib.SimAI
                 if (pawn.IsHashIntervalTick(FacingUpdateIntervalTicks))
                     FaceCashierOrRegister();
                 if (pawn.IsHashIntervalTick(ProgressUpdateIntervalTicks))
-                    ShopProgressBarUtility.Report(pawn, 1f - ticksLeftThisToil / (float)Mathf.Max(1, serviceTicksRequired));
+                    ShopProgressBarUtility.Report(pawn, 1f - serviceTicksRemaining / (float)Mathf.Max(1, serviceTicksRequired));
 
                 LordJob_CustomerVisit lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
                 if (lordJob == null)
@@ -173,8 +187,9 @@ namespace SimManagementLib.SimAI
                 }
                 if (!cachedServiceCanProgress) return;
 
-                ticksLeftThisToil--;
-                if (ticksLeftThisToil <= 0)
+                //原版每 tick 都会递减 ticksLeftThisToil；独立计时只累计实际得到的收银服务。
+                serviceTicksRemaining--;
+                if (serviceTicksRemaining <= 0)
                 {
                     ReadyForNextToil();
                 }
@@ -199,6 +214,7 @@ namespace SimManagementLib.SimAI
 
                 if (abortedByTimeout)
                 {
+                    checkoutCommitted = true;
                     ShopCheckoutContext timeoutContext = BuildCheckoutContext(lordJob, shopZone, finance, pawnId, purchasedItems, 0f, new List<FinanceLineItem>(), 0, true, false, "等太久没轮到收银，离店前没有付款，商品已放回店里");
                     SimShopCheckoutApi.NotifyCheckoutFailed(timeoutContext);
                     CustomerReviewSnapshotBuilder.TryEnqueueReview(pawn, lordJob, shopZone, timeoutContext.billLines, 0, timeoutContext.failReason);
@@ -206,7 +222,6 @@ namespace SimManagementLib.SimAI
                     lordJob.GetOrCreateSession(pawn)?.NotifyCheckoutFailed(lordJob, pawn, timeoutContext.failReason);
                     analytics?.RecordCheckoutResult(shopZone, totalWaitTicks, maxQueueWaitTicks, 0, budget, success: false, timeout: true);
                     lordJob.CheckAllCheckoutsDone();
-                    checkoutCommitted = true;
                     return;
                 }
 
@@ -223,12 +238,14 @@ namespace SimManagementLib.SimAI
                     SimApiResult debit = SimShopCustomerApi.DebitFunds(pawn, silverAmount, false);
                     if (!debit.success)
                     {
-                        lordJob.FailCheckoutAndLeave(pawn, debit.failReason);
                         checkoutCommitted = true;
+                        lordJob.FailCheckoutAndLeave(pawn, debit.failReason);
                         return;
                     }
                     Register.DepositSilver(silverAmount);
                     finance?.CommitCheckout(pawn, Register, silverAmount);
+                    //离店切换会同步中断当前工作，已收款的任务不能再执行失败退货。
+                    checkoutCommitted = true;
                     lordJob.ResolveServiceOrdersOnCheckoutPaid(pawn, shopZone);
                     CustomerPurchaseDeliveryUtility.DeliverPurchasedItems(pawn, purchasedItems);
                     lordJob.RecordDeliveredItems(pawnId, purchasedItems);
@@ -250,6 +267,7 @@ namespace SimManagementLib.SimAI
                     SimShopCheckoutApi.NotifyBuildCheckoutLines(checkoutContext);
                     SimShopCheckoutApi.NotifyBeforeCheckoutCommit(checkoutContext);
                     finance?.ClearPendingBill(pawn);
+                    checkoutCommitted = true;
                     lordJob.ResolveServiceOrdersOnCheckoutPaid(pawn, shopZone);
                     CustomerPurchaseDeliveryUtility.DeliverPurchasedItems(pawn, purchasedItems);
                     lordJob.RecordDeliveredItems(pawnId, purchasedItems);
@@ -271,7 +289,6 @@ namespace SimManagementLib.SimAI
                 }
 
                 lordJob.CheckAllCheckoutsDone();
-                checkoutCommitted = true;
             };
             yield return finalize;
         }
