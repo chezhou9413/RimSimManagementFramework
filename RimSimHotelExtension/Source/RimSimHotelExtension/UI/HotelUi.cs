@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using RimSimHotelExtension.Buildings;
+using RimWorld;
 using RimSimHotelExtension.GameComp;
 using RimSimHotelExtension.Tool;
 using SimManagementLib.Api;
@@ -26,7 +26,7 @@ namespace RimSimHotelExtension.UI
 
         public static float Line => ShopUiVisualUtility.ControlHeight();
 
-        //服务台和旅馆床构成住宿配置入口；未结合同在设施失效后仍可查看。
+        //服务台和可出租床构成住宿配置入口；未结合同在设施失效后仍可查看。
         public static bool HasHotel(ShopUiContext context)
         {
             var shop = (context as ShopManagerUiContext)?.Shop;
@@ -34,7 +34,7 @@ namespace RimSimHotelExtension.UI
             HotelMapComponent manager = HotelMapComponent.For(shop.Map);
             return manager.Stays.Any(stay => !stay.completed && stay.shopZoneId == shop.ID)
                 || (manager.DeskFor(shop) != null && shop.Map.listerBuildings.allBuildingsColonist
-                    .OfType<Building_HotelBed>().Any(bed => shop.Cells.Contains(bed.Position)));
+                    .OfType<Building_Bed>().Any(bed => HotelMapComponent.SupportsRentalBed(bed) && shop.Cells.Contains(bed.Position)));
         }
 
         //说明按可用宽度完整换行，标题沿用框架字体。

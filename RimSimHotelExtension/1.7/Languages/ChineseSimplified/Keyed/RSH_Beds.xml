@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSH.Bed.ForGuests>旅客专属</RSH.Bed.ForGuests>
+  <RSH.Bed.NormalUse>普通用途</RSH.Bed.NormalUse>
+  <RSH.Bed.UseDescription>选择这张床的用途。选择“旅客专属”会立即把床登记到所在旅馆，不必再打开客房页面保存。选择普通用途可取消出租；已有住客或预订时，需要等退房后才能更改。</RSH.Bed.UseDescription>
+  <RSH.Bed.CannotRegister>{BED}暂时不能登记出租：{REASON}</RSH.Bed.CannotRegister>
+  <RSH.Bed.Unavailable>请先建好或安装好这张床，并确认它属于你的殖民地。</RSH.Bed.Unavailable>
+  <RSH.Bed.NeedsShop>这张床还不在商店区域内。请先把客房划入旅馆所在的商店区域。</RSH.Bed.NeedsShop>
+  <RSH.Bed.NeedsDesk>这张床所在的商店还没有旅馆服务台。请在同一商店区域内建好服务台，再登记出租。</RSH.Bed.NeedsDesk>
+  <RSH.Bed.IsMedical>这张床目前是医疗床。请先关闭医疗用途，再登记出租。</RSH.Bed.IsMedical>
+  <RSH.Bed.IsPrisoner>这张床目前供囚犯使用。请先切回普通用途，再登记出租。</RSH.Bed.IsPrisoner>
+  <RSH.Bed.IsSlave>这张床目前供奴隶使用。请先切回普通用途，再登记出租。</RSH.Bed.IsSlave>
+  <RSH.Bed.IsBurning>这张床正在燃烧。请先灭火，再登记出租。</RSH.Bed.IsBurning>
+  <RSH.Bed.HasOwner>这张床已经分配给了其他人。请先解除床主分配，再登记出租。</RSH.Bed.HasOwner>
+  <RSH.Bed.Occupied>现在有人躺在这张床上。请等床空出来后再登记出租。</RSH.Bed.Occupied>
+  <RSH.Bed.Booked>这张床已有住客或预订。请等住客退房后再取消出租或更改用途。</RSH.Bed.Booked>
+  <RSH.Bed.GuestOnly>这张床是旅客专属，由旅馆入住时分配。要给殖民者使用，请先切回普通用途。</RSH.Bed.GuestOnly>
+</LanguageData>

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using RimSimHotelExtension.Buildings;
+using RimWorld;
 using Verse;
 
 namespace RimSimHotelExtension.Models
@@ -10,7 +10,7 @@ namespace RimSimHotelExtension.Models
     {
         public int id;
         public int shopZoneId;
-        public Building_HotelBed bed;
+        public Building_Bed bed;
         public List<HotelGuestState> guests = new List<HotelGuestState>();
         public int startTick;
         public int receptionServiceTicksAtStart;

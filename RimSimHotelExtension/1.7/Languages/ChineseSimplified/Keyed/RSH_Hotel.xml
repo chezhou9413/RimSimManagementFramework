@@ -19,7 +19,6 @@
   <RSH.Text.ApparelItems> 件衣物</RSH.Text.ApparelItems>
   <RSH.Text.ApparelLockers>衣物暂存柜</RSH.Text.ApparelLockers>
   <RSH.Text.AProductShelfIsOutsideItsShopZone>商品货柜不在商店区域内。</RSH.Text.AProductShelfIsOutsideItsShopZone>
-  <RSH.Text.ARentalBedIsOutsideTheHotelZone>出租床不在旅馆区域内。</RSH.Text.ARentalBedIsOutsideTheHotelZone>
   <RSH.Text.ARequiredProductIsMissingFromTheCurrent>当前商品目录缺少可售商品：</RSH.Text.ARequiredProductIsMissingFromTheCurrent>
   <RSH.Text.ATMs>取钱机管理</RSH.Text.ATMs>
   <RSH.Text.ATMStatus>取钱机状态</RSH.Text.ATMStatus>
@@ -97,7 +96,7 @@
   <RSH.Text.NoMatchingApparelLockersInThisZone>此区域内没有符合搜索的衣物暂存柜。</RSH.Text.NoMatchingApparelLockersInThisZone>
   <RSH.Text.NoMatchingATMsInThisZone>此区域内没有符合搜索的取钱机。</RSH.Text.NoMatchingATMsInThisZone>
   <RSH.Text.NoMatchingGuests>没有符合搜索的住客。</RSH.Text.NoMatchingGuests>
-  <RSH.Text.NoMatchingHotelBedsInThisShopZone>此商店区域内没有符合搜索的旅馆床。</RSH.Text.NoMatchingHotelBedsInThisShopZone>
+  <RSH.Text.NoMatchingHotelBedsInThisShopZone>此商店区域内没有符合搜索的床位。</RSH.Text.NoMatchingHotelBedsInThisShopZone>
   <RSH.Text.NoMatchingHotelsCreateAShopZoneBuild>尚无符合搜索的旅馆。请划定商店区域、放置服务台，并在客房管理中登记出租床。</RSH.Text.NoMatchingHotelsCreateAShopZoneBuild>
   <RSH.Text.NoMatchingHotSpringsInThisZone>此区域内没有符合搜索的温泉。</RSH.Text.NoMatchingHotSpringsInThisZone>
   <RSH.Text.NoMatchingWithdrawalRecords>没有符合搜索的取款记录。</RSH.Text.NoMatchingWithdrawalRecords>
@@ -171,7 +170,6 @@
   <RSH.Text.TheSpaCannotOverlapABuildingOrIts>温泉池内不能叠放建筑或施工预约：</RSH.Text.TheSpaCannotOverlapABuildingOrIts>
   <RSH.Text.TheSpaNeedsAnApparelLocker>温泉缺少衣物暂存柜</RSH.Text.TheSpaNeedsAnApparelLocker>
   <RSH.Text.TheStaffBedIsUnavailable>普通员工床不可用。</RSH.Text.TheStaffBedIsUnavailable>
-  <RSH.Text.ThisBedIsRentedToAGuest>旅馆床位已出租</RSH.Text.ThisBedIsRentedToAGuest>
   <RSH.Text.ThisBedIsReservedByABookingUnregister>此床已被合同锁定，退房后可取消登记。</RSH.Text.ThisBedIsReservedByABookingUnregister>
   <RSH.Text.TimedOutWaitingForAPoolSlotOr>等待池位或衣柜超时</RSH.Text.TimedOutWaitingForAPoolSlotOr>
   <RSH.Text.TodaySArrivalsDepartures>今日入住／退房人数</RSH.Text.TodaySArrivalsDepartures>

@@ -4,7 +4,6 @@ using RimSimHotelExtension.Buildings;
 using RimSimHotelExtension.Models;
 using RimSimHotelExtension.Settings;
 using RimSimHotelExtension.Tool;
-using SimManagementLib.Api;
 using SimManagementLib.SimZone;
 using Verse;
 using RimWorld;
@@ -54,19 +53,10 @@ namespace RimSimHotelExtension.GameComp
         public Building_HotelDesk DeskFor(Zone_Shop shop) => map.listerBuildings.allBuildingsColonist
             .OfType<Building_HotelDesk>().FirstOrDefault(b => b.Spawned && shop != null && shop.Cells.Contains(b.Position));
 
-        //登记床位时确保一张床仅属于一家旅馆。
-        public void RegisterBed(Zone_Shop shop, Building_HotelBed bed, bool register)
-        {
-            if (shop == null || bed == null || bed.Map != map || (register && !shop.Cells.Contains(bed.Position))) return;
-            if (stays.Any(s => !s.completed && s.bed == bed)) return;
-            foreach (HotelShopSettings item in settings) item.registeredBeds.Remove(bed);
-            if (register) SettingsFor(shop).registeredBeds.Add(bed);
-        }
-
         //返回已登记且没有入住和预订占用的床位。
-        public IEnumerable<Building_HotelBed> AvailableBeds(Zone_Shop shop)
+        public IEnumerable<Building_Bed> AvailableBeds(Zone_Shop shop)
         {
-            return SettingsFor(shop).registeredBeds.Where(b => b != null && b.Spawned && b.Map == map
+            return SettingsFor(shop).registeredBeds.Where(b => SupportsRentalBed(b) && b.Spawned && b.Map == map
                 && shop.Cells.Contains(b.Position) && !b.Medical && !b.ForPrisoners && !b.ForSlaves && !b.IsBurning()
                 && b.OwnersForReading.Count == 0 && !arrivalBeds.Contains(b.thingIDNumber)
                 && !stays.Any(s => !s.completed && s.bed == b));

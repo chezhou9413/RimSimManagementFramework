@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
-using RimSimHotelExtension.Buildings;
 using RimSimHotelExtension.Models;
 using RimSimHotelExtension.Services;
 using RimSimHotelExtension.Settings;
@@ -26,7 +25,7 @@ namespace RimSimHotelExtension.GameComp
             if (pair && !AvailableBeds(shop).Any(b => b.SleepingSlotsCount >= 2)) pair = false;
             var beds = AvailableBeds(shop).Where(b => !pair || b.SleepingSlotsCount >= 2).ToList();
             if (beds.Count == 0) return null;
-            Building_HotelBed bed = pair ? beds.RandomElement() : beds.OrderBy(b => b.SleepingSlotsCount).First();
+            Building_Bed bed = pair ? beds.RandomElement() : beds.OrderBy(b => b.SleepingSlotsCount).First();
             arrivalBeds.Add(bed.thingIDNumber);
             return new CustomerArrivalReservation { token = bed.thingIDNumber.ToString(), count = pair ? 2 : 1 };
         }
@@ -42,7 +41,7 @@ namespace RimSimHotelExtension.GameComp
         {
             CancelArrival(reservation);
             if (!int.TryParse(reservation.token, out int id)) return;
-            Building_HotelBed bed = AvailableBeds(shop).FirstOrDefault(b => b.thingIDNumber == id);
+            Building_Bed bed = AvailableBeds(shop).FirstOrDefault(b => b.thingIDNumber == id);
             if (bed != null) TryCreateStay(shop, bed, customers);
         }
 
@@ -51,7 +50,7 @@ namespace RimSimHotelExtension.GameComp
         {
             if (FindStay(pawn) != null) return true;
             if (!GetIssue(shop).NullOrEmpty()) return false;
-            Building_HotelBed bed = AffordableBedFor(pawn, shop, SimShopCustomerApi.GetRemainingBudget(pawn, shop));
+            Building_Bed bed = AffordableBedFor(pawn, shop, SimShopCustomerApi.GetRemainingBudget(pawn, shop));
             return bed != null && TryCreateStay(shop, bed, new List<Pawn> { pawn });
         }
 
@@ -60,7 +59,7 @@ namespace RimSimHotelExtension.GameComp
             => AffordableBedFor(pawn, shop, availableBudget) != null;
 
         //单人入住优先单床，也允许以整床价独占可负担的双床。
-        private Building_HotelBed AffordableBedFor(Pawn pawn, Zone_Shop shop, float availableBudget)
+        private Building_Bed AffordableBedFor(Pawn pawn, Zone_Shop shop, float availableBudget)
         {
             HotelTuningDef t = HotelTuningDef.Current;
             HotelShopSettings config = SettingsFor(shop);
@@ -72,7 +71,7 @@ namespace RimSimHotelExtension.GameComp
         }
 
         //根据已锁定的整床报价和每个人真实预算建立待接待合同。
-        private bool TryCreateStay(Zone_Shop shop, Building_HotelBed bed, List<Pawn> customers)
+        private bool TryCreateStay(Zone_Shop shop, Building_Bed bed, List<Pawn> customers)
         {
             if (customers.Count == 0 || customers.Count > bed.SleepingSlotsCount
                 || customers.Any(p => p?.ownership == null || FindStay(p) != null

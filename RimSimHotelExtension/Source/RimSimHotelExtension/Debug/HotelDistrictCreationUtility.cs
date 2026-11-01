@@ -56,10 +56,10 @@ namespace RimSimHotelExtension.Debug
                 Spawn(map, origin, "RSH_Locker", 14 + 2 * i, 22);
             }
 
-            var guestBeds = new List<Building_HotelBed>();
+            var guestBeds = new List<Building_Bed>();
             for (int i = 0; i < 4; i++)
             {
-                guestBeds.Add((Building_HotelBed)Spawn(map, origin, i < 2 ? "RSH_SingleBed" : "RSH_DoubleBed", 3 + i * 6, 26));
+                guestBeds.Add((Building_Bed)Spawn(map, origin, i < 2 ? "RSH_SingleBed" : "RSH_DoubleBed", 3 + i * 6, 26));
                 Spawn(map, origin, "StandingLamp", 1 + i * 6, 26);
                 Spawn(map, origin, "Heater", 5 + i * 6, 24);
             }

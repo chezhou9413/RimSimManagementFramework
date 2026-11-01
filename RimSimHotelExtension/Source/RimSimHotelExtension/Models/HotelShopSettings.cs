@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using RimSimHotelExtension.Buildings;
+using RimWorld;
 using Verse;
 
 namespace RimSimHotelExtension.Models
@@ -9,7 +9,7 @@ namespace RimSimHotelExtension.Models
     {
         public int shopZoneId;
         public bool enabled = true;
-        public List<Building_HotelBed> registeredBeds = new List<Building_HotelBed>();
+        public List<Building_Bed> registeredBeds = new List<Building_Bed>();
         public int singlePrice = 55;
         public int doublePrice = 90;
         public int woodSpaPrice = 30;

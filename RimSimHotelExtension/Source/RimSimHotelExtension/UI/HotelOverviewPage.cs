@@ -1,5 +1,5 @@
 using System.Linq;
-using RimSimHotelExtension.Buildings;
+using RimWorld;
 using RimSimHotelExtension.GameComp;
 using RimSimHotelExtension.Tool;
 using SimManagementLib.Api;
@@ -22,8 +22,8 @@ namespace RimSimHotelExtension.UI
             var manager = HotelMapComponent.For(shop.Map);
             return manager.DeskFor(shop) != null
                 || manager.Stays.Any(stay => stay.shopZoneId == shop.ID && !stay.completed)
-                || shop.Map.listerBuildings.allBuildingsColonist.OfType<Building_HotelBed>()
-                    .Any(bed => shop.ContainsCell(bed.Position));
+                || shop.Map.listerBuildings.allBuildingsColonist.OfType<Building_Bed>()
+                    .Any(bed => shop.ContainsCell(bed.Position) && manager.IsRegisteredBed(bed));
         }
 
         //总览只有即时跳转操作，不产生需要保存的配置。

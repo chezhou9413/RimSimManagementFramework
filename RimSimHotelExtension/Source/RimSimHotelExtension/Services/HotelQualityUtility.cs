@@ -1,5 +1,4 @@
 using RimWorld;
-using RimSimHotelExtension.Buildings;
 using RimSimHotelExtension.Models;
 using RimSimHotelExtension.Settings;
 using UnityEngine;
@@ -7,20 +6,9 @@ using Verse;
 
 namespace RimSimHotelExtension.Services
 {
-    //把客房环境和真实休息结果用于每日满意度及合理房价提示。
+    //根据客房环境、真实休息和基本需求更新住客满意度。
     public static class HotelQualityUtility
     {
-        //估算客房公平价格，只影响顾客接受度而不改玩家设置。
-        public static int RecommendedPrice(Building_HotelBed bed)
-        {
-            if (bed == null) return 0;
-            int basis = bed.SleepingSlotsCount > 1 ? HotelTuningDef.Current.doublePrice : HotelTuningDef.Current.singlePrice;
-            Room room = bed.GetRoom();
-            float score = room?.GetStat(RoomStatDefOf.Impressiveness) ?? 0f;
-            float factor = Mathf.Lerp(0.65f, 1.5f, Mathf.InverseLerp(0, 120, score));
-            return Mathf.Max(1, Mathf.RoundToInt(basis * factor));
-        }
-
         //每日只结算一次体验，避免每个巡检Tick重复增加满意度。
         public static void UpdateSatisfaction(HotelStay stay)
         {

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
-using RimSimHotelExtension.Buildings;
 using RimSimHotelExtension.GameComp;
 using RimSimHotelExtension.Tool;
 using SimManagementLib.Pojo;
@@ -50,16 +49,14 @@ namespace RimSimHotelExtension.Debug
         }
 
         //登记实际出租床，沿用中央默认房价和接待时段。
-        public static void ConfigureHotel(Zone_Shop shop, IEnumerable<Building_HotelBed> beds)
+        public static void ConfigureHotel(Zone_Shop shop, IEnumerable<Building_Bed> beds)
         {
             HotelMapComponent manager = HotelMapComponent.For(shop.Map);
             var settings = manager.SettingsFor(shop);
             settings.enabled = settings.spaEnabled = settings.acceptRenewals = true;
-            foreach (Building_HotelBed bed in beds)
+            foreach (Building_Bed bed in beds)
             {
-                if (bed == null || !bed.Spawned || bed.Map != shop.Map || !shop.ContainsCell(bed.Position))
-                    throw new InvalidOperationException(HotelText.T("RSH.Text.ARentalBedIsOutsideTheHotelZone"));
-                manager.RegisterBed(shop, bed, true);
+                if (!manager.RegisterBed(shop, bed, true, out string reason)) throw new InvalidOperationException(reason);
             }
             OpenShop(shop);
         }

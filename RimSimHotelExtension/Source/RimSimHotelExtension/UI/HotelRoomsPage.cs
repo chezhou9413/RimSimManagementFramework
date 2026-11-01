@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
-using RimSimHotelExtension.Buildings;
 using RimSimHotelExtension.GameComp;
 using RimSimHotelExtension.Models;
 using RimSimHotelExtension.Tool;
@@ -20,7 +19,7 @@ namespace RimSimHotelExtension.UI
         {
             public bool enabled, renewals;
             public int single, dual, sort;
-            public HashSet<Building_HotelBed> beds;
+            public HashSet<Building_Bed> beds;
         }
 
         //床位尚未登记时也保留配置入口。
@@ -31,7 +30,7 @@ namespace RimSimHotelExtension.UI
             var settings = HotelMapComponent.For(context.Shop.Map).SettingsFor(context.Shop);
             return new Draft { enabled = settings.enabled, renewals = settings.acceptRenewals,
                 single = settings.singlePrice, dual = settings.doublePrice,
-                beds = new HashSet<Building_HotelBed>(settings.registeredBeds) };
+                beds = new HashSet<Building_Bed>(settings.registeredBeds) };
         });
 
         //首屏容纳摘要、操作栏和多张床，搜索与排序只改变显示顺序。
@@ -40,8 +39,8 @@ namespace RimSimHotelExtension.UI
             using var scope = new HotelUi();
             Draft draft = State(context);
             var manager = HotelMapComponent.For(context.Shop.Map);
-            var beds = context.Shop.Map.listerBuildings.allBuildingsColonist.OfType<Building_HotelBed>()
-                .Where(b => context.Shop.ContainsCell(b.Position)).ToList();
+            var beds = context.Shop.Map.listerBuildings.allBuildingsColonist.OfType<Building_Bed>()
+                .Where(b => HotelMapComponent.SupportsRentalBed(b) && context.Shop.ContainsCell(b.Position)).ToList();
             var stays = manager.Stays.Where(s => !s.completed && s.shopZoneId == context.Shop.ID).ToList();
             var sorts = new[] { HotelText.T("RSH.Ui.SortName"), HotelText.T("RSH.Ui.UnregisteredFirst"), HotelText.T("RSH.Ui.VacantFirst") };
             var ordered = beds.OrderBy(b => draft.sort == 1 ? (draft.beds.Contains(b) ? 1 : 0)
@@ -93,7 +92,7 @@ namespace RimSimHotelExtension.UI
         }
 
         //房间详情可编辑对应床型报价，合同只锁定床位登记和已成交价格。
-        private static void OpenBed(Draft draft, HotelMapComponent manager, ShopManagerUiContext context, Building_HotelBed bed)
+        private static void OpenBed(Draft draft, HotelMapComponent manager, ShopManagerUiContext context, Building_Bed bed)
         {
             bool registered = draft.beds.Contains(bed);
             bool doubleBed = bed.SleepingSlotsCount > 1;
@@ -106,7 +105,17 @@ namespace RimSimHotelExtension.UI
                 HotelUi.Number(width, ref y, HotelText.T(doubleBed ? "RSH.Text.DoubleBedSilverWholeBedNight" : "RSH.Text.SingleBedSilverNight"),
                     ref price, ref priceBuffer, 10000);
                 HotelUi.Notice(width, ref y, HotelText.T("RSH.Ui.BedPriceScope"));
+                bool previous = registered;
                 HotelUi.Check(width, ref y, HotelText.T("RSH.Text.OfferThisBedForRent"), ref registered, stay != null);
+                if (registered != previous)
+                {
+                    string issue = manager.BedRegistrationIssue(context.Shop, bed, registered);
+                    if (!issue.NullOrEmpty())
+                    {
+                        registered = previous;
+                        Messages.Message(issue, bed, MessageTypeDefOf.RejectInput, false);
+                    }
+                }
                 var room = bed.GetRoom();
                 HotelUi.Value(width, ref y, HotelText.T("RSH.Text.RoomImpressiveness"),
                     (room?.Role?.LabelCap.ToString() ?? HotelText.T("RSH.Text.Outdoors")) + $" · {room?.GetStat(RoomStatDefOf.Impressiveness) ?? 0:0}");
@@ -120,6 +129,12 @@ namespace RimSimHotelExtension.UI
                 return y;
             }, () => {
                 if (!bed.Spawned || !context.Shop.ContainsCell(bed.Position)) return;
+                string issue = manager.BedRegistrationIssue(context.Shop, bed, registered);
+                if (!issue.NullOrEmpty())
+                {
+                    Messages.Message(issue, bed, MessageTypeDefOf.RejectInput, false);
+                    return;
+                }
                 if (doubleBed) draft.dual = price; else draft.single = price;
                 if (manager.Stays.Any(s => !s.completed && s.bed == bed)) return;
                 if (registered) draft.beds.Add(bed); else draft.beds.Remove(bed);
@@ -137,7 +152,13 @@ namespace RimSimHotelExtension.UI
             settings.enabled = draft.enabled; settings.acceptRenewals = draft.renewals;
             settings.singlePrice = draft.single; settings.doublePrice = draft.dual;
             foreach (var bed in settings.registeredBeds.Concat(draft.beds).Distinct().ToList())
-                manager.RegisterBed(shopContext.Shop, bed, draft.beds.Contains(bed) && bed != null && bed.Spawned && shopContext.Shop.ContainsCell(bed.Position));
+            {
+                bool register = draft.beds.Contains(bed) && bed != null && bed.Spawned && shopContext.Shop.ContainsCell(bed.Position);
+                if (manager.RegisterBed(shopContext.Shop, bed, register, out string reason)) continue;
+                if (!manager.IsRegisteredBed(bed)) draft.beds.Remove(bed);
+                else draft.beds.Add(bed);
+                Messages.Message(reason, bed, MessageTypeDefOf.RejectInput, false);
+            }
         }
 
         //成交合同保留原价，编辑仅影响新报价。

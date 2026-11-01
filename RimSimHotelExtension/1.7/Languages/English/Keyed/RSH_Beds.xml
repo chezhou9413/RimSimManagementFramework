@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSH.Bed.ForGuests>For hotel guests</RSH.Bed.ForGuests>
+  <RSH.Bed.NormalUse>Normal use</RSH.Bed.NormalUse>
+  <RSH.Bed.UseDescription>Choose how this bed is used. Selecting “For hotel guests” immediately registers it with the local hotel; no further save in the rooms page is needed. Select normal use to stop renting it out. Beds with a booking remain locked until checkout.</RSH.Bed.UseDescription>
+  <RSH.Bed.CannotRegister>{BED} cannot be registered yet: {REASON}</RSH.Bed.CannotRegister>
+  <RSH.Bed.Unavailable>Finish building or installing this bed and make sure it belongs to your colony.</RSH.Bed.Unavailable>
+  <RSH.Bed.NeedsShop>This bed is outside a shop zone. Include the room in the hotel's shop zone first.</RSH.Bed.NeedsShop>
+  <RSH.Bed.NeedsDesk>This shop has no hotel reception desk. Build a desk in the same shop zone before registering the bed.</RSH.Bed.NeedsDesk>
+  <RSH.Bed.IsMedical>This is currently a medical bed. Turn off medical use before registering it.</RSH.Bed.IsMedical>
+  <RSH.Bed.IsPrisoner>This bed is for prisoners. Switch it back to normal use before registering it.</RSH.Bed.IsPrisoner>
+  <RSH.Bed.IsSlave>This bed is for slaves. Switch it back to normal use before registering it.</RSH.Bed.IsSlave>
+  <RSH.Bed.IsBurning>This bed is on fire. Put out the fire before registering it.</RSH.Bed.IsBurning>
+  <RSH.Bed.HasOwner>This bed already has an owner. Remove the assignment before registering it.</RSH.Bed.HasOwner>
+  <RSH.Bed.Occupied>Someone is lying in this bed. Wait until it is empty before registering it.</RSH.Bed.Occupied>
+  <RSH.Bed.Booked>This bed has a guest or a booking. Wait until checkout before canceling rental or changing its use.</RSH.Bed.Booked>
+  <RSH.Bed.GuestOnly>This bed is reserved for hotel guests and assigned at check-in. Switch it to normal use before assigning a colonist.</RSH.Bed.GuestOnly>
+</LanguageData>

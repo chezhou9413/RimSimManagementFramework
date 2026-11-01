@@ -19,7 +19,6 @@
   <RSH.Text.ApparelItems> apparel items</RSH.Text.ApparelItems>
   <RSH.Text.ApparelLockers>Apparel lockers</RSH.Text.ApparelLockers>
   <RSH.Text.AProductShelfIsOutsideItsShopZone>A product shelf is outside its shop zone.</RSH.Text.AProductShelfIsOutsideItsShopZone>
-  <RSH.Text.ARentalBedIsOutsideTheHotelZone>A rental bed is outside the hotel zone.</RSH.Text.ARentalBedIsOutsideTheHotelZone>
   <RSH.Text.ARequiredProductIsMissingFromTheCurrent>A required product is missing from the current catalog: </RSH.Text.ARequiredProductIsMissingFromTheCurrent>
   <RSH.Text.ATMs>ATMs</RSH.Text.ATMs>
   <RSH.Text.ATMStatus>ATM status</RSH.Text.ATMStatus>
@@ -97,7 +96,7 @@
   <RSH.Text.NoMatchingApparelLockersInThisZone>No matching apparel lockers in this zone.</RSH.Text.NoMatchingApparelLockersInThisZone>
   <RSH.Text.NoMatchingATMsInThisZone>No matching ATMs in this zone.</RSH.Text.NoMatchingATMsInThisZone>
   <RSH.Text.NoMatchingGuests>No matching guests.</RSH.Text.NoMatchingGuests>
-  <RSH.Text.NoMatchingHotelBedsInThisShopZone>No matching hotel beds in this shop zone.</RSH.Text.NoMatchingHotelBedsInThisShopZone>
+  <RSH.Text.NoMatchingHotelBedsInThisShopZone>No matching beds in this shop zone.</RSH.Text.NoMatchingHotelBedsInThisShopZone>
   <RSH.Text.NoMatchingHotelsCreateAShopZoneBuild>No matching hotels. Create a shop zone, build a reception desk, and register rental beds in Rooms.</RSH.Text.NoMatchingHotelsCreateAShopZoneBuild>
   <RSH.Text.NoMatchingHotSpringsInThisZone>No matching hot springs in this zone.</RSH.Text.NoMatchingHotSpringsInThisZone>
   <RSH.Text.NoMatchingWithdrawalRecords>No matching withdrawal records.</RSH.Text.NoMatchingWithdrawalRecords>
@@ -171,7 +170,6 @@
   <RSH.Text.TheSpaCannotOverlapABuildingOrIts>The spa cannot overlap a building or its construction: </RSH.Text.TheSpaCannotOverlapABuildingOrIts>
   <RSH.Text.TheSpaNeedsAnApparelLocker>The spa needs an apparel locker</RSH.Text.TheSpaNeedsAnApparelLocker>
   <RSH.Text.TheStaffBedIsUnavailable>The staff bed is unavailable.</RSH.Text.TheStaffBedIsUnavailable>
-  <RSH.Text.ThisBedIsRentedToAGuest>This bed is rented to a guest</RSH.Text.ThisBedIsRentedToAGuest>
   <RSH.Text.ThisBedIsReservedByABookingUnregister>This bed is reserved by a booking. Unregister it after checkout.</RSH.Text.ThisBedIsReservedByABookingUnregister>
   <RSH.Text.TimedOutWaitingForAPoolSlotOr>Timed out waiting for a pool slot or locker</RSH.Text.TimedOutWaitingForAPoolSlotOr>
   <RSH.Text.TodaySArrivalsDepartures>Today's arrivals / departures</RSH.Text.TodaySArrivalsDepartures>

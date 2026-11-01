@@ -1,4 +1,6 @@
 using RimSimHotelExtension.Services;
+using RimSimHotelExtension.Patches;
+using HarmonyLib;
 using SimManagementLib.Api;
 using Verse;
 
@@ -12,6 +14,7 @@ namespace RimSimHotelExtension
         static HotelBootstrap()
         {
             SimShopCustomerApi.RegisterCustomerVisitExtension(new HotelVisitExtension());
+            HotelBedPatches.Apply(new Harmony("chezhou.rimsim.hotelextension.beds"));
         }
     }
 }
