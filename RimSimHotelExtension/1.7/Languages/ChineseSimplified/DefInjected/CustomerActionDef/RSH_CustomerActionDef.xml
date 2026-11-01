@@ -3,5 +3,5 @@
   <RSH_CheckIn.label>旅馆入住</RSH_CheckIn.label>
   <RSH_CheckIn.description>由服务台接待并分配出租床位，建立持久化住宿关系。</RSH_CheckIn.description>
   <RSH_Spa.label>温泉泡汤</RSH_Spa.label>
-  <RSH_Spa.description>预约池位和柜位，付款后存衣入池，结束或中断时取回实际衣物。</RSH_Spa.description>
+  <RSH_Spa.description>预约池位和柜位，到有人值班的服务台排队购票后存衣入池，结束或中断时取回实际衣物。</RSH_Spa.description>
 </LanguageData>

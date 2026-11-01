@@ -1,6 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Defs>
   <WorkGiverDef>
+    <defName>Sim_WorkGiver_ServeWaitingCustomers</defName>
+    <label>接待等候顾客</label>
+    <giverClass>SimManagementLib.SimWorkGiver.WorkGiver_ServeWaitingCustomers</giverClass>
+    <workType>Sim_ServiceWork</workType>
+    <priorityInType>110</priorityInType>
+    <emergency>true</emergency>
+    <verb>接待</verb>
+    <gerund>正在接待等候顾客</gerund>
+    <requiredCapacities><li>Manipulation</li><li>Talking</li></requiredCapacities>
+  </WorkGiverDef>
+  <WorkGiverDef>
     <defName>Sim_WorkGiver_ManCashRegister</defName>
     <label>收银台值班</label>
     <giverClass>SimManagementLib.SimWorkGiver.WorkGiver_ManCashRegister</giverClass>

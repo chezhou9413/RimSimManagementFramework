@@ -1,4 +1,7 @@
 ﻿<LanguageData>
+  <Sim_WorkGiver_ServeWaitingCustomers.label>Serve waiting customers</Sim_WorkGiver_ServeWaitingCustomers.label>
+  <Sim_WorkGiver_ServeWaitingCustomers.verb>Serve</Sim_WorkGiver_ServeWaitingCustomers.verb>
+  <Sim_WorkGiver_ServeWaitingCustomers.gerund>Serving waiting customers</Sim_WorkGiver_ServeWaitingCustomers.gerund>
   <FillCollectibleDisplayStand.gerund>filling collectible display stand</FillCollectibleDisplayStand.gerund>
   <FillCollectibleDisplayStand.label>Fill Collectible Display Stand</FillCollectibleDisplayStand.label>
   <FillCollectibleDisplayStand.verb>fill collectible display stand</FillCollectibleDisplayStand.verb>

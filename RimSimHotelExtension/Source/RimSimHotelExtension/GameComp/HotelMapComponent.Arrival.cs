@@ -90,6 +90,7 @@ namespace RimSimHotelExtension.GameComp
             int now = Find.TickManager.TicksGame;
             int firstNight = now - GenLocalDate.DayTick(map) + t.nightStartHour * 2500;
             HotelStay stay = new HotelStay { id = nextId++, shopZoneId = shop.ID, bed = bed, startTick = now,
+                receptionServiceTicksAtStart = DeskFor(shop).CustomerServiceTicks,
                 lastQualityTick = now,
                 bookedNights = nights, nightlyPrice = price, firstNightTick = firstNight,
                 checkoutTick = firstNight + nights * 60000 + (t.checkoutHour - t.nightStartHour) * 2500 };

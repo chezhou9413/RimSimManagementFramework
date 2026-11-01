@@ -138,10 +138,8 @@ namespace SimManagementLib.Api
         }
     }
 
-    /// <summary>
-    /// 提供收银结账管线的公开注册入口，负责安全调用外部结账 Worker。
-    /// </summary>
-    public static class SimShopCheckoutApi
+    //提供收银结账管线和排队入口，供外部业务复用收银流程。
+    public static partial class SimShopCheckoutApi
     {
         private static readonly List<ShopCheckoutWorker> Workers = new List<ShopCheckoutWorker>();
 

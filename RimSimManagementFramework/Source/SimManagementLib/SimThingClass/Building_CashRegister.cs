@@ -7,7 +7,7 @@ namespace SimManagementLib.SimThingClass
     /// <summary>
     /// 商店收银台建筑，负责提供收银员识别、结账存银和取现兼容入口。
     /// </summary>
-    public class Building_CashRegister : Building
+    public partial class Building_CashRegister : Building
     {
         private const int CashierCacheTicks = 15;
         private ThingComp_CashStorage CashStorage => this.GetComp<ThingComp_CashStorage>();

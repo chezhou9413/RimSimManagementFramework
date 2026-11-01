@@ -9,7 +9,7 @@
     <requiredThingDefs><li>RSH_ServiceDesk</li></requiredThingDefs>
   </SimManagementLib.SimDef.CustomerActionDef>
   <SimManagementLib.SimDef.CustomerActionDef>
-    <defName>RSH_Spa</defName><label>hot spring bathing</label><description>Reserve a bathing spot and locker, pay for admission, store clothing and enter the pool. Actual clothing is returned when bathing ends or is interrupted.</description>
+    <defName>RSH_Spa</defName><label>hot spring bathing</label><description>Reserve a bathing spot and locker, queue at the staffed reception desk to buy a ticket, then store clothing and enter the pool. Actual clothing is returned when bathing ends or is interrupted.</description>
     <workerClass>RimSimHotelExtension.Spa.SpaActionWorker</workerClass><createsPersistentOrder>true</createsPersistentOrder><defaultBillAmount>0</defaultBillAmount><selectionWeight>1.2</selectionWeight><order>475</order>
     <requiredThingClasses><li>RimSimHotelExtension.Spa.Building_HotelSpa</li></requiredThingClasses>
   </SimManagementLib.SimDef.CustomerActionDef>

@@ -9,7 +9,7 @@ using Verse.AI;
 namespace RimSimHotelExtension.Spa
 {
     //推进持久会话的移动、存衣和泡汤，不把关键状态藏在临时 Toil 中。
-    public sealed class JobDriver_HotelSpa : CustomerActionJobDriverBase
+    public sealed partial class JobDriver_HotelSpa : CustomerActionJobDriverBase
     {
         private SpaSession Session => SpaActionWorker.SessionFor(actionContext);
         private SpaMapComponent Manager => SpaMapComponent.For(pawn.Map);
@@ -20,6 +20,7 @@ namespace RimSimHotelExtension.Spa
             switch (Session?.stage)
             {
                 case SpaSessionStage.Queued: return HotelText.T("RSH.Text.WaitingForASpaSlotAndLocker");
+                case SpaSessionStage.BuyingTicket: return HotelText.T("RSH.Text.BuyingSpaTicketAtReception");
                 case SpaSessionStage.GoingToLocker: return HotelText.T("RSH.Text.GoingToStoreApparelInALocker");
                 case SpaSessionStage.GoingToPool: return HotelText.T("RSH.Text.GoingToTheReservedSpaSlot");
                 case SpaSessionStage.Soaking: return HotelText.T("RSH.Text.BathingInTheHotSpring");
@@ -43,6 +44,7 @@ namespace RimSimHotelExtension.Spa
             toil.initAction = () => Drive(true);
             toil.tickAction = () => Drive(false);
             toil.AddFinishAction(() => job.swimming = false);
+            toil.AddFinishAction(ReleaseTicketQueue);
             yield return toil;
         }
 
@@ -57,6 +59,7 @@ namespace RimSimHotelExtension.Spa
             }
             int now = Find.TickManager.TicksGame;
             if (session.stage != SpaSessionStage.Soaking && session.stage != SpaSessionStage.Queued
+                && session.stage != SpaSessionStage.BuyingTicket
                 && now - session.stageTick > HotelTuningDef.Current.receptionTimeout)
             {
                 Manager.Abort(session, "RSH.Text.CannotReachTheSpaOrLocker");
@@ -74,7 +77,7 @@ namespace RimSimHotelExtension.Spa
                     }
                     if (started || now % 60 == 0)
                     {
-                        if (Manager.TryAdmit(session, job)) pawn.pather.StartPath(session.locker, PathEndMode.Touch);
+                        if (Manager.TryAdmit(session, job)) DriveTicketPurchase(session, true);
                         else if (!session.IsTerminal && !pawn.pather.Moving && !pawn.Position.AdjacentTo8WayOrInside(session.spa))
                         {
                             IntVec3 cell = GenAdj.CellsAdjacent8Way(session.spa)
@@ -83,6 +86,9 @@ namespace RimSimHotelExtension.Spa
                             if (cell.IsValid) pawn.pather.StartPath(cell, PathEndMode.OnCell);
                         }
                     }
+                    break;
+                case SpaSessionStage.BuyingTicket:
+                    DriveTicketPurchase(session, started);
                     break;
                 case SpaSessionStage.GoingToLocker:
                     if (!ReachLocker(session)) break;

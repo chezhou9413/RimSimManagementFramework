@@ -1,7 +1,9 @@
 using System.Linq;
 using RimSimHotelExtension.Services;
+using RimSimHotelExtension.GameComp;
 using RimSimHotelExtension.Tool;
 using SimManagementLib.Api;
+using SimManagementLib.SimAI;
 using SimManagementLib.SimZone;
 using UnityEngine;
 using Verse;
@@ -16,6 +18,18 @@ namespace RimSimHotelExtension.Spa
         public override bool CanRun(CustomerActionContext context, out string reason)
         {
             if (!base.CanRun(context, out reason)) return false;
+            var desk = HotelMapComponent.For(context.customer.Map).DeskFor(context.shop);
+            if (desk == null)
+            {
+                reason = HotelText.T("RSH.Text.SpaNeedsReceptionDesk");
+                return false;
+            }
+            if (!context.customer.CanReach(CheckoutQueueCellUtility.FindServiceCell(desk, context.customer),
+                PathEndMode.OnCell, Danger.None))
+            {
+                reason = HotelText.T("RSH.Text.CannotReachSpaTicketDesk");
+                return false;
+            }
             if (!HotelMoneyUtility.CanUseServices(context.customer))
             {
                 reason = HotelText.T("RSH.Text.GuestIsCheckingInOrOut");
@@ -35,13 +49,16 @@ namespace RimSimHotelExtension.Spa
         public override bool IsAttractionAvailable(Zone_Shop shop)
         {
             return base.IsAttractionAvailable(shop) && shop.Map.listerThings.AllThings.OfType<Building_HotelSpa>()
-                .Any(s => s.Shop == shop && s.Operational) && HasLocker(shop);
+                .Any(s => s.Shop == shop && s.Operational) && HasLocker(shop)
+                && HotelMapComponent.For(shop.Map).DeskFor(shop) != null;
         }
 
         //未满足基础营业条件时向经营界面解释原因，满员只是正常排队。
         public override string GetAttractionBlockReason(Zone_Shop shop, bool refresh = false)
         {
             if (!base.IsAttractionAvailable(shop)) return "";
+            if (HotelMapComponent.For(shop.Map).DeskFor(shop) == null)
+                return HotelText.T("RSH.Text.SpaNeedsReceptionDesk");
             if (!HasLocker(shop)) return HotelText.T("RSH.Text.TheSpaNeedsAnApparelLocker");
             return IsAttractionAvailable(shop) ? "" : HotelText.T("RSH.Text.SpaClosedUnpoweredOrBroken");
         }

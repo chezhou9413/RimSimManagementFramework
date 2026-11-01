@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using RimSimHotelExtension.Settings;
+using RimSimHotelExtension.GameComp;
 using RimSimHotelExtension.Tool;
 using RimWorld;
 using SimManagementLib.Api;
+using SimManagementLib.SimAI;
 using SimManagementLib.SimZone;
 using Verse;
 using Verse.AI;
@@ -51,6 +53,7 @@ namespace RimSimHotelExtension.Spa
             var session = new SpaSession
             {
                 id = nextId++, customer = pawn, spa = spa, shopZoneId = shop.ID,
+                ticketDesk = HotelMapComponent.For(map).DeskFor(shop),
                 createdTick = Now, stageTick = Now, price = spa.TicketPrice,
                 durationTicks = spa.DurationTicks, joyGain = spa.JoyGain, satisfactionGain = spa.SatisfactionGain
             };
@@ -58,12 +61,24 @@ namespace RimSimHotelExtension.Spa
             return session;
         }
 
-        //按照同一温泉的到达先后取得池位和可达衣柜，均成功后才收取票款。
+        //按先后顺序预留池位和衣柜，再前往服务台购票，此时不扣款。
         public bool TryAdmit(SpaSession session, Job job)
         {
             Pawn pawn = session.customer;
             if (sessions.Any(s => s.spa == session.spa && s.stage == SpaSessionStage.Queued && s.id < session.id)) return false;
             Zone_Shop shop = session.Shop(map);
+            if (shop == null || session.ticketDesk == null || !session.ticketDesk.Spawned
+                || !shop.ContainsCell(session.ticketDesk.Position))
+            {
+                Abort(session, "RSH.Text.SpaNeedsReceptionDesk");
+                return false;
+            }
+            IntVec3 serviceCell = CheckoutQueueCellUtility.FindServiceCell(session.ticketDesk, pawn);
+            if (!pawn.CanReach(serviceCell, PathEndMode.OnCell, Danger.None))
+            {
+                Abort(session, "RSH.Text.CannotReachSpaTicketDesk");
+                return false;
+            }
             var lockers = map.listerThings.AllThings.OfType<Building_HotelLocker>()
                 .Where(l => l.Available && shop.ContainsCell(l.Position)
                     && pawn.CanReserveAndReach(l, PathEndMode.Touch, Danger.None))
@@ -85,14 +100,9 @@ namespace RimSimHotelExtension.Spa
                 session.locker = locker;
                 session.slot = i;
                 session.poolCell = cell;
-                var payment = SimShopCustomerApi.TrySpendCustomerFunds(pawn, session.price);
-                if (!payment.success)
-                {
-                    Abort(session, payment.failReason);
-                    return false;
-                }
-                session.ticketPaid = true;
-                ChangeStage(session, SpaSessionStage.GoingToLocker);
+                session.ticketServiceCell = serviceCell;
+                session.ticketServiceTicksAtWaitStart = session.ticketDesk.CustomerServiceTicks;
+                ChangeStage(session, SpaSessionStage.BuyingTicket);
                 return true;
             }
             return false;
@@ -136,6 +146,8 @@ namespace RimSimHotelExtension.Spa
                 if (session.customer == null || !session.customer.Spawned || session.customer.Map != map
                     || session.customer.Dead || session.customer.Downed || session.spa == null || !session.spa.Operational
                     || shop == null || session.spa.Shop != shop
+                    || (!session.incomeCommitted && (session.ticketDesk == null || !session.ticketDesk.Spawned
+                        || !shop.ContainsCell(session.ticketDesk.Position)))
                     || (session.locker != null && (!session.locker.Spawned || !shop.ContainsCell(session.locker.Position))))
                     Abort(session, "RSH.Text.SpaUseInterrupted");
                 else if (session.stage == SpaSessionStage.Queued && Now - session.createdTick > HotelTuningDef.Current.spaQueuePatienceTicks)

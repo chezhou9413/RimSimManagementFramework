@@ -116,7 +116,7 @@
   <RSH.Text.Operational2>Operational</RSH.Text.Operational2>
   <RSH.Text.Outdoors>Outdoors</RSH.Text.Outdoors>
   <RSH.Text.PawnGenerationDidNotProduceAnEligibleService>Pawn generation did not produce an eligible service worker.</RSH.Text.PawnGenerationDidNotProduceAnEligibleService>
-  <RSH.Text.PaymentFollowsReservationOfABathingSlotAnd>Payment follows reservation of a bathing slot and locker. Admission becomes revenue when bathing starts; cancellation before that refunds the payment. One visit per guest per day.</RSH.Text.PaymentFollowsReservationOfABathingSlotAnd>
+  <RSH.Text.PaymentFollowsReservationOfABathingSlotAnd>Guests reserve a bathing slot and locker, then queue at this shop's reception desk to buy a ticket. A receptionist must finish serving them before they store their clothes and enter the pool. Payment becomes reception desk cash and revenue when bathing starts; cancellation before that refunds it. One visit per guest per day.</RSH.Text.PaymentFollowsReservationOfABathingSlotAnd>
   <RSH.Text.PreviousPage>Previous page</RSH.Text.PreviousPage>
   <RSH.Text.PrincipalMovesFromTravelAccountsToWalletsOnly>Principal moves from travel accounts to wallets; only fees are revenue. Daily limit resets do not create funds. History covers the recent money records retained by the system.</RSH.Text.PrincipalMovesFromTravelAccountsToWalletsOnly>
   <RSH.Text.Purchase>Purchase</RSH.Text.Purchase>
@@ -196,4 +196,9 @@
   <RSH.Ui.Locate>Locate</RSH.Ui.Locate>
   <RSH.Ui.RecordDay>Day {DAY}</RSH.Ui.RecordDay>
   <RSH.Ui.RecordPage>Page {PAGE} / {PAGES} · {COUNT} records</RSH.Ui.RecordPage>
+  <RSH.Text.BuyingSpaTicketAtReception>Queuing at reception to buy a spa ticket.</RSH.Text.BuyingSpaTicketAtReception>
+  <RSH.Text.SpaNeedsReceptionDesk>The spa needs a hotel reception desk in the same shop to sell tickets.</RSH.Text.SpaNeedsReceptionDesk>
+  <RSH.Text.CannotReachSpaTicketDesk>Cannot reach the customer position at the spa ticket desk.</RSH.Text.CannotReachSpaTicketDesk>
+  <RSH.Text.SpaTicketWaitTimedOut>Timed out waiting to buy a spa ticket; bathing canceled.</RSH.Text.SpaTicketWaitTimedOut>
+  <RSH.Text.SpaTicketNotPurchased>A spa ticket has not been purchased at reception.</RSH.Text.SpaTicketNotPurchased>
 </LanguageData>

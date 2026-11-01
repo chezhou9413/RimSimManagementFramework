@@ -13,7 +13,8 @@ namespace RimSimHotelExtension.Jobs
     public sealed class JobDriver_HotelReception : JobDriver
     {
         private int servedTicks;
-        private int waitedTicks;
+        private int waitStartTick = -1;
+        private int serviceTicksAtWaitStart;
         private Building_HotelDesk Desk => job.targetA.Thing as Building_HotelDesk;
 
         //顾客只预约服务格，避免与正在值班的员工争抢收银台建筑。
@@ -25,7 +26,8 @@ namespace RimSimHotelExtension.Jobs
         {
             base.ExposeData();
             Scribe_Values.Look(ref servedTicks, "servedTicks");
-            Scribe_Values.Look(ref waitedTicks, "waitedTicks");
+            Scribe_Values.Look(ref waitStartTick, "waitStartTick", -1);
+            Scribe_Values.Look(ref serviceTicksAtWaitStart, "serviceTicksAtWaitStart");
         }
 
         //先到前台，再仅在员工在岗时推进实际接待。
@@ -44,14 +46,19 @@ namespace RimSimHotelExtension.Jobs
             yield return Toils_Goto.GotoCell(TargetIndex.B, PathEndMode.OnCell);
             Toil service = ToilMaker.MakeToil();
             service.defaultCompleteMode = ToilCompleteMode.Never;
+            service.initAction = () =>
+            {
+                waitStartTick = Find.TickManager.TicksGame;
+                serviceTicksAtWaitStart = Desk.CustomerServiceTicks;
+            };
             service.tickAction = () =>
             {
                 var manager = HotelMapComponent.For(pawn.Map);
                 var stay = manager.FindStay(pawn);
                 if (stay == null) { EndJobWith(JobCondition.Succeeded); return; }
                 pawn.rotationTracker.FaceTarget(Desk);
-                waitedTicks++;
-                if (waitedTicks > HotelTuningDef.Current.receptionTimeout)
+                if (Desk.GetUnservedWaitTicks(waitStartTick, serviceTicksAtWaitStart)
+                    > HotelTuningDef.Current.receptionTimeout)
                 {
                     if (stay.active && !stay.closing)
                     {
@@ -63,6 +70,7 @@ namespace RimSimHotelExtension.Jobs
                     return;
                 }
                 if (!Desk.IsManned) return;
+                Desk.NotifyCustomerService();
                 servedTicks++;
                 int needed = stay.active || stay.closing ? HotelTuningDef.Current.returnReceptionTicks : HotelTuningDef.Current.receptionTicks;
                 if (servedTicks < needed) return;

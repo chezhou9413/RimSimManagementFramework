@@ -33,6 +33,8 @@ namespace SimManagementLib.SimAI
 
         private bool abortedByTimeout;
         private int totalWaitTicks;
+        private int waitStartTick = -1;
+        private int serviceTicksAtWaitStart;
         private int maxQueueWaitTicks = DefaultMaxQueueWaitTicks;
         private int serviceTicksRequired = ServiceTicks;
         private int serviceTicksRemaining;
@@ -42,6 +44,11 @@ namespace SimManagementLib.SimAI
         private bool checkoutCommitted;
 
         private CustomerCheckoutQueueRegistry QueueRegistry => pawn?.Map?.GetComponent<CustomerArrivalManager>()?.CheckoutQueue;
+
+        //实际收银时间不计入耐心，外层看门狗也读取同一个等待时钟。
+        public int PatienceTicksUsed => waitStartTick < 0 || Register == null
+            ? System.Math.Max(0, Find.TickManager.TicksGame - startTick)
+            : Register.GetUnservedWaitTicks(waitStartTick, serviceTicksAtWaitStart);
 
         //登记结账票据，允许多位顾客在同一收银台排队。
         public override bool TryMakePreToilReservations(bool errorOnFailed)
@@ -55,6 +62,8 @@ namespace SimManagementLib.SimAI
             base.ExposeData();
             Scribe_Values.Look(ref abortedByTimeout, "abortedByTimeout");
             Scribe_Values.Look(ref totalWaitTicks, "totalWaitTicks");
+            Scribe_Values.Look(ref waitStartTick, "waitStartTick", -1);
+            Scribe_Values.Look(ref serviceTicksAtWaitStart, "serviceTicksAtWaitStart");
             Scribe_Values.Look(ref maxQueueWaitTicks, "maxQueueWaitTicks", DefaultMaxQueueWaitTicks);
             Scribe_Values.Look(ref serviceTicksRequired, "serviceTicksRequired", ServiceTicks);
             Scribe_Values.Look(ref serviceTicksRemaining, "serviceTicksRemaining");
@@ -76,6 +85,8 @@ namespace SimManagementLib.SimAI
             {
                 abortedByTimeout = false;
                 totalWaitTicks = 0;
+                waitStartTick = Find.TickManager.TicksGame;
+                serviceTicksAtWaitStart = Register.CustomerServiceTicks;
                 continuousUnmannedWaitTicks = 0;
                 cachedRegisterManned = Register.IsManned;
                 LordJob_CustomerVisit lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
@@ -90,7 +101,7 @@ namespace SimManagementLib.SimAI
                 if (pawn.IsHashIntervalTick(FacingUpdateIntervalTicks))
                     FaceCashierOrRegister();
                 if (pawn.IsHashIntervalTick(ProgressUpdateIntervalTicks))
-                    ShopProgressBarUtility.Report(pawn, Mathf.Min(1f, totalWaitTicks / (float)Mathf.Max(1, maxQueueWaitTicks)), new Color(0.95f, 0.72f, 0.36f, 0.95f));
+                    ShopProgressBarUtility.Report(pawn, Mathf.Min(1f, PatienceTicksUsed / (float)Mathf.Max(1, maxQueueWaitTicks)), new Color(0.95f, 0.72f, 0.36f, 0.95f));
 
                 LordJob_CustomerVisit lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
                 if (lordJob == null)
@@ -100,7 +111,7 @@ namespace SimManagementLib.SimAI
                     return;
                 }
 
-                if (totalWaitTicks >= maxQueueWaitTicks)
+                if (PatienceTicksUsed >= maxQueueWaitTicks)
                 {
                     abortedByTimeout = true;
                     ReadyForNextToil();
@@ -165,7 +176,7 @@ namespace SimManagementLib.SimAI
                     return;
                 }
 
-                if (totalWaitTicks >= maxQueueWaitTicks)
+                if (PatienceTicksUsed >= maxQueueWaitTicks)
                 {
                     abortedByTimeout = true;
                     ReadyForNextToil();
@@ -185,8 +196,9 @@ namespace SimManagementLib.SimAI
                     ReadyForNextToil();
                     return;
                 }
-                if (!cachedServiceCanProgress) return;
+                if (!cachedServiceCanProgress || !Register.IsManned) return;
 
+                Register.NotifyCustomerService();
                 //原版每 tick 都会递减 ticksLeftThisToil；独立计时只累计实际得到的收银服务。
                 serviceTicksRemaining--;
                 if (serviceTicksRemaining <= 0)

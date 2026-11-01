@@ -7,15 +7,27 @@ using Verse.AI;
 
 namespace SimManagementLib.SimWorkGiver
 {
-    /// <summary>
-    /// 为营业中或仍有待结账顾客的商店收银台分配收银员值守工作。
-    /// </summary>
+    //为营业中或仍有顾客等待接待的收银台分配常驻员工和临时补位。
     public class WorkGiver_ManCashRegister : WorkGiver_Scanner
     {
         private const int CandidateCacheTicks = 61;
         private static readonly Dictionary<int, RegisterCandidateCache> candidateCaches = new Dictionary<int, RegisterCandidateCache>();
 
         public override PathEndMode PathEndMode => PathEndMode.InteractionCell;
+        public override bool Prioritized => true;
+        protected virtual bool WaitingCustomersOnly => false;
+
+        //自动派工保留休息和进食所需时间，避免员工刚离岗就被同一工作立即叫回。
+        public override bool ShouldSkip(Pawn pawn, bool forced = false)
+        {
+            if (pawn.Drafted || pawn.Downed || pawn.InMentalState) return true;
+            return !forced && (pawn.needs?.food?.CurCategory >= HungerCategory.UrgentlyHungry
+                || pawn.needs?.rest?.CurCategory >= RestCategory.VeryTired);
+        }
+
+        //同一工作优先级下先服务正在排队的柜台。
+        public override float GetPriority(Pawn pawn, TargetInfo target)
+            => target.Thing is Building_CashRegister register && register.HasWaitingCustomers ? 2f : 1f;
 
         /// <summary>
         /// 枚举当前地图中允许收银的玩家收银台，负责让关店后的待付款顾客仍能完成结账。
@@ -27,31 +39,38 @@ namespace SimManagementLib.SimWorkGiver
                 yield return candidates[i];
         }
 
-        /// <summary>
-        /// 判断指定 Pawn 是否能在该收银台执行收银工作，负责保留关店后的清队列服务。
-        /// </summary>
+        //有顾客排队时允许合格人员补位，空闲时仍按固定岗位安排。
         public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
             Building_CashRegister register = t as Building_CashRegister;
             if (register == null) return false;
             if (pawn?.Map == null || register.Map != pawn.Map || register.Destroyed || !register.Spawned) return false;
+            if (ShouldSkip(pawn, forced)) return false;
             SimZone.Zone_Shop shop = ShopStaffUtility.FindShopFor(register);
-            if (!ShopStaffUtility.CanCashierWorkAt(shop)) return false;
-            if (!ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, def))
+            bool waiting = register.HasWaitingCustomers;
+            if (WaitingCustomersOnly && !waiting) return false;
+            if (!waiting && !ShopStaffUtility.CanCashierWorkAt(shop)) return false;
+            if (!ShopStaffUtility.CanPawnPerformWorkType(pawn, def.workType, !forced)
+                || MissingRequiredCapacity(pawn) != null) return false;
+            if (!(waiting ? ShopStaffUtility.CanRelieveCashier(shop, pawn)
+                : ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, def)))
                 return false;
 
-            // 收银台值守需要独占建筑，避免多个店员同时占用同一台收银台。
+            //收银台值守独占建筑，已经有人接单赶来时不会再派第二名员工。
             if (!pawn.CanReserve(register, 1, -1, null, forced)) return false;
 
             return true;
         }
 
-        /// <summary>
-        /// 创建收银台值守 Job。
-        /// </summary>
+        //保存派工来源，并区分常驻班次与临时补位。
         public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
-            return JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Sim_ManCashRegister"), t);
+            Job job = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Sim_ManCashRegister"), t);
+            job.workGiverDef = def;
+            //临时补位不占用完整班次，队列清空后交还员工。
+            job.count = WaitingCustomersOnly || !ShopStaffUtility.AllowsPawnForWorkGiver(
+                ShopStaffUtility.FindShopFor((Building_CashRegister)t), pawn, def) ? 1 : 0;
+            return job;
         }
 
         /// <summary>
@@ -77,9 +96,7 @@ namespace SimManagementLib.SimWorkGiver
             return cache.candidates;
         }
 
-        /// <summary>
-        /// 刷新当前地图的收银台候选缓存，负责只保留仍允许收银工作的建筑。
-        /// </summary>
+        //缓存营业柜台和仍有待接待业务的柜台。
         private static void RefreshCandidateRegisters(Map map, RegisterCandidateCache cache, int now)
         {
             cache.map = map;
@@ -91,7 +108,7 @@ namespace SimManagementLib.SimWorkGiver
             {
                 Building_CashRegister register = buildings[i] as Building_CashRegister;
                 if (register == null || register.Destroyed || !register.Spawned) continue;
-                if (!ShopStaffUtility.CanCashierWorkAt(ShopStaffUtility.FindShopFor(register))) continue;
+                if (!register.HasWaitingCustomers && !ShopStaffUtility.CanCashierWorkAt(ShopStaffUtility.FindShopFor(register))) continue;
                 cache.candidates.Add(register);
             }
         }

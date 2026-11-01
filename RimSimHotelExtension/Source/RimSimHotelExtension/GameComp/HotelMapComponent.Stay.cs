@@ -20,7 +20,8 @@ namespace RimSimHotelExtension.GameComp
         {
             int now = Find.TickManager.TicksGame;
             var shop = ShopFor(stay);
-            if (shop == null || DeskFor(shop) == null || stay.guests.Any(g => g.pawn == null || g.pawn.Dead
+            var desk = DeskFor(shop);
+            if (shop == null || desk == null || stay.guests.Any(g => g.pawn == null || g.pawn.Dead
                 || !g.pawn.Spawned || g.pawn.Map != map || g.pawn.Downed || g.pawn.InMentalState))
             {
                 RequestCheckout(stay, "RSH.Text.GuestOrReceptionBecameUnavailable");
@@ -29,12 +30,14 @@ namespace RimSimHotelExtension.GameComp
             }
             if (stay.closing)
             {
-                if (now - stay.closingTick >= HotelTuningDef.Current.receptionTimeout) FinishCheckout(stay);
+                if (desk.GetUnservedWaitTicks(stay.closingTick, stay.checkoutServiceTicksAtStart)
+                    >= HotelTuningDef.Current.receptionTimeout) FinishCheckout(stay);
                 return;
             }
             if (!stay.active)
             {
-                if (now - stay.startTick > HotelTuningDef.Current.receptionTimeout)
+                if (desk.GetUnservedWaitTicks(stay.startTick, stay.receptionServiceTicksAtStart)
+                    > HotelTuningDef.Current.receptionTimeout)
                     RequestCheckout(stay, "RSH.Text.ReceptionWaitTimedOut2");
                 return;
             }
@@ -94,6 +97,7 @@ namespace RimSimHotelExtension.GameComp
             if (stay == null || stay.completed || stay.closing) return;
             stay.closing = true;
             stay.closingTick = Find.TickManager.TicksGame;
+            stay.checkoutServiceTicksAtStart = DeskFor(ShopFor(stay))?.CustomerServiceTicks ?? 0;
             stay.closeReason = reason;
             foreach (var guest in stay.guests)
             {

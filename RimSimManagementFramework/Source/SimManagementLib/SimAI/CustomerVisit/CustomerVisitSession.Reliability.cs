@@ -93,7 +93,6 @@ namespace SimManagementLib.SimAI.CustomerVisit
             if (stage == CustomerVisitStage.Checkout)
             {
                 bool hasCheckoutJob = pawn?.CurJobDef?.defName == "Customer_PayAtRegister";
-                int stageTicks = now - lastStageChangeTick;
                 if (!hasCheckoutJob)
                 {
                     if (now - lastProgressTick < CheckoutJobRecoveryTicks)
@@ -107,8 +106,8 @@ namespace SimManagementLib.SimAI.CustomerVisit
                     return CustomerVisitTickResult.Recover(lastReason);
                 }
                 int deadline = visit.GetQueuePatienceForPawn(pawnId) + NoProgressRecoveryTicks;
-                if (hasCheckoutJob && stageTicks >= deadline)
-                    return RequestReliableLeave(visit, pawn, "顾客结账总期限已到");
+                if (pawn.jobs.curDriver is JobDriver_PayAtRegister checkout && checkout.PatienceTicksUsed >= deadline)
+                    return RequestReliableLeave(visit, pawn, "顾客结账无服务等待期限已到");
                 return default(CustomerVisitTickResult);
             }
 

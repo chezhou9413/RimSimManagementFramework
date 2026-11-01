@@ -1,7 +1,9 @@
 using RimSimHotelExtension.Services;
 using RimSimHotelExtension.Tool;
+using RimSimHotelExtension.Settings;
 using RimWorld;
 using SimManagementLib.Api;
+using SimManagementLib.Tool;
 using UnityEngine;
 using Verse;
 
@@ -10,15 +12,38 @@ namespace RimSimHotelExtension.Spa
     //负责托管票款转收入、退款与物品归还，所有终止入口共用同一段结算。
     public sealed partial class SpaMapComponent
     {
+        //顾客在有人值守的服务台完成读条后才扣取票款，入池前仍可原额退款。
+        public bool BuyTicket(SpaSession session)
+        {
+            if (session.ticketPaid) return true;
+            if (session.stage != SpaSessionStage.BuyingTicket || session.ticketDesk?.IsManned != true
+                || session.customer.Position != session.ticketServiceCell
+                || session.ticketServiceTicks < HotelTuningDef.Current.returnReceptionTicks) return false;
+            var payment = SimShopCustomerApi.TrySpendCustomerFunds(session.customer, session.price);
+            if (!payment.success)
+            {
+                Abort(session, payment.failReason);
+                return false;
+            }
+            session.ticketPaid = true;
+            ShopBubbleUtility.ShowSilverPayment(session.customer, session.price);
+            return true;
+        }
+
         //顾客已经站到自己的池位后才将托管票款作为营业收入。
         public bool StartBathing(SpaSession session)
         {
+            if (!session.ticketPaid)
+            {
+                Abort(session, "RSH.Text.SpaTicketNotPurchased");
+                return false;
+            }
             if (session.incomeCommitted)
             {
                 ChangeStage(session, SpaSessionStage.Soaking);
                 return true;
             }
-            var result = SimShopFinanceApi.CommitImmediateIncome(session.customer, session.Shop(map), session.spa,
+            var result = SimShopFinanceApi.CommitImmediateIncome(session.customer, session.Shop(map), session.ticketDesk,
                 "HotelSpa/" + map.uniqueID + "/" + session.id, session.spa.LabelCap, session.price);
             if (!result.success)
             {
@@ -45,6 +70,8 @@ namespace RimSimHotelExtension.Spa
         public void Abort(SpaSession session, string reason)
         {
             if (session == null || session.IsTerminal) return;
+            if (session.stage == SpaSessionStage.BuyingTicket)
+                SimShopCheckoutApi.LeaveQueue(session.customer);
             session.stage = SpaSessionStage.Canceled;
             session.completedTick = Now;
             session.endReason = reason ?? "RSH.Text.BathingCanceled";

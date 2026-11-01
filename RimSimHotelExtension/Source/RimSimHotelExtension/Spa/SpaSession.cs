@@ -1,4 +1,5 @@
 using SimManagementLib.SimZone;
+using RimSimHotelExtension.Buildings;
 using System.Linq;
 using Verse;
 
@@ -7,7 +8,7 @@ namespace RimSimHotelExtension.Spa
     //表示泡汤流程中已经完成的步骤，读档后不会重新扣钱或重复脱衣。
     public enum SpaSessionStage
     {
-        Queued, GoingToLocker, GoingToPool, Soaking, ReturningToLocker, Completed, Canceled
+        Queued, BuyingTicket, GoingToLocker, GoingToPool, Soaking, ReturningToLocker, Completed, Canceled
     }
 
     //保存一次泡汤的资源预约、托管票款和已使用时长。
@@ -18,6 +19,10 @@ namespace RimSimHotelExtension.Spa
         public Pawn customer;
         public Building_HotelSpa spa;
         public Building_HotelLocker locker;
+        public Building_HotelDesk ticketDesk;
+        public IntVec3 ticketServiceCell = IntVec3.Invalid;
+        public int ticketServiceTicks;
+        public int ticketServiceTicksAtWaitStart;
         public int shopZoneId;
         public int slot = -1;
         public IntVec3 poolCell = IntVec3.Invalid;
@@ -53,6 +58,10 @@ namespace RimSimHotelExtension.Spa
             Scribe_References.Look(ref customer, "customer");
             Scribe_References.Look(ref spa, "spa");
             Scribe_References.Look(ref locker, "locker");
+            Scribe_References.Look(ref ticketDesk, "ticketDesk");
+            Scribe_Values.Look(ref ticketServiceCell, "ticketServiceCell", IntVec3.Invalid);
+            Scribe_Values.Look(ref ticketServiceTicks, "ticketServiceTicks");
+            Scribe_Values.Look(ref ticketServiceTicksAtWaitStart, "ticketServiceTicksAtWaitStart");
             Scribe_Values.Look(ref shopZoneId, "shopZoneId");
             Scribe_Values.Look(ref slot, "slot", -1);
             Scribe_Values.Look(ref poolCell, "poolCell", IntVec3.Invalid);

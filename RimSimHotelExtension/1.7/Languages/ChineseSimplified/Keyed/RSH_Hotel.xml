@@ -116,7 +116,7 @@
   <RSH.Text.Operational2>工作中</RSH.Text.Operational2>
   <RSH.Text.Outdoors>室外</RSH.Text.Outdoors>
   <RSH.Text.PawnGenerationDidNotProduceAnEligibleService>原版未能生成可执行服务工作的员工。</RSH.Text.PawnGenerationDidNotProduceAnEligibleService>
-  <RSH.Text.PaymentFollowsReservationOfABathingSlotAnd>先取得池位和柜位再付款。开始泡汤后票款才转为收入；开始前失效则退款。每名顾客每天最多一次。</RSH.Text.PaymentFollowsReservationOfABathingSlotAnd>
+  <RSH.Text.PaymentFollowsReservationOfABathingSlotAnd>先预留池位和衣柜，再到本店服务台排队购票；接待员在岗并完成付款后才存衣入池。开始泡汤时票款计入服务台现金和营业收入，开始前取消则退款。每名顾客每天最多一次。</RSH.Text.PaymentFollowsReservationOfABathingSlotAnd>
   <RSH.Text.PreviousPage>上一页</RSH.Text.PreviousPage>
   <RSH.Text.PrincipalMovesFromTravelAccountsToWalletsOnly>取款本金只从旅行账户转入钱包，只有手续费属于营业收入。每日刷新额度不会增加资金。历史仅展示系统保留的最近资金记录。</RSH.Text.PrincipalMovesFromTravelAccountsToWalletsOnly>
   <RSH.Text.Purchase>消费</RSH.Text.Purchase>
@@ -196,4 +196,9 @@
   <RSH.Ui.Locate>定位</RSH.Ui.Locate>
   <RSH.Ui.RecordDay>第 {DAY} 天</RSH.Ui.RecordDay>
   <RSH.Ui.RecordPage>第 {PAGE}／{PAGES} 页 · 共 {COUNT} 条</RSH.Ui.RecordPage>
+  <RSH.Text.BuyingSpaTicketAtReception>正在服务台排队购买温泉门票。</RSH.Text.BuyingSpaTicketAtReception>
+  <RSH.Text.SpaNeedsReceptionDesk>温泉需要同一商店内的旅馆服务台售票。</RSH.Text.SpaNeedsReceptionDesk>
+  <RSH.Text.CannotReachSpaTicketDesk>无法到达温泉售票服务台的顾客位置。</RSH.Text.CannotReachSpaTicketDesk>
+  <RSH.Text.SpaTicketWaitTimedOut>等待服务台售票超时，取消本次泡汤。</RSH.Text.SpaTicketWaitTimedOut>
+  <RSH.Text.SpaTicketNotPurchased>尚未在服务台购买温泉门票。</RSH.Text.SpaTicketNotPurchased>
 </LanguageData>
