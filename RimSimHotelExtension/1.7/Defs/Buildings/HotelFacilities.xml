@@ -101,6 +101,10 @@
       <texPath>Things/Building/Hotel/Locker/Locker</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
       <drawSize>(1.6,1.6)</drawSize>
+      <drawOffsetSouth>(0, 0,0.3)</drawOffsetSouth>
+      <drawOffsetNorth>(0, 0,0.3)</drawOffsetNorth>
+      <drawOffsetEast>(0.05,0,0.3)</drawOffsetEast>
+      <drawOffsetWest>(-0.05,0,0.3)</drawOffsetWest>
     </graphicData>
     <size>(1,1)</size>
     <canOverlapZones>true</canOverlapZones>
