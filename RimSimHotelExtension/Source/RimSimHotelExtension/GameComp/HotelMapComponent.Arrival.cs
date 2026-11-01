@@ -119,7 +119,7 @@ namespace RimSimHotelExtension.GameComp
             for (int i = 0; i < weights.Count; i++)
             {
                 roll -= weights[i];
-                if (roll < 0) return Mathf.Clamp(i + 2, t.minNights, t.maxNights);
+                if (roll < 0) return Mathf.Clamp(i + t.minNights, t.minNights, t.maxNights);
             }
             return t.minNights;
         }

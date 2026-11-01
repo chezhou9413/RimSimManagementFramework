@@ -83,7 +83,7 @@ namespace RimSimHotelExtension.GameComp
                 return HotelText.T("RSH.Text.ReceptionHours", tuning.receptionOpenHour.Named("OPEN"), tuning.receptionCloseHour.Named("CLOSE"));
             Building_HotelDesk desk = DeskFor(shop);
             if (desk == null) return HotelText.T("RSH.Text.NoHotelReceptionDesk");
-            if (!desk.IsManned) return HotelText.T("RSH.Text.ReceptionIsUnstaffed");
+            //允许先建立待接待合同，由服务台需求触发员工补位；实际接待仍等待员工到岗。
             if (!AvailableBeds(shop).Any()) return HotelText.T("RSH.Text.NoVacantRegisteredBeds");
             return "";
         }

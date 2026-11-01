@@ -5,7 +5,7 @@
   <JobDef><defName>RSH_UseSpa</defName><driverClass>RimSimHotelExtension.Spa.JobDriver_HotelSpa</driverClass><reportString>Using the hot spring and apparel locker.</reportString><casualInterruptible>false</casualInterruptible><joyKind>Meditative</joyKind></JobDef>
   <SimManagementLib.SimDef.CustomerActionDef>
     <defName>RSH_CheckIn</defName><label>hotel check-in</label><description>Check in at reception, reserve a rental bed and begin a persistent hotel stay.</description>
-    <workerClass>RimSimHotelExtension.Services.HotelArrivalWorker</workerClass><createsPersistentOrder>false</createsPersistentOrder><defaultBillAmount>0</defaultBillAmount><selectionWeight>2</selectionWeight><order>470</order>
+    <workerClass>RimSimHotelExtension.Services.HotelArrivalWorker</workerClass><createsPersistentOrder>false</createsPersistentOrder><defaultBillAmount>0</defaultBillAmount><selectionWeight>3</selectionWeight><order>470</order>
     <requiredThingDefs><li>RSH_ServiceDesk</li></requiredThingDefs>
   </SimManagementLib.SimDef.CustomerActionDef>
   <SimManagementLib.SimDef.CustomerActionDef>

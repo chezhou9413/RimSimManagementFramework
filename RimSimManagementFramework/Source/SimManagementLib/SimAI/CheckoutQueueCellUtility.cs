@@ -11,29 +11,47 @@ namespace SimManagementLib.SimAI
     //提供收银服务格和排队格计算，负责让所有顾客使用同一个服务锚点并按顺序站位。
     public static class CheckoutQueueCellUtility
     {
-        //查找顾客与收银台交互时使用的服务格，负责避免临时站人的排队状态改变服务锚点。
+        //按实际占地找到员工正对面的顾客格，临时站人不改变服务锚点。
         public static IntVec3 FindServiceCell(Building_CashRegister register, Pawn pawn)
         {
             Map map = register.Map;
+            CellRect occupied = register.OccupiedRect();
             IntVec3 cashierCell = register.InteractionCell;
-            IntVec3 delta = cashierCell - register.Position;
-            IntVec3 mirrored = register.Position - new IntVec3(Mathf.Clamp(delta.x, -1, 1), 0, Mathf.Clamp(delta.z, -1, 1));
+            IntVec3 mirrored;
+            if (cashierCell.z < occupied.minZ)
+                mirrored = new IntVec3(Mathf.Clamp(cashierCell.x, occupied.minX, occupied.maxX), 0, occupied.maxZ + 1);
+            else if (cashierCell.z > occupied.maxZ)
+                mirrored = new IntVec3(Mathf.Clamp(cashierCell.x, occupied.minX, occupied.maxX), 0, occupied.minZ - 1);
+            else if (cashierCell.x < occupied.minX)
+                mirrored = new IntVec3(occupied.maxX + 1, 0, cashierCell.z);
+            else if (cashierCell.x > occupied.maxX)
+                mirrored = new IntVec3(occupied.minX - 1, 0, cashierCell.z);
+            else
+                return IntVec3.Invalid;
 
             if (IsServiceCellStructurallyUsable(map, mirrored, pawn))
                 return mirrored;
 
-            //固定遍历顺序，让值班避让和不同顾客得到同一服务锚点。
-            foreach (IntVec3 cell in GenRadial.RadialCellsAround(register.Position, 3f, false))
-                if (cell != cashierCell && IsServiceCellStructurallyUsable(map, cell, pawn)) return cell;
-
-            if (IsServiceCellStructurallyUsable(map, register.Position, pawn))
-                return register.Position;
-
-            return pawn.Position;
+            //正对面被固定障碍挡住时，只沿同一侧柜沿选择最近的空格。
+            bool alongX = mirrored.z < occupied.minZ || mirrored.z > occupied.maxZ;
+            int min = alongX ? occupied.minX : occupied.minZ;
+            int max = alongX ? occupied.maxX : occupied.maxZ;
+            IntVec3 best = IntVec3.Invalid;
+            int bestDistance = int.MaxValue;
+            for (int offset = min; offset <= max; offset++)
+            {
+                IntVec3 cell = alongX ? new IntVec3(offset, 0, mirrored.z) : new IntVec3(mirrored.x, 0, offset);
+                int distance = cell.DistanceToSquared(mirrored);
+                if (distance >= bestDistance || !IsServiceCellStructurallyUsable(map, cell, pawn)) continue;
+                best = cell;
+                bestDistance = distance;
+            }
+            return best;
         }
         //按服务格和队列序号查找等待格，负责让等待队列避开真正执行收银的服务格。
         public static IntVec3 FindQueueCell(Building_CashRegister register, IntVec3 serviceCell, int queueIndex, Pawn pawn)
         {
+            if (!serviceCell.IsValid) return IntVec3.Invalid;
             Map map = register.Map;
             IntVec3 laneDir = GetQueueLaneDirection(register, serviceCell);
             int distanceFromService = Mathf.Max(1, queueIndex + 1);
@@ -87,14 +105,14 @@ namespace SimManagementLib.SimAI
 
             return true;
         }
-        //计算排队方向，负责让等待队列沿着顾客服务格背向收银台排开。
+        //沿柜台边缘的垂直方向排队，避免员工横向偏移把队列带向斜角。
         private static IntVec3 GetQueueLaneDirection(Building_CashRegister register, IntVec3 serviceCell)
         {
-            IntVec3 laneDir = serviceCell - register.Position;
-            laneDir = new IntVec3(Mathf.Clamp(laneDir.x, -1, 1), 0, Mathf.Clamp(laneDir.z, -1, 1));
-            if (!laneDir.IsValid || (laneDir.x == 0 && laneDir.z == 0))
-                laneDir = register.Rotation.FacingCell;
-            return laneDir;
+            CellRect occupied = register.OccupiedRect();
+            if (serviceCell.z < occupied.minZ) return new IntVec3(0, 0, -1);
+            if (serviceCell.z > occupied.maxZ) return new IntVec3(0, 0, 1);
+            if (serviceCell.x < occupied.minX) return new IntVec3(-1, 0, 0);
+            return new IntVec3(1, 0, 0);
         }
     }
 }

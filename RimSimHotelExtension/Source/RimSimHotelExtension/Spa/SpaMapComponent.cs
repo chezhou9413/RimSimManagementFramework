@@ -74,7 +74,7 @@ namespace RimSimHotelExtension.Spa
                 return false;
             }
             IntVec3 serviceCell = CheckoutQueueCellUtility.FindServiceCell(session.ticketDesk, pawn);
-            if (!pawn.CanReach(serviceCell, PathEndMode.OnCell, Danger.None))
+            if (!serviceCell.IsValid || !pawn.CanReach(serviceCell, PathEndMode.OnCell, Danger.None))
             {
                 Abort(session, "RSH.Text.CannotReachSpaTicketDesk");
                 return false;

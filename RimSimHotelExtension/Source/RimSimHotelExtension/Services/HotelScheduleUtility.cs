@@ -127,7 +127,7 @@ namespace RimSimHotelExtension.Services
             if (desk == null) return null;
             if (stay.active && !stay.closing && !desk.IsManned) return null;
             IntVec3 cell = CheckoutQueueCellUtility.FindServiceCell(desk, pawn);
-            if (!pawn.CanReserveAndReach(cell, PathEndMode.OnCell, Danger.Some)) return null;
+            if (!cell.IsValid || !pawn.CanReserveAndReach(cell, PathEndMode.OnCell, Danger.Some)) return null;
             Job job = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("RSH_Reception"), desk, cell);
             return job;
         }

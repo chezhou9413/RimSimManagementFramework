@@ -7,13 +7,13 @@ namespace RimSimHotelExtension.Settings
     //集中保存住宿、取款与日程的初始平衡数值。
     public sealed class HotelTuningDef : Def
     {
-        public int minNights = 2;
+        public int minNights = 1;
         public int maxNights = 7;
         public int maxTotalNights = 10;
-        public List<int> nightWeights = new List<int> { 30, 25, 20, 12, 8, 5 };
+        public List<int> nightWeights = new List<int> { 30, 30, 25, 20, 12, 8, 5 };
         public float companionChance = 0.25f;
-        public int receptionOpenHour = 10;
-        public int receptionCloseHour = 22;
+        public int receptionOpenHour = 8;
+        public int receptionCloseHour = 24;
         public int nightStartHour = 18;
         public int checkoutHour = 10;
         public int minRenewalNights = 1;

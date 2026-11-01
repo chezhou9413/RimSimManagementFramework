@@ -130,7 +130,11 @@ namespace SimManagementLib.SimAI
 
                 if (pawn.IsHashIntervalTick(90))
                 {
-                    UpdateQueueCell(lordJob);
+                    if (!UpdateQueueCell(lordJob))
+                    {
+                        EndJobWith(JobCondition.Incompletable);
+                        return;
+                    }
                     if (QueueCell.IsValid && pawn.Position != QueueCell)
                     {
                         pawn.pather.StartPath(QueueCell, PathEndMode.OnCell);
@@ -317,6 +321,11 @@ namespace SimManagementLib.SimAI
                     service = CheckoutQueueCellUtility.FindServiceCell(Register, pawn);
                     job.SetTarget(TargetIndex.C, service);
                 }
+                if (!service.IsValid)
+                {
+                    EndJobWith(JobCondition.Incompletable);
+                    return;
+                }
 
                 IntVec3 queue = QueueCell;
                 LordJob_CustomerVisit lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
@@ -329,7 +338,7 @@ namespace SimManagementLib.SimAI
             return toil;
         }
         //按当前队列顺序刷新等待格，负责在其他顾客离开或让路后恢复队列站位。
-        private void UpdateQueueCell(LordJob_CustomerVisit lordJob)
+        private bool UpdateQueueCell(LordJob_CustomerVisit lordJob)
         {
             IntVec3 service = ServiceCell;
             if (!CheckoutQueueCellUtility.IsServiceCellStructurallyUsable(pawn.Map, service, pawn))
@@ -337,10 +346,12 @@ namespace SimManagementLib.SimAI
                 service = CheckoutQueueCellUtility.FindServiceCell(Register, pawn);
                 job.SetTarget(TargetIndex.C, service);
             }
+            if (!service.IsValid) return false;
 
             IntVec3 queue = CheckoutQueueCellUtility.FindQueueCell(Register, service, GetQueueIndex(lordJob), pawn);
             if (queue.IsValid && queue != QueueCell)
                 job.SetTarget(TargetIndex.B, queue);
+            return true;
         }
         //计算当前顾客在本收银台前面的待付款顾客数量，负责得到稳定的等待格序号。
         private int GetQueueIndex(LordJob_CustomerVisit lordJob)

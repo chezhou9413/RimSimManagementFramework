@@ -2,10 +2,10 @@
 <Defs>
   <RimSimHotelExtension.Settings.HotelTuningDef>
     <defName>RSH_DefaultTuning</defName>
-    <minNights>2</minNights><maxNights>7</maxNights><maxTotalNights>10</maxTotalNights>
-    <nightWeights><li>30</li><li>25</li><li>20</li><li>12</li><li>8</li><li>5</li></nightWeights>
+    <minNights>1</minNights><maxNights>7</maxNights><maxTotalNights>10</maxTotalNights>
+    <nightWeights><li>30</li><li>30</li><li>25</li><li>20</li><li>12</li><li>8</li><li>5</li></nightWeights>
     <companionChance>0.25</companionChance>
-    <receptionOpenHour>10</receptionOpenHour><receptionCloseHour>22</receptionCloseHour>
+    <receptionOpenHour>8</receptionOpenHour><receptionCloseHour>24</receptionCloseHour>
     <nightStartHour>18</nightStartHour><checkoutHour>10</checkoutHour>
     <minRenewalNights>1</minRenewalNights><maxRenewalNights>2</maxRenewalNights><renewalSatisfaction>65</renewalSatisfaction>
     <renewalLeadTicks>60000</renewalLeadTicks>

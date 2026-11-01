@@ -53,7 +53,7 @@ namespace RimSimHotelExtension.Services
             var desk = HotelMapComponent.For(context.shop.Map).DeskFor(context.shop);
             if (desk == null) return null;
             IntVec3 cell = CheckoutQueueCellUtility.FindServiceCell(desk, context.customer);
-            if (!context.customer.CanReserveAndReach(cell, PathEndMode.OnCell, Danger.Some)) return null;
+            if (!cell.IsValid || !context.customer.CanReserveAndReach(cell, PathEndMode.OnCell, Danger.Some)) return null;
             return JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("RSH_Reception"), desk, cell);
         }
     }

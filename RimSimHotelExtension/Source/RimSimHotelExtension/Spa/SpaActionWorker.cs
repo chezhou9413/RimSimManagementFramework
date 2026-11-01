@@ -24,7 +24,8 @@ namespace RimSimHotelExtension.Spa
                 reason = HotelText.T("RSH.Text.SpaNeedsReceptionDesk");
                 return false;
             }
-            if (!context.customer.CanReach(CheckoutQueueCellUtility.FindServiceCell(desk, context.customer),
+            IntVec3 serviceCell = CheckoutQueueCellUtility.FindServiceCell(desk, context.customer);
+            if (!serviceCell.IsValid || !context.customer.CanReach(serviceCell,
                 PathEndMode.OnCell, Danger.None))
             {
                 reason = HotelText.T("RSH.Text.CannotReachSpaTicketDesk");
