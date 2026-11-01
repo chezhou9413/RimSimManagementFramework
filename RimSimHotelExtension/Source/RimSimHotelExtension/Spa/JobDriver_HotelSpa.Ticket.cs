@@ -85,9 +85,13 @@ namespace RimSimHotelExtension.Spa
         {
             SimShopCheckoutApi.LeaveQueue(pawn);
             ShopProgressBarUtility.Clear(pawn);
-            //购票成功已经释放过服务格；泡汤结束和中断清理只释放当前任务仍持有的预约。
-            if (Session?.ticketServiceCell.IsValid == true && pawn.HasReserved(Session.ticketServiceCell, job))
-                pawn.Map.reservationManager.Release(Session.ticketServiceCell, pawn, job);
+            SpaSession session = Session;
+            if (session == null) return;
+            IntVec3 serviceCell = session.ticketServiceCell;
+            //购票结束后不再持有服务格，先清空会话记录，避免后续收尾或存档继续引用旧预约。
+            session.ticketServiceCell = IntVec3.Invalid;
+            if (serviceCell.IsValid && pawn.HasReserved(serviceCell, job))
+                pawn.Map.reservationManager.Release(serviceCell, pawn, job);
         }
 
         //无法完成购票时统一取消会话，交还已预留的设施。

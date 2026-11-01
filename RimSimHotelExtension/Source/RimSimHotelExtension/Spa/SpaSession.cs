@@ -20,6 +20,7 @@ namespace RimSimHotelExtension.Spa
         public Building_HotelSpa spa;
         public Building_HotelLocker locker;
         public Building_HotelDesk ticketDesk;
+        //服务格仅用于购票，付款完成或任务中断后立即清空。
         public IntVec3 ticketServiceCell = IntVec3.Invalid;
         public int ticketServiceTicks;
         public int ticketServiceTicksAtWaitStart;
