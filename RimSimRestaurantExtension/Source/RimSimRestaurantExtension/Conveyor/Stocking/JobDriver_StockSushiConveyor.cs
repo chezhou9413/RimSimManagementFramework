@@ -149,11 +149,13 @@ namespace RimSimRestaurantExtension.Conveyor.Stocking
                 || !food.IngestibleNow || line.Count(rule.id) >= rule.target)
             { Fail("上架时线路、食品或目标库存已变化"); return false; }
             if (!ConveyorMovement.TryInsertionProgress(belt, out float progress)) return false;
+            ConveyorMovement.RecordMissingPlate(line, belt);
             Ledger.Release(task.key);
             if (!pawn.carryTracker.innerContainer.TryTransferToContainer(food, belt.GetDirectlyHeldThings(), false))
             { Fail("传送带容器拒绝餐盘"); return false; }
             belt.plate = new ConveyorPlate { ruleId = task.ruleId, cost = task.cost };
             belt.progress = progress;
+            line.NotifyContentsChanged();
             food.SetForbidden(false, false);
             task.finished = true;
             return true;

@@ -22,6 +22,11 @@ namespace RimSimRestaurantExtension.Conveyor.Transport
         internal readonly ConveyorTransportCache transport = new ConveyorTransportCache();
         private Zone_Shop shop;
         private bool sameShop;
+        internal bool hasContents;
+        private bool transportActive;
+        private int nextActivityCheckTick;
+        private bool transportPowered;
+        private int nextPowerCheckTick;
         public Zone_Shop Shop => shop;
         public bool SameShop => sameShop;
         public bool Powered => transport.Powered();
@@ -37,6 +42,35 @@ namespace RimSimRestaurantExtension.Conveyor.Transport
         }
         public bool CanStock => SameShop && Powered && !paused && RestaurantOrderUtility.Settings.GetOrCreate(Shop.ID).enabled;
         public int Interval => transport.interval;
+
+        //低频检查营业和在场食客，关店后的用餐收尾仍保留运输。
+        internal bool ShouldTransport(int now, int mapId)
+        {
+            if (now >= nextActivityCheckTick)
+            {
+                nextActivityCheckTick = now + 30;
+                transportActive = SameShop && ((Shop.IsOpenNow() && RestaurantOrderUtility.Settings.GetOrCreate(Shop.ID).enabled)
+                    || RestaurantOrderUtility.OrderManager.HasConveyorGuests(mapId, id));
+            }
+            return SameShop && transportActive;
+        }
+
+        //运输中及时停电，断电后降低整线电力轮询频率。
+        internal bool HasTransportPower(int now)
+        {
+            if (!transportPowered && now < nextPowerCheckTick) return false;
+            transportPowered = Powered;
+            nextPowerCheckTick = now + 30;
+            return transportPowered;
+        }
+
+        //上架或拓扑变化后立即唤醒线路，空线无需每步扫描所有容器。
+        internal void NotifyContentsChanged()
+        {
+            hasContents = true;
+            nextActivityCheckTick = 0;
+            nextPowerCheckTick = 0;
+        }
 
         //刷新店铺归属缓存，职责是定期感知商店区域编辑并避免每格绘制重复扫描。
         public void RefreshShop()

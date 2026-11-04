@@ -1,4 +1,3 @@
-using SimManagementLib.Pojo;
 using SimManagementLib.SimMapComp;
 using Verse;
 
@@ -10,8 +9,9 @@ namespace SimManagementLib.SimZone
         private const int RuntimeCacheTicks = 61;
         private int runtimeCacheExpireTick = -1;
         private bool cachedValidShop;
-        private bool cachedOpenNow;
         private string cachedValidationMessage;
+        private bool facilityCoverageDirty = true;
+        private int facilityCoverageBuildingsHash;
         //失效商店运行态缓存，负责在区划、日程或岗位配置变更后重新计算状态。
         public void InvalidateShopRuntimeCache()
         {
@@ -27,11 +27,12 @@ namespace SimManagementLib.SimZone
             message = cachedValidationMessage;
             return cachedValidShop;
         }
-        //返回缓存后的营业状态，负责把设施有效性和日程判断合并到一次短周期计算中。
+        //先读取营业开关和日程，关店时不触发区域校验。
         private bool GetCachedOpenNow()
         {
+            if (!GetSchedule().IsOpenNow(Map)) return false;
             RefreshRuntimeCacheIfNeeded();
-            return cachedOpenNow;
+            return cachedValidShop;
         }
         //按短周期刷新商店运行状态，负责把昂贵的格子扫描限制到固定间隔内。
         private void RefreshRuntimeCacheIfNeeded()
@@ -41,9 +42,18 @@ namespace SimManagementLib.SimZone
                 return;
 
             cachedValidShop = ComputeValidShopNow(out cachedValidationMessage);
-            ShopScheduleData data = GetSchedule();
-            cachedOpenNow = cachedValidShop && data.IsOpenNow(Map);
             runtimeCacheExpireTick = now + RuntimeCacheTicks;
+        }
+
+        //只在建筑或区划变化后修补设施占用格，避免把九宫格搜索放进周期校验。
+        private void RepairFacilityCoverageIfNeeded()
+        {
+            if (Map == null) return;
+            int buildingsHash = Map.listerThings.StateHashOfGroup(ThingRequestGroup.BuildingArtificial);
+            if (!facilityCoverageDirty && facilityCoverageBuildingsHash == buildingsHash) return;
+            RepairEmbeddedFacilityCoverage();
+            facilityCoverageBuildingsHash = buildingsHash;
+            facilityCoverageDirty = false;
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
@@ -10,15 +11,15 @@ using Verse;
 
 namespace RimSimHotelExtension.UI
 {
-    //客房首页展示床位清单，房价和单床登记在二级窗口编辑。
+    //客房首页展示床位清单，作息、房价和单床登记在二级窗口编辑。
     public sealed class HotelRoomsPage : ShopManagerPageWorker
     {
         private const string Key = "RSH.RoomDraft";
-        //床位与报价只属于当前窗口草稿。
+        //床位、作息与报价只属于当前窗口草稿。
         private sealed class Draft : PageScroll
         {
             public bool enabled, renewals;
-            public int single, dual, sort;
+            public int single, dual, sort, sleepStartHour, wakeHour;
             public HashSet<Building_Bed> beds;
         }
 
@@ -30,6 +31,7 @@ namespace RimSimHotelExtension.UI
             var settings = HotelMapComponent.For(context.Shop.Map).SettingsFor(context.Shop);
             return new Draft { enabled = settings.enabled, renewals = settings.acceptRenewals,
                 single = settings.singlePrice, dual = settings.doublePrice,
+                sleepStartHour = settings.sleepStartHour, wakeHour = settings.wakeHour,
                 beds = new HashSet<Building_Bed>(settings.registeredBeds) };
         });
 
@@ -50,6 +52,7 @@ namespace RimSimHotelExtension.UI
                 HotelUi.Summary(width, ref y, HotelText.T("RSH.Ui.RoomSummary", beds.Count.Named("TOTAL"),
                     beds.Count(draft.beds.Contains).Named("RENTED"), stays.Count.Named("OCCUPIED"),
                     HotelText.T(draft.enabled ? "RSH.Ui.Open" : "RSH.Ui.Paused").Named("STATE"), draft.single.Named("SINGLE"), draft.dual.Named("DOUBLE")));
+                HotelUi.Value(width, ref y, HotelText.T("RSH.Ui.SleepSchedule"), $"{draft.sleepStartHour:00}:00 — {draft.wakeHour:00}:00");
                 HotelUi.Actions(width, ref y, HotelText.T("RSH.Ui.ChangeRoomPrices"), () => OpenSettings(draft, manager, context),
                     sorts[draft.sort], () => HotelUi.SortMenu(sorts, draft.sort, value => { draft.sort = value; draft.position = Vector2.zero; }));
                 HotelUi.TableHeader(width, ref y, new[] { HotelText.T("RSH.Ui.Bed"), HotelText.T("RSH.Ui.NightlyPriceDraft"),
@@ -77,18 +80,35 @@ namespace RimSimHotelExtension.UI
         {
             bool enabled = target.enabled, renewals = target.renewals;
             int single = target.single, dual = target.dual;
+            int sleepStartHour = target.sleepStartHour, wakeHour = target.wakeHour;
             string singleBuffer = single.ToString(), dualBuffer = dual.ToString();
             Find.WindowStack.Add(new Dialog_HotelDetails(HotelText.T("RSH.Ui.RoomSettings"), width => {
                 float y = 0;
                 HotelUi.Check(width, ref y, HotelText.T("RSH.Text.AcceptNewStays"), ref enabled);
                 HotelUi.Check(width, ref y, HotelText.T("RSH.Text.AllowEligibleGuestsToExtendTheirStay"), ref renewals);
+                HotelUi.Actions(width, ref y,
+                    HotelText.T("RSH.Ui.SleepStartHour", $"{sleepStartHour:00}:00".Named("TIME")),
+                    () => SelectHour(sleepStartHour, wakeHour, value => sleepStartHour = value),
+                    HotelText.T("RSH.Ui.WakeHour", $"{wakeHour:00}:00".Named("TIME")),
+                    () => SelectHour(wakeHour, sleepStartHour, value => wakeHour = value));
+                HotelUi.Notice(width, ref y, HotelText.T("RSH.Ui.SleepScheduleHint"));
                 HotelUi.Number(width, ref y, HotelText.T("RSH.Text.SingleBedSilverNight"), ref single, ref singleBuffer, 10000);
                 HotelUi.Number(width, ref y, HotelText.T("RSH.Text.DoubleBedSilverWholeBedNight"), ref dual, ref dualBuffer, 10000);
                 HotelUi.Notice(width, ref y, HotelText.T("RSH.Ui.RoomPricingHint"));
                 string issue = manager.GetIssue(context.Shop);
                 if (!issue.NullOrEmpty()) HotelUi.Notice(width, ref y, issue, true);
                 return y;
-            }, () => { target.enabled = enabled; target.renewals = renewals; target.single = single; target.dual = dual; }));
+            }, () => {
+                target.enabled = enabled; target.renewals = renewals; target.single = single; target.dual = dual;
+                target.sleepStartHour = sleepStartHour; target.wakeHour = wakeHour;
+            }));
+        }
+
+        //按当地整点选择作息，禁止首尾相同造成空时段。
+        private static void SelectHour(int selected, int excluded, Action<int> select)
+        {
+            Find.WindowStack.Add(new FloatMenu(Enumerable.Range(0, 24).Where(hour => hour != excluded)
+                .Select(hour => new FloatMenuOption((hour == selected ? "✓ " : "") + $"{hour:00}:00", () => select(hour))).ToList()));
         }
 
         //房间详情可编辑对应床型报价，合同只锁定床位登记和已成交价格。
@@ -151,6 +171,7 @@ namespace RimSimHotelExtension.UI
             var settings = manager.SettingsFor(shopContext.Shop);
             settings.enabled = draft.enabled; settings.acceptRenewals = draft.renewals;
             settings.singlePrice = draft.single; settings.doublePrice = draft.dual;
+            settings.sleepStartHour = draft.sleepStartHour; settings.wakeHour = draft.wakeHour;
             foreach (var bed in settings.registeredBeds.Concat(draft.beds).Distinct().ToList())
             {
                 bool register = draft.beds.Contains(bed) && bed != null && bed.Spawned && shopContext.Shop.ContainsCell(bed.Position);

@@ -21,7 +21,7 @@ namespace RimSimHotelExtension.Buildings
                 if (SpaMapComponent.For(Map).ActiveSessions.Any(s => s.ticketDesk == this
                     && s.stage == SpaSessionStage.BuyingTicket)) return true;
                 var manager = HotelMapComponent.For(Map);
-                return manager.DeskFor(shop) == this && manager.Stays.Any(s => !s.completed
+                return manager.DeskFor(shop) == this && manager.ActiveStays.Any(s => !s.completed
                     && s.shopZoneId == shop.ID && (!s.active || s.closing || s.renewalRequested));
             }
         }

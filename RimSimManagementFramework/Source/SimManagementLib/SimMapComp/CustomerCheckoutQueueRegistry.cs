@@ -11,6 +11,7 @@ namespace SimManagementLib.SimMapComp
         private readonly Map map;
         private readonly Dictionary<int, CustomerCheckoutTicket> byPawn = new Dictionary<int, CustomerCheckoutTicket>();
         private readonly Dictionary<int, LinkedList<CustomerCheckoutTicket>> byRegister = new Dictionary<int, LinkedList<CustomerCheckoutTicket>>();
+        private readonly Dictionary<IntVec3, int> waitingCells = new Dictionary<IntVec3, int>();
         private long nextSequence;
         public int TicketCount => byPawn.Count;
 
@@ -90,10 +91,36 @@ namespace SimManagementLib.SimMapComp
             return ticket.Node.List.First == ticket.Node;
         }
 
+        //读取票据持有的等待格，人物尚未走到时也保留该位置。
+        public IntVec3 WaitingCellFor(int pawnId)
+            => byPawn.TryGetValue(pawnId, out CustomerCheckoutTicket ticket) ? ticket.WaitingCell : IntVec3.Invalid;
+
+        //同一地图的不同柜台也不能把等待者安排到同一个格子。
+        public bool IsWaitingCellTaken(IntVec3 cell, int pawnId)
+            => waitingCells.TryGetValue(cell, out int owner) && owner != pawnId;
+
+        //选定等待位置后立即登记，下一位顾客选点时就能避开它。
+        public void SetWaitingCell(int pawnId, IntVec3 cell)
+        {
+            CustomerCheckoutTicket ticket = byPawn[pawnId];
+            ReleaseWaitingCell(pawnId);
+            ticket.WaitingCell = cell;
+            waitingCells.Add(cell, pawnId);
+        }
+
+        //进入服务格或结束排队时交还等待位置。
+        public void ReleaseWaitingCell(int pawnId)
+        {
+            if (!byPawn.TryGetValue(pawnId, out CustomerCheckoutTicket ticket) || !ticket.WaitingCell.IsValid) return;
+            waitingCells.Remove(ticket.WaitingCell);
+            ticket.WaitingCell = IntVec3.Invalid;
+        }
+
         //释放 Pawn 票据，职责是幂等清理两个索引。
         public void ReleasePawn(int pawnId)
         {
             if (!byPawn.TryGetValue(pawnId, out CustomerCheckoutTicket ticket)) return;
+            ReleaseWaitingCell(pawnId);
             byPawn.Remove(pawnId);
             LinkedList<CustomerCheckoutTicket> queue = ticket.Node?.List;
             queue?.Remove(ticket.Node);
@@ -112,7 +139,8 @@ namespace SimManagementLib.SimMapComp
             {
                 CustomerCheckoutTicket ticket = pair.Value;
                 Pawn pawn = ticket.Pawn;
-                bool invalid = pawn == null || pawn.Destroyed || pawn.Dead || !pawn.Spawned || pawn.Map != map;
+                bool invalid = pawn == null || pawn.Destroyed || pawn.Dead || !pawn.Spawned || pawn.Map != map
+                    || ticket.Register == null || !ticket.Register.Spawned || ticket.Register.Map != map;
                 bool hasCheckoutJob = CustomerRuntimeIndex.FindCheckoutJob(pawn) != null;
                 if (invalid || (!hasCheckoutJob && now - ticket.LastSeenTick >= StaleTicketTicks))
                 {
@@ -135,6 +163,7 @@ namespace SimManagementLib.SimMapComp
         public int RegisterId;
         public long Sequence;
         public int LastSeenTick;
+        public IntVec3 WaitingCell = IntVec3.Invalid;
         public LinkedListNode<CustomerCheckoutTicket> Node;
     }
 }

@@ -17,7 +17,7 @@ namespace RimSimRestaurantExtension.Conveyor.Rendering
             float clock = (line?.clock ?? 0) - 1f + fraction;
             int frame = Mathf.FloorToInt(Mathf.Repeat(clock / Mathf.Max(1, line?.Interval ?? 60) * 3f, 1f)
                 * ConveyorTextureCache.PhaseCount);
-            int mask = ConveyorLinks.Mask(belt.Map, belt.Position);
+            int mask = belt.transportNode.connectionMask;
             var mat = ConveyorTextureCache.Material(mask, belt.Rotation, frame, belt.DrawColor, belt.DrawColorTwo);
             //缓存准备期间直接显示同形状静态图集，完整周期就绪后再切换动画。
             if (mat == null) belt.Graphic.DrawWorker(location, belt.Rotation, belt.def, belt, 0f);

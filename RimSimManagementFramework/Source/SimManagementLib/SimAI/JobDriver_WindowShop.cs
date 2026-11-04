@@ -1,3 +1,4 @@
+using RimWorld;
 using SimManagementLib.SimDef;
 using SimManagementLib.SimAI.CustomerVisit;
 using SimManagementLib.SimThingClass;
@@ -15,13 +16,13 @@ namespace SimManagementLib.SimAI
     {
         private const int DefaultBrowseTicks = 300;
 
-        //预约橱窗浏览目标，职责是复核站位并在目标被占用时选择其他店内空格。
+        //预约前复核客房等位置限制，空地被占用时另选店内站位。
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
             LocalTargetInfo target = job.GetTarget(TargetIndex.A);
             if (!target.IsValid) return false;
             if (target.HasThing)
-                return true;
+                return !target.Cell.IsForbidden(pawn);
             if (!CustomerWindowShopTargetUtility.CanUseCell(pawn, target.Cell))
             {
                 var lordJob = pawn.GetLord()?.LordJob as LordJob_CustomerVisit;
@@ -33,10 +34,10 @@ namespace SimManagementLib.SimAI
             return pawn.ReserveSittableOrSpot(target.Cell, job, errorOnFailed);
         }
 
-        //创建橱窗浏览流程，职责是移动、等待、展示进度并提交离店前反馈。
+        //浏览途中持续检查权限，房间登记变化后停止旧的闲逛任务。
         protected override IEnumerable<Toil> MakeNewToils()
         {
-            this.FailOn(() => !job.GetTarget(TargetIndex.A).IsValid);
+            this.FailOn(() => !job.GetTarget(TargetIndex.A).IsValid || job.GetTarget(TargetIndex.A).Cell.IsForbidden(pawn));
 
             if (job.GetTarget(TargetIndex.A).HasThing)
                 yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.Touch);

@@ -39,7 +39,7 @@ namespace RimSimRestaurantExtension.Buildings
         //处理拆除与卸载，职责是终止依赖此台的订单并释放所有实物。
         public override void DeSpawn(DestroyMode mode = DestroyMode.Vanish)
         {
-            foreach (var order in RestaurantOrderUtility.OrderManager?.Orders
+            foreach (var order in RestaurantOrderUtility.OrderManager?.ActiveOrders
                 .Where(item => !item.IsTerminal && item.state != Models.RestaurantOrderState.AwaitingCheckout
                     && item.providerThingId == thingIDNumber).ToList()
                 ?? new List<Models.RestaurantOrder>())

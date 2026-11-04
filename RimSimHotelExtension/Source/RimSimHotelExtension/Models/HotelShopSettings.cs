@@ -4,7 +4,7 @@ using Verse;
 
 namespace RimSimHotelExtension.Models
 {
-    //保存单家旅馆的经营开关、床位及成交前报价。
+    //保存单家旅馆的经营开关、作息、床位及成交前报价。
     public sealed class HotelShopSettings : IExposable
     {
         public int shopZoneId;
@@ -18,6 +18,8 @@ namespace RimSimHotelExtension.Models
         public int atmFee = 2;
         public int atmDailyLimit = 250;
         public bool acceptRenewals = true;
+        public int sleepStartHour = 22;
+        public int wakeHour = 7;
         public int metricsDay = -1;
         public int arrivalsToday;
         public int departuresToday;
@@ -37,6 +39,8 @@ namespace RimSimHotelExtension.Models
             Scribe_Values.Look(ref atmFee, "atmFee", 2);
             Scribe_Values.Look(ref atmDailyLimit, "atmDailyLimit", 250);
             Scribe_Values.Look(ref acceptRenewals, "acceptRenewals", true);
+            Scribe_Values.Look(ref sleepStartHour, "sleepStartHour", 22);
+            Scribe_Values.Look(ref wakeHour, "wakeHour", 7);
             Scribe_Values.Look(ref metricsDay, "metricsDay", -1);
             Scribe_Values.Look(ref arrivalsToday, "arrivalsToday");
             Scribe_Values.Look(ref departuresToday, "departuresToday");

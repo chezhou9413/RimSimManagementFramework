@@ -5,6 +5,7 @@ using RimSimHotelExtension.Models;
 using RimSimHotelExtension.Settings;
 using RimSimHotelExtension.Tool;
 using SimManagementLib.SimZone;
+using SimManagementLib.Tool;
 using Verse;
 using RimWorld;
 
@@ -15,9 +16,11 @@ namespace RimSimHotelExtension.GameComp
     {
         private List<HotelShopSettings> settings = new List<HotelShopSettings>();
         private List<HotelStay> stays = new List<HotelStay>();
+        private readonly List<HotelStay> activeStays = new List<HotelStay>();
         private int nextId = 1;
         private readonly HashSet<int> arrivalBeds = new HashSet<int>();
         public IReadOnlyList<HotelStay> Stays => stays;
+        public IReadOnlyList<HotelStay> ActiveStays => activeStays;
         public List<HotelMoneyRecord> MoneyRecords = new List<HotelMoneyRecord>();
 
         //由地图构造持久化的旅馆管理器。
@@ -34,24 +37,29 @@ namespace RimSimHotelExtension.GameComp
             HotelTuningDef t = HotelTuningDef.Current;
             result = new HotelShopSettings { shopZoneId = shop.ID, singlePrice = t.singlePrice,
                 doublePrice = t.doublePrice, woodSpaPrice = t.woodSpaPrice, stoneSpaPrice = t.stoneSpaPrice,
-                atmFee = t.atmFee, atmDailyLimit = t.atmDailyLimit };
+                atmFee = t.atmFee, atmDailyLimit = t.atmDailyLimit,
+                sleepStartHour = t.sleepStartHour, wakeHour = t.wakeHour };
             settings.Add(result);
             RefreshMetrics(result);
             return result;
         }
 
-        //按顾客查找尚未结束的入住记录。
-        public HotelStay FindStay(Pawn pawn) => stays.FirstOrDefault(s => !s.completed && s.guests.Any(g => g.pawn == pawn));
-
-        //按顾客查找个人余额和活动进度。
-        public HotelGuestState GuestFor(Pawn pawn) => FindStay(pawn)?.guests.FirstOrDefault(g => g.pawn == pawn);
+        //合同沿用创建时所属旅馆的设置，区域移除后也能完成收尾。
+        internal HotelShopSettings SettingsFor(HotelStay stay) => settings.First(s => s.shopZoneId == stay.shopZoneId);
 
         //按区域编号找回当前商店，区域被移除时返回空。
         public Zone_Shop ShopFor(HotelStay stay) => map.zoneManager.AllZones.OfType<Zone_Shop>().FirstOrDefault(z => z.ID == stay.shopZoneId);
 
         //返回本旅馆的前台，独立取款机不占用前台岗位。
-        public Building_HotelDesk DeskFor(Zone_Shop shop) => map.listerBuildings.allBuildingsColonist
-            .OfType<Building_HotelDesk>().FirstOrDefault(b => b.Spawned && shop != null && shop.Cells.Contains(b.Position));
+        public Building_HotelDesk DeskFor(Zone_Shop shop)
+        {
+            if (shop == null) return null;
+            var registers = ShopDataUtility.GetCashRegisterSnapshotInZone(shop);
+            for (int i = 0; i < registers.Count; i++)
+                if (registers[i] is Building_HotelDesk desk && desk.Spawned && desk.Faction == Faction.OfPlayer
+                    && map.zoneManager.ZoneAt(desk.Position) == shop) return desk;
+            return null;
+        }
 
         //返回已登记且没有入住和预订占用的床位。
         public IEnumerable<Building_Bed> AvailableBeds(Zone_Shop shop)
@@ -59,7 +67,7 @@ namespace RimSimHotelExtension.GameComp
             return SettingsFor(shop).registeredBeds.Where(b => SupportsRentalBed(b) && b.Spawned && b.Map == map
                 && shop.Cells.Contains(b.Position) && !b.Medical && !b.ForPrisoners && !b.ForSlaves && !b.IsBurning()
                 && b.OwnersForReading.Count == 0 && !arrivalBeds.Contains(b.thingIDNumber)
-                && !stays.Any(s => !s.completed && s.bed == b));
+                && !activeStays.Any(s => !s.completed && s.bed == b));
         }
 
         //提供经营面板和到客校验共同使用的阻塞原因。
@@ -90,6 +98,7 @@ namespace RimSimHotelExtension.GameComp
                 settings ??= new List<HotelShopSettings>();
                 stays ??= new List<HotelStay>();
                 MoneyRecords ??= new List<HotelMoneyRecord>();
+                RebuildGuestIndex();
             }
         }
 
@@ -112,10 +121,13 @@ namespace RimSimHotelExtension.GameComp
         //按低频率巡检合同，处理入离店期限和每晚房费。
         public override void MapComponentTick()
         {
+            RefreshRoomPrivacy();
             if (Find.TickManager.TicksGame % 150 != 0) return;
-            foreach (HotelStay stay in stays.ToList())
-                if (!stay.completed) TickStay(stay);
-            stays.RemoveAll(s => s.completed && Find.TickManager.TicksGame - s.closingTick > 60000);
+            activeStays.RemoveAll(stay => stay.completed);
+            for (int i = 0, count = activeStays.Count; i < count; i++)
+                if (!activeStays[i].completed) TickStay(activeStays[i]);
+            if (stays.RemoveAll(s => s.completed && Find.TickManager.TicksGame - s.closingTick > 60000) > 0)
+                roomPrivacyDirty = true;
         }
     }
 }

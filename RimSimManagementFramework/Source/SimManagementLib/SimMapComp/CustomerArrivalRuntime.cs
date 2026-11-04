@@ -191,13 +191,21 @@ namespace SimManagementLib.SimMapComp
         }
 
         //刷新高频变化的营业与收银状态，职责是让后台到客周期不依赖经营界面触发缓存重算。
-        private static void RefreshDynamicState(CustomerArrivalShopContext context)
+        private void RefreshDynamicState(CustomerArrivalShopContext context)
         {
             Zone_Shop shop = context?.Shop;
             if (shop == null) return;
 
             context.IsOpen = shop.IsOpenNow();
-            context.HasCheckoutService = context.IsOpen && ShopStaffUtility.HasMannedCashRegister(shop);
+            context.HasCheckoutService = false;
+            if (!context.IsOpen) return;
+            if (!context.SnapshotReady)
+            {
+                MarkDirty(shop);
+                context.IsOpen = false;
+                return;
+            }
+            context.HasCheckoutService = ShopStaffUtility.HasMannedCashRegister(shop);
             Current.Game?.GetComponent<GameComponent_ShopAnalyticsManager>()?.GetOrEvaluateShopMetrics(shop);
         }
 

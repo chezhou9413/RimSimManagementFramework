@@ -88,6 +88,10 @@ namespace SimManagementLib.GameComp
             int ticks = Find.TickManager?.TicksGame ?? 0;
             ShopAnalyticsState state = GetOrCreateState(zoneId, zone.label);
 
+            //关店期间沿用最近指标；主动刷新仍可立即重算。
+            if (!forceRecalculate && !zone.GetSchedule().IsOpenNow(zone.Map))
+                return state.cachedMetrics ??= CreateConservativeMetrics(zone, state);
+
             int cacheAge = state.lastEvaluateTick < 0 ? int.MaxValue : ticks - state.lastEvaluateTick;
             if (!forceRecalculate
                 && state.cachedMetrics != null

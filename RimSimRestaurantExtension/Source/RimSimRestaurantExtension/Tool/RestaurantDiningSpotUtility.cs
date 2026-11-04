@@ -112,7 +112,7 @@ namespace RimSimRestaurantExtension.Tool
         public static bool IsAvailableSeat(Pawn customer, Zone_Shop shop, IntVec3 cell, RestaurantOrder ignoredOrder = null)
         {
             if (customer?.Map == null || shop == null || !cell.IsValid) return false;
-            return RestaurantOrderUtility.OrderManager.Sessions.All(session => session.IsTerminal
+            return RestaurantOrderUtility.OrderManager.ActiveSessions.All(session => session.IsTerminal
                 || session.shopId != shop.ID || session.seat != cell
                 || session.customerId == customer.thingIDNumber);
         }

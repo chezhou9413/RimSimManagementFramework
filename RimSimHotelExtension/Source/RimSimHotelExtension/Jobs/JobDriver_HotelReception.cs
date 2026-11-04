@@ -4,6 +4,9 @@ using RimSimHotelExtension.GameComp;
 using RimSimHotelExtension.Settings;
 using RimSimHotelExtension.Tool;
 using SimManagementLib.Api;
+using SimManagementLib.SimAI;
+using SimManagementLib.Tool;
+using UnityEngine;
 using Verse;
 using Verse.AI;
 
@@ -16,10 +19,11 @@ namespace RimSimHotelExtension.Jobs
         private int waitStartTick = -1;
         private int serviceTicksAtWaitStart;
         private Building_HotelDesk Desk => job.targetA.Thing as Building_HotelDesk;
+        private IntVec3 ServiceCell => job.targetC.Cell;
 
-        //顾客只预约服务格，避免与正在值班的员工争抢收银台建筑。
+        //允许多位顾客同时申请，轮到队首时才预约服务格。
         public override bool TryMakePreToilReservations(bool errorOnFailed)
-            => pawn.Reserve(job.targetB, job, 1, -1, null, errorOnFailed);
+            => Desk?.Spawned == true;
 
         //保存已经得到的服务时间，读档后不会重置队列等待。
         public override void ExposeData()
@@ -30,11 +34,17 @@ namespace RimSimHotelExtension.Jobs
             Scribe_Values.Look(ref serviceTicksAtWaitStart, "serviceTicksAtWaitStart");
         }
 
-        //先到前台，再仅在员工在岗时推进实际接待。
+        //先建立合同，再把住宿业务加入普通收银和温泉购票共用的队列。
         protected override IEnumerable<Toil> MakeNewToils()
         {
+            AddFinishAction(condition =>
+            {
+                SimShopCheckoutApi.LeaveQueue(pawn);
+                ShopProgressBarUtility.Clear(pawn);
+            });
             this.FailOnDespawnedOrNull(TargetIndex.A);
             Toil prepare = ToilMaker.MakeToil();
+            prepare.defaultCompleteMode = ToilCompleteMode.Instant;
             prepare.initAction = () =>
             {
                 var manager = HotelMapComponent.For(pawn.Map);
@@ -43,41 +53,85 @@ namespace RimSimHotelExtension.Jobs
                 if (shop == null || !manager.TryCheckInExisting(pawn, shop)) EndJobWith(JobCondition.Incompletable);
             };
             yield return prepare;
-            yield return Toils_Goto.GotoCell(TargetIndex.B, PathEndMode.OnCell);
             Toil service = ToilMaker.MakeToil();
             service.defaultCompleteMode = ToilCompleteMode.Never;
             service.initAction = () =>
             {
-                waitStartTick = Find.TickManager.TicksGame;
-                serviceTicksAtWaitStart = Desk.CustomerServiceTicks;
-            };
-            service.tickAction = () =>
-            {
-                var manager = HotelMapComponent.For(pawn.Map);
-                var stay = manager.FindStay(pawn);
-                if (stay == null) { EndJobWith(JobCondition.Succeeded); return; }
-                pawn.rotationTracker.FaceTarget(Desk);
-                if (Desk.GetUnservedWaitTicks(waitStartTick, serviceTicksAtWaitStart)
-                    > HotelTuningDef.Current.receptionTimeout)
+                if (waitStartTick < 0)
                 {
-                    if (stay.active && !stay.closing)
-                    {
-                        stay.renewalRequested = false;
-                        stay.renewalChecked = true;
-                    }
-                    else manager.RequestCheckout(stay, "RSH.Text.ReceptionWaitTimedOut");
-                    EndJobWith(JobCondition.Incompletable);
-                    return;
+                    waitStartTick = Find.TickManager.TicksGame;
+                    serviceTicksAtWaitStart = Desk.CustomerServiceTicks;
                 }
-                if (!Desk.IsManned) return;
-                Desk.NotifyCustomerService();
-                servedTicks++;
-                int needed = stay.active || stay.closing ? HotelTuningDef.Current.returnReceptionTicks : HotelTuningDef.Current.receptionTicks;
-                if (servedTicks < needed) return;
-                manager.CompleteReception(pawn);
-                ReadyForNextToil();
+                DriveReception(true);
             };
+            service.tickAction = () => DriveReception(false);
             yield return service;
+        }
+
+        //保留队列位置，只在队首站到前台且员工在岗时累计服务时间。
+        private void DriveReception(bool started)
+        {
+            var manager = HotelMapComponent.For(pawn.Map);
+            var stay = manager.FindStay(pawn);
+            if (stay == null) { EndJobWith(JobCondition.Succeeded); return; }
+            if (!SimShopCheckoutApi.TryJoinQueue(pawn, Desk, out int ahead)
+                || !CheckoutQueueCellUtility.IsServiceCellStructurallyUsable(pawn.Map, ServiceCell, pawn))
+            {
+                EndJobWith(JobCondition.Incompletable);
+                return;
+            }
+            int waited = Desk.GetUnservedWaitTicks(waitStartTick, serviceTicksAtWaitStart);
+            if (waited > HotelTuningDef.Current.receptionTimeout)
+            {
+                if (stay.active && !stay.closing)
+                {
+                    stay.renewalRequested = false;
+                    stay.renewalChecked = true;
+                }
+                else manager.RequestCheckout(stay, "RSH.Text.ReceptionWaitTimedOut");
+                EndJobWith(JobCondition.Incompletable);
+                return;
+            }
+
+            bool canUseServiceCell = ahead == 0
+                && CheckoutQueueCellUtility.TryReserveServiceCell(Desk, ServiceCell, pawn, job);
+            if (ahead > 0 && pawn.HasReserved(ServiceCell, job))
+                pawn.Map.reservationManager.Release(ServiceCell, pawn, job);
+            if (started || pawn.IsHashIntervalTick(30))
+            {
+                IntVec3 destination = canUseServiceCell ? ServiceCell
+                    : CheckoutQueueCellUtility.FindQueueCell(Desk, ServiceCell, ahead, pawn);
+                if (!destination.IsValid) pawn.pather.StopDead();
+                else if (pawn.Position != destination && (!pawn.pather.Moving || pawn.pather.Destination.Cell != destination))
+                {
+                    if (!pawn.CanReach(destination, PathEndMode.OnCell, Danger.Some))
+                    {
+                        EndJobWith(JobCondition.Incompletable);
+                        return;
+                    }
+                    pawn.pather.StartPath(destination, PathEndMode.OnCell);
+                }
+                job.SetTarget(TargetIndex.B, destination);
+            }
+            if (!canUseServiceCell || pawn.Position != ServiceCell)
+            {
+                if (pawn.IsHashIntervalTick(5))
+                    ShopProgressBarUtility.Report(pawn, waited / (float)Mathf.Max(1, HotelTuningDef.Current.receptionTimeout),
+                        new Color(0.95f, 0.72f, 0.36f, 0.95f));
+                return;
+            }
+
+            pawn.pather.StopDead();
+            pawn.rotationTracker.FaceTarget(Desk.CurrentCashier ?? (Thing)Desk);
+            int needed = stay.active || stay.closing ? HotelTuningDef.Current.returnReceptionTicks : HotelTuningDef.Current.receptionTicks;
+            if (started || pawn.IsHashIntervalTick(5))
+                ShopProgressBarUtility.Report(pawn, servedTicks / (float)Mathf.Max(1, needed));
+            if (started || !Desk.IsManned) return;
+            Desk.NotifyCustomerService();
+            servedTicks++;
+            if (servedTicks < needed) return;
+            manager.CompleteReception(pawn);
+            ReadyForNextToil();
         }
     }
 }

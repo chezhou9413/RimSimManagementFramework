@@ -73,11 +73,10 @@ namespace SimManagementLib.SimAI
             int queueIndex = queueRegistry.CountAhead(pawnId);
             IntVec3 serviceCell = CheckoutQueueCellUtility.FindServiceCell(register, pawn);
             IntVec3 queueCell = CheckoutQueueCellUtility.FindQueueCell(register, serviceCell, queueIndex, pawn);
-            if (!CheckoutQueueCellUtility.IsServiceCellStructurallyUsable(pawn.Map, serviceCell, pawn)
-                || !CheckoutQueueCellUtility.IsWaitingCellUsable(queueCell, pawn.Map, pawn, serviceCell))
+            if (!CheckoutQueueCellUtility.IsServiceCellStructurallyUsable(pawn.Map, serviceCell, pawn))
             {
                 queueRegistry.ReleasePawn(pawnId);
-                lordJob.FailCheckoutAndLeave(pawn, "收银台服务格或排队格不可用");
+                lordJob.FailCheckoutAndLeave(pawn, "收银台服务格不可用");
                 return null;
             }
 

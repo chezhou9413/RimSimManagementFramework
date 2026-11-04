@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
   <RSH.Ui.OperationsTab>Hotels</RSH.Ui.OperationsTab>
-  <RSH.Ui.ChangeRoomPrices>Change room prices</RSH.Ui.ChangeRoomPrices>
+  <RSH.Ui.ChangeRoomPrices>Hotel settings</RSH.Ui.ChangeRoomPrices>
   <RSH.Ui.NightlyPriceDraft>Silver/night (draft)</RSH.Ui.NightlyPriceDraft>
   <RSH.Ui.BedPriceScope>This price applies to all beds of the same type in this shop. Double beds are priced per whole bed per night. Confirm, then save all settings in the main window. Existing bookings keep their agreed prices.</RSH.Ui.BedPriceScope>
   <RSH.Ui.WithdrawalSummary>Total principal {PRINCIPAL} silver · Fee revenue {FEES} silver</RSH.Ui.WithdrawalSummary>
@@ -37,11 +37,15 @@
   <RSH.Ui.Price>Price (draft)</RSH.Ui.Price>
   <RSH.Ui.Funds>Wallet / account</RSH.Ui.Funds>
   <RSH.Ui.Satisfaction>Satisfaction</RSH.Ui.Satisfaction>
-  <RSH.Ui.RoomSettings>Reception &amp; prices</RSH.Ui.RoomSettings>
+  <RSH.Ui.RoomSettings>Reception, sleep &amp; prices</RSH.Ui.RoomSettings>
+  <RSH.Ui.SleepSchedule>Guest sleeping hours</RSH.Ui.SleepSchedule>
+  <RSH.Ui.SleepStartHour>Bedtime: {TIME}</RSH.Ui.SleepStartHour>
+  <RSH.Ui.WakeHour>Wake-up time: {TIME}</RSH.Ui.WakeHour>
+  <RSH.Ui.SleepScheduleHint>Uses local map time and can cross midnight. Bedtime and wake-up time must differ. During sleeping hours, guests stop starting leisure and shopping activities, finish any ongoing service and payment, then return to their own beds until wake-up time. Saving applies the schedule to all current guests at this hotel.</RSH.Ui.SleepScheduleHint>
   <RSH.Ui.SpaSettings>Admissions &amp; prices</RSH.Ui.SpaSettings>
   <RSH.Ui.WithdrawalHistory>Withdrawal history</RSH.Ui.WithdrawalHistory>
   <RSH.Ui.RoomSummary>Beds {TOTAL} · Rental {RENTED} · Occupied {OCCUPIED} · {STATE}\nDraft prices: single {SINGLE}/night · double {DOUBLE}/bed/night</RSH.Ui.RoomSummary>
-  <RSH.Ui.RoomPricingHint>Saved settings apply to new bookings. Companions split the double-bed price; existing bookings keep their prices. Pausing admissions preserves current stays.</RSH.Ui.RoomPricingHint>
+  <RSH.Ui.RoomPricingHint>Saved room prices apply to new bookings. Companions split the double-bed price; existing bookings keep their prices. Pausing admissions preserves current stays.</RSH.Ui.RoomPricingHint>
   <RSH.Ui.SpaSummary>Bathing slots {USED}/{TOTAL} · Waiting {QUEUE} · Free lockers {FREE}/{LOCKERS}</RSH.Ui.SpaSummary>
   <RSH.Ui.AtmSummary>Available ATMs {READY}/{TOTAL} · Draft fee {FEE} silver · Daily limit {LIMIT} silver/guest</RSH.Ui.AtmSummary>
   <RSH.Ui.GuestSummary>Bookings {BOOKINGS} · Guests {GUESTS} · Average satisfaction {SATISFACTION}</RSH.Ui.GuestSummary>

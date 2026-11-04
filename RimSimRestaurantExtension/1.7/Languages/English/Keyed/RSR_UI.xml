@@ -110,7 +110,7 @@
   <RSR.UI.OnSale>For sale</RSR.UI.OnSale>
   <RSR.UI.OrderSource>Round {round} · Source: {source} · Accepted {accepted}/{count}</RSR.UI.OrderSource>
   <RSR.UI.OrderSummary>Staff: {employee} · Wait {seconds} s · Order {price} · Paid {paid}</RSR.UI.OrderSummary>
-  <RSR.UI.OverviewHint>View restaurant status and dining records. Totals cover retained records.</RSR.UI.OverviewHint>
+  <RSR.UI.OverviewHint>Completed records: 5 days. Totals use retained records.</RSR.UI.OverviewHint>
   <RSR.UI.ParameterHeading>Restaurant service settings</RSR.UI.ParameterHeading>
   <RSR.UI.ParameterHint>Confirm these settings, then save in shop management to apply them.</RSR.UI.ParameterHint>
   <RSR.UI.Parameters>Service settings</RSR.UI.Parameters>

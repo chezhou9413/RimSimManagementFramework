@@ -1,5 +1,5 @@
 using RimWorld;
-using SimManagementLib.Tool;
+using SimManagementLib.SimMapComp;
 using SimManagementLib.SimThingClass;
 using System.Collections.Generic;
 using UnityEngine;
@@ -48,25 +48,58 @@ namespace SimManagementLib.SimAI
             }
             return best;
         }
-        //按服务格和队列序号查找等待格，负责让等待队列避开真正执行收银的服务格。
+        //保留已分配的等待格，只有位置失效时才按固定顺序寻找可达空位。
         public static IntVec3 FindQueueCell(Building_CashRegister register, IntVec3 serviceCell, int queueIndex, Pawn pawn)
         {
             if (!serviceCell.IsValid) return IntVec3.Invalid;
             Map map = register.Map;
+            CustomerCheckoutQueueRegistry queue = map.GetComponent<CustomerArrivalManager>()?.CheckoutQueue;
+            if (queue?.Acquire(pawn, register) == null) return IntVec3.Invalid;
+            IntVec3 current = queue.WaitingCellFor(pawn.thingIDNumber);
+            //路人临时经过不会改变已分配的目标，避免两个等待者互相追逐空位。
+            if (IsWaitingLocation(register, current, serviceCell, pawn) && pawn.CanReserve(current))
+                return current;
+            queue.ReleaseWaitingCell(pawn.thingIDNumber);
+
             IntVec3 laneDir = GetQueueLaneDirection(register, serviceCell);
-            int distanceFromService = Mathf.Max(1, queueIndex + 1);
+            int distanceFromService = Mathf.Clamp(queueIndex + 1, 1, 8);
             IntVec3 preferred = serviceCell + laneDir * distanceFromService;
+            IntVec3 best = IntVec3.Invalid;
+            int bestDistance = int.MaxValue;
+            foreach (IntVec3 cell in GenRadial.RadialCellsAround(serviceCell, 8f, false))
+            {
+                int distance = cell.DistanceToSquared(preferred);
+                if (distance >= bestDistance || !IsWaitingLocation(register, cell, serviceCell, pawn)
+                    || !IsWaitingCellUsable(cell, map, pawn, serviceCell)
+                    || !pawn.CanReach(cell, PathEndMode.OnCell, Danger.None)) continue;
+                best = cell;
+                bestDistance = distance;
+            }
+            if (best.IsValid) queue.SetWaitingCell(pawn.thingIDNumber, best);
+            //空间已满时保留排队票据，不让等待者退回服务格。
+            return best;
+        }
 
-            if (IsWaitingCellUsable(preferred, map, pawn, serviceCell))
-                return preferred;
+        //只允许队首预约服务格，取得服务位置后释放原等待位置。
+        public static bool TryReserveServiceCell(Building_CashRegister register, IntVec3 cell, Pawn pawn, Job job)
+        {
+            CustomerCheckoutQueueRegistry queue = register.Map.GetComponent<CustomerArrivalManager>()?.CheckoutQueue;
+            if (queue?.IsHead(pawn.thingIDNumber) != true || !IsServiceCellStructurallyUsable(register.Map, cell, pawn))
+                return false;
+            if (!pawn.HasReserved(cell, job) && (!IsServiceCellFreeForPawn(register.Map, cell, pawn)
+                || !pawn.Reserve(cell, job, errorOnFailed: false))) return false;
+            queue.ReleaseWaitingCell(pawn.thingIDNumber);
+            return true;
+        }
 
-            if (CellFinder.TryFindRandomCellNear(preferred, map, 3, c => IsWaitingCellUsable(c, map, pawn, serviceCell), out IntVec3 found))
-                return found;
-
-            if (IsWaitingCellUsable(pawn.Position, map, pawn, serviceCell))
-                return pawn.Position;
-
-            return serviceCell;
+        //排队只使用顾客侧的地面，不占门口、柜台本体和员工交互格。
+        private static bool IsWaitingLocation(Building_CashRegister register, IntVec3 cell, IntVec3 serviceCell, Pawn pawn)
+        {
+            if (!IsServiceCellStructurallyUsable(register.Map, cell, pawn) || cell == serviceCell
+                || cell == register.InteractionCell || cell.GetEdifice(register.Map) != null) return false;
+            IntVec3 direction = GetQueueLaneDirection(register, serviceCell);
+            IntVec3 offset = cell - serviceCell;
+            return offset.x * direction.x + offset.z * direction.z >= 0;
         }
 
         //判断服务格是否结构可用，职责是只检查常数时间条件并把真实路径交给 Job 路径器。
@@ -91,11 +124,14 @@ namespace SimManagementLib.SimAI
 
             return true;
         }
-        //判断等待格是否可用，负责让排队 Pawn 不占用服务格和其他 Pawn 的当前位置。
+        //选点时同时避开人物、工作预约、行走目的地和其他票据持有的位置。
         public static bool IsWaitingCellUsable(IntVec3 cell, Map map, Pawn pawn, IntVec3 serviceCell)
         {
             if (cell == serviceCell) return false;
             if (!IsServiceCellStructurallyUsable(map, cell, pawn)) return false;
+            if (!pawn.CanReserve(cell) || !map.pawnDestinationReservationManager.CanReserve(cell, pawn)
+                || map.GetComponent<CustomerArrivalManager>()?.CheckoutQueue.IsWaitingCellTaken(cell, pawn.thingIDNumber) == true)
+                return false;
 
             List<Thing> things = map.thingGrid.ThingsListAt(cell);
             for (int i = 0; i < things.Count; i++)

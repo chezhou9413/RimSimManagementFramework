@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
   <RSH.Ui.OperationsTab>旅馆</RSH.Ui.OperationsTab>
-  <RSH.Ui.ChangeRoomPrices>修改房价</RSH.Ui.ChangeRoomPrices>
+  <RSH.Ui.ChangeRoomPrices>旅馆设置</RSH.Ui.ChangeRoomPrices>
   <RSH.Ui.NightlyPriceDraft>银／晚（草稿）</RSH.Ui.NightlyPriceDraft>
   <RSH.Ui.BedPriceScope>此报价适用于本店所有同类型床位；双人床按整床每晚计价。确认后仍需在主窗口保存全部设置，已有住宿合同不改价。</RSH.Ui.BedPriceScope>
   <RSH.Ui.WithdrawalSummary>累计取款本金 {PRINCIPAL} 银 · 手续费收入 {FEES} 银</RSH.Ui.WithdrawalSummary>
@@ -37,11 +37,15 @@
   <RSH.Ui.Price>票价（草稿）</RSH.Ui.Price>
   <RSH.Ui.Funds>钱包 / 账户</RSH.Ui.Funds>
   <RSH.Ui.Satisfaction>满意度</RSH.Ui.Satisfaction>
-  <RSH.Ui.RoomSettings>接待与房价</RSH.Ui.RoomSettings>
+  <RSH.Ui.RoomSettings>接待、作息与房价</RSH.Ui.RoomSettings>
+  <RSH.Ui.SleepSchedule>住客睡觉时段</RSH.Ui.SleepSchedule>
+  <RSH.Ui.SleepStartHour>入睡时间：{TIME}</RSH.Ui.SleepStartHour>
+  <RSH.Ui.WakeHour>起床时间：{TIME}</RSH.Ui.WakeHour>
+  <RSH.Ui.SleepScheduleHint>按地图当地时间执行，可跨午夜，入睡与起床时间不能相同。睡觉时段停止安排新的闲逛和消费；正在消费的住客完成服务、结清账单后回自己的床，睡到起床时间。保存后对本旅馆所有在住顾客生效。</RSH.Ui.SleepScheduleHint>
   <RSH.Ui.SpaSettings>接待与票价</RSH.Ui.SpaSettings>
   <RSH.Ui.WithdrawalHistory>取款记录</RSH.Ui.WithdrawalHistory>
   <RSH.Ui.RoomSummary>床位 {TOTAL} · 出租 {RENTED} · 占用 {OCCUPIED} · {STATE}\n草稿报价：单人 {SINGLE}／晚 · 双人 {DOUBLE}／整床／晚</RSH.Ui.RoomSummary>
-  <RSH.Ui.RoomPricingHint>设置保存后生效，仅影响新报价。双人同行各付一半；已成交合同保留原价。暂停接待不影响在住顾客。</RSH.Ui.RoomPricingHint>
+  <RSH.Ui.RoomPricingHint>房价保存后仅影响新报价。双人同行各付一半；已成交合同保留原价。暂停接待不影响在住顾客。</RSH.Ui.RoomPricingHint>
   <RSH.Ui.SpaSummary>池位 {USED}/{TOTAL} · 排队 {QUEUE} · 空闲衣柜 {FREE}/{LOCKERS}</RSH.Ui.SpaSummary>
   <RSH.Ui.AtmSummary>可用取钱机 {READY}/{TOTAL} · 草稿手续费 {FEE} 银／次 · 每人每日限额 {LIMIT} 银</RSH.Ui.AtmSummary>
   <RSH.Ui.GuestSummary>住宿合同 {BOOKINGS} · 住客 {GUESTS} · 平均满意度 {SATISFACTION}</RSH.Ui.GuestSummary>

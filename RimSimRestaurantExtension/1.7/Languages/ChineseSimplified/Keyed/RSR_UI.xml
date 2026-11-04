@@ -110,7 +110,7 @@
   <RSR.UI.OnSale>上架</RSR.UI.OnSale>
   <RSR.UI.OrderSource>第 {round} 轮 · 来源 {source} · 已接受 {accepted}/{count}</RSR.UI.OrderSource>
   <RSR.UI.OrderSummary>负责员工：{employee} · 等待 {seconds} 秒 · 订单 {price} · 已付 {paid}</RSR.UI.OrderSummary>
-  <RSR.UI.OverviewHint>查看当前经营情况与用餐记录 · 金额统计基于保留的用餐记录</RSR.UI.OverviewHint>
+  <RSR.UI.OverviewHint>已结束记录保留 5 天 · 金额按保留记录统计</RSR.UI.OverviewHint>
   <RSR.UI.ParameterHeading>餐厅运行参数</RSR.UI.ParameterHeading>
   <RSR.UI.ParameterHint>确认返回商店管理后，点击统一保存才会生效。</RSR.UI.ParameterHint>
   <RSR.UI.Parameters>运行参数</RSR.UI.Parameters>

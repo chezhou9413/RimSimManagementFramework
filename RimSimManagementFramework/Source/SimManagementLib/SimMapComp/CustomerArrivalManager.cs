@@ -321,6 +321,9 @@ namespace SimManagementLib.SimMapComp
         internal CustomerArrivalShopContext BuildShopContext(Zone_Shop shop, GameComponent_ShopAnalyticsManager analytics, int currentCustomers)
         {
             if (shop == null) return null;
+            //关闭店铺只保留身份，重新开门后再计算库存、入口和顾客匹配。
+            if (!shop.IsOpenNow())
+                return new CustomerArrivalShopContext { Shop = shop, CurrentCustomers = currentCustomers };
 
             ShopMetricsSnapshot metrics = analytics?.GetOrEvaluateShopMetrics(shop);
             CustomerArrivalShopContext context = new CustomerArrivalShopContext
@@ -330,7 +333,8 @@ namespace SimManagementLib.SimMapComp
                 Capacity = metrics != null ? Mathf.Max(2, metrics.dynamicCapacity) : CalculateShopCustomerCapacity(shop),
                 DemandFactor = ApplyReviewDemandInfluence(shop, metrics?.spawnDemandFactor ?? 1f),
                 HasCheckoutService = ShopStaffUtility.HasMannedCashRegister(shop),
-                IsOpen = shop.IsOpenNow()
+                IsOpen = true,
+                SnapshotReady = true
             };
 
             TryFindReachableShopEntryCell(shop, out context.EntryCell);

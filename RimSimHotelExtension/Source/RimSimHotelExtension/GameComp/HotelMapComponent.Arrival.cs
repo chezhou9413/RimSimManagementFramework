@@ -65,9 +65,9 @@ namespace RimSimHotelExtension.GameComp
             HotelShopSettings config = SettingsFor(shop);
             int foodReserve = HotelFoodUtility.DailyFoodReserve(pawn);
             return AvailableBeds(shop).OrderBy(b => b.SleepingSlotsCount).FirstOrDefault(b =>
-                RestUtility.CanUseBedNow(b, pawn, false) && pawn.CanReach(b, PathEndMode.OnCell, Danger.Some)
-                && availableBudget >= t.minNights * (Mathf.CeilToInt(ShopPricingUtility.ApplyCashierPrice(shop,
-                    b.SleepingSlotsCount > 1 ? config.doublePrice : config.singlePrice)) + foodReserve) + t.departureReserve);
+                availableBudget >= t.minNights * (Mathf.CeilToInt(ShopPricingUtility.ApplyCashierPrice(shop,
+                    b.SleepingSlotsCount > 1 ? config.doublePrice : config.singlePrice)) + foodReserve) + t.departureReserve
+                && RestUtility.CanUseBedNow(b, pawn, false) && HotelBedReachabilityUtility.CanReach(pawn, b));
         }
 
         //根据已锁定的整床报价和每个人真实预算建立待接待合同。
@@ -76,7 +76,7 @@ namespace RimSimHotelExtension.GameComp
             if (customers.Count == 0 || customers.Count > bed.SleepingSlotsCount
                 || customers.Any(p => p?.ownership == null || FindStay(p) != null
                     || !RestUtility.CanUseBedNow(bed, p, false)
-                    || !p.CanReach(bed, PathEndMode.OnCell, Danger.Some))) return false;
+                    || !HotelBedReachabilityUtility.CanReach(p, bed))) return false;
             HotelTuningDef t = HotelTuningDef.Current;
             HotelShopSettings config = SettingsFor(shop);
             int price = Mathf.CeilToInt(ShopPricingUtility.ApplyCashierPrice(shop,
@@ -106,6 +106,8 @@ namespace RimSimHotelExtension.GameComp
                 stay.guests.Add(guest);
             }
             stays.Add(stay);
+            IndexStay(stay);
+            RefreshRoomPrivacy();
             foreach (HotelGuestState guest in stay.guests) SimShopCustomerApi.ReturnToLongStay(guest.pawn);
             return true;
         }

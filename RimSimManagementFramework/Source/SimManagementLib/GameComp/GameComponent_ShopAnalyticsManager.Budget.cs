@@ -21,7 +21,7 @@ namespace SimManagementLib.GameComp
         //把商店加入指标重算队列，职责是合并同一商店的重复失效通知。
         private void QueueMetricsRecalculation(Zone_Shop zone)
         {
-            if (zone?.Map == null) return;
+            if (zone?.Map == null || !zone.GetSchedule().IsOpenNow(zone.Map)) return;
             int key = MakeMetricKey(zone.Map.uniqueID, zone.ID);
             if (!queuedMetricKeys.Add(key)) return;
             if (!metricsQueues.TryGetValue(zone.Map.uniqueID, out Queue<Zone_Shop> queue))
@@ -42,6 +42,13 @@ namespace SimManagementLib.GameComp
                 work = DequeueMetricsWork(map);
                 if (work == null) return;
                 activeMetricsWork[mapId] = work;
+            }
+
+            if (!work.Zone.GetSchedule().IsOpenNow(map))
+            {
+                activeMetricsWork.Remove(mapId);
+                queuedMetricKeys.Remove(MakeMetricKey(mapId, work.Zone.ID));
+                return;
             }
 
             work.ProcessCells(Mathf.Max(0, cellBudget));
@@ -92,7 +99,7 @@ namespace SimManagementLib.GameComp
             while (queue.Count > 0)
             {
                 Zone_Shop zone = queue.Dequeue();
-                if (zone != null && zone.Map == map)
+                if (zone != null && zone.Map == map && zone.GetSchedule().IsOpenNow(map))
                     return new ShopMetricsWork(zone, GetOrCreateState(zone.ID, zone.label));
                 if (zone != null)
                     queuedMetricKeys.Remove(MakeMetricKey(map.uniqueID, zone.ID));

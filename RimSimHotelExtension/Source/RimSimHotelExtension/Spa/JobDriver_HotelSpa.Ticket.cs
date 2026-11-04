@@ -36,16 +36,16 @@ namespace RimSimHotelExtension.Spa
             }
 
             bool canUseServiceCell = ahead == 0
-                && CheckoutQueueCellUtility.IsServiceCellFreeForPawn(pawn.Map, session.ticketServiceCell, pawn)
-                && pawn.CanReserve(session.ticketServiceCell);
+                && CheckoutQueueCellUtility.TryReserveServiceCell(desk, session.ticketServiceCell, pawn, job);
             if (ahead > 0 && pawn.HasReserved(session.ticketServiceCell, job))
                 pawn.Map.reservationManager.Release(session.ticketServiceCell, pawn, job);
-            if (started || now % 30 == 0 || !job.targetB.IsValid)
+            if (started || pawn.IsHashIntervalTick(30))
             {
                 IntVec3 destination = canUseServiceCell ? session.ticketServiceCell
                     : CheckoutQueueCellUtility.FindQueueCell(desk, session.ticketServiceCell, ahead, pawn);
-                if (canUseServiceCell && !pawn.Reserve(destination, job, errorOnFailed: false)) return;
-                if (pawn.Position != destination && (!pawn.pather.Moving || job.targetB.Cell != destination))
+                if (!destination.IsValid)
+                    pawn.pather.StopDead();
+                else if (pawn.Position != destination && (!pawn.pather.Moving || pawn.pather.Destination.Cell != destination))
                 {
                     if (!pawn.CanReach(destination, PathEndMode.OnCell, Danger.None))
                     {

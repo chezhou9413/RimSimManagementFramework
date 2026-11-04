@@ -53,7 +53,7 @@ namespace RimSimRestaurantExtension.Tool
         //按框架动作订单查找餐厅订单，职责是让顾客 Job 在读档后恢复领域状态。
         public static RestaurantOrder FindByActionOrderId(int actionOrderId)
         {
-            return OrderManager?.Orders?.FirstOrDefault(order => order != null && order.actionOrderId == actionOrderId);
+            return OrderManager?.GetOrderForAction(actionOrderId);
         }
 
         //标记订单失败，职责是只允许活跃订单进入失败终态并释放餐品锁定。
@@ -152,7 +152,7 @@ namespace RimSimRestaurantExtension.Tool
         {
             if (customer == null) return false;
             int shopId = shop?.ID ?? -1;
-            return OrderManager?.Sessions.Any(session => !session.IsTerminal && session.customerId == customer.thingIDNumber
+            return OrderManager?.ActiveSessions.Any(session => !session.IsTerminal && session.customerId == customer.thingIDNumber
                 && (shopId < 0 || session.shopId == shopId)) == true;
         }
 
@@ -196,7 +196,7 @@ namespace RimSimRestaurantExtension.Tool
         //判断关店后是否仍允许餐厅员工收尾，职责是避免活跃订单因营业时间结束永久卡住。
         public static bool CanRestaurantStaffWorkAt(Zone_Shop shop)
         {
-            return shop == null || shop.IsOpenNow() || OrderManager?.GetActiveOrders(shop.ID).Any(order => order.NeedsStaffWork) == true;
+            return shop == null || shop.IsOpenNow() || OrderManager?.HasActiveOrders(shop.ID, true) == true;
         }
 
         //返回员工可以值班的餐厅，职责是按新版公开岗位 API 过滤店铺分配。
@@ -205,7 +205,7 @@ namespace RimSimRestaurantExtension.Tool
             if (pawn?.Map?.zoneManager?.AllZones == null) return new List<Zone_Shop>();
             return pawn.Map.zoneManager.AllZones
                 .OfType<Zone_Shop>()
-                .Where(shop => shop.IsOpenNow() || OrderManager?.GetActiveOrders(shop.ID).Any(order => !order.IsTerminal) == true)
+                .Where(shop => shop.IsOpenNow() || OrderManager?.HasActiveOrders(shop.ID) == true)
                 .Where(shop => workGiverDef == null || SimShopStaffApi.IsAssignedToWorkGiver(shop, pawn, workGiverDef))
                 .ToList();
         }

@@ -11,8 +11,8 @@ namespace RimSimRestaurantExtension.Conveyor.Transport
         //更新实物并按供电决定是否运输，职责是让稳定拓扑下的每步更新不创建临时集合。
         public static void Tick(ConveyorLine line, bool advancing, int tick)
         {
-            bool occupied = ReadContents(line, advancing, tick);
-            if (!advancing || !occupied) return;
+            line.hasContents = ReadContents(line, advancing, tick);
+            if (!advancing || !line.hasContents) return;
             PlanProgress(line.transport);
             PlanDepartures(line.transport);
             Commit(line.transport);
@@ -34,12 +34,8 @@ namespace RimSimRestaurantExtension.Conveyor.Transport
                 node.held = false;
                 if (node.food == null)
                 {
-                    if (node.plate != null)
-                    {
-                        if (!node.plate.wasteRecorded) { line.lostPlates++; line.wasteCost += node.plate.cost; }
-                        belt.plate = null;
-                        node.plate = null;
-                    }
+                    RecordMissingPlate(line, belt);
+                    node.plate = null;
                     continue;
                 }
                 occupied = true;
@@ -117,6 +113,14 @@ namespace RimSimRestaurantExtension.Conveyor.Transport
                 target.plate = node.plate;
                 target.progress = Mathf.Max(0f, node.planned - 1f);
             }
+        }
+
+        //在维护或上架前记录消失的食品，避免低频巡检期间新餐盘覆盖旧损耗。
+        internal static void RecordMissingPlate(ConveyorLine line, Building_SushiConveyor belt)
+        {
+            if (belt.Food != null || belt.plate == null) return;
+            if (!belt.plate.wasteRecorded) { line.lostPlates++; line.wasteCost += belt.plate.cost; }
+            belt.plate = null;
         }
 
         //选择空格中的入盘位置，职责是用缓存上下游检查前后盘间距而不暂停运输。

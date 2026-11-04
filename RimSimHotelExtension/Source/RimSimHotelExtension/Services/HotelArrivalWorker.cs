@@ -47,14 +47,16 @@ namespace RimSimHotelExtension.Services
         //合同保存在旅馆组件内，不占用跨活动的动作订单槽。
         public override bool ShouldCreateOrder(CustomerActionContext context) => false;
 
-        //先检查顾客服务格的预约和路径，真正开始接待时再建立合同。
+        //服务格可达即可加入接待队列，暂时被占用不会阻止申请入住。
         public override Job MakeJob(CustomerActionContext context)
         {
             var desk = HotelMapComponent.For(context.shop.Map).DeskFor(context.shop);
             if (desk == null) return null;
             IntVec3 cell = CheckoutQueueCellUtility.FindServiceCell(desk, context.customer);
-            if (!cell.IsValid || !context.customer.CanReserveAndReach(cell, PathEndMode.OnCell, Danger.Some)) return null;
-            return JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("RSH_Reception"), desk, cell);
+            if (!cell.IsValid || !context.customer.CanReach(cell, PathEndMode.OnCell, Danger.Some)) return null;
+            Job job = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("RSH_Reception"), desk);
+            job.SetTarget(TargetIndex.C, cell);
+            return job;
         }
     }
 }

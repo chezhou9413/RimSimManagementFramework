@@ -8,8 +8,10 @@ namespace RimSimRestaurantExtension.GameComp
     public partial class GameComponent_RestaurantOrderManager
     {
         private List<RestaurantDiningSession> sessions = new List<RestaurantDiningSession>();
+        private readonly List<RestaurantDiningSession> activeSessions = new List<RestaurantDiningSession>();
         private readonly Dictionary<int, RestaurantDiningSession> sessionsById = new Dictionary<int, RestaurantDiningSession>();
         public IReadOnlyList<RestaurantDiningSession> Sessions => sessions;
+        public IReadOnlyList<RestaurantDiningSession> ActiveSessions => activeSessions;
 
         //创建初始会话，职责是以首次请求编号提供稳定关联。
         public RestaurantDiningSession CreateSession(RestaurantOrder first)
@@ -21,6 +23,7 @@ namespace RimSimRestaurantExtension.GameComp
             first.round = 1;
             session.orderIds.Add(first.orderId);
             sessions.Add(session);
+            activeSessions.Add(session);
             sessionsById.Add(session.sessionId, session);
             return session;
         }
@@ -33,7 +36,7 @@ namespace RimSimRestaurantExtension.GameComp
 
         //按顾客查询当前会话，职责是计算未结算承诺和追加需求。
         public RestaurantDiningSession ForCustomer(int customerId, int shopId) =>
-            sessions.FirstOrDefault(s => !s.IsTerminal && s.customerId == customerId && s.shopId == shopId);
+            activeSessions.FirstOrDefault(s => !s.IsTerminal && s.customerId == customerId && s.shopId == shopId);
 
         //同步框架动作关联，职责是让现有和随后创建的子订单共享同一动作。
         public void BindAction(RestaurantOrder anchor, int actionId)
@@ -41,6 +44,7 @@ namespace RimSimRestaurantExtension.GameComp
             var session = SessionFor(anchor);
             session.actionOrderId = actionId;
             foreach (var order in session.Orders) order.actionOrderId = actionId;
+            byAction[actionId] = anchor;
         }
 
         //创建下一轮待接单请求，职责是保持同顾客最多只有一个未确认请求。

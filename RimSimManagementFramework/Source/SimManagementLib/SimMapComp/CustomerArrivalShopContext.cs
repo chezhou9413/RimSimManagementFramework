@@ -13,6 +13,7 @@ namespace SimManagementLib.SimMapComp
         public float DemandFactor = 1f;
         public bool HasCheckoutService;
         public bool IsOpen;
+        public bool SnapshotReady;
         public IntVec3 EntryCell = IntVec3.Invalid;
         public HashSet<string> MatchingKindIds = new HashSet<string>();
 

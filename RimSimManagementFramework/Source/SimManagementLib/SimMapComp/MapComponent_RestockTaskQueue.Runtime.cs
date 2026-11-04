@@ -10,6 +10,8 @@ namespace SimManagementLib.SimMapComp
     //补货运行维护模块，职责是重建租约、回收失效 Job、分片巡检并给真正空闲的 Pawn 派工。
     public partial class MapComponent_RestockTaskQueue
     {
+        private int storageReconcileBudget;
+
         //清空易失运行态，可按需同时清空普通补货周期锁存。
         private void ClearRuntimeState(bool clearCycles)
         {
@@ -30,6 +32,7 @@ namespace SimManagementLib.SimMapComp
             tmpRequestKeys.Clear();
             tmpUniqueKeys.Clear();
             storageReconcileCursor = 0;
+            storageReconcileBudget = 0;
             idlePawnCursor = 0;
             lastLeasePruneTick = int.MinValue;
             nextIdleDispatchTick = 0;
@@ -121,7 +124,9 @@ namespace SimManagementLib.SimMapComp
         {
             if (storageOrder.Count <= 0)
                 return;
-            int slice = Math.Max(1, (storageOrder.Count + ReconcileTargetTicks - 1) / ReconcileTargetTicks);
+            storageReconcileBudget += storageOrder.Count;
+            int slice = storageReconcileBudget / ReconcileTargetTicks;
+            storageReconcileBudget %= ReconcileTargetTicks;
             for (int i = 0; i < slice && storageOrder.Count > 0; i++)
             {
                 if (storageReconcileCursor >= storageOrder.Count)

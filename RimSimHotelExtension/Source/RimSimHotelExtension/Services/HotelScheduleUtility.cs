@@ -29,12 +29,11 @@ namespace RimSimHotelExtension.Services
                 return guest.checkoutDone ? WaitForCompanion(pawn, stay) : Reception(pawn, manager, stay) ?? Wait(300);
             if (!stay.active)
                 return guest.receptionDone ? WaitForCompanion(pawn, stay) : Reception(pawn, manager, stay) ?? Wait(300);
+            if (HotelSleepUtility.ShouldSleep(manager, stay)) return HotelSleepUtility.MakeJob(stay, guest);
             guest.foodShopping = false;
             bool hungry = pawn.needs?.food != null && pawn.needs.food.CurLevelPercentage < t.hungryThreshold;
             bool urgent = pawn.needs?.food != null && pawn.needs.food.CurLevelPercentage < t.urgentHungerThreshold;
-            int hour = GenLocalDate.HourOfDay(pawn.Map);
-            if (!urgent && pawn.needs?.rest != null && (pawn.needs.rest.CurLevelPercentage < t.sleepThreshold
-                || (!hungry && (hour >= t.sleepStartHour || hour < t.wakeHour) && pawn.needs.rest.CurLevelPercentage < 0.95f)))
+            if (!urgent && pawn.needs?.rest != null && pawn.needs.rest.CurLevelPercentage < t.sleepThreshold)
             {
                 guest.status = "RSH.Text.SleepingInTheReservedBed";
                 Job sleep = JobMaker.MakeJob(JobDefOf.LayDown, stay.bed);
@@ -102,33 +101,41 @@ namespace RimSimHotelExtension.Services
             return RestNearRoom(pawn, stay, guest);
         }
 
-        //单店停留期限只请求结账，不切断用餐或温泉持久订单。
+        //到入睡时间或单店停留期限后先结清消费，再回床睡觉。
         public static void CheckShoppingReturn(Pawn pawn)
         {
             var manager = HotelMapComponent.For(pawn?.Map);
             var guest = manager?.GuestFor(pawn);
             var stay = manager?.FindStay(pawn);
             var session = SimShopCustomerApi.GetCustomerSession(pawn);
-            if (guest == null || session == null || session.Stage == CustomerVisitStage.LongStay) return;
-            if (!stay.closing && Find.TickManager.TicksGame < guest.shoppingUntilTick) return;
+            if (guest == null || session == null || session.Stage == CustomerVisitStage.Leaving) return;
+            bool sleepTime = HotelSleepUtility.ShouldSleep(manager, stay);
+            if (session.Stage == CustomerVisitStage.LongStay)
+            {
+                if (sleepTime) HotelSleepUtility.EnsureSleeping(pawn, stay, guest);
+                return;
+            }
+            if (!stay.closing && !sleepTime && Find.TickManager.TicksGame < guest.shoppingUntilTick) return;
             if (SimShopCustomerApi.HasRunningCustomerActionOrder(pawn)) return;
             if (SimShopCustomerApi.GetAmountOwed(pawn) > 0)
             {
                 SimShopCustomerApi.MarkCustomerReadyForCheckout(pawn);
                 return;
             }
-            SimShopCustomerApi.ReturnToLongStay(pawn);
+            if (SimShopCustomerApi.ReturnToLongStay(pawn).success && sleepTime)
+                HotelSleepUtility.EnsureSleeping(pawn, stay, guest);
         }
 
-        //面向服务台顾客侧生成接待任务，服务格被占用时等待而不抢占员工位置。
+        //服务格可达即可排队，队首在真正接受服务时才预约位置。
         private static Job Reception(Pawn pawn, HotelMapComponent manager, HotelStay stay)
         {
             var desk = manager.DeskFor(manager.ShopFor(stay));
             if (desk == null) return null;
             if (stay.active && !stay.closing && !desk.IsManned) return null;
             IntVec3 cell = CheckoutQueueCellUtility.FindServiceCell(desk, pawn);
-            if (!cell.IsValid || !pawn.CanReserveAndReach(cell, PathEndMode.OnCell, Danger.Some)) return null;
-            Job job = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("RSH_Reception"), desk, cell);
+            if (!cell.IsValid || !pawn.CanReach(cell, PathEndMode.OnCell, Danger.Some)) return null;
+            Job job = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("RSH_Reception"), desk);
+            job.SetTarget(TargetIndex.C, cell);
             return job;
         }
 
@@ -138,25 +145,25 @@ namespace RimSimHotelExtension.Services
             var manager = HotelMapComponent.For(pawn.Map);
             var desk = manager.DeskFor(manager.ShopFor(stay));
             IntVec3 serviceCell = desk == null ? IntVec3.Invalid : CheckoutQueueCellUtility.FindServiceCell(desk, pawn);
-            if (stay.bed != null && pawn.Position.DistanceToSquared(stay.bed.Position) <= 9 && pawn.Position != serviceCell)
+            if (stay.bed != null && pawn.Position.DistanceToSquared(stay.bed.Position) <= 9 && pawn.Position != serviceCell
+                && !pawn.Position.IsForbidden(pawn))
                 return Wait(300);
             if (stay.bed != null && stay.bed.Spawned)
                 foreach (IntVec3 cell in GenRadial.RadialCellsAround(stay.bed.Position, 3f, true))
                     if (cell != pawn.Position && cell != serviceCell && (desk == null || cell != desk.InteractionCell)
+                        && cell.InBounds(pawn.Map) && !cell.IsForbidden(pawn)
                         && cell.Standable(pawn.Map) && !cell.GetThingList(pawn.Map).OfType<Pawn>().Any()
                         && pawn.CanReserveAndReach(cell, PathEndMode.OnCell, Danger.Some))
                         return JobMaker.MakeJob(JobDefOf.Goto, cell);
             return Wait(300);
         }
 
-        //没有下一项消费时回到客房附近短暂休息。
+        //消费间隙安排旅馆内散步或桌边休息，空间不足时才短暂等待。
         private static Job RestNearRoom(Pawn pawn, HotelStay stay, HotelGuestState guest)
         {
-            if (!guest.foodShopping) guest.status = "RSH.Text.RestingAtTheHotel";
-            if (stay.bed != null && stay.bed.Spawned && pawn.Position.DistanceToSquared(stay.bed.Position) > 25
-                && pawn.CanReach(stay.bed.InteractionCell, PathEndMode.OnCell, Danger.Some))
-                return JobMaker.MakeJob(JobDefOf.Goto, stay.bed.InteractionCell);
-            return Wait(300);
+            if (guest.foodShopping) return Wait(300);
+            guest.status = "RSH.Text.RestingAtTheHotel";
+            return HotelLeisureUtility.MakeJob(pawn, stay, guest) ?? Wait(300);
         }
 
         //有限等待让下一次生活调度能够及时检查饥饿和退房。

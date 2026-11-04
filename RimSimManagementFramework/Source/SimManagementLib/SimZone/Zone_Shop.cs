@@ -47,14 +47,14 @@ namespace SimManagementLib.SimZone
         //返回商店当前是否能接待顾客和安排店员工作的说明文本。
         public string GetOpenStatusMessage()
         {
-            if (!ComputeValidShopNow(out string validationMessage))
-                return validationMessage;
-
             ShopScheduleData data = GetSchedule();
             if (!data.manualOpen)
                 return SimTranslation.T("RSMF.Zone.OpenStatus.ManuallyClosed");
             if (data.useSchedule && !data.IsOpenNow(Map))
                 return SimTranslation.T("RSMF.Zone.OpenStatus.OutOfSchedule", data.GetScheduleSummary().Named("schedule"));
+
+            if (!GetCachedValidShopNow(out string validationMessage))
+                return validationMessage;
 
             return SimTranslation.T("RSMF.Zone.OpenStatus.Open");
         }
@@ -80,7 +80,7 @@ namespace SimManagementLib.SimZone
         //实时扫描区域内设施和室内状态，计算商店是否可以营业。
         private bool ComputeValidShopNow(out string message)
         {
-            RepairEmbeddedFacilityCoverage();
+            RepairFacilityCoverageIfNeeded();
             return CheckShopFacilities(out message, out _);
         }
 

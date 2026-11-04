@@ -14,7 +14,7 @@ namespace RimSimRestaurantExtension.Services
         public override bool CanPawnEnterCheckout(ShopCheckoutReadinessContext context)
         {
             if (context == null) return true;
-            bool dining = RestaurantOrderUtility.OrderManager.Sessions.Any(s => !s.IsTerminal
+            bool dining = RestaurantOrderUtility.OrderManager.ActiveSessions.Any(s => !s.IsTerminal
                 && s.customerId == context.pawnId && s.state != RestaurantSessionState.AwaitingCheckout);
             if (dining) context.Defer(SimTranslation.T("RSR.Issue.CheckoutPendingOrders"));
             return !dining;
@@ -24,7 +24,7 @@ namespace RimSimRestaurantExtension.Services
         public override void AfterCheckoutPaid(ShopCheckoutContext context)
         {
             if (context?.customer == null || !context.success) return;
-            foreach (var session in RestaurantOrderUtility.OrderManager.Sessions.Where(s => !s.IsTerminal
+            foreach (var session in RestaurantOrderUtility.OrderManager.ActiveSessions.Where(s => !s.IsTerminal
                 && s.customerId == context.customer.thingIDNumber && s.shopId == context.shop?.ID
                 && s.state == RestaurantSessionState.AwaitingCheckout && s.billQueued))
             {
@@ -52,7 +52,7 @@ namespace RimSimRestaurantExtension.Services
         public override void OnCheckoutFailed(ShopCheckoutContext context)
         {
             if (context?.customer == null) return;
-            foreach (var session in RestaurantOrderUtility.OrderManager.Sessions.Where(s => !s.IsTerminal
+            foreach (var session in RestaurantOrderUtility.OrderManager.ActiveSessions.Where(s => !s.IsTerminal
                 && s.customerId == context.customer.thingIDNumber && s.shopId == context.shop?.ID))
                 RestaurantSessionUtility.Abort(session, context.timedOut ? SimTranslation.T("RSR.Issue.CheckoutTimeout") : SimTranslation.T("RSR.Issue.CheckoutFailed", (context.failReason).Named("reason")));
         }

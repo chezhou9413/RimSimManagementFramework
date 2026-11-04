@@ -50,6 +50,7 @@ namespace RimSimHotelExtension.GameComp
             if (!reason.NullOrEmpty()) return false;
             foreach (var config in settings) config.registeredBeds.Remove(bed);
             if (register) SettingsFor(shop).registeredBeds.Add(bed);
+            roomPrivacyDirty = true;
             return true;
         }
 

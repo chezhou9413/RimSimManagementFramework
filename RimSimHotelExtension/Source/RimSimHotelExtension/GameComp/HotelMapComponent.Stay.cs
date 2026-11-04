@@ -50,7 +50,7 @@ namespace RimSimHotelExtension.GameComp
             {
                 var replacement = AvailableBeds(shop).FirstOrDefault(b => b.SleepingSlotsCount >= stay.guests.Count
                     && stay.guests.All(g => RestUtility.CanUseBedNow(b, g.pawn, false)
-                        && g.pawn.CanReach(b, PathEndMode.OnCell, Danger.Some)));
+                        && HotelBedReachabilityUtility.CanReach(g.pawn, b)));
                 if (replacement == null)
                 {
                     foreach (var guest in stay.guests) HotelQualityUtility.PenalizeMissingNeed(guest, false);
@@ -58,6 +58,8 @@ namespace RimSimHotelExtension.GameComp
                     return;
                 }
                 stay.bed = replacement;
+                roomPrivacyDirty = true;
+                RefreshRoomPrivacy();
                 foreach (var guest in stay.guests) guest.pawn.ownership.ClaimBedIfNonMedical(replacement);
             }
             HotelQualityUtility.ObserveSleep(stay);
@@ -135,6 +137,7 @@ namespace RimSimHotelExtension.GameComp
                 if (guest.pawn?.Spawned == true && !guest.pawn.Dead)
                     SimShopCustomerApi.EndLongStayVisit(guest.pawn, HotelText.Display(stay.closeReason));
             stay.completed = true;
+            RemoveStayFromIndex(stay);
             stay.active = false;
             stay.finishing = false;
         }

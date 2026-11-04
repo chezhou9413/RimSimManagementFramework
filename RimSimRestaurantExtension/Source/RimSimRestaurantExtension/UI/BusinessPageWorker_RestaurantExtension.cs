@@ -22,7 +22,7 @@ namespace RimSimRestaurantExtension.UI
 
         //设施拆除后仍保留未完成会话的管理入口。
         private static bool IsOverviewShop(Zone_Shop shop) => RestaurantBusinessUiUtility.IsRestaurantShop(shop)
-            || RestaurantOrderUtility.OrderManager?.Sessions.Any(session => session.shopId == shop.ID && !session.IsTerminal) == true;
+            || RestaurantOrderUtility.OrderManager?.ActiveSessions.Any(session => session.shopId == shop.ID && !session.IsTerminal) == true;
 
         //绘制总览页面，职责是使用窗口状态、框架搜索和统一列表样式。
         public override void DrawBusinessPage(Rect rect, BusinessManagerUiContext context)

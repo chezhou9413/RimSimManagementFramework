@@ -28,7 +28,6 @@ namespace SimManagementLib.SimAI
         private const int ProgressUpdateIntervalTicks = 5;
 
         private Building_CashRegister Register => (Building_CashRegister)job.GetTarget(TargetIndex.A).Thing;
-        private IntVec3 QueueCell => job.GetTarget(TargetIndex.B).Cell;
         private IntVec3 ServiceCell => job.GetTarget(TargetIndex.C).Cell;
 
         private bool abortedByTimeout;
@@ -76,9 +75,7 @@ namespace SimManagementLib.SimAI
             AddFinishAction(FinishCheckoutJob);
             this.FailOnDespawnedOrNull(TargetIndex.A);
 
-            yield return MakeEnsureQueueAndServiceCellsToil();
-            yield return Toils_Goto.GotoCell(TargetIndex.B, PathEndMode.OnCell);
-
+            Toil finalize = new Toil();
             Toil waitInQueue = new Toil();
             waitInQueue.defaultCompleteMode = ToilCompleteMode.Never;
             waitInQueue.initAction = () =>
@@ -93,6 +90,7 @@ namespace SimManagementLib.SimAI
                 maxQueueWaitTicks = lordJob?.GetQueuePatienceForPawn(pawn.thingIDNumber) ?? DefaultMaxQueueWaitTicks;
                 if (maxQueueWaitTicks <= 0) maxQueueWaitTicks = DefaultMaxQueueWaitTicks;
                 CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.CheckoutQueueStart);
+                if (!UpdateQueueCell(lordJob)) EndJobWith(JobCondition.Incompletable);
             };
             waitInQueue.tickAction = () =>
             {
@@ -128,6 +126,13 @@ namespace SimManagementLib.SimAI
                     return;
                 }
 
+                if (pawn.IsHashIntervalTick(StaffingCheckIntervalTicks) && cachedRegisterManned
+                    && CheckoutQueueCellUtility.TryReserveServiceCell(Register, ServiceCell, pawn, job))
+                {
+                    ReadyForNextToil();
+                    return;
+                }
+
                 if (pawn.IsHashIntervalTick(90))
                 {
                     if (!UpdateQueueCell(lordJob))
@@ -135,22 +140,12 @@ namespace SimManagementLib.SimAI
                         EndJobWith(JobCondition.Incompletable);
                         return;
                     }
-                    if (QueueCell.IsValid && pawn.Position != QueueCell)
-                    {
-                        pawn.pather.StartPath(QueueCell, PathEndMode.OnCell);
-                    }
                 }
-
-                if (!pawn.IsHashIntervalTick(StaffingCheckIntervalTicks)) return;
-                if (!cachedRegisterManned) return;
-                if (!IsMyTurn(lordJob)) return;
-                if (!CheckoutQueueCellUtility.IsServiceCellFreeForPawn(pawn.Map, ServiceCell, pawn)) return;
-
-                ReadyForNextToil();
             };
             waitInQueue.AddFinishAction(() => ShopProgressBarUtility.Clear(pawn));
             yield return waitInQueue;
 
+            yield return Toils_Jump.JumpIf(finalize, () => abortedByTimeout);
             yield return Toils_Goto.GotoCell(TargetIndex.C, PathEndMode.OnCell);
 
             Toil doService = new Toil();
@@ -213,7 +208,6 @@ namespace SimManagementLib.SimAI
             doService.AddFinishAction(() => ShopProgressBarUtility.Clear(pawn));
             yield return doService;
 
-            Toil finalize = new Toil();
             finalize.defaultCompleteMode = ToilCompleteMode.Instant;
             finalize.initAction = () =>
             {
@@ -308,36 +302,7 @@ namespace SimManagementLib.SimAI
             };
             yield return finalize;
         }
-        //确保排队格和服务格在当前地图状态下可用。
-        private Toil MakeEnsureQueueAndServiceCellsToil()
-        {
-            Toil toil = new Toil();
-            toil.defaultCompleteMode = ToilCompleteMode.Instant;
-            toil.initAction = () =>
-            {
-                IntVec3 service = ServiceCell;
-                if (!CheckoutQueueCellUtility.IsServiceCellStructurallyUsable(pawn.Map, service, pawn))
-                {
-                    service = CheckoutQueueCellUtility.FindServiceCell(Register, pawn);
-                    job.SetTarget(TargetIndex.C, service);
-                }
-                if (!service.IsValid)
-                {
-                    EndJobWith(JobCondition.Incompletable);
-                    return;
-                }
-
-                IntVec3 queue = QueueCell;
-                LordJob_CustomerVisit lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
-                if (!CheckoutQueueCellUtility.IsWaitingCellUsable(queue, pawn.Map, pawn, service))
-                {
-                    queue = CheckoutQueueCellUtility.FindQueueCell(Register, service, GetQueueIndex(lordJob), pawn);
-                    job.SetTarget(TargetIndex.B, queue);
-                }
-            };
-            return toil;
-        }
-        //按当前队列顺序刷新等待格，负责在其他顾客离开或让路后恢复队列站位。
+        //沿用票据持有的等待格，目标不变时不重启路径，空间已满时原地等待。
         private bool UpdateQueueCell(LordJob_CustomerVisit lordJob)
         {
             IntVec3 service = ServiceCell;
@@ -349,8 +314,10 @@ namespace SimManagementLib.SimAI
             if (!service.IsValid) return false;
 
             IntVec3 queue = CheckoutQueueCellUtility.FindQueueCell(Register, service, GetQueueIndex(lordJob), pawn);
-            if (queue.IsValid && queue != QueueCell)
-                job.SetTarget(TargetIndex.B, queue);
+            job.SetTarget(TargetIndex.B, queue);
+            if (!queue.IsValid) pawn.pather.StopDead();
+            else if (pawn.Position != queue && (!pawn.pather.Moving || pawn.pather.Destination.Cell != queue))
+                pawn.pather.StartPath(queue, PathEndMode.OnCell);
             return true;
         }
         //计算当前顾客在本收银台前面的待付款顾客数量，负责得到稳定的等待格序号。

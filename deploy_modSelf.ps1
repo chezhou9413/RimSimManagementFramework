@@ -56,6 +56,7 @@ $plans = @(
     [pscustomobject]@{ Name = 'RimSimHotelExtension'; Assembly = 'RimSimHotelExtension.dll' }
 )
 $stageNames = @()
+$legacyFolders = @('1.6', 'Content', 'Assemblies')
 foreach ($plan in $plans) {
     $plan | Add-Member -NotePropertyName Source -NotePropertyValue (Join-Path $PSScriptRoot $plan.Name)
     $plan | Add-Member -NotePropertyName Target -NotePropertyValue (Join-Path $TargetModsPath $plan.Name)
@@ -95,9 +96,20 @@ foreach ($plan in $plans) {
     }
     Remove-DeploymentStage $plan.Temporary
     New-Item -ItemType Directory -Path $plan.Temporary | Out-Null
-    & robocopy $plan.Source $plan.Temporary /MIR /R:1 /W:1 /NFL /NDL /NJH /NJS /NP /XD Source obj bin .git .vs /XF 'compile_modSelf.*' 'deploy_modSelf.*' build.bat
+    $excludedLegacyPaths = @($legacyFolders | ForEach-Object { Join-Path $plan.Source $_ })
+    & robocopy $plan.Source $plan.Temporary /MIR /R:1 /W:1 /NFL /NDL /NJH /NJS /NP /XD Source obj bin .git .vs @excludedLegacyPaths /XF 'compile_modSelf.*' 'deploy_modSelf.*' build.bat
     if ($LASTEXITCODE -gt 7) {
         throw "复制 $($plan.Name) 失败，退出码：$LASTEXITCODE"
+    }
+    #旧版目录只沿用当前安装，不从开发项目部署或更新。
+    foreach ($legacyFolder in $legacyFolders) {
+        $installedLegacy = Join-Path $plan.Target $legacyFolder
+        if (-not (Test-Path -LiteralPath $installedLegacy -PathType Container)) { continue }
+        $stagedLegacy = Join-Path $plan.Temporary $legacyFolder
+        & robocopy $installedLegacy $stagedLegacy /E /R:1 /W:1 /NFL /NDL /NJH /NJS /NP
+        if ($LASTEXITCODE -gt 7) {
+            throw "保留已安装旧版目录失败：$installedLegacy，退出码：$LASTEXITCODE"
+        }
     }
     $published = Join-Path $plan.Target 'About\PublishedFileId.txt'
     if (Test-Path -LiteralPath $published -PathType Leaf) {

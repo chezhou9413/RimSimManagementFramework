@@ -29,6 +29,7 @@ namespace SimManagementLib.SimZone
         internal void InvalidateShopFacilityCache()
         {
             facilityCacheDirty = true;
+            facilityCoverageDirty = true;
         }
 
         //按商店格重建设施快照，职责是一次扫描同时收集货柜和收银台并去重。

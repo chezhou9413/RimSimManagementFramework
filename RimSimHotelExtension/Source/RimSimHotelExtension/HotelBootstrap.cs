@@ -15,6 +15,7 @@ namespace RimSimHotelExtension
         {
             SimShopCustomerApi.RegisterCustomerVisitExtension(new HotelVisitExtension());
             HotelBedPatches.Apply(new Harmony("chezhou.rimsim.hotelextension.beds"));
+            HotelRoomPrivacyPatches.Apply(new Harmony("chezhou.rimsim.hotelextension.rooms"));
         }
     }
 }

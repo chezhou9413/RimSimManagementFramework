@@ -10,7 +10,7 @@ namespace RimSimRestaurantExtension.Inventory
         //核查失效预留，职责是不允许已经排除的物品仍被后台取走。
         public static void Apply(Building_RestaurantStorage cabinet)
         {
-            foreach (var order in RestaurantOrderUtility.OrderManager.Orders.Where(o => !o.IsTerminal && !o.mealProduced))
+            foreach (var order in RestaurantOrderUtility.OrderManager.ActiveOrders.Where(o => !o.IsTerminal && !o.mealProduced))
             {
                 if (order.mapId != cabinet.Map.uniqueID) continue;
                 var reserved = RestaurantOrderStock.Reserved(order, cabinet.Map);

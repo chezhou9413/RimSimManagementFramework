@@ -1,3 +1,4 @@
+using RimWorld;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimZone;
 using SimManagementLib.SimAI.CustomerVisit;
@@ -176,7 +177,7 @@ namespace SimManagementLib.SimAI
             return TryFindRandomReachableShopCell(pawn, shopZone, out target);
         }
 
-        //选择橱窗浏览货柜，职责是随机选定目标并把真实路径交给 Job 路径器。
+        //只从允许顾客进入的位置选择浏览货柜，实际路径交给 Job 路径器。
         private static Building_SimContainer FindRandomReachableWindowStorage(Pawn pawn, LordJob_CustomerVisit lordJob, Zone_Shop shopZone)
         {
             Building_SimContainer unvisitedSelected = null;
@@ -185,7 +186,8 @@ namespace SimManagementLib.SimAI
             int fallbackSeen = 0;
             foreach (Building_SimContainer storage in ShopDataUtility.GetStorageSnapshotInZone(shopZone))
             {
-                if (storage == null || !storage.AllowsCustomerSelfPurchase || storage.Destroyed || !storage.Spawned) continue;
+                if (storage == null || !storage.AllowsCustomerSelfPurchase || storage.Destroyed || !storage.Spawned
+                    || storage.Position.IsForbidden(pawn)) continue;
                 fallbackSeen++;
                 if (Rand.RangeInclusive(1, fallbackSeen) == 1)
                     fallbackSelected = storage;

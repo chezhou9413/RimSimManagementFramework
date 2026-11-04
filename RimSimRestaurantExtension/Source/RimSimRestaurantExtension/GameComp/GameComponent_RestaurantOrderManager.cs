@@ -11,10 +11,13 @@ namespace RimSimRestaurantExtension.GameComp
     public partial class GameComponent_RestaurantOrderManager : GameComponent
     {
         private List<RestaurantOrder> orders = new List<RestaurantOrder>();
+        private readonly List<RestaurantOrder> activeOrders = new List<RestaurantOrder>();
         private readonly Dictionary<int, RestaurantOrder> byId = new Dictionary<int, RestaurantOrder>();
+        private readonly Dictionary<int, RestaurantOrder> byAction = new Dictionary<int, RestaurantOrder>();
         private readonly Dictionary<int, List<RestaurantOrder>> byShop = new Dictionary<int, List<RestaurantOrder>>();
         private int nextOrderId = 1;
         public IReadOnlyList<RestaurantOrder> Orders => orders;
+        public IReadOnlyList<RestaurantOrder> ActiveOrders => activeOrders;
 
         //初始化运行期缓存，职责是不让新游戏复用上个游戏的选择或经营状态。
         public GameComponent_RestaurantOrderManager(Game game)
@@ -28,11 +31,19 @@ namespace RimSimRestaurantExtension.GameComp
         public override void GameComponentTick()
         {
             int now = Find.TickManager.TicksGame;
-            if (now % 120 != 0) return;
-            foreach (var session in sessions.ToList())
-                Dining.RestaurantSessionUtility.Tick(session);
-            foreach (RestaurantOrder order in orders.Where(o => !o.IsTerminal).ToList())
+            if (now >= nextHistoryCleanupTick)
             {
+                nextHistoryCleanupTick = now + 2500;
+                TrimHistory(now);
+            }
+            if (now % 120 != 0) return;
+            CompactActiveRecords();
+            for (int i = 0, count = activeSessions.Count; i < count; i++)
+                Dining.RestaurantSessionUtility.Tick(activeSessions[i]);
+            for (int i = 0, count = activeOrders.Count; i < count; i++)
+            {
+                RestaurantOrder order = activeOrders[i];
+                if (order.IsTerminal) continue;
                 var session = SessionFor(order);
                 if (session == null || session.IsTerminal || session.selfService || session.state == Dining.RestaurantSessionState.AwaitingCheckout) continue;
                 Map map = Find.Maps.FirstOrDefault(item => item.uniqueID == order.mapId);
@@ -112,7 +123,7 @@ namespace RimSimRestaurantExtension.GameComp
         //按店铺筛选运行订单，职责是把岗位查询限制在当前商店。
         public List<RestaurantOrder> GetActiveOrders(int shopZoneId = -1)
         {
-            IEnumerable<RestaurantOrder> source = shopZoneId < 0 ? orders
+            IEnumerable<RestaurantOrder> source = shopZoneId < 0 ? activeOrders
                 : byShop.TryGetValue(shopZoneId, out var list) ? list : Enumerable.Empty<RestaurantOrder>();
             return source.Where(order => !order.IsTerminal).ToList();
         }
@@ -121,6 +132,9 @@ namespace RimSimRestaurantExtension.GameComp
         private void Index(RestaurantOrder order)
         {
             byId.Add(order.orderId, order);
+            if (order.actionOrderId >= 0) byAction.TryAdd(order.actionOrderId, order);
+            if (order.IsTerminal) return;
+            activeOrders.Add(order);
             if (!byShop.TryGetValue(order.shopZoneId, out var list))
                 byShop[order.shopZoneId] = list = new List<RestaurantOrder>();
             list.Add(order);
@@ -130,8 +144,15 @@ namespace RimSimRestaurantExtension.GameComp
         private void RebuildIndices()
         {
             sessionsById.Clear();
-            foreach (var session in sessions) sessionsById.Add(session.sessionId, session);
+            activeSessions.Clear();
+            foreach (var session in sessions)
+            {
+                sessionsById.Add(session.sessionId, session);
+                if (!session.IsTerminal) activeSessions.Add(session);
+            }
             byId.Clear();
+            byAction.Clear();
+            activeOrders.Clear();
             byShop.Clear();
             foreach (var order in orders) Index(order);
         }

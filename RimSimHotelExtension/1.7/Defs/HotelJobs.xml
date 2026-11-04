@@ -2,6 +2,8 @@
 <Defs>
   <JobDef><defName>RSH_Reception</defName><driverClass>RimSimHotelExtension.Jobs.JobDriver_HotelReception</driverClass><reportString>Handling accommodation at the hotel reception desk.</reportString><casualInterruptible>false</casualInterruptible></JobDef>
   <JobDef><defName>RSH_UseAtm</defName><driverClass>RimSimHotelExtension.Jobs.JobDriver_HotelAtm</driverClass><reportString>Withdrawing travel funds.</reportString><casualInterruptible>false</casualInterruptible></JobDef>
+  <JobDef><defName>RSH_Relax</defName><driverClass>RimSimHotelExtension.Jobs.JobDriver_HotelRelax</driverClass><reportString>Relaxing at the hotel.</reportString><joyKind>Meditative</joyKind></JobDef>
+  <JobDef><defName>RSH_Sleep</defName><driverClass>RimSimHotelExtension.Jobs.JobDriver_HotelSleep</driverClass><reportString>Sleeping at the hotel until wake-up time.</reportString><casualInterruptible>false</casualInterruptible></JobDef>
   <JobDef><defName>RSH_UseSpa</defName><driverClass>RimSimHotelExtension.Spa.JobDriver_HotelSpa</driverClass><reportString>Using the hot spring and apparel locker.</reportString><casualInterruptible>false</casualInterruptible><joyKind>Meditative</joyKind></JobDef>
   <SimManagementLib.SimDef.CustomerActionDef>
     <defName>RSH_CheckIn</defName><label>hotel check-in</label><description>Check in at reception, reserve a rental bed and begin a persistent hotel stay.</description>

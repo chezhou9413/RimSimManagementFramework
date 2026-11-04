@@ -1,4 +1,5 @@
 using RimWorld;
+using RimSimRestaurantExtension.Conveyor.Placement;
 using UnityEngine;
 using Verse;
 
@@ -9,6 +10,7 @@ namespace RimSimRestaurantExtension.Conveyor.Transport
     {
         internal readonly Building_SushiConveyor belt;
         internal readonly CompPowerTrader power;
+        internal readonly int connectionMask;
         internal readonly Vector3 center, outgoing;
         internal Vector3 incoming;
         internal ConveyorTransportNode next, previous;
@@ -22,6 +24,7 @@ namespace RimSimRestaurantExtension.Conveyor.Transport
         {
             this.belt = belt;
             power = belt.GetComp<CompPowerTrader>();
+            connectionMask = ConveyorLinks.Mask(belt.Map, belt.Position);
             center = belt.Position.ToVector3Shifted();
             outgoing = belt.Rotation.FacingCell.ToVector3();
         }

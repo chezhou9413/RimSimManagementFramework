@@ -79,6 +79,7 @@ namespace RimSimRestaurantExtension.Conveyor.Transport
                 line.segments = OrderSegments(component, topology);
                 line.transport.Rebuild(line.segments);
                 line.RefreshShop();
+                line.NotifyContentsChanged();
                 if (!component.Any(b => b.thingIDNumber == line.anchorId)) line.anchorId = component.Min(b => b.thingIDNumber);
                 if (line.rules.Where(x => x.enabled).Sum(x => x.target) > component.Count)
                 { line.paused = true; line.notice = SimTranslation.T("RSR.Conveyor.CapacityNotice"); }
@@ -113,9 +114,12 @@ namespace RimSimRestaurantExtension.Conveyor.Transport
             for (int i = 0; i < lines.Count; i++)
             {
                 var line = lines[i];
-                if (now % 120 == line.id % 120) MaintainLine(line);
-                bool advancing = line.SameShop && line.Powered;
-                ConveyorMovement.Tick(line, advancing, now);
+                bool maintain = now % 120 == line.id % 120;
+                if (maintain) MaintainLine(line);
+                bool active = line.ShouldTransport(now, map.uniqueID);
+                bool advancing = active && line.hasContents && line.HasTransportPower(now);
+                //空线、停业和断电只做低频容器维护，食品自身的腐坏照常更新。
+                if (advancing || maintain) ConveyorMovement.Tick(line, advancing, now);
                 if (!advancing) continue;
                 line.clock++;
                 line.renderClock.NotifyTick();
