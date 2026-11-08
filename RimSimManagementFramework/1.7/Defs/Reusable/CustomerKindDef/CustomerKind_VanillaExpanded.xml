@@ -416,7 +416,7 @@
     </arrivalCurve>
 
     <baseMtbDays>0.1</baseMtbDays>
-    <budgetRange>1000~3500</budgetRange>
+    <budgetRange>2000~7000</budgetRange>
     <queuePatienceRange>1200~2600</queuePatienceRange>
     <activeHourRange>9~17</activeHourRange>
 
@@ -434,7 +434,7 @@
       <li>
         <label>近战专家</label>
         <weight>0.8</weight>
-        <budgetRange>1000~3500</budgetRange>
+        <budgetRange>2000~7000</budgetRange>
         <queuePatienceRange>2000~3000</queuePatienceRange>
         <activeHourRange>20~4</activeHourRange>
         <preferredGoodsCategories>
@@ -444,7 +444,7 @@
       <li>
         <label>枪械专家</label>
         <weight>1.4</weight>
-        <budgetRange>1000~3500</budgetRange>
+        <budgetRange>2000~7000</budgetRange>
         <queuePatienceRange>2000~3000</queuePatienceRange>
         <activeHourRange>9~17</activeHourRange>
         <preferredGoodsCategories>
@@ -454,7 +454,7 @@
       <li>
         <label>弹药专家</label>
         <weight>0.8</weight>
-        <budgetRange>1000~3500</budgetRange>
+        <budgetRange>2000~7000</budgetRange>
         <queuePatienceRange>2000~3000</queuePatienceRange>
         <activeHourRange>9~17</activeHourRange>
         <preferredGoodsCategories>
