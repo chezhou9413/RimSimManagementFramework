@@ -3,6 +3,8 @@ using System.Linq;
 using RimSimHotelExtension.Settings;
 using RimSimHotelExtension.Tool;
 using SimManagementLib.SimAI;
+using SimManagementLib.Tool;
+using UnityEngine;
 using Verse;
 using Verse.AI;
 
@@ -69,12 +71,17 @@ namespace RimSimHotelExtension.Spa
             switch (session.stage)
             {
                 case SpaSessionStage.Queued:
-                    if (now - session.createdTick > HotelTuningDef.Current.spaQueuePatienceTicks)
+                    int queuePatience = Mathf.Max(1, HotelTuningDef.Current.spaQueuePatienceTicks);
+                    int queueWaited = now - session.createdTick;
+                    if (queueWaited > queuePatience)
                     {
                         Manager.Abort(session, "RSH.Text.TimedOutWaitingForAPoolSlotOr");
                         EndJobWith(JobCondition.Incompletable);
                         return;
                     }
+                    if (started || pawn.IsHashIntervalTick(5))
+                        ShopProgressBarUtility.Report(pawn, Mathf.Clamp01(queueWaited / (float)queuePatience),
+                            new Color(0.95f, 0.72f, 0.36f, 0.95f));
                     if (started || now % 60 == 0)
                     {
                         if (Manager.TryAdmit(session, job)) DriveTicketPurchase(session, true);

@@ -65,6 +65,15 @@ namespace SimManagementLib.SimWorkGiver
             if (!register.CanAcceptStaffReservation(pawn, out bool isHandover))
                 return false;
 
+            //已经饥饿、疲惫或自己也即将下班的员工不参与接班，防止两人互相交接打乒乓。
+            if (!forced && isHandover)
+            {
+                if (pawn.needs?.food?.CurCategory >= HungerCategory.Hungry
+                    || pawn.needs?.rest?.CurCategory >= RestCategory.Tired
+                    || ShopStaffUtility.IsCashierShiftEndingSoon(shop, pawn, HandoverLeadTicks))
+                    return false;
+            }
+
             bool permitted = forced
                 ? ShopStaffUtility.CanRelieveCashier(shop, pawn)
                 : (isHandover

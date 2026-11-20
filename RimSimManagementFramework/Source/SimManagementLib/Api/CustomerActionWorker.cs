@@ -91,6 +91,12 @@ namespace SimManagementLib.Api
             return def?.selectionWeight ?? 1f;
         }
 
+        //判断动作是否能为饥饿顾客提供实际餐饮，供长期住客在觅食访问中发现餐厅等扩展设施。
+        public virtual bool ProvidesFood(CustomerActionContext context)
+        {
+            return false;
+        }
+
         //创建顾客动作 Job，外部模组在这里返回按摩、赌博、呼叫服务员等自定义 Job。
         public virtual Job MakeJob(CustomerActionContext context)
         {

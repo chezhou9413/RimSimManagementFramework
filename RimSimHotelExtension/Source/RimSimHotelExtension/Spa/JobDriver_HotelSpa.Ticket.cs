@@ -11,7 +11,7 @@ namespace RimSimHotelExtension.Spa
     //预留池位后到服务台排队购票，与普通收银共用队列和服务格。
     public sealed partial class JobDriver_HotelSpa
     {
-        //只有队首顾客站在服务格且接待员在岗时才累计购票时间。
+        //只有队首顾客站在服务格且接待员在岗时才累计购票时间，排队与无人值守期间统一显示耐心条。
         private void DriveTicketPurchase(SpaSession session, bool started)
         {
             var desk = session.ticketDesk;
@@ -20,12 +20,6 @@ namespace RimSimHotelExtension.Spa
                 || session.Shop(pawn.Map)?.ContainsCell(desk.Position) != true)
             {
                 FailTicketPurchase(session, "RSH.Text.SpaNeedsReceptionDesk");
-                return;
-            }
-            if (desk.GetUnservedWaitTicks(session.stageTick, session.ticketServiceTicksAtWaitStart)
-                >= HotelTuningDef.Current.spaQueuePatienceTicks)
-            {
-                FailTicketPurchase(session, "RSH.Text.SpaTicketWaitTimedOut");
                 return;
             }
             if (!SimShopCheckoutApi.TryJoinQueue(pawn, desk, out int ahead)
@@ -39,6 +33,18 @@ namespace RimSimHotelExtension.Spa
                 && CheckoutQueueCellUtility.TryReserveServiceCell(desk, session.ticketServiceCell, pawn, job);
             if (ahead > 0 && pawn.HasReserved(session.ticketServiceCell, job))
                 pawn.Map.reservationManager.Release(session.ticketServiceCell, pawn, job);
+
+            int patience = Mathf.Max(1, HotelTuningDef.Current.spaQueuePatienceTicks);
+            int waited = desk.GetUnservedWaitTicks(session.stageTick, session.ticketServiceTicksAtWaitStart);
+            bool atServiceCell = canUseServiceCell && pawn.Position == session.ticketServiceCell;
+            bool activelyServed = atServiceCell && desk.IsManned;
+
+            if (!activelyServed && waited >= patience)
+            {
+                FailTicketPurchase(session, "RSH.Text.SpaTicketWaitTimedOut");
+                return;
+            }
+
             if (started || pawn.IsHashIntervalTick(30))
             {
                 IntVec3 destination = canUseServiceCell ? session.ticketServiceCell
@@ -57,17 +63,24 @@ namespace RimSimHotelExtension.Spa
                 job.SetTarget(TargetIndex.B, destination);
             }
 
-            if (!canUseServiceCell || pawn.Position != session.ticketServiceCell || !desk.IsManned)
+            if (atServiceCell)
             {
-                ShopProgressBarUtility.Clear(pawn);
+                pawn.pather.StopDead();
+                pawn.rotationTracker.FaceTarget(desk.CurrentCashier ?? (Thing)desk);
+            }
+
+            if (!activelyServed)
+            {
+                if (started || pawn.IsHashIntervalTick(5))
+                    ShopProgressBarUtility.Report(pawn, Mathf.Clamp01(waited / (float)patience),
+                        new Color(0.95f, 0.72f, 0.36f, 0.95f));
                 return;
             }
-            pawn.pather.StopDead();
-            pawn.rotationTracker.FaceTarget(desk.CurrentCashier);
+
             desk.NotifyCustomerService();
             session.ticketServiceTicks++;
             int needed = HotelTuningDef.Current.returnReceptionTicks;
-            if (now % 5 == 0)
+            if (started || now % 5 == 0)
                 ShopProgressBarUtility.Report(pawn, session.ticketServiceTicks / (float)Mathf.Max(1, needed));
             if (session.ticketServiceTicks < needed) return;
             if (!Manager.BuyTicket(session))

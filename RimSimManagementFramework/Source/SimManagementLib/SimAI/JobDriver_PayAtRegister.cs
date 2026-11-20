@@ -94,6 +94,7 @@ namespace SimManagementLib.SimAI
                 LordJob_CustomerVisit lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
                 maxQueueWaitTicks = lordJob?.GetQueuePatienceForPawn(pawn.thingIDNumber) ?? DefaultMaxQueueWaitTicks;
                 if (maxQueueWaitTicks <= 0) maxQueueWaitTicks = DefaultMaxQueueWaitTicks;
+                ShopProgressBarUtility.Report(pawn, Mathf.Clamp01(PatienceTicksUsed / (float)Mathf.Max(1, maxQueueWaitTicks)), new Color(0.95f, 0.72f, 0.36f, 0.95f));
                 CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.CheckoutQueueStart);
                 if (!UpdateQueueCell(lordJob)) EndJobWith(JobCondition.Incompletable);
             };
@@ -175,7 +176,10 @@ namespace SimManagementLib.SimAI
                 float cashierSpeed = GetCashierServiceSpeed();
                 serviceTicksRequired = Mathf.Max(60, Mathf.RoundToInt(ServiceTicks / Mathf.Max(0.2f, cashierSpeed)));
                 serviceTicksRemaining = serviceTicksRequired;
-                cachedServiceCanProgress = false;
+                LordJob_CustomerVisit lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
+                cachedRegisterManned = Register.IsManned;
+                cachedIncomingCashier = !cachedRegisterManned && Register.HasIncomingCashier;
+                cachedServiceCanProgress = cachedRegisterManned && lordJob != null && IsMyTurn(lordJob);
                 CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.CheckoutServiceStart);
             };
             doService.tickAction = () =>
@@ -184,8 +188,6 @@ namespace SimManagementLib.SimAI
                 totalWaitTicks++;
                 if (pawn.IsHashIntervalTick(FacingUpdateIntervalTicks))
                     FaceCashierOrRegister();
-                if (pawn.IsHashIntervalTick(ProgressUpdateIntervalTicks))
-                    ShopProgressBarUtility.Report(pawn, 1f - serviceTicksRemaining / (float)Mathf.Max(1, serviceTicksRequired));
 
                 LordJob_CustomerVisit lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
                 if (lordJob == null)
@@ -195,20 +197,46 @@ namespace SimManagementLib.SimAI
                     return;
                 }
 
-                if (PatienceTicksUsed >= maxQueueWaitTicks)
-                {
-                    abortedByTimeout = true;
-                    ReadyForNextToil();
-                    return;
-                }
-
-                if (pawn.Position != ServiceCell) return;
                 if (pawn.IsHashIntervalTick(StaffingCheckIntervalTicks))
                 {
                     cachedRegisterManned = Register.IsManned;
                     cachedIncomingCashier = !cachedRegisterManned && Register.HasIncomingCashier;
                     cachedServiceCanProgress = cachedRegisterManned && IsMyTurn(lordJob);
                 }
+
+                bool atServiceCell = pawn.Position == ServiceCell;
+                bool activelyServed = atServiceCell && cachedServiceCanProgress && Register.IsManned;
+
+                if (pawn.IsHashIntervalTick(ProgressUpdateIntervalTicks))
+                {
+                    if (activelyServed)
+                        ShopProgressBarUtility.Report(pawn, 1f - serviceTicksRemaining / (float)Mathf.Max(1, serviceTicksRequired));
+                    else
+                        ShopProgressBarUtility.Report(pawn, Mathf.Clamp01(PatienceTicksUsed / (float)Mathf.Max(1, maxQueueWaitTicks)), new Color(0.95f, 0.72f, 0.36f, 0.95f));
+                }
+
+                if (!activelyServed && PatienceTicksUsed >= maxQueueWaitTicks)
+                {
+                    abortedByTimeout = true;
+                    ReadyForNextToil();
+                    return;
+                }
+
+                if (!atServiceCell)
+                {
+                    if (!pawn.pather.Moving || pawn.pather.Destination.Cell != ServiceCell)
+                    {
+                        if (pawn.CanReach(ServiceCell, PathEndMode.OnCell, Danger.Some))
+                            pawn.pather.StartPath(ServiceCell, PathEndMode.OnCell);
+                        else
+                        {
+                            EndJobWith(JobCondition.Incompletable);
+                            return;
+                        }
+                    }
+                    return;
+                }
+
                 if (cachedRegisterManned)
                 {
                     continuousUnmannedWaitTicks = 0;
@@ -228,7 +256,7 @@ namespace SimManagementLib.SimAI
                     ReadyForNextToil();
                     return;
                 }
-                if (!cachedServiceCanProgress || !Register.IsManned) return;
+                if (!activelyServed) return;
 
                 Register.NotifyCustomerService();
                 //原版每 tick 都会递减 ticksLeftThisToil；独立计时只累计实际得到的收银服务。

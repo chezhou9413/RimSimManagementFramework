@@ -41,7 +41,9 @@ namespace RimSimHotelExtension.Jobs
         protected override IEnumerable<Toil> MakeNewToils()
         {
             yield return Toils_Goto.GotoCell(TargetIndex.A, PathEndMode.OnCell);
-            int duration = job.count == ModeSettleInRoom ? Rand.RangeInclusive(180, 320) : Rand.RangeInclusive(320, 620);
+            int duration = job.count == ModeWalk ? Rand.RangeInclusive(90, 180)
+                : job.count == ModeSettleInRoom ? Rand.RangeInclusive(180, 320)
+                : Rand.RangeInclusive(320, 620);
             Toil relax = Toils_General.Wait(duration, job.targetB.IsValid ? TargetIndex.B : TargetIndex.None);
             relax.socialMode = RandomSocialMode.SuperActive;
             relax.AddPreTickAction(() =>

@@ -10,6 +10,7 @@ using SimManagementLib.SimAI;
 using SimManagementLib.SimAI.CustomerVisit;
 using SimManagementLib.SimMapComp;
 using SimManagementLib.SimZone;
+using SimManagementLib.Tool;
 using UnityEngine;
 using Verse;
 using Verse.AI;
@@ -54,12 +55,6 @@ namespace RimSimHotelExtension.Services
                     return meal;
                 }
                 guest.foodShopping = true;
-                if (guest.foodSearchFailedTick >= 0 && now - guest.foodSearchFailedTick > t.receptionTimeout * 2)
-                {
-                    HotelQualityUtility.PenalizeMissingNeed(guest, true);
-                    manager.RequestCheckout(stay, "RSH.Text.UnableToObtainAnAffordableMeal");
-                    return Wait(300);
-                }
             }
             else guest.foodSearchFailedTick = -1;
 
@@ -80,47 +75,83 @@ namespace RimSimHotelExtension.Services
                 Job reception = Reception(pawn, manager, stay);
                 if (reception != null) return reception;
             }
+
+            //饥饿时优先立即寻找餐饮店铺或餐厅；找不到时不在原地发呆，也不因纯旅馆或夜间打烊直接弃租。
+            if (hungry)
+            {
+                if (guest.foodSearchFailedTick < 0 || now >= guest.nextActivityTick)
+                {
+                    var foodShops = SimShopCustomerApi.FindConsumableShops(pawn, true);
+                    if (foodShops.Count > 0)
+                    {
+                        Zone_Shop home = manager.ShopFor(stay);
+                        Zone_Shop selected = SelectVisitShop(pawn, guest, home, foodShops, true);
+                        var result = SimShopCustomerApi.BeginShopVisit(pawn, selected, true);
+                        if (result.success)
+                        {
+                            guest.lastShopId = selected.ID;
+                            guest.nextActivityTick = now + t.activityInterval;
+                            guest.shoppingUntilTick = now + t.shoppingVisitTicks;
+                            guest.foodSearchFailedTick = -1;
+                            guest.status = "RSH.Text.LookingForAMeal";
+                            var arrival = pawn.Map.GetComponent<CustomerArrivalManager>();
+                            IntVec3 entry = arrival != null && arrival.TryGetShopEntryCell(selected.ID, out IntVec3 cell)
+                                ? cell : selected.Cells[0];
+                            return JobMaker.MakeJob(JobDefOf.Goto, entry);
+                        }
+                    }
+
+                    if (urgent)
+                    {
+                        EatTravelRation(pawn, guest);
+                        guest.nextActivityTick = now + 900;
+                        return RestNearRoom(pawn, stay, guest);
+                    }
+
+                    if (guest.foodSearchFailedTick < 0) guest.foodSearchFailedTick = now;
+                    guest.nextActivityTick = now + 900;
+                }
+                return RestNearRoom(pawn, stay, guest);
+            }
+
             if (now < guest.nextActivityTick) return RestNearRoom(pawn, stay, guest);
 
             //临近入睡前一小时不再发起新的非餐饮跨店行程，让住客自然留在旅馆休息或泡汤。
             Zone_Shop homeHotel = manager.ShopFor(stay);
-            bool nearBedtime = !hungry && IsNearBedtime(pawn.Map, manager.SettingsFor(stay));
+            bool nearBedtime = IsNearBedtime(pawn.Map, manager.SettingsFor(stay));
             guest.nextActivityTick = now + t.activityInterval;
 
-            var shops = SimShopCustomerApi.FindConsumableShops(pawn, hungry);
-            bool foodOnly = hungry && shops.Count > 0;
-            if (hungry && shops.Count == 0)
-                shops = SimShopCustomerApi.FindConsumableShops(pawn);
+            var shops = SimShopCustomerApi.FindConsumableShops(pawn, false);
             if (nearBedtime)
                 shops = shops.Where(s => s == homeHotel).ToList();
 
             if (shops.Count > 0)
             {
-                Zone_Shop selected = SelectVisitShop(pawn, guest, homeHotel, shops, hungry);
-                var result = SimShopCustomerApi.BeginShopVisit(pawn, selected, foodOnly);
+                Zone_Shop selected = SelectVisitShop(pawn, guest, homeHotel, shops, false);
+                var result = SimShopCustomerApi.BeginShopVisit(pawn, selected, false);
                 if (result.success)
                 {
                     guest.lastShopId = selected.ID;
                     guest.shoppingUntilTick = now + t.shoppingVisitTicks;
-                    guest.status = hungry ? "RSH.Text.LookingForAMeal"
-                        : selected == homeHotel ? "RSH.Text.EnjoyingHotelFacilities" : "RSH.Text.ShoppingAndLeisure";
-                    if (hungry && guest.foodSearchFailedTick < 0) guest.foodSearchFailedTick = now;
+                    guest.status = selected == homeHotel ? "RSH.Text.EnjoyingHotelFacilities" : "RSH.Text.ShoppingAndLeisure";
                     var arrival = pawn.Map.GetComponent<CustomerArrivalManager>();
                     IntVec3 entry = arrival != null && arrival.TryGetShopEntryCell(selected.ID, out IntVec3 cell)
                         ? cell : selected.Cells[0];
                     return JobMaker.MakeJob(JobDefOf.Goto, entry);
                 }
             }
-            if (hungry)
-            {
-                if (guest.foodSearchFailedTick < 0) guest.foodSearchFailedTick = now;
-                HotelQualityUtility.PenalizeMissingNeed(guest, true);
-                guest.status = "RSH.Text.NoFoodIsAvailableForPurchase";
-                if (now - guest.foodSearchFailedTick > t.receptionTimeout * 2
-                    || pawn.needs.food.CurLevelPercentage < t.urgentHungerThreshold)
-                    manager.RequestCheckout(stay, "RSH.Text.NoAffordableMealsAreAvailable");
-            }
             return RestNearRoom(pawn, stay, guest);
+        }
+
+        //周围没有营业餐饮店或餐厅且极度饥饿时，住客吃自带干粮垫肚，避免在纯旅馆或夜间打烊时发呆弃租。
+        private static void EatTravelRation(Pawn pawn, HotelGuestState guest)
+        {
+            if (pawn?.needs?.food != null)
+                pawn.needs.food.CurLevel = Mathf.Max(pawn.needs.food.CurLevel, pawn.needs.food.MaxLevel * 0.65f);
+            guest.foodShopping = false;
+            guest.foodSearchFailedTick = -1;
+            if (pawn?.Spawned == true && !pawn.Dead)
+                ShopBubbleUtility.ShowTextBubble(pawn, HotelText.T("RSH.Bubble.TravelRation"), new Color(0.95f, 0.86f, 0.62f));
         }
 
         //判断是否进入入睡前一小时的睡前放松时段。
@@ -199,10 +230,9 @@ namespace RimSimHotelExtension.Services
             return Wait(300);
         }
 
-        //消费间隙安排旅馆内散步或桌边休息，空间不足时才短暂等待。
+        //消费或找餐间隙安排旅馆内散步、就座或赏景，不再因寻找餐饮而在空地发呆站着不动。
         private static Job RestNearRoom(Pawn pawn, HotelStay stay, HotelGuestState guest)
         {
-            if (guest.foodShopping) return Wait(300);
             guest.status = "RSH.Text.RestingAtTheHotel";
             return HotelLeisureUtility.MakeJob(pawn, stay, guest) ?? Wait(300);
         }

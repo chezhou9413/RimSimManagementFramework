@@ -32,7 +32,7 @@ namespace SimManagementLib.SimAI
                 return false;
             bool asHandover = isHandover || job.targetB.HasThing
                 || (register.GetActiveShiftCashier() != null && register.GetActiveShiftCashier() != pawn);
-            register.RegisterCashierClaim(pawn, asHandover);
+            register.RegisterCashierClaim(pawn, asHandover, job.playerForced);
             return true;
         }
 
@@ -70,6 +70,11 @@ namespace SimManagementLib.SimAI
                     ReadyForNextToil();
                     return;
                 }
+                if (!job.playerForced && Register?.IsHandoverStillWanted(pawn) != true)
+                {
+                    EndJobWith(JobCondition.Incompletable);
+                    return;
+                }
                 relieverWaitTicks++;
                 if (relieverWaitTicks >= RelieverWaitMaxTicks)
                     EndJobWith(JobCondition.Incompletable);
@@ -83,10 +88,26 @@ namespace SimManagementLib.SimAI
             {
                 idleTicks = 0;
                 offDutyWaitTicks = 0;
-                Register?.PromoteRelieverToActive(pawn);
+                if (Register == null || !Register.PromoteRelieverToActive(pawn))
+                    EndJobWith(JobCondition.InterruptForced);
             };
             work.tickAction = delegate
             {
+                //高频守卫单一主班与即时交接，确保同一台收银台不会出现两人同时值班。
+                if (pawn.IsHashIntervalTick(5))
+                {
+                    if (Register.GetActiveShiftCashier() != pawn)
+                    {
+                        EndJobWith(JobCondition.InterruptForced);
+                        return;
+                    }
+                    if (Register.ShouldYieldToReliever(pawn))
+                    {
+                        ReadyForNextToil();
+                        return;
+                    }
+                }
+
                 //低频核对业务、岗位、排班与交接状态，避免每 tick 扫描旅馆合同和温泉会话。
                 if (pawn.IsHashIntervalTick(30))
                 {
@@ -126,7 +147,7 @@ namespace SimManagementLib.SimAI
                     Register.SetHandoverRequested(pawn, wantHandover);
 
                     //接班人已走到柜台旁时立即让出交互格，实现零空窗换班。
-                    if (wantHandover && Register.HasRelieverArrivedFor(pawn))
+                    if (Register.ShouldYieldToReliever(pawn))
                     {
                         ReadyForNextToil();
                         return;

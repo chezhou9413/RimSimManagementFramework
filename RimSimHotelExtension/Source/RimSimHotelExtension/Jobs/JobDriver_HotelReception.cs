@@ -68,7 +68,7 @@ namespace RimSimHotelExtension.Jobs
             yield return service;
         }
 
-        //保留队列位置，只在队首站到前台且员工在岗时累计服务时间。
+        //保留队列位置，只在队首站到前台且员工在岗时累计服务时间；排队或无人值守时统一显示耐心条。
         private void DriveReception(bool started)
         {
             var manager = HotelMapComponent.For(pawn.Map);
@@ -80,8 +80,20 @@ namespace RimSimHotelExtension.Jobs
                 EndJobWith(JobCondition.Incompletable);
                 return;
             }
-            int waited = Desk.GetUnservedWaitTicks(waitStartTick, serviceTicksAtWaitStart);
-            if (waited > HotelTuningDef.Current.receptionTimeout)
+
+            bool canUseServiceCell = ahead == 0
+                && CheckoutQueueCellUtility.TryReserveServiceCell(Desk, ServiceCell, pawn, job);
+            if (ahead > 0 && pawn.HasReserved(ServiceCell, job))
+                pawn.Map.reservationManager.Release(ServiceCell, pawn, job);
+
+            int effectiveWaitStart = stay.closing ? stay.closingTick : (!stay.active ? stay.startTick : waitStartTick);
+            int effectiveServiceStart = stay.closing ? stay.checkoutServiceTicksAtStart : (!stay.active ? stay.receptionServiceTicksAtStart : serviceTicksAtWaitStart);
+            int timeout = Mathf.Max(1, HotelTuningDef.Current.receptionTimeout);
+            int waited = Desk.GetUnservedWaitTicks(effectiveWaitStart, effectiveServiceStart);
+            bool atServiceCell = canUseServiceCell && pawn.Position == ServiceCell;
+            bool activelyServed = atServiceCell && Desk.IsManned;
+
+            if (!activelyServed && waited > timeout)
             {
                 if (stay.active && !stay.closing)
                 {
@@ -93,10 +105,6 @@ namespace RimSimHotelExtension.Jobs
                 return;
             }
 
-            bool canUseServiceCell = ahead == 0
-                && CheckoutQueueCellUtility.TryReserveServiceCell(Desk, ServiceCell, pawn, job);
-            if (ahead > 0 && pawn.HasReserved(ServiceCell, job))
-                pawn.Map.reservationManager.Release(ServiceCell, pawn, job);
             if (started || pawn.IsHashIntervalTick(30))
             {
                 IntVec3 destination = canUseServiceCell ? ServiceCell
@@ -113,20 +121,25 @@ namespace RimSimHotelExtension.Jobs
                 }
                 job.SetTarget(TargetIndex.B, destination);
             }
-            if (!canUseServiceCell || pawn.Position != ServiceCell)
+
+            if (atServiceCell)
             {
-                if (pawn.IsHashIntervalTick(5))
-                    ShopProgressBarUtility.Report(pawn, waited / (float)Mathf.Max(1, HotelTuningDef.Current.receptionTimeout),
+                pawn.pather.StopDead();
+                pawn.rotationTracker.FaceTarget(Desk.CurrentCashier ?? (Thing)Desk);
+            }
+
+            if (!activelyServed)
+            {
+                if (started || pawn.IsHashIntervalTick(5))
+                    ShopProgressBarUtility.Report(pawn, Mathf.Clamp01(waited / (float)timeout),
                         new Color(0.95f, 0.72f, 0.36f, 0.95f));
                 return;
             }
 
-            pawn.pather.StopDead();
-            pawn.rotationTracker.FaceTarget(Desk.CurrentCashier ?? (Thing)Desk);
             int needed = stay.active || stay.closing ? HotelTuningDef.Current.returnReceptionTicks : HotelTuningDef.Current.receptionTicks;
             if (started || pawn.IsHashIntervalTick(5))
                 ShopProgressBarUtility.Report(pawn, servedTicks / (float)Mathf.Max(1, needed));
-            if (started || !Desk.IsManned) return;
+            if (started) return;
             Desk.NotifyCustomerService();
             servedTicks++;
             if (servedTicks < needed) return;

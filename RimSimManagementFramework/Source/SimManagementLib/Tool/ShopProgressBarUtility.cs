@@ -105,7 +105,9 @@ namespace SimManagementLib.Tool
                 Vector2 pos = GenMapUI.LabelDrawPosFor(entry.pawn, -0.88f);
                 Rect outer = new Rect(pos.x - BarWidth / 2f, pos.y - 14f, BarWidth, BarHeight);
                 Rect inner = outer.ContractedBy(1f);
-                Rect fill = new Rect(inner.x, inner.y, inner.width * Mathf.Clamp01(entry.progress), inner.height);
+                float clamped = Mathf.Clamp01(entry.progress);
+                float fillWidth = clamped > 0f ? Mathf.Max(2f, inner.width * clamped) : 0f;
+                Rect fill = new Rect(inner.x, inner.y, Mathf.Min(inner.width, fillWidth), inner.height);
 
                 GUI.color = Color.white;
                 Widgets.DrawBoxSolid(outer, BackgroundColor);

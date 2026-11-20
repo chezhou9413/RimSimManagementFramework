@@ -32,9 +32,10 @@ namespace SimManagementLib.Tool
             => pawn != null && def?.ingestible != null && !def.IsDrug && pawn.RaceProps.CanEverEat(def)
                 && def.GetStatValueAbstract(StatDefOf.Nutrition) > 0f;
 
-        //寻找顾客买得起的真实食物，供生活调度与购买筛选共享。
+        //寻找顾客买得起的真实食物或餐厅堂食，供生活调度与购买筛选共享。
         internal static bool ShopHasAffordableFood(Pawn pawn, Zone_Shop shop, float budget)
-            => ShopDataUtility.GetStorageSnapshotInZone(shop).Any(storage => StorageHasAffordableFood(storage, pawn, budget));
+            => ShopDataUtility.GetStorageSnapshotInZone(shop).Any(storage => StorageHasAffordableFood(storage, pawn, budget))
+                || SimShopCustomerApi.HasRunnableFoodCustomerAction(pawn, shop, budget);
 
         //比较实际食物库存、报价和携带能力。
         private static bool StorageHasAffordableFood(Building_SimContainer storage, Pawn pawn, float budget)

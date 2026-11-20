@@ -132,6 +132,25 @@ namespace SimManagementLib.Api
             return false;
         }
 
+        //预览可提供真实餐饮的外部动作（如餐厅堂食），让饥饿的旅馆住客能够主动前往就餐。
+        internal static bool HasRunnableFoodCustomerAction(Pawn customer, Zone_Shop shop, float budget)
+        {
+            var visit = GetCustomerVisit(customer);
+            if (visit == null || budget < 0f) return false;
+            var context = BuildActionContext(customer, visit, shop);
+            if (context == null) return false;
+            context.remainingBudget = budget;
+            foreach (var def in DefDatabase<SimDef.CustomerActionDef>.AllDefsListForReading)
+            {
+                if (def == null) continue;
+                CustomerActionContext localContext = CloneContextForAction(context, def);
+                CustomerActionWorker worker = def.Worker;
+                if (worker?.ProvidesFood(localContext) == true && TryGetCustomerActionWeight(localContext, worker, out _))
+                    return true;
+            }
+            return false;
+        }
+
         //向扩展取得到客前的设施预留，随后仍由框架统一生成并计数。
         internal static CustomerArrivalReservation PrepareArrival(Zone_Shop shop, RuntimeCustomerKind kind, int places)
         {

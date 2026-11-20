@@ -41,7 +41,7 @@ namespace SimManagementLib.SimAI
         //周期检查顾客是否到达当前目标店，职责是用区划包含和缓存格执行常数时间判断。
         public override void LordToilTick()
         {
-            if (Find.TickManager.TicksGame % 205 != 0) return;
+            if (Find.TickManager.TicksGame % 30 != 0) return;
             LordJob_CustomerVisit visit = lord?.LordJob as LordJob_CustomerVisit;
             if (visit == null) return;
 

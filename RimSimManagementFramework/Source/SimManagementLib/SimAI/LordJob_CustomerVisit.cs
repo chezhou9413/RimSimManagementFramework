@@ -109,7 +109,7 @@ namespace SimManagementLib.SimAI
             LordToil_CustomerLongStay longStayToil = new LordToil_CustomerLongStay();
             graph.AddToil(longStayToil);
             Transition returnToStay = new Transition(checkoutToil, longStayToil);
-            returnToStay.AddSources(travelToil, browseToil);
+            returnToStay.AddSources(travelToil, browseToil, exitToil);
             returnToStay.AddTrigger(new Trigger_Memo("Customer_ReturnToLongStay"));
             graph.AddTransition(returnToStay, highPriority: true);
             Transition leaveStay = new Transition(longStayToil, travelToil);

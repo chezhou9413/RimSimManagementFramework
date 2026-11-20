@@ -185,7 +185,7 @@ namespace SimManagementLib.Api
         }
 
         //尝试为顾客创建一个外部动作 Job，职责是先筛选候选，再只为最终选中的持久化动作落单。
-        public static bool TryMakeCustomerActionJob(CustomerActionContext context, out Job job)
+        public static bool TryMakeCustomerActionJob(CustomerActionContext context, out Job job, bool foodOnly = false)
         {
             job = null;
             if (context == null) return false;
@@ -197,6 +197,7 @@ namespace SimManagementLib.Api
             {
                 CustomerActionContext localContext = CloneContextForAction(context, actionDef);
                 CustomerActionWorker worker = actionDef.Worker;
+                if (foodOnly && worker?.ProvidesFood(localContext) != true) continue;
                 if (!TryGetCustomerActionWeight(localContext, worker, out float weight)) continue;
                 bool persistent = worker.ShouldCreateOrder(localContext);
                 Job candidateJob = persistent ? null : worker.MakeJob(localContext);

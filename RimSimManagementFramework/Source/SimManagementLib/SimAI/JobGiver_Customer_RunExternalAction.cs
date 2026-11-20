@@ -17,7 +17,6 @@ namespace SimManagementLib.SimAI
             LordJob_CustomerVisit lordJob = pawn?.Map?.lordManager?.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
             if (lordJob == null) return null;
             CustomerVisitSession session = lordJob.GetOrCreateSession(pawn);
-            if (session?.FoodOnly == true) return null;
             if (session == null || !session.AllowsJobGiver(CustomerVisitStage.Browsing))
                 return null;
 
@@ -43,7 +42,7 @@ namespace SimManagementLib.SimAI
                 return null;
             }
 
-            return SimShopCustomerApi.TryMakeCustomerActionJob(context, out Job job) ? job : null;
+            return SimShopCustomerApi.TryMakeCustomerActionJob(context, out Job job, session.FoodOnly) ? job : null;
         }
     }
 }

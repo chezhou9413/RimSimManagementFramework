@@ -83,7 +83,15 @@ namespace SimManagementLib.SimAI
                 lord?.ReceiveMemo("Customer_GoToNextShop");
             if (result.requestCheckoutCompletedMemo)
             {
-                if (TryReturnPawnToLongStay(pawn)) return;
+                if (SimShopCustomerApi.HasLongStay(pawn))
+                {
+                    if (!TryReturnPawnToLongStay(pawn))
+                    {
+                        CleanupUnpaidCustomerState(pawn, result.reason);
+                        TryReturnPawnToLongStay(pawn);
+                    }
+                    return;
+                }
                 forceLeaveAfterCheckout.Add(pawn.thingIDNumber);
                 checkoutState.MarkPawnReadyForCheckout(pawn.thingIDNumber);
                 CheckAllCheckoutsDone();
@@ -131,6 +139,12 @@ namespace SimManagementLib.SimAI
 
             finance?.ClearPendingBill(pawn);
             ResolveServiceOrdersOnCheckoutFailure(pawnId);
+            foreach (CustomerActionOrder activeOrder in SimShopCustomerApi.QueryActionOrders(new CustomerActionOrderQuery
+                { customerThingId = pawnId, includeTerminalOrders = false }))
+            {
+                if (activeOrder.IsActiveState)
+                    SimShopCustomerApi.CancelActionOrder(activeOrder, reason ?? "访问已结束", true);
+            }
             ClearCustomerCart(pawnId);
             ClearDeliveredItems(pawnId);
             ClearCustomerServiceOrders(pawnId);

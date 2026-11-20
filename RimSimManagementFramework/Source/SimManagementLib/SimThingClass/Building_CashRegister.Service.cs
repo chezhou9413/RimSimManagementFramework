@@ -15,6 +15,7 @@ namespace SimManagementLib.SimThingClass
         private Pawn incomingReliever;
         private bool handoverRequested;
         private bool relieverArrived;
+        private bool forcedHandover;
 
         public int CustomerServiceTicks => customerServiceTicks;
 
@@ -22,17 +23,30 @@ namespace SimManagementLib.SimThingClass
         public bool HasIncomingCashier
             => !IsManned && (GetActiveShiftCashier() != null || GetIncomingReliever() != null);
 
-        //返回当前有效的主值班或首位赶往本台的收银员。
+        //返回当前有效的主值班或首位赶往本台的收银员；主班离场时立即自动晋升接班员，避免出现双人抢占空窗。
         public Pawn GetActiveShiftCashier()
         {
             if (IsManningThisRegister(activeShiftCashier))
                 return activeShiftCashier;
             activeShiftCashier = null;
             handoverRequested = false;
+            forcedHandover = false;
             Pawn manned = CurrentCashier;
             if (IsManningThisRegister(manned))
             {
                 activeShiftCashier = manned;
+                if (incomingReliever == manned)
+                {
+                    incomingReliever = null;
+                    relieverArrived = false;
+                }
+                return activeShiftCashier;
+            }
+            if (IsManningThisRegister(incomingReliever))
+            {
+                activeShiftCashier = incomingReliever;
+                incomingReliever = null;
+                relieverArrived = false;
                 return activeShiftCashier;
             }
             return null;
@@ -41,10 +55,12 @@ namespace SimManagementLib.SimThingClass
         //返回当前正在赶来交接班的第二任收银员。
         public Pawn GetIncomingReliever()
         {
-            if (IsManningThisRegister(incomingReliever) && incomingReliever != activeShiftCashier)
+            Pawn active = GetActiveShiftCashier();
+            if (IsManningThisRegister(incomingReliever) && incomingReliever != active)
                 return incomingReliever;
             incomingReliever = null;
             relieverArrived = false;
+            forcedHandover = false;
             return null;
         }
 
@@ -54,10 +70,12 @@ namespace SimManagementLib.SimThingClass
             isHandover = false;
             if (pawn == null) return false;
             Pawn active = GetActiveShiftCashier();
-            if (active == null || active == pawn)
-                return true;
             Pawn reliever = GetIncomingReliever();
-            if (handoverRequested && (reliever == null || reliever == pawn))
+            if (active == null)
+                return reliever == null || reliever == pawn;
+            if (active == pawn)
+                return true;
+            if ((handoverRequested || forcedHandover) && (reliever == null || reliever == pawn))
             {
                 isHandover = true;
                 return true;
@@ -71,15 +89,16 @@ namespace SimManagementLib.SimThingClass
             return CanAcceptStaffReservation(candidate, out bool isHandover) && isHandover;
         }
 
-        //登记刚获得预约的收银员为主班或交接接班员。
-        public void RegisterCashierClaim(Pawn pawn, bool asHandover)
+        //登记刚获得预约的收银员为主班或交接接班员；玩家手动强派时触发前任立即让位。
+        public void RegisterCashierClaim(Pawn pawn, bool asHandover, bool forced = false)
         {
             if (pawn == null) return;
             Pawn active = GetActiveShiftCashier();
-            if (!asHandover || active == null || active == pawn)
+            if (active == null || active == pawn)
             {
                 activeShiftCashier = pawn;
                 handoverRequested = false;
+                forcedHandover = false;
                 if (incomingReliever == pawn)
                 {
                     incomingReliever = null;
@@ -89,32 +108,52 @@ namespace SimManagementLib.SimThingClass
             }
             incomingReliever = pawn;
             relieverArrived = false;
+            if (forced)
+                forcedHandover = true;
         }
 
-        //接班员走上交互格时切换为新的主收银员。
-        public void PromoteRelieverToActive(Pawn pawn)
+        //接班员走上交互格时切换为新的主收银员；若仍有其他主班在岗则拒绝覆盖，严防双人同时值班。
+        public bool PromoteRelieverToActive(Pawn pawn)
         {
-            if (pawn == null) return;
+            if (pawn == null) return false;
+            Pawn active = GetActiveShiftCashier();
+            if (active != null && active != pawn)
+                return false;
             activeShiftCashier = pawn;
             handoverRequested = false;
+            forcedHandover = false;
             if (incomingReliever == pawn)
                 incomingReliever = null;
             relieverArrived = false;
+            return true;
         }
 
-        //在收银任务结束或中断时释放本台的交接登记。
+        //在收银任务结束或中断时释放本台的交接登记；若已有接班员在途或待命则立即无缝转正。
         public void ClearCashierClaim(Pawn pawn)
         {
             if (pawn == null) return;
+            if (cachedCashier == pawn)
+            {
+                cachedCashier = null;
+                nextCashierCheckTick = -1;
+            }
             if (activeShiftCashier == pawn)
             {
                 activeShiftCashier = null;
                 handoverRequested = false;
+                forcedHandover = false;
+                if (IsManningThisRegister(incomingReliever) && incomingReliever != pawn)
+                {
+                    activeShiftCashier = incomingReliever;
+                    incomingReliever = null;
+                    relieverArrived = false;
+                }
             }
-            if (incomingReliever == pawn)
+            else if (incomingReliever == pawn)
             {
                 incomingReliever = null;
                 relieverArrived = false;
+                forcedHandover = false;
             }
         }
 
@@ -124,6 +163,16 @@ namespace SimManagementLib.SimThingClass
             if (pawn == null) return;
             if (GetActiveShiftCashier() == pawn)
                 handoverRequested = requested;
+        }
+
+        //判断当前交接请求是否仍然有效，避免主班取消交接后接班员原地傻等。
+        public bool IsHandoverStillWanted(Pawn reliever)
+        {
+            if (reliever == null) return false;
+            Pawn active = GetActiveShiftCashier();
+            return active != null
+                && (handoverRequested || forcedHandover)
+                && GetIncomingReliever() == reliever;
         }
 
         //接班员抵达柜台旁时通知主收银员让出交互格。
@@ -140,6 +189,17 @@ namespace SimManagementLib.SimThingClass
                 && GetActiveShiftCashier() == activePawn
                 && relieverArrived
                 && GetIncomingReliever() != null;
+        }
+
+        //判断主收银员此刻是否应立即让出交互格给已到位或玩家强派的接班员。
+        public bool ShouldYieldToReliever(Pawn activePawn)
+        {
+            if (activePawn == null || GetActiveShiftCashier() != activePawn)
+                return false;
+            Pawn reliever = GetIncomingReliever();
+            if (reliever == null)
+                return false;
+            return (handoverRequested && relieverArrived) || forcedHandover;
         }
 
         //验证员工是否仍在当前地图执行本收银台的 Sim_ManCashRegister 任务。
@@ -176,19 +236,25 @@ namespace SimManagementLib.SimThingClass
             customerServiceTicks++;
         }
 
-        //柜台实际办理业务的时间不消耗任何排队顾客的耐心。
+        //柜台正常办理他人业务时按 25% 速率消耗耐心，既不因前人结账立刻发怒，也不会在长队中无限等待。
         public int GetUnservedWaitTicks(int waitStartTick, int serviceTicksAtStart)
         {
-            int elapsed = Find.TickManager.TicksGame - waitStartTick;
-            int served = System.Math.Max(0, customerServiceTicks - serviceTicksAtStart);
-            return System.Math.Max(0, elapsed - served);
+            int elapsed = System.Math.Max(0, Find.TickManager.TicksGame - waitStartTick);
+            int served = System.Math.Min(elapsed, System.Math.Max(0, customerServiceTicks - serviceTicksAtStart));
+            int unserved = elapsed - served;
+            return unserved + (served / 4);
         }
 
-        //累计工时随柜台保存，顾客读档后可以继续扣除已经完成的服务时间。
+        //累计工时与值班交接引用随柜台保存，读档后不会丢失排队等待进度或出现双人同时占台。
         public override void ExposeData()
         {
             base.ExposeData();
             Scribe_Values.Look(ref customerServiceTicks, "customerServiceTicks");
+            Scribe_References.Look(ref activeShiftCashier, "activeShiftCashier");
+            Scribe_References.Look(ref incomingReliever, "incomingReliever");
+            Scribe_Values.Look(ref handoverRequested, "handoverRequested");
+            Scribe_Values.Look(ref relieverArrived, "relieverArrived");
+            Scribe_Values.Look(ref forcedHandover, "forcedHandover");
         }
     }
 }

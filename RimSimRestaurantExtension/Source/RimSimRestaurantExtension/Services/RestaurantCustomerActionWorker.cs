@@ -45,6 +45,12 @@ namespace RimSimRestaurantExtension.Services
                 && RestaurantBusinessAvailability.CanSeat(context.customer, context.shop, out reason);
         }
 
+        //餐厅堂食属于有效餐饮供给，允许饥饿的旅馆住客直接前来就餐。
+        public override bool ProvidesFood(CustomerActionContext context)
+        {
+            return CanRun(context, out _);
+        }
+
         //返回动作选择权重，职责是不在顾客入座前随机固定菜单。
         public override float GetSelectionWeight(CustomerActionContext context)
         {
