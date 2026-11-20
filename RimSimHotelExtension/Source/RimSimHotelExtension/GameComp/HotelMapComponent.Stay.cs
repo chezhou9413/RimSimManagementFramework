@@ -31,13 +31,16 @@ namespace RimSimHotelExtension.GameComp
             if (stay.closing)
             {
                 if (desk.GetUnservedWaitTicks(stay.closingTick, stay.checkoutServiceTicksAtStart)
-                    >= HotelTuningDef.Current.receptionTimeout) FinishCheckout(stay);
+                    >= HotelTuningDef.Current.receptionTimeout * 2) FinishCheckout(stay);
                 return;
             }
             if (!stay.active)
             {
-                if (desk.GetUnservedWaitTicks(stay.startTick, stay.receptionServiceTicksAtStart)
-                    > HotelTuningDef.Current.receptionTimeout)
+                int timeout = HotelTuningDef.Current.receptionTimeout;
+                bool timedOut = stay.receptionArrivedTick >= 0
+                    ? desk.GetUnservedWaitTicks(stay.receptionArrivedTick, stay.receptionServiceTicksAtStart) > timeout
+                    : now - stay.startTick > timeout * 3;
+                if (timedOut)
                     RequestCheckout(stay, "RSH.Text.ReceptionWaitTimedOut2");
                 return;
             }

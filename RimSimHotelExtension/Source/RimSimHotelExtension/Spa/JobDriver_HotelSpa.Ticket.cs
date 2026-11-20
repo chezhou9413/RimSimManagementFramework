@@ -11,7 +11,12 @@ namespace RimSimHotelExtension.Spa
     //预留池位后到服务台排队购票，与普通收银共用队列和服务格。
     public sealed partial class JobDriver_HotelSpa
     {
-        //只有队首顾客站在服务格且接待员在岗时才累计购票时间，排队与无人值守期间统一显示耐心条。
+        private const int TicketQueueJoinRadiusSquared = 64;
+        private const int TicketQueueDropRadiusSquared = 196;
+        private bool ticketQueueJoined;
+        private bool ticketApproachedFromFar;
+
+        //先走到服务台附近再加入排队队列，避免远程占住空台队首；排队与无人值守期间统一显示耐心条。
         private void DriveTicketPurchase(SpaSession session, bool started)
         {
             var desk = session.ticketDesk;
@@ -22,8 +27,54 @@ namespace RimSimHotelExtension.Spa
                 FailTicketPurchase(session, "RSH.Text.SpaNeedsReceptionDesk");
                 return;
             }
-            if (!SimShopCheckoutApi.TryJoinQueue(pawn, desk, out int ahead)
-                || !CheckoutQueueCellUtility.IsServiceCellStructurallyUsable(pawn.Map, session.ticketServiceCell, pawn))
+            if (!CheckoutQueueCellUtility.IsServiceCellStructurallyUsable(pawn.Map, session.ticketServiceCell, pawn))
+            {
+                FailTicketPurchase(session, "RSH.Text.CannotReachSpaTicketDesk");
+                return;
+            }
+
+            int patience = Mathf.Max(1, HotelTuningDef.Current.spaQueuePatienceTicks);
+            int distSq = pawn.Position.DistanceToSquared(session.ticketServiceCell);
+            if (ticketQueueJoined && distSq > TicketQueueDropRadiusSquared)
+            {
+                ticketQueueJoined = false;
+                SimShopCheckoutApi.LeaveQueue(pawn);
+                ShopProgressBarUtility.Clear(pawn);
+            }
+            if (!ticketQueueJoined && distSq > TicketQueueJoinRadiusSquared)
+            {
+                ticketApproachedFromFar = true;
+                if (now - session.stageTick >= HotelTuningDef.Current.receptionTimeout * 2)
+                {
+                    FailTicketPurchase(session, "RSH.Text.SpaTicketWaitTimedOut");
+                    return;
+                }
+                if (started || !pawn.pather.Moving || pawn.IsHashIntervalTick(60))
+                {
+                    if (!pawn.CanReach(session.ticketServiceCell, PathEndMode.OnCell, Danger.None))
+                    {
+                        FailTicketPurchase(session, "RSH.Text.CannotReachSpaTicketDesk");
+                        return;
+                    }
+                    if (!pawn.pather.Moving || pawn.pather.Destination.Cell != session.ticketServiceCell)
+                        pawn.pather.StartPath(session.ticketServiceCell, PathEndMode.OnCell);
+                }
+                return;
+            }
+
+            if (!ticketQueueJoined)
+            {
+                ticketQueueJoined = true;
+                if (ticketApproachedFromFar)
+                {
+                    session.stageTick = now;
+                    session.ticketServiceTicksAtWaitStart = desk.CustomerServiceTicks;
+                    ticketApproachedFromFar = false;
+                }
+                started = true;
+            }
+
+            if (!SimShopCheckoutApi.TryJoinQueue(pawn, desk, out int ahead))
             {
                 FailTicketPurchase(session, "RSH.Text.CannotReachSpaTicketDesk");
                 return;
@@ -34,7 +85,6 @@ namespace RimSimHotelExtension.Spa
             if (ahead > 0 && pawn.HasReserved(session.ticketServiceCell, job))
                 pawn.Map.reservationManager.Release(session.ticketServiceCell, pawn, job);
 
-            int patience = Mathf.Max(1, HotelTuningDef.Current.spaQueuePatienceTicks);
             int waited = desk.GetUnservedWaitTicks(session.stageTick, session.ticketServiceTicksAtWaitStart);
             bool atServiceCell = canUseServiceCell && pawn.Position == session.ticketServiceCell;
             bool activelyServed = atServiceCell && desk.IsManned;
@@ -96,6 +146,8 @@ namespace RimSimHotelExtension.Spa
         //完成或中断时立即释放收银队列和顾客侧预约，不影响池位与衣柜。
         private void ReleaseTicketQueue()
         {
+            ticketQueueJoined = false;
+            ticketApproachedFromFar = false;
             SimShopCheckoutApi.LeaveQueue(pawn);
             ShopProgressBarUtility.Clear(pawn);
             SpaSession session = Session;

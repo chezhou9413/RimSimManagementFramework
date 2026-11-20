@@ -140,6 +140,11 @@ namespace RimSimHotelExtension.GameComp
             {
                 guest.checkoutDone = true;
                 if (stay.guests.All(g => g.checkoutDone)) FinishCheckout(stay);
+                else
+                {
+                    stay.closingTick = Find.TickManager.TicksGame;
+                    stay.checkoutServiceTicksAtStart = DeskFor(ShopFor(stay))?.CustomerServiceTicks ?? 0;
+                }
                 return;
             }
             if (stay.active)
@@ -149,7 +154,12 @@ namespace RimSimHotelExtension.GameComp
             }
             guest.receptionDone = true;
             guest.status = "RSH.Text.WaitingForCompanions";
-            if (!stay.guests.All(g => g.receptionDone)) return;
+            if (!stay.guests.All(g => g.receptionDone))
+            {
+                //首位同行者办完入住后清空到台起点，让仍在赶路的第二位同行者到前台后重新获得完整排队耐心。
+                stay.receptionArrivedTick = -1;
+                return;
+            }
             if (stay.bed == null || !stay.bed.Spawned || stay.bed.OwnersForReading.Count > 0
                 || stay.bed.Medical || stay.bed.ForPrisoners || stay.bed.ForSlaves
                 || ShopFor(stay)?.Cells.Contains(stay.bed.Position) != true

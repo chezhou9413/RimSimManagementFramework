@@ -8,6 +8,8 @@ namespace SimManagementLib.SimMapComp
     internal sealed class CustomerCheckoutQueueRegistry
     {
         private const int StaleTicketTicks = 30;
+        private const int MaxSilentTicketTicks = 90;
+        internal const int MaxQueueDistanceSquared = 196;
         private readonly Map map;
         private readonly Dictionary<int, CustomerCheckoutTicket> byPawn = new Dictionary<int, CustomerCheckoutTicket>();
         private readonly Dictionary<int, LinkedList<CustomerCheckoutTicket>> byRegister = new Dictionary<int, LinkedList<CustomerCheckoutTicket>>();
@@ -140,9 +142,11 @@ namespace SimManagementLib.SimMapComp
                 CustomerCheckoutTicket ticket = pair.Value;
                 Pawn pawn = ticket.Pawn;
                 bool invalid = pawn == null || pawn.Destroyed || pawn.Dead || !pawn.Spawned || pawn.Map != map
-                    || ticket.Register == null || !ticket.Register.Spawned || ticket.Register.Map != map;
+                    || ticket.Register == null || !ticket.Register.Spawned || ticket.Register.Map != map
+                    || pawn.Position.DistanceToSquared(ticket.Register.Position) > MaxQueueDistanceSquared;
+                int silentTicks = now - ticket.LastSeenTick;
                 bool hasCheckoutJob = CustomerRuntimeIndex.FindCheckoutJob(pawn) != null;
-                if (invalid || (!hasCheckoutJob && now - ticket.LastSeenTick >= StaleTicketTicks))
+                if (invalid || silentTicks >= MaxSilentTicketTicks || (!hasCheckoutJob && silentTicks >= StaleTicketTicks))
                 {
                     if (stale == null) stale = new List<int>();
                     stale.Add(pair.Key);

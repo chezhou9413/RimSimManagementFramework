@@ -43,7 +43,8 @@ namespace RimSimHotelExtension.Buildings
                     {
                         Pawn guest = stay.guests[g].pawn;
                         if (guest?.Spawned == true && guest.CurJobDef?.defName == "RSH_Reception"
-                            && guest.CurJob?.targetA.Thing == this)
+                            && guest.CurJob?.targetA.Thing == this
+                            && guest.Position.DistanceToSquared(Position) <= 900)
                             return true;
                     }
                 }

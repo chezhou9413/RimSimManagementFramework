@@ -184,11 +184,12 @@ namespace SimManagementLib.SimMapComp
             }
         }
 
-        //从 Pawn 当前或排队 Job 重建结账票据，职责是让读档后的运行结账继续保持原顺序。
+        //从 Pawn 当前或排队 Job 重建结账票据，仅恢复已接近收银台的顾客，避免远处顾客读档后占住队首。
         private void RebuildCheckoutTicket(Pawn pawn)
         {
             Job job = FindCheckoutJob(pawn);
-            if (job?.targetA.Thing is SimThingClass.Building_CashRegister register)
+            if (job?.targetA.Thing is SimThingClass.Building_CashRegister register
+                && pawn.Position.DistanceToSquared(register.Position) <= CustomerCheckoutQueueRegistry.MaxQueueDistanceSquared)
                 CheckoutQueue.Acquire(pawn, register);
         }
 

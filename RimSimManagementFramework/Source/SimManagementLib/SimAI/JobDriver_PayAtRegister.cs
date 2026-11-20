@@ -27,6 +27,7 @@ namespace SimManagementLib.SimAI
         private const int StaffingCheckIntervalTicks = 15;
         private const int FacingUpdateIntervalTicks = 30;
         private const int ProgressUpdateIntervalTicks = 5;
+        private const int QueueJoinRadiusSquared = 64;
 
         private Building_CashRegister Register => (Building_CashRegister)job.GetTarget(TargetIndex.A).Thing;
         private IntVec3 ServiceCell => job.GetTarget(TargetIndex.C).Cell;
@@ -52,11 +53,10 @@ namespace SimManagementLib.SimAI
             ? System.Math.Max(0, Find.TickManager.TicksGame - startTick)
             : Register.GetUnservedWaitTicks(waitStartTick, serviceTicksAtWaitStart);
 
-        //登记结账票据，允许多位顾客在同一收银台排队。
+        //顾客不独占收银台建筑本体，走到收银台附近后再登记地图级票据，避免远处顾客阻塞空柜台。
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
-            //顾客不独占收银台建筑本体，地图级票据负责保证幂等顺序。
-            return Register != null && QueueRegistry?.Acquire(pawn, Register) != null;
+            return Register != null && Register.Spawned;
         }
         //保存排队和实际服务进度，读档后继续同一笔结账。
         public override void ExposeData()
@@ -79,10 +79,64 @@ namespace SimManagementLib.SimAI
             this.FailOnDespawnedOrNull(TargetIndex.A);
 
             Toil finalize = new Toil();
+
+            //先走到收银台附近再加入排队队列，防止仍在远处的顾客提前占住队首和服务格。
+            Toil approachRegister = ToilMaker.MakeToil("ApproachCashRegister");
+            approachRegister.defaultCompleteMode = ToilCompleteMode.Never;
+            approachRegister.initAction = () =>
+            {
+                IntVec3 target = ServiceCell;
+                if (!CheckoutQueueCellUtility.IsServiceCellStructurallyUsable(pawn.Map, target, pawn))
+                {
+                    target = CheckoutQueueCellUtility.FindServiceCell(Register, pawn);
+                    job.SetTarget(TargetIndex.C, target);
+                }
+                if (!target.IsValid)
+                {
+                    EndJobWith(JobCondition.Incompletable);
+                    return;
+                }
+                if (pawn.Position.DistanceToSquared(target) <= QueueJoinRadiusSquared)
+                {
+                    ReadyForNextToil();
+                    return;
+                }
+                if (!pawn.CanReach(target, PathEndMode.OnCell, Danger.Some))
+                {
+                    EndJobWith(JobCondition.Incompletable);
+                    return;
+                }
+                pawn.pather.StartPath(target, PathEndMode.OnCell);
+            };
+            approachRegister.tickAction = () =>
+            {
+                IntVec3 target = ServiceCell;
+                if (!target.IsValid || pawn.Position.DistanceToSquared(target) <= QueueJoinRadiusSquared)
+                {
+                    ReadyForNextToil();
+                    return;
+                }
+                if (!pawn.pather.Moving)
+                {
+                    if (!pawn.CanReach(target, PathEndMode.OnCell, Danger.Some))
+                    {
+                        EndJobWith(JobCondition.Incompletable);
+                        return;
+                    }
+                    pawn.pather.StartPath(target, PathEndMode.OnCell);
+                }
+            };
+            yield return approachRegister;
+
             Toil waitInQueue = new Toil();
             waitInQueue.defaultCompleteMode = ToilCompleteMode.Never;
             waitInQueue.initAction = () =>
             {
+                if (QueueRegistry?.Acquire(pawn, Register) == null)
+                {
+                    EndJobWith(JobCondition.Incompletable);
+                    return;
+                }
                 abortedByTimeout = false;
                 totalWaitTicks = 0;
                 waitStartTick = Find.TickManager.TicksGame;
@@ -96,6 +150,11 @@ namespace SimManagementLib.SimAI
                 if (maxQueueWaitTicks <= 0) maxQueueWaitTicks = DefaultMaxQueueWaitTicks;
                 ShopProgressBarUtility.Report(pawn, Mathf.Clamp01(PatienceTicksUsed / (float)Mathf.Max(1, maxQueueWaitTicks)), new Color(0.95f, 0.72f, 0.36f, 0.95f));
                 CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.CheckoutQueueStart);
+                if (cachedRegisterManned && CheckoutQueueCellUtility.TryReserveServiceCell(Register, ServiceCell, pawn, job))
+                {
+                    ReadyForNextToil();
+                    return;
+                }
                 if (!UpdateQueueCell(lordJob)) EndJobWith(JobCondition.Incompletable);
             };
             waitInQueue.tickAction = () =>
@@ -167,7 +226,9 @@ namespace SimManagementLib.SimAI
             yield return waitInQueue;
 
             yield return Toils_Jump.JumpIf(finalize, () => abortedByTimeout);
-            yield return Toils_Goto.GotoCell(TargetIndex.C, PathEndMode.OnCell);
+            Toil gotoService = Toils_Goto.GotoCell(TargetIndex.C, PathEndMode.OnCell);
+            gotoService.AddPreTickAction(() => QueueRegistry?.Touch(pawn.thingIDNumber));
+            yield return gotoService;
 
             Toil doService = new Toil();
             doService.defaultCompleteMode = ToilCompleteMode.Never;

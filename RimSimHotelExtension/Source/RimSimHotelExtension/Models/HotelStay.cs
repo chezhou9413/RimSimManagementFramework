@@ -13,6 +13,7 @@ namespace RimSimHotelExtension.Models
         public Building_Bed bed;
         public List<HotelGuestState> guests = new List<HotelGuestState>();
         public int startTick;
+        public int receptionArrivedTick = -1;
         public int receptionServiceTicksAtStart;
         public int checkoutServiceTicksAtStart;
         public int checkoutTick;
@@ -44,6 +45,7 @@ namespace RimSimHotelExtension.Models
             Scribe_References.Look(ref bed, "bed");
             Scribe_Collections.Look(ref guests, "guests", LookMode.Deep);
             Scribe_Values.Look(ref startTick, "startTick");
+            Scribe_Values.Look(ref receptionArrivedTick, "receptionArrivedTick", -1);
             Scribe_Values.Look(ref receptionServiceTicksAtStart, "receptionServiceTicksAtStart");
             Scribe_Values.Look(ref checkoutServiceTicksAtStart, "checkoutServiceTicksAtStart");
             Scribe_Values.Look(ref checkoutTick, "checkoutTick");

@@ -63,25 +63,15 @@ namespace SimManagementLib.SimAI
                 return null;
             }
 
-            CustomerCheckoutTicket ticket = queueRegistry?.Acquire(pawn, register);
-            if (ticket == null)
-            {
-                lordJob.FailCheckoutAndLeave(pawn, "无法登记结账票据");
-                return null;
-            }
-
-            int queueIndex = queueRegistry.CountAhead(pawnId);
             IntVec3 serviceCell = CheckoutQueueCellUtility.FindServiceCell(register, pawn);
-            IntVec3 queueCell = CheckoutQueueCellUtility.FindQueueCell(register, serviceCell, queueIndex, pawn);
             if (!CheckoutQueueCellUtility.IsServiceCellStructurallyUsable(pawn.Map, serviceCell, pawn))
             {
-                queueRegistry.ReleasePawn(pawnId);
                 lordJob.FailCheckoutAndLeave(pawn, "收银台服务格不可用");
                 return null;
             }
 
             Job job = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Customer_PayAtRegister"), register);
-            job.SetTarget(TargetIndex.B, queueCell);
+            job.SetTarget(TargetIndex.B, serviceCell);
             job.SetTarget(TargetIndex.C, serviceCell);
             //只有完整结账 Job 已构造成功后才切换阶段，避免预算轮空时被看门狗误判为结账失败。
             if (!isPostCheckout)

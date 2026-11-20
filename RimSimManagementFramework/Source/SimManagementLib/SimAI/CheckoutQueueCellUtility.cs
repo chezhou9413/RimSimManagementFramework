@@ -111,7 +111,7 @@ namespace SimManagementLib.SimAI
             if (pawn != null && cell.IsForbidden(pawn)) return false;
             return true;
         }
-        //判断服务格当前是否可由指定顾客进入，负责在真正轮到结账时避免踩到其他 Pawn。
+        //判断服务格当前是否可由指定顾客进入；只避让正在办理业务的静止顾客，避免路过殖民者或趴在柜前的宠物永久卡死整条队伍。
         public static bool IsServiceCellFreeForPawn(Map map, IntVec3 cell, Pawn pawn)
         {
             if (!IsServiceCellStructurallyUsable(map, cell, pawn)) return false;
@@ -119,7 +119,14 @@ namespace SimManagementLib.SimAI
             List<Thing> things = map.thingGrid.ThingsListAt(cell);
             for (int i = 0; i < things.Count; i++)
             {
-                if (things[i] is Pawn other && other != pawn) return false;
+                if (!(things[i] is Pawn other) || other == pawn) continue;
+                if (!other.RaceProps.Humanlike) continue;
+                if (other.pather?.Moving == true) continue;
+                string jobDefName = other.CurJobDef?.defName;
+                if (jobDefName == "Customer_PayAtRegister"
+                    || jobDefName == "RSH_Reception"
+                    || jobDefName == "RSH_UseSpa")
+                    return false;
             }
 
             return true;

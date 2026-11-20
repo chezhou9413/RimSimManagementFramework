@@ -65,7 +65,9 @@ namespace RimSimHotelExtension.Spa
         public bool TryAdmit(SpaSession session, Job job)
         {
             Pawn pawn = session.customer;
-            if (sessions.Any(s => s.spa == session.spa && s.stage == SpaSessionStage.Queued && s.id < session.id)) return false;
+            //仅排在仍在活跃等位的前序会话之后，避免失效或被中断的前排卡住整条温泉队伍。
+            if (sessions.Any(s => s.spa == session.spa && s.stage == SpaSessionStage.Queued && s.id < session.id
+                && s.customer?.CurJobDef?.defName == "RSH_UseSpa")) return false;
             Zone_Shop shop = session.Shop(map);
             if (shop == null || session.ticketDesk == null || !session.ticketDesk.Spawned
                 || !shop.ContainsCell(session.ticketDesk.Position))
@@ -96,7 +98,12 @@ namespace RimSimHotelExtension.Spa
                     map.reservationManager.Release(locker, pawn, job);
                     continue;
                 }
-                if (!locker.TryClaim(pawn, session.id)) return false;
+                if (!locker.TryClaim(pawn, session.id))
+                {
+                    map.reservationManager.Release(locker, pawn, job);
+                    map.reservationManager.Release(cell, pawn, job);
+                    return false;
+                }
                 session.locker = locker;
                 session.slot = i;
                 session.poolCell = cell;
@@ -148,10 +155,14 @@ namespace RimSimHotelExtension.Spa
                     || shop == null || session.spa.Shop != shop
                     || (!session.incomeCommitted && (session.ticketDesk == null || !session.ticketDesk.Spawned
                         || !shop.ContainsCell(session.ticketDesk.Position)))
-                    || (session.locker != null && (!session.locker.Spawned || !shop.ContainsCell(session.locker.Position))))
+                    || (session.locker != null && (!session.locker.Spawned || !shop.ContainsCell(session.locker.Position)))
+                    || (session.actionOrderId > 0 && SimShopCustomerApi.GetActionOrder(session.actionOrderId)?.IsActiveState == false))
                     Abort(session, "RSH.Text.SpaUseInterrupted");
                 else if (session.stage == SpaSessionStage.Queued && Now - session.createdTick > HotelTuningDef.Current.spaQueuePatienceTicks)
                     Abort(session, "RSH.Text.TimedOutWaitingForAPoolSlotOr");
+                else if (session.stage != SpaSessionStage.Soaking && session.stage != SpaSessionStage.Queued
+                    && Now - session.stageTick > HotelTuningDef.Current.receptionTimeout * 3)
+                    Abort(session, "RSH.Text.SpaUseInterrupted");
             }
             sessions.RemoveAll(s => s.IsTerminal && Now - s.completedTick > 60000);
             cooldowns.RemoveAll(c => Now - c.usedTick > 60000);
