@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <!-- CE 删除了这些发射器，商品列表同步移除对应引用。 -->
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Combat Extended</li>
+    </mods>
+    <match Class="PatchOperationRemove">
+      <xpath>Defs/SimManagementLib.SimDef.GoodsDef[defName="Goods_Weapons"]/GoodsList/li[.="Gun_EmpLauncher" or .="Gun_SmokeLauncher" or .="Gun_ToxbombLauncher"]</xpath>
+    </match>
+  </Operation>
+</Patch>

@@ -1,4 +1,5 @@
 using RimWorld;
+using SimManagementLib.Api;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimDef;
 using SimManagementLib.SimThingClass;
@@ -114,6 +115,9 @@ namespace SimManagementLib.GameComp
             IReadOnlyList<Building_SimContainer> storages = ShopDataUtility.GetStorageSnapshotInZone(zone);
             int storageCount = storages.Count;
             int stockedStorageCount = CountStockedStorages(storages);
+            int nonRetailFacilityUnits = CountNonRetailFacilityUnits(zone, out bool hasNonRetailOffer);
+            int effectiveFacilityCount = storageCount + nonRetailFacilityUnits;
+            int effectiveStockedFacilities = stockedStorageCount + nonRetailFacilityUnits;
 
             List<ShopItemStatus> goods = ShopDataUtility.GetAllSellableGoods(zone);
             int goodsKinds = goods.Count;
@@ -122,7 +126,7 @@ namespace SimManagementLib.GameComp
             GameComponent_ShopComboManager comboManager = Current.Game?.GetComponent<GameComponent_ShopComboManager>();
             int comboCount = comboManager?.GetCombosForZone(zone)?.Count ?? 0;
 
-            float operation01 = ComputeOperationScore01(tuning, zone, registerCount, mannedCount, storageCount);
+            float operation01 = ComputeOperationScore01(tuning, zone, registerCount, mannedCount, effectiveFacilityCount);
             float goods01 = ComputeGoodsScore01(tuning, goodsKinds, inStockKinds, comboCount);
             float service01 = ComputeServiceScore01(tuning, state, registerCount, mannedCount);
 
@@ -136,9 +140,10 @@ namespace SimManagementLib.GameComp
                 indoor01, tuning.indoorWeight,
                 0f, 0f);
 
+            float goodsWeight = storageCount == 0 && hasNonRetailOffer ? 0f : tuning.goodsWeight;
             float score01 = WeightedNormalized4(
                 operation01, tuning.operationWeight,
-                goods01, tuning.goodsWeight,
+                goods01, goodsWeight,
                 service01, tuning.serviceWeight,
                 environment01, tuning.environmentWeight);
             float score = score01 * 100f;
@@ -149,13 +154,13 @@ namespace SimManagementLib.GameComp
                 tuning,
                 registerCount,
                 mannedCount,
-                stockedStorageCount,
+                effectiveStockedFacilities,
                 inStockKinds,
                 zone.Cells.Count);
             float beautyDemandMultiplier = ShopDemandCurveUtility.CalculateBeautyDemandMultiplier(tuning, beautyAverage);
             float scaleDemandMultiplier = ShopDemandCurveUtility.CalculateScaleDemandMultiplier(tuning, effectiveScale);
             float scaleCapacityMultiplier = ShopDemandCurveUtility.CalculateScaleCapacityMultiplier(tuning, effectiveScale);
-            int capacity = CalculateDynamicCapacity(tuning, zone, score01, reputation / 100f, registerCount, mannedCount, stockedStorageCount, scaleCapacityMultiplier);
+            int capacity = CalculateDynamicCapacity(tuning, zone, score01, reputation / 100f, registerCount, mannedCount, effectiveStockedFacilities, scaleCapacityMultiplier);
             float demand = CalculateSpawnDemandFactor(tuning, zone, score01, reputation / 100f, beautyDemandMultiplier, scaleDemandMultiplier);
 
             ShopMetricsSnapshot snapshot = new ShopMetricsSnapshot
@@ -287,14 +292,34 @@ namespace SimManagementLib.GameComp
             AddInt(dailySatisfactionCount, day, 1);
         }
 
-        private static float ComputeOperationScore01(ShopTuningDef tuning, Zone_Shop zone, int registerCount, int mannedCount, int storageCount)
+        //统计非货柜型服务与扩展动作设施的等效规模，避免旅馆、温泉或服务店在无货柜时评分和容量归零。
+        private static int CountNonRetailFacilityUnits(Zone_Shop zone, out bool hasNonRetailOffer)
         {
-            if (zone == null || registerCount <= 0 || storageCount <= 0) return 0f;
+            hasNonRetailOffer = false;
+            if (zone?.Map == null) return 0;
+
+            int actionUnits = CustomerActionAttractionUtility.GetTotalAttractionFacilityUnits(zone);
+            bool hasAction = actionUnits > 0 || CustomerActionAttractionUtility.HasAvailableProvider(zone);
+            int serviceUnits = 0;
+            foreach (Thing provider in ShopServiceUtility.GetServiceProvidersInZone(zone))
+            {
+                if (ShopServiceUtility.HasEnabledService(provider))
+                    serviceUnits++;
+            }
+
+            hasNonRetailOffer = hasAction || serviceUnits > 0;
+            int total = actionUnits + serviceUnits;
+            return hasNonRetailOffer ? Mathf.Max(1, total) : 0;
+        }
+
+        private static float ComputeOperationScore01(ShopTuningDef tuning, Zone_Shop zone, int registerCount, int mannedCount, int facilityCount)
+        {
+            if (zone == null || registerCount <= 0 || facilityCount <= 0) return 0f;
 
             float registerScore = Mathf.Clamp01((registerCount + mannedCount * 0.75f) / Mathf.Max(0.1f, tuning.operationRegisterDivisor));
-            float storageScore = Mathf.Clamp01(storageCount / Mathf.Max(0.1f, tuning.operationStorageDivisor));
+            float storageScore = Mathf.Clamp01(facilityCount / Mathf.Max(0.1f, tuning.operationStorageDivisor));
             float coverageDivisorCells = Mathf.Max(1f, tuning.operationCoverageDivisorCells);
-            float coverageScore = Mathf.Clamp01((registerCount * 1.5f + storageCount) / Mathf.Max(1f, zone.Cells.Count / coverageDivisorCells));
+            float coverageScore = Mathf.Clamp01((registerCount * 1.5f + facilityCount) / Mathf.Max(1f, zone.Cells.Count / coverageDivisorCells));
 
             return WeightedNormalized3(
                 registerScore, tuning.operationRegisterComponentWeight,

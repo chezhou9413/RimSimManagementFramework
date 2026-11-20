@@ -49,12 +49,24 @@ namespace SimManagementLib.SimThingClass
                         return cachedCashier;
                 }
 
-                cachedCashier = Map.thingGrid.ThingAt<Pawn>(InteractionCell);
-                if (!IsValidCashier(cachedCashier))
-                    cachedCashier = null;
+                cachedCashier = FindCashierAtInteractionCell();
                 nextCashierCheckTick = now + CashierCacheTicks;
                 return cachedCashier;
             }
+        }
+
+        //遍历交互格全部实体查找正在值班的收银员，避免路人或宠物同格遮挡误判无人。
+        private Pawn FindCashierAtInteractionCell()
+        {
+            if (Map == null || !InteractionCell.InBounds(Map))
+                return null;
+            var things = Map.thingGrid.ThingsListAtFast(InteractionCell);
+            for (int i = 0; i < things.Count; i++)
+            {
+                if (things[i] is Pawn pawn && IsValidCashier(pawn))
+                    return pawn;
+            }
+            return null;
         }
 
         public bool IsManned => CurrentCashier != null;

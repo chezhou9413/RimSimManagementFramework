@@ -171,19 +171,34 @@ namespace RimSimRestaurantExtension.Tool
             return job;
         }
 
-        //查找厨师可认领的最早订单，职责是过滤状态、设施、食材和商店边界。
+        //查找厨师可认领的最早订单，先按创建时间排序再依次检查食材并返回选中的食材列表。
         public static RestaurantOrder FindCookOrder(Pawn cook, Zone_Shop shop, Thing stove)
+            => FindCookOrder(cook, shop, stove, out _);
+
+        //查找厨师可认领的最早订单并返回本次匹配到的食材列表，避免工作扫描与建单重复搜料。
+        public static RestaurantOrder FindCookOrder(Pawn cook, Zone_Shop shop, Thing stove, out List<ThingCount> ingredients)
         {
+            ingredients = null;
             if (cook?.Map == null || shop == null || stove == null || OrderManager?.CanDispatchCooking(cook) != true) return null;
-            return OrderManager?.GetActiveOrders(shop.ID)
-                .Where(order => order.state == RestaurantOrderState.WaitingCook && Find.TickManager.TicksGame >= order.nextCookingAttemptTick)
-                .Where(order => EnsureOrderStillValid(order, cook.Map))
-                .Where(order => !order.mealProduced && RestaurantCookingUtility.CanPawnCookOrderAt(cook, stove, order))
-                .Where(order => cook.carryTracker.MaxStackSpaceEver(order.mealDef) >= order.mealCount)
-                .Where(order => FindProvider(cook.Map, order) is Thing pass && cook.CanReach(pass, PathEndMode.Touch, Danger.Some))
-                .Where(order => RestaurantIngredientUtility.TryFindIngredientThingCounts(cook, shop, order, out _, out _))
-                .OrderBy(order => order.createdTick)
-                .FirstOrDefault();
+            int now = Find.TickManager.TicksGame;
+            var candidates = OrderManager.GetActiveOrders(shop.ID)
+                .Where(order => order.state == RestaurantOrderState.WaitingCook
+                    && now >= order.nextCookingAttemptTick
+                    && !order.mealProduced
+                    && EnsureOrderStillValid(order, cook.Map)
+                    && RestaurantCookingUtility.CanPawnCookOrderAt(cook, stove, order)
+                    && cook.carryTracker.MaxStackSpaceEver(order.mealDef) >= order.mealCount
+                    && FindProvider(cook.Map, order) is Thing pass && cook.CanReach(pass, PathEndMode.Touch, Danger.Some))
+                .OrderBy(order => order.createdTick);
+            foreach (RestaurantOrder order in candidates)
+            {
+                if (RestaurantIngredientUtility.TryFindIngredientThingCounts(cook, shop, order, out List<ThingCount> found, out _))
+                {
+                    ingredients = found;
+                    return order;
+                }
+            }
+            return null;
         }
 
         //释放餐品的临时禁用标记，职责是保证失败、中断和成功路径都不会遗留永久禁止物品。
@@ -210,13 +225,14 @@ namespace RimSimRestaurantExtension.Tool
                 .ToList();
         }
 
-        //判断员工当前是否有不可打断状态，职责是让低优先级值班工作避让玩家命令和基础生存需求。
+        //判断员工当前是否有不可打断状态，让值班避让玩家命令、非上班日程、机械体休眠/充电和紧急生存需求。
         public static bool HasBlockingPriorityJobOrNeed(Pawn pawn)
         {
             if (pawn == null || pawn.Drafted || pawn.Downed || pawn.InMentalState) return true;
             if (pawn.CurJob?.playerForced == true) return true;
-            if (pawn.needs?.food?.CurCategory >= HungerCategory.Hungry) return true;
-            return pawn.needs?.rest != null && pawn.needs.rest.CurLevelPercentage < 0.18f;
+            if (ShopStaffUtility.IsPawnOffDutyForAutomaticWork(pawn)) return true;
+            if (pawn.needs?.food?.CurCategory >= HungerCategory.UrgentlyHungry) return true;
+            return pawn.needs?.rest?.CurCategory >= RestCategory.VeryTired;
         }
     }
 }

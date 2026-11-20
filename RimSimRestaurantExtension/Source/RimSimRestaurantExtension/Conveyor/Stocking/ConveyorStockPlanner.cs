@@ -37,7 +37,7 @@ namespace RimSimRestaurantExtension.Conveyor.Stocking
                 && RestaurantCookingUtility.CanPawnCook(pawn)
                 && RestaurantOrderUtility.Settings.GetOrCreate(shop.ID).enabled
                 && !RestaurantOrderUtility.HasBlockingPriorityJobOrNeed(pawn)
-                && SimShopStaffApi.IsAssignedToWorkGiver(shop, pawn, DefOfRefs.RSR_WorkGiver_CookRestaurantOrder)
+                && SimShopStaffApi.IsOnShiftForWorkGiver(shop, pawn, DefOfRefs.RSR_WorkGiver_CookRestaurantOrder)
                 && !RestaurantOrderUtility.OrderManager.GetActiveOrders(shop.ID).Any(o =>
                     o.state == RestaurantOrderState.WaitingOrder || o.state == RestaurantOrderState.TakingOrder
                     || o.state == RestaurantOrderState.WaitingCook || o.state == RestaurantOrderState.Cooking

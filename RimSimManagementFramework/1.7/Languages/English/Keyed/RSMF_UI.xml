@@ -22,7 +22,7 @@
   <RSMF.Gizmo.ToggleZoneVisibility.Desc>Hide or show the ground color overlay for this shop area. This only affects zone drawing, not opening, restocking, checkout, or customer visits.</RSMF.Gizmo.ToggleZoneVisibility.Desc>
   <RSMF.CashStorage.WithdrawThreshold>Withdraw threshold</RSMF.CashStorage.WithdrawThreshold>
   <RSMF.CashStorage.BarLabel>{stored} / {max}  threshold {threshold}</RSMF.CashStorage.BarLabel>
-  <RSMF.CashStorage.ThresholdTooltip>Shows current stored silver and the automatic withdrawal threshold. After moving the threshold marker, pawns doing service work will automatically withdraw and haul silver once available silver reaches the threshold.</RSMF.CashStorage.ThresholdTooltip>
+  <RSMF.CashStorage.ThresholdTooltip>Shows current stored silver and the automatic withdrawal threshold. After moving the threshold marker, service workers will automatically withdraw and haul silver once available silver reaches the threshold.</RSMF.CashStorage.ThresholdTooltip>
   <RSMF.CashStorage.StoredSilver>Stored silver: {stored}</RSMF.CashStorage.StoredSilver>
   <RSMF.CashStorage.PendingWithdraw>(pending haul {pending})</RSMF.CashStorage.PendingWithdraw>
   <RSMF.CashStorage.WithdrawThresholdInspect>Withdraw threshold: {threshold}</RSMF.CashStorage.WithdrawThresholdInspect>
@@ -329,7 +329,7 @@
   <RSMF.Business.Customer.ActiveCount>Active customers: {count}</RSMF.Business.Customer.ActiveCount>
   <RSMF.Business.Customer.AverageBudgetUse>Average budget use: {percent}%</RSMF.Business.Customer.AverageBudgetUse>
   <RSMF.Business.Customer.ShopMapLine>Shop: {shop}   Map: {map}</RSMF.Business.Customer.ShopMapLine>
-  <RSMF.Business.Customer.JobPatienceLine>Current job: {job}   Checkout patience: {patience} ticks</RSMF.Business.Customer.JobPatienceLine>
+  <RSMF.Business.Customer.JobPatienceLine>Current activity: {job}   Checkout patience: {patience}s</RSMF.Business.Customer.JobPatienceLine>
   <RSMF.Business.Customer.BudgetLine>Budget {budget}  Spent {spent}  Remaining {remaining}</RSMF.Business.Customer.BudgetLine>
   <RSMF.Business.Customer.PreferenceLine>Preferences: {preferences}</RSMF.Business.Customer.PreferenceLine>
   <RSMF.Business.Customer.ShopFallback>Shop #{id}</RSMF.Business.Customer.ShopFallback>
@@ -346,7 +346,7 @@
   <RSMF.StaffManager.Title>{shop}'s staff setup</RSMF.StaffManager.Title>
   <RSMF.StaffManager.OpenStatus>Open status: {status}</RSMF.StaffManager.OpenStatus>
   <RSMF.StaffManager.RoleList>Role list</RSMF.StaffManager.RoleList>
-  <RSMF.StaffManager.RoleListTip>Roles are shown automatically based on buildings and role defs already present in the shop.</RSMF.StaffManager.RoleListTip>
+  <RSMF.StaffManager.RoleListTip>Roles are shown automatically based on buildings present in the shop.</RSMF.StaffManager.RoleListTip>
   <RSMF.StaffManager.AssignedCount>Assigned: {assigned}/{max}</RSMF.StaffManager.AssignedCount>
   <RSMF.StaffManager.SelectRole>Select a role</RSMF.StaffManager.SelectRole>
   <RSMF.StaffManager.CandidateTitle>{role} candidates</RSMF.StaffManager.CandidateTitle>
@@ -358,7 +358,11 @@
   <RSMF.StaffManager.RemoveRole>Remove</RSMF.StaffManager.RemoveRole>
   <RSMF.StaffManager.AddRole>Add</RSMF.StaffManager.AddRole>
   <RSMF.StaffManager.Unassigned>Unassigned</RSMF.StaffManager.Unassigned>
-  <RSMF.StaffManager.InvalidPawn>Invalid pawn</RSMF.StaffManager.InvalidPawn>
+  <RSMF.StaffManager.InvalidPawn>Invalid staff member</RSMF.StaffManager.InvalidPawn>
+  <RSMF.Staff.FallbackName>Staff #{id}</RSMF.Staff.FallbackName>
+  <RSMF.Common.BadgeBuiltIn>Built-in</RSMF.Common.BadgeBuiltIn>
+  <RSMF.Common.BadgeCustom>Custom</RSMF.Common.BadgeCustom>
+  <RSMF.Common.BadgeLocked>Default</RSMF.Common.BadgeLocked>
   <RSMF.StaffManager.InvalidRole>Invalid role</RSMF.StaffManager.InvalidRole>
   <RSMF.StaffManager.DeadOrUnavailable>Dead or unavailable</RSMF.StaffManager.DeadOrUnavailable>
   <RSMF.StaffManager.NoWorkSettings>No work settings</RSMF.StaffManager.NoWorkSettings>
@@ -372,6 +376,68 @@
   <RSMF.StaffManager.AssignedCurrentMap>This staff member is still on the current map and can work this role.</RSMF.StaffManager.AssignedCurrentMap>
   <RSMF.StaffManager.AssignedUnavailableDetail>Source: {faction}; record id: {id}. This staff member may have left the map or can no longer work.</RSMF.StaffManager.AssignedUnavailableDetail>
   <RSMF.StaffManager.AssignedSummaryUnavailable>{pawn} (unavailable)</RSMF.StaffManager.AssignedSummaryUnavailable>
+  <RSMF.StaffShift.AllDay>All day</RSMF.StaffShift.AllDay>
+  <RSMF.StaffShift.OffAllDay>Off all day</RSMF.StaffShift.OffAllDay>
+  <RSMF.StaffShift.CoverageTitle>24h shift coverage: {covered}/24h</RSMF.StaffShift.CoverageTitle>
+  <RSMF.StaffShift.CoverageGap> ({gap}h open gap)</RSMF.StaffShift.CoverageGap>
+  <RSMF.StaffShift.CoverageFull> (open hours fully covered)</RSMF.StaffShift.CoverageFull>
+  <RSMF.StaffShift.AutoDistribute>Auto shifts</RSMF.StaffShift.AutoDistribute>
+  <RSMF.StaffShift.AutoDistributeTip>Evenly split 24 hours across available staff in this role (2 staff: 12h shifts, 3 staff: 8h shifts).</RSMF.StaffShift.AutoDistributeTip>
+  <RSMF.StaffShift.AutoDistributeDone>Distributed 24h shifts across {count} staff members.</RSMF.StaffShift.AutoDistributeDone>
+  <RSMF.StaffShift.ClearAll>All day</RSMF.StaffShift.ClearAll>
+  <RSMF.StaffShift.SyncAllTimetables>Sync schedules</RSMF.StaffShift.SyncAllTimetables>
+  <RSMF.StaffShift.SyncAllTimetablesTip>Align colonists' RimWorld schedules with their shifts: Work during shift hours, Sleep and Joy during the longest off-shift block.</RSMF.StaffShift.SyncAllTimetablesTip>
+  <RSMF.StaffShift.SyncDone>Synced RimWorld schedules for {count} colonists.</RSMF.StaffShift.SyncDone>
+  <RSMF.StaffShift.SyncNone>No colonists with custom shifts to sync.</RSMF.StaffShift.SyncNone>
+  <RSMF.StaffShift.SyncSingle>Sync</RSMF.StaffShift.SyncSingle>
+  <RSMF.StaffShift.SyncSingleDone>Synced RimWorld schedule for {pawn}.</RSMF.StaffShift.SyncSingleDone>
+  <RSMF.StaffShift.PresetMorning>06-14</RSMF.StaffShift.PresetMorning>
+  <RSMF.StaffShift.PresetEvening>14-22</RSMF.StaffShift.PresetEvening>
+  <RSMF.StaffShift.PresetNight>22-06</RSMF.StaffShift.PresetNight>
+  <RSMF.StaffShift.RowLabel>Shift:</RSMF.StaffShift.RowLabel>
+  <RSMF.StaffShift.SummaryLine>Shift: {summary}</RSMF.StaffShift.SummaryLine>
+  <RSMF.StaffShift.StatusOnShift>On shift</RSMF.StaffShift.StatusOnShift>
+  <RSMF.StaffShift.StatusOffShift>Off shift</RSMF.StaffShift.StatusOffShift>
+  <RSMF.StaffShift.HourCellTip>{hour}:00 - {state} (click or drag to edit)</RSMF.StaffShift.HourCellTip>
+  <RSMF.StaffShift.StateOn>On shift</RSMF.StaffShift.StateOn>
+  <RSMF.StaffShift.StateOff>Off shift (free for other work or rest)</RSMF.StaffShift.StateOff>
+  <RSMF.StaffShift.CoverageCellTip>{hour}:00 ({openState})\nStaff on shift: {count}\nRoster: {staff}</RSMF.StaffShift.CoverageCellTip>
+  <RSMF.StaffShift.HourOpen>Open</RSMF.StaffShift.HourOpen>
+  <RSMF.StaffShift.HourClosed>Closed</RSMF.StaffShift.HourClosed>
+  <RSMF.StaffShift.NoStaffThisHour>Unstaffed</RSMF.StaffShift.NoStaffThisHour>
+  <RSMF.StaffShift.TabRoster>Shifts ({count})</RSMF.StaffShift.TabRoster>
+  <RSMF.StaffShift.TabCandidates>Add staff ({count})</RSMF.StaffShift.TabCandidates>
+  <RSMF.StaffShift.AutoOpenHours>Split open hours</RSMF.StaffShift.AutoOpenHours>
+  <RSMF.StaffShift.AutoOpenHoursTip>Evenly split the shop's open hours across available staff in this role (falls back to 24h when always open).</RSMF.StaffShift.AutoOpenHoursTip>
+  <RSMF.StaffShift.PresetDay12>08-20</RSMF.StaffShift.PresetDay12>
+  <RSMF.StaffShift.PresetNight12>20-08</RSMF.StaffShift.PresetNight12>
+  <RSMF.StaffShift.PresetMenu>Presets</RSMF.StaffShift.PresetMenu>
+  <RSMF.StaffShift.ClearSingle>Off all day</RSMF.StaffShift.ClearSingle>
+  <RSMF.StaffShift.ConflictBadge>Conflict {count}h</RSMF.StaffShift.ConflictBadge>
+  <RSMF.StaffShift.ConflictTip>{count} shift hour(s) overlap with this colonist's RimWorld Sleep/Joy/Meditate schedule. Click Sync to align automatically.</RSMF.StaffShift.ConflictTip>
+  <RSMF.StaffShift.HourCellConflict>Warning: RimWorld schedule is [{timetable}], which blocks auto duty</RSMF.StaffShift.HourCellConflict>
+  <RSMF.StaffShift.HourCellTimetable>RimWorld schedule: {timetable}</RSMF.StaffShift.HourCellTimetable>
+  <RSMF.StaffShift.HourCellDragHint>Left-click/drag to set on shift, right-click/drag to clear</RSMF.StaffShift.HourCellDragHint>
+  <RSMF.StaffShift.LegendOn>On shift</RSMF.StaffShift.LegendOn>
+  <RSMF.StaffShift.LegendGap>Open gap</RSMF.StaffShift.LegendGap>
+  <RSMF.StaffShift.LegendConflict>Schedule conflict</RSMF.StaffShift.LegendConflict>
+  <RSMF.StaffShift.LegendHint>LMB paint · RMB erase</RSMF.StaffShift.LegendHint>
+  <RSMF.StaffShift.EmptyRoster>No staff assigned to this role yet. Switch to "Add staff" above to assign colonists or mechs.</RSMF.StaffShift.EmptyRoster>
+  <RSMF.StaffShift.OnlyEligible>Eligible only</RSMF.StaffShift.OnlyEligible>
+  <RSMF.StaffShift.SkillSummary>Social {social} · Cooking {cooking} · Speed {speed}%</RSMF.StaffShift.SkillSummary>
+  <RSMF.StaffShift.MechLabel>Mechanoid</RSMF.StaffShift.MechLabel>
+  <RSMF.StaffShift.RoleGapShort>Gap {gap}h</RSMF.StaffShift.RoleGapShort>
+  <RSMF.StaffShift.RoleCoveredShort>Covered</RSMF.StaffShift.RoleCoveredShort>
+  <RSMF.StaffShift.RoleUnassignedShort>Any staff</RSMF.StaffShift.RoleUnassignedShort>
+  <RSMF.ShopManager.ScheduleDragHint>Left-click/drag to open hours, right-click/drag to close. Compare with role shift coverage below.</RSMF.ShopManager.ScheduleDragHint>
+  <RSMF.ShopManager.ScheduleDayShift>Day 08-20</RSMF.ShopManager.ScheduleDayShift>
+  <RSMF.ShopManager.ScheduleNightMarket>Night 16-04</RSMF.ShopManager.ScheduleNightMarket>
+  <RSMF.ShopManager.ScheduleRoleCoverageTitle>Role 24h shift coverage preview</RSMF.ShopManager.ScheduleRoleCoverageTitle>
+  <RSMF.ShopManager.OpenStaffShifts>Configure staff &amp; shifts</RSMF.ShopManager.OpenStaffShifts>
+  <RSMF.ShopManager.NoRolesForCoverage>No staffed role buildings detected in this shop yet.</RSMF.ShopManager.NoRolesForCoverage>
+  <RSMF.Business.Staff.GapWarning>{gap}h open shift gap</RSMF.Business.Staff.GapWarning>
+  <RSMF.Business.Staff.AllCovered>Open hours covered</RSMF.Business.Staff.AllCovered>
+  <RSMF.Business.Staff.NoRoleAssigned>Unassigned (any eligible staff)</RSMF.Business.Staff.NoRoleAssigned>
   <RSMF.GoodsManager.AvailableCategories>Available categories</RSMF.GoodsManager.AvailableCategories>
   <RSMF.GoodsManager.CategoryNav>Category navigation</RSMF.GoodsManager.CategoryNav>
   <RSMF.GoodsManager.RestrictionTip>This storage only allows: {labels}</RSMF.GoodsManager.RestrictionTip>
@@ -390,8 +456,8 @@
   <RSMF.GoodsManager.PriceTip>Reference market value: {value} silver</RSMF.GoodsManager.PriceTip>
   <RSMF.GoodsManager.RestockThresholdTip>When current stock plus incoming restock is at or below this value, restockers refill to the target amount.</RSMF.GoodsManager.RestockThresholdTip>
   <RSMF.GoodsManager.StockThresholdTip>Format: current stock / restock threshold / target amount.</RSMF.GoodsManager.StockThresholdTip>
-  <RSMF.Restock.Forced.NoAccess>This pawn is not allowed to restock this display or cannot reach it</RSMF.Restock.Forced.NoAccess>
-  <RSMF.Restock.Forced.NoSupply>No supply can be hauled by this pawn</RSMF.Restock.Forced.NoSupply>
+  <RSMF.Restock.Forced.NoAccess>This worker is not allowed to restock this display or cannot reach it</RSMF.Restock.Forced.NoAccess>
+  <RSMF.Restock.Forced.NoSupply>No supply can be hauled by this worker</RSMF.Restock.Forced.NoSupply>
   <RSMF.Restock.Forced.AtTarget>The display has reached its configured target stock</RSMF.Restock.Forced.AtTarget>
   <RSMF.GoodsManager.PendingEvictWarning>⚠️ Warning: after saving, {count} item types will be removed from storage: {names}</RSMF.GoodsManager.PendingEvictWarning>
   <RSMF.GoodsManager.PendingEvictMore>{count} more</RSMF.GoodsManager.PendingEvictMore>
@@ -502,6 +568,7 @@
   <RSMF.ShopService.Fail.ToiletCellInvalid>Toilet position is invalid</RSMF.ShopService.Fail.ToiletCellInvalid>
   <RSMF.ShopService.Fail.ToiletCellNotStandable>Toilet cell is not standable</RSMF.ShopService.Fail.ToiletCellNotStandable>
   <RSMF.ShopService.Fail.CustomerCannotReachToilet>Customer cannot reach the toilet</RSMF.ShopService.Fail.CustomerCannotReachToilet>
+  <RSMF.CustomerArrival.ForceFailLargeRaid>Force refresh failed: an active hostile raid exceeds {points} combat power, so customers will not visit.</RSMF.CustomerArrival.ForceFailLargeRaid>
   <RSMF.CustomerArrival.ForceFailNoShopOrVending>Force refresh failed: this map has no open shop areas or vending machines.</RSMF.CustomerArrival.ForceFailNoShopOrVending>
   <RSMF.CustomerArrival.ForceFailInvalidShops>Force refresh failed: {count} shop areas were found, but none passed validation. First shop "{shop}": {reason}</RSMF.CustomerArrival.ForceFailInvalidShops>
   <RSMF.CustomerArrival.ForceFailClosedShops>Force refresh failed: {count} valid shops were found, but all are closed. First shop "{shop}": {reason}</RSMF.CustomerArrival.ForceFailClosedShops>
@@ -601,26 +668,27 @@
   <RSMF.ComboName.Mass.07>{0} unbeatable combo gift</RSMF.ComboName.Mass.07>
   <RSMF.ComboName.Mass.08>{0} epic starter set</RSMF.ComboName.Mass.08>
   <RSMF.CustomCustomer.Title>Custom customer registry</RSMF.CustomCustomer.Title>
-  <RSMF.CustomCustomer.Description>CustomerKindDef is read-only. Local player JSON is loaded after Defs and participates in natural customer spawning as runtime customer kinds.</RSMF.CustomCustomer.Description>
+  <RSMF.CustomCustomer.Description>Built-in customer types are read-only. Custom entries are loaded locally and participate in natural customer visits.</RSMF.CustomCustomer.Description>
   <RSMF.CustomCustomer.SaveDirty>Save*</RSMF.CustomCustomer.SaveDirty>
   <RSMF.CustomCustomer.Save>Save</RSMF.CustomCustomer.Save>
   <RSMF.CustomCustomer.Reload>Reload</RSMF.CustomCustomer.Reload>
   <RSMF.CustomCustomer.RefreshTypes>Refresh types</RSMF.CustomCustomer.RefreshTypes>
-  <RSMF.CustomCustomer.ExportBase64>Export B64</RSMF.CustomCustomer.ExportBase64>
-  <RSMF.CustomCustomer.ImportBase64>Import B64</RSMF.CustomCustomer.ImportBase64>
-  <RSMF.CustomCustomer.ExportTitle>Export customer Base64</RSMF.CustomCustomer.ExportTitle>
-  <RSMF.CustomCustomer.ExportInfo>This text contains player custom customer kinds.</RSMF.CustomCustomer.ExportInfo>
-  <RSMF.CustomCustomer.KindListTitle>Customer kinds</RSMF.CustomCustomer.KindListTitle>
-  <RSMF.CustomCustomer.NewRuntime>New runtime customer</RSMF.CustomCustomer.NewRuntime>
+  <RSMF.CustomCustomer.ExportBase64>Export code</RSMF.CustomCustomer.ExportBase64>
+  <RSMF.CustomCustomer.ImportBase64>Import code</RSMF.CustomCustomer.ImportBase64>
+  <RSMF.CustomCustomer.ExportTitle>Export customer config</RSMF.CustomCustomer.ExportTitle>
+  <RSMF.CustomCustomer.ExportInfo>This share code contains player custom customer types.</RSMF.CustomCustomer.ExportInfo>
+  <RSMF.CustomCustomer.KindListTitle>Customer types</RSMF.CustomCustomer.KindListTitle>
+  <RSMF.CustomCustomer.RoleCount>Roles: {count}</RSMF.CustomCustomer.RoleCount>
+  <RSMF.CustomCustomer.NewRuntime>New custom customer</RSMF.CustomCustomer.NewRuntime>
   <RSMF.CustomCustomer.Create>Create</RSMF.CustomCustomer.Create>
-  <RSMF.CustomCustomer.NoKinds>No available customer kinds</RSMF.CustomCustomer.NoKinds>
+  <RSMF.CustomCustomer.NoKinds>No available customer types</RSMF.CustomCustomer.NoKinds>
   <RSMF.CustomCustomer.Section.BasicInfo>Basic info</RSMF.CustomCustomer.Section.BasicInfo>
   <RSMF.CustomCustomer.DisplayName>Display name</RSMF.CustomCustomer.DisplayName>
   <RSMF.CustomCustomer.Rename>Rename</RSMF.CustomCustomer.Rename>
   <RSMF.CustomCustomer.DeleteKind>Delete kind</RSMF.CustomCustomer.DeleteKind>
-  <RSMF.CustomCustomer.DefReadonly>Def read-only</RSMF.CustomCustomer.DefReadonly>
-  <RSMF.CustomCustomer.SourceCustom>Source: local player JSON. Saving merges it into the runtime customer directory.</RSMF.CustomCustomer.SourceCustom>
-  <RSMF.CustomCustomer.SourceDef>Source: CustomerKindDef. You can inspect data here, but you cannot edit the Def.</RSMF.CustomCustomer.SourceDef>
+  <RSMF.CustomCustomer.DefReadonly>Built-in</RSMF.CustomCustomer.DefReadonly>
+  <RSMF.CustomCustomer.SourceCustom>Source: local custom config. Saving applies immediately.</RSMF.CustomCustomer.SourceCustom>
+  <RSMF.CustomCustomer.SourceDef>Source: built-in customer config. You can inspect its parameters here, but cannot edit it.</RSMF.CustomCustomer.SourceDef>
   <RSMF.CustomCustomer.Section.RefreshBudget>Refresh and budget</RSMF.CustomCustomer.Section.RefreshBudget>
   <RSMF.CustomCustomer.MtbDays>MTB days</RSMF.CustomCustomer.MtbDays>
   <RSMF.CustomCustomer.BudgetMin>Budget min</RSMF.CustomCustomer.BudgetMin>
@@ -639,21 +707,21 @@
   <RSMF.CustomCustomer.PriceMinWeight>Min wt</RSMF.CustomCustomer.PriceMinWeight>
   <RSMF.CustomCustomer.PriceComplain>Complain</RSMF.CustomCustomer.PriceComplain>
   <RSMF.CustomCustomer.ReadOnlyPriceSensitivity>discount weight {discount}    soft markup {soft}x    reject {reject}x    complain {complain}x</RSMF.CustomCustomer.ReadOnlyPriceSensitivity>
-  <RSMF.CustomCustomer.Section.PawnKind>PawnKind</RSMF.CustomCustomer.Section.PawnKind>
-  <RSMF.CustomCustomer.SelectedPawnKinds>Selected PawnKinds, use the right side to append more.</RSMF.CustomCustomer.SelectedPawnKinds>
-  <RSMF.CustomCustomer.BuiltInPawnKinds>Configured PawnKinds in the Def.</RSMF.CustomCustomer.BuiltInPawnKinds>
-  <RSMF.CustomCustomer.CannotModifyPawnKind>Def customers cannot modify PawnKinds at runtime.</RSMF.CustomCustomer.CannotModifyPawnKind>
+  <RSMF.CustomCustomer.Section.PawnKind>Character types</RSMF.CustomCustomer.Section.PawnKind>
+  <RSMF.CustomCustomer.SelectedPawnKinds>Selected character types. Add more from the right panel.</RSMF.CustomCustomer.SelectedPawnKinds>
+  <RSMF.CustomCustomer.BuiltInPawnKinds>Built-in character types.</RSMF.CustomCustomer.BuiltInPawnKinds>
+  <RSMF.CustomCustomer.CannotModifyPawnKind>Built-in customers cannot change character types.</RSMF.CustomCustomer.CannotModifyPawnKind>
   <RSMF.CustomCustomer.Section.TargetWeather>Interest types and weather</RSMF.CustomCustomer.Section.TargetWeather>
   <RSMF.CustomCustomer.TargetGoodsType>Target goods types</RSMF.CustomCustomer.TargetGoodsType>
   <RSMF.CustomCustomer.AllowedWeather>Allowed weather</RSMF.CustomCustomer.AllowedWeather>
   <RSMF.CustomCustomer.EmptyMeansNoLimit>. Empty means no limit.</RSMF.CustomCustomer.EmptyMeansNoLimit>
   <RSMF.CustomCustomer.Section.Preferences>Preferences</RSMF.CustomCustomer.Section.Preferences>
-  <RSMF.CustomCustomer.BuiltInPreferences>Configured preferences in the Def.</RSMF.CustomCustomer.BuiltInPreferences>
-  <RSMF.CustomCustomer.NoModifyDefPreferences>Runtime will not modify Def preferences.</RSMF.CustomCustomer.NoModifyDefPreferences>
+  <RSMF.CustomCustomer.BuiltInPreferences>Built-in shopping preferences.</RSMF.CustomCustomer.BuiltInPreferences>
+  <RSMF.CustomCustomer.NoModifyDefPreferences>Built-in preferences cannot be modified.</RSMF.CustomCustomer.NoModifyDefPreferences>
   <RSMF.CustomCustomer.AppendPreferences>Custom customers can append preferred items.</RSMF.CustomCustomer.AppendPreferences>
   <RSMF.CustomCustomer.Section.Profiles>Customer profiles</RSMF.CustomCustomer.Section.Profiles>
   <RSMF.CustomCustomer.DefaultProfileLabel>Customer profile</RSMF.CustomCustomer.DefaultProfileLabel>
-  <RSMF.CustomCustomer.BuiltInProfiles>Configured profiles in the Def. Empty uses the base configuration.</RSMF.CustomCustomer.BuiltInProfiles>
+  <RSMF.CustomCustomer.BuiltInProfiles>Built-in visitor profiles. Leave empty to use the base configuration.</RSMF.CustomCustomer.BuiltInProfiles>
   <RSMF.CustomCustomer.ProfilesTip>Profiles let one kind vary budget, patience, time, weather, target types, and preferences.</RSMF.CustomCustomer.ProfilesTip>
   <RSMF.CustomCustomer.Add>Add</RSMF.CustomCustomer.Add>
   <RSMF.CustomCustomer.Weight>Weight</RSMF.CustomCustomer.Weight>
@@ -677,42 +745,42 @@
   <RSMF.CustomCustomer.TotalCount>Total {count}</RSMF.CustomCustomer.TotalCount>
   <RSMF.CustomCustomer.PrevPage>Previous</RSMF.CustomCustomer.PrevPage>
   <RSMF.CustomCustomer.NextPage>Next</RSMF.CustomCustomer.NextPage>
-  <RSMF.CustomCustomer.RefreshedTypes>Refreshed runtime goods types: {count}.</RSMF.CustomCustomer.RefreshedTypes>
-  <RSMF.CustomCustomer.NoPawnKind>No available PawnKindDef.</RSMF.CustomCustomer.NoPawnKind>
+  <RSMF.CustomCustomer.RefreshedTypes>Refreshed goods categories: {count}.</RSMF.CustomCustomer.RefreshedTypes>
+  <RSMF.CustomCustomer.NoPawnKind>No available character types.</RSMF.CustomCustomer.NoPawnKind>
   <RSMF.CustomCustomer.EmptyName>Customer name cannot be empty.</RSMF.CustomCustomer.EmptyName>
-  <RSMF.CustomCustomer.DeleteConfirm>Delete this custom customer kind?</RSMF.CustomCustomer.DeleteConfirm>
-  <RSMF.CustomCustomer.SaveSuccess>Custom customer registry saved, runtime customer directory rebuilt.</RSMF.CustomCustomer.SaveSuccess>
+  <RSMF.CustomCustomer.DeleteConfirm>Delete this custom customer type?</RSMF.CustomCustomer.DeleteConfirm>
+  <RSMF.CustomCustomer.SaveSuccess>Custom customer registry saved and updated.</RSMF.CustomCustomer.SaveSuccess>
   <RSMF.CustomCustomer.ReloadConfirm>Reloading will discard current unsaved custom customer changes. Continue?</RSMF.CustomCustomer.ReloadConfirm>
   <RSMF.CustomCustomer.CopyClipboard>Copy to clipboard</RSMF.CustomCustomer.CopyClipboard>
-  <RSMF.CustomCustomer.Base64Copied>Base64 export copied to clipboard.</RSMF.CustomCustomer.Base64Copied>
+  <RSMF.CustomCustomer.Base64Copied>Share text copied to clipboard.</RSMF.CustomCustomer.Base64Copied>
   <RSMF.CustomCustomer.ImportTitle>Import and overwrite</RSMF.CustomCustomer.ImportTitle>
-  <RSMF.CustomCustomer.ImportInfo>Importing will overwrite all local custom customer data, but it will not modify any CustomerKindDef.</RSMF.CustomCustomer.ImportInfo>
+  <RSMF.CustomCustomer.ImportInfo>Importing will overwrite all local custom customer data without modifying any built-in customer types.</RSMF.CustomCustomer.ImportInfo>
   <RSMF.CustomCustomer.PasteClipboard>Paste from clipboard</RSMF.CustomCustomer.PasteClipboard>
   <RSMF.CustomCustomer.ConfirmImport>Confirm import</RSMF.CustomCustomer.ConfirmImport>
   <RSMF.CustomCustomer.ImportSuccess>Custom customer data imported and local content overwritten.</RSMF.CustomCustomer.ImportSuccess>
   <RSMF.CustomGoods.Title>Custom goods registry</RSMF.CustomGoods.Title>
-  <RSMF.CustomGoods.Description>GoodsDef entries are read-only. Local player JSON is loaded after Defs and merged into the runtime goods directory.</RSMF.CustomGoods.Description>
+  <RSMF.CustomGoods.Description>Built-in goods categories are read-only. Custom items you add are saved locally and merged into the shop catalog.</RSMF.CustomGoods.Description>
   <RSMF.CustomGoods.SaveDirty>Save*</RSMF.CustomGoods.SaveDirty>
   <RSMF.CustomGoods.Save>Save</RSMF.CustomGoods.Save>
   <RSMF.CustomGoods.Reload>Reload</RSMF.CustomGoods.Reload>
-  <RSMF.CustomGoods.ExportBase64>Export B64</RSMF.CustomGoods.ExportBase64>
-  <RSMF.CustomGoods.ImportBase64>Import B64</RSMF.CustomGoods.ImportBase64>
+  <RSMF.CustomGoods.ExportBase64>Export code</RSMF.CustomGoods.ExportBase64>
+  <RSMF.CustomGoods.ImportBase64>Import code</RSMF.CustomGoods.ImportBase64>
   <RSMF.CustomGoods.CategoryListTitle>Goods categories</RSMF.CustomGoods.CategoryListTitle>
   <RSMF.CustomGoods.NewCustomCategory>New custom category</RSMF.CustomGoods.NewCustomCategory>
   <RSMF.CustomGoods.Create>Create</RSMF.CustomGoods.Create>
   <RSMF.CustomGoods.ItemCount>{count} items</RSMF.CustomGoods.ItemCount>
   <RSMF.CustomGoods.NoCategories>No available goods categories</RSMF.CustomGoods.NoCategories>
-  <RSMF.CustomGoods.SourceDef>Source: GoodsDef. You can append custom goods, but the original content remains locked.</RSMF.CustomGoods.SourceDef>
+  <RSMF.CustomGoods.SourceDef>Source: built-in goods category. You can append custom goods while built-in items stay locked.</RSMF.CustomGoods.SourceDef>
   <RSMF.CustomGoods.SourceCustom>Source: player custom data. Name, goods list, and deletion are editable.</RSMF.CustomGoods.SourceCustom>
-  <RSMF.CustomGoods.DefCategory>Def type</RSMF.CustomGoods.DefCategory>
+  <RSMF.CustomGoods.DefCategory>Built-in</RSMF.CustomGoods.DefCategory>
   <RSMF.CustomGoods.Rename>Rename</RSMF.CustomGoods.Rename>
   <RSMF.CustomGoods.DeleteCategory>Delete</RSMF.CustomGoods.DeleteCategory>
   <RSMF.CustomGoods.CurrentItems>Goods in current category</RSMF.CustomGoods.CurrentItems>
-  <RSMF.CustomGoods.LockedTip>Locked means original Def goods. Custom means player-added and removable.</RSMF.CustomGoods.LockedTip>
+  <RSMF.CustomGoods.LockedTip>"Default" marks built-in goods (locked); "Custom" marks player-added goods that can be removed.</RSMF.CustomGoods.LockedTip>
   <RSMF.CustomGoods.MarketValue>Market {value}</RSMF.CustomGoods.MarketValue>
   <RSMF.CustomGoods.Remove>Remove</RSMF.CustomGoods.Remove>
   <RSMF.CustomGoods.AvailableItems>Available goods</RSMF.CustomGoods.AvailableItems>
-  <RSMF.CustomGoods.SearchPlaceholder>Search name or DefName</RSMF.CustomGoods.SearchPlaceholder>
+  <RSMF.CustomGoods.SearchPlaceholder>Search by name or keyword</RSMF.CustomGoods.SearchPlaceholder>
   <RSMF.CustomGoods.TotalPaged>{count} total, paged</RSMF.CustomGoods.TotalPaged>
   <RSMF.CustomGoods.PrevPage>Previous</RSMF.CustomGoods.PrevPage>
   <RSMF.CustomGoods.NextPage>Next</RSMF.CustomGoods.NextPage>
@@ -727,15 +795,15 @@
   <RSMF.CustomGoods.EmptyCategoryName>Goods category name cannot be empty.</RSMF.CustomGoods.EmptyCategoryName>
   <RSMF.CustomGoods.DeleteConfirm>Delete this custom category and all its custom goods links?</RSMF.CustomGoods.DeleteConfirm>
   <RSMF.CustomGoods.ItemAlreadyExists>That item is already in the current category.</RSMF.CustomGoods.ItemAlreadyExists>
-  <RSMF.CustomGoods.SaveSuccess>Custom goods registry saved, runtime goods directory rebuilt.</RSMF.CustomGoods.SaveSuccess>
+  <RSMF.CustomGoods.SaveSuccess>Custom goods registry saved and goods catalog updated.</RSMF.CustomGoods.SaveSuccess>
   <RSMF.CustomGoods.ReloadConfirm>Reloading will discard current unsaved custom goods changes. Continue?</RSMF.CustomGoods.ReloadConfirm>
-  <RSMF.CustomGoods.ExportTitle>Export Base64</RSMF.CustomGoods.ExportTitle>
+  <RSMF.CustomGoods.ExportTitle>Export share code</RSMF.CustomGoods.ExportTitle>
   <RSMF.CustomGoods.ExportInfo>This text contains player custom goods categories and goods, ready to share with other players.</RSMF.CustomGoods.ExportInfo>
   <RSMF.CustomGoods.CopyClipboard>Copy to clipboard</RSMF.CustomGoods.CopyClipboard>
-  <RSMF.CustomGoods.Base64Copied>Base64 export copied to clipboard.</RSMF.CustomGoods.Base64Copied>
-  <RSMF.CustomGoods.ImportTitle>Import Base64</RSMF.CustomGoods.ImportTitle>
-  <RSMF.CustomGoods.ImportReplaceInfo>Replace mode overwrites all local player custom goods data with the imported content, but does not modify any GoodsDef.</RSMF.CustomGoods.ImportReplaceInfo>
-  <RSMF.CustomGoods.ImportMergeInfo>Merge mode keeps local categories and links, then appends imported content by category ID.</RSMF.CustomGoods.ImportMergeInfo>
+  <RSMF.CustomGoods.Base64Copied>Share code copied to clipboard.</RSMF.CustomGoods.Base64Copied>
+  <RSMF.CustomGoods.ImportTitle>Import share code</RSMF.CustomGoods.ImportTitle>
+  <RSMF.CustomGoods.ImportReplaceInfo>Replace mode overwrites all local custom goods data without modifying any built-in goods.</RSMF.CustomGoods.ImportReplaceInfo>
+  <RSMF.CustomGoods.ImportMergeInfo>Merge mode keeps local categories and links, then appends imported content by goods category.</RSMF.CustomGoods.ImportMergeInfo>
   <RSMF.CustomGoods.PasteClipboard>Paste from clipboard</RSMF.CustomGoods.PasteClipboard>
   <RSMF.CustomGoods.ConfirmImport>Confirm import</RSMF.CustomGoods.ConfirmImport>
   <RSMF.CustomGoods.ImportReplaceSuccess>Custom goods data imported and local content overwritten.</RSMF.CustomGoods.ImportReplaceSuccess>
@@ -755,7 +823,7 @@
   <RSMF.CustomSign.Face.East>East</RSMF.CustomSign.Face.East>
   <RSMF.CustomSign.Face.North>North</RSMF.CustomSign.Face.North>
   <RSMF.CustomSign.Face.West>West</RSMF.CustomSign.Face.West>
-  <RSMF.CustomSign.SingleGraphicHelp>This sign Def has only one base texture, so the editor shows only the face actually used on the map.</RSMF.CustomSign.SingleGraphicHelp>
+  <RSMF.CustomSign.SingleGraphicHelp>This sign only has one base texture, so the editor shows only the face displayed on the map.</RSMF.CustomSign.SingleGraphicHelp>
   <RSMF.CustomSign.WestMirrorHelp>When the building faces west, it reuses east-face data and mirrors it on the map.</RSMF.CustomSign.WestMirrorHelp>
   <RSMF.CustomSign.Preview>Preview</RSMF.CustomSign.Preview>
   <RSMF.CustomSign.SelectLayerHint>Select a layer to edit position, scale, and angle</RSMF.CustomSign.SelectLayerHint>
@@ -784,7 +852,7 @@
   <RSMF.CustomSign.PasteClipboard>Paste from clipboard</RSMF.CustomSign.PasteClipboard>
   <RSMF.CustomSign.ConfirmImport>Confirm import</RSMF.CustomSign.ConfirmImport>
   <RSMF.CustomSign.SelectGalleryImage>Select gallery image</RSMF.CustomSign.SelectGalleryImage>
-  <RSMF.CustomSign.SearchImagePlaceholder>Search name or image ID</RSMF.CustomSign.SearchImagePlaceholder>
+  <RSMF.CustomSign.SearchImagePlaceholder>Search image by name</RSMF.CustomSign.SearchImagePlaceholder>
   <RSMF.CustomSign.RefreshGallery>Refresh</RSMF.CustomSign.RefreshGallery>
   <RSMF.CustomSign.Select>Select</RSMF.CustomSign.Select>
   <RSMF.CustomSign.ImportImageFromPathTitle>Import image from local path</RSMF.CustomSign.ImportImageFromPathTitle>
@@ -818,7 +886,7 @@
   <RSMF.Blueprint.Open>Folder</RSMF.Blueprint.Open>
   <RSMF.Blueprint.Place>Place</RSMF.Blueprint.Place>
   <RSMF.Blueprint.Edit>Edit</RSMF.Blueprint.Edit>
-  <RSMF.Blueprint.DeleteConfirm>Delete this local shop blueprint? Its JSON and preview image will be removed from this machine.</RSMF.Blueprint.DeleteConfirm>
+  <RSMF.Blueprint.DeleteConfirm>Delete this local shop blueprint? Its saved data and preview image will be removed from this machine.</RSMF.Blueprint.DeleteConfirm>
   <RSMF.Blueprint.DeleteSuccess>Local shop blueprint deleted.</RSMF.Blueprint.DeleteSuccess>
   <RSMF.Blueprint.SaveSuccess>Shop blueprint saved locally.</RSMF.Blueprint.SaveSuccess>
   <RSMF.Blueprint.SelectRectHint>Drag a rectangle on the map to save the shop blueprint. Current max is {max}x{max}.</RSMF.Blueprint.SelectRectHint>
@@ -949,7 +1017,7 @@
   <RSMF.Blueprint.Edit.TerrainsTip>Deleting a floor element prevents this blueprint from placing that floor plan.</RSMF.Blueprint.Edit.TerrainsTip>
   <RSMF.Blueprint.Edit.ZoneCells>{count} shop-zone cells</RSMF.Blueprint.Edit.ZoneCells>
   <RSMF.Blueprint.Edit.ZoneCellsTip>Deleting shop-zone cells removes them from the shop area created by this blueprint.</RSMF.Blueprint.Edit.ZoneCellsTip>
-  <RSMF.Blueprint.Edit.BuildingRow>{label} / {def} · ({x},{z})</RSMF.Blueprint.Edit.BuildingRow>
+  <RSMF.Blueprint.Edit.BuildingRow>{label} · ({x},{z})</RSMF.Blueprint.Edit.BuildingRow>
   <RSMF.Blueprint.Edit.TerrainRow>{def} · ({x},{z})</RSMF.Blueprint.Edit.TerrainRow>
   <RSMF.Blueprint.Edit.ZoneCellRow>Shop cell · ({x},{z})</RSMF.Blueprint.Edit.ZoneCellRow>
   <RSMF.Blueprint.Edit.DeleteElement>Delete</RSMF.Blueprint.Edit.DeleteElement>
@@ -1032,9 +1100,9 @@
   <RSMF.CollectibleDisplayStand.Detail.Values>Position {x}, {z} · scale {scale}</RSMF.CollectibleDisplayStand.Detail.Values>
   <RSMF.CollectibleDisplayStand.Detail.BusinessHint>Collectibles are displayed using the stand's default slot positions.</RSMF.CollectibleDisplayStand.Detail.BusinessHint>
   <RSMF.CollectibleDisplayStand.Detail.StoredSummary>Displaying: {thing}. You can unload it and choose another collectible.</RSMF.CollectibleDisplayStand.Detail.StoredSummary>
-  <RSMF.CollectibleDisplayStand.Detail.PendingSummary>A pawn will haul {source} to this slot.</RSMF.CollectibleDisplayStand.Detail.PendingSummary>
+  <RSMF.CollectibleDisplayStand.Detail.PendingSummary>A colonist will haul {source} to this slot.</RSMF.CollectibleDisplayStand.Detail.PendingSummary>
   <RSMF.CollectibleDisplayStand.Detail.EmptySummary>Choose a collectible on the current map to create a hauling job.</RSMF.CollectibleDisplayStand.Detail.EmptySummary>
-  <RSMF.CollectibleDisplayStand.Detail.NormalModeHint>Display positions come from XML slot defaults. Transform sliders are only shown in developer mode with god mode enabled.</RSMF.CollectibleDisplayStand.Detail.NormalModeHint>
+  <RSMF.CollectibleDisplayStand.Detail.NormalModeHint>Display positions come from the stand's default slot layout. Transform sliders are only shown in developer mode with god mode enabled.</RSMF.CollectibleDisplayStand.Detail.NormalModeHint>
   <RSMF.CollectibleDisplayStand.Detail.Unload>Unload</RSMF.CollectibleDisplayStand.Detail.Unload>
   <RSMF.CollectibleDisplayStand.Detail.ChooseSource>Choose collectible</RSMF.CollectibleDisplayStand.Detail.ChooseSource>
   <RSMF.CollectibleDisplayStand.Detail.ClearPending>Clear pending</RSMF.CollectibleDisplayStand.Detail.ClearPending>
@@ -1046,7 +1114,7 @@
   <RSMF.CollectibleDisplayStand.Detail.ResetPosition>Reset position</RSMF.CollectibleDisplayStand.Detail.ResetPosition>
   <RSMF.CollectibleDisplayStand.Menu.NoSources>No RimSim collectible is available on the current map.</RSMF.CollectibleDisplayStand.Menu.NoSources>
   <RSMF.CollectibleDisplayStand.Debug.Title>Display stand slot placement</RSMF.CollectibleDisplayStand.Debug.Title>
-  <RSMF.CollectibleDisplayStand.Debug.Subtitle>Shown only in developer mode with god mode enabled. Exported XML can be written into the stand Def as default parameters.</RSMF.CollectibleDisplayStand.Debug.Subtitle>
+  <RSMF.CollectibleDisplayStand.Debug.Subtitle>Shown only in developer mode with god mode enabled. Exported config can be used as default stand parameters.</RSMF.CollectibleDisplayStand.Debug.Subtitle>
   <RSMF.CollectibleDisplayStand.Debug.Slot>Slot {index}</RSMF.CollectibleDisplayStand.Debug.Slot>
   <RSMF.CollectibleDisplayStand.Debug.ResetSlot>Reset slot</RSMF.CollectibleDisplayStand.Debug.ResetSlot>
   <RSMF.CollectibleDisplayStand.Debug.CopySlot>Copy slot XML</RSMF.CollectibleDisplayStand.Debug.CopySlot>
@@ -1116,7 +1184,7 @@
 
   <RSMF.Business.Tutorial.HotRegisteringItems.Title>How to hot register items</RSMF.Business.Tutorial.HotRegisteringItems.Title>
   <RSMF.Business.Tutorial.HotRegisteringItems.BeforeImage>To stock items from other mods without a compatibility patch, use quick registration.\nOpen the Simulation Management Framework building menu and click Quick register goods. Search for items or filter by source mod. Select one or more items, click Choose goods category, select the appropriate category, then click Register here to apply. The items do not need to exist on the map.</RSMF.Business.Tutorial.HotRegisteringItems.BeforeImage>
-  <RSMF.Business.Tutorial.HotRegisteringItems.AfterImage>In the MOD settings menu, you can also perform item hot-registration. You can choose to convert your registration information into base64 format with one click and share it with others, allowing them to obtain the list of items you have hot-registered.</RSMF.Business.Tutorial.HotRegisteringItems.AfterImage>
+  <RSMF.Business.Tutorial.HotRegisteringItems.AfterImage>In the MOD settings menu, you can also perform item hot-registration. You can choose to convert your registration information into a share code with one click and share it with others, allowing them to obtain the list of items you have hot-registered.</RSMF.Business.Tutorial.HotRegisteringItems.AfterImage>
 
   <RSMF.Business.Tutorial.OperatingHours.Title>How to set operating hours</RSMF.Business.Tutorial.OperatingHours.Title>
   <RSMF.Business.Tutorial.OperatingHours.BeforeImage>Select the designated shop area, click the shop management below, then click the operating hours on the left to manage the business schedule. The default is 24-hour operation.</RSMF.Business.Tutorial.OperatingHours.BeforeImage>

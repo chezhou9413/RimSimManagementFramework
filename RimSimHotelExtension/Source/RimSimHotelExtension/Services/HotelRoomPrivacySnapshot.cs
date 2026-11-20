@@ -13,6 +13,7 @@ namespace RimSimHotelExtension.Services
         private readonly Dictionary<int, int> guestRooms = new Dictionary<int, int>();
         private readonly Dictionary<IntVec3, int> roomCells = new Dictionary<IntVec3, int>();
         private readonly Dictionary<IntVec3, int[]> doorRooms = new Dictionary<IntVec3, int[]>();
+        internal bool IsEmpty => roomCells.Count == 0;
 
         //权限由完整快照发布，不把可变的 Room 或合同对象交给寻路线程。
         private HotelRoomPrivacySnapshot() { }

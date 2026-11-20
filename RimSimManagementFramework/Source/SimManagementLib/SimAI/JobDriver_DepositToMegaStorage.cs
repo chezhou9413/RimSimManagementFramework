@@ -73,8 +73,9 @@ namespace SimManagementLib.SimAI
             checkSource.defaultCompleteMode = ToilCompleteMode.Instant;
             checkSource.initAction = () =>
             {
+                int reserved = pawn.Map.GetComponent<MapComponent_InventoryReservations>()?.Reserved(ToHaul) ?? 0;
                 if (!Storage.AllowsRestockSource(ToHaul)
-                    || pawn.Map.GetComponent<MapComponent_InventoryReservations>().Reserved(ToHaul) > 0)
+                    || ToHaul.stackCount - reserved < job.count)
                     EndJobWith(JobCondition.Incompletable);
             };
             yield return checkSource;

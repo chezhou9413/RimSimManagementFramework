@@ -145,7 +145,7 @@ namespace SimManagementLib.SimAI
             CleanupUnpaidCustomerState(pawn, reason);
         }
 
-        //强制顾客放弃购物并快速离开地图，负责响应超过 1000 战斗力的敌对袭击。
+        //强制顾客放弃购物并快速离开地图，响应超过设置阈值的敌对袭击。
         private void ForceCustomerFleeLargeRaid(Pawn pawn)
         {
             if (pawn == null || pawn.Map == null || lord == null)

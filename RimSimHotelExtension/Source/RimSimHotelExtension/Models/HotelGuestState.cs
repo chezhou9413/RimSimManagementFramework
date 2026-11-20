@@ -37,6 +37,8 @@ namespace RimSimHotelExtension.Models
         public int foodPenaltyDay = -1;
         public int bedPenaltyDay = -1;
         public float totalSpent;
+        public bool roomSettled;
+        public string lastExperienceNote = "";
 
         //保存个人余额及当前活动，读取后仍使用同一名人物。
         public void ExposeData()
@@ -72,6 +74,8 @@ namespace RimSimHotelExtension.Models
             Scribe_Values.Look(ref foodPenaltyDay, "foodPenaltyDay", -1);
             Scribe_Values.Look(ref bedPenaltyDay, "bedPenaltyDay", -1);
             Scribe_Values.Look(ref totalSpent, "totalSpent");
+            Scribe_Values.Look(ref roomSettled, "roomSettled", false);
+            Scribe_Values.Look(ref lastExperienceNote, "lastExperienceNote", "");
         }
     }
 }

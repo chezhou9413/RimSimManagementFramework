@@ -11,27 +11,37 @@ namespace SimManagementLib.SimWorkGiver
     public class WorkGiver_ManCashRegister : WorkGiver_Scanner
     {
         private const int CandidateCacheTicks = 61;
+        public const int HandoverLeadTicks = 1250;
         private static readonly Dictionary<int, RegisterCandidateCache> candidateCaches = new Dictionary<int, RegisterCandidateCache>();
+        private static JobDef cachedManRegisterJobDef;
 
         public override PathEndMode PathEndMode => PathEndMode.InteractionCell;
         public override bool Prioritized => true;
         protected virtual bool WaitingCustomersOnly => false;
 
-        //自动派工保留休息和进食所需时间，避免员工刚离岗就被同一工作立即叫回。
+        //自动派工遵守殖民者日程表、机械体工作模式及基本生存需求，避免非上班或充电时段被叫去收银。
         public override bool ShouldSkip(Pawn pawn, bool forced = false)
         {
             if (pawn.Drafted || pawn.Downed || pawn.InMentalState) return true;
-            return !forced && (pawn.needs?.food?.CurCategory >= HungerCategory.UrgentlyHungry
-                || pawn.needs?.rest?.CurCategory >= RestCategory.VeryTired);
+            if (forced) return false;
+            if (ShopStaffUtility.IsPawnOffDutyForAutomaticWork(pawn)) return true;
+            return pawn.needs?.food?.CurCategory >= HungerCategory.UrgentlyHungry
+                || pawn.needs?.rest?.CurCategory >= RestCategory.VeryTired;
         }
 
-        //同一工作优先级下先服务正在排队的柜台。
+        //优先赶去需要无缝交接的本店柜台，其次是本店排队/营业柜台，最后才考虑未指定员工的柜台。
         public override float GetPriority(Pawn pawn, TargetInfo target)
-            => target.Thing is Building_CashRegister register && register.HasWaitingCustomers ? 2f : 1f;
+        {
+            if (!(target.Thing is Building_CashRegister register)) return 0f;
+            SimZone.Zone_Shop shop = ShopStaffUtility.FindShopFor(register);
+            bool assigned = ShopStaffUtility.IsAssignedCashier(shop, pawn);
+            bool waiting = register.HasWaitingCustomers;
+            if (assigned && register.NeedsHandoverFor(pawn)) return 4.5f;
+            if (assigned) return waiting ? 4f : 3f;
+            return waiting ? 2f : 1f;
+        }
 
-        /// <summary>
-        /// 枚举当前地图中允许收银的玩家收银台，负责让关店后的待付款顾客仍能完成结账。
-        /// </summary>
+        //枚举当前地图中允许收银的玩家收银台，让关店后的待付款顾客仍能完成结账。
         public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn)
         {
             List<Thing> candidates = GetCandidateRegisters(pawn);
@@ -39,7 +49,7 @@ namespace SimManagementLib.SimWorkGiver
                 yield return candidates[i];
         }
 
-        //有顾客排队时允许合格人员补位，空闲时仍按固定岗位安排。
+        //自动派工严格遵守店铺收银岗位与 24 小时排班，并在主班临近下班或需离开时允许接班员提前接力预约。
         public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
             Building_CashRegister register = t as Building_CashRegister;
@@ -52,24 +62,36 @@ namespace SimManagementLib.SimWorkGiver
             if (!waiting && !ShopStaffUtility.CanCashierWorkAt(shop)) return false;
             if (!ShopStaffUtility.CanPawnPerformWorkType(pawn, def.workType, !forced)
                 || MissingRequiredCapacity(pawn) != null) return false;
-            if (!(waiting ? ShopStaffUtility.CanRelieveCashier(shop, pawn)
-                : ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, def)))
+            if (!register.CanAcceptStaffReservation(pawn, out bool isHandover))
                 return false;
 
-            //收银台值守独占建筑，已经有人接单赶来时不会再派第二名员工。
-            if (!pawn.CanReserve(register, 1, -1, null, forced)) return false;
+            bool permitted = forced
+                ? ShopStaffUtility.CanRelieveCashier(shop, pawn)
+                : (isHandover
+                    ? ShopStaffUtility.AllowsPawnForCashierHandover(shop, pawn, HandoverLeadTicks)
+                    : ShopStaffUtility.AllowsPawnForCashier(shop, pawn));
+            if (!permitted)
+                return false;
+
+            //使用 2 槽共享预约：平时由 CanAcceptStaffReservation 保持独占，交接时允许接班员提前出发无缝顶替。
+            if (!pawn.CanReserve(register, Building_CashRegister.MaxStaffReservations, 0, null, forced))
+                return false;
 
             return true;
         }
 
-        //保存派工来源，并区分常驻班次与临时补位。
+        //保存派工来源与交接标记，营业内按排班稳守值班，关店收尾或手动跨岗补位在队列清空后离开。
         public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
-            Job job = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Sim_ManCashRegister"), t);
+            Building_CashRegister register = (Building_CashRegister)t;
+            SimZone.Zone_Shop shop = ShopStaffUtility.FindShopFor(register);
+            register.CanAcceptStaffReservation(pawn, out bool isHandover);
+            JobDef jobDef = cachedManRegisterJobDef ??= DefDatabase<JobDef>.GetNamed("Sim_ManCashRegister");
+            Job job = JobMaker.MakeJob(jobDef, register, isHandover ? register : LocalTargetInfo.Invalid);
             job.workGiverDef = def;
-            //临时补位不占用完整班次，队列清空后交还员工。
-            job.count = WaitingCustomersOnly || !ShopStaffUtility.AllowsPawnForWorkGiver(
-                ShopStaffUtility.FindShopFor((Building_CashRegister)t), pawn, def) ? 1 : 0;
+            bool shortRelief = (forced && !ShopStaffUtility.AllowsPawnForCashierRoleIgnoringShift(shop, pawn))
+                || !ShopStaffUtility.IsShopOpenForWork(shop);
+            job.count = shortRelief ? 1 : 0;
             return job;
         }
 

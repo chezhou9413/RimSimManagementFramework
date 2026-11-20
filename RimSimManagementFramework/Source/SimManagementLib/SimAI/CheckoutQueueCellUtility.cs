@@ -102,13 +102,13 @@ namespace SimManagementLib.SimAI
             return offset.x * direction.x + offset.z * direction.z >= 0;
         }
 
-        //判断服务格是否结构可用，职责是只检查常数时间条件并把真实路径交给 Job 路径器。
+        //判断服务格是否结构可用，允许无指定人物时用于商店入口锚点查询。
         public static bool IsServiceCellStructurallyUsable(Map map, IntVec3 cell, Pawn pawn)
         {
             if (!cell.IsValid) return false;
             if (!cell.InBounds(map)) return false;
             if (!cell.Standable(map)) return false;
-            if (cell.IsForbidden(pawn)) return false;
+            if (pawn != null && cell.IsForbidden(pawn)) return false;
             return true;
         }
         //判断服务格当前是否可由指定顾客进入，负责在真正轮到结账时避免踩到其他 Pawn。

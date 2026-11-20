@@ -108,11 +108,14 @@ namespace SimManagementLib.Api
             var visit = GetCustomerVisit(customer);
             if (visit == null || customer.Map == null) return new List<Zone_Shop>();
             int funds = GetAvailableFunds(customer);
+            var arrival = customer.Map.GetComponent<SimMapComp.CustomerArrivalManager>();
             return customer.Map.zoneManager.AllZones.OfType<Zone_Shop>()
                 .Where(shop => shop.IsOpenNow() && shop.Cells.Count > 0
                     && (foodOnly ? CustomerShoppingMatchUtility.ShopHasAffordableFood(customer, shop, funds)
                         : CustomerShoppingMatchUtility.ShopHasMatchingAffordableGoodsOrServices(customer, shop, visit, funds))
-                    && CustomerSafetyUtility.CanCustomerReach(customer, shop.Cells[0], PathEndMode.OnCell, Danger.Deadly))
+                    && CustomerSafetyUtility.CanCustomerReach(customer,
+                        arrival != null && arrival.TryGetShopEntryCell(shop.ID, out IntVec3 entry) ? entry : shop.Cells[0],
+                        PathEndMode.OnCell, Danger.Deadly))
                 .ToList();
         }
 

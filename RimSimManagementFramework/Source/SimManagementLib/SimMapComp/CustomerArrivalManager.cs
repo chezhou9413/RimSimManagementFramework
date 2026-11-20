@@ -135,7 +135,8 @@ namespace SimManagementLib.SimMapComp
             spawnedPawn = null;
             if (CustomerSafetyUtility.IsLargeHostileRaidActive(map))
             {
-                resultMessage = "强制刷新失败：当前地图存在超过 1000 点战斗力的敌对袭击，顾客不会到访。";
+                int threshold = Mathf.RoundToInt(CustomerSafetyUtility.GetLargeRaidCombatPowerThreshold());
+                resultMessage = SimTranslation.T("RSMF.CustomerArrival.ForceFailLargeRaid", threshold.Named("points"));
                 return false;
             }
 
@@ -511,24 +512,44 @@ namespace SimManagementLib.SimMapComp
             return true;
         }
 
-        //计算店铺顾客容量，职责是限制同时到店的人数。
+        //计算店铺顾客容量，同时计入货柜与旅馆/温泉等扩展设施规模。
         private int CalculateShopCustomerCapacity(Zone_Shop shop)
         {
             int storageCount = ShopDataUtility.GetStorageSnapshotInZone(shop).Count;
             int registerCount = ShopDataUtility.GetCashRegisterSnapshotInZone(shop).Count;
-            int estimated = registerCount * 8 + storageCount * 4;
+            int actionUnits = CustomerActionAttractionUtility.GetTotalAttractionFacilityUnits(shop);
+            int estimated = registerCount * 8 + (storageCount + actionUnits) * 4;
             return Mathf.Max(6, estimated);
         }
-        //查找商店内可作为顾客入店目标的站立格，负责避免不可达商店生成后直接离图。
+        //查找商店内可作为顾客入店目标的公共站立格，避免无货柜旅馆落到私密客房内导致寻路被拒。
         internal bool TryFindReachableShopEntryCell(Zone_Shop shop, out IntVec3 targetCell)
         {
             targetCell = IntVec3.Invalid;
             if (shop == null) return false;
 
+            IReadOnlyList<Building_CashRegister> registers = ShopDataUtility.GetCashRegisterSnapshotInZone(shop);
+            List<IntVec3> registerServiceCells = new List<IntVec3>();
+            HashSet<Room> publicRooms = new HashSet<Room>();
+            for (int i = 0; i < registers.Count; i++)
+            {
+                Building_CashRegister register = registers[i];
+                if (register == null || register.Destroyed || !register.Spawned) continue;
+                IntVec3 serviceCell = CheckoutQueueCellUtility.FindServiceCell(register, null);
+                if (!serviceCell.IsValid || !serviceCell.InBounds(map) || !serviceCell.Standable(map)) continue;
+                registerServiceCells.Add(serviceCell);
+                Room room = serviceCell.GetRoom(map);
+                if (room != null) publicRooms.Add(room);
+            }
+            if (registerServiceCells.Count > 0)
+            {
+                targetCell = registerServiceCells.RandomElement();
+                return true;
+            }
+
             List<IntVec3> storageCells = ShopDataUtility.GetStorageSnapshotInZone(shop)
-                .Where(storage => storage != null && !storage.Destroyed && storage.Spawned)
+                .Where(storage => storage != null && !storage.Destroyed && storage.Spawned && storage.AllowsCustomerSelfPurchase)
                 .Select(storage => storage.InteractionCell)
-                .Where(cell => cell.IsValid && cell.Standable(map))
+                .Where(cell => cell.IsValid && cell.InBounds(map) && cell.Standable(map))
                 .ToList();
             if (!storageCells.NullOrEmpty())
             {
@@ -536,12 +557,25 @@ namespace SimManagementLib.SimMapComp
                 return true;
             }
 
-            List<IntVec3> shopCells = shop.Cells
-                .Where(cell => cell.IsValid && cell.Standable(map))
-                .ToList();
-            if (shopCells.NullOrEmpty()) return false;
+            List<IntVec3> publicCells = new List<IntVec3>();
+            List<IntVec3> fallbackCells = new List<IntVec3>();
+            for (int i = 0; i < shop.Cells.Count; i++)
+            {
+                IntVec3 cell = shop.Cells[i];
+                if (!cell.IsValid || !cell.InBounds(map) || !cell.Standable(map)) continue;
+                fallbackCells.Add(cell);
+                Room room = cell.GetRoom(map);
+                if (room != null && (publicRooms.Contains(room) || !room.ContainedBeds.Any()))
+                    publicCells.Add(cell);
+            }
+            if (publicCells.Count > 0)
+            {
+                targetCell = publicCells.RandomElement();
+                return true;
+            }
+            if (fallbackCells.Count == 0) return false;
 
-            targetCell = shopCells.RandomElement();
+            targetCell = fallbackCells.RandomElement();
             return true;
         }
         //为指定商店生成一位顾客并绑定顾客 Lord，失败时返回具体原因。

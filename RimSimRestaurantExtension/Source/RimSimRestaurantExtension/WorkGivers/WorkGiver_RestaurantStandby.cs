@@ -45,7 +45,7 @@ namespace RimSimRestaurantExtension.WorkGivers
             Zone_Shop shop = SimShopServiceApi.FindShop(provider.Map, provider.Position);
             if (shop == null || !RestaurantOrderUtility.CanRestaurantStaffWorkAt(shop)
                 || !RestaurantOrderUtility.Settings.GetOrCreate(shop.ID).enabled) return false;
-            if (!SimShopStaffApi.IsAssignedToWorkGiver(shop, pawn, def)) return false;
+            if (!SimShopStaffApi.IsOnShiftForWorkGiver(shop, pawn, def)) return false;
 
             bool waiter = def == DefOfRefs.RSR_WorkGiver_RestaurantWaiterStandby;
             if (!RestaurantStandbyUtility.TryFindStandbyCell(pawn, shop, waiter, out IntVec3 cell, out Thing focus))

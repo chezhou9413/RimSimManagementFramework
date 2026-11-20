@@ -19,6 +19,37 @@ namespace RimSimHotelExtension.UI
             y += h + 8f;
         }
 
+        //绘制一行自动换行的筛选标签栏，并可在末尾附带排序菜单按钮。
+        public static void FilterAndSortBar(float width, ref float y, string[] filters, ref int selectedFilter,
+            string sortLabel, Action openSort, Action onFilterChanged = null)
+        {
+            float x = 0f;
+            float rowH = Line;
+            for (int i = 0; i < filters.Length; i++)
+            {
+                float w = Mathf.Min(width, Mathf.Max(58f, Text.CalcSize(filters[i]).x + 20f));
+                if (x > 0f && x + w > width) { x = 0f; y += rowH + 6f; }
+                bool active = i == selectedFilter;
+                if (Button(new Rect(x, y, w, rowH), filters[i], primary: active))
+                {
+                    if (selectedFilter != i)
+                    {
+                        selectedFilter = i;
+                        onFilterChanged?.Invoke();
+                    }
+                }
+                x += w + 6f;
+            }
+            if (!sortLabel.NullOrEmpty() && openSort != null)
+            {
+                float sortW = Mathf.Min(width, Mathf.Max(100f, Text.CalcSize(sortLabel).x + 24f));
+                if (x > 0f && x + sortW > width) { x = 0f; y += rowH + 6f; }
+                float sortX = width - sortW >= x ? width - sortW : x;
+                if (Button(new Rect(sortX, y, sortW, rowH), sortLabel)) openSort();
+            }
+            y += rowH + 8f;
+        }
+
         //排序菜单保留当前选择，点击后回到列表顶部。
         public static void SortMenu(string[] labels, int selected, Action<int> select)
         {

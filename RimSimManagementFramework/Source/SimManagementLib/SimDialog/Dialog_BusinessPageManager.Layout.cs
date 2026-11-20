@@ -110,10 +110,11 @@ namespace SimManagementLib.SimDialog
             GUI.color = draft.Visible ? Color.white : DimText;
             Widgets.Label(labelRect, (draft.Label ?? draft.DefName).Truncate(labelRect.width));
 
-            Rect defRect = new Rect(labelRect.x, labelRect.yMax + 4f, labelRect.width, Text.LineHeightOf(GameFont.Tiny) + 4f);
+            Rect descRect = new Rect(labelRect.x, labelRect.yMax + 4f, labelRect.width, Text.LineHeightOf(GameFont.Tiny) + 4f);
             Text.Font = GameFont.Tiny;
             GUI.color = DimText;
-            Widgets.Label(defRect, draft.DefName.Truncate(defRect.width));
+            string rowSummary = string.IsNullOrEmpty(draft.Description) ? SimTranslation.T("RSMF.PageManager.NoDescription") : draft.Description;
+            Widgets.Label(descRect, rowSummary.Truncate(descRect.width));
 
             Rect upRect = new Rect(row.xMax - 112f, row.y + 15f, 50f, 32f);
             Rect downRect = new Rect(upRect.xMax + 6f, upRect.y, 50f, upRect.height);
@@ -143,8 +144,7 @@ namespace SimManagementLib.SimDialog
             selectedIndex = Mathf.Clamp(selectedIndex, 0, drafts.Count - 1);
             PageDraft draft = drafts[selectedIndex];
             float y = inner.y;
-            y = DrawWrappedText(new Rect(inner.x, y, inner.width, 60f), draft.Label ?? draft.DefName, GameFont.Small, Color.white) + 8f;
-            y = DrawWrappedText(new Rect(inner.x, y, inner.width, 44f), draft.DefName, GameFont.Tiny, DimText) + 12f;
+            y = DrawWrappedText(new Rect(inner.x, y, inner.width, 60f), draft.Label ?? draft.DefName, GameFont.Small, Color.white) + 12f;
 
             Rect toggleRect = new Rect(inner.x, y, inner.width, 34f);
             string toggleLabel = draft.Visible ? SimTranslation.T("RSMF.PageManager.HideTab") : SimTranslation.T("RSMF.PageManager.ShowTab");

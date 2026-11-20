@@ -39,21 +39,42 @@ namespace SimManagementLib.SimMapComp
                 delayedDispatchBuckets.Add(retryTick, bucket);
             }
             bucket.Add(key);
+            if (retryTick < earliestDelayedTick)
+                earliestDelayedTick = retryTick;
         }
 
-        //把当前 tick 到期的延迟请求提升到对应类型的就绪队列。
+        //把所有已经到期的延迟请求（含早于当前 tick 的桶）提升到就绪队列，避免跨 tick 永久漏唤醒。
         private void PromoteDueDispatches(int now)
         {
-            if (!delayedDispatchBuckets.TryGetValue(now, out HashSet<RestockTaskKey> bucket))
+            if (delayedDispatchBuckets.Count == 0 || now < earliestDelayedTick)
                 return;
-            delayedDispatchBuckets.Remove(now);
-            foreach (RestockTaskKey key in bucket)
+
+            tmpDueBuckets.Clear();
+            int nextEarliest = int.MaxValue;
+            foreach (int tick in delayedDispatchBuckets.Keys)
             {
-                if (!delayedDispatchTicks.TryGetValue(key, out int scheduledTick) || scheduledTick != now)
-                    continue;
-                delayedDispatchTicks.Remove(key);
-                EnqueueReadyDispatch(key);
+                if (tick <= now)
+                    tmpDueBuckets.Add(tick);
+                else if (tick < nextEarliest)
+                    nextEarliest = tick;
             }
+            earliestDelayedTick = nextEarliest;
+
+            for (int i = 0; i < tmpDueBuckets.Count; i++)
+            {
+                int dueTick = tmpDueBuckets[i];
+                if (!delayedDispatchBuckets.TryGetValue(dueTick, out HashSet<RestockTaskKey> bucket))
+                    continue;
+                delayedDispatchBuckets.Remove(dueTick);
+                foreach (RestockTaskKey key in bucket)
+                {
+                    if (!delayedDispatchTicks.TryGetValue(key, out int scheduledTick) || scheduledTick != dueTick)
+                        continue;
+                    delayedDispatchTicks.Remove(key);
+                    EnqueueReadyDispatch(key);
+                }
+            }
+            tmpDueBuckets.Clear();
         }
 
         //从指定类型或两类公平轮换队列中取出一个就绪请求键。

@@ -19,6 +19,7 @@ namespace SimManagementLib
         public bool showCustomerInspectDetails = true;
         public bool showShopOperatingAlerts = true;
         public int customerArrivalCheckIntervalTicks = 500;
+        public int largeRaidCombatPowerThreshold = CustomerSafetyUtility.DefaultLargeRaidCombatPowerThreshold;
         public int maxFinanceBillRecords = 2000;
         public int financeLogPageSize = 30;
         public bool enableJourneyDebugLog;
@@ -90,6 +91,7 @@ namespace SimManagementLib
             Scribe_Values.Look(ref showCustomerInspectDetails, "showCustomerInspectDetails", true);
             Scribe_Values.Look(ref showShopOperatingAlerts, "showShopOperatingAlerts", true);
             Scribe_Values.Look(ref customerArrivalCheckIntervalTicks, "customerArrivalCheckIntervalTicks", 500);
+            Scribe_Values.Look(ref largeRaidCombatPowerThreshold, "largeRaidCombatPowerThreshold", CustomerSafetyUtility.DefaultLargeRaidCombatPowerThreshold);
             Scribe_Values.Look(ref maxFinanceBillRecords, "maxFinanceBillRecords", 2000);
             Scribe_Values.Look(ref financeLogPageSize, "financeLogPageSize", 30);
             Scribe_Values.Look(ref enableJourneyDebugLog, "enableJourneyDebugLog", false);
@@ -155,6 +157,7 @@ namespace SimManagementLib
             Scribe_Values.Look(ref reviewPromptCustomNodes, "reviewPromptCustomNodes", "");
 
             customerArrivalCheckIntervalTicks = Mathf.Clamp(customerArrivalCheckIntervalTicks, 120, 5000);
+            largeRaidCombatPowerThreshold = Mathf.Clamp(largeRaidCombatPowerThreshold, 0, 100000);
             advisorMaxRounds = Math.Max(0, advisorMaxRounds);
             maxFinanceBillRecords = Mathf.Clamp(maxFinanceBillRecords, 200, 50000);
             financeLogPageSize = Mathf.Clamp(financeLogPageSize, 10, 200);
@@ -361,6 +364,7 @@ namespace SimManagementLib
         public static ModContentPack ActiveContentPack { get; private set; }
         private Vector2 settingsScrollPosition;
         private float settingsViewHeight = 700f;
+        private string raidThresholdBuffer;
         //初始化模组设置实例，负责保存内容包引用并读取玩家配置。
         public SimManagementLibMod(ModContentPack content) : base(content)
         {
@@ -399,6 +403,7 @@ namespace SimManagementLib
                 Api.SimShopUiApi.RequestRefresh();
             list.Label(SimTranslation.T("RSMF.Settings.CustomerArrivalCheckInterval", Settings.customerArrivalCheckIntervalTicks.Named("ticks")));
             Settings.customerArrivalCheckIntervalTicks = (int)list.Slider(Settings.customerArrivalCheckIntervalTicks, 120f, 5000f);
+            DrawLargeRaidThresholdControl(list, viewRect.width);
             DrawDebugForcedCustomerKindSelector(list);
 
             list.GapLine();
@@ -446,6 +451,9 @@ namespace SimManagementLib
                 Settings.showCustomerInspectDetails = true;
                 Settings.showShopOperatingAlerts = true;
                 Settings.customerArrivalCheckIntervalTicks = 500;
+                Settings.largeRaidCombatPowerThreshold = CustomerSafetyUtility.DefaultLargeRaidCombatPowerThreshold;
+                raidThresholdBuffer = Settings.largeRaidCombatPowerThreshold.ToString();
+                CustomerSafetyUtility.ClearRaidCache();
                 Settings.maxFinanceBillRecords = 2000;
                 Settings.financeLogPageSize = 30;
                 Settings.enableJourneyDebugLog = false;
@@ -461,6 +469,57 @@ namespace SimManagementLib
             Widgets.EndScrollView();
             Settings.Write();
         }
+        //绘制大型袭击停客战斗力阈值滑块与输入框，支持精确填写或设为零关闭拦截。
+        private void DrawLargeRaidThresholdControl(Listing_Standard list, float width)
+        {
+            int previous = Settings.largeRaidCombatPowerThreshold;
+            string label = previous > 0
+                ? SimTranslation.T("RSMF.Settings.LargeRaidThreshold", previous.Named("points"))
+                : SimTranslation.T("RSMF.Settings.LargeRaidThresholdDisabled");
+            list.Label(label);
+
+            float rowHeight = Mathf.Max(28f, Text.LineHeightOf(GameFont.Small) + 6f);
+            Rect row = list.GetRect(rowHeight);
+            float inputWidth = Mathf.Min(110f, row.width * 0.28f);
+            Rect sliderRect = new Rect(row.x, row.y + (row.height - 22f) * 0.5f, Mathf.Max(80f, row.width - inputWidth - 12f), 22f);
+            Rect inputRect = new Rect(row.xMax - inputWidth, row.y, inputWidth, row.height);
+
+            float sliderValue = Mathf.Clamp(Settings.largeRaidCombatPowerThreshold, 0, 20000);
+            float newSliderValue = Widgets.HorizontalSlider(sliderRect, sliderValue, 0f, 20000f, true);
+            int snappedSlider = Mathf.RoundToInt(newSliderValue / 100f) * 100;
+            if (Mathf.Abs(newSliderValue - sliderValue) > 0.5f && snappedSlider != Settings.largeRaidCombatPowerThreshold)
+            {
+                Settings.largeRaidCombatPowerThreshold = snappedSlider;
+                raidThresholdBuffer = snappedSlider.ToString();
+            }
+
+            if (raidThresholdBuffer == null)
+                raidThresholdBuffer = Settings.largeRaidCombatPowerThreshold.ToString();
+            int edited = Settings.largeRaidCombatPowerThreshold;
+            Widgets.TextFieldNumeric(inputRect, ref edited, ref raidThresholdBuffer, 0, 100000);
+            Settings.largeRaidCombatPowerThreshold = Mathf.Clamp(edited, 0, 100000);
+
+            if (Settings.largeRaidCombatPowerThreshold != previous)
+                CustomerSafetyUtility.ClearRaidCache();
+
+            GameFont oldFont = Text.Font;
+            Color oldColor = GUI.color;
+            try
+            {
+                Text.Font = GameFont.Tiny;
+                GUI.color = new Color(0.72f, 0.76f, 0.82f, 1f);
+                string tip = SimTranslation.T("RSMF.Settings.LargeRaidThresholdTip");
+                float tipHeight = Mathf.Max(Text.LineHeightOf(GameFont.Tiny), Text.CalcHeight(tip, Mathf.Max(1f, width)));
+                Widgets.Label(list.GetRect(tipHeight), tip);
+            }
+            finally
+            {
+                GUI.color = oldColor;
+                Text.Font = oldFont;
+            }
+            list.Gap(4f);
+        }
+
         //绘制用于测试刷客的强制顾客组选择控件。
         private static void DrawDebugForcedCustomerKindSelector(Listing_Standard list)
         {

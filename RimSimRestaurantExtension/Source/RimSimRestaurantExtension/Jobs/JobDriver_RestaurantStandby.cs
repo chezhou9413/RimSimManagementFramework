@@ -40,7 +40,7 @@ namespace RimSimRestaurantExtension.Jobs
             return shop != null && RestaurantStandbyUtility.CanContinueAt(pawn, shop, job.targetA.Cell)
                 && RestaurantOrderUtility.CanRestaurantStaffWorkAt(shop)
                 && RestaurantOrderUtility.Settings.GetOrCreate(shop.ID).enabled
-                && SimShopStaffApi.IsAssignedToWorkGiver(shop, pawn, job.workGiverDef);
+                && SimShopStaffApi.IsOnShiftForWorkGiver(shop, pawn, job.workGiverDef);
         }
     }
 }

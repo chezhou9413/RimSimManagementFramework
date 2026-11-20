@@ -28,12 +28,16 @@ namespace SimManagementLib.Api
             return ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, workGiverDef);
         }
 
-        /// <summary>
-        /// 判断指定员工是否已经分配给某个工作分配器对应岗位。
-        /// </summary>
+        //判断指定员工是否已经分配给某个工作分配器对应岗位。
         public static bool IsAssignedToWorkGiver(Zone_Shop shop, Pawn pawn, WorkGiverDef workGiverDef)
         {
             return ShopStaffUtility.IsAssignedToWorkGiver(shop, pawn, workGiverDef);
+        }
+
+        //判断指定员工是否已分配到对应岗位且当前处于排班值班时段内。
+        public static bool IsOnShiftForWorkGiver(Zone_Shop shop, Pawn pawn, WorkGiverDef workGiverDef, int leadTicks = 0)
+        {
+            return ShopStaffUtility.IsOnShiftForWorkGiver(shop, pawn, workGiverDef, leadTicks);
         }
 
         /// <summary>

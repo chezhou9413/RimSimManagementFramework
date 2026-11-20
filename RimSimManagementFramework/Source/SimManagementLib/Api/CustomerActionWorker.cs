@@ -55,6 +55,12 @@ namespace SimManagementLib.Api
                 && HasRequiredThing(shop);
         }
 
+        //返回扩展动作贡献的等效设施规模，让无货柜的旅馆、温泉或餐厅也能正常计算运营评分与容量。
+        public virtual int GetAttractionFacilityUnits(Zone_Shop shop)
+        {
+            return 0;
+        }
+
         //提供已配置动作的到客阻塞原因，职责是让扩展按需刷新经营状态并向手动刷新报告具体限制。
         public virtual string GetAttractionBlockReason(Zone_Shop shop, bool refresh = false)
         {

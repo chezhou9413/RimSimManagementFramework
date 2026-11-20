@@ -23,6 +23,15 @@ namespace SimManagementLib.SimWorkGiver
         private const int StorageReachCacheTicks = 17;
         private static readonly Dictionary<int, WithdrawCandidateCache> candidateCaches = new Dictionary<int, WithdrawCandidateCache>();
         private static WorkGiverDef cachedWorkGiverDef;
+        private static JobDef cachedWithdrawJobDef;
+
+        //自动清理货柜多余库存时遵守殖民者作息表和机械体工作状态。
+        public override bool ShouldSkip(Pawn pawn, bool forced = false)
+        {
+            if (pawn.Drafted || pawn.Downed || pawn.InMentalState) return true;
+            if (forced) return false;
+            return ShopStaffUtility.IsPawnOffDutyForAutomaticWork(pawn);
+        }
 
         /// <summary>
         /// 获取当前清理库存 WorkGiverDef，避免每次扫描都查询 DefDatabase。
@@ -55,14 +64,12 @@ namespace SimManagementLib.SimWorkGiver
             if (!(t is Building_SimContainer storage) || storage is Building_UniqueGoodsContainer) return false;
             if (pawn?.Map == null || storage.Map != pawn.Map || storage.Destroyed || !storage.Spawned) return false;
             storage.ReconcilePendingReservationsForWorkScan();
-            if (!HasExcess(storage, pawn)) return false;
+            if (!HasExcess(storage, pawn, forced)) return false;
             if (!WorkGiverThingQueryCache.CanReachThingCached(pawn, storage, PathEndMode.Touch, Danger.Deadly, StorageReachCacheTicks)) return false;
             return true;
         }
 
-        /// <summary>
-        /// 为指定货柜生成移出多余商品的任务。
-        /// </summary>
+        //为指定货柜生成移出多余商品的任务，实际待出库预约延迟到 Job 启动时申请，避免未启动的 Job 泄漏预约。
         public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
             if (!(t is Building_SimContainer storage) || storage is Building_UniqueGoodsContainer) return null;
@@ -73,28 +80,22 @@ namespace SimManagementLib.SimWorkGiver
             {
                 if (excess <= 0) continue;
 
-                int reserved = storage.ReservePendingOut(td, excess);
-                if (reserved <= 0) continue;
-
-                Job job = JobMaker.MakeJob(
-                    DefDatabase<JobDef>.GetNamed("WithdrawFromMegaStorage"),
-                    storage);
-                job.count = reserved;
+                JobDef jobDef = cachedWithdrawJobDef ??= DefDatabase<JobDef>.GetNamed("WithdrawFromMegaStorage");
+                Job job = JobMaker.MakeJob(jobDef, storage);
+                job.count = excess;
                 job.plantDefToSow = td;
                 return job;
             }
             return null;
         }
 
-        /// <summary>
-        /// 判断货柜是否有超过目标量或已移出配置的库存。
-        /// </summary>
-        private static bool HasExcess(Building_SimContainer storage, Pawn pawn)
+        //判断货柜是否有超过目标量或已移出配置的库存，手动强制时可忽略排班小时。
+        private static bool HasExcess(Building_SimContainer storage, Pawn pawn, bool forced)
         {
             if (storage.Destroyed || !storage.Spawned) return false;
             Zone_Shop shop = ShopStaffUtility.FindShopFor(storage);
             if (!VendingMachineUtility.IsVendingMachine(storage) && !ShopStaffUtility.IsShopOpenForWork(shop)) return false;
-            if (!VendingMachineUtility.IsVendingMachine(storage) && !ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, CurrentWorkGiverDef))
+            if (!VendingMachineUtility.IsVendingMachine(storage) && !ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, CurrentWorkGiverDef, 0, ignoreShift: forced))
                 return false;
 
             foreach ((ThingDef _, int excess) in storage.GetExcessItems())

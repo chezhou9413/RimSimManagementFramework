@@ -19,27 +19,63 @@ namespace SimManagementLib.SimAI
         private Building_SimContainer Storage => job.GetTarget(StorageInd).Thing as Building_SimContainer;
         private ThingDef WithdrawDef => job.plantDefToSow;
         private int ReservedCount => job.count;
+        private bool reservationAcquired;
         private bool reservationReleased;
         private bool withdrawSucceeded;
+
+        //保存出库预约标志，避免读档后重复申请或漏释放待出库数量。
+        public override void ExposeData()
+        {
+            base.ExposeData();
+            Scribe_Values.Look(ref reservationAcquired, "reservationAcquired", false);
+            Scribe_Values.Look(ref reservationReleased, "reservationReleased", false);
+            Scribe_Values.Look(ref withdrawSucceeded, "withdrawSucceeded", false);
+        }
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
             return true;
         }
 
-        /// <summary>
-        /// 构建前往大货柜、准备取货并生成取出物品的 Toil 序列。
-        /// </summary>
+        //构建申请出库预约、前往大货柜、准备取货并生成取出物品的 Toil 序列。
         protected override IEnumerable<Toil> MakeNewToils()
         {
             this.FailOnDestroyedOrNull(StorageInd);
             AddFinishAction(CleanupReservation);
 
+            yield return MakeReservePendingOutToil();
             yield return Toils_Goto.GotoThing(StorageInd, PathEndMode.Touch)
                 .FailOnDestroyedOrNull(StorageInd);
 
             yield return MakeWorkToil("PrepareWithdrawFromMegaStorage", WithdrawWorkRequired);
             yield return MakeWithdrawToil();
+        }
+
+        //在 Job 真正启动时向货柜申请待出库预约，防止 WorkGiver 预览或排队未执行时泄漏预约。
+        private Toil MakeReservePendingOutToil()
+        {
+            Toil toil = ToilMaker.MakeToil("ReserveWithdrawPendingOut");
+            toil.defaultCompleteMode = ToilCompleteMode.Instant;
+            toil.initAction = delegate
+            {
+                if (reservationAcquired) return;
+                Building_SimContainer storage = Storage;
+                ThingDef td = WithdrawDef;
+                if (storage == null || storage.Destroyed || td == null)
+                {
+                    pawn.jobs.EndCurrentJob(JobCondition.Incompletable);
+                    return;
+                }
+                int reserved = storage.ReservePendingOut(td, ReservedCount);
+                if (reserved <= 0)
+                {
+                    pawn.jobs.EndCurrentJob(JobCondition.Incompletable);
+                    return;
+                }
+                job.count = reserved;
+                reservationAcquired = true;
+            };
+            return toil;
         }
 
         /// <summary>
@@ -104,12 +140,10 @@ namespace SimManagementLib.SimAI
             ReleaseReservation();
         }
 
-        /// <summary>
-        /// 释放大货柜的待出库预约，负责避免中断工作后长期占用库存。
-        /// </summary>
+        //释放大货柜的待出库预约，避免中断工作后长期占用库存。
         private void ReleaseReservation()
         {
-            if (reservationReleased) return;
+            if (!reservationAcquired || reservationReleased) return;
             reservationReleased = true;
             Building_SimContainer storage = Storage;
             ThingDef td = WithdrawDef;
@@ -117,12 +151,11 @@ namespace SimManagementLib.SimAI
                 storage.CancelPendingOut(td, ReservedCount);
         }
 
-        /// <summary>
-        /// 初始化工作运行状态。
-        /// </summary>
+        //初始化工作运行状态。
         public override void Notify_Starting()
         {
             base.Notify_Starting();
+            reservationAcquired = false;
             reservationReleased = false;
             withdrawSucceeded = false;
         }

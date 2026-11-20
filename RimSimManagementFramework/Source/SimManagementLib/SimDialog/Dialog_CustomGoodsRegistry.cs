@@ -220,16 +220,13 @@ namespace SimManagementLib.SimDialog
             float titleWidth = Mathf.Max(40f, rect.width - 110f);
             Widgets.Label(new Rect(rect.x + 12f, rect.y + 8f, titleWidth, Text.LineHeightOf(GameFont.Small) + 2f), category.label.Truncate(titleWidth));
 
+            DrawBadge(new Rect(rect.xMax - 82f, rect.y + 9f, 70f, 18f),
+                category.IsBuiltInCategory ? SimTranslation.T("RSMF.Common.BadgeBuiltIn") : SimTranslation.T("RSMF.Common.BadgeCustom"),
+                category.IsBuiltInCategory ? BuiltInBadge : CustomBadge);
+
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
-            Widgets.Label(new Rect(rect.x + 12f, rect.y + 34f, titleWidth, Text.LineHeightOf(GameFont.Tiny) + 2f), category.categoryId.Truncate(titleWidth));
-
-            DrawBadge(new Rect(rect.xMax - 82f, rect.y + 9f, 70f, 18f), category.IsBuiltInCategory ? "Def" : "Custom", category.IsBuiltInCategory ? BuiltInBadge : CustomBadge);
-
-            GUI.color = MutedText;
-            Text.Anchor = TextAnchor.MiddleRight;
-            Widgets.Label(new Rect(rect.xMax - 110f, rect.y + 44f, 98f, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomGoods.ItemCount", category.Items.Count.Named("count")));
-            Text.Anchor = TextAnchor.UpperLeft;
+            Widgets.Label(new Rect(rect.x + 12f, rect.y + 38f, rect.width - 24f, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomGoods.ItemCount", category.Items.Count.Named("count")));
 
             if (Widgets.ButtonInvisible(rect))
             {
@@ -292,9 +289,8 @@ namespace SimManagementLib.SimDialog
 
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
-            Widgets.Label(new Rect(rect.x + 16f, rect.y + 40f, textWidth, Text.LineHeightOf(GameFont.Tiny) + 2f), ("ID: " + category.categoryId).Truncate(textWidth));
             Widgets.Label(
-                new Rect(rect.x + 16f, rect.y + 60f, textWidth, Text.LineHeightOf(GameFont.Tiny) * 2f + 2f),
+                new Rect(rect.x + 16f, rect.y + 44f, textWidth, Text.LineHeightOf(GameFont.Tiny) * 2f + 2f),
                 category.IsBuiltInCategory
                     ? SimTranslation.T("RSMF.CustomGoods.SourceDef")
                     : SimTranslation.T("RSMF.CustomGoods.SourceCustom")
@@ -379,21 +375,29 @@ namespace SimManagementLib.SimDialog
 
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
-            Widgets.Label(new Rect(iconRect.xMax + 10f, rect.y + 36f, textWidth, Text.LineHeightOf(GameFont.Tiny) + 2f), item.thingDefName.Truncate(textWidth));
-            Widgets.Label(new Rect(iconRect.xMax + 10f, rect.y + 56f, textWidth, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomGoods.MarketValue", item.baseMarketValue.ToString("F1").Named("value")));
+            string modName = item.thingDef?.modContentPack?.Name;
+            if (!string.IsNullOrEmpty(modName))
+            {
+                Widgets.Label(new Rect(iconRect.xMax + 10f, rect.y + 36f, textWidth, Text.LineHeightOf(GameFont.Tiny) + 2f), modName.Truncate(textWidth));
+                Widgets.Label(new Rect(iconRect.xMax + 10f, rect.y + 56f, textWidth, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomGoods.MarketValue", item.baseMarketValue.ToString("F1").Named("value")));
+            }
+            else
+            {
+                Widgets.Label(new Rect(iconRect.xMax + 10f, rect.y + 38f, textWidth, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomGoods.MarketValue", item.baseMarketValue.ToString("F1").Named("value")));
+            }
 
             if (playerDefinedItem)
             {
-                DrawBadge(new Rect(rect.xMax - 80f, rect.y + 10f, 68f, 18f), "Custom", CustomBadge);
+                DrawBadge(new Rect(rect.xMax - 80f, rect.y + 10f, 68f, 18f), SimTranslation.T("RSMF.Common.BadgeCustom"), CustomBadge);
                 if (SimUiStyle.DrawDangerButton(new Rect(rect.xMax - 80f, rect.y + 64f, 68f, 24f), SimTranslation.T("RSMF.CustomGoods.Remove"), true, GameFont.Tiny))
                     RemoveItemFromSelectedCategory(item.thingDef);
             }
             else
             {
-                DrawBadge(new Rect(rect.xMax - 80f, rect.y + 10f, 68f, 18f), "Locked", LockedBadge);
+                DrawBadge(new Rect(rect.xMax - 80f, rect.y + 10f, 68f, 18f), SimTranslation.T("RSMF.Common.BadgeLocked"), LockedBadge);
             }
 
-            TooltipHandler.TipRegion(rect, item.label + "\n" + item.thingDefName);
+            TooltipHandler.TipRegion(rect, string.IsNullOrEmpty(modName) ? item.label : item.label + "\n" + modName);
             GUI.color = Color.white;
         }
 
@@ -530,7 +534,11 @@ namespace SimManagementLib.SimDialog
 
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
-            Widgets.Label(new Rect(iconRect.xMax + 10f, rect.y + 28f, textWidth, Text.LineHeightOf(GameFont.Tiny) + 2f), SimTranslation.T("RSMF.CustomGoods.DefMarketValue", thingDef.defName.Named("defName"), thingDef.BaseMarketValue.ToString("F1").Named("value")).Truncate(textWidth));
+            string modName = thingDef.modContentPack?.Name;
+            string subtitle = string.IsNullOrEmpty(modName)
+                ? SimTranslation.T("RSMF.CustomGoods.MarketValue", thingDef.BaseMarketValue.ToString("F1").Named("value"))
+                : SimTranslation.T("RSMF.CustomGoods.DefMarketValue", modName.Named("defName"), thingDef.BaseMarketValue.ToString("F1").Named("value"));
+            Widgets.Label(new Rect(iconRect.xMax + 10f, rect.y + 28f, textWidth, Text.LineHeightOf(GameFont.Tiny) + 2f), subtitle.Truncate(textWidth));
 
             if (exists)
             {

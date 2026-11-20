@@ -81,11 +81,21 @@ namespace RimSimHotelExtension.Spa
             Map.flecks.CreateFleck(steam);
         }
 
-        //拆除时先终止会话和处理票款，再让原版释放建筑。
+        //建成后通知商店刷新设施与来客缓存，避免无货柜温泉店依赖外部变更触发更新。
+        public override void SpawnSetup(Map map, bool respawningAfterLoad)
+        {
+            base.SpawnSetup(map, respawningAfterLoad);
+            ShopDataUtility.NotifyBuildingChanged(map, Position);
+        }
+
+        //拆除时先终止会话和处理票款，再通知商店刷新设施与来客缓存。
         public override void DeSpawn(DestroyMode mode = DestroyMode.Vanish)
         {
+            Map oldMap = MapHeld;
+            IntVec3 oldPosition = PositionHeld;
             SpaMapComponent.For(Map)?.NotifyBuildingRemoved(this);
             base.DeSpawn(mode);
+            ShopDataUtility.NotifyBuildingChanged(oldMap, oldPosition);
         }
 
         //在选中建筑时显示真实容量、排队与营业问题。

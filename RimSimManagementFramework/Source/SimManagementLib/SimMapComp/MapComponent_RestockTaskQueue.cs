@@ -30,10 +30,13 @@ namespace SimManagementLib.SimMapComp
         private readonly Dictionary<int, int> assignedUniqueSourceCounts = new Dictionary<int, int>();
         private readonly List<RestockTaskKey> tmpRequestKeys = new List<RestockTaskKey>();
         private readonly HashSet<RestockTaskKey> tmpUniqueKeys = new HashSet<RestockTaskKey>();
+        private readonly List<RestockTaskKey> tmpDeferredReadyKeys = new List<RestockTaskKey>();
+        private readonly List<int> tmpDueBuckets = new List<int>();
         private readonly RestockLeaseRegistry leases = new RestockLeaseRegistry();
         private readonly RestockDispatchBudget budget = new RestockDispatchBudget();
         private readonly RestockStorageConfigurationIndex configurationIndex = new RestockStorageConfigurationIndex();
         private readonly RestockSourceResolver sourceResolver;
+        private MapComponent_InventoryReservations cachedInventoryReservations;
 
         private List<int> savedActiveCycleStorageIds = new List<int>();
         private List<ThingDef> savedActiveCycleThingDefs = new List<ThingDef>();
@@ -41,6 +44,7 @@ namespace SimManagementLib.SimMapComp
         private int storageReconcileCursor;
         private int idlePawnCursor;
         private int lastLeasePruneTick = int.MinValue;
+        private int earliestDelayedTick = int.MaxValue;
         private int nextIdleDispatchTick;
         private int lastProcessTick = -1;
         private int lastRebuildTick = -1;

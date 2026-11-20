@@ -54,6 +54,15 @@ namespace RimSimHotelExtension.Spa
                 && HotelMapComponent.For(shop.Map).DeskFor(shop) != null;
         }
 
+        //将可用温泉池位折算为等效设施规模，使纯温泉店也能获得合理的客流与容量。
+        public override int GetAttractionFacilityUnits(Zone_Shop shop)
+        {
+            if (shop?.Map == null || !IsAttractionAvailable(shop)) return 0;
+            return shop.Map.listerThings.AllThings.OfType<Building_HotelSpa>()
+                .Where(s => s.Shop == shop && s.Operational)
+                .Sum(s => s.Capacity);
+        }
+
         //未满足基础营业条件时向经营界面解释原因，满员只是正常排队。
         public override string GetAttractionBlockReason(Zone_Shop shop, bool refresh = false)
         {

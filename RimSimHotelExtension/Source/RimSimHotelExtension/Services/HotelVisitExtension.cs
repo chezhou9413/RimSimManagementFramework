@@ -71,9 +71,9 @@ namespace RimSimHotelExtension.Services
             CustomerArrivalReservation reservation, List<Pawn> customers)
             => HotelMapComponent.For(shop.Map).CompleteArrival(shop, reservation, customers);
 
-        //生成取消时立即释放临时床位。
+        //生成取消时立即释放临时床位并刷新旅馆空床快照。
         public override void CancelArrival(Zone_Shop shop, CustomerArrivalReservation reservation, string reason)
-            => HotelMapComponent.For(shop.Map).CancelArrival(reservation);
+            => HotelMapComponent.For(shop.Map).CancelArrival(shop, reservation);
 
         //紧急中断会同时结束同行合同，避免永久保留孤立床位。
         public override void OnLongStayInterrupted(Pawn customer, string reason)

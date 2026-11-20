@@ -23,6 +23,22 @@ namespace SimManagementLib.Api
             return false;
         }
 
+        //汇总商店内可用扩展动作提供的等效设施数量，供无货柜店铺计算评分、规模与动态容量。
+        public static int GetTotalAttractionFacilityUnits(Zone_Shop shop)
+        {
+            if (shop?.Map == null) return 0;
+            int total = 0;
+            List<CustomerActionDef> actions = DefDatabase<CustomerActionDef>.AllDefsListForReading;
+            for (int i = 0; i < actions.Count; i++)
+            {
+                CustomerActionDef action = actions[i];
+                if (action?.Worker == null || !action.Worker.IsAttractionAvailable(shop)) continue;
+                int units = action.Worker.GetAttractionFacilityUnits(shop);
+                if (units > 0) total += units;
+            }
+            return total;
+        }
+
         //收集已配置动作的经营阻塞原因，职责是在主动刷新时同步更新扩展快照并保留可读诊断。
         public static string GetBlockReasons(Zone_Shop shop, bool refresh = false)
         {

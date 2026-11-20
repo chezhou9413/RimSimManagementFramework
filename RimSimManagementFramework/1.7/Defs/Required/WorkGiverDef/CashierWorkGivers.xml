@@ -6,7 +6,6 @@
     <giverClass>SimManagementLib.SimWorkGiver.WorkGiver_ServeWaitingCustomers</giverClass>
     <workType>Sim_ServiceWork</workType>
     <priorityInType>110</priorityInType>
-    <emergency>true</emergency>
     <verb>接待</verb>
     <gerund>正在接待等候顾客</gerund>
     <requiredCapacities><li>Manipulation</li><li>Talking</li></requiredCapacities>

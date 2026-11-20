@@ -114,7 +114,10 @@ namespace SimManagementLib.GameComp
             ShopAnalyticsState state = work.State;
             ShopTuningDef tuning = GetTuning();
             int comboCount = Current.Game?.GetComponent<GameComponent_ShopComboManager>()?.GetCombosForZone(zone)?.Count ?? 0;
-            float operation01 = ComputeOperationScore01(tuning, zone, work.RegisterCount, work.MannedCount, work.StorageCount);
+            int nonRetailFacilityUnits = CountNonRetailFacilityUnits(zone, out bool hasNonRetailOffer);
+            int effectiveFacilityCount = work.StorageCount + nonRetailFacilityUnits;
+            int effectiveStockedFacilities = work.StockedStorageCount + nonRetailFacilityUnits;
+            float operation01 = ComputeOperationScore01(tuning, zone, work.RegisterCount, work.MannedCount, effectiveFacilityCount);
             float goods01 = ComputeGoodsScore01(tuning, work.GoodsKinds.Count, work.InStockKinds.Count, comboCount);
             float service01 = ComputeServiceScore01(tuning, state, work.RegisterCount, work.MannedCount);
             float beautyAverage = work.BeautySamples > 0 ? work.BeautyTotal / work.BeautySamples : 0f;
@@ -122,14 +125,15 @@ namespace SimManagementLib.GameComp
             float clean01 = 1f - Mathf.Clamp01((work.FilthCells / (float)Mathf.Max(1, work.CellCount)) / 0.18f);
             float indoor01 = work.RoofedCells / (float)Mathf.Max(1, work.CellCount);
             float environment01 = WeightedNormalized4(beauty01, tuning.beautyWeight, clean01, tuning.cleanlinessWeight, indoor01, tuning.indoorWeight, 0f, 0f);
-            float score01 = WeightedNormalized4(operation01, tuning.operationWeight, goods01, tuning.goodsWeight, service01, tuning.serviceWeight, environment01, tuning.environmentWeight);
+            float goodsWeight = work.StorageCount == 0 && hasNonRetailOffer ? 0f : tuning.goodsWeight;
+            float score01 = WeightedNormalized4(operation01, tuning.operationWeight, goods01, goodsWeight, service01, tuning.serviceWeight, environment01, tuning.environmentWeight);
             float reputation = GetReputation(zone.ID);
             float satisfaction = GetSatisfaction(zone.ID);
-            float effectiveScale = ShopDemandCurveUtility.CalculateEffectiveScale(tuning, work.RegisterCount, work.MannedCount, work.StockedStorageCount, work.InStockKinds.Count, work.CellCount);
+            float effectiveScale = ShopDemandCurveUtility.CalculateEffectiveScale(tuning, work.RegisterCount, work.MannedCount, effectiveStockedFacilities, work.InStockKinds.Count, work.CellCount);
             float beautyDemand = ShopDemandCurveUtility.CalculateBeautyDemandMultiplier(tuning, beautyAverage);
             float scaleDemand = ShopDemandCurveUtility.CalculateScaleDemandMultiplier(tuning, effectiveScale);
             float scaleCapacity = ShopDemandCurveUtility.CalculateScaleCapacityMultiplier(tuning, effectiveScale);
-            int capacity = CalculateDynamicCapacity(tuning, zone, score01, reputation / 100f, work.RegisterCount, work.MannedCount, work.StockedStorageCount, scaleCapacity);
+            int capacity = CalculateDynamicCapacity(tuning, zone, score01, reputation / 100f, work.RegisterCount, work.MannedCount, effectiveStockedFacilities, scaleCapacity);
             float demand = CalculateSpawnDemandFactor(tuning, zone, score01, reputation / 100f, beautyDemand, scaleDemand);
             ShopMetricsSnapshot snapshot = new ShopMetricsSnapshot
             {

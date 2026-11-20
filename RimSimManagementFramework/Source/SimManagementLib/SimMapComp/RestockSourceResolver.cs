@@ -13,12 +13,17 @@ namespace SimManagementLib.SimMapComp
         private readonly Map map;
         private readonly Dictionary<int, Thing> exactThingsById = new Dictionary<int, Thing>();
         private readonly HashSet<int> unresolvedExactThingIds = new HashSet<int>();
+        private MapComponent_InventoryReservations cachedInventoryReservations;
 
         //创建当前地图的货源解析器。
         public RestockSourceResolver(Map map)
         {
             this.map = map;
         }
+
+        //缓存地图的跨岗位库存预留组件，避免物品遍历与区域搜索回调重复扫描地图组件列表。
+        private MapComponent_InventoryReservations InventoryReservations
+            => cachedInventoryReservations ??= map?.GetComponent<MapComponent_InventoryReservations>();
 
         //记录玩家刚选择或运行中已经解析出的专业货源。
         public void RememberExactThing(Thing thing)
@@ -60,12 +65,15 @@ namespace SimManagementLib.SimMapComp
             List<Thing> candidates = map.listerThings?.ThingsOfDef(thingDef);
             if (candidates == null)
                 return false;
+            MapComponent_InventoryReservations reservations = InventoryReservations;
             for (int i = 0; i < candidates.Count; i++)
             {
                 Thing thing = candidates[i];
                 if (thing == null || thing.Destroyed || !thing.Spawned || thing.Map != map || thing.stackCount <= 0)
                     continue;
-                if (!storage.AllowsRestockSource(thing) || storage.Map.GetComponent<MapComponent_InventoryReservations>().Available(thing) <= 0 || thing.GetSlotGroup()?.parent is Building_SimContainer)
+                if (!storage.AllowsRestockSource(thing)
+                    || (reservations != null && reservations.Available(thing) <= 0)
+                    || thing.GetSlotGroup()?.parent is Building_SimContainer)
                     continue;
                 return true;
             }
@@ -82,7 +90,8 @@ namespace SimManagementLib.SimMapComp
             if (candidates == null || candidates.Count <= 0)
                 return null;
 
-            Predicate<Thing> validator = thing => IsBulkSupplyCandidate(pawn, storage, thing, thingDef);
+            MapComponent_InventoryReservations reservations = InventoryReservations;
+            Predicate<Thing> validator = thing => IsBulkSupplyCandidate(pawn, storage, thing, thingDef, reservations);
             if (!allowDeepSearch)
             {
                 return GenClosest.ClosestThing_Regionwise_ReachablePrioritized(
@@ -149,7 +158,7 @@ namespace SimManagementLib.SimMapComp
         }
 
         //判断地图物品是否可作为指定 Pawn 的普通货柜货源。
-        private static bool IsBulkSupplyCandidate(Pawn pawn, Building_SimContainer storage, Thing thing, ThingDef thingDef)
+        private static bool IsBulkSupplyCandidate(Pawn pawn, Building_SimContainer storage, Thing thing, ThingDef thingDef, MapComponent_InventoryReservations reservations)
         {
             if (pawn == null || storage == null || thing == null || thingDef == null)
                 return false;
@@ -157,7 +166,9 @@ namespace SimManagementLib.SimMapComp
                 return false;
             if (thing.Map != pawn.Map || storage.Map != pawn.Map || thing.IsForbidden(pawn))
                 return false;
-            if (!storage.AllowsRestockSource(thing) || storage.Map.GetComponent<MapComponent_InventoryReservations>().Available(thing) <= 0 || thing.GetSlotGroup()?.parent is Building_SimContainer)
+            if (!storage.AllowsRestockSource(thing)
+                || (reservations != null && reservations.Available(thing) <= 0)
+                || thing.GetSlotGroup()?.parent is Building_SimContainer)
                 return false;
             return pawn.CanReserve(thing);
         }

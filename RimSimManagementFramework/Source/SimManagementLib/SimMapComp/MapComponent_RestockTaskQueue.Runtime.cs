@@ -31,10 +31,13 @@ namespace SimManagementLib.SimMapComp
             budget.Clear();
             tmpRequestKeys.Clear();
             tmpUniqueKeys.Clear();
+            tmpDeferredReadyKeys.Clear();
+            tmpDueBuckets.Clear();
             storageReconcileCursor = 0;
             storageReconcileBudget = 0;
             idlePawnCursor = 0;
             lastLeasePruneTick = int.MinValue;
+            earliestDelayedTick = int.MaxValue;
             nextIdleDispatchTick = 0;
             dispatchUniqueNext = false;
             if (clearCycles)
@@ -160,7 +163,7 @@ namespace SimManagementLib.SimMapComp
             }
         }
 
-        //按 Pawn 游标给真正空闲的殖民者和玩家机械体立即派发补货。
+        //按 Pawn 游标给真正空闲且处于上班状态的补货殖民者和工作模式机械体立即派发补货。
         private void TryDispatchIdlePawns(int now)
         {
             if (CountReadyDispatches() <= 0 || map?.mapPawns == null)
@@ -172,14 +175,16 @@ namespace SimManagementLib.SimMapComp
                 return;
 
             int checkedCount = 0;
-            while (checkedCount < total && budget.TryUseIdlePawnCheck())
+            while (checkedCount < total)
             {
                 if (idlePawnCursor >= total)
                     idlePawnCursor = 0;
                 Pawn pawn = GetPawnAtCombinedIndex(colonists, mechs, idlePawnCursor++);
                 checkedCount++;
-                if (!IsTrulyIdle(pawn))
+                if (!IsTrulyIdle(pawn) || !CanPawnAutomaticallyRestock(pawn, null))
                     continue;
+                if (!budget.TryUseIdlePawnCheck())
+                    break;
                 Job job = TryMakeJobForPawn(pawn, null);
                 if (job == null)
                     continue;

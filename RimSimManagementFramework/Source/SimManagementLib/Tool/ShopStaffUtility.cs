@@ -81,8 +81,12 @@ namespace SimManagementLib.Tool
             if (role == null) return 0;
             return System.Math.Max(0, role.Worker?.GetMaxAssignedPawns(zone) ?? role.MaxAssignedPawns);
         }
-        //判断员工是否允许执行指定 WorkGiver，负责落实店铺岗位分配限制。
+        //判断员工是否允许在当前时刻执行指定 WorkGiver，兼顾店铺岗位名单与 24 小时排班时段。
         public static bool AllowsPawnForWorkGiver(Zone_Shop zone, Pawn pawn, WorkGiverDef workGiverDef)
+            => AllowsPawnForWorkGiver(zone, pawn, workGiverDef, 0);
+
+        //判断员工是否允许在指定提前交接窗口内执行指定 WorkGiver，支持手动强制时忽略排班小时但保留名单与资格校验。
+        public static bool AllowsPawnForWorkGiver(Zone_Shop zone, Pawn pawn, WorkGiverDef workGiverDef, int shiftLeadTicks, bool ignoreShift = false)
         {
             if (pawn == null) return false;
             if (zone == null || workGiverDef == null) return true;
@@ -98,13 +102,57 @@ namespace SimManagementLib.Tool
                 if (!zone.HasAssignedPawnsForRole(role.defName)) continue;
 
                 hasAnyAssignment = true;
-                if (zone.IsPawnAssignedToRole(role.defName, pawn)
-                    && EvaluateEligibility(zone, pawn, role).Eligible
+                bool matched = ignoreShift
+                    ? zone.IsPawnAssignedToRole(role.defName, pawn)
+                    : zone.IsPawnOnShiftForRole(role.defName, pawn, shiftLeadTicks);
+                if (matched
+                    && IsPawnEligibleForRole(zone, pawn, role)
                     && role.Worker.AllowsPawnForWorkGiver(zone, pawn, workGiverDef))
                     return true;
             }
 
             return !hasAnyAssignment;
+        }
+
+        //快速判断员工是否满足岗位基础资格，供 WorkGiver 热路径调用且不构造翻译文本与中间列表。
+        public static bool IsPawnEligibleForRole(Zone_Shop zone, Pawn pawn, ShopStaffRoleDef role)
+        {
+            if (pawn == null || role == null || pawn.Destroyed || pawn.Dead)
+                return false;
+            bool isMechanicalStaff = IsAssignableMechanicalStaff(pawn);
+            if (!isMechanicalStaff && (pawn.workSettings == null || !pawn.workSettings.EverWork))
+                return false;
+            if (role.Worker != null && !role.Worker.CanAssignPawn(zone, pawn, out _))
+                return false;
+            if (role.requiredWorkType != null && !CanPawnPerformWorkType(pawn, role.requiredWorkType, false))
+                return false;
+            if (role.workGivers.NullOrEmpty())
+                return true;
+
+            for (int i = 0; i < role.workGivers.Count; i++)
+            {
+                WorkGiverDef wg = role.workGivers[i];
+                if (wg == null) continue;
+                if (wg.workType != null && !CanPawnPerformWorkType(pawn, wg.workType, false))
+                    continue;
+                bool capable = true;
+                if (wg.requiredCapacities != null)
+                {
+                    for (int c = 0; c < wg.requiredCapacities.Count; c++)
+                    {
+                        PawnCapacityDef capacity = wg.requiredCapacities[c];
+                        if (capacity != null && !pawn.health.capacities.CapableOf(capacity))
+                        {
+                            capable = false;
+                            break;
+                        }
+                    }
+                }
+                if (capable)
+                    return true;
+            }
+
+            return false;
         }
         //判断员工是否已被分配到指定 WorkGiver 对应岗位。
         public static bool IsAssignedToWorkGiver(Zone_Shop zone, Pawn pawn, WorkGiverDef workGiverDef)
@@ -117,6 +165,23 @@ namespace SimManagementLib.Tool
                 ShopStaffRoleDef role = visibleRoles[i];
                 if (!RoleContainsWorkGiver(role, workGiverDef)) continue;
                 if (zone.IsPawnAssignedToRole(role.defName, pawn))
+                    return true;
+            }
+
+            return false;
+        }
+
+        //判断员工是否已分配到指定 WorkGiver 对应岗位且当前处于排班值班时段内。
+        public static bool IsOnShiftForWorkGiver(Zone_Shop zone, Pawn pawn, WorkGiverDef workGiverDef, int leadTicks = 0)
+        {
+            if (zone == null || pawn == null || workGiverDef == null) return false;
+
+            List<ShopStaffRoleDef> visibleRoles = GetCachedVisibleRoles(zone);
+            for (int i = 0; i < visibleRoles.Count; i++)
+            {
+                ShopStaffRoleDef role = visibleRoles[i];
+                if (!RoleContainsWorkGiver(role, workGiverDef)) continue;
+                if (zone.IsPawnOnShiftForRole(role.defName, pawn, leadTicks))
                     return true;
             }
 

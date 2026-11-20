@@ -226,10 +226,14 @@ namespace SimManagementLib.SimDialog
 
             Text.Font = GameFont.Tiny;
             GUI.color = MutedText;
-            Widgets.Label(new Rect(rect.x + 12f, rect.y + 36f, titleWidth, Text.LineHeightOf(GameFont.Tiny) + 2f), kind.kindId.Truncate(titleWidth));
-            Widgets.Label(new Rect(rect.x + 12f, rect.y + 58f, titleWidth - 92f, Text.LineHeightOf(GameFont.Tiny) + 2f), $"PawnKind {kind.pawnKindDefs.Count}  {SimTranslation.T("RSMF.CustomCustomer.BudgetMin")} {kind.budgetRange.min}-{kind.budgetRange.max}");
+            Widgets.Label(new Rect(rect.x + 12f, rect.y + 36f, titleWidth, Text.LineHeightOf(GameFont.Tiny) + 2f),
+                SimTranslation.T("RSMF.CustomCustomer.RoleCount", kind.pawnKindDefs.Count.Named("count")).Truncate(titleWidth));
+            Widgets.Label(new Rect(rect.x + 12f, rect.y + 58f, titleWidth - 92f, Text.LineHeightOf(GameFont.Tiny) + 2f),
+                $"{SimTranslation.T("RSMF.CustomCustomer.BudgetMin")} {kind.budgetRange.min}-{kind.budgetRange.max}");
 
-            DrawBadge(new Rect(rect.xMax - 82f, rect.y + 58f, 70f, 18f), kind.sourceDef != null ? "Def" : "Custom", kind.sourceDef != null ? BuiltInBadge : CustomBadge);
+            DrawBadge(new Rect(rect.xMax - 82f, rect.y + 58f, 70f, 18f),
+                kind.sourceDef != null ? SimTranslation.T("RSMF.Common.BadgeBuiltIn") : SimTranslation.T("RSMF.Common.BadgeCustom"),
+                kind.sourceDef != null ? BuiltInBadge : CustomBadge);
 
             if (Widgets.ButtonInvisible(rect))
             {
@@ -338,8 +342,7 @@ namespace SimManagementLib.SimDialog
             }
 
             GUI.color = MutedText;
-            Widgets.Label(new Rect(rect.x + 14f, rect.y + 74f, rect.width - 28f, Text.LineHeightOf(GameFont.Tiny) + 2f), "ID: " + kind.kindId);
-            Widgets.Label(new Rect(rect.x + 14f, rect.y + 94f, rect.width - 28f, Text.LineHeightOf(GameFont.Tiny) + 2f), editable ? SimTranslation.T("RSMF.CustomCustomer.SourceCustom") : SimTranslation.T("RSMF.CustomCustomer.SourceDef"));
+            Widgets.Label(new Rect(rect.x + 14f, rect.y + 76f, rect.width - 28f, Text.LineHeightOf(GameFont.Tiny) * 2f + 2f), editable ? SimTranslation.T("RSMF.CustomCustomer.SourceCustom") : SimTranslation.T("RSMF.CustomCustomer.SourceDef"));
 
             GUI.color = Color.white;
             return rect.yMax;
@@ -425,7 +428,7 @@ namespace SimManagementLib.SimDialog
             Rect listRect = new Rect(rect.x + 14f, rect.y + 38f, rect.width * 0.36f, rect.height - 52f);
             Rect browserRect = new Rect(listRect.xMax + 14f, listRect.y, rect.width - listRect.width - 42f, listRect.height);
 
-            DrawStringChipList(listRect, kind.pawnKindDefs.Select(p => p.LabelCap.RawText + " / " + p.defName).ToList(), editable ? SimTranslation.T("RSMF.CustomCustomer.SelectedPawnKinds") : SimTranslation.T("RSMF.CustomCustomer.BuiltInPawnKinds"));
+            DrawStringChipList(listRect, kind.pawnKindDefs.Select(FormatPawnKindChip).ToList(), editable ? SimTranslation.T("RSMF.CustomCustomer.SelectedPawnKinds") : SimTranslation.T("RSMF.CustomCustomer.BuiltInPawnKinds"));
             if (editable)
                 DrawPawnKindBrowser(browserRect, record);
             else
@@ -434,9 +437,7 @@ namespace SimManagementLib.SimDialog
             return rect.yMax;
         }
 
-        /// <summary>
-        /// 绘制目标商品类型和天气过滤条件。
-        /// </summary>
+        // 绘制目标商品类型和天气过滤条件。
         private float DrawTargetsAndWeather(Rect rect, RuntimeCustomerKind kind)
         {
             DrawSection(rect, SimTranslation.T("RSMF.CustomCustomer.Section.TargetWeather"));
@@ -453,8 +454,8 @@ namespace SimManagementLib.SimDialog
             }
             else
             {
-                DrawStringChipList(goodsRect, kind.targetGoodsCategoryIds, SimTranslation.T("RSMF.CustomCustomer.TargetGoodsType") + SimTranslation.T("RSMF.CustomCustomer.EmptyMeansNoLimit"));
-                DrawStringChipList(weatherRect, kind.allowedWeathers.Select(w => w.LabelCap.RawText + " / " + w.defName).ToList(), SimTranslation.T("RSMF.CustomCustomer.AllowedWeather") + SimTranslation.T("RSMF.CustomCustomer.EmptyMeansNoLimit"));
+                DrawStringChipList(goodsRect, kind.targetGoodsCategoryIds.Select(ResolveGoodsCategoryLabel).ToList(), SimTranslation.T("RSMF.CustomCustomer.TargetGoodsType") + SimTranslation.T("RSMF.CustomCustomer.EmptyMeansNoLimit"));
+                DrawStringChipList(weatherRect, kind.allowedWeathers.Select(w => w.LabelCap.RawText).ToList(), SimTranslation.T("RSMF.CustomCustomer.AllowedWeather") + SimTranslation.T("RSMF.CustomCustomer.EmptyMeansNoLimit"));
             }
 
             return rect.yMax;
@@ -783,7 +784,7 @@ namespace SimManagementLib.SimDialog
             {
                 PawnKindDef def = page[i];
                 Rect row = new Rect(0f, i * 46f, viewRect.width, 42f);
-                DrawKindAppendRow(row, def.LabelCap.RawText, def.defName, record.pawnKindDefNames.Contains(def.defName), () =>
+                DrawKindAppendRow(row, def.LabelCap.RawText, def.modContentPack?.Name ?? "", record.pawnKindDefNames.Contains(def.defName), () =>
                 {
                     record.pawnKindDefNames.Add(def.defName);
                     MarkDirtyAndRebuild();
@@ -992,7 +993,7 @@ namespace SimManagementLib.SimDialog
                 ThingDef def = page[i];
                 Rect row = new Rect(0f, i * 34f, viewRect.width, 30f);
                 bool exists = record.itemPreferences.Any(pref => pref.preferredThingDefName == def.defName);
-                DrawAppendRow(row, def.LabelCap.RawText, def.defName, exists, () =>
+                DrawAppendRow(row, def.LabelCap.RawText, def.modContentPack?.Name ?? "", exists, () =>
                 {
                     record.itemPreferences.Add(new CustomCustomerPreferenceRecord { preferredThingDefName = def.defName, weight = 2f });
                     MarkDirtyAndRebuild();
@@ -1270,21 +1271,49 @@ namespace SimManagementLib.SimDialog
         /// <summary>
         /// 将运行时偏好格式化为显示文本。
         /// </summary>
-        private static string FormatPreference(RuntimeItemPreference pref)
+        // 将顾客角色显示为名称与来源模组。
+        private static string FormatPawnKindChip(PawnKindDef def)
+        {
+            if (def == null)
+                return "";
+            string modName = def.modContentPack?.Name;
+            return string.IsNullOrEmpty(modName) ? def.LabelCap.RawText : $"{def.LabelCap.RawText} ({modName})";
+        }
+
+        // 将商品类型标识解析为展示名称。
+        private string ResolveGoodsCategoryLabel(string categoryId)
+        {
+            if (string.IsNullOrEmpty(categoryId))
+                return "";
+            for (int i = 0; i < allGoodsCategories.Count; i++)
+            {
+                if (string.Equals(allGoodsCategories[i].categoryId, categoryId, StringComparison.OrdinalIgnoreCase))
+                    return allGoodsCategories[i].label;
+            }
+            return categoryId;
+        }
+
+        // 将偏好配置格式化为玩家可读文本。
+        private string FormatPreference(RuntimeItemPreference pref)
         {
             if (pref == null) return "";
             if (pref.preferredThing != null) return $"{pref.preferredThing.LabelCap.RawText} x{pref.weight:F1}";
-            return $"{pref.preferredGoodsCategoryId} x{pref.weight:F1}";
+            return $"{ResolveGoodsCategoryLabel(pref.preferredGoodsCategoryId)} x{pref.weight:F1}";
         }
 
-        /// <summary>
-        /// 将自定义偏好记录格式化为显示文本。
-        /// </summary>
-        private static string FormatPreference(CustomCustomerPreferenceRecord pref)
+        // 将自定义偏好记录格式化为显示文本。
+        private string FormatPreference(CustomCustomerPreferenceRecord pref)
         {
             if (pref == null) return "";
-            if (!string.IsNullOrEmpty(pref.preferredThingDefName)) return $"{pref.preferredThingDefName} x{pref.weight:F1}";
-            return $"{pref.preferredGoodsCategoryId} x{pref.weight:F1}";
+            if (!string.IsNullOrEmpty(pref.preferredThingDefName))
+            {
+                ThingDef thingDef = DefDatabase<ThingDef>.GetNamedSilentFail(pref.preferredThingDefName);
+                string thingLabel = thingDef != null && !string.IsNullOrEmpty(thingDef.LabelCap.RawText)
+                    ? thingDef.LabelCap.RawText
+                    : pref.preferredThingDefName;
+                return $"{thingLabel} x{pref.weight:F1}";
+            }
+            return $"{ResolveGoodsCategoryLabel(pref.preferredGoodsCategoryId)} x{pref.weight:F1}";
         }
 
         /// <summary>

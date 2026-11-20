@@ -32,7 +32,7 @@
   <RSMF.RestockReason.BulkSourceUnavailable>No bulk supplies are available to this worker.</RSMF.RestockReason.BulkSourceUnavailable>
   <RSMF.RestockReason.WaitDeepSearch>Waiting for a full source search.</RSMF.RestockReason.WaitDeepSearch>
   <RSMF.RestockReason.NoCarryCapacity>This worker cannot carry any of the required items.</RSMF.RestockReason.NoCarryCapacity>
-  <RSMF.RestockReason.JobCreated>Job created; awaiting initial reservation.</RSMF.RestockReason.JobCreated>
+  <RSMF.RestockReason.JobCreated>Restock task created; awaiting assignment.</RSMF.RestockReason.JobCreated>
   <RSMF.RestockReason.UniqueInProgress>Unique-item restocking is in progress.</RSMF.RestockReason.UniqueInProgress>
   <RSMF.RestockReason.UniqueNotSpawned>The unique item is not currently spawned on the map.</RSMF.RestockReason.UniqueNotSpawned>
   <RSMF.RestockReason.WaitUniqueIndex>Waiting for the unique-item source index scan.</RSMF.RestockReason.WaitUniqueIndex>
@@ -40,7 +40,7 @@
   <RSMF.RestockReason.UniqueReserved>The unique item is forbidden or reserved.</RSMF.RestockReason.UniqueReserved>
   <RSMF.RestockReason.WaitUniqueReach>Waiting for a unique-item reachability check.</RSMF.RestockReason.WaitUniqueReach>
   <RSMF.RestockReason.UniqueUnreachable>This worker cannot reach the unique item.</RSMF.RestockReason.UniqueUnreachable>
-  <RSMF.RestockReason.UniqueJobCreated>Unique-item job created; awaiting initial reservation.</RSMF.RestockReason.UniqueJobCreated>
+  <RSMF.RestockReason.UniqueJobCreated>Unique-item restock task created; awaiting assignment.</RSMF.RestockReason.UniqueJobCreated>
   <RSMF.RestockReason.WaitDispatch>Waiting for a worker.</RSMF.RestockReason.WaitDispatch>
   <RSMF.RestockReason.WaitUniqueDispatch>Waiting for a unique-item restocking worker.</RSMF.RestockReason.WaitUniqueDispatch>
   <RSMF.RestockPanel.MissingTask>Missing task</RSMF.RestockPanel.MissingTask>

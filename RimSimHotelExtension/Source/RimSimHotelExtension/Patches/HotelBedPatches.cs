@@ -31,6 +31,8 @@ namespace RimSimHotelExtension.Patches
                 postfix: new HarmonyMethod(typeof(HotelBedPatches), nameof(AssignmentGizmoPostfix)));
             harmony.Patch(AccessTools.Method(typeof(CompAssignableToPawn_Bed), nameof(CompAssignableToPawn_Bed.CanAssignTo)),
                 postfix: new HarmonyMethod(typeof(HotelBedPatches), nameof(CanAssignPostfix)));
+            harmony.Patch(AccessTools.Method(typeof(Building_Bed), nameof(Building_Bed.GetInspectString)),
+                postfix: new HarmonyMethod(typeof(HotelBedPatches), nameof(InspectStringPostfix)));
         }
 
         //只为玩家已建成的床扩展菜单，原版医疗等其他按钮保留。
@@ -129,6 +131,30 @@ namespace RimSimHotelExtension.Patches
             if (__result.Accepted && __instance.parent is Building_Bed bed
                 && HotelMapComponent.For(bed.Map)?.AllowsBedUser(bed, pawn) == false)
                 __result = HotelText.T("RSH.Bed.GuestOnly");
+        }
+
+        //选中已登记的旅客床位时显示出租报价、在住旅客及剩余住宿天数。
+        private static void InspectStringPostfix(Building_Bed __instance, ref string __result)
+        {
+            if (__instance == null || !__instance.Spawned || __instance.Map == null) return;
+            var manager = HotelMapComponent.For(__instance.Map);
+            if (manager == null || !manager.IsRegisteredBed(__instance)) return;
+            var stay = manager.ActiveStays.FirstOrDefault(s => !s.completed && s.bed == __instance);
+            string line;
+            if (stay != null)
+            {
+                string guests = string.Join(", ", stay.guests.Where(g => g.pawn != null).Select(g => g.pawn.LabelShortCap.ToString()));
+                float daysLeft = UnityEngine.Mathf.Max(0f, (stay.checkoutTick - Find.TickManager.TicksGame) / 60000f);
+                line = HotelText.T("RSH.Inspect.BedOccupied", guests.Named("GUESTS"), daysLeft.ToString("0.0").Named("DAYS"));
+            }
+            else
+            {
+                var shop = SimManagementLib.Api.SimShopServiceApi.FindShop(__instance.Map, __instance.Position);
+                int price = shop == null ? 0 : (__instance.SleepingSlotsCount > 1
+                    ? manager.SettingsFor(shop).doublePrice : manager.SettingsFor(shop).singlePrice);
+                line = HotelText.T("RSH.Inspect.BedVacant", price.Named("PRICE"));
+            }
+            __result = __result.NullOrEmpty() ? line : __result + "\n" + line;
         }
     }
 }

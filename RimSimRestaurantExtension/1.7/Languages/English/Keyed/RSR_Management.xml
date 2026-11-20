@@ -23,8 +23,8 @@
   <RSR.UI.NoUsableRecipe>No currently usable workbench or recipe in this restaurant can make this dish.</RSR.UI.NoUsableRecipe>
   <RSR.UI.AutoIngredientsMissing>Not enough stock for the minimum order size. Missing recipe ingredients: {ingredient}</RSR.UI.AutoIngredientsMissing>
   <RSR.UI.AutoIngredientsDone>Ingredients selected from available stock. Supplies in colony storage must be restocked into this restaurant’s refrigerator before cooking.</RSR.UI.AutoIngredientsDone>
-  <RSR.Transfer.Export>Export restaurant Base64</RSR.Transfer.Export>
-  <RSR.Transfer.Import>Import restaurant Base64</RSR.Transfer.Import>
+  <RSR.Transfer.Export>Export restaurant share code</RSR.Transfer.Export>
+  <RSR.Transfer.Import>Import restaurant share code</RSR.Transfer.Import>
   <RSR.Transfer.ExportHint>Share the current menu and operating settings. Staff, buildings, inventory and active orders are excluded.</RSR.Transfer.ExportHint>
   <RSR.Transfer.ImportHint>Paste the shared text. Import replaces the current settings draft; save in shop management to apply it, or close that window to discard it.</RSR.Transfer.ImportHint>
   <RSR.Transfer.Copy>Copy</RSR.Transfer.Copy>
@@ -34,7 +34,7 @@
   <RSR.Transfer.Empty>The import text is empty.</RSR.Transfer.Empty>
   <RSR.Transfer.Format>Unsupported restaurant settings format.</RSR.Transfer.Format>
   <RSR.Transfer.InvalidMenu>Menu data is incomplete.</RSR.Transfer.InvalidMenu>
-  <RSR.Transfer.MissingDef>This game is missing an item definition: {def}</RSR.Transfer.MissingDef>
+  <RSR.Transfer.MissingDef>This game is missing a required item: {def}</RSR.Transfer.MissingDef>
   <RSR.Transfer.InvalidDish>Invalid recipe, price, portion count or ingredients for dish: {dish}</RSR.Transfer.InvalidDish>
   <RSR.Transfer.InvalidParameters>Operating settings are outside the allowed ranges.</RSR.Transfer.InvalidParameters>
   <RSR.Transfer.Error>Import failed: {reason}</RSR.Transfer.Error>

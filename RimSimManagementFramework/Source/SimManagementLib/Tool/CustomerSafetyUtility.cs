@@ -11,8 +11,21 @@ namespace SimManagementLib.Tool
     //提供顾客安全相关判断，负责处理大袭击避险、顾客专用寻路和紧急丢弃商品。
     public static class CustomerSafetyUtility
     {
-        private const float LargeRaidCombatPowerThreshold = 1000f;
+        public const int DefaultLargeRaidCombatPowerThreshold = 1000;
         private static readonly Dictionary<int, RaidSafetyCache> RaidCaches = new Dictionary<int, RaidSafetyCache>();
+
+        //返回当前生效的大型袭击停客战斗力阈值，零表示关闭拦截。
+        public static float GetLargeRaidCombatPowerThreshold()
+        {
+            int threshold = SimManagementLibMod.Settings?.largeRaidCombatPowerThreshold ?? DefaultLargeRaidCombatPowerThreshold;
+            return threshold <= 0 ? 0f : threshold;
+        }
+
+        //清理地图袭击安全缓存，确保修改模组设置后立即按新阈值生效。
+        public static void ClearRaidCache()
+        {
+            RaidCaches.Clear();
+        }
 
         //判断 Pawn 是否属于模拟经营顾客，负责让门禁和安全逻辑只作用在顾客身上。
         public static bool IsCustomerPawn(Pawn pawn)
@@ -25,7 +38,8 @@ namespace SimManagementLib.Tool
         //判断地图上是否存在超过阈值的敌对袭击，负责阻止刷客和触发顾客紧急离店。
         public static bool IsLargeHostileRaidActive(Map map)
         {
-            if (map?.lordManager?.lords == null)
+            float threshold = GetLargeRaidCombatPowerThreshold();
+            if (threshold <= 0f || map?.lordManager?.lords == null)
                 return false;
 
             int now = Find.TickManager?.TicksGame ?? 0;
@@ -40,7 +54,7 @@ namespace SimManagementLib.Tool
                     continue;
 
                 totalCombatPower += CountActiveRaidCombatPower(lord);
-                if (totalCombatPower > LargeRaidCombatPowerThreshold)
+                if (totalCombatPower > threshold)
                 {
                     RaidCaches[map.uniqueID] = new RaidSafetyCache(true, now + 60);
                     return true;

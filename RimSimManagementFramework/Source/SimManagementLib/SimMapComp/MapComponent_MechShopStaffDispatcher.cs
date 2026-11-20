@@ -56,15 +56,15 @@ namespace SimManagementLib.SimMapComp
             }
         }
 
-        //函数职责：判断机械体当前是否适合尝试店员派工。
+        //判断机械体当前是否处于工作模式、电量充足且无排队任务的空闲状态。
         private static bool ShouldTryDispatch(Pawn pawn)
         {
-            if (!ShopStaffUtility.IsAssignableMechanicalStaff(pawn)) return false;
-            if (pawn.Drafted) return false;
-            return pawn.jobs != null && IsIdleForShopDispatch(pawn);
+            if (!ShopStaffUtility.CanMechanicalStaffWorkAutomatically(pawn)) return false;
+            if (pawn.jobs == null || (pawn.jobs.jobQueue != null && pawn.jobs.jobQueue.Count > 0)) return false;
+            return IsIdleForShopDispatch(pawn);
         }
 
-        //函数职责：判断机械体是否只处于空闲等待状态，避免派工打断已有实际任务。
+        //判断机械体是否只处于空闲等待状态，避免派工打断已有实际任务。
         private static bool IsIdleForShopDispatch(Pawn pawn)
         {
             if (pawn?.CurJob == null) return true;
@@ -72,7 +72,7 @@ namespace SimManagementLib.SimMapComp
             return !string.IsNullOrEmpty(defName) && IdleJobDefNames.Contains(defName);
         }
 
-        //函数职责：为单个机械体按已分配岗位寻找可执行工作。
+        //为单个机械体按已分配岗位寻找可执行工作。
         private bool TryDispatchPawn(Pawn pawn)
         {
             List<Zone_Shop> shops = GetAssignedShops(pawn);
@@ -86,7 +86,7 @@ namespace SimManagementLib.SimMapComp
             return false;
         }
 
-        //函数职责：返回机械体在当前地图中被分配到岗位的商店。
+        //返回机械体在当前地图中被分配到岗位的商店。
         private List<Zone_Shop> GetAssignedShops(Pawn pawn)
         {
             List<Zone_Shop> result = new List<Zone_Shop>();
@@ -102,7 +102,7 @@ namespace SimManagementLib.SimMapComp
             return result;
         }
 
-        //函数职责：判断机械体是否在商店任意可见岗位中。
+        //判断机械体是否在商店任意可见岗位中。
         private static bool HasAnyAssignedRole(Zone_Shop shop, Pawn pawn)
         {
             List<ShopStaffRoleDef> roles = ShopStaffUtility.GetVisibleRoles(shop);
@@ -116,7 +116,7 @@ namespace SimManagementLib.SimMapComp
             return false;
         }
 
-        //函数职责：在指定商店内按岗位顺序尝试为机械体生成工作。
+        //在指定商店内按岗位顺序尝试为机械体生成工作。
         private static bool TryDispatchPawnInShop(Pawn pawn, Zone_Shop shop)
         {
             List<ShopStaffRoleDef> roles = ShopStaffUtility.GetVisibleRoles(shop);
@@ -131,7 +131,7 @@ namespace SimManagementLib.SimMapComp
             return false;
         }
 
-        //函数职责：按岗位绑定的 WorkGiver 顺序尝试创建一个实际 Job。
+        //按岗位绑定的 WorkGiver 顺序尝试创建一个自动 Job，不设置 playerForced 避免阻塞撤岗、充电与待命判断。
         private static bool TryDispatchPawnForRole(Pawn pawn, ShopStaffRoleDef role)
         {
             if (role.workGivers.NullOrEmpty()) return false;
@@ -143,30 +143,53 @@ namespace SimManagementLib.SimMapComp
                     || workGiverDef?.defName == "RestockUniqueGoodsContainer")
                     continue;
                 WorkGiver worker = workGiverDef?.Worker;
-                if (worker == null) continue;
+                if (worker == null || worker.ShouldSkip(pawn, false)) continue;
 
                 Job nonScanJob = worker.NonScanJob(pawn);
                 if (nonScanJob != null)
-                    return !pawn.Drafted && pawn.jobs.TryTakeOrderedJob(nonScanJob, JobTag.MiscWork);
+                    return TryStartAutomaticMechJob(pawn, nonScanJob);
 
                 WorkGiver_Scanner scanner = worker as WorkGiver_Scanner;
                 if (scanner == null || workGiverDef.scanThings == false) continue;
                 Job job = TryMakeJobFromScanner(pawn, scanner);
                 if (job == null) continue;
-                return !pawn.Drafted && pawn.jobs.TryTakeOrderedJob(job, JobTag.MiscWork);
+                return TryStartAutomaticMechJob(pawn, job);
             }
 
             return false;
         }
 
-        //函数职责：使用已有 WorkGiver 扫描器生成 Job，并复用原有可达性、预约和店铺权限判断。
+        //以普通自动工作方式启动机械体 Job，避免使用 TryTakeOrderedJob 强设 playerForced 或受 Shift 键干扰。
+        private static bool TryStartAutomaticMechJob(Pawn pawn, Job job)
+        {
+            if (pawn == null || job == null || pawn.Drafted || pawn.jobs == null)
+                return false;
+            pawn.jobs.StartJob(
+                job,
+                JobCondition.InterruptForced,
+                null,
+                resumeCurJobAfterwards: false,
+                cancelBusyStances: true,
+                thinkTree: null,
+                tag: JobTag.MiscWork,
+                fromQueue: false,
+                canReturnCurJobToPool: false,
+                keepCarryingThingOverride: null,
+                continueSleeping: false,
+                addToJobsThisTick: true,
+                preToilReservationsCanFail: true);
+            return pawn.CurJob == job;
+        }
+
+        //使用已有 WorkGiver 扫描器生成 Job，复用可达性、预约和店铺权限判断。
         private static Job TryMakeJobFromScanner(Pawn pawn, WorkGiver_Scanner scanner)
         {
             IEnumerable<Thing> things = scanner.PotentialWorkThingsGlobal(pawn);
             if (things == null) return null;
 
-            foreach (Thing thing in things.Where(t => t != null && !t.Destroyed))
+            foreach (Thing thing in things)
             {
+                if (thing == null || thing.Destroyed) continue;
                 if (!scanner.HasJobOnThing(pawn, thing, false)) continue;
                 Job job = scanner.JobOnThing(pawn, thing, false);
                 if (job != null)

@@ -23,6 +23,7 @@ namespace SimManagementLib.SimAI
         private const int ServiceTicks = 300;
         private const int DefaultMaxQueueWaitTicks = 2500;
         private const int MaxContinuousUnmannedWaitTicks = 900;
+        private const int MaxIncomingCashierGraceTicks = 1800;
         private const int StaffingCheckIntervalTicks = 15;
         private const int FacingUpdateIntervalTicks = 30;
         private const int ProgressUpdateIntervalTicks = 5;
@@ -39,7 +40,9 @@ namespace SimManagementLib.SimAI
         private int serviceTicksRemaining;
         private bool cachedServiceCanProgress;
         private bool cachedRegisterManned;
+        private bool cachedIncomingCashier;
         private int continuousUnmannedWaitTicks;
+        private int incomingCashierGraceTicks;
         private bool checkoutCommitted;
 
         private CustomerCheckoutQueueRegistry QueueRegistry => pawn?.Map?.GetComponent<CustomerArrivalManager>()?.CheckoutQueue;
@@ -85,7 +88,9 @@ namespace SimManagementLib.SimAI
                 waitStartTick = Find.TickManager.TicksGame;
                 serviceTicksAtWaitStart = Register.CustomerServiceTicks;
                 continuousUnmannedWaitTicks = 0;
+                incomingCashierGraceTicks = 0;
                 cachedRegisterManned = Register.IsManned;
+                cachedIncomingCashier = Register.HasIncomingCashier;
                 LordJob_CustomerVisit lordJob = pawn.Map.lordManager.LordOf(pawn)?.LordJob as LordJob_CustomerVisit;
                 maxQueueWaitTicks = lordJob?.GetQueuePatienceForPawn(pawn.thingIDNumber) ?? DefaultMaxQueueWaitTicks;
                 if (maxQueueWaitTicks <= 0) maxQueueWaitTicks = DefaultMaxQueueWaitTicks;
@@ -117,8 +122,23 @@ namespace SimManagementLib.SimAI
                 }
 
                 if (pawn.IsHashIntervalTick(StaffingCheckIntervalTicks))
+                {
                     cachedRegisterManned = Register.IsManned;
-                continuousUnmannedWaitTicks = cachedRegisterManned ? 0 : continuousUnmannedWaitTicks + 1;
+                    cachedIncomingCashier = !cachedRegisterManned && Register.HasIncomingCashier;
+                }
+                if (cachedRegisterManned)
+                {
+                    continuousUnmannedWaitTicks = 0;
+                    incomingCashierGraceTicks = 0;
+                }
+                else if (cachedIncomingCashier && incomingCashierGraceTicks < MaxIncomingCashierGraceTicks)
+                {
+                    incomingCashierGraceTicks++;
+                }
+                else
+                {
+                    continuousUnmannedWaitTicks++;
+                }
                 if (continuousUnmannedWaitTicks >= MaxContinuousUnmannedWaitTicks)
                 {
                     abortedByTimeout = true;
@@ -186,9 +206,22 @@ namespace SimManagementLib.SimAI
                 if (pawn.IsHashIntervalTick(StaffingCheckIntervalTicks))
                 {
                     cachedRegisterManned = Register.IsManned;
+                    cachedIncomingCashier = !cachedRegisterManned && Register.HasIncomingCashier;
                     cachedServiceCanProgress = cachedRegisterManned && IsMyTurn(lordJob);
                 }
-                continuousUnmannedWaitTicks = cachedRegisterManned ? 0 : continuousUnmannedWaitTicks + 1;
+                if (cachedRegisterManned)
+                {
+                    continuousUnmannedWaitTicks = 0;
+                    incomingCashierGraceTicks = 0;
+                }
+                else if (cachedIncomingCashier && incomingCashierGraceTicks < MaxIncomingCashierGraceTicks)
+                {
+                    incomingCashierGraceTicks++;
+                }
+                else
+                {
+                    continuousUnmannedWaitTicks++;
+                }
                 if (continuousUnmannedWaitTicks >= MaxContinuousUnmannedWaitTicks)
                 {
                     abortedByTimeout = true;

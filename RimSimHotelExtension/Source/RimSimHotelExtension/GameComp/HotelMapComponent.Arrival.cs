@@ -30,19 +30,21 @@ namespace RimSimHotelExtension.GameComp
             return new CustomerArrivalReservation { token = bed.thingIDNumber.ToString(), count = pair ? 2 : 1 };
         }
 
-        //撤销还未生成顾客的床位预留。
-        public void CancelArrival(CustomerArrivalReservation reservation)
+        //撤销还未生成顾客的床位预留，并刷新空床状态。
+        public void CancelArrival(Zone_Shop shop, CustomerArrivalReservation reservation)
         {
-            if (int.TryParse(reservation?.token, out int id)) arrivalBeds.Remove(id);
+            if (int.TryParse(reservation?.token, out int id) && arrivalBeds.Remove(id) && shop != null)
+                NotifyShopChanged(shop);
         }
 
         //生成成功后核对真实资金，不足最低住宿期限的顾客继续作为普通散客。
         public void CompleteArrival(Zone_Shop shop, CustomerArrivalReservation reservation, List<Pawn> customers)
         {
-            CancelArrival(reservation);
+            CancelArrival(shop, reservation);
             if (!int.TryParse(reservation.token, out int id)) return;
             Building_Bed bed = AvailableBeds(shop).FirstOrDefault(b => b.thingIDNumber == id);
-            if (bed != null) TryCreateStay(shop, bed, customers);
+            if (bed != null && TryCreateStay(shop, bed, customers))
+                NotifyShopChanged(shop);
         }
 
         //允许已经逛到旅馆的单人顾客直接办理入住。
@@ -168,12 +170,22 @@ namespace RimSimHotelExtension.GameComp
                     shopZoneId = stay.shopZoneId, kind = "Prepay", amount = payment,
                     label = "RSH.Text.AccommodationPrepayment" });
                 item.pawn.ownership.ClaimBedIfNonMedical(stay.bed);
-                item.status = "RSH.Text.Staying";
-                item.nextActivityTick = Find.TickManager.TicksGame + 300;
+                item.roomSettled = false;
+                item.status = "RSH.Text.SettlingIntoRoom";
+                item.nextActivityTick = Find.TickManager.TicksGame + 600;
+                if (payment > 0) ShopBubbleUtility.ShowSilverPayment(item.pawn, payment);
+                else ShopBubbleUtility.ShowTextBubble(item.pawn,
+                    HotelText.T("RSH.Bubble.CheckIn", stay.bookedNights.Named("NIGHTS")),
+                    new Color(0.75f, 0.95f, 0.80f));
             }
             stay.active = true;
+            var shop = ShopFor(stay);
             foreach (var item in stay.guests) HotelMoneyUtility.RefreshDailyAllowance(stay, item);
-            SettingsFor(ShopFor(stay)).arrivalsToday += stay.guests.Count;
+            if (shop != null)
+            {
+                SettingsFor(shop).arrivalsToday += stay.guests.Count;
+                NotifyShopChanged(shop);
+            }
         }
     }
 }

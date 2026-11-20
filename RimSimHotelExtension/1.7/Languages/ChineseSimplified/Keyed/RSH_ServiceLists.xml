@@ -49,4 +49,49 @@
   <RSH.Ui.SpaSummary>池位 {USED}/{TOTAL} · 排队 {QUEUE} · 空闲衣柜 {FREE}/{LOCKERS}</RSH.Ui.SpaSummary>
   <RSH.Ui.AtmSummary>可用取钱机 {READY}/{TOTAL} · 草稿手续费 {FEE} 银／次 · 每人每日限额 {LIMIT} 银</RSH.Ui.AtmSummary>
   <RSH.Ui.GuestSummary>住宿合同 {BOOKINGS} · 住客 {GUESTS} · 平均满意度 {SATISFACTION}</RSH.Ui.GuestSummary>
+  <RSH.Ui.TotalHotels>旅馆数量</RSH.Ui.TotalHotels>
+  <RSH.Ui.RevenueAndPrepay>今日房费 / 预付</RSH.Ui.RevenueAndPrepay>
+  <RSH.Ui.DeskStaffedBy>前台：{STAFF} 值班中</RSH.Ui.DeskStaffedBy>
+  <RSH.Ui.HotelFacilitySummary>{DESK} · 住客作息 {SLEEP} · 温泉 {SPAS} · 取钱机 {ATMS}</RSH.Ui.HotelFacilitySummary>
+  <RSH.Ui.StaffButton>店员</RSH.Ui.StaffButton>
+  <RSH.Ui.FullHouse>已满房</RSH.Ui.FullHouse>
+  <RSH.Ui.OccupancyBarLabel>入住 {OCCUPIED}/{TOTAL} ({PCT}%) · 平均满意度 {SAT}</RSH.Ui.OccupancyBarLabel>
+  <RSH.Ui.FilterAll>全部</RSH.Ui.FilterAll>
+  <RSH.Ui.FilterOccupied>入住中</RSH.Ui.FilterOccupied>
+  <RSH.Ui.FilterPendingReception>待办 / 退房</RSH.Ui.FilterPendingReception>
+  <RSH.Ui.FilterLowSat>低满意度</RSH.Ui.FilterLowSat>
+  <RSH.Ui.BestRoomFirst>排序：最佳客房优先</RSH.Ui.BestRoomFirst>
+  <RSH.Ui.RoomBriefStats>共 {TOTAL} 张床 · 已登记 {RENTED} · 入住 {OCCUPIED}</RSH.Ui.RoomBriefStats>
+  <RSH.Ui.Enabled>已开启</RSH.Ui.Enabled>
+  <RSH.Ui.Disabled>已关闭</RSH.Ui.Disabled>
+  <RSH.Ui.SilverPerNightShort>银/晚</RSH.Ui.SilverPerNightShort>
+  <RSH.Ui.SilverPerVisitShort>银/次</RSH.Ui.SilverPerVisitShort>
+  <RSH.Ui.SilverShort>银</RSH.Ui.SilverShort>
+  <RSH.Ui.SinglePriceShort>单人床价</RSH.Ui.SinglePriceShort>
+  <RSH.Ui.DoublePriceShort>双人床价</RSH.Ui.DoublePriceShort>
+  <RSH.Ui.SleepScheduleButton>作息 {RANGE}</RSH.Ui.SleepScheduleButton>
+  <RSH.Ui.RegisterAllBeds>登记全部空床</RSH.Ui.RegisterAllBeds>
+  <RSH.Ui.UnregisterVacantBeds>取消空床登记</RSH.Ui.UnregisterVacantBeds>
+  <RSH.Ui.SingleBedTag>单人</RSH.Ui.SingleBedTag>
+  <RSH.Ui.DoubleBedTag>双人</RSH.Ui.DoubleBedTag>
+  <RSH.Ui.RoomQualityLine>{ROOM} · 印象 {IMP}({STAGE}) · {TEMP}°C · 预估满意度 {DELTA}/天</RSH.Ui.RoomQualityLine>
+  <RSH.Ui.BatchBedResult>已更新 {CHANGED} 张床位登记（跳过 {SKIPPED} 张不可操作床位），请点击保存生效。</RSH.Ui.BatchBedResult>
+  <RSH.Ui.Cleanliness>整洁度</RSH.Ui.Cleanliness>
+  <RSH.Ui.RoomTemp>室温</RSH.Ui.RoomTemp>
+  <RSH.Ui.EstSatisfactionDelta>预估满意度/天</RSH.Ui.EstSatisfactionDelta>
+  <RSH.Ui.RoomTypeAndSpace>房间类型 / 空间</RSH.Ui.RoomTypeAndSpace>
+  <RSH.Ui.PrivateRoomTag>独立客房</RSH.Ui.PrivateRoomTag>
+  <RSH.Ui.SharedRoomTag>多人合住</RSH.Ui.SharedRoomTag>
+  <RSH.Ui.RequestEarlyCheckout>办理提前退房</RSH.Ui.RequestEarlyCheckout>
+  <RSH.Ui.WithCompanion>与 {NAME} 同住</RSH.Ui.WithCompanion>
+  <RSH.Ui.RenewingTag>准备续住</RSH.Ui.RenewingTag>
+  <RSH.Ui.SatShort>满意 {SAT}</RSH.Ui.SatShort>
+  <RSH.Ui.GuestNeedsAndFunds>饱食 {FOOD} · 精力 {REST} · 娱乐 {JOY} · 银 {WALLET}/{ACCOUNT}</RSH.Ui.GuestNeedsAndFunds>
+  <RSH.Ui.RecentExperienceLine>最近客房体验：{NOTE}</RSH.Ui.RecentExperienceLine>
+  <RSH.Ui.WoodSpaShort>木制温泉</RSH.Ui.WoodSpaShort>
+  <RSH.Ui.StoneSpaShort>石制温泉</RSH.Ui.StoneSpaShort>
+  <RSH.Ui.WithdrawalCount>记录取款次数</RSH.Ui.WithdrawalCount>
+  <RSH.Ui.AtmFeeShort>手续费/次</RSH.Ui.AtmFeeShort>
+  <RSH.Ui.AtmLimitShort>每日限额</RSH.Ui.AtmLimitShort>
+  <RSH.Ui.AtmStoredSilver>机内待提取手续费：{SILVER} 银</RSH.Ui.AtmStoredSilver>
 </LanguageData>

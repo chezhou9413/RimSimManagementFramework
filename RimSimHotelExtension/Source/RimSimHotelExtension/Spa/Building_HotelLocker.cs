@@ -88,15 +88,25 @@ namespace RimSimHotelExtension.Spa
             Scribe_Values.Look(ref sessionId, "spaSessionId");
         }
 
-        //建筑被移走前把实际内容释放到地图，再终止关联预约。
+        //建成后通知商店刷新设施与来客缓存。
+        public override void SpawnSetup(Map map, bool respawningAfterLoad)
+        {
+            base.SpawnSetup(map, respawningAfterLoad);
+            SimManagementLib.Tool.ShopDataUtility.NotifyBuildingChanged(map, Position);
+        }
+
+        //建筑被移走前把实际内容释放到地图，再终止关联预约并刷新商店缓存。
         public override void DeSpawn(DestroyMode mode = DestroyMode.Vanish)
         {
+            Map oldMap = MapHeld;
+            IntVec3 oldPosition = PositionHeld;
             if (contents.Count > 0 && !contents.TryDropAll(Position, Map, ThingPlaceMode.Near, playDropSound: false))
                 Log.Error("[RimSimHotel] 衣柜拆除时部分衣物未能放置: " + this);
             SpaMapComponent.For(Map)?.NotifyBuildingRemoved(this);
             owner = null;
             sessionId = 0;
             base.DeSpawn(mode);
+            SimManagementLib.Tool.ShopDataUtility.NotifyBuildingChanged(oldMap, oldPosition);
         }
 
         //让原版保存系统跟踪容器中的物品。

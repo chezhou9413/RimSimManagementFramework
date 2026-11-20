@@ -65,7 +65,7 @@ namespace SimManagementLib.SimDialog
                 Text.Font = GameFont.Small;
                 Text.Anchor = TextAnchor.MiddleLeft;
                 GUI.color = Color.white;
-                Widgets.Label(new Rect(row.x + 10f, row.y + 6f, 360f, 26f), zone.label + $"  (ID:{zone.ID})");
+                Widgets.Label(new Rect(row.x + 10f, row.y + 6f, 360f, 26f), zone.label.CapitalizeFirst());
 
                 Text.Font = GameFont.Tiny;
                 GUI.color = CDim;
@@ -359,7 +359,7 @@ namespace SimManagementLib.SimDialog
                     (item.Map.info?.parent?.LabelCap ?? item.Map.ToString()).Named("map")));
                 Widgets.Label(new Rect(row.x + 10f, row.y + 40f, 440f, 18f), SimTranslation.T("RSMF.Business.Customer.JobPatienceLine",
                     curJob.Named("job"),
-                    patience.Named("patience")));
+                    Mathf.RoundToInt(patience / 60f).Named("patience")));
 
                 Rect budgetBarRect = new Rect(row.x + 10f, row.y + 62f, 360f, 18f);
                 Widgets.FillableBar(budgetBarRect, budgetUse, SolidColorMaterials.NewSolidColorTexture(CAccent), BaseContent.BlackTex, doBorder: false);
@@ -399,6 +399,7 @@ namespace SimManagementLib.SimDialog
             Widgets.EndScrollView();
         }
 
+        //绘制全图店铺店员与 24 小时排班覆盖总览页，每家店直接展示排班覆盖迷你条和空窗预警。
         private void DrawStaffPage(Rect rect)
         {
             List<ShopViewData> shops = CollectAllShops();
@@ -408,7 +409,9 @@ namespace SimManagementLib.SimDialog
                 return;
             }
 
-            float rowHeight = 92f;
+            int[] combinedCoverage = new int[24];
+            int[] roleCoverage = new int[24];
+            float rowHeight = 112f;
             float viewWidth = rect.width - 18f;
             Rect viewRect = new Rect(0f, 0f, viewWidth, shops.Count * rowHeight);
             Widgets.BeginScrollView(rect, ref staffScrollPos, viewRect);
@@ -417,31 +420,78 @@ namespace SimManagementLib.SimDialog
             {
                 ShopViewData entry = shops[i];
                 Zone_Shop zone = entry.Zone;
-                Rect row = new Rect(0f, i * rowHeight, viewWidth, rowHeight - 6f);
+                Rect row = new Rect(0f, i * rowHeight, viewWidth, rowHeight - 8f);
                 Widgets.DrawBoxSolid(row, i % 2 == 0 ? CPanelAlt : new Color(0f, 0f, 0f, 0.08f));
                 DrawBorder(row, new Color(1f, 1f, 1f, 0.12f));
+
+                List<ShopStaffRoleDef> roles = ShopStaffUtility.GetVisibleRoles(zone);
+                int assignedCount = 0;
+                int maxGapHours = 0;
+                bool anyRoleAssigned = false;
+                for (int h = 0; h < 24; h++) combinedCoverage[h] = int.MaxValue;
+
+                for (int r = 0; r < roles.Count; r++)
+                {
+                    int roleCount = zone.GetAssignedPawns(roles[r].defName).Count;
+                    assignedCount += roleCount;
+                    if (roleCount <= 0) continue;
+                    anyRoleAssigned = true;
+                    int gap = ShopStaffShiftUtility.CountRoleOpenGapHours(zone, roles[r].defName, roleCoverage, out _, out _);
+                    if (gap > maxGapHours) maxGapHours = gap;
+                    for (int h = 0; h < 24; h++)
+                    {
+                        if (roleCoverage[h] < combinedCoverage[h])
+                            combinedCoverage[h] = roleCoverage[h];
+                    }
+                }
+                if (!anyRoleAssigned)
+                {
+                    for (int h = 0; h < 24; h++) combinedCoverage[h] = 0;
+                }
+
+                string openLabel = SimTranslation.T("RSMF.Business.Staff.OpenConfig");
+                string locateLabel = SimTranslation.T("RSMF.Common.Locate");
+                Text.Font = GameFont.Tiny;
+                float openW = Mathf.Max(118f, Text.CalcSize(openLabel).x + 20f);
+                float locateW = Mathf.Max(58f, Text.CalcSize(locateLabel).x + 16f);
+                float rightButtonsW = openW + locateW + 24f;
+                float leftW = Mathf.Max(180f, row.width - rightButtonsW - 16f);
 
                 Text.Font = GameFont.Small;
                 Text.Anchor = TextAnchor.MiddleLeft;
                 GUI.color = Color.white;
-                Widgets.Label(new Rect(row.x + 10f, row.y + 8f, 420f, 24f), $"{zone.label.CapitalizeFirst()}  (ID:{zone.ID})");
+                Widgets.Label(new Rect(row.x + 12f, row.y + 8f, leftW, 24f), zone.label.CapitalizeFirst().Truncate(leftW));
 
                 Text.Font = GameFont.Tiny;
                 GUI.color = CDim;
-                List<ShopStaffRoleDef> roles = ShopStaffUtility.GetVisibleRoles(zone);
-                int assignedCount = roles.Sum(r => zone.GetAssignedPawns(r.defName).Count);
-                Widgets.Label(new Rect(row.x + 10f, row.y + 32f, 520f, 18f), SimTranslation.T("RSMF.Business.MapLine",
-                    (entry.Map.info?.parent?.LabelCap ?? entry.Map.ToString()).Named("map")));
-                Widgets.Label(new Rect(row.x + 10f, row.y + 50f, 600f, 18f), SimTranslation.T("RSMF.Business.Staff.Line",
-                    roles.Count.Named("roles"),
-                    assignedCount.Named("assigned"),
-                    zone.GetOpenStatusMessage().Named("status")));
+                string metaLine = $"{SimTranslation.T("RSMF.Business.MapLine", (entry.Map.info?.parent?.LabelCap ?? entry.Map.ToString()).Named("map"))} · "
+                    + SimTranslation.T("RSMF.Business.Staff.Line", roles.Count.Named("roles"), assignedCount.Named("assigned"), zone.GetOpenStatusMessage().Named("status"));
+                Widgets.Label(new Rect(row.x + 12f, row.y + 34f, leftW, 18f), metaLine.Truncate(leftW));
 
-                Rect openRect = new Rect(row.xMax - 150f, row.y + 26f, 128f, 34f);
-                if (SimUiStyle.DrawPrimaryButton(openRect, SimTranslation.T("RSMF.Business.Staff.OpenConfig"), true, GameFont.Tiny))
-                {
+                string shiftStatus = !anyRoleAssigned
+                    ? SimTranslation.T("RSMF.Business.Staff.NoRoleAssigned")
+                    : (maxGapHours > 0
+                        ? SimTranslation.T("RSMF.Business.Staff.GapWarning", maxGapHours.Named("gap"))
+                        : SimTranslation.T("RSMF.Business.Staff.AllCovered"));
+                GUI.color = !anyRoleAssigned ? CDim : (maxGapHours > 0 ? new Color(0.95f, 0.72f, 0.25f) : new Color(0.35f, 0.80f, 0.45f));
+                Widgets.Label(new Rect(row.x + 12f, row.y + 54f, leftW, 18f), shiftStatus.Truncate(leftW));
+
+                //底部展示店铺已分配岗位的最小覆盖 24h 迷你条，空窗时段标红警示。
+                int curHour = entry.Map != null ? GenLocalDate.HourInteger(entry.Map) : 0;
+                Dialog_ShopStaffManager.DrawMiniCoverageStrip(
+                    new Rect(row.x + 12f, row.y + 76f, leftW, 16f),
+                    combinedCoverage,
+                    zone.GetSchedule(),
+                    curHour,
+                    anyRoleAssigned);
+
+                float btnY = row.y + (row.height - 32f) * 0.5f;
+                Rect openRect = new Rect(row.xMax - openW - 12f, btnY, openW, 32f);
+                Rect locateRect = new Rect(openRect.x - locateW - 8f, btnY, locateW, 32f);
+                if (SimUiStyle.DrawSecondaryButton(locateRect, locateLabel, zone.Cells.Count > 0, GameFont.Tiny))
+                    CameraJumper.TryJump(zone.Cells[0], entry.Map);
+                if (SimUiStyle.DrawPrimaryButton(openRect, openLabel, true, GameFont.Tiny))
                     Find.WindowStack.Add(new Dialog_ShopStaffManager(zone));
-                }
 
                 ResetText();
             }

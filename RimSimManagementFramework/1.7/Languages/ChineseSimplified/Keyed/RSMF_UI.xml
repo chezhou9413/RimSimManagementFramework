@@ -329,7 +329,7 @@
   <RSMF.Business.Customer.ActiveCount>活跃顾客: {count}</RSMF.Business.Customer.ActiveCount>
   <RSMF.Business.Customer.AverageBudgetUse>平均预算使用率: {percent}%</RSMF.Business.Customer.AverageBudgetUse>
   <RSMF.Business.Customer.ShopMapLine>商店: {shop}   地图: {map}</RSMF.Business.Customer.ShopMapLine>
-  <RSMF.Business.Customer.JobPatienceLine>当前行为: {job}   结账耐心: {patience} ticks</RSMF.Business.Customer.JobPatienceLine>
+  <RSMF.Business.Customer.JobPatienceLine>当前行为: {job}   结账耐心: {patience} 秒</RSMF.Business.Customer.JobPatienceLine>
   <RSMF.Business.Customer.BudgetLine>预算 {budget}  已花 {spent}  剩余 {remaining}</RSMF.Business.Customer.BudgetLine>
   <RSMF.Business.Customer.PreferenceLine>偏好: {preferences}</RSMF.Business.Customer.PreferenceLine>
   <RSMF.Business.Customer.ShopFallback>商店#{id}</RSMF.Business.Customer.ShopFallback>
@@ -346,7 +346,7 @@
   <RSMF.StaffManager.Title>{shop} 的店员配置</RSMF.StaffManager.Title>
   <RSMF.StaffManager.OpenStatus>营业状态: {status}</RSMF.StaffManager.OpenStatus>
   <RSMF.StaffManager.RoleList>岗位列表</RSMF.StaffManager.RoleList>
-  <RSMF.StaffManager.RoleListTip>岗位会根据店铺内已有建筑和岗位 Def 自动显示。</RSMF.StaffManager.RoleListTip>
+  <RSMF.StaffManager.RoleListTip>岗位会根据店铺内已有建筑自动显示。</RSMF.StaffManager.RoleListTip>
   <RSMF.StaffManager.AssignedCount>已分配: {assigned}/{max}</RSMF.StaffManager.AssignedCount>
   <RSMF.StaffManager.SelectRole>请选择一个岗位</RSMF.StaffManager.SelectRole>
   <RSMF.StaffManager.CandidateTitle>{role} 候选店员</RSMF.StaffManager.CandidateTitle>
@@ -358,7 +358,11 @@
   <RSMF.StaffManager.RemoveRole>移出岗位</RSMF.StaffManager.RemoveRole>
   <RSMF.StaffManager.AddRole>加入岗位</RSMF.StaffManager.AddRole>
   <RSMF.StaffManager.Unassigned>未指定</RSMF.StaffManager.Unassigned>
-  <RSMF.StaffManager.InvalidPawn>无效 pawn</RSMF.StaffManager.InvalidPawn>
+  <RSMF.StaffManager.InvalidPawn>无效员工</RSMF.StaffManager.InvalidPawn>
+  <RSMF.Staff.FallbackName>员工 #{id}</RSMF.Staff.FallbackName>
+  <RSMF.Common.BadgeBuiltIn>内置</RSMF.Common.BadgeBuiltIn>
+  <RSMF.Common.BadgeCustom>自定义</RSMF.Common.BadgeCustom>
+  <RSMF.Common.BadgeLocked>默认</RSMF.Common.BadgeLocked>
   <RSMF.StaffManager.InvalidRole>无效岗位</RSMF.StaffManager.InvalidRole>
   <RSMF.StaffManager.DeadOrUnavailable>已死亡或不可用</RSMF.StaffManager.DeadOrUnavailable>
   <RSMF.StaffManager.NoWorkSettings>没有工作设置</RSMF.StaffManager.NoWorkSettings>
@@ -372,6 +376,68 @@
   <RSMF.StaffManager.AssignedCurrentMap>员工仍在当前地图，可执行该岗位工作。</RSMF.StaffManager.AssignedCurrentMap>
   <RSMF.StaffManager.AssignedUnavailableDetail>来源: {faction}；记录编号: {id}。该员工可能已经离开地图或无法继续工作。</RSMF.StaffManager.AssignedUnavailableDetail>
   <RSMF.StaffManager.AssignedSummaryUnavailable>{pawn}(不可用)</RSMF.StaffManager.AssignedSummaryUnavailable>
+  <RSMF.StaffShift.AllDay>全天</RSMF.StaffShift.AllDay>
+  <RSMF.StaffShift.OffAllDay>全天休班</RSMF.StaffShift.OffAllDay>
+  <RSMF.StaffShift.CoverageTitle>24小时排班覆盖：{covered}/24h</RSMF.StaffShift.CoverageTitle>
+  <RSMF.StaffShift.CoverageGap>（营业时段空窗 {gap}h）</RSMF.StaffShift.CoverageGap>
+  <RSMF.StaffShift.CoverageFull>（营业时段已全覆盖）</RSMF.StaffShift.CoverageFull>
+  <RSMF.StaffShift.AutoDistribute>一键倒班</RSMF.StaffShift.AutoDistribute>
+  <RSMF.StaffShift.AutoDistributeTip>按当前岗位可用人数自动均分 24 小时连续班次（2人两班倒，3人三班倒）。</RSMF.StaffShift.AutoDistributeTip>
+  <RSMF.StaffShift.AutoDistributeDone>已为 {count} 名店员自动分配 24 小时倒班。</RSMF.StaffShift.AutoDistributeDone>
+  <RSMF.StaffShift.ClearAll>全部全天</RSMF.StaffShift.ClearAll>
+  <RSMF.StaffShift.SyncAllTimetables>同步作息表</RSMF.StaffShift.SyncAllTimetables>
+  <RSMF.StaffShift.SyncAllTimetablesTip>根据排班表自动调整已分配殖民者的原版作息表：值班时段设为工作，非值班最长空档自动安排睡眠与娱乐。</RSMF.StaffShift.SyncAllTimetablesTip>
+  <RSMF.StaffShift.SyncDone>已按排班同步 {count} 名殖民者的原版作息表。</RSMF.StaffShift.SyncDone>
+  <RSMF.StaffShift.SyncNone>当前没有启用自定义排班的殖民者需要同步。</RSMF.StaffShift.SyncNone>
+  <RSMF.StaffShift.SyncSingle>同步作息</RSMF.StaffShift.SyncSingle>
+  <RSMF.StaffShift.SyncSingleDone>已按排班同步 {pawn} 的原版作息表。</RSMF.StaffShift.SyncSingleDone>
+  <RSMF.StaffShift.PresetMorning>早 06-14</RSMF.StaffShift.PresetMorning>
+  <RSMF.StaffShift.PresetEvening>晚 14-22</RSMF.StaffShift.PresetEvening>
+  <RSMF.StaffShift.PresetNight>夜 22-06</RSMF.StaffShift.PresetNight>
+  <RSMF.StaffShift.RowLabel>排班：</RSMF.StaffShift.RowLabel>
+  <RSMF.StaffShift.SummaryLine>班次：{summary}</RSMF.StaffShift.SummaryLine>
+  <RSMF.StaffShift.StatusOnShift>当前在班</RSMF.StaffShift.StatusOnShift>
+  <RSMF.StaffShift.StatusOffShift>当前休班</RSMF.StaffShift.StatusOffShift>
+  <RSMF.StaffShift.HourCellTip>{hour}:00 - {state}（点击或按住拖动可快速调整排班）</RSMF.StaffShift.HourCellTip>
+  <RSMF.StaffShift.StateOn>值班</RSMF.StaffShift.StateOn>
+  <RSMF.StaffShift.StateOff>下班（可做其他工作或休息）</RSMF.StaffShift.StateOff>
+  <RSMF.StaffShift.CoverageCellTip>{hour}:00（{openState}）\n在班人数：{count}\n员工：{staff}</RSMF.StaffShift.CoverageCellTip>
+  <RSMF.StaffShift.HourOpen>营业中</RSMF.StaffShift.HourOpen>
+  <RSMF.StaffShift.HourClosed>非营业</RSMF.StaffShift.HourClosed>
+  <RSMF.StaffShift.NoStaffThisHour>无人排班</RSMF.StaffShift.NoStaffThisHour>
+  <RSMF.StaffShift.TabRoster>排班表 ({count})</RSMF.StaffShift.TabRoster>
+  <RSMF.StaffShift.TabCandidates>添加员工 ({count})</RSMF.StaffShift.TabCandidates>
+  <RSMF.StaffShift.AutoOpenHours>按营业排班</RSMF.StaffShift.AutoOpenHours>
+  <RSMF.StaffShift.AutoOpenHoursTip>仅将店铺营业时段均分给当前岗位的可用员工；若店铺全天营业则等同于 24 小时倒班。</RSMF.StaffShift.AutoOpenHoursTip>
+  <RSMF.StaffShift.PresetDay12>白 08-20</RSMF.StaffShift.PresetDay12>
+  <RSMF.StaffShift.PresetNight12>夜 20-08</RSMF.StaffShift.PresetNight12>
+  <RSMF.StaffShift.PresetMenu>预设</RSMF.StaffShift.PresetMenu>
+  <RSMF.StaffShift.ClearSingle>全天休班</RSMF.StaffShift.ClearSingle>
+  <RSMF.StaffShift.ConflictBadge>作息冲突 {count}h</RSMF.StaffShift.ConflictBadge>
+  <RSMF.StaffShift.ConflictTip>有 {count} 小时排班与该殖民者原版作息（睡眠/娱乐/冥想）重叠，建议点击“同步作息”自动错开。</RSMF.StaffShift.ConflictTip>
+  <RSMF.StaffShift.HourCellConflict>⚠ 原版日程为【{timetable}】，会阻止自动上岗</RSMF.StaffShift.HourCellConflict>
+  <RSMF.StaffShift.HourCellTimetable>原版日程：{timetable}</RSMF.StaffShift.HourCellTimetable>
+  <RSMF.StaffShift.HourCellDragHint>左键点击/拖动设值班，右键点击/拖动设下班</RSMF.StaffShift.HourCellDragHint>
+  <RSMF.StaffShift.LegendOn>排班值班</RSMF.StaffShift.LegendOn>
+  <RSMF.StaffShift.LegendGap>营业空窗</RSMF.StaffShift.LegendGap>
+  <RSMF.StaffShift.LegendConflict>与原版作息冲突</RSMF.StaffShift.LegendConflict>
+  <RSMF.StaffShift.LegendHint>左键刷值班 · 右键擦除</RSMF.StaffShift.LegendHint>
+  <RSMF.StaffShift.EmptyRoster>该岗位尚未分配员工。点击上方“添加员工”指派殖民者或机械体即可开始排班。</RSMF.StaffShift.EmptyRoster>
+  <RSMF.StaffShift.OnlyEligible>仅看可指派</RSMF.StaffShift.OnlyEligible>
+  <RSMF.StaffShift.SkillSummary>社交 {social} · 烹饪 {cooking} · 工速 {speed}%</RSMF.StaffShift.SkillSummary>
+  <RSMF.StaffShift.MechLabel>机械体</RSMF.StaffShift.MechLabel>
+  <RSMF.StaffShift.RoleGapShort>空窗 {gap}h</RSMF.StaffShift.RoleGapShort>
+  <RSMF.StaffShift.RoleCoveredShort>已覆盖</RSMF.StaffShift.RoleCoveredShort>
+  <RSMF.StaffShift.RoleUnassignedShort>未指定(自由)</RSMF.StaffShift.RoleUnassignedShort>
+  <RSMF.ShopManager.ScheduleDragHint>左键点击或拖动开启营业，右键关闭营业；下方对照各岗位当前排班覆盖。</RSMF.ShopManager.ScheduleDragHint>
+  <RSMF.ShopManager.ScheduleDayShift>白班 08-20</RSMF.ShopManager.ScheduleDayShift>
+  <RSMF.ShopManager.ScheduleNightMarket>夜市 16-04</RSMF.ShopManager.ScheduleNightMarket>
+  <RSMF.ShopManager.ScheduleRoleCoverageTitle>店内各岗位 24 小时排班覆盖对照</RSMF.ShopManager.ScheduleRoleCoverageTitle>
+  <RSMF.ShopManager.OpenStaffShifts>配置店员与排班</RSMF.ShopManager.OpenStaffShifts>
+  <RSMF.ShopManager.NoRolesForCoverage>当前商店尚未检测到需要排班的岗位建筑。</RSMF.ShopManager.NoRolesForCoverage>
+  <RSMF.Business.Staff.GapWarning>存在 {gap}h 营业排班空窗</RSMF.Business.Staff.GapWarning>
+  <RSMF.Business.Staff.AllCovered>营业时段排班齐全</RSMF.Business.Staff.AllCovered>
+  <RSMF.Business.Staff.NoRoleAssigned>未指定固定员工（自由接单）</RSMF.Business.Staff.NoRoleAssigned>
   <RSMF.GoodsManager.AvailableCategories>可售分类</RSMF.GoodsManager.AvailableCategories>
   <RSMF.GoodsManager.CategoryNav>分类导航</RSMF.GoodsManager.CategoryNav>
   <RSMF.GoodsManager.RestrictionTip>该货柜只允许选择：{labels}</RSMF.GoodsManager.RestrictionTip>
@@ -502,6 +568,7 @@
   <RSMF.ShopService.Fail.ToiletCellInvalid>马桶位置无效</RSMF.ShopService.Fail.ToiletCellInvalid>
   <RSMF.ShopService.Fail.ToiletCellNotStandable>马桶格不可站立</RSMF.ShopService.Fail.ToiletCellNotStandable>
   <RSMF.ShopService.Fail.CustomerCannotReachToilet>顾客无法到达马桶</RSMF.ShopService.Fail.CustomerCannotReachToilet>
+  <RSMF.CustomerArrival.ForceFailLargeRaid>强制刷新失败：当前地图存在超过 {points} 点战斗力的敌对袭击，顾客不会到访。</RSMF.CustomerArrival.ForceFailLargeRaid>
   <RSMF.CustomerArrival.ForceFailNoShopOrVending>强制刷新失败：当前地图没有可营业的商店区域或自动售货机。</RSMF.CustomerArrival.ForceFailNoShopOrVending>
   <RSMF.CustomerArrival.ForceFailInvalidShops>强制刷新失败：检测到 {count} 个商店区域，但均未通过营业校验。首个商店“{shop}”：{reason}</RSMF.CustomerArrival.ForceFailInvalidShops>
   <RSMF.CustomerArrival.ForceFailClosedShops>强制刷新失败：检测到 {count} 个有效商店，但均处于关闭状态。首个商店“{shop}”：{reason}</RSMF.CustomerArrival.ForceFailClosedShops>
@@ -601,26 +668,27 @@
   <RSMF.ComboName.Mass.07>{0}领衔无敌组合大礼</RSMF.ComboName.Mass.07>
   <RSMF.ComboName.Mass.08>史诗级套装·{0}打头阵</RSMF.ComboName.Mass.08>
   <RSMF.CustomCustomer.Title>自定义顾客注册</RSMF.CustomCustomer.Title>
-  <RSMF.CustomCustomer.Description>CustomerKindDef 只读。玩家本地 JSON 会在 Def 之后加载，作为运行时顾客 Kind 参与自然刷客。</RSMF.CustomCustomer.Description>
+  <RSMF.CustomCustomer.Description>内置顾客类型为只读。自定义配置会在游戏启动时加载，并参与自然来客。</RSMF.CustomCustomer.Description>
   <RSMF.CustomCustomer.SaveDirty>保存*</RSMF.CustomCustomer.SaveDirty>
   <RSMF.CustomCustomer.Save>保存</RSMF.CustomCustomer.Save>
   <RSMF.CustomCustomer.Reload>重载</RSMF.CustomCustomer.Reload>
   <RSMF.CustomCustomer.RefreshTypes>刷新类型</RSMF.CustomCustomer.RefreshTypes>
-  <RSMF.CustomCustomer.ExportBase64>导出 B64</RSMF.CustomCustomer.ExportBase64>
-  <RSMF.CustomCustomer.ImportBase64>导入 B64</RSMF.CustomCustomer.ImportBase64>
-  <RSMF.CustomCustomer.ExportTitle>导出顾客 Base64</RSMF.CustomCustomer.ExportTitle>
-  <RSMF.CustomCustomer.ExportInfo>下面这串内容包含玩家自定义顾客 Kind。</RSMF.CustomCustomer.ExportInfo>
-  <RSMF.CustomCustomer.KindListTitle>顾客 Kind</RSMF.CustomCustomer.KindListTitle>
-  <RSMF.CustomCustomer.NewRuntime>新建运行时顾客</RSMF.CustomCustomer.NewRuntime>
+  <RSMF.CustomCustomer.ExportBase64>导出分享码</RSMF.CustomCustomer.ExportBase64>
+  <RSMF.CustomCustomer.ImportBase64>导入分享码</RSMF.CustomCustomer.ImportBase64>
+  <RSMF.CustomCustomer.ExportTitle>导出顾客配置</RSMF.CustomCustomer.ExportTitle>
+  <RSMF.CustomCustomer.ExportInfo>下面这串分享码包含玩家自定义顾客类型，可直接分享给其他玩家。</RSMF.CustomCustomer.ExportInfo>
+  <RSMF.CustomCustomer.KindListTitle>顾客类型</RSMF.CustomCustomer.KindListTitle>
+  <RSMF.CustomCustomer.RoleCount>关联角色：{count}</RSMF.CustomCustomer.RoleCount>
+  <RSMF.CustomCustomer.NewRuntime>新建自定义顾客</RSMF.CustomCustomer.NewRuntime>
   <RSMF.CustomCustomer.Create>创建</RSMF.CustomCustomer.Create>
-  <RSMF.CustomCustomer.NoKinds>没有可用的顾客 Kind</RSMF.CustomCustomer.NoKinds>
+  <RSMF.CustomCustomer.NoKinds>没有可用的顾客类型</RSMF.CustomCustomer.NoKinds>
   <RSMF.CustomCustomer.Section.BasicInfo>基础信息</RSMF.CustomCustomer.Section.BasicInfo>
   <RSMF.CustomCustomer.DisplayName>显示名称</RSMF.CustomCustomer.DisplayName>
   <RSMF.CustomCustomer.Rename>改名</RSMF.CustomCustomer.Rename>
-  <RSMF.CustomCustomer.DeleteKind>删除 Kind</RSMF.CustomCustomer.DeleteKind>
-  <RSMF.CustomCustomer.DefReadonly>Def 只读</RSMF.CustomCustomer.DefReadonly>
-  <RSMF.CustomCustomer.SourceCustom>来源：玩家本地 JSON。保存后会合并进运行时顾客目录。</RSMF.CustomCustomer.SourceCustom>
-  <RSMF.CustomCustomer.SourceDef>来源：CustomerKindDef。这里可以查看数据，但不能编辑 Def。</RSMF.CustomCustomer.SourceDef>
+  <RSMF.CustomCustomer.DeleteKind>删除类型</RSMF.CustomCustomer.DeleteKind>
+  <RSMF.CustomCustomer.DefReadonly>内置只读</RSMF.CustomCustomer.DefReadonly>
+  <RSMF.CustomCustomer.SourceCustom>来源：本地自定义配置。保存后会立即生效。</RSMF.CustomCustomer.SourceCustom>
+  <RSMF.CustomCustomer.SourceDef>来源：内置顾客配置。此处可查看参数，但不能直接修改。</RSMF.CustomCustomer.SourceDef>
   <RSMF.CustomCustomer.Section.RefreshBudget>刷新与预算</RSMF.CustomCustomer.Section.RefreshBudget>
   <RSMF.CustomCustomer.MtbDays>MTB 天</RSMF.CustomCustomer.MtbDays>
   <RSMF.CustomCustomer.BudgetMin>预算下限</RSMF.CustomCustomer.BudgetMin>
@@ -639,22 +707,22 @@
   <RSMF.CustomCustomer.PriceMinWeight>低权重</RSMF.CustomCustomer.PriceMinWeight>
   <RSMF.CustomCustomer.PriceComplain>抱怨</RSMF.CustomCustomer.PriceComplain>
   <RSMF.CustomCustomer.ReadOnlyPriceSensitivity>折扣权重 {discount}    软溢价 {soft}x    拒买 {reject}x    抱怨 {complain}x</RSMF.CustomCustomer.ReadOnlyPriceSensitivity>
-  <RSMF.CustomCustomer.Section.PawnKind>PawnKind</RSMF.CustomCustomer.Section.PawnKind>
-  <RSMF.CustomCustomer.SelectedPawnKinds>已选 PawnKind，可用右侧追加。</RSMF.CustomCustomer.SelectedPawnKinds>
-  <RSMF.CustomCustomer.BuiltInPawnKinds>Def 中配置的 PawnKind。</RSMF.CustomCustomer.BuiltInPawnKinds>
-  <RSMF.CustomCustomer.CannotModifyPawnKind>Def 顾客不能在运行时修改 PawnKind。</RSMF.CustomCustomer.CannotModifyPawnKind>
+  <RSMF.CustomCustomer.Section.PawnKind>角色类型</RSMF.CustomCustomer.Section.PawnKind>
+  <RSMF.CustomCustomer.SelectedPawnKinds>已选角色类型，可在右侧追加。</RSMF.CustomCustomer.SelectedPawnKinds>
+  <RSMF.CustomCustomer.BuiltInPawnKinds>内置配置的角色类型。</RSMF.CustomCustomer.BuiltInPawnKinds>
+  <RSMF.CustomCustomer.CannotModifyPawnKind>内置顾客不能修改角色类型。</RSMF.CustomCustomer.CannotModifyPawnKind>
   <RSMF.CustomCustomer.Section.TargetWeather>兴趣类型与天气</RSMF.CustomCustomer.Section.TargetWeather>
   <RSMF.CustomCustomer.TargetGoodsType>目标商品类型</RSMF.CustomCustomer.TargetGoodsType>
   <RSMF.CustomCustomer.AllowedWeather>允许天气</RSMF.CustomCustomer.AllowedWeather>
   <RSMF.CustomCustomer.EmptyMeansNoLimit>。为空表示不限制。</RSMF.CustomCustomer.EmptyMeansNoLimit>
   <RSMF.CustomCustomer.Section.Preferences>偏好</RSMF.CustomCustomer.Section.Preferences>
-  <RSMF.CustomCustomer.BuiltInPreferences>Def 中配置的偏好。</RSMF.CustomCustomer.BuiltInPreferences>
-  <RSMF.CustomCustomer.NoModifyDefPreferences>运行时不会修改 Def 偏好。</RSMF.CustomCustomer.NoModifyDefPreferences>
+  <RSMF.CustomCustomer.BuiltInPreferences>内置配置的购物偏好。</RSMF.CustomCustomer.BuiltInPreferences>
+  <RSMF.CustomCustomer.NoModifyDefPreferences>内置偏好不可修改。</RSMF.CustomCustomer.NoModifyDefPreferences>
   <RSMF.CustomCustomer.AppendPreferences>自定义顾客可以追加偏好商品。</RSMF.CustomCustomer.AppendPreferences>
   <RSMF.CustomCustomer.Section.Profiles>顾客档案</RSMF.CustomCustomer.Section.Profiles>
   <RSMF.CustomCustomer.DefaultProfileLabel>顾客档案</RSMF.CustomCustomer.DefaultProfileLabel>
-  <RSMF.CustomCustomer.BuiltInProfiles>Def 中配置的档案。为空则使用基础配置。</RSMF.CustomCustomer.BuiltInProfiles>
-  <RSMF.CustomCustomer.ProfilesTip>档案用于给同一 Kind 增加不同预算、耐心、时间、天气、目标类型和偏好。</RSMF.CustomCustomer.ProfilesTip>
+  <RSMF.CustomCustomer.BuiltInProfiles>内置配置的顾客档案。为空则使用基础配置。</RSMF.CustomCustomer.BuiltInProfiles>
+  <RSMF.CustomCustomer.ProfilesTip>档案用于给同类顾客增加不同预算、耐心、时间、天气、目标类型和偏好。</RSMF.CustomCustomer.ProfilesTip>
   <RSMF.CustomCustomer.Add>添加</RSMF.CustomCustomer.Add>
   <RSMF.CustomCustomer.Weight>权重</RSMF.CustomCustomer.Weight>
   <RSMF.CustomCustomer.BudgetLower>预算下</RSMF.CustomCustomer.BudgetLower>
@@ -677,42 +745,42 @@
   <RSMF.CustomCustomer.TotalCount>共 {count} 项</RSMF.CustomCustomer.TotalCount>
   <RSMF.CustomCustomer.PrevPage>上一页</RSMF.CustomCustomer.PrevPage>
   <RSMF.CustomCustomer.NextPage>下一页</RSMF.CustomCustomer.NextPage>
-  <RSMF.CustomCustomer.RefreshedTypes>已刷新运行时商品类型：{count} 个。</RSMF.CustomCustomer.RefreshedTypes>
-  <RSMF.CustomCustomer.NoPawnKind>没有可用的 PawnKindDef。</RSMF.CustomCustomer.NoPawnKind>
+  <RSMF.CustomCustomer.RefreshedTypes>已刷新商品类型：{count} 个。</RSMF.CustomCustomer.RefreshedTypes>
+  <RSMF.CustomCustomer.NoPawnKind>没有可用的角色类型。</RSMF.CustomCustomer.NoPawnKind>
   <RSMF.CustomCustomer.EmptyName>顾客名称不能为空。</RSMF.CustomCustomer.EmptyName>
-  <RSMF.CustomCustomer.DeleteConfirm>删除这个自定义顾客 Kind？</RSMF.CustomCustomer.DeleteConfirm>
-  <RSMF.CustomCustomer.SaveSuccess>自定义顾客注册已保存，运行时顾客目录已重建。</RSMF.CustomCustomer.SaveSuccess>
+  <RSMF.CustomCustomer.DeleteConfirm>删除这个自定义顾客类型？</RSMF.CustomCustomer.DeleteConfirm>
+  <RSMF.CustomCustomer.SaveSuccess>自定义顾客注册已保存，顾客目录已更新。</RSMF.CustomCustomer.SaveSuccess>
   <RSMF.CustomCustomer.ReloadConfirm>重新加载会丢弃当前未保存的自定义顾客改动，是否继续？</RSMF.CustomCustomer.ReloadConfirm>
   <RSMF.CustomCustomer.CopyClipboard>复制到剪贴板</RSMF.CustomCustomer.CopyClipboard>
-  <RSMF.CustomCustomer.Base64Copied>Base64 导出内容已复制到剪贴板。</RSMF.CustomCustomer.Base64Copied>
+  <RSMF.CustomCustomer.Base64Copied>分享文本已复制到剪贴板。</RSMF.CustomCustomer.Base64Copied>
   <RSMF.CustomCustomer.ImportTitle>导入并覆盖</RSMF.CustomCustomer.ImportTitle>
-  <RSMF.CustomCustomer.ImportInfo>导入后会覆盖玩家本地所有自定义顾客数据，但不会改动任何 CustomerKindDef。</RSMF.CustomCustomer.ImportInfo>
+  <RSMF.CustomCustomer.ImportInfo>导入后会覆盖本地所有自定义顾客数据，但不会改动任何内置顾客配置。</RSMF.CustomCustomer.ImportInfo>
   <RSMF.CustomCustomer.PasteClipboard>从剪贴板粘贴</RSMF.CustomCustomer.PasteClipboard>
   <RSMF.CustomCustomer.ConfirmImport>确认导入</RSMF.CustomCustomer.ConfirmImport>
   <RSMF.CustomCustomer.ImportSuccess>自定义顾客数据已导入并覆盖本地内容。</RSMF.CustomCustomer.ImportSuccess>
   <RSMF.CustomGoods.Title>自定义商品注册</RSMF.CustomGoods.Title>
-  <RSMF.CustomGoods.Description>原版 Def 商品只读。玩家本地 JSON 会在 Def 之后加载，并合并进运行时商品目录。</RSMF.CustomGoods.Description>
+  <RSMF.CustomGoods.Description>内置商品分类为只读。你可以追加自定义商品，保存后会立即并入商店商品目录。</RSMF.CustomGoods.Description>
   <RSMF.CustomGoods.SaveDirty>保存*</RSMF.CustomGoods.SaveDirty>
   <RSMF.CustomGoods.Save>保存</RSMF.CustomGoods.Save>
   <RSMF.CustomGoods.Reload>重载</RSMF.CustomGoods.Reload>
-  <RSMF.CustomGoods.ExportBase64>导出 B64</RSMF.CustomGoods.ExportBase64>
-  <RSMF.CustomGoods.ImportBase64>导入 B64</RSMF.CustomGoods.ImportBase64>
+  <RSMF.CustomGoods.ExportBase64>导出分享码</RSMF.CustomGoods.ExportBase64>
+  <RSMF.CustomGoods.ImportBase64>导入分享码</RSMF.CustomGoods.ImportBase64>
   <RSMF.CustomGoods.CategoryListTitle>商品类型</RSMF.CustomGoods.CategoryListTitle>
   <RSMF.CustomGoods.NewCustomCategory>新建自定义类型</RSMF.CustomGoods.NewCustomCategory>
   <RSMF.CustomGoods.Create>创建</RSMF.CustomGoods.Create>
   <RSMF.CustomGoods.ItemCount>{count} 项</RSMF.CustomGoods.ItemCount>
   <RSMF.CustomGoods.NoCategories>没有可用的商品类型</RSMF.CustomGoods.NoCategories>
-  <RSMF.CustomGoods.SourceDef>来源：GoodsDef。你可以追加自定义商品，但原始内容保持锁定。</RSMF.CustomGoods.SourceDef>
+  <RSMF.CustomGoods.SourceDef>来源：内置商品分类。你可以追加自定义商品，但内置商品保持锁定。</RSMF.CustomGoods.SourceDef>
   <RSMF.CustomGoods.SourceCustom>来源：玩家自定义数据。名称、商品列表和删除都可编辑。</RSMF.CustomGoods.SourceCustom>
-  <RSMF.CustomGoods.DefCategory>Def 类型</RSMF.CustomGoods.DefCategory>
+  <RSMF.CustomGoods.DefCategory>内置分类</RSMF.CustomGoods.DefCategory>
   <RSMF.CustomGoods.Rename>改名</RSMF.CustomGoods.Rename>
   <RSMF.CustomGoods.DeleteCategory>删除类型</RSMF.CustomGoods.DeleteCategory>
   <RSMF.CustomGoods.CurrentItems>当前类型中的商品</RSMF.CustomGoods.CurrentItems>
-  <RSMF.CustomGoods.LockedTip>Locked 表示原始 Def 商品，Custom 表示玩家追加并可移除。</RSMF.CustomGoods.LockedTip>
+  <RSMF.CustomGoods.LockedTip>“默认”表示内置商品，“自定义”表示玩家追加并可移除。</RSMF.CustomGoods.LockedTip>
   <RSMF.CustomGoods.MarketValue>市价 {value}</RSMF.CustomGoods.MarketValue>
   <RSMF.CustomGoods.Remove>移除</RSMF.CustomGoods.Remove>
   <RSMF.CustomGoods.AvailableItems>可追加商品</RSMF.CustomGoods.AvailableItems>
-  <RSMF.CustomGoods.SearchPlaceholder>按名称或 DefName 搜索</RSMF.CustomGoods.SearchPlaceholder>
+  <RSMF.CustomGoods.SearchPlaceholder>按名称或关键字搜索</RSMF.CustomGoods.SearchPlaceholder>
   <RSMF.CustomGoods.TotalPaged>共 {count} 项，分页显示</RSMF.CustomGoods.TotalPaged>
   <RSMF.CustomGoods.PrevPage>上一页</RSMF.CustomGoods.PrevPage>
   <RSMF.CustomGoods.NextPage>下一页</RSMF.CustomGoods.NextPage>
@@ -727,15 +795,15 @@
   <RSMF.CustomGoods.EmptyCategoryName>商品类型名称不能为空。</RSMF.CustomGoods.EmptyCategoryName>
   <RSMF.CustomGoods.DeleteConfirm>删除这个自定义类型，以及其中全部自定义商品关联？</RSMF.CustomGoods.DeleteConfirm>
   <RSMF.CustomGoods.ItemAlreadyExists>该商品已经在当前类型中。</RSMF.CustomGoods.ItemAlreadyExists>
-  <RSMF.CustomGoods.SaveSuccess>自定义商品注册已保存，运行时商品目录已重建。</RSMF.CustomGoods.SaveSuccess>
+  <RSMF.CustomGoods.SaveSuccess>自定义商品注册已保存，商品目录已更新。</RSMF.CustomGoods.SaveSuccess>
   <RSMF.CustomGoods.ReloadConfirm>重新加载会丢弃当前未保存的自定义商品改动，是否继续？</RSMF.CustomGoods.ReloadConfirm>
-  <RSMF.CustomGoods.ExportTitle>导出 Base64</RSMF.CustomGoods.ExportTitle>
+  <RSMF.CustomGoods.ExportTitle>导出分享码</RSMF.CustomGoods.ExportTitle>
   <RSMF.CustomGoods.ExportInfo>下面这串内容已经包含玩家自定义商品类型和商品，可以直接分享给其他玩家。</RSMF.CustomGoods.ExportInfo>
   <RSMF.CustomGoods.CopyClipboard>复制到剪贴板</RSMF.CustomGoods.CopyClipboard>
-  <RSMF.CustomGoods.Base64Copied>Base64 导出内容已复制到剪贴板。</RSMF.CustomGoods.Base64Copied>
-  <RSMF.CustomGoods.ImportTitle>导入 Base64</RSMF.CustomGoods.ImportTitle>
-  <RSMF.CustomGoods.ImportReplaceInfo>覆盖替换会用导入内容替换玩家本地所有自定义商品数据，但不会改动任何 GoodsDef 配置。</RSMF.CustomGoods.ImportReplaceInfo>
-  <RSMF.CustomGoods.ImportMergeInfo>增量合并会保留本地现有商品类型和关联，并把导入内容按类型 ID 追加合并。</RSMF.CustomGoods.ImportMergeInfo>
+  <RSMF.CustomGoods.Base64Copied>分享码已复制到剪贴板。</RSMF.CustomGoods.Base64Copied>
+  <RSMF.CustomGoods.ImportTitle>导入分享码</RSMF.CustomGoods.ImportTitle>
+  <RSMF.CustomGoods.ImportReplaceInfo>覆盖替换会用导入内容替换本地所有自定义商品数据，但不会改动任何内置商品配置。</RSMF.CustomGoods.ImportReplaceInfo>
+  <RSMF.CustomGoods.ImportMergeInfo>增量合并会保留本地现有商品类型和关联，并把导入内容按商品类型追加合并。</RSMF.CustomGoods.ImportMergeInfo>
   <RSMF.CustomGoods.PasteClipboard>从剪贴板粘贴</RSMF.CustomGoods.PasteClipboard>
   <RSMF.CustomGoods.ConfirmImport>确认导入</RSMF.CustomGoods.ConfirmImport>
   <RSMF.CustomGoods.ImportReplaceSuccess>自定义商品数据已导入并覆盖本地内容。</RSMF.CustomGoods.ImportReplaceSuccess>
@@ -755,7 +823,7 @@
   <RSMF.CustomSign.Face.East>东面</RSMF.CustomSign.Face.East>
   <RSMF.CustomSign.Face.North>北面</RSMF.CustomSign.Face.North>
   <RSMF.CustomSign.Face.West>西面</RSMF.CustomSign.Face.West>
-  <RSMF.CustomSign.SingleGraphicHelp>该招牌 Def 只有一张底图，编辑器只显示实际会被地图使用的招牌面。</RSMF.CustomSign.SingleGraphicHelp>
+  <RSMF.CustomSign.SingleGraphicHelp>该招牌只有单面底图，编辑器只显示实际在地图中展示的招牌面。</RSMF.CustomSign.SingleGraphicHelp>
   <RSMF.CustomSign.WestMirrorHelp>建筑朝西时会复用东面数据，并在地图绘制时镜像显示。</RSMF.CustomSign.WestMirrorHelp>
   <RSMF.CustomSign.Preview>预览</RSMF.CustomSign.Preview>
   <RSMF.CustomSign.SelectLayerHint>选择一个图层后可编辑位置、缩放和角度</RSMF.CustomSign.SelectLayerHint>
@@ -784,7 +852,7 @@
   <RSMF.CustomSign.PasteClipboard>从剪贴板粘贴</RSMF.CustomSign.PasteClipboard>
   <RSMF.CustomSign.ConfirmImport>确认导入</RSMF.CustomSign.ConfirmImport>
   <RSMF.CustomSign.SelectGalleryImage>选择图库图片</RSMF.CustomSign.SelectGalleryImage>
-  <RSMF.CustomSign.SearchImagePlaceholder>按名称或图片 ID 搜索</RSMF.CustomSign.SearchImagePlaceholder>
+  <RSMF.CustomSign.SearchImagePlaceholder>按名称搜索图片</RSMF.CustomSign.SearchImagePlaceholder>
   <RSMF.CustomSign.RefreshGallery>刷新图库</RSMF.CustomSign.RefreshGallery>
   <RSMF.CustomSign.Select>选择</RSMF.CustomSign.Select>
   <RSMF.CustomSign.ImportImageFromPathTitle>从本地路径导入图片</RSMF.CustomSign.ImportImageFromPathTitle>
@@ -818,7 +886,7 @@
   <RSMF.Blueprint.Open>目录</RSMF.Blueprint.Open>
   <RSMF.Blueprint.Place>放置</RSMF.Blueprint.Place>
   <RSMF.Blueprint.Edit>编辑</RSMF.Blueprint.Edit>
-  <RSMF.Blueprint.DeleteConfirm>删除这个本地店铺蓝图？对应的 JSON 和预览图都会从本机删除。</RSMF.Blueprint.DeleteConfirm>
+  <RSMF.Blueprint.DeleteConfirm>删除这个本地店铺蓝图？对应的蓝图文件与预览图都会从本机删除。</RSMF.Blueprint.DeleteConfirm>
   <RSMF.Blueprint.DeleteSuccess>本地店铺蓝图已删除。</RSMF.Blueprint.DeleteSuccess>
   <RSMF.Blueprint.SaveSuccess>店铺蓝图已保存到本地。</RSMF.Blueprint.SaveSuccess>
   <RSMF.Blueprint.SelectRectHint>请在地图上拖拽框选要保存的店铺范围，当前最大 {max}x{max}。</RSMF.Blueprint.SelectRectHint>
@@ -949,7 +1017,7 @@
   <RSMF.Blueprint.Edit.TerrainsTip>删除地板元素后，放置蓝图时不会再创建对应地板施工计划。</RSMF.Blueprint.Edit.TerrainsTip>
   <RSMF.Blueprint.Edit.ZoneCells>商店区格子 {count} 个</RSMF.Blueprint.Edit.ZoneCells>
   <RSMF.Blueprint.Edit.ZoneCellsTip>删除商店区格子后，放置蓝图时新商店区域不会包含这些格子。</RSMF.Blueprint.Edit.ZoneCellsTip>
-  <RSMF.Blueprint.Edit.BuildingRow>{label} / {def} · ({x},{z})</RSMF.Blueprint.Edit.BuildingRow>
+  <RSMF.Blueprint.Edit.BuildingRow>{label} · ({x},{z})</RSMF.Blueprint.Edit.BuildingRow>
   <RSMF.Blueprint.Edit.TerrainRow>{def} · ({x},{z})</RSMF.Blueprint.Edit.TerrainRow>
   <RSMF.Blueprint.Edit.ZoneCellRow>商店格 · ({x},{z})</RSMF.Blueprint.Edit.ZoneCellRow>
   <RSMF.Blueprint.Edit.DeleteElement>删除</RSMF.Blueprint.Edit.DeleteElement>
@@ -1034,7 +1102,7 @@
   <RSMF.CollectibleDisplayStand.Detail.StoredSummary>当前展示：{thing}。可以卸载并重新选择收藏品。</RSMF.CollectibleDisplayStand.Detail.StoredSummary>
   <RSMF.CollectibleDisplayStand.Detail.PendingSummary>小人会把 {source} 搬运到这个槽位。</RSMF.CollectibleDisplayStand.Detail.PendingSummary>
   <RSMF.CollectibleDisplayStand.Detail.EmptySummary>选择当前地图上的收藏品后，会自动生成搬运工作。</RSMF.CollectibleDisplayStand.Detail.EmptySummary>
-  <RSMF.CollectibleDisplayStand.Detail.NormalModeHint>展示位置由 XML 默认槽位配置决定；定位滑条只在开发者模式和上帝模式显示。</RSMF.CollectibleDisplayStand.Detail.NormalModeHint>
+  <RSMF.CollectibleDisplayStand.Detail.NormalModeHint>展示位置由默认槽位布局决定；位置调节滑条只在开发者模式和上帝模式显示。</RSMF.CollectibleDisplayStand.Detail.NormalModeHint>
   <RSMF.CollectibleDisplayStand.Detail.Unload>卸载收藏品</RSMF.CollectibleDisplayStand.Detail.Unload>
   <RSMF.CollectibleDisplayStand.Detail.ChooseSource>选择收藏品</RSMF.CollectibleDisplayStand.Detail.ChooseSource>
   <RSMF.CollectibleDisplayStand.Detail.ClearPending>清除等待</RSMF.CollectibleDisplayStand.Detail.ClearPending>
@@ -1046,7 +1114,7 @@
   <RSMF.CollectibleDisplayStand.Detail.ResetPosition>重置位置</RSMF.CollectibleDisplayStand.Detail.ResetPosition>
   <RSMF.CollectibleDisplayStand.Menu.NoSources>当前地图没有可用的模拟经营收藏品。</RSMF.CollectibleDisplayStand.Menu.NoSources>
   <RSMF.CollectibleDisplayStand.Debug.Title>展台槽位定位</RSMF.CollectibleDisplayStand.Debug.Title>
-  <RSMF.CollectibleDisplayStand.Debug.Subtitle>只在开发者模式和上帝模式显示；导出的 XML 可写入展台 Def 作为默认参数。</RSMF.CollectibleDisplayStand.Debug.Subtitle>
+  <RSMF.CollectibleDisplayStand.Debug.Subtitle>只在开发者模式和上帝模式显示；导出的配置可作为展台默认参数使用。</RSMF.CollectibleDisplayStand.Debug.Subtitle>
   <RSMF.CollectibleDisplayStand.Debug.Slot>槽位 {index}</RSMF.CollectibleDisplayStand.Debug.Slot>
   <RSMF.CollectibleDisplayStand.Debug.ResetSlot>重置槽位</RSMF.CollectibleDisplayStand.Debug.ResetSlot>
   <RSMF.CollectibleDisplayStand.Debug.CopySlot>复制单槽 XML</RSMF.CollectibleDisplayStand.Debug.CopySlot>

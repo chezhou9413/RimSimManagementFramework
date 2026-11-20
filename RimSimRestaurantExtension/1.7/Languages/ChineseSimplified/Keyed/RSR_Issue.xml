@@ -26,7 +26,7 @@
   <RSR.Issue.IngredientNotReached>尚未到达 {item} 的取料位置：厨师={position}，目标={target}</RSR.Issue.IngredientNotReached>
   <RSR.Issue.IngredientOrderEnded>取料订单已结束或不存在</RSR.Issue.IngredientOrderEnded>
   <RSR.Issue.IngredientPickupDetails>取料失败：{reason}；工作={job}，位置={position}，批次数量={count}</RSR.Issue.IngredientPickupDetails>
-  <RSR.Issue.IngredientQueueIncomplete>Job 食材目标与数量队列不完整</RSR.Issue.IngredientQueueIncomplete>
+  <RSR.Issue.IngredientQueueIncomplete>烹饪任务的食材目标与数量不完整</RSR.Issue.IngredientQueueIncomplete>
   <RSR.Issue.IngredientQueueMismatch>取料目标与数量队列不一致</RSR.Issue.IngredientQueueMismatch>
   <RSR.Issue.IngredientSourceLost>出发时取料设施或地面物资已失效</RSR.Issue.IngredientSourceLost>
   <RSR.Issue.IngredientTargetGone>取料目标已毁坏或离开地图</RSR.Issue.IngredientTargetGone>

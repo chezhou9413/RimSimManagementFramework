@@ -27,12 +27,19 @@ namespace RimSimHotelExtension.Patches
                 prefix: new HarmonyMethod(typeof(HotelRoomPrivacyPatches), nameof(EnterCellPrefix)));
         }
 
-        //所有经营顾客共用客房限制，殖民者、员工和其他访客不受影响。
+        //所有经营顾客共用客房限制，殖民者、玩家机械体、玩家动物和无客房地图在热路径直接短路返回。
         private static HotelRoomPrivacySnapshot SnapshotFor(Pawn pawn)
         {
-            Map map = pawn?.Map;
-            return map != null && pawn.GetLord()?.LordJob is LordJob_CustomerVisit
-                ? HotelMapComponent.For(map).RoomPrivacy : HotelRoomPrivacySnapshot.Empty;
+            if (pawn == null || pawn.Faction == Faction.OfPlayer)
+                return HotelRoomPrivacySnapshot.Empty;
+            Map map = pawn.Map;
+            if (map == null)
+                return HotelRoomPrivacySnapshot.Empty;
+            HotelRoomPrivacySnapshot snapshot = HotelMapComponent.SnapshotForMap(map);
+            if (snapshot.IsEmpty)
+                return HotelRoomPrivacySnapshot.Empty;
+            return pawn.GetLord()?.LordJob is LordJob_CustomerVisit
+                ? snapshot : HotelRoomPrivacySnapshot.Empty;
         }
 
         //选休息、进食和排队位置时避开其他人的客房。

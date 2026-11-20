@@ -78,8 +78,14 @@ namespace SimManagementLib.SimDialog
             {
                 ShopBlueprintTerrainData terrain = terrains[i];
                 Rect row = new Rect(0f, y, width, RowHeight);
+                TerrainDef terrainDef = string.IsNullOrEmpty(terrain.terrainDefName)
+                    ? null
+                    : DefDatabase<TerrainDef>.GetNamedSilentFail(terrain.terrainDefName);
+                string terrainLabel = terrainDef != null && !string.IsNullOrEmpty(terrainDef.LabelCap.RawText)
+                    ? terrainDef.LabelCap.RawText
+                    : (terrain.terrainDefName ?? "");
                 string label = SimTranslation.T("RSMF.Blueprint.Edit.TerrainRow",
-                    (terrain.terrainDefName ?? "").Named("def"),
+                    terrainLabel.Named("def"),
                     terrain.x.Named("x"),
                     terrain.z.Named("z"));
                 if (DrawElementRow(row, label, SimTranslation.T("RSMF.Blueprint.Edit.DeleteElement")))

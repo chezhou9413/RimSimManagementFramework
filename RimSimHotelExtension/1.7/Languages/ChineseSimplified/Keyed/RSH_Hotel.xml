@@ -201,4 +201,29 @@
   <RSH.Text.CannotReachSpaTicketDesk>无法到达温泉售票服务台的顾客位置。</RSH.Text.CannotReachSpaTicketDesk>
   <RSH.Text.SpaTicketWaitTimedOut>等待服务台售票超时，取消本次泡汤。</RSH.Text.SpaTicketWaitTimedOut>
   <RSH.Text.SpaTicketNotPurchased>尚未在服务台购买温泉门票。</RSH.Text.SpaTicketNotPurchased>
+  <RSH.Inspect.DeskSummary>{STATE} · 空床 {VACANT}/{TOTAL} · 在住 {GUESTS} 人</RSH.Inspect.DeskSummary>
+  <RSH.Inspect.DeskFinance>今日房费 {REVENUE} 银 · 待赚预付 {PREPAY} 银</RSH.Inspect.DeskFinance>
+  <RSH.Inspect.BedOccupied>旅客床位：{GUESTS} 住宿中（剩余 {DAYS} 天）</RSH.Inspect.BedOccupied>
+  <RSH.Inspect.BedVacant>旅客床位：空闲（{PRICE} 银／晚）</RSH.Inspect.BedVacant>
+  <RSH.Bubble.CheckIn>入住 {NIGHTS} 晚</RSH.Bubble.CheckIn>
+  <RSH.Bubble.Renewed>续住 +{NIGHTS} 晚</RSH.Bubble.Renewed>
+  <RSH.Bubble.CheckoutHappy>住得很舒心！</RSH.Bubble.CheckoutHappy>
+  <RSH.Bubble.CheckoutNormal>感谢款待</RSH.Bubble.CheckoutNormal>
+  <RSH.Bubble.CheckoutUnhappy>希望下次改善...</RSH.Bubble.CheckoutUnhappy>
+  <RSH.Bubble.RoomGreat>房间真舒适！</RSH.Bubble.RoomGreat>
+  <RSH.Bubble.RoomOkay>房间还不错</RSH.Bubble.RoomOkay>
+  <RSH.Bubble.RoomPoor>房间有点简陋...</RSH.Bubble.RoomPoor>
+  <RSH.Exp.RoomImpressiveness>房间印象 {DELTA}</RSH.Exp.RoomImpressiveness>
+  <RSH.Exp.TempGood>室温适宜 {DELTA}</RSH.Exp.TempGood>
+  <RSH.Exp.TempBad>室温不适 {DELTA}</RSH.Exp.TempBad>
+  <RSH.Exp.CleanGood>房间整洁 {DELTA}</RSH.Exp.CleanGood>
+  <RSH.Exp.CleanBad>房间脏乱 {DELTA}</RSH.Exp.CleanBad>
+  <RSH.Exp.PrivateRoom>独立客房 {DELTA}</RSH.Exp.PrivateRoom>
+  <RSH.Exp.SharedRoom>多人合住 {DELTA}</RSH.Exp.SharedRoom>
+  <RSH.Text.SettlingIntoRoom>入房安顿</RSH.Text.SettlingIntoRoom>
+  <RSH.Text.RelaxingInOwnRoom>客房内小憩</RSH.Text.RelaxingInOwnRoom>
+  <RSH.Text.RelaxingInLobby>旅馆大堂休憩</RSH.Text.RelaxingInLobby>
+  <RSH.Text.AdmiringHotelDecor>欣赏旅馆陈设</RSH.Text.AdmiringHotelDecor>
+  <RSH.Text.EnjoyingHotelFacilities>体验旅馆设施</RSH.Text.EnjoyingHotelFacilities>
+  <RSH.Text.EarlyCheckoutRequestedByHost>旅馆已办理提前退房</RSH.Text.EarlyCheckoutRequestedByHost>
 </LanguageData>

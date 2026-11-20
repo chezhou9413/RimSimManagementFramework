@@ -26,10 +26,10 @@
   <RSMF.Api.Error.ActionOrderTerminated>动作订单已经取消或失败</RSMF.Api.Error.ActionOrderTerminated>
   <RSMF.Api.Error.CompletedActionCannotCancel>已经完成的动作订单不能取消</RSMF.Api.Error.CompletedActionCannotCancel>
   <RSMF.Api.Error.ActionCannotStart>动作订单无法开始</RSMF.Api.Error.ActionCannotStart>
-  <RSMF.Api.Error.ActionJobMissing>动作订单没有可执行 Job</RSMF.Api.Error.ActionJobMissing>
+  <RSMF.Api.Error.ActionJobMissing>动作订单没有可执行任务</RSMF.Api.Error.ActionJobMissing>
   <RSMF.Api.Error.ActionContextRestoreFailed>动作订单无法恢复上下文</RSMF.Api.Error.ActionContextRestoreFailed>
   <RSMF.Api.Error.ActionCannotContinue>动作订单已经无法继续</RSMF.Api.Error.ActionCannotContinue>
-  <RSMF.Api.Error.ActionJobRestoreFailed>动作订单无法恢复顾客 Job</RSMF.Api.Error.ActionJobRestoreFailed>
+  <RSMF.Api.Error.ActionJobRestoreFailed>动作订单无法恢复顾客任务</RSMF.Api.Error.ActionJobRestoreFailed>
   <RSMF.Api.Error.DeliveredGoodsInvalid>已交付商品的顾客、动作或持有关系无效</RSMF.Api.Error.DeliveredGoodsInvalid>
   <RSMF.Api.Error.ActionOwnerMismatch>动作订单与顾客或商店不匹配</RSMF.Api.Error.ActionOwnerMismatch>
   <RSMF.Api.Error.SuborderBillInvalid>子订单账单标识、数量、金额或成本无效</RSMF.Api.Error.SuborderBillInvalid>

@@ -114,7 +114,7 @@
   <RSH.Text.Operational>Operational</RSH.Text.Operational>
   <RSH.Text.Operational2>Operational</RSH.Text.Operational2>
   <RSH.Text.Outdoors>Outdoors</RSH.Text.Outdoors>
-  <RSH.Text.PawnGenerationDidNotProduceAnEligibleService>Pawn generation did not produce an eligible service worker.</RSH.Text.PawnGenerationDidNotProduceAnEligibleService>
+  <RSH.Text.PawnGenerationDidNotProduceAnEligibleService>Generation did not produce an eligible service worker.</RSH.Text.PawnGenerationDidNotProduceAnEligibleService>
   <RSH.Text.PaymentFollowsReservationOfABathingSlotAnd>Guests reserve a bathing slot and locker, then queue at this shop's reception desk to buy a ticket. A receptionist must finish serving them before they store their clothes and enter the pool. Payment becomes reception desk cash and revenue when bathing starts; cancellation before that refunds it. One visit per guest per day.</RSH.Text.PaymentFollowsReservationOfABathingSlotAnd>
   <RSH.Text.PreviousPage>Previous page</RSH.Text.PreviousPage>
   <RSH.Text.PrincipalMovesFromTravelAccountsToWalletsOnly>Principal moves from travel accounts to wallets; only fees are revenue. Daily limit resets do not create funds. History covers the recent money records retained by the system.</RSH.Text.PrincipalMovesFromTravelAccountsToWalletsOnly>
@@ -201,4 +201,29 @@
   <RSH.Text.CannotReachSpaTicketDesk>Cannot reach the customer position at the spa ticket desk.</RSH.Text.CannotReachSpaTicketDesk>
   <RSH.Text.SpaTicketWaitTimedOut>Timed out waiting to buy a spa ticket; bathing canceled.</RSH.Text.SpaTicketWaitTimedOut>
   <RSH.Text.SpaTicketNotPurchased>A spa ticket has not been purchased at reception.</RSH.Text.SpaTicketNotPurchased>
+  <RSH.Inspect.DeskSummary>{STATE} · Vacant {VACANT}/{TOTAL} · Staying {GUESTS}</RSH.Inspect.DeskSummary>
+  <RSH.Inspect.DeskFinance>Today revenue {REVENUE} silver · Prepay held {PREPAY} silver</RSH.Inspect.DeskFinance>
+  <RSH.Inspect.BedOccupied>Guest bed: {GUESTS} staying ({DAYS}d left)</RSH.Inspect.BedOccupied>
+  <RSH.Inspect.BedVacant>Guest bed: Vacant ({PRICE} silver/night)</RSH.Inspect.BedVacant>
+  <RSH.Bubble.CheckIn>Checked in ({NIGHTS}n)</RSH.Bubble.CheckIn>
+  <RSH.Bubble.Renewed>Extended +{NIGHTS}n</RSH.Bubble.Renewed>
+  <RSH.Bubble.CheckoutHappy>Lovely stay!</RSH.Bubble.CheckoutHappy>
+  <RSH.Bubble.CheckoutNormal>Thanks for having me</RSH.Bubble.CheckoutNormal>
+  <RSH.Bubble.CheckoutUnhappy>Could be better...</RSH.Bubble.CheckoutUnhappy>
+  <RSH.Bubble.RoomGreat>Cozy room!</RSH.Bubble.RoomGreat>
+  <RSH.Bubble.RoomOkay>Nice enough room</RSH.Bubble.RoomOkay>
+  <RSH.Bubble.RoomPoor>A bit rough in here...</RSH.Bubble.RoomPoor>
+  <RSH.Exp.RoomImpressiveness>Room {DELTA}</RSH.Exp.RoomImpressiveness>
+  <RSH.Exp.TempGood>Temp {DELTA}</RSH.Exp.TempGood>
+  <RSH.Exp.TempBad>Temp {DELTA}</RSH.Exp.TempBad>
+  <RSH.Exp.CleanGood>Clean {DELTA}</RSH.Exp.CleanGood>
+  <RSH.Exp.CleanBad>Dirty {DELTA}</RSH.Exp.CleanBad>
+  <RSH.Exp.PrivateRoom>Private {DELTA}</RSH.Exp.PrivateRoom>
+  <RSH.Exp.SharedRoom>Shared {DELTA}</RSH.Exp.SharedRoom>
+  <RSH.Text.SettlingIntoRoom>Settling into room</RSH.Text.SettlingIntoRoom>
+  <RSH.Text.RelaxingInOwnRoom>Relaxing in guest room</RSH.Text.RelaxingInOwnRoom>
+  <RSH.Text.RelaxingInLobby>Relaxing in hotel lobby</RSH.Text.RelaxingInLobby>
+  <RSH.Text.AdmiringHotelDecor>Admiring hotel decor</RSH.Text.AdmiringHotelDecor>
+  <RSH.Text.EnjoyingHotelFacilities>Using hotel facilities</RSH.Text.EnjoyingHotelFacilities>
+  <RSH.Text.EarlyCheckoutRequestedByHost>Early checkout requested by host</RSH.Text.EarlyCheckoutRequestedByHost>
 </LanguageData>

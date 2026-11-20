@@ -3,17 +3,20 @@ using RimWorld;
 using RimSimHotelExtension.GameComp;
 using RimSimHotelExtension.Models;
 using RimSimHotelExtension.Settings;
+using RimSimHotelExtension.Spa;
 using RimSimHotelExtension.Tool;
 using SimManagementLib.Api;
 using SimManagementLib.SimAI;
 using SimManagementLib.SimAI.CustomerVisit;
+using SimManagementLib.SimMapComp;
+using SimManagementLib.SimZone;
 using UnityEngine;
 using Verse;
 using Verse.AI;
 
 namespace RimSimHotelExtension.Services
 {
-    //在前台、吃饭、睡觉、取款和标准跨店消费之间安排住客生活。
+    //在前台、入房安顿、吃饭、睡觉、取款、泡温泉和标准跨店消费之间安排住客生活。
     public static class HotelScheduleUtility
     {
         //仅在框架长期生活职责中选下一件事，不打断正在支付的订单。
@@ -59,6 +62,14 @@ namespace RimSimHotelExtension.Services
                 }
             }
             else guest.foodSearchFailedTick = -1;
+
+            //新办理入住的住客先回自己客房安顿一会，再外出活动，增强住店体验。
+            if (!guest.roomSettled && !hungry)
+            {
+                Job settle = HotelLeisureUtility.MakeSettleInRoomJob(pawn, stay, guest);
+                if (settle != null) return settle;
+            }
+
             HotelMoneyUtility.RefreshDailyAllowance(stay, guest);
             int required = stay.renewalRequested ? manager.RenewalPaymentFor(stay, guest)
                 : Mathf.Min(t.atmTargetWallet, Mathf.Max(guest.dailyFoodBudget, guest.optionalDailyLimit - guest.optionalSpent));
@@ -70,23 +81,34 @@ namespace RimSimHotelExtension.Services
                 if (reception != null) return reception;
             }
             if (now < guest.nextActivityTick) return RestNearRoom(pawn, stay, guest);
+
+            //临近入睡前一小时不再发起新的非餐饮跨店行程，让住客自然留在旅馆休息或泡汤。
+            Zone_Shop homeHotel = manager.ShopFor(stay);
+            bool nearBedtime = !hungry && IsNearBedtime(pawn.Map, manager.SettingsFor(stay));
             guest.nextActivityTick = now + t.activityInterval;
+
             var shops = SimShopCustomerApi.FindConsumableShops(pawn, hungry);
             bool foodOnly = hungry && shops.Count > 0;
             if (hungry && shops.Count == 0)
                 shops = SimShopCustomerApi.FindConsumableShops(pawn);
+            if (nearBedtime)
+                shops = shops.Where(s => s == homeHotel).ToList();
+
             if (shops.Count > 0)
             {
-                var choices = shops.Where(s => s.ID != guest.lastShopId).ToList();
-                var selected = (choices.Count > 0 ? choices : shops).RandomElement();
+                Zone_Shop selected = SelectVisitShop(pawn, guest, homeHotel, shops, hungry);
                 var result = SimShopCustomerApi.BeginShopVisit(pawn, selected, foodOnly);
                 if (result.success)
                 {
                     guest.lastShopId = selected.ID;
                     guest.shoppingUntilTick = now + t.shoppingVisitTicks;
-                    guest.status = hungry ? "RSH.Text.LookingForAMeal" : "RSH.Text.ShoppingAndLeisure";
+                    guest.status = hungry ? "RSH.Text.LookingForAMeal"
+                        : selected == homeHotel ? "RSH.Text.EnjoyingHotelFacilities" : "RSH.Text.ShoppingAndLeisure";
                     if (hungry && guest.foodSearchFailedTick < 0) guest.foodSearchFailedTick = now;
-                    return JobMaker.MakeJob(JobDefOf.Goto, selected.Cells[0]);
+                    var arrival = pawn.Map.GetComponent<CustomerArrivalManager>();
+                    IntVec3 entry = arrival != null && arrival.TryGetShopEntryCell(selected.ID, out IntVec3 cell)
+                        ? cell : selected.Cells[0];
+                    return JobMaker.MakeJob(JobDefOf.Goto, entry);
                 }
             }
             if (hungry)
@@ -99,6 +121,25 @@ namespace RimSimHotelExtension.Services
                     manager.RequestCheckout(stay, "RSH.Text.NoAffordableMealsAreAvailable");
             }
             return RestNearRoom(pawn, stay, guest);
+        }
+
+        //判断是否进入入睡前一小时的睡前放松时段。
+        private static bool IsNearBedtime(Map map, HotelShopSettings settings)
+        {
+            int preSleepHour = (settings.sleepStartHour + 23) % 24;
+            return GenLocalDate.HourOfDay(map) == preSleepHour;
+        }
+
+        //优先选择本旅馆内可用温泉，避免重复光顾刚离开的商店。
+        private static Zone_Shop SelectVisitShop(Pawn pawn, HotelGuestState guest, Zone_Shop homeHotel,
+            System.Collections.Generic.List<Zone_Shop> shops, bool hungry)
+        {
+            if (!hungry && homeHotel != null && shops.Contains(homeHotel)
+                && SpaMapComponent.For(pawn.Map)?.CanBathe(pawn) == true
+                && (pawn.needs?.joy?.CurLevel ?? 0.5f) < 0.78f && Rand.Chance(0.45f))
+                return homeHotel;
+            var choices = shops.Where(s => s.ID != guest.lastShopId).ToList();
+            return (choices.Count > 0 ? choices : shops).RandomElement();
         }
 
         //到入睡时间或单店停留期限后先结清消费，再回床睡觉。

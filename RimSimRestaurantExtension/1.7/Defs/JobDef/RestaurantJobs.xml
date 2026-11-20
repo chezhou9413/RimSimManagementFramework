@@ -22,7 +22,7 @@
     <defName>RSR_RestaurantStandby</defName>
     <driverClass>RimSimRestaurantExtension.Jobs.JobDriver_RestaurantStandby</driverClass>
     <reportString>正在餐厅值班。</reportString>
-    <isIdle>true</isIdle>
+    <allowOpportunisticPrefix>false</allowOpportunisticPrefix>
   </JobDef>
   <JobDef>
     <defName>RSR_TakeRestaurantOrder</defName>

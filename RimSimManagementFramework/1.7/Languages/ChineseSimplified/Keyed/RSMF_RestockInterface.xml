@@ -32,7 +32,7 @@
   <RSMF.RestockReason.BulkSourceUnavailable>没有当前员工可用的普通货源</RSMF.RestockReason.BulkSourceUnavailable>
   <RSMF.RestockReason.WaitDeepSearch>等待深度货源搜索</RSMF.RestockReason.WaitDeepSearch>
   <RSMF.RestockReason.NoCarryCapacity>当前员工可搬运数量为 0</RSMF.RestockReason.NoCarryCapacity>
-  <RSMF.RestockReason.JobCreated>Job 已创建，等待预预约</RSMF.RestockReason.JobCreated>
+  <RSMF.RestockReason.JobCreated>补货任务已创建，等待认领</RSMF.RestockReason.JobCreated>
   <RSMF.RestockReason.UniqueInProgress>专业补货任务执行中</RSMF.RestockReason.UniqueInProgress>
   <RSMF.RestockReason.UniqueNotSpawned>专业货源暂时不在地图上</RSMF.RestockReason.UniqueNotSpawned>
   <RSMF.RestockReason.WaitUniqueIndex>等待专业货源索引批扫</RSMF.RestockReason.WaitUniqueIndex>
@@ -40,7 +40,7 @@
   <RSMF.RestockReason.UniqueReserved>专业货源暂时禁用或已被预约</RSMF.RestockReason.UniqueReserved>
   <RSMF.RestockReason.WaitUniqueReach>等待专业货源可达查询预算</RSMF.RestockReason.WaitUniqueReach>
   <RSMF.RestockReason.UniqueUnreachable>当前员工无法到达专业货源</RSMF.RestockReason.UniqueUnreachable>
-  <RSMF.RestockReason.UniqueJobCreated>专业 Job 已创建，等待预预约</RSMF.RestockReason.UniqueJobCreated>
+  <RSMF.RestockReason.UniqueJobCreated>单件补货任务已创建，等待认领</RSMF.RestockReason.UniqueJobCreated>
   <RSMF.RestockReason.WaitDispatch>等待派工</RSMF.RestockReason.WaitDispatch>
   <RSMF.RestockReason.WaitUniqueDispatch>等待专业补货派工</RSMF.RestockReason.WaitUniqueDispatch>
   <RSMF.RestockPanel.MissingTask>任务不存在</RSMF.RestockPanel.MissingTask>

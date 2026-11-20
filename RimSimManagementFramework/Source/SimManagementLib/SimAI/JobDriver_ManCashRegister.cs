@@ -1,53 +1,163 @@
 using RimWorld;
 using SimManagementLib.SimThingClass;
+using SimManagementLib.SimWorkGiver;
 using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
 using System.Collections.Generic;
-using UnityEngine;
 using Verse;
 using Verse.AI;
 
 namespace SimManagementLib.SimAI
 {
-    //执行常驻或临时收银值班，在顾客等待时保持接待并保留员工必要需求。
+    //执行常驻或交接收银值班，按 24 小时排班表、原版作息与无缝接力换班稳定守岗，不再因固定短时长走开。
     public class JobDriver_ManCashRegister : JobDriver
     {
-        private const int BaseShiftTicks = 7500;
+        private const int OffDutyGraceTicks = 600;
+        private const int HandoverWaitGraceTicks = 1500;
+        private const int RelieverWaitMaxTicks = 180;
         private int idleTicks;
+        private int offDutyWaitTicks;
+        private int relieverWaitTicks;
         private Building_CashRegister Register => (Building_CashRegister)job.GetTarget(TargetIndex.A).Thing;
 
-        /// <summary>
-        /// 预约收银台建筑，负责避免多个店员同时值守同一台收银台。
-        /// </summary>
+        //使用 2 槽共享预约协调无缝交接，平时由收银台交接状态阻止多余员工同时占用。
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
-            return pawn.Reserve(Register, job, 1, -1, null, errorOnFailed);
+            Building_CashRegister register = Register;
+            if (register == null || register.Destroyed || !register.Spawned)
+                return false;
+            if (!register.CanAcceptStaffReservation(pawn, out bool isHandover) && !job.playerForced)
+                return false;
+            if (!pawn.Reserve(register, job, Building_CashRegister.MaxStaffReservations, 0, null, errorOnFailed))
+                return false;
+            bool asHandover = isHandover || job.targetB.HasThing
+                || (register.GetActiveShiftCashier() != null && register.GetActiveShiftCashier() != pawn);
+            register.RegisterCashierClaim(pawn, asHandover);
+            return true;
         }
 
-        //移动到服务台员工侧值班，临时补位在队伍清空后结束。
+        //交接员先走到柜台旁通知前任让位再站上交互格，随后稳守岗位直到本班结束、交接完成或紧急需求触发。
         protected override IEnumerable<Toil> MakeNewToils()
         {
             this.FailOnDespawnedOrNull(TargetIndex.A);
-            yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.InteractionCell);
+            AddFinishAction(_ => Register?.ClearCashierClaim(pawn));
 
-            Toil work = new Toil();
+            Toil gotoInteraction = Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.InteractionCell);
+
+            //若柜台当前空闲或自己已是主班，直接前往交互格；否则先到柜台旁完成无缝交接。
+            yield return Toils_Jump.JumpIf(gotoInteraction, () =>
+            {
+                Pawn active = Register?.GetActiveShiftCashier();
+                return active == null || active == pawn;
+            });
+
+            yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.Touch);
+
+            Toil waitHandover = ToilMaker.MakeToil("WaitCashierHandover");
+            waitHandover.defaultCompleteMode = ToilCompleteMode.Never;
+            waitHandover.initAction = delegate
+            {
+                relieverWaitTicks = 0;
+                Register?.NotifyRelieverArrived(pawn);
+            };
+            waitHandover.tickAction = delegate
+            {
+                pawn.rotationTracker.FaceTarget(Register);
+                Register?.NotifyRelieverArrived(pawn);
+                Pawn active = Register?.GetActiveShiftCashier();
+                if (active == null || active == pawn)
+                {
+                    ReadyForNextToil();
+                    return;
+                }
+                relieverWaitTicks++;
+                if (relieverWaitTicks >= RelieverWaitMaxTicks)
+                    EndJobWith(JobCondition.Incompletable);
+            };
+            yield return waitHandover;
+
+            yield return gotoInteraction;
+
+            Toil work = ToilMaker.MakeToil("ManCashRegisterDuty");
+            work.initAction = delegate
+            {
+                idleTicks = 0;
+                offDutyWaitTicks = 0;
+                Register?.PromoteRelieverToActive(pawn);
+            };
             work.tickAction = delegate
             {
-                //低频查看业务需求，避免每 tick 扫描旅馆合同和温泉会话。
+                //低频核对业务、岗位、排班与交接状态，避免每 tick 扫描旅馆合同和温泉会话。
                 if (pawn.IsHashIntervalTick(30))
                 {
                     Zone_Shop shop = ShopStaffUtility.FindShopFor(Register);
                     bool waiting = Register.HasWaitingCustomers;
+
+                    //被移出本店岗位名单时立即离岗（保留下班交接宽限给仍在名单内但到达下班点的员工）。
+                    if (!job.playerForced && !ShopStaffUtility.AllowsPawnForCashierRoleIgnoringShift(shop, pawn))
+                    {
+                        EndJobWith(JobCondition.InterruptForced);
+                        return;
+                    }
                     if (!waiting && !ShopStaffUtility.CanCashierWorkAt(shop))
                     {
                         EndJobWith(JobCondition.InterruptForced);
                         return;
                     }
-                    //临时补位在短暂清空后离岗；正常班次到期时先办完仍在排队的业务。
+
+                    bool urgentNeed = !job.playerForced && (pawn.needs?.food?.CurCategory >= HungerCategory.UrgentlyHungry
+                        || pawn.needs?.rest?.CurCategory >= RestCategory.VeryTired);
+                    if (urgentNeed)
+                    {
+                        ReadyForNextToil();
+                        return;
+                    }
+
+                    bool onDutyByShift = job.playerForced
+                        || ShopStaffUtility.AllowsPawnForCashierHandover(shop, pawn, WorkGiver_ManCashRegister.HandoverLeadTicks);
+                    bool offDuty = !job.playerForced && (!onDutyByShift || ShopStaffUtility.IsPawnOffDutyForAutomaticWork(pawn));
+                    bool endingSoon = !job.playerForced
+                        && ShopStaffUtility.IsCashierShiftEndingSoon(shop, pawn, WorkGiver_ManCashRegister.HandoverLeadTicks);
+                    bool needReliefSoon = !job.playerForced
+                        && (pawn.needs?.food?.CurCategory >= HungerCategory.Hungry
+                            || pawn.needs?.rest?.CurCategory >= RestCategory.Tired);
+
+                    bool wantHandover = offDuty || endingSoon || needReliefSoon;
+                    Register.SetHandoverRequested(pawn, wantHandover);
+
+                    //接班人已走到柜台旁时立即让出交互格，实现零空窗换班。
+                    if (wantHandover && Register.HasRelieverArrivedFor(pawn))
+                    {
+                        ReadyForNextToil();
+                        return;
+                    }
+
+                    if (offDuty)
+                    {
+                        offDutyWaitTicks += 30;
+                        bool relieverOnTheWay = Register.GetIncomingReliever() != null;
+                        if (relieverOnTheWay)
+                        {
+                            if (offDutyWaitTicks >= HandoverWaitGraceTicks)
+                            {
+                                ReadyForNextToil();
+                                return;
+                            }
+                        }
+                        else if (!waiting || offDutyWaitTicks >= OffDutyGraceTicks)
+                        {
+                            ReadyForNextToil();
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        offDutyWaitTicks = 0;
+                    }
+
+                    //临时收尾或手动跨岗补位在短暂清空队列后离开；常驻值班不再因固定短时间强退。
                     idleTicks = waiting ? 0 : idleTicks + 30;
-                    if ((job.count == 1 && idleTicks >= 120) || (ticksLeftThisToil <= 0 && !waiting)
-                        || (!job.playerForced && (pawn.needs?.food?.CurCategory >= HungerCategory.UrgentlyHungry
-                            || pawn.needs?.rest?.CurCategory >= RestCategory.VeryTired)))
+                    if (job.count == 1 && idleTicks >= 120)
                     {
                         ReadyForNextToil();
                         return;
@@ -59,7 +169,6 @@ namespace SimManagementLib.SimAI
             };
 
             work.defaultCompleteMode = ToilCompleteMode.Never;
-            work.defaultDuration = Mathf.Max(900, Mathf.RoundToInt(BaseShiftTicks / Mathf.Max(0.2f, pawn.GetStatValue(StatDefOf.WorkSpeedGlobal))));
             work.FailOnCannotTouch(TargetIndex.A, PathEndMode.InteractionCell);
             work.activeSkill = () => CashierSocialUtility.HasSocialSkillRecord(pawn) ? SkillDefOf.Social : null;
             yield return work;

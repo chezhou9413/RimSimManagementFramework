@@ -4,6 +4,8 @@ using RimSimHotelExtension.Buildings;
 using RimSimHotelExtension.Models;
 using RimSimHotelExtension.Settings;
 using RimSimHotelExtension.Tool;
+using SimManagementLib.GameComp;
+using SimManagementLib.SimMapComp;
 using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
 using Verse;
@@ -19,6 +21,8 @@ namespace RimSimHotelExtension.GameComp
         private readonly List<HotelStay> activeStays = new List<HotelStay>();
         private int nextId = 1;
         private readonly HashSet<int> arrivalBeds = new HashSet<int>();
+        private readonly HashSet<int> registeredBedIds = new HashSet<int>();
+        private int lastReceptionOpenState = -1;
         public IReadOnlyList<HotelStay> Stays => stays;
         public IReadOnlyList<HotelStay> ActiveStays => activeStays;
         public List<HotelMoneyRecord> MoneyRecords = new List<HotelMoneyRecord>();
@@ -56,16 +60,25 @@ namespace RimSimHotelExtension.GameComp
             if (shop == null) return null;
             var registers = ShopDataUtility.GetCashRegisterSnapshotInZone(shop);
             for (int i = 0; i < registers.Count; i++)
-                if (registers[i] is Building_HotelDesk desk && desk.Spawned && desk.Faction == Faction.OfPlayer
-                    && map.zoneManager.ZoneAt(desk.Position) == shop) return desk;
+                if (registers[i] is Building_HotelDesk desk && desk.Spawned && !desk.Destroyed
+                    && desk.Faction == Faction.OfPlayer) return desk;
             return null;
+        }
+
+        //通知框架刷新该旅馆的营业校验、经营指标和到客匹配快照，不依赖店内存在货柜。
+        public void NotifyShopChanged(Zone_Shop shop)
+        {
+            if (shop == null || shop.Map != map) return;
+            shop.InvalidateShopRuntimeCache();
+            map.GetComponent<CustomerArrivalManager>()?.NotifyShopDirty(shop);
+            Current.Game?.GetComponent<GameComponent_ShopAnalyticsManager>()?.InvalidateShopMetrics(shop);
         }
 
         //返回已登记且没有入住和预订占用的床位。
         public IEnumerable<Building_Bed> AvailableBeds(Zone_Shop shop)
         {
             return SettingsFor(shop).registeredBeds.Where(b => SupportsRentalBed(b) && b.Spawned && b.Map == map
-                && shop.Cells.Contains(b.Position) && !b.Medical && !b.ForPrisoners && !b.ForSlaves && !b.IsBurning()
+                && shop.ContainsCell(b.Position) && !b.Medical && !b.ForPrisoners && !b.ForSlaves && !b.IsBurning()
                 && b.OwnersForReading.Count == 0 && !arrivalBeds.Contains(b.thingIDNumber)
                 && !activeStays.Any(s => !s.completed && s.bed == b));
         }
@@ -99,6 +112,7 @@ namespace RimSimHotelExtension.GameComp
                 stays ??= new List<HotelStay>();
                 MoneyRecords ??= new List<HotelMoneyRecord>();
                 RebuildGuestIndex();
+                RebuildRegisteredBedIndex();
             }
         }
 
@@ -118,16 +132,34 @@ namespace RimSimHotelExtension.GameComp
             config.arrivalsToday = config.departuresToday = config.earnedRoomRevenueToday = 0;
         }
 
-        //按低频率巡检合同，处理入离店期限和每晚房费。
+        //按低频率巡检合同，并在前台接待时段切换时主动刷新旅馆来客快照。
         public override void MapComponentTick()
         {
             RefreshRoomPrivacy();
             if (Find.TickManager.TicksGame % 150 != 0) return;
+            CheckReceptionHoursTransition();
             activeStays.RemoveAll(stay => stay.completed);
             for (int i = 0, count = activeStays.Count; i < count; i++)
                 if (!activeStays[i].completed) TickStay(activeStays[i]);
             if (stays.RemoveAll(s => s.completed && Find.TickManager.TicksGame - s.closingTick > 60000) > 0)
                 roomPrivacyDirty = true;
+        }
+
+        //当地图时间跨入或跨出前台接待时段时，立即刷新所有旅馆的到客匹配快照。
+        private void CheckReceptionHoursTransition()
+        {
+            HotelTuningDef tuning = HotelTuningDef.Current;
+            int hour = GenLocalDate.HourOfDay(map);
+            int openState = hour >= tuning.receptionOpenHour && hour < tuning.receptionCloseHour ? 1 : 0;
+            if (lastReceptionOpenState == openState) return;
+            lastReceptionOpenState = openState;
+            var zones = map?.zoneManager?.AllZones;
+            if (zones == null) return;
+            for (int i = 0; i < zones.Count; i++)
+            {
+                if (zones[i] is Zone_Shop shop && DeskFor(shop) != null)
+                    NotifyShopChanged(shop);
+            }
         }
     }
 }

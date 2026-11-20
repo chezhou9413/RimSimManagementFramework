@@ -130,6 +130,16 @@ namespace RimSimHotelExtension.GameComp
                 }
                 if (guest.pawn?.ownership?.OwnedBed == stay.bed) guest.pawn.ownership.UnclaimBed();
                 guest.status = "RSH.Text.CheckedOut";
+                if (stay.active && guest.pawn?.Spawned == true && !guest.pawn.Dead)
+                {
+                    string farewellKey = guest.satisfaction >= 78f ? "RSH.Bubble.CheckoutHappy"
+                        : guest.satisfaction >= 50f ? "RSH.Bubble.CheckoutNormal"
+                        : "RSH.Bubble.CheckoutUnhappy";
+                    Color farewellColor = guest.satisfaction >= 78f ? new Color(0.65f, 1f, 0.72f)
+                        : guest.satisfaction >= 50f ? Color.white
+                        : new Color(1f, 0.72f, 0.56f);
+                    ShopBubbleUtility.ShowTextBubble(guest.pawn, HotelText.T(farewellKey), farewellColor);
+                }
                 HotelReviewUtility.Record(this, stay, guest);
             }
             stay.closingTick = now;
@@ -140,6 +150,7 @@ namespace RimSimHotelExtension.GameComp
             RemoveStayFromIndex(stay);
             stay.active = false;
             stay.finishing = false;
+            if (endingShop != null) NotifyShopChanged(endingShop);
         }
 
         //续住需要同行双方都有足够的房费和饮食储备。
@@ -147,7 +158,7 @@ namespace RimSimHotelExtension.GameComp
         {
             var shop = ShopFor(stay);
             HotelTuningDef t = HotelTuningDef.Current;
-            if (!SettingsFor(shop).acceptRenewals || stay.Satisfaction < t.renewalSatisfaction
+            if (shop == null || !SettingsFor(shop).acceptRenewals || stay.Satisfaction < t.renewalSatisfaction
                 || stay.bookedNights >= t.maxTotalNights) return false;
             int price = Quote(stay);
             int remainingDays = Mathf.Max(0, Mathf.CeilToInt((stay.checkoutTick - Find.TickManager.TicksGame) / 60000f));
@@ -183,6 +194,9 @@ namespace RimSimHotelExtension.GameComp
                     shopZoneId = stay.shopZoneId, kind = "Prepay", amount = amount,
                     label = "RSH.Text.ExtensionPrepayment" });
                 for (int n = 0; n < nights; n++) guest.prepaidNightShares.Add(share);
+                if (guest.pawn?.Spawned == true && !guest.pawn.Dead)
+                    ShopBubbleUtility.ShowTextBubble(guest.pawn, HotelText.T("RSH.Bubble.Renewed", nights.Named("NIGHTS")),
+                        new Color(0.65f, 0.92f, 1f));
             }
             stay.bookedNights += nights;
             stay.checkoutTick += 60000 * nights;

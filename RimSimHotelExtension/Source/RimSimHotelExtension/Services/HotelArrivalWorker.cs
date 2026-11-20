@@ -17,7 +17,18 @@ namespace RimSimHotelExtension.Services
         public override bool IsAttractionAvailable(Zone_Shop shop)
             => base.IsAttractionAvailable(shop) && HotelMapComponent.For(shop.Map).DeskFor(shop) != null
                 && HotelMapComponent.For(shop.Map).SettingsFor(shop).registeredBeds.Any(b => b != null && b.Spawned
-                    && shop.Cells.Contains(b.Position));
+                    && shop.ContainsCell(b.Position));
+
+        //将旅馆已登记床位容量折算为等效设施规模，使无货柜旅馆也能正常获得评分、容量与来客倍率。
+        public override int GetAttractionFacilityUnits(Zone_Shop shop)
+        {
+            if (shop?.Map == null) return 0;
+            var manager = HotelMapComponent.For(shop.Map);
+            if (manager == null || manager.DeskFor(shop) == null) return 0;
+            return manager.SettingsFor(shop).registeredBeds
+                .Where(b => b != null && b.Spawned && shop.ContainsCell(b.Position))
+                .Sum(b => b.SleepingSlotsCount);
+        }
 
         //设施存在与当下能接新客分开，满房不会令服务台停止值班。
         public override bool CanAttractCustomer(Zone_Shop shop, RuntimeCustomerKind kind)
@@ -26,6 +37,29 @@ namespace RimSimHotelExtension.Services
         //返回统一接待条件说明供经营面板使用。
         public override string GetAttractionBlockReason(Zone_Shop shop, bool refresh = false)
             => HotelMapComponent.For(shop?.Map)?.GetIssue(shop) ?? "";
+
+        //暂停接待、非接待时段或正常满房属于正常经营状态，不弹出异常警报。
+        public override bool TryGetOperatingAlert(Zone_Shop shop, out string reason, out Thing target)
+        {
+            reason = "";
+            target = null;
+            if (shop?.Map == null) return false;
+            var manager = HotelMapComponent.For(shop.Map);
+            if (manager == null || !manager.SettingsFor(shop).enabled) return false;
+            var desk = manager.DeskFor(shop);
+            if (desk == null)
+            {
+                reason = HotelText.T("RSH.Text.NoHotelReceptionDesk");
+                return true;
+            }
+            if (!manager.SettingsFor(shop).registeredBeds.Any(b => b != null && b.Spawned && shop.ContainsCell(b.Position)))
+            {
+                reason = HotelText.T("RSH.Text.NoVacantRegisteredBeds");
+                target = desk;
+                return true;
+            }
+            return false;
+        }
 
         //已经入住、尚有未付商品或预算不足的顾客不能重复开房。
         public override bool CanRun(CustomerActionContext context, out string reason)

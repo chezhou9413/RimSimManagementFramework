@@ -286,7 +286,7 @@ namespace SimManagementLib.SimZone
             if (existing != null)
             {
                 existing.CapturePawn(pawn);
-                ActivateRoleWorkTypes(roleDefName, pawn);
+                ActivateRoleWorkTypes(roleDefName, pawn, true);
                 return;
             }
             if (maxCount > 0 && current.Count >= maxCount) return;
@@ -297,7 +297,7 @@ namespace SimManagementLib.SimZone
             };
             assignment.CapturePawn(pawn);
             roleAssignments.Add(assignment);
-            ActivateRoleWorkTypes(roleDefName, pawn);
+            ActivateRoleWorkTypes(roleDefName, pawn, true);
         }
         //从指定岗位移除员工。
         public void RemoveAssignedPawn(string roleDefName, Pawn pawn)
@@ -317,8 +317,8 @@ namespace SimManagementLib.SimZone
             if (string.IsNullOrEmpty(roleDefName) || roleAssignments == null) return;
             roleAssignments.RemoveAll(a => a == null || a.roleDefName == roleDefName);
         }
-        //启用岗位关联的工作类型，负责避免已分配员工因为工作优先级为零而不扫描岗位工作。
-        private static void ActivateRoleWorkTypes(string roleDefName, Pawn pawn)
+        //启用岗位关联的工作类型，新指派时把店铺核心岗位工作自动提高到优先级 1，读档兼容路径仅激活未启用项不覆盖玩家调整。
+        private static void ActivateRoleWorkTypes(string roleDefName, Pawn pawn, bool elevatePriority)
         {
             if (pawn?.workSettings == null || string.IsNullOrEmpty(roleDefName)) return;
             ShopStaffRoleDef role = DefDatabase<ShopStaffRoleDef>.GetNamedSilentFail(roleDefName);
@@ -326,6 +326,8 @@ namespace SimManagementLib.SimZone
 
             pawn.workSettings.EnableAndInitializeIfNotAlreadyInitialized();
             bool hasRestockWork = false;
+            if (role.requiredWorkType != null && !pawn.WorkTypeIsDisabled(role.requiredWorkType))
+                ActivateWorkType(pawn, role.requiredWorkType, elevatePriority);
             for (int i = 0; i < role.workGivers.Count; i++)
             {
                 WorkGiverDef workGiver = role.workGivers[i];
@@ -334,12 +336,24 @@ namespace SimManagementLib.SimZone
 
                 WorkTypeDef workType = workGiver?.workType;
                 if (workType == null || pawn.WorkTypeIsDisabled(workType)) continue;
-                if (!pawn.workSettings.WorkIsActive(workType))
-                    pawn.workSettings.SetPriority(workType, 3);
+                ActivateWorkType(pawn, workType, elevatePriority);
             }
 
-            if (hasRestockWork)
+            if (hasRestockWork && elevatePriority)
                 PrioritizeRestockingOverHauling(pawn);
+        }
+
+        //按工作类型性质启用或提高优先级，核心店铺工作（服务/补货）在新指派时默认给优先级 1 以避免被普通杂活抢占。
+        private static void ActivateWorkType(Pawn pawn, WorkTypeDef workType, bool elevatePriority)
+        {
+            bool isShopCoreWork = workType.defName == "Sim_ServiceWork" || workType.defName == "Restocking";
+            if (!pawn.workSettings.WorkIsActive(workType))
+            {
+                pawn.workSettings.SetPriority(workType, isShopCoreWork && elevatePriority ? 1 : 3);
+                return;
+            }
+            if (elevatePriority && isShopCoreWork && pawn.workSettings.GetPriority(workType) > 1)
+                pawn.workSettings.SetPriority(workType, 1);
         }
 
         //提高补货工作相对普通搬运的优先级，职责是避免店员在缺货时一直去做原版搬运。
@@ -365,7 +379,7 @@ namespace SimManagementLib.SimZone
             {
                 ShopRoleAssignment assignment = roleAssignments[i];
                 if (assignment?.pawn == null || !assignment.HasUsablePawnOn(Map)) continue;
-                ActivateRoleWorkTypes(assignment.roleDefName, assignment.pawn);
+                ActivateRoleWorkTypes(assignment.roleDefName, assignment.pawn, false);
             }
         }
         //整理岗位分配记录，负责移除空记录并为旧存档补齐员工显示快照。

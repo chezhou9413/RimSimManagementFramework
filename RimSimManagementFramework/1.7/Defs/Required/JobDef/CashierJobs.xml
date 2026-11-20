@@ -4,8 +4,8 @@
     <defName>Sim_ManCashRegister</defName>
     <driverClass>SimManagementLib.SimAI.JobDriver_ManCashRegister</driverClass>
     <reportString>正在收银台值班。</reportString>
-    <casualInterruptible>true</casualInterruptible>
-    <allowOpportunisticPrefix>true</allowOpportunisticPrefix>
+    <casualInterruptible>false</casualInterruptible>
+    <allowOpportunisticPrefix>false</allowOpportunisticPrefix>
   </JobDef>
 
   <JobDef>
@@ -13,6 +13,7 @@
     <driverClass>SimManagementLib.SimAI.JobDriver_CollectCashRegisterSilver</driverClass>
     <reportString>正在从经营建筑取出白银并搬运入库。</reportString>
     <casualInterruptible>true</casualInterruptible>
+    <allowOpportunisticPrefix>false</allowOpportunisticPrefix>
   </JobDef>
 
   <JobDef>
@@ -20,5 +21,6 @@
     <driverClass>SimManagementLib.SimAI.JobDriver_PrepareShopOrder</driverClass>
     <reportString>正在处理顾客订单。</reportString>
     <casualInterruptible>true</casualInterruptible>
+    <allowOpportunisticPrefix>false</allowOpportunisticPrefix>
   </JobDef>
 </Defs>

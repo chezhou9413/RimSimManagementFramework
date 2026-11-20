@@ -170,15 +170,140 @@ namespace RimSimHotelExtension.UI
         {
             float badgeWidth = Mathf.Min(width, Text.CalcSize(text).x + 24f);
             ShopUiVisualUtility.DrawStatusBadge(new Rect(0, y, badgeWidth, Line), text,
-                positive ? ShopUiVisualUtility.SelectedRowFill : new Color(0.7f, 0.3f, 0.15f, 0.18f));
+                positive ? PositiveBadgeFill : WarningBadgeFill);
             y += Line + 8f;
         }
 
-        //按钮使用框架样式，极窄宽度下省略文字并保留完整提示。
-        public static bool Button(Rect rect, string label, bool primary = false, bool enabled = true)
+        public static readonly Color PositiveBadgeFill = new Color(0.24f, 0.58f, 0.34f, 0.32f);
+        public static readonly Color WarningBadgeFill = new Color(0.75f, 0.36f, 0.16f, 0.32f);
+        public static readonly Color InfoBadgeFill = new Color(0.20f, 0.52f, 0.72f, 0.30f);
+        public static readonly Color NeutralBadgeFill = new Color(1f, 1f, 1f, 0.08f);
+
+        //根据百分制满意度返回对应状态色。
+        public static Color SatisfactionColor(float satisfaction)
+        {
+            if (satisfaction >= 75f) return ShopUiVisualUtility.PositiveText;
+            if (satisfaction >= 55f) return ShopUiVisualUtility.Accent;
+            if (satisfaction >= 35f) return new Color(0.96f, 0.76f, 0.30f, 1f);
+            return new Color(0.94f, 0.42f, 0.38f, 1f);
+        }
+
+        //绘制带状态底色与提示的紧凑徽章。
+        public static void Badge(Rect rect, string text, Color fill)
+        {
+            ShopUiVisualUtility.DrawStatusBadge(rect, text, fill);
+        }
+
+        //绘制带百分比填充和居中文字的安全进度条。
+        public static void ProgressBar(Rect rect, float fill01, string label, Color barColor)
+        {
+            GameFont oldFont = Text.Font;
+            TextAnchor oldAnchor = Text.Anchor;
+            bool oldWrap = Text.WordWrap;
+            Color oldColor = GUI.color;
+            try
+            {
+                Widgets.DrawBoxSolid(rect, new Color(0f, 0f, 0f, 0.30f));
+                float clamped = Mathf.Clamp01(fill01);
+                if (clamped > 0.001f)
+                {
+                    Rect fillRect = new Rect(rect.x + 1f, rect.y + 1f, Mathf.Max(2f, (rect.width - 2f) * clamped), rect.height - 2f);
+                    Widgets.DrawBoxSolid(fillRect, new Color(barColor.r, barColor.g, barColor.b, 0.48f));
+                }
+                ShopUiVisualUtility.DrawBorder(rect, ShopUiVisualUtility.Divider);
+                Text.Font = GameFont.Tiny;
+                Text.Anchor = TextAnchor.MiddleCenter;
+                Text.WordWrap = false;
+                GUI.color = Color.white;
+                float line = ShopUiVisualUtility.LineHeight(GameFont.Tiny);
+                if (rect.height >= line)
+                    Widgets.Label(new Rect(rect.x + 4f, rect.center.y - line * 0.5f, rect.width - 8f, line),
+                        (label ?? "").Truncate(Mathf.Max(1f, rect.width - 8f)));
+                if (!label.NullOrEmpty()) TooltipHandler.TipRegion(rect, label);
+            }
+            finally
+            {
+                Text.Font = oldFont; Text.Anchor = oldAnchor; Text.WordWrap = oldWrap; GUI.color = oldColor;
+            }
+        }
+
+        //绘制直观的开关胶囊按钮，点击即可切换状态。
+        public static bool TogglePill(Rect rect, string label, bool active, string onText, string offText, string tip = null)
+        {
+            GameFont oldFont = Text.Font;
+            TextAnchor oldAnchor = Text.Anchor;
+            bool oldWrap = Text.WordWrap;
+            Color oldColor = GUI.color;
+            try
+            {
+                Color fill = active ? new Color(0.22f, 0.58f, 0.38f, 0.24f) : new Color(1f, 1f, 1f, 0.05f);
+                Color border = active ? new Color(0.36f, 0.78f, 0.50f, 0.85f) : ShopUiVisualUtility.Divider;
+                Widgets.DrawBoxSolid(rect, Mouse.IsOver(rect) ? new Color(fill.r + 0.06f, fill.g + 0.06f, fill.b + 0.06f, fill.a + 0.08f) : fill);
+                ShopUiVisualUtility.DrawBorder(rect, border);
+                string stateText = active ? onText : offText;
+                Text.Font = GameFont.Tiny;
+                float stateWidth = Mathf.Clamp(Text.CalcSize(stateText).x + 14f, 44f, rect.width * 0.42f);
+                float lineSmall = ShopUiVisualUtility.LineHeight(GameFont.Small);
+                float lineTiny = ShopUiVisualUtility.LineHeight(GameFont.Tiny);
+                Text.Font = GameFont.Small;
+                Text.Anchor = TextAnchor.MiddleLeft;
+                Text.WordWrap = false;
+                GUI.color = Color.white;
+                Widgets.Label(new Rect(rect.x + 8f, rect.center.y - lineSmall * 0.5f, Mathf.Max(1f, rect.width - stateWidth - 14f), lineSmall),
+                    (label ?? "").Truncate(Mathf.Max(1f, rect.width - stateWidth - 14f)));
+                Text.Font = GameFont.Tiny;
+                Text.Anchor = TextAnchor.MiddleCenter;
+                GUI.color = active ? ShopUiVisualUtility.PositiveText : ShopUiVisualUtility.WarningText;
+                Widgets.Label(new Rect(rect.xMax - stateWidth - 4f, rect.center.y - lineTiny * 0.5f, stateWidth, lineTiny),
+                    stateText.Truncate(stateWidth));
+                TooltipHandler.TipRegion(rect, tip ?? (label + "：" + stateText));
+                return Widgets.ButtonInvisible(rect, false);
+            }
+            finally
+            {
+                Text.Font = oldFont; Text.Anchor = oldAnchor; Text.WordWrap = oldWrap; GUI.color = oldColor;
+            }
+        }
+
+        //绘制带标签与可选单位的内联数值输入框，适合在顶部配置卡中直接改价。
+        public static void InlineNumber(Rect rect, string label, ref int value, ref string buffer, int max, string unit = null)
+        {
+            GameFont oldFont = Text.Font;
+            TextAnchor oldAnchor = Text.Anchor;
+            bool oldWrap = Text.WordWrap;
+            Color oldColor = GUI.color;
+            try
+            {
+                Text.Font = GameFont.Small;
+                Text.Anchor = TextAnchor.MiddleLeft;
+                Text.WordWrap = false;
+                float unitWidth = unit.NullOrEmpty() ? 0f : Text.CalcSize(unit).x + 6f;
+                float fieldWidth = Mathf.Clamp(rect.width * 0.34f, 64f, 92f);
+                float labelWidth = Mathf.Max(1f, rect.width - fieldWidth - unitWidth - 10f);
+                GUI.color = ShopUiVisualUtility.MutedText;
+                Widgets.Label(new Rect(rect.x, rect.y, labelWidth, rect.height), (label ?? "").Truncate(labelWidth));
+                if (!label.NullOrEmpty()) TooltipHandler.TipRegion(new Rect(rect.x, rect.y, labelWidth, rect.height), label);
+                GUI.color = Color.white;
+                if (buffer == null) buffer = value.ToString();
+                Widgets.TextFieldNumeric(new Rect(rect.x + labelWidth + 4f, rect.y, fieldWidth, rect.height), ref value, ref buffer, 0, max);
+                if (!unit.NullOrEmpty())
+                {
+                    GUI.color = ShopUiVisualUtility.MutedText;
+                    Widgets.Label(new Rect(rect.xMax - unitWidth + 2f, rect.y, unitWidth, rect.height), unit);
+                }
+            }
+            finally
+            {
+                Text.Font = oldFont; Text.Anchor = oldAnchor; Text.WordWrap = oldWrap; GUI.color = oldColor;
+            }
+        }
+
+        //绘制按钮（含危险样式），极窄宽度下省略文字并保留完整提示。
+        public static bool Button(Rect rect, string label, bool primary = false, bool enabled = true, bool danger = false)
         {
             string visible = label.Truncate(Mathf.Max(1f, rect.width - 8f));
-            bool clicked = primary ? ShopUiVisualUtility.DrawPrimaryButton(rect, visible, enabled)
+            bool clicked = danger ? ShopUiVisualUtility.DrawDangerButton(rect, visible, enabled)
+                : primary ? ShopUiVisualUtility.DrawPrimaryButton(rect, visible, enabled)
                 : ShopUiVisualUtility.DrawSecondaryButton(rect, visible, enabled);
             TooltipHandler.TipRegion(rect, label);
             return clicked;

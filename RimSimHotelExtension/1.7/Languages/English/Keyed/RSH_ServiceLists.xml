@@ -49,4 +49,49 @@
   <RSH.Ui.SpaSummary>Bathing slots {USED}/{TOTAL} · Waiting {QUEUE} · Free lockers {FREE}/{LOCKERS}</RSH.Ui.SpaSummary>
   <RSH.Ui.AtmSummary>Available ATMs {READY}/{TOTAL} · Draft fee {FEE} silver · Daily limit {LIMIT} silver/guest</RSH.Ui.AtmSummary>
   <RSH.Ui.GuestSummary>Bookings {BOOKINGS} · Guests {GUESTS} · Average satisfaction {SATISFACTION}</RSH.Ui.GuestSummary>
+  <RSH.Ui.TotalHotels>Hotels</RSH.Ui.TotalHotels>
+  <RSH.Ui.RevenueAndPrepay>Today rev / Prepay</RSH.Ui.RevenueAndPrepay>
+  <RSH.Ui.DeskStaffedBy>Desk: {STAFF} on duty</RSH.Ui.DeskStaffedBy>
+  <RSH.Ui.HotelFacilitySummary>{DESK} · Sleep {SLEEP} · Spas {SPAS} · ATMs {ATMS}</RSH.Ui.HotelFacilitySummary>
+  <RSH.Ui.StaffButton>Staff</RSH.Ui.StaffButton>
+  <RSH.Ui.FullHouse>Full</RSH.Ui.FullHouse>
+  <RSH.Ui.OccupancyBarLabel>Occupied {OCCUPIED}/{TOTAL} ({PCT}%) · Avg sat {SAT}</RSH.Ui.OccupancyBarLabel>
+  <RSH.Ui.FilterAll>All</RSH.Ui.FilterAll>
+  <RSH.Ui.FilterOccupied>Occupied</RSH.Ui.FilterOccupied>
+  <RSH.Ui.FilterPendingReception>Check-in/out</RSH.Ui.FilterPendingReception>
+  <RSH.Ui.FilterLowSat>Low sat</RSH.Ui.FilterLowSat>
+  <RSH.Ui.BestRoomFirst>Sort: best room first</RSH.Ui.BestRoomFirst>
+  <RSH.Ui.RoomBriefStats>Beds {TOTAL} · Registered {RENTED} · Occupied {OCCUPIED}</RSH.Ui.RoomBriefStats>
+  <RSH.Ui.Enabled>On</RSH.Ui.Enabled>
+  <RSH.Ui.Disabled>Off</RSH.Ui.Disabled>
+  <RSH.Ui.SilverPerNightShort>s/night</RSH.Ui.SilverPerNightShort>
+  <RSH.Ui.SilverPerVisitShort>s/visit</RSH.Ui.SilverPerVisitShort>
+  <RSH.Ui.SilverShort>s</RSH.Ui.SilverShort>
+  <RSH.Ui.SinglePriceShort>Single bed</RSH.Ui.SinglePriceShort>
+  <RSH.Ui.DoublePriceShort>Double bed</RSH.Ui.DoublePriceShort>
+  <RSH.Ui.SleepScheduleButton>Sleep {RANGE}</RSH.Ui.SleepScheduleButton>
+  <RSH.Ui.RegisterAllBeds>Register all vacant</RSH.Ui.RegisterAllBeds>
+  <RSH.Ui.UnregisterVacantBeds>Clear vacant reg</RSH.Ui.UnregisterVacantBeds>
+  <RSH.Ui.SingleBedTag>Single</RSH.Ui.SingleBedTag>
+  <RSH.Ui.DoubleBedTag>Double</RSH.Ui.DoubleBedTag>
+  <RSH.Ui.RoomQualityLine>{ROOM} · Imp {IMP} ({STAGE}) · {TEMP}°C · Est sat {DELTA}/day</RSH.Ui.RoomQualityLine>
+  <RSH.Ui.BatchBedResult>Updated {CHANGED} bed registrations (skipped {SKIPPED} locked/ineligible). Click Save to apply.</RSH.Ui.BatchBedResult>
+  <RSH.Ui.Cleanliness>Cleanliness</RSH.Ui.Cleanliness>
+  <RSH.Ui.RoomTemp>Room temp</RSH.Ui.RoomTemp>
+  <RSH.Ui.EstSatisfactionDelta>Est sat / day</RSH.Ui.EstSatisfactionDelta>
+  <RSH.Ui.RoomTypeAndSpace>Room type / space</RSH.Ui.RoomTypeAndSpace>
+  <RSH.Ui.PrivateRoomTag>Private room</RSH.Ui.PrivateRoomTag>
+  <RSH.Ui.SharedRoomTag>Shared room</RSH.Ui.SharedRoomTag>
+  <RSH.Ui.RequestEarlyCheckout>Request early checkout</RSH.Ui.RequestEarlyCheckout>
+  <RSH.Ui.WithCompanion>with {NAME}</RSH.Ui.WithCompanion>
+  <RSH.Ui.RenewingTag>Renewing</RSH.Ui.RenewingTag>
+  <RSH.Ui.SatShort>Sat {SAT}</RSH.Ui.SatShort>
+  <RSH.Ui.GuestNeedsAndFunds>Food {FOOD} · Rest {REST} · Joy {JOY} · Silver {WALLET}/{ACCOUNT}</RSH.Ui.GuestNeedsAndFunds>
+  <RSH.Ui.RecentExperienceLine>Recent room experience: {NOTE}</RSH.Ui.RecentExperienceLine>
+  <RSH.Ui.WoodSpaShort>Wood spa</RSH.Ui.WoodSpaShort>
+  <RSH.Ui.StoneSpaShort>Stone spa</RSH.Ui.StoneSpaShort>
+  <RSH.Ui.WithdrawalCount>Withdrawals</RSH.Ui.WithdrawalCount>
+  <RSH.Ui.AtmFeeShort>Fee / use</RSH.Ui.AtmFeeShort>
+  <RSH.Ui.AtmLimitShort>Daily limit</RSH.Ui.AtmLimitShort>
+  <RSH.Ui.AtmStoredSilver>Stored fee silver: {SILVER}</RSH.Ui.AtmStoredSilver>
 </LanguageData>

@@ -20,18 +20,18 @@
   <RSMF.MenuTransfer.Export>Export bundles</RSMF.MenuTransfer.Export>
   <RSMF.MenuTransfer.Import>Import bundles</RSMF.MenuTransfer.Import>
   <RSMF.MenuTransfer.NoValidBundles>No valid bundles to import.</RSMF.MenuTransfer.NoValidBundles>
-  <RSMF.MenuTransfer.ExportHelp>Copy the Base64 text below to import it into another shop. Only bundles are exported.</RSMF.MenuTransfer.ExportHelp>
+  <RSMF.MenuTransfer.ExportHelp>Copy the share code below to import it into another shop. Only bundles are exported.</RSMF.MenuTransfer.ExportHelp>
   <RSMF.MenuTransfer.Copy>Copy to clipboard</RSMF.MenuTransfer.Copy>
-  <RSMF.MenuTransfer.Copied>Bundle Base64 copied.</RSMF.MenuTransfer.Copied>
-  <RSMF.MenuTransfer.ImportHelp>Paste bundle Base64. Imported bundles are added to this shop without removing existing bundles.</RSMF.MenuTransfer.ImportHelp>
+  <RSMF.MenuTransfer.Copied>Bundle share code copied.</RSMF.MenuTransfer.Copied>
+  <RSMF.MenuTransfer.ImportHelp>Paste bundle share code. Imported bundles are added to this shop without removing existing bundles.</RSMF.MenuTransfer.ImportHelp>
   <RSMF.MenuTransfer.Paste>Paste clipboard</RSMF.MenuTransfer.Paste>
   <RSMF.MenuTransfer.Confirm>Import</RSMF.MenuTransfer.Confirm>
-  <RSMF.MenuTransfer.ParseFailed>Could not parse bundle Base64.</RSMF.MenuTransfer.ParseFailed>
+  <RSMF.MenuTransfer.ParseFailed>Could not parse bundle share code.</RSMF.MenuTransfer.ParseFailed>
   <RSMF.MenuTransfer.Imported>Imported {count} bundles</RSMF.MenuTransfer.Imported>
   <RSMF.MenuTransfer.Skipped>; skipped {items} items and {bundles} empty bundles</RSMF.MenuTransfer.Skipped>
   <RSMF.MenuTransfer.MissingItems>; missing items: {items}</RSMF.MenuTransfer.MissingItems>
   <RSMF.MenuTransfer.Command>Transfer bundles</RSMF.MenuTransfer.Command>
-  <RSMF.MenuTransfer.CommandDescription>Export or import Base64 bundles for this shop zone.</RSMF.MenuTransfer.CommandDescription>
+  <RSMF.MenuTransfer.CommandDescription>Export or import bundle share codes for this shop zone.</RSMF.MenuTransfer.CommandDescription>
   <RSMF.Search.Label>Search</RSMF.Search.Label>
   <RSMF.Search.Clear>Clear</RSMF.Search.Clear>
   <RSMF.Search.Hint>Search by name</RSMF.Search.Hint>
@@ -47,7 +47,7 @@
   <RSMF.Service.DisplayStand.FallbackLabel>Collectible display stand</RSMF.Service.DisplayStand.FallbackLabel>
   <RSMF.Service.DisplayStand.OrderLabel>{label} ({count} exhibits)</RSMF.Service.DisplayStand.OrderLabel>
   <RSMF.CustomerDiagnostics.Copy>Copy customer diagnostics</RSMF.CustomerDiagnostics.Copy>
-  <RSMF.CustomerDiagnostics.CopyDescription>Copy this customer's session, lord, job, product matching and recent activity log to the clipboard.</RSMF.CustomerDiagnostics.CopyDescription>
+  <RSMF.CustomerDiagnostics.CopyDescription>Copy this customer's visit status, current activity, product matching and recent activity log to the clipboard.</RSMF.CustomerDiagnostics.CopyDescription>
   <RSMF.CustomerDiagnostics.Copied>Customer diagnostics copied to the clipboard.</RSMF.CustomerDiagnostics.Copied>
   <RSMF.Business.Pages.Select>Pages</RSMF.Business.Pages.Select>
   <RSMF.CustomerReview.Split.BudgetSignalFreeService>A free service was completed without spending money. Being free is not a reason for a negative review; judge the wait, completion and service itself.</RSMF.CustomerReview.Split.BudgetSignalFreeService>
