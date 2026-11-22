@@ -13,12 +13,17 @@ namespace RimSimRestaurantExtension.Jobs
     //执行餐厅烹饪订单，职责是预约整单食材、搬运、制作、生成成品并在中断时安全释放认领。
     public class JobDriver_CookRestaurantOrder : JobDriver
     {
-        //预约工作台与全部食材并原子认领订单，职责是防止多个厨师同时制作同一张订单。
+        //预约工作台与全部食材并幂等认领订单，防止多个厨师重复制作且兼容右键强制的两次预预约。
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
             RestaurantOrder order = ResolveOrder();
             Thing stove = job.GetTarget(TargetIndex.A).Thing;
-            if (order == null || order.state != RestaurantOrderState.WaitingCook || !RestaurantCookingUtility.CanCookOrderAt(stove, order))
+            bool alreadyClaimed = order != null
+                && order.state == RestaurantOrderState.Cooking
+                && order.cookThingId == pawn.thingIDNumber
+                && stove != null
+                && order.stoveThingId == stove.thingIDNumber;
+            if (order == null || (!alreadyClaimed && order.state != RestaurantOrderState.WaitingCook) || !RestaurantCookingUtility.CanCookOrderAt(stove, order))
                 return RejectReservation(order, SimTranslation.T("RSR.Issue.InvalidCookingOrder"));
             if (!RestaurantCookingUtility.CanPawnCookOrderAt(pawn, stove, order))
                 return RejectReservation(order, SimTranslation.T("RSR.Issue.CookingUnavailable"));

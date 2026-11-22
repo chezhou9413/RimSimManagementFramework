@@ -123,15 +123,21 @@ namespace SimManagementLib.SimThingComp
             yield return new Gizmo_CashWithdrawThreshold(this);
         }
 
-        /// <summary>
-        /// 提供选中小人右键经营建筑时强制取出白银的浮动菜单选项。
-        /// </summary>
+        //提供选中小人右键经营建筑时强制取出白银的浮动菜单选项，排除征召、倒地、精神崩溃和机械体。
         public override IEnumerable<FloatMenuOption> CompFloatMenuOptions(Pawn selPawn)
         {
             if (selPawn == null || parent == null)
                 yield break;
+            if (selPawn.Drafted || selPawn.Downed || selPawn.Dead || selPawn.InMentalState || selPawn.RaceProps.IsMechanoid)
+                yield break;
 
             string label = SimTranslation.T("RSMF.CashStorage.ForceWithdraw");
+            if (selPawn.health?.capacities?.CapableOf(PawnCapacityDefOf.Manipulation) == false)
+            {
+                yield return new FloatMenuOption(label + ": " + "CannotMissingHealthActivities".Translate(PawnCapacityDefOf.Manipulation.label), null);
+                yield break;
+            }
+
             if (AvailableForWithdraw <= 0)
             {
                 yield return new FloatMenuOption(SimTranslation.T("RSMF.CashStorage.ForceWithdrawNoSilver", label.Named("label")), null);

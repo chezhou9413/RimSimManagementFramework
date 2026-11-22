@@ -18,20 +18,44 @@ namespace SimManagementLib.SimAI
         private PreparedShopOrderWorker worker;
         private int durationTicks = 600;
 
-        /// <summary>
-        /// 预约服务建筑，避免多个员工同时使用同一制作目标。
-        /// </summary>
+        //幂等认领订单并预约服务建筑，确保强制指令和启动阶段重复预约都能通过且中断时归还订单。
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
+            PreparedShopOrder targetOrder = SimShopOrderApi.GetOrder(job.count);
+            if (targetOrder == null)
+                return false;
+
+            bool assignedNow = false;
+            if (targetOrder.state == PreparedShopOrderState.PaidWaitingPreparation)
+            {
+                if (!SimShopOrderApi.TryAssignOrder(pawn, targetOrder).success)
+                    return false;
+                assignedNow = true;
+            }
+            else if (targetOrder.state != PreparedShopOrderState.Assigned || targetOrder.staffThingId != pawn.thingIDNumber)
+            {
+                return false;
+            }
+
             Thing provider = Provider;
-            return provider == null || pawn.Reserve(provider, job, 1, -1, null, errorOnFailed);
+            if (provider != null && !pawn.Reserve(provider, job, 1, -1, null, errorOnFailed))
+            {
+                if (assignedNow)
+                {
+                    targetOrder.state = PreparedShopOrderState.PaidWaitingPreparation;
+                    targetOrder.staffThingId = -1;
+                }
+                return false;
+            }
+
+            order = targetOrder;
+            return true;
         }
 
-        /// <summary>
-        /// 构建现做订单制作流程。
-        /// </summary>
+        //构建现做订单制作流程，并在中断未完成时把订单退回等待制作状态。
         protected override IEnumerable<Toil> MakeNewToils()
         {
+            AddFinishAction(_ => ReleaseOrderIfIncomplete());
             Toil init = new Toil();
             init.defaultCompleteMode = ToilCompleteMode.Instant;
             init.initAction = () =>
@@ -88,6 +112,19 @@ namespace SimManagementLib.SimAI
                 SimShopOrderApi.CompletePreparation(pawn, order);
             };
             yield return finalize;
+        }
+
+        //制作中断时归还仍由当前员工认领的订单，避免订单永久卡在已分配状态。
+        private void ReleaseOrderIfIncomplete()
+        {
+            PreparedShopOrder current = order ?? SimShopOrderApi.GetOrder(job.count);
+            if (current == null || current.staffThingId != pawn.thingIDNumber)
+                return;
+            if (current.state == PreparedShopOrderState.Assigned || current.state == PreparedShopOrderState.Preparing)
+            {
+                current.state = PreparedShopOrderState.PaidWaitingPreparation;
+                current.staffThingId = -1;
+            }
         }
     }
 }

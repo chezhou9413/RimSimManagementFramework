@@ -20,6 +20,8 @@ namespace SimManagementLib.SimMapComp
             if (!IsValidStorage(storage) || storage is Building_UniqueGoodsContainer || thingDef == null || job == null)
                 return false;
             EnsureRuntimeInitialized();
+            if (!configurationIndex.TryGetSettings(storage.thingIDNumber, thingDef, out _))
+                configurationIndex.Refresh(storage);
             RestockTaskKey key = new RestockTaskKey(storage.thingIDNumber, thingDef);
             activeRestockCycles.Add(key);
             int available = CalculateBulkAvailable(storage, thingDef);

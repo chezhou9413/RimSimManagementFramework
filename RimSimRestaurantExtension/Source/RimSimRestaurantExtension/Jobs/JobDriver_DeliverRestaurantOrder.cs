@@ -10,16 +10,22 @@ namespace RimSimRestaurantExtension.Jobs
     //执行整单配送，职责是从出餐台或商品柜取货并交入顾客餐位的桌面容器。
     public class JobDriver_DeliverRestaurantOrder : JobDriver
     {
-        //预约起点与顾客旁站位，职责是原子认领配送且避免重复领取实物。
+        //预约起点与顾客旁站位并幂等认领配送，兼容右键强制在入队与启动阶段的两次预预约。
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
             var order = Resolve();
-            if (order?.state != RestaurantOrderState.ReadyToDeliver
+            bool alreadyClaimed = order != null
+                && order.state == RestaurantOrderState.Delivering
+                && order.waiterThingId == pawn.thingIDNumber;
+            if (order == null || (!alreadyClaimed && order.state != RestaurantOrderState.ReadyToDeliver)
                 || !RestaurantMealTransferUtility.CanCollect(pawn, order)
                 || !RestaurantPickupReservationUtility.Reserve(pawn, job.GetTarget(TargetIndex.A).Thing, job, errorOnFailed)
                 || !pawn.ReserveSittableOrSpot(job.GetTarget(TargetIndex.B).Cell, job, errorOnFailed)) return false;
-            order.waiterThingId = pawn.thingIDNumber;
-            RestaurantOrderCoordinator.MoveTo(order, RestaurantOrderState.Delivering);
+            if (!alreadyClaimed)
+            {
+                order.waiterThingId = pawn.thingIDNumber;
+                RestaurantOrderCoordinator.MoveTo(order, RestaurantOrderState.Delivering);
+            }
             return true;
         }
 

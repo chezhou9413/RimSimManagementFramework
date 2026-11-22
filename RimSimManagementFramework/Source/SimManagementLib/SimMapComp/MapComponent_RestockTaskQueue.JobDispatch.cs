@@ -113,13 +113,13 @@ namespace SimManagementLib.SimMapComp
             }
         }
 
-        //为手动调用在指定普通货柜上确定性创建补货 Job，玩家强制指令允许忽略排班时段。
+        //为手动调用在指定普通货柜上确定性创建补货 Job，不提前改写自动补货队列状态，玩家强制指令忽略名单、排班与深搜冷却。
         public Job TryMakeBulkJobForStorage(Pawn pawn, Building_SimContainer storage, bool forced)
         {
             if (!IsValidStorage(storage) || storage is Building_UniqueGoodsContainer || pawn?.Map != map)
                 return null;
             EnsureRuntimeInitialized();
-            if (!CanPawnUseRequest(pawn, storage, RestockRequestKind.Bulk, ignoreShift: forced)
+            if (!CanPawnUseRequest(pawn, storage, RestockRequestKind.Bulk, forced)
                 || !pawn.CanReach(storage.InventoryInteractionTarget, storage.InventoryInteractionEndMode, Danger.Deadly))
             {
                 if (forced)
@@ -127,19 +127,20 @@ namespace SimManagementLib.SimMapComp
                 return null;
             }
             bool hasShortfall = false;
+            int now = Find.TickManager?.TicksGame ?? 0;
             foreach (ThingDef thingDef in storage.ActiveDefs)
             {
-                if (forced)
-                    activeRestockCycles.Add(new RestockTaskKey(storage.thingIDNumber, thingDef));
-                EnsureBulkRequest(storage, thingDef, forced ? "强制补货" : "手动补货检查");
-                RestockTaskKey key = new RestockTaskKey(storage.thingIDNumber, thingDef);
-                if (!requests.TryGetValue(key, out RestockTask task) || CalculateBulkAvailable(storage, thingDef) <= 0)
+                if (thingDef == null)
+                    continue;
+                int target = storage.GetTargetCount(thingDef);
+                int stored = storage.CountStored(thingDef);
+                int needed = CalculateBulkAvailable(storage, thingDef, target, stored);
+                if (needed <= 0)
                     continue;
                 hasShortfall = true;
-                int now = Find.TickManager?.TicksGame ?? 0;
-                Job job = TryBuildJob(pawn, storage, task, now, true, out BuildFailureScope failureScope, ignoreShift: forced);
-                if (job != null || failureScope == BuildFailureScope.GlobalRetry)
-                    ScheduleDispatch(key, task.RetryTick, now);
+                if (!sourceResolver.HasPotentialBulkSupply(storage, thingDef))
+                    continue;
+                Job job = TryCreateBulkJob(pawn, storage, thingDef, needed, now, ignoreBudget: true, forced: forced, out _, out _, out _);
                 if (job != null)
                     return job;
             }
@@ -152,13 +153,21 @@ namespace SimManagementLib.SimMapComp
             return null;
         }
 
-        //为手动调用在指定专业货柜上确定性创建补货 Job，手动右键允许忽略排班时段。
-        public Job TryMakeUniqueJobForStorage(Pawn pawn, Building_UniqueGoodsContainer storage)
+        //为手动调用在指定专业货柜上确定性创建补货 Job，玩家强制指令忽略名单、排班、深搜冷却与普通预约。
+        public Job TryMakeUniqueJobForStorage(Pawn pawn, Building_UniqueGoodsContainer storage, bool forced = true)
         {
             if (!IsValidStorage(storage) || pawn?.Map != map)
                 return null;
             EnsureRuntimeInitialized();
-            RefreshUniqueRequests(storage, "专业货柜手动检查", false);
+            if (!CanPawnUseRequest(pawn, storage, RestockRequestKind.Unique, forced)
+                || !pawn.CanReach(storage.InventoryInteractionTarget, storage.InventoryInteractionEndMode, Danger.Deadly))
+            {
+                if (forced)
+                    JobFailReason.Is("RSMF.Restock.Forced.NoAccess".Translate());
+                return null;
+            }
+            bool hasPending = false;
+            int now = Find.TickManager?.TicksGame ?? 0;
             System.Collections.Generic.IReadOnlyList<Pojo.UniqueGoodsSlotData> slots = storage.UniqueSlots;
             for (int i = 0; i < slots.Count; i++)
             {
@@ -166,21 +175,24 @@ namespace SimManagementLib.SimMapComp
                 if (slot == null || !slot.HasPendingSource)
                     continue;
                 RestockTaskKey key = RestockTaskKey.ForUnique(storage.thingIDNumber, i, slot.pendingSourceThingId);
-                if (requests.TryGetValue(key, out RestockTask task))
-                {
-                    int now = Find.TickManager?.TicksGame ?? 0;
-                    Job job = TryBuildJob(pawn, storage, task, now, true, out BuildFailureScope failureScope, ignoreShift: true);
-                    if (job != null || failureScope == BuildFailureScope.GlobalRetry)
-                        ScheduleDispatch(key, task.RetryTick, now);
-                    if (job != null)
-                        return job;
-                }
+                if (leases.HasLease(key))
+                    continue;
+                hasPending = true;
+                Job job = TryCreateUniqueJob(pawn, storage, i, slot.pendingSourceThingId, now, ignoreBudget: true, forced: forced, out _, out _, out _, out _);
+                if (job != null)
+                    return job;
+            }
+            if (forced)
+            {
+                JobFailReason.Is((hasPending
+                    ? "RSMF.Restock.Forced.NoSupply"
+                    : "RSMF.Restock.Forced.AtTarget").Translate());
             }
             return null;
         }
 
         //尝试把一个可靠请求转换成具体 Job，并通过 failureScope 区分单人条件与全局阻塞。
-        private Job TryBuildJob(Pawn pawn, Building_SimContainer storage, RestockTask task, int now, bool ignoreBudget, out BuildFailureScope failureScope, bool ignoreShift = false)
+        private Job TryBuildJob(Pawn pawn, Building_SimContainer storage, RestockTask task, int now, bool ignoreBudget, out BuildFailureScope failureScope, bool forced = false)
         {
             failureScope = BuildFailureScope.None;
             if (!IsValidStorage(storage))
@@ -188,7 +200,7 @@ namespace SimManagementLib.SimMapComp
                 RemoveRequest(task.Key);
                 return null;
             }
-            if (!CanPawnUseRequest(pawn, storage, task.Kind, ignoreShift))
+            if (!CanPawnUseRequest(pawn, storage, task.Kind, forced))
             {
                 failureScope = BuildFailureScope.PawnSpecific;
                 return null;
@@ -214,14 +226,13 @@ namespace SimManagementLib.SimMapComp
                 return null;
             }
             return task.Kind == RestockRequestKind.Unique
-                ? TryBuildUniqueJob(pawn, storage as Building_UniqueGoodsContainer, task, now, ignoreBudget, out failureScope)
-                : TryBuildBulkJob(pawn, storage, task, now, ignoreBudget, out failureScope);
+                ? TryBuildUniqueJob(pawn, storage as Building_UniqueGoodsContainer, task, now, ignoreBudget, forced, out failureScope)
+                : TryBuildBulkJob(pawn, storage, task, now, ignoreBudget, forced, out failureScope);
         }
 
-        //创建普通补货 Job，货源搜索使用原版区域搜索并按原版手搬容量计算携带上限。
-        private Job TryBuildBulkJob(Pawn pawn, Building_SimContainer storage, RestockTask task, int now, bool ignoreBudget, out BuildFailureScope failureScope)
+        //创建普通补货 Job，并把结果状态同步回可靠请求。
+        private Job TryBuildBulkJob(Pawn pawn, Building_SimContainer storage, RestockTask task, int now, bool ignoreBudget, bool forced, out BuildFailureScope failureScope)
         {
-            failureScope = BuildFailureScope.None;
             int needed = CalculateBulkAvailable(storage, task.ThingDef);
             if (needed <= 0)
             {
@@ -231,7 +242,43 @@ namespace SimManagementLib.SimMapComp
                 failureScope = BuildFailureScope.GlobalRetry;
                 return null;
             }
-            int carryMax = pawn.carryTracker?.MaxStackSpaceEver(task.ThingDef) ?? 0;
+
+            Job job = TryCreateBulkJob(pawn, storage, task.ThingDef, needed, now, ignoreBudget, forced, out failureScope, out string reason, out int retryDelay);
+            if (job == null)
+            {
+                if (!reason.NullOrEmpty())
+                    task.StateReason = reason;
+                if (failureScope == BuildFailureScope.GlobalRetry)
+                {
+                    task.SupplyId = -1;
+                    task.RetryTick = now + retryDelay;
+                }
+                return null;
+            }
+
+            task.SupplyId = job.targetA.Thing?.thingIDNumber ?? -1;
+            task.StateReason = SimTranslation.T("RSMF.RestockReason.JobCreated");
+            task.RetryTick = now + 1;
+            return job;
+        }
+
+        //搜索普通货源并按原版手搬容量构造补货 Job。
+        private Job TryCreateBulkJob(
+            Pawn pawn,
+            Building_SimContainer storage,
+            ThingDef thingDef,
+            int needed,
+            int now,
+            bool ignoreBudget,
+            bool forced,
+            out BuildFailureScope failureScope,
+            out string stateReason,
+            out int retryDelay)
+        {
+            failureScope = BuildFailureScope.None;
+            stateReason = null;
+            retryDelay = MissingSupplyRetryTicks;
+            int carryMax = pawn.carryTracker?.MaxStackSpaceEver(thingDef) ?? 0;
             if (carryMax <= 0)
             {
                 failureScope = BuildFailureScope.PawnSpecific;
@@ -239,25 +286,22 @@ namespace SimManagementLib.SimMapComp
             }
             if (!ignoreBudget && !budget.TryUseReachQuery())
             {
-                task.StateReason = SimTranslation.T("RSMF.RestockReason.WaitSourceSearch");
+                stateReason = SimTranslation.T("RSMF.RestockReason.WaitSourceSearch");
                 failureScope = BuildFailureScope.BudgetExhausted;
                 return null;
             }
 
-            Thing supply = sourceResolver.FindBulkSupply(pawn, storage, task.ThingDef, false);
+            Thing supply = sourceResolver.FindBulkSupply(pawn, storage, thingDef, false, forced);
             bool deepSearched = false;
             if (supply == null
-                && (ignoreBudget || budget.TryUseReachQuery())
-                && budget.TryUseDeepSearch(now))
+                && (forced || ((ignoreBudget || budget.TryUseReachQuery()) && budget.TryUseDeepSearch(now))))
             {
                 deepSearched = true;
-                supply = sourceResolver.FindBulkSupply(pawn, storage, task.ThingDef, true);
+                supply = sourceResolver.FindBulkSupply(pawn, storage, thingDef, true, forced);
             }
             if (supply == null)
             {
-                task.SupplyId = -1;
-                task.StateReason = deepSearched ? SimTranslation.T("RSMF.RestockReason.BulkSourceUnavailable") : SimTranslation.T("RSMF.RestockReason.WaitDeepSearch");
-                task.RetryTick = now + MissingSupplyRetryTicks;
+                stateReason = deepSearched ? SimTranslation.T("RSMF.RestockReason.BulkSourceUnavailable") : SimTranslation.T("RSMF.RestockReason.WaitDeepSearch");
                 failureScope = BuildFailureScope.GlobalRetry;
                 return null;
             }
@@ -266,7 +310,7 @@ namespace SimManagementLib.SimMapComp
             int amount = Math.Min(needed, Math.Min(carryMax, availableSupply));
             if (amount <= 0)
             {
-                task.StateReason = SimTranslation.T("RSMF.RestockReason.NoCarryCapacity");
+                stateReason = SimTranslation.T("RSMF.RestockReason.NoCarryCapacity");
                 failureScope = BuildFailureScope.PawnSpecific;
                 return null;
             }
@@ -274,16 +318,13 @@ namespace SimManagementLib.SimMapComp
             Job job = JobMaker.MakeJob(jobDef, supply, storage);
             job.count = amount;
             job.haulMode = HaulMode.ToCellStorage;
-            job.plantDefToSow = task.ThingDef;
+            job.plantDefToSow = thingDef;
             job.workGiverDef = GetWorkGiverDef(RestockRequestKind.Bulk);
-            task.SupplyId = supply.thingIDNumber;
-            task.StateReason = SimTranslation.T("RSMF.RestockReason.JobCreated");
-            task.RetryTick = now + 1;
             return job;
         }
 
         //创建专业补货 Job，来源暂时不可用时始终保留玩家指派和请求。
-        private Job TryBuildUniqueJob(Pawn pawn, Building_UniqueGoodsContainer storage, RestockTask task, int now, bool ignoreBudget, out BuildFailureScope failureScope)
+        private Job TryBuildUniqueJob(Pawn pawn, Building_UniqueGoodsContainer storage, RestockTask task, int now, bool ignoreBudget, bool forced, out BuildFailureScope failureScope)
         {
             failureScope = BuildFailureScope.None;
             if (storage == null || !storage.IsPendingSlotMatch(task.SlotIndex, task.SourceThingId))
@@ -299,30 +340,69 @@ namespace SimManagementLib.SimMapComp
                 return null;
             }
 
-            Thing source = sourceResolver.ResolveExactThing(task.SourceThingId, false, out bool confirmedDestroyed);
+            Job job = TryCreateUniqueJob(pawn, storage, task.SlotIndex, task.SourceThingId, now, ignoreBudget, forced, out failureScope, out string reason, out int retryDelay, out bool confirmedDestroyed);
+            if (confirmedDestroyed)
+            {
+                RemoveRequest(task.Key);
+                return null;
+            }
+            if (job == null)
+            {
+                if (!reason.NullOrEmpty())
+                    task.StateReason = reason;
+                if (failureScope == BuildFailureScope.GlobalRetry)
+                    task.RetryTick = now + retryDelay;
+                return null;
+            }
+
+            task.SupplyId = job.targetA.Thing?.thingIDNumber ?? -1;
+            task.StateReason = SimTranslation.T("RSMF.RestockReason.UniqueJobCreated");
+            task.RetryTick = now + 1;
+            return job;
+        }
+
+        //解析专业货源并构造精确搬运 Job，玩家强制指令绕过深搜冷却并允许抢占普通预约。
+        private Job TryCreateUniqueJob(
+            Pawn pawn,
+            Building_UniqueGoodsContainer storage,
+            int slotIndex,
+            int sourceThingId,
+            int now,
+            bool ignoreBudget,
+            bool forced,
+            out BuildFailureScope failureScope,
+            out string stateReason,
+            out int retryDelay,
+            out bool confirmedDestroyed)
+        {
+            failureScope = BuildFailureScope.None;
+            stateReason = null;
+            retryDelay = MissingSupplyRetryTicks;
+            confirmedDestroyed = false;
+            if (storage == null || !storage.IsPendingSlotMatch(slotIndex, sourceThingId))
+                return null;
+
+            Thing source = sourceResolver.ResolveExactThing(sourceThingId, false, out confirmedDestroyed);
             bool deepSearched = false;
-            if (source == null && !confirmedDestroyed && budget.TryUseDeepSearch(now))
+            if (source == null && !confirmedDestroyed && (forced || budget.TryUseDeepSearch(now)))
             {
                 deepSearched = true;
-                source = sourceResolver.ResolveExactThing(task.SourceThingId, true, out confirmedDestroyed);
+                source = sourceResolver.ResolveExactThing(sourceThingId, true, out confirmedDestroyed);
             }
             if (confirmedDestroyed)
             {
-                storage.ClearDestroyedPendingSource(task.SlotIndex, task.SourceThingId);
-                RemoveRequest(task.Key);
+                storage.ClearDestroyedPendingSource(slotIndex, sourceThingId);
                 return null;
             }
             if (source == null || !source.Spawned || source.Map != map)
             {
-                task.StateReason = deepSearched ? SimTranslation.T("RSMF.RestockReason.UniqueNotSpawned") : SimTranslation.T("RSMF.RestockReason.WaitUniqueIndex");
-                task.RetryTick = now + MissingSupplyRetryTicks;
+                stateReason = deepSearched ? SimTranslation.T("RSMF.RestockReason.UniqueNotSpawned") : SimTranslation.T("RSMF.RestockReason.WaitUniqueIndex");
                 failureScope = BuildFailureScope.GlobalRetry;
                 return null;
             }
-            if (!storage.IsEligiblePendingSource(task.SlotIndex, source))
+            if (!storage.IsEligiblePendingSource(slotIndex, source))
             {
-                task.StateReason = SimTranslation.T("RSMF.RestockReason.UniqueIneligible");
-                task.RetryTick = now + MissingSupplyRetryTicks;
+                stateReason = SimTranslation.T("RSMF.RestockReason.UniqueIneligible");
                 failureScope = BuildFailureScope.GlobalRetry;
                 return null;
             }
@@ -331,21 +411,21 @@ namespace SimManagementLib.SimMapComp
                 failureScope = BuildFailureScope.PawnSpecific;
                 return null;
             }
-            if (map.reservationManager.IsReserved(source))
+            if (!forced && map.reservationManager.IsReserved(source))
             {
-                task.StateReason = SimTranslation.T("RSMF.RestockReason.UniqueReserved");
-                task.RetryTick = now + TemporaryRetryTicks;
+                stateReason = SimTranslation.T("RSMF.RestockReason.UniqueReserved");
+                retryDelay = TemporaryRetryTicks;
                 failureScope = BuildFailureScope.GlobalRetry;
                 return null;
             }
-            if (source.IsForbidden(pawn) || !pawn.CanReserve(source))
+            if (source.IsForbidden(pawn) || !pawn.CanReserve(source, 1, 1, null, forced))
             {
                 failureScope = BuildFailureScope.PawnSpecific;
                 return null;
             }
             if (!ignoreBudget && !budget.TryUseReachQuery())
             {
-                task.StateReason = SimTranslation.T("RSMF.RestockReason.WaitUniqueReach");
+                stateReason = SimTranslation.T("RSMF.RestockReason.WaitUniqueReach");
                 failureScope = BuildFailureScope.BudgetExhausted;
                 return null;
             }
@@ -360,9 +440,6 @@ namespace SimManagementLib.SimMapComp
             job.count = 1;
             job.haulMode = HaulMode.ToCellNonStorage;
             job.workGiverDef = GetWorkGiverDef(RestockRequestKind.Unique);
-            task.SupplyId = source.thingIDNumber;
-            task.StateReason = SimTranslation.T("RSMF.RestockReason.UniqueJobCreated");
-            task.RetryTick = now + 1;
             return job;
         }
 
@@ -387,8 +464,8 @@ namespace SimManagementLib.SimMapComp
             return HasRequiredCapacities(pawn, workGiverDef);
         }
 
-        //判断 Pawn 是否具备指定补货工作的能力、岗位权限和地图状态，手动强制时可忽略排班小时。
-        private static bool CanPawnUseRequest(Pawn pawn, Building_SimContainer storage, RestockRequestKind kind, bool ignoreShift = false)
+        //判断 Pawn 是否具备指定补货工作的能力、岗位权限和地图状态，玩家强制指令忽略固定名单与排班小时。
+        private static bool CanPawnUseRequest(Pawn pawn, Building_SimContainer storage, RestockRequestKind kind, bool forced = false)
         {
             if (pawn == null || pawn.Destroyed || pawn.Dead || !pawn.Spawned || pawn.Downed || pawn.InMentalState || pawn.Drafted)
                 return false;
@@ -399,12 +476,16 @@ namespace SimManagementLib.SimMapComp
                 return false;
             ShopStaffRoleDef role = GetRestockerRoleDef();
             WorkTypeDef requiredWorkType = role?.requiredWorkType ?? workGiverDef.workType;
-            if (!ShopStaffUtility.CanPawnPerformWorkType(pawn, requiredWorkType, !ignoreShift))
+            if (!ShopStaffUtility.CanPawnPerformWorkType(pawn, requiredWorkType, !forced))
                 return false;
             if (!HasRequiredCapacities(pawn, workGiverDef))
                 return false;
-            return VendingMachineUtility.IsVendingMachine(storage)
-                || ShopStaffUtility.AllowsPawnForWorkGiver(ShopStaffUtility.FindShopFor(storage), pawn, workGiverDef, 0, ignoreShift);
+            if (VendingMachineUtility.IsVendingMachine(storage))
+                return true;
+            SimZone.Zone_Shop shop = ShopStaffUtility.FindShopFor(storage);
+            return forced
+                ? ShopStaffUtility.AllowsPawnForForcedWorkGiver(shop, pawn, workGiverDef)
+                : ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, workGiverDef, 0, false);
         }
 
         //校验 Pawn 是否满足补货 WorkGiver 要求的生理能力。

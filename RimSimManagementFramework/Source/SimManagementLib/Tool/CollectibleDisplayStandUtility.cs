@@ -96,8 +96,8 @@ namespace SimManagementLib.Tool
             return null;
         }
 
-        //判断小人是否能搬运指定来源到展台。
-        public static bool CanPawnUseSource(Pawn pawn, Building_CollectibleDisplayStand stand, Thing source)
+        //判断小人是否能搬运指定来源到展台，玩家强制指令允许抢占普通预约。
+        public static bool CanPawnUseSource(Pawn pawn, Building_CollectibleDisplayStand stand, Thing source, bool forced = false)
         {
             if (pawn == null || stand == null || source == null)
                 return false;
@@ -105,10 +105,10 @@ namespace SimManagementLib.Tool
             if (!stand.Spawned || stand.Destroyed || pawn.Map != stand.Map || source.Map != stand.Map)
                 return false;
 
-            if (!pawn.CanReserve(stand) || !pawn.CanReach(stand, PathEndMode.Touch, Danger.Deadly))
+            if (!pawn.CanReserve(stand, 1, -1, null, forced) || !pawn.CanReach(stand, PathEndMode.Touch, Danger.Deadly))
                 return false;
 
-            if (source.IsForbidden(pawn) || !pawn.CanReserve(source))
+            if (source.IsForbidden(pawn) || !pawn.CanReserve(source, 1, -1, null, forced))
                 return false;
 
             return pawn.CanReach(source, PathEndMode.ClosestTouch, Danger.Deadly);

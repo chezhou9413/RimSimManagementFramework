@@ -29,33 +29,40 @@ namespace RimSimRestaurantExtension.Conveyor.Stocking
         public static int PendingTotal(ConveyorLine line) =>
             line.segments.Count(b => b.reservedBy != null && !b.reservedRuleId.NullOrEmpty());
 
-        //判断厨师是否可以领取低优先级工作，职责是避让同店顾客厨房订单。
-        public static bool Idle(Pawn pawn, ConveyorLine line)
+        //判断厨师是否可以领取传送带补餐或清理工作，玩家强制指令忽略排班小时和自动避让。
+        public static bool Idle(Pawn pawn, ConveyorLine line, bool forced = false)
         {
             var shop = line?.Shop;
-            return shop != null && line.SameShop && shop.IsOpenNow()
-                && RestaurantCookingUtility.CanPawnCook(pawn)
-                && RestaurantOrderUtility.Settings.GetOrCreate(shop.ID).enabled
-                && !RestaurantOrderUtility.HasBlockingPriorityJobOrNeed(pawn)
-                && SimShopStaffApi.IsOnShiftForWorkGiver(shop, pawn, DefOfRefs.RSR_WorkGiver_CookRestaurantOrder)
-                && !RestaurantOrderUtility.OrderManager.GetActiveOrders(shop.ID).Any(o =>
-                    o.state == RestaurantOrderState.WaitingOrder || o.state == RestaurantOrderState.TakingOrder
-                    || o.state == RestaurantOrderState.WaitingCook || o.state == RestaurantOrderState.Cooking
-                    || o.state == RestaurantOrderState.ChefBringingToPass);
+            if (shop == null || !line.SameShop || (!forced && !shop.IsOpenNow()))
+                return false;
+            if (!RestaurantCookingUtility.CanPawnCook(pawn)
+                || !RestaurantOrderUtility.Settings.GetOrCreate(shop.ID).enabled)
+                return false;
+            if (!forced && RestaurantOrderUtility.HasBlockingPriorityJobOrNeed(pawn))
+                return false;
+            bool allowed = forced
+                ? SimShopStaffApi.IsAssignedToWorkGiver(shop, pawn, DefOfRefs.RSR_WorkGiver_CookRestaurantOrder)
+                : SimShopStaffApi.IsOnShiftForWorkGiver(shop, pawn, DefOfRefs.RSR_WorkGiver_CookRestaurantOrder);
+            if (!allowed)
+                return false;
+            return forced || !RestaurantOrderUtility.OrderManager.GetActiveOrders(shop.ID).Any(o =>
+                o.state == RestaurantOrderState.WaitingOrder || o.state == RestaurantOrderState.TakingOrder
+                || o.state == RestaurantOrderState.WaitingCook || o.state == RestaurantOrderState.Cooking
+                || o.state == RestaurantOrderState.ChefBringingToPass);
         }
 
-        //判断餐盘是否需要清理，职责是拒售腐坏食品和已经下架的旧餐盘。
+        //判断餐盘是否需要清理，拒售腐坏食品和已经下架的旧餐盘。
         public static bool NeedsCleaning(Building_SushiConveyor belt) => belt.Food != null
             && (!belt.Food.IngestibleNow || belt.Food.TryGetComp<CompRottable>()?.Stage > RotStage.Fresh
                 || belt.Line?.rules.Any(r => r.id == belt.plate?.ruleId && r.enabled) != true);
 
-        //构造无副作用的单盘任务预览，职责是在预约前验证食材、技能和可达性。
-        public static ConveyorRestockTask Find(Pawn pawn, Building_SushiConveyor belt, out List<ThingCount> stock)
+        //构造无副作用的单盘任务预览，在预约前验证食材、技能和可达性。
+        public static ConveyorRestockTask Find(Pawn pawn, Building_SushiConveyor belt, out List<ThingCount> stock, bool forced = false)
         {
             stock = new List<ThingCount>();
             var line = belt.Line;
-            if (pawn.carryTracker.CarriedThing != null || belt.reservedBy != null || !Idle(pawn, line)
-                || !pawn.CanReserveAndReach(belt, PathEndMode.Touch, Danger.Some))
+            if (pawn.carryTracker.CarriedThing != null || belt.reservedBy != null || !Idle(pawn, line, forced)
+                || !pawn.CanReserveAndReach(belt, PathEndMode.Touch, Danger.Some, 1, -1, null, forced))
                 return null;
             if (NeedsCleaning(belt))
             {

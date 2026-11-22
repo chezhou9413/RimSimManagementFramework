@@ -29,12 +29,15 @@ namespace RimSimRestaurantExtension.Tool
             MoveTo(order, RestaurantOrderState.WaitingOrder);
         }
 
-        //认领接待任务，职责是拒绝重复服务员并要求顾客正在原座等待。
+        //认领接待任务，同一服务员在强制指令和启动阶段重复预约时保持幂等。
         public static bool ClaimReception(RestaurantOrder order, Pawn waiter)
         {
             Pawn customer = RestaurantOrderUtility.FindCustomer(waiter.Map, order);
-            if (order?.state != RestaurantOrderState.WaitingOrder || customer?.Position != order.seatCell
+            if (order == null || customer?.Position != order.seatCell
                 || customer.CurJobDef != DefOfRefs.RSR_WaitRestaurantOrderAtDiningSpot) return false;
+            if (order.state == RestaurantOrderState.TakingOrder && order.waiterThingId == waiter.thingIDNumber)
+                return true;
+            if (order.state != RestaurantOrderState.WaitingOrder) return false;
             order.waiterThingId = waiter.thingIDNumber;
             MoveTo(order, RestaurantOrderState.TakingOrder);
             return true;
@@ -106,10 +109,15 @@ namespace RimSimRestaurantExtension.Tool
             return true;
         }
 
-        //认领厨房任务，职责是防止同一订单重复投料。
+        //认领厨房任务，同一厨师在同一灶台重复预预约时保持幂等。
         public static bool ClaimCooking(RestaurantOrder order, Pawn cook, Thing stove)
         {
-            if (order?.state != RestaurantOrderState.WaitingCook || order.mealProduced || order.stockProduct
+            if (order == null || order.mealProduced || order.stockProduct) return false;
+            if (order.state == RestaurantOrderState.Cooking
+                && order.cookThingId == cook.thingIDNumber
+                && order.stoveThingId == stove.thingIDNumber)
+                return true;
+            if (order.state != RestaurantOrderState.WaitingCook
                 || Find.TickManager.TicksGame < order.nextCookingAttemptTick) return false;
             order.cookThingId = cook.thingIDNumber;
             order.stoveThingId = stove.thingIDNumber;

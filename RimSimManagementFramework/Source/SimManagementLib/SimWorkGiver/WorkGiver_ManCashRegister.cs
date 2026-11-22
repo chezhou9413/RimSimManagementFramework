@@ -15,6 +15,7 @@ namespace SimManagementLib.SimWorkGiver
         private static readonly Dictionary<int, RegisterCandidateCache> candidateCaches = new Dictionary<int, RegisterCandidateCache>();
         private static JobDef cachedManRegisterJobDef;
 
+        public override ThingRequest PotentialWorkThingRequest => ThingRequest.ForGroup(ThingRequestGroup.BuildingArtificial);
         public override PathEndMode PathEndMode => PathEndMode.InteractionCell;
         public override bool Prioritized => true;
         protected virtual bool WaitingCustomersOnly => false;
@@ -59,10 +60,10 @@ namespace SimManagementLib.SimWorkGiver
             SimZone.Zone_Shop shop = ShopStaffUtility.FindShopFor(register);
             bool waiting = register.HasWaitingCustomers;
             if (WaitingCustomersOnly && !waiting) return false;
-            if (!waiting && !ShopStaffUtility.CanCashierWorkAt(shop)) return false;
+            if (!forced && !waiting && !ShopStaffUtility.CanCashierWorkAt(shop)) return false;
             if (!ShopStaffUtility.CanPawnPerformWorkType(pawn, def.workType, !forced)
                 || MissingRequiredCapacity(pawn) != null) return false;
-            if (!register.CanAcceptStaffReservation(pawn, out bool isHandover))
+            if (!register.CanAcceptStaffReservation(pawn, out bool isHandover, forced))
                 return false;
 
             //已经饥饿、疲惫或自己也即将下班的员工不参与接班，防止两人互相交接打乒乓。
@@ -89,17 +90,16 @@ namespace SimManagementLib.SimWorkGiver
             return true;
         }
 
-        //保存派工来源与交接标记，营业内按排班稳守值班，关店收尾或手动跨岗补位在队列清空后离开。
+        //保存派工来源与交接标记，玩家手动强派稳守岗位，自动关店收尾在队列清空后离开。
         public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
             Building_CashRegister register = (Building_CashRegister)t;
             SimZone.Zone_Shop shop = ShopStaffUtility.FindShopFor(register);
-            register.CanAcceptStaffReservation(pawn, out bool isHandover);
+            register.CanAcceptStaffReservation(pawn, out bool isHandover, forced);
             JobDef jobDef = cachedManRegisterJobDef ??= DefDatabase<JobDef>.GetNamed("Sim_ManCashRegister");
             Job job = JobMaker.MakeJob(jobDef, register, isHandover ? register : LocalTargetInfo.Invalid);
             job.workGiverDef = def;
-            bool shortRelief = (forced && !ShopStaffUtility.AllowsPawnForCashierRoleIgnoringShift(shop, pawn))
-                || !ShopStaffUtility.IsShopOpenForWork(shop);
+            bool shortRelief = !forced && !ShopStaffUtility.IsShopOpenForWork(shop);
             job.count = shortRelief ? 1 : 0;
             return job;
         }

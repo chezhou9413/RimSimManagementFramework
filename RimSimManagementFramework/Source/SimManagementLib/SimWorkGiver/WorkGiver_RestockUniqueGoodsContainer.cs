@@ -13,9 +13,13 @@ namespace SimManagementLib.SimWorkGiver
         private int cachedTick = -1;
         private int cachedPawnId = -1;
         private int cachedStorageId = -1;
+        private bool cachedForced;
         private Job cachedJob;
 
-        //自动补货不枚举地图建筑，手动调用仍可直接使用 HasJobOnThing。
+        //声明手动命令可检查人造建筑，自动找工作由 NonScanJob 直接领取请求。
+        public override ThingRequest PotentialWorkThingRequest => ThingRequest.ForGroup(ThingRequestGroup.BuildingArtificial);
+
+        //自动补货不枚举地图建筑，手动调用通过 PotentialWorkThingRequest 进入 HasJobOnThing。
         public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn)
         {
             yield break;
@@ -28,37 +32,57 @@ namespace SimManagementLib.SimWorkGiver
                 ?.TryMakeJobForPawn(pawn, RestockRequestKind.Unique);
         }
 
-        //判断指定专业货柜是否能为当前 Pawn 创建 Job，并缓存同 tick 结果。
+        //判断指定专业货柜是否能为当前 Pawn 创建 Job，并缓存同 tick 有效结果。
         public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
-            return ResolveManualJob(pawn, t as Building_UniqueGoodsContainer) != null;
+            return ResolveManualJob(pawn, t as Building_UniqueGoodsContainer, forced) != null;
         }
 
         //返回指定专业货柜的精确搬运 Job。
         public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
-            Job result = ResolveManualJob(pawn, t as Building_UniqueGoodsContainer);
-            cachedJob = null;
+            Job result = ResolveManualJob(pawn, t as Building_UniqueGoodsContainer, forced);
+            ClearManualCache();
             return result;
         }
 
-        //通过协调器解析一次专业补货，避免同一原版查询链重复执行可达性判断。
-        private Job ResolveManualJob(Pawn pawn, Building_UniqueGoodsContainer storage)
+        //通过协调器解析一次专业补货，只缓存有效 Job 避免暂停态二次右键命中空缓存。
+        private Job ResolveManualJob(Pawn pawn, Building_UniqueGoodsContainer storage, bool forced)
         {
             if (storage == null || pawn?.Map == null)
                 return null;
             int now = Find.TickManager?.TicksGame ?? 0;
-            if (cachedTick == now
+            if (cachedJob != null
+                && cachedTick == now
                 && cachedPawnId == pawn.thingIDNumber
-                && cachedStorageId == storage.thingIDNumber)
+                && cachedStorageId == storage.thingIDNumber
+                && cachedForced == forced)
                 return cachedJob;
+
+            Job job = pawn.Map.GetComponent<MapComponent_RestockTaskQueue>()
+                ?.TryMakeUniqueJobForStorage(pawn, storage, forced);
+            if (job == null)
+            {
+                ClearManualCache();
+                return null;
+            }
 
             cachedTick = now;
             cachedPawnId = pawn.thingIDNumber;
             cachedStorageId = storage.thingIDNumber;
-            cachedJob = pawn.Map.GetComponent<MapComponent_RestockTaskQueue>()
-                ?.TryMakeUniqueJobForStorage(pawn, storage);
-            return cachedJob;
+            cachedForced = forced;
+            cachedJob = job;
+            return job;
+        }
+
+        //清空手动专业补货单次查询缓存。
+        private void ClearManualCache()
+        {
+            cachedTick = -1;
+            cachedPawnId = -1;
+            cachedStorageId = -1;
+            cachedForced = false;
+            cachedJob = null;
         }
     }
 }

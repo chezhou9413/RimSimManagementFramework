@@ -9,12 +9,13 @@ namespace RimSimRestaurantExtension.Jobs
     //恢复厨师出餐运输，职责是搬运已有成品且不重新取料制作。
     public class JobDriver_BringRestaurantMealToPass : JobDriver
     {
-        //预约可回收餐品并认领运输，职责是阻止多名厨师重复搬运。
+        //预约可回收餐品并幂等认领运输，兼容右键强制的两次预预约且阻止多名厨师重复搬运。
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
             var order = Resolve();
             Thing target = RestaurantMealTransferUtility.PickupTarget(order, pawn);
-            if (order?.state != RestaurantOrderState.ChefBringingToPass || order.cookThingId >= 0
+            if (order?.state != RestaurantOrderState.ChefBringingToPass
+                || (order.cookThingId >= 0 && order.cookThingId != pawn.thingIDNumber)
                 || !RestaurantMealTransferUtility.CanCollect(pawn, order)
                 || !RestaurantPickupReservationUtility.Reserve(pawn, target, job, errorOnFailed)) return false;
             order.cookThingId = pawn.thingIDNumber;

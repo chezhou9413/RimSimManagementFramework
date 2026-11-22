@@ -25,6 +25,9 @@ namespace SimManagementLib.SimWorkGiver
         private static WorkGiverDef cachedWorkGiverDef;
         private static JobDef cachedWithdrawJobDef;
 
+        //使用不存入区域的 ThingHolder 分组，避免自动扫描遍历全图建筑同时让右键菜单直接命中货柜。
+        public override ThingRequest PotentialWorkThingRequest => ThingRequest.ForGroup(ThingRequestGroup.ThingHolder);
+
         //自动清理货柜多余库存时遵守殖民者作息表和机械体工作状态。
         public override bool ShouldSkip(Pawn pawn, bool forced = false)
         {
@@ -56,17 +59,17 @@ namespace SimManagementLib.SimWorkGiver
                 yield return candidates[i];
         }
 
-        /// <summary>
-        /// 判断指定货柜是否存在需要移出的多余商品。
-        /// </summary>
+        //判断指定货柜是否存在需要移出的多余商品，玩家强制指令绕过可达短缓存。
         public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
             if (!(t is Building_SimContainer storage) || storage is Building_UniqueGoodsContainer) return false;
             if (pawn?.Map == null || storage.Map != pawn.Map || storage.Destroyed || !storage.Spawned) return false;
             storage.ReconcilePendingReservationsForWorkScan();
             if (!HasExcess(storage, pawn, forced)) return false;
-            if (!WorkGiverThingQueryCache.CanReachThingCached(pawn, storage, PathEndMode.Touch, Danger.Deadly, StorageReachCacheTicks)) return false;
-            return true;
+            bool reachable = forced
+                ? pawn.CanReach(storage, PathEndMode.Touch, Danger.Deadly)
+                : WorkGiverThingQueryCache.CanReachThingCached(pawn, storage, PathEndMode.Touch, Danger.Deadly, StorageReachCacheTicks);
+            return reachable;
         }
 
         //为指定货柜生成移出多余商品的任务，实际待出库预约延迟到 Job 启动时申请，避免未启动的 Job 泄漏预约。
@@ -89,14 +92,20 @@ namespace SimManagementLib.SimWorkGiver
             return null;
         }
 
-        //判断货柜是否有超过目标量或已移出配置的库存，手动强制时可忽略排班小时。
+        //判断货柜是否有超过目标量或已移出配置的库存，玩家强制指令忽略营业开关、名单与排班小时。
         private static bool HasExcess(Building_SimContainer storage, Pawn pawn, bool forced)
         {
             if (storage.Destroyed || !storage.Spawned) return false;
-            Zone_Shop shop = ShopStaffUtility.FindShopFor(storage);
-            if (!VendingMachineUtility.IsVendingMachine(storage) && !ShopStaffUtility.IsShopOpenForWork(shop)) return false;
-            if (!VendingMachineUtility.IsVendingMachine(storage) && !ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, CurrentWorkGiverDef, 0, ignoreShift: forced))
-                return false;
+            if (!VendingMachineUtility.IsVendingMachine(storage))
+            {
+                Zone_Shop shop = ShopStaffUtility.FindShopFor(storage);
+                if (!forced && !ShopStaffUtility.IsShopOpenForWork(shop)) return false;
+                bool allowed = forced
+                    ? ShopStaffUtility.AllowsPawnForForcedWorkGiver(shop, pawn, CurrentWorkGiverDef)
+                    : ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, CurrentWorkGiverDef, 0, ignoreShift: false);
+                if (!allowed)
+                    return false;
+            }
 
             foreach ((ThingDef _, int excess) in storage.GetExcessItems())
             {

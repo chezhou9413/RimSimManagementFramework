@@ -14,12 +14,14 @@ namespace SimManagementLib.SimWorkGiver
         private int cachedTick = -1;
         private int cachedPawnId = -1;
         private int cachedStandId = -1;
+        private bool cachedForced;
         private int cachedSlotIndex = -1;
         private Thing cachedSource;
 
-        /// <summary>
-        /// 返回殖民者建筑中的收藏品展台候选。
-        /// </summary>
+        //使用不存入区域的 ThingHolder 分组，避免全图区域扫描同时让右键直接命中展台。
+        public override ThingRequest PotentialWorkThingRequest => ThingRequest.ForGroup(ThingRequestGroup.ThingHolder);
+
+        //返回殖民者建筑中的收藏品展台候选。
         public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn)
         {
             List<Building> buildings = pawn?.Map?.listerBuildings?.allBuildingsColonist;
@@ -33,66 +35,77 @@ namespace SimManagementLib.SimWorkGiver
             }
         }
 
-        /// <summary>
-        /// 判断指定展台是否有可执行的填充工作。
-        /// </summary>
+        //判断指定展台是否有可执行的填充工作。
         public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
             if (!(t is Building_CollectibleDisplayStand stand))
                 return false;
 
-            return FindFillTargetCached(pawn, stand, out _, out _);
+            return FindFillTargetCached(pawn, stand, forced, out _, out _);
         }
 
-        /// <summary>
-        /// 为展台创建填充任务，并把槽位索引写入 job.count。
-        /// </summary>
+        //为展台创建填充任务，并把槽位索引写入 job.count。
         public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
             if (!(t is Building_CollectibleDisplayStand stand))
                 return null;
 
-            if (!FindFillTargetCached(pawn, stand, out int slotIndex, out Thing source))
+            if (!FindFillTargetCached(pawn, stand, forced, out int slotIndex, out Thing source))
                 return null;
 
+            ClearCache();
             Job job = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("FillCollectibleDisplayStand"), source, stand);
             job.count = slotIndex;
             job.haulMode = HaulMode.ToCellNonStorage;
             return job;
         }
 
-        /// <summary>
-        /// 缓存同一 tick 的槽位和来源查找结果，避免 RimWorld 工作扫描重复搜索。
-        /// </summary>
-        private bool FindFillTargetCached(Pawn pawn, Building_CollectibleDisplayStand stand, out int slotIndex, out Thing source)
+        //只缓存同一 tick 的有效查找结果，供紧随其后的 JobOnThing 复用并避免暂停态命中旧空缓存。
+        private bool FindFillTargetCached(Pawn pawn, Building_CollectibleDisplayStand stand, bool forced, out int slotIndex, out Thing source)
         {
             int tick = Find.TickManager?.TicksGame ?? -1;
             int pawnId = pawn?.thingIDNumber ?? -1;
             int standId = stand?.thingIDNumber ?? -1;
 
-            if (cachedTick == tick && cachedPawnId == pawnId && cachedStandId == standId)
-            {
-                slotIndex = cachedSlotIndex;
-                source = cachedSource;
-                return slotIndex >= 0 && source != null && !source.Destroyed;
-            }
-
-            cachedTick = tick;
-            cachedPawnId = pawnId;
-            cachedStandId = standId;
-            cachedSlotIndex = -1;
-            cachedSource = null;
-
-            if (stand != null && stand.TryFindFillTarget(pawn, out cachedSlotIndex, out cachedSource))
+            if (cachedSlotIndex >= 0
+                && cachedSource != null
+                && !cachedSource.Destroyed
+                && cachedTick == tick
+                && cachedPawnId == pawnId
+                && cachedStandId == standId
+                && cachedForced == forced)
             {
                 slotIndex = cachedSlotIndex;
                 source = cachedSource;
                 return true;
             }
 
+            if (stand != null && stand.TryFindFillTarget(pawn, out slotIndex, out source, forced))
+            {
+                cachedTick = tick;
+                cachedPawnId = pawnId;
+                cachedStandId = standId;
+                cachedForced = forced;
+                cachedSlotIndex = slotIndex;
+                cachedSource = source;
+                return true;
+            }
+
+            ClearCache();
             slotIndex = -1;
             source = null;
             return false;
+        }
+
+        //清空展台单次工作查询缓存。
+        private void ClearCache()
+        {
+            cachedTick = -1;
+            cachedPawnId = -1;
+            cachedStandId = -1;
+            cachedForced = false;
+            cachedSlotIndex = -1;
+            cachedSource = null;
         }
     }
 }

@@ -133,10 +133,8 @@ namespace SimManagementLib.SimThingClass
             return true;
         }
 
-        /// <summary>
-        /// 查找第一个可执行填充工作的槽位和来源。
-        /// </summary>
-        public bool TryFindFillTarget(Pawn pawn, out int slotIndex, out Thing source)
+        //为工作扫描查找首个可搬运的待填充槽位，玩家强制指令允许抢占普通预约。
+        public bool TryFindFillTarget(Pawn pawn, out int slotIndex, out Thing source, bool forced = false)
         {
             EnsureSlots();
             slotIndex = -1;
@@ -155,7 +153,7 @@ namespace SimManagementLib.SimThingClass
                     continue;
                 }
 
-                if (!CollectibleDisplayStandUtility.CanPawnUseSource(pawn, this, candidate))
+                if (!CollectibleDisplayStandUtility.CanPawnUseSource(pawn, this, candidate, forced))
                     continue;
 
                 slotIndex = i;

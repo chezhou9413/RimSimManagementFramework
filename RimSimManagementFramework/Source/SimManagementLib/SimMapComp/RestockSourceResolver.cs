@@ -81,7 +81,7 @@ namespace SimManagementLib.SimMapComp
         }
 
         //查找当前 Pawn 最近的普通补货货源，深度模式只执行兜底搜索以避免重复区域查询。
-        public Thing FindBulkSupply(Pawn pawn, Building_SimContainer storage, ThingDef thingDef, bool allowDeepSearch)
+        public Thing FindBulkSupply(Pawn pawn, Building_SimContainer storage, ThingDef thingDef, bool allowDeepSearch, bool forced = false)
         {
             if (pawn?.Map != map || storage == null || thingDef == null)
                 return null;
@@ -91,7 +91,7 @@ namespace SimManagementLib.SimMapComp
                 return null;
 
             MapComponent_InventoryReservations reservations = InventoryReservations;
-            Predicate<Thing> validator = thing => IsBulkSupplyCandidate(pawn, storage, thing, thingDef, reservations);
+            Predicate<Thing> validator = thing => IsBulkSupplyCandidate(pawn, storage, thing, thingDef, reservations, forced);
             if (!allowDeepSearch)
             {
                 return GenClosest.ClosestThing_Regionwise_ReachablePrioritized(
@@ -157,8 +157,8 @@ namespace SimManagementLib.SimMapComp
             unresolvedExactThingIds.Remove(thing.thingIDNumber);
         }
 
-        //判断地图物品是否可作为指定 Pawn 的普通货柜货源。
-        private static bool IsBulkSupplyCandidate(Pawn pawn, Building_SimContainer storage, Thing thing, ThingDef thingDef, MapComponent_InventoryReservations reservations)
+        //判断地图物品是否可作为指定 Pawn 的普通货柜货源，玩家强制指令允许抢占其他普通预约。
+        private static bool IsBulkSupplyCandidate(Pawn pawn, Building_SimContainer storage, Thing thing, ThingDef thingDef, MapComponent_InventoryReservations reservations, bool forced)
         {
             if (pawn == null || storage == null || thing == null || thingDef == null)
                 return false;
@@ -170,7 +170,7 @@ namespace SimManagementLib.SimMapComp
                 || (reservations != null && reservations.Available(thing) <= 0)
                 || thing.GetSlotGroup()?.parent is Building_SimContainer)
                 return false;
-            return pawn.CanReserve(thing);
+            return pawn.CanReserve(thing, 1, -1, null, forced);
         }
     }
 }

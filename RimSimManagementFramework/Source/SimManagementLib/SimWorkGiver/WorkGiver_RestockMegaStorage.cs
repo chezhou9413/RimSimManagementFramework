@@ -40,29 +40,47 @@ namespace SimManagementLib.SimWorkGiver
         public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
             Job result = ResolveManualJob(pawn, t as Building_SimContainer, forced);
-            cachedJob = null;
+            ClearManualCache();
             return result;
         }
 
-        //通过协调器解析一次手动补货，避免 HasJob 与 JobOnThing 重复搜索货源。
+        //通过协调器解析一次手动补货，只缓存有效 Job 避免暂停态二次右键命中空缓存。
         private Job ResolveManualJob(Pawn pawn, Building_SimContainer storage, bool forced)
         {
             if (storage == null || storage is Building_UniqueGoodsContainer || pawn?.Map == null)
                 return null;
             int now = Find.TickManager?.TicksGame ?? 0;
-            if (cachedTick == now
+            if (cachedJob != null
+                && cachedTick == now
                 && cachedPawnId == pawn.thingIDNumber
                 && cachedStorageId == storage.thingIDNumber
                 && cachedForced == forced)
                 return cachedJob;
 
+            Job job = pawn.Map.GetComponent<MapComponent_RestockTaskQueue>()
+                ?.TryMakeBulkJobForStorage(pawn, storage, forced);
+            if (job == null)
+            {
+                ClearManualCache();
+                return null;
+            }
+
             cachedTick = now;
             cachedPawnId = pawn.thingIDNumber;
             cachedStorageId = storage.thingIDNumber;
             cachedForced = forced;
-            cachedJob = pawn.Map.GetComponent<MapComponent_RestockTaskQueue>()
-                ?.TryMakeBulkJobForStorage(pawn, storage, forced);
-            return cachedJob;
+            cachedJob = job;
+            return job;
+        }
+
+        //清空手动补货单次查询缓存。
+        private void ClearManualCache()
+        {
+            cachedTick = -1;
+            cachedPawnId = -1;
+            cachedStorageId = -1;
+            cachedForced = false;
+            cachedJob = null;
         }
     }
 }

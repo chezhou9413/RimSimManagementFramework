@@ -8,11 +8,11 @@ namespace SimManagementLib.SimWorkGiver
     {
         protected override bool WaitingCustomersOnly => true;
 
-        //吃饭、睡眠、征召及急迫需求中的员工不参加临时补位。
+        //吃饭、睡眠、征召及急迫需求中的员工不参加临时补位，手动右键统一由主收银值班入口处理避免重复选项。
         public override bool ShouldSkip(Pawn pawn, bool forced = false)
         {
+            if (forced) return true;
             if (base.ShouldSkip(pawn, forced)) return true;
-            if (forced) return false;
             return pawn.CurJob?.playerForced == true || !pawn.Awake() || pawn.CurJobDef == JobDefOf.Ingest;
         }
     }

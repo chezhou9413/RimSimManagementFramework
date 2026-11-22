@@ -114,6 +114,29 @@ namespace SimManagementLib.Tool
             return !hasAnyAssignment;
         }
 
+        //判断员工是否允许在玩家手动强制指令下执行指定 WorkGiver，忽略固定名单和排班时段但保留岗位资格与扩展限制。
+        public static bool AllowsPawnForForcedWorkGiver(Zone_Shop zone, Pawn pawn, WorkGiverDef workGiverDef)
+        {
+            if (pawn == null) return false;
+            if (zone == null || workGiverDef == null) return true;
+            if (IsAssignableMechanicalStaff(pawn) && !MechanicalStaffCanUseWorkType(pawn, workGiverDef.workType))
+                return false;
+
+            bool hasRole = false;
+            List<ShopStaffRoleDef> visibleRoles = GetCachedVisibleRoles(zone);
+            for (int i = 0; i < visibleRoles.Count; i++)
+            {
+                ShopStaffRoleDef role = visibleRoles[i];
+                if (!RoleContainsWorkGiver(role, workGiverDef)) continue;
+                hasRole = true;
+                if (IsPawnEligibleForRole(zone, pawn, role)
+                    && role.Worker.AllowsPawnForWorkGiver(zone, pawn, workGiverDef))
+                    return true;
+            }
+
+            return !hasRole;
+        }
+
         //快速判断员工是否满足岗位基础资格，供 WorkGiver 热路径调用且不构造翻译文本与中间列表。
         public static bool IsPawnEligibleForRole(Zone_Shop zone, Pawn pawn, ShopStaffRoleDef role)
         {

@@ -26,7 +26,7 @@ namespace SimManagementLib.SimAI
             Building_CashRegister register = Register;
             if (register == null || register.Destroyed || !register.Spawned)
                 return false;
-            if (!register.CanAcceptStaffReservation(pawn, out bool isHandover) && !job.playerForced)
+            if (!register.CanAcceptStaffReservation(pawn, out bool isHandover, job.playerForced))
                 return false;
             if (!pawn.Reserve(register, job, Building_CashRegister.MaxStaffReservations, 0, null, errorOnFailed))
                 return false;
@@ -120,7 +120,7 @@ namespace SimManagementLib.SimAI
                         EndJobWith(JobCondition.InterruptForced);
                         return;
                     }
-                    if (!waiting && !ShopStaffUtility.CanCashierWorkAt(shop))
+                    if (!job.playerForced && !waiting && !ShopStaffUtility.CanCashierWorkAt(shop))
                     {
                         EndJobWith(JobCondition.InterruptForced);
                         return;

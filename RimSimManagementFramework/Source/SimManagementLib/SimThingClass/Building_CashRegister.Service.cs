@@ -1,6 +1,7 @@
 using SimManagementLib.SimMapComp;
 using SimManagementLib.Tool;
 using Verse;
+using Verse.AI;
 
 namespace SimManagementLib.SimThingClass
 {
@@ -64,18 +65,18 @@ namespace SimManagementLib.SimThingClass
             return null;
         }
 
-        //判断指定员工是否可以接手本台（无人时正常接班，或主班请求交接时作为接班员提前赶来）。
-        public bool CanAcceptStaffReservation(Pawn pawn, out bool isHandover)
+        //判断指定员工是否可以接手本台，玩家强制指令允许顶替当前在班或赶来的收银员。
+        public bool CanAcceptStaffReservation(Pawn pawn, out bool isHandover, bool forced = false)
         {
             isHandover = false;
             if (pawn == null) return false;
             Pawn active = GetActiveShiftCashier();
             Pawn reliever = GetIncomingReliever();
             if (active == null)
-                return reliever == null || reliever == pawn;
+                return forced || reliever == null || reliever == pawn;
             if (active == pawn)
                 return true;
-            if ((handoverRequested || forcedHandover) && (reliever == null || reliever == pawn))
+            if ((forced || handoverRequested || forcedHandover) && (forced || reliever == null || reliever == pawn))
             {
                 isHandover = true;
                 return true;
@@ -191,7 +192,7 @@ namespace SimManagementLib.SimThingClass
                 && GetIncomingReliever() != null;
         }
 
-        //判断主收银员此刻是否应立即让出交互格给已到位或玩家强派的接班员。
+        //判断主收银员此刻是否应让出交互格给已到位的正常接班员，或已启程的玩家强派接班员。
         public bool ShouldYieldToReliever(Pawn activePawn)
         {
             if (activePawn == null || GetActiveShiftCashier() != activePawn)
@@ -199,11 +200,13 @@ namespace SimManagementLib.SimThingClass
             Pawn reliever = GetIncomingReliever();
             if (reliever == null)
                 return false;
-            return (handoverRequested && relieverArrived) || forcedHandover;
+            if (handoverRequested && relieverArrived)
+                return true;
+            return forcedHandover && IsActivelyManningThisRegister(reliever);
         }
 
-        //验证员工是否仍在当前地图执行本收银台的 Sim_ManCashRegister 任务。
-        private bool IsManningThisRegister(Pawn pawn)
+        //验证员工当前是否正在执行本收银台值班任务。
+        private bool IsActivelyManningThisRegister(Pawn pawn)
         {
             return pawn != null
                 && !pawn.Destroyed
@@ -212,6 +215,25 @@ namespace SimManagementLib.SimThingClass
                 && pawn.Map == Map
                 && pawn.CurJobDef?.defName == "Sim_ManCashRegister"
                 && pawn.CurJob?.targetA.Thing == this;
+        }
+
+        //验证员工是否正在执行或已排队等待执行本收银台的 Sim_ManCashRegister 任务。
+        private bool IsManningThisRegister(Pawn pawn)
+        {
+            if (IsActivelyManningThisRegister(pawn))
+                return true;
+            if (pawn == null || pawn.Destroyed || pawn.Dead || !pawn.Spawned || pawn.Map != Map)
+                return false;
+            JobQueue queue = pawn.jobs?.jobQueue;
+            if (queue == null)
+                return false;
+            for (int i = 0; i < queue.Count; i++)
+            {
+                Job queued = queue[i]?.job;
+                if (queued?.def?.defName == "Sim_ManCashRegister" && queued.targetA.Thing == this)
+                    return true;
+            }
+            return false;
         }
 
         //已登记的队列需要接待；尚未选台的顾客在全店无人时也能请求补位。

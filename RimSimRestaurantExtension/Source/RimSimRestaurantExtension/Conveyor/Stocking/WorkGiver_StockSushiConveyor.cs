@@ -28,9 +28,9 @@ namespace RimSimRestaurantExtension.Conveyor.Stocking
             return manager.lines.SelectMany(l => l.segments);
         }
 
-        //检查候选段是否存在当前厨师能完成的低优先级工作。
+        //检查候选段是否存在当前厨师能完成的传送带工作。
         public override bool HasJobOnThing(Pawn pawn, Thing thing, bool forced = false) =>
-            thing is Building_SushiConveyor belt && ConveyorStockPlanner.Find(pawn, belt, out _) != null;
+            thing is Building_SushiConveyor belt && ConveyorStockPlanner.Find(pawn, belt, out _, forced) != null;
 
         //创建持久化任务目标，职责是把最终原子领取留给Job预约阶段。
         public override Job JobOnThing(Pawn pawn, Thing thing, bool forced = false) =>

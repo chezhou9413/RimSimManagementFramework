@@ -115,17 +115,6 @@ namespace SimManagementLib.Tool
 
         //仅用于玩家手动强制派工，忽略固定人员名单但保留岗位能力与扩展限制。
         public static bool CanRelieveCashier(Zone_Shop shop, Pawn pawn)
-        {
-            WorkGiverDef workGiver = ManCashRegisterWorkGiverDef;
-            bool hasRole = false;
-            foreach (var role in GetCachedVisibleRoles(shop))
-            {
-                if (!RoleContainsWorkGiver(role, workGiver)) continue;
-                hasRole = true;
-                if (IsPawnEligibleForRole(shop, pawn, role)
-                    && role.Worker.AllowsPawnForWorkGiver(shop, pawn, workGiver)) return true;
-            }
-            return !hasRole;
-        }
+            => AllowsPawnForForcedWorkGiver(shop, pawn, ManCashRegisterWorkGiverDef);
     }
 }

@@ -17,10 +17,10 @@ namespace RimSimRestaurantExtension.Jobs
             return pawn.Reserve(job.targetA.Cell, job, 1, -1, null, errorOnFailed);
         }
 
-        //构建前往店内值班点并短暂停留的流程。
+        //构建前往店内值班点并短暂停留的流程，玩家强制值班不被自动需求或排班中断。
         protected override IEnumerable<Toil> MakeNewToils()
         {
-            this.FailOn(() => RestaurantOrderUtility.HasBlockingPriorityJobOrNeed(pawn));
+            this.FailOn(() => !job.playerForced && RestaurantOrderUtility.HasBlockingPriorityJobOrNeed(pawn));
             this.FailOnDespawnedOrNull(TargetIndex.C);
             this.FailOn(() => pawn.IsHashIntervalTick(60) && !CanContinueStandby());
             yield return Toils_Goto.GotoCell(TargetIndex.A, PathEndMode.OnCell);
@@ -31,15 +31,18 @@ namespace RimSimRestaurantExtension.Jobs
             yield return wait;
         }
 
-        //核对岗位、区域和营业状态，职责是让撤岗、关店或缩区及时结束值班。
+        //核对岗位、区域和营业状态，让撤岗、关店或缩区及时结束自动值班。
         private bool CanContinueStandby()
         {
             Thing provider = job.GetTarget(TargetIndex.C).Thing;
             if (provider?.Spawned != true) return false;
             var shop = SimShopServiceApi.FindShop(pawn.Map, provider.Position);
-            return shop != null && RestaurantStandbyUtility.CanContinueAt(pawn, shop, job.targetA.Cell)
-                && RestaurantOrderUtility.CanRestaurantStaffWorkAt(shop)
-                && RestaurantOrderUtility.Settings.GetOrCreate(shop.ID).enabled
+            if (shop == null || !RestaurantStandbyUtility.CanContinueAt(pawn, shop, job.targetA.Cell)
+                || !RestaurantOrderUtility.Settings.GetOrCreate(shop.ID).enabled)
+                return false;
+            if (job.playerForced)
+                return SimShopStaffApi.IsAssignedToWorkGiver(shop, pawn, job.workGiverDef);
+            return RestaurantOrderUtility.CanRestaurantStaffWorkAt(shop)
                 && SimShopStaffApi.IsOnShiftForWorkGiver(shop, pawn, job.workGiverDef);
         }
     }

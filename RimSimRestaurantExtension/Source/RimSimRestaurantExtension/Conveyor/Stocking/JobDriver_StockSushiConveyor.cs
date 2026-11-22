@@ -20,13 +20,24 @@ namespace RimSimRestaurantExtension.Conveyor.Stocking
         //保存独立任务，职责是让读档继续当前工作而不是再次领取。
         public override void ExposeData() { base.ExposeData(); Scribe_Deep.Look(ref task, "sushiRestockTask"); }
 
-        //原子预约线路容量、上架工作点和食材，职责是阻止多人补货超过目标盘数。
+        //原子预约线路容量、上架工作点和食材，兼容右键强制在入队与启动阶段的重复预预约。
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
             if (!(job.targetA.Thing is Building_SushiConveyor belt)) return false;
-            task = ConveyorStockPlanner.Find(pawn, belt, out var stock);
+            string key = "SushiRestock/" + pawn.Map.uniqueID + "/" + job.loadID;
+            if (belt.reservedBy == pawn && belt.reservationKey == key)
+            {
+                Ledger.Release(key);
+                belt.reservedBy = null;
+                belt.reservedRuleId = null;
+                belt.reservationKey = null;
+                job.targetQueueB?.Clear();
+                job.countQueue?.Clear();
+            }
+
+            task = ConveyorStockPlanner.Find(pawn, belt, out var stock, job.playerForced);
             if (task == null || !pawn.Reserve(belt, job, 1, -1, null, errorOnFailed)) return false;
-            task.key = "SushiRestock/" + pawn.Map.uniqueID + "/" + job.loadID;
+            task.key = key;
             if (task.stove != null && (!pawn.Reserve(task.stove, job, 1, -1, null, errorOnFailed)
                 || !pawn.ReserveSittableOrSpot(task.stove.InteractionCell, job, errorOnFailed))) return false;
             if (!task.cleaning && !Ledger.Reserve(task.key, stock)) return false;

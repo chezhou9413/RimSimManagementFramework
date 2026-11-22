@@ -23,6 +23,8 @@ namespace SimManagementLib.SimWorkGiver
         private static readonly Dictionary<int, PrepareOrderCandidateCache> candidateCaches = new Dictionary<int, PrepareOrderCandidateCache>();
         private static WorkGiverDef cachedWorkGiverDef;
 
+        public override ThingRequest PotentialWorkThingRequest => ThingRequest.ForGroup(ThingRequestGroup.BuildingArtificial);
+        public override bool Prioritized => true;
         public override PathEndMode PathEndMode => PathEndMode.Touch;
 
         /// <summary>
@@ -48,46 +50,44 @@ namespace SimManagementLib.SimWorkGiver
                 yield return candidates[i];
         }
 
-        /// <summary>
-        /// 判断员工是否能在指定服务建筑上处理一个现做订单。
-        /// </summary>
+        //判断员工是否能在指定服务建筑上处理一个现做订单，玩家强制指令绕过候选缓存与预约短缓存。
         public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
-            return FindOrderFor(pawn, t, GetExistingCache(pawn?.Map), true) != null;
+            return FindOrderFor(pawn, t, forced ? null : GetExistingCache(pawn?.Map), !forced, forced) != null;
         }
 
-        /// <summary>
-        /// 创建员工制作现做订单的 Job。
-        /// </summary>
+        //创建员工制作现做订单的 Job，不在右键菜单预览阶段提前改写订单认领状态。
         public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
-            PreparedShopOrder order = FindOrderFor(pawn, t, GetExistingCache(pawn?.Map), false);
+            PreparedShopOrder order = FindOrderFor(pawn, t, forced ? null : GetExistingCache(pawn?.Map), false, forced);
             if (order == null) return null;
 
-            PreparedShopOrderResult assigned = SimShopOrderApi.TryAssignOrder(pawn, order);
-            if (!assigned.success) return null;
+            Job job = SimShopOrderApi.MakeStaffPrepareJob(pawn, order);
+            if (job == null) return null;
 
-            Job job = SimShopOrderApi.MakeStaffPrepareJob(pawn, assigned.order);
-            if (job == null)
+            if (!forced && job.def?.driverClass != typeof(SimAI.JobDriver_PrepareShopOrder))
             {
-                SimShopOrderApi.CancelOrder(assigned.order, "无法创建制作工作", failed: true);
-                return null;
+                PreparedShopOrderResult assigned = SimShopOrderApi.TryAssignOrder(pawn, order);
+                if (!assigned.success) return null;
             }
 
             return job;
         }
 
-        /// <summary>
-        /// 为员工和服务建筑查找一个可制作订单。
-        /// </summary>
-        private static PreparedShopOrder FindOrderFor(Pawn pawn, Thing provider, PrepareOrderCandidateCache cache, bool useCachedReserve)
+        //为员工和服务建筑查找一个可制作订单，玩家强制指令忽略营业开关、名单排班并允许抢占普通预约。
+        private static PreparedShopOrder FindOrderFor(Pawn pawn, Thing provider, PrepareOrderCandidateCache cache, bool useCachedReserve, bool forced)
         {
             if (pawn?.Map == null || provider == null || provider.Destroyed) return null;
             if (provider.Map != pawn.Map || !provider.Spawned) return null;
             Zone_Shop shop = ShopDataUtility.FindShopZone(provider.Map, provider.Position);
-            if (!ShopStaffUtility.IsShopOpenForWork(shop)) return null;
-            if (CurrentWorkGiverDef != null && !ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, CurrentWorkGiverDef))
-                return null;
+            if (!forced && !ShopStaffUtility.IsShopOpenForWork(shop)) return null;
+            if (CurrentWorkGiverDef != null)
+            {
+                bool allowed = forced
+                    ? ShopStaffUtility.AllowsPawnForForcedWorkGiver(shop, pawn, CurrentWorkGiverDef)
+                    : ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, CurrentWorkGiverDef);
+                if (!allowed) return null;
+            }
 
             IReadOnlyList<PreparedShopOrder> orders = GetOrdersForProvider(pawn.Map, provider, cache);
             if (orders == null || orders.Count <= 0) return null;
@@ -112,7 +112,7 @@ namespace SimManagementLib.SimWorkGiver
             if (selected == null) return null;
             bool canReserve = useCachedReserve
                 ? WorkGiverThingQueryCache.CanReserveThingCached(pawn, provider, 1, -1, false, ProviderReserveCacheTicks)
-                : pawn.CanReserve(provider, 1, -1, null, false);
+                : pawn.CanReserve(provider, 1, -1, null, forced);
             return canReserve ? selected : null;
         }
 
