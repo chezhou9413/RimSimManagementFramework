@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using RimSimHotelExtension.Buildings;
 using RimSimHotelExtension.Settings;
 using RimSimHotelExtension.GameComp;
 using RimSimHotelExtension.Tool;
@@ -50,10 +51,11 @@ namespace RimSimHotelExtension.Spa
         //创建候选已确定的排队会话，此时不占柜、不收款。
         public SpaSession Enqueue(Pawn pawn, Building_HotelSpa spa, Zone_Shop shop)
         {
+            var hotel = HotelMapComponent.For(map);
             var session = new SpaSession
             {
                 id = nextId++, customer = pawn, spa = spa, shopZoneId = shop.ID,
-                ticketDesk = HotelMapComponent.For(map).DeskFor(shop),
+                ticketDesk = hotel.BestDeskFor(shop, pawn, out _) ?? hotel.DeskFor(shop),
                 createdTick = Now, stageTick = Now, price = spa.TicketPrice,
                 durationTicks = spa.DurationTicks, joyGain = spa.JoyGain, satisfactionGain = spa.SatisfactionGain
             };
@@ -61,36 +63,75 @@ namespace RimSimHotelExtension.Spa
             return session;
         }
 
-        //按先后顺序预留池位和衣柜，再前往服务台购票，此时不扣款。
+        //按先后顺序预留池位和衣柜，再前往最优服务台购票；原池满员时自动切入同店其他无人排队的空池。
         public bool TryAdmit(SpaSession session, Job job)
         {
             Pawn pawn = session.customer;
-            //仅排在仍在活跃等位的前序会话之后，避免失效或被中断的前排卡住整条温泉队伍。
-            if (sessions.Any(s => s.spa == session.spa && s.stage == SpaSessionStage.Queued && s.id < session.id
-                && s.customer?.CurJobDef?.defName == "RSH_UseSpa")) return false;
             Zone_Shop shop = session.Shop(map);
-            if (shop == null || session.ticketDesk == null || !session.ticketDesk.Spawned
-                || !shop.ContainsCell(session.ticketDesk.Position))
+            var hotel = HotelMapComponent.For(map);
+            if (shop == null || hotel.DeskFor(shop) == null)
             {
                 Abort(session, "RSH.Text.SpaNeedsReceptionDesk");
                 return false;
             }
-            IntVec3 serviceCell = CheckoutQueueCellUtility.FindServiceCell(session.ticketDesk, pawn);
-            if (!serviceCell.IsValid || !pawn.CanReach(serviceCell, PathEndMode.OnCell, Danger.None))
+            Building_HotelDesk desk = hotel.BestDeskFor(shop, pawn, out IntVec3 serviceCell);
+            if (desk == null)
             {
                 Abort(session, "RSH.Text.CannotReachSpaTicketDesk");
                 return false;
             }
-            var lockers = map.listerThings.AllThings.OfType<Building_HotelLocker>()
+            Building_HotelLocker locker = map.listerThings.AllThings.OfType<Building_HotelLocker>()
                 .Where(l => l.Available && shop.ContainsCell(l.Position)
                     && pawn.CanReserveAndReach(l, PathEndMode.Touch, Danger.None))
-                .OrderBy(l => l.Position.DistanceToSquared(pawn.Position));
-            Building_HotelLocker locker = lockers.FirstOrDefault();
+                .OrderBy(l => l.Position.DistanceToSquared(pawn.Position))
+                .FirstOrDefault();
             if (locker == null) return false;
-            for (int i = 0; i < session.spa.Capacity; i++)
+
+            if (!HasActiveAhead(session.spa, session.id)
+                && TryReservePoolSlot(session, job, session.spa, locker, desk, serviceCell))
+                return true;
+
+            int funds = SimShopCustomerApi.GetAvailableFunds(pawn);
+            float remainingBudget = SimShopCustomerApi.GetRemainingBudget(pawn, shop);
+            var alternatives = map.listerThings.AllThings.OfType<Building_HotelSpa>()
+                .Where(s => s != session.spa && s.Shop == shop && s.Operational
+                    && s.TicketPrice >= 0 && s.TicketPrice <= funds
+                    && (s.TicketPrice <= session.price || s.TicketPrice <= remainingBudget)
+                    && !HasActiveQueued(s, session.id)
+                    && pawn.CanReach(s, PathEndMode.Touch, Danger.None))
+                .OrderBy(s => s.Position.DistanceToSquared(pawn.Position));
+            foreach (Building_HotelSpa alt in alternatives)
             {
-                if (sessions.Any(s => s.spa == session.spa && s.HasReservedSlot && s.slot == i)) continue;
-                IntVec3 cell = session.spa.SlotCell(i);
+                if (TryReservePoolSlot(session, job, alt, locker, desk, serviceCell))
+                    return true;
+            }
+            return false;
+        }
+
+        //判断指定温泉是否还有更早且仍在活跃等位的前序会话。
+        private bool HasActiveAhead(Building_HotelSpa spa, int sessionId)
+        {
+            return sessions.Any(s => s.spa == spa && s.stage == SpaSessionStage.Queued && s.id < sessionId
+                && s.customer?.CurJobDef?.defName == "RSH_UseSpa");
+        }
+
+        //判断指定温泉当前是否有其他活跃排队会话，避免改池时插队。
+        private bool HasActiveQueued(Building_HotelSpa spa, int excludeSessionId)
+        {
+            return sessions.Any(s => s.spa == spa && s.stage == SpaSessionStage.Queued && s.id != excludeSessionId
+                && s.customer?.CurJobDef?.defName == "RSH_UseSpa");
+        }
+
+        //尝试为会话预留指定温泉的空闲池位与衣柜，成功后同步更新购票前台并进入购票阶段。
+        private bool TryReservePoolSlot(SpaSession session, Job job, Building_HotelSpa spa,
+            Building_HotelLocker locker, Building_HotelDesk desk, IntVec3 serviceCell)
+        {
+            if (spa == null || !spa.Operational) return false;
+            Pawn pawn = session.customer;
+            for (int i = 0; i < spa.Capacity; i++)
+            {
+                if (sessions.Any(s => s.spa == spa && s.HasReservedSlot && s.slot == i)) continue;
+                IntVec3 cell = spa.SlotCell(i);
                 if (!cell.Standable(map) || !pawn.CanReserveAndReach(cell, PathEndMode.OnCell, Danger.None)) continue;
                 if (!pawn.Reserve(locker, job, errorOnFailed: false)) return false;
                 if (!pawn.Reserve(cell, job, errorOnFailed: false))
@@ -104,15 +145,35 @@ namespace RimSimHotelExtension.Spa
                     map.reservationManager.Release(cell, pawn, job);
                     return false;
                 }
+                if (spa != session.spa)
+                    SwitchSessionSpa(session, spa, job);
                 session.locker = locker;
                 session.slot = i;
                 session.poolCell = cell;
+                session.ticketDesk = desk;
                 session.ticketServiceCell = serviceCell;
-                session.ticketServiceTicksAtWaitStart = session.ticketDesk.CustomerServiceTicks;
+                session.ticketServiceTicksAtWaitStart = desk.CustomerServiceTicks;
                 ChangeStage(session, SpaSessionStage.BuyingTicket);
                 return true;
             }
             return false;
+        }
+
+        //在未扣款、未占池前改换温泉时，同步更新会话参数、动作订单和任务目标。
+        private static void SwitchSessionSpa(SpaSession session, Building_HotelSpa spa, Job job)
+        {
+            session.spa = spa;
+            session.price = spa.TicketPrice;
+            session.durationTicks = spa.DurationTicks;
+            session.joyGain = spa.JoyGain;
+            session.satisfactionGain = spa.SatisfactionGain;
+            job?.SetTarget(TargetIndex.A, spa);
+            CustomerActionOrder order = SimShopCustomerApi.GetActionOrder(session.actionOrderId);
+            if (order != null)
+            {
+                order.targetThingId = spa.thingIDNumber;
+                order.targetLabel = spa.LabelCap;
+            }
         }
 
         //更新流程和该步骤起点，用于限制无法完成的移动。
@@ -150,11 +211,14 @@ namespace RimSimHotelExtension.Spa
             foreach (SpaSession session in ActiveSessions.ToList())
             {
                 Zone_Shop shop = session.Shop(map);
+                bool deskValid = session.stage == SpaSessionStage.Queued
+                    ? shop != null && HotelMapComponent.For(map).DeskFor(shop) != null
+                    : session.ticketDesk != null && session.ticketDesk.Spawned
+                        && shop != null && shop.ContainsCell(session.ticketDesk.Position);
                 if (session.customer == null || !session.customer.Spawned || session.customer.Map != map
                     || session.customer.Dead || session.customer.Downed || session.spa == null || !session.spa.Operational
                     || shop == null || session.spa.Shop != shop
-                    || (!session.incomeCommitted && (session.ticketDesk == null || !session.ticketDesk.Spawned
-                        || !shop.ContainsCell(session.ticketDesk.Position)))
+                    || (!session.incomeCommitted && !deskValid)
                     || (session.locker != null && (!session.locker.Spawned || !shop.ContainsCell(session.locker.Position)))
                     || (session.actionOrderId > 0 && SimShopCustomerApi.GetActionOrder(session.actionOrderId)?.IsActiveState == false))
                     Abort(session, "RSH.Text.SpaUseInterrupted");

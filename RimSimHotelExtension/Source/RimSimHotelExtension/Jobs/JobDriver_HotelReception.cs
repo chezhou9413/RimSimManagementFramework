@@ -116,8 +116,14 @@ namespace RimSimHotelExtension.Jobs
                 }
                 if (!stay.active && !stay.closing && stay.receptionArrivedTick < 0)
                 {
+                    stay.receptionDesk = Desk;
                     stay.receptionArrivedTick = now;
                     stay.receptionServiceTicksAtStart = Desk.CustomerServiceTicks;
+                }
+                else if (stay.closing && stay.receptionDesk != Desk)
+                {
+                    stay.receptionDesk = Desk;
+                    stay.checkoutServiceTicksAtStart = Desk.CustomerServiceTicks;
                 }
                 started = true;
             }

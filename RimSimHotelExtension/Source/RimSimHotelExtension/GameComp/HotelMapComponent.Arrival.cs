@@ -90,8 +90,10 @@ namespace RimSimHotelExtension.GameComp
             if (nights < t.minNights) return false;
             int now = Find.TickManager.TicksGame;
             int firstNight = now - GenLocalDate.DayTick(map) + t.nightStartHour * 2500;
-            HotelStay stay = new HotelStay { id = nextId++, shopZoneId = shop.ID, bed = bed, startTick = now,
-                receptionServiceTicksAtStart = DeskFor(shop).CustomerServiceTicks,
+            var initialDesk = DeskFor(shop);
+            HotelStay stay = new HotelStay { id = nextId++, shopZoneId = shop.ID, bed = bed,
+                receptionDesk = initialDesk, startTick = now,
+                receptionServiceTicksAtStart = initialDesk?.CustomerServiceTicks ?? 0,
                 lastQualityTick = now,
                 bookedNights = nights, nightlyPrice = price, firstNightTick = firstNight,
                 checkoutTick = firstNight + nights * 60000 + (t.checkoutHour - t.nightStartHour) * 2500 };
@@ -143,7 +145,9 @@ namespace RimSimHotelExtension.GameComp
                 else
                 {
                     stay.closingTick = Find.TickManager.TicksGame;
-                    stay.checkoutServiceTicksAtStart = DeskFor(ShopFor(stay))?.CustomerServiceTicks ?? 0;
+                    var desk = DeskForStay(stay, ShopFor(stay));
+                    stay.receptionDesk = desk;
+                    stay.checkoutServiceTicksAtStart = desk?.CustomerServiceTicks ?? 0;
                 }
                 return;
             }

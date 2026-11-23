@@ -18,15 +18,13 @@ namespace RimSimHotelExtension.Spa
         public override bool CanRun(CustomerActionContext context, out string reason)
         {
             if (!base.CanRun(context, out reason)) return false;
-            var desk = HotelMapComponent.For(context.customer.Map).DeskFor(context.shop);
-            if (desk == null)
+            var hotel = HotelMapComponent.For(context.customer.Map);
+            if (hotel.DeskFor(context.shop) == null)
             {
                 reason = HotelText.T("RSH.Text.SpaNeedsReceptionDesk");
                 return false;
             }
-            IntVec3 serviceCell = CheckoutQueueCellUtility.FindServiceCell(desk, context.customer);
-            if (!serviceCell.IsValid || !context.customer.CanReach(serviceCell,
-                PathEndMode.OnCell, Danger.None))
+            if (hotel.BestDeskFor(context.shop, context.customer, out _) == null)
             {
                 reason = HotelText.T("RSH.Text.CannotReachSpaTicketDesk");
                 return false;
@@ -137,21 +135,27 @@ namespace RimSimHotelExtension.Spa
                 ? SpaMapComponent.For(context.customer.Map)?.Find(id) : null;
         }
 
-        //筛选最近的可用温泉；队列允许等待，但不能无上限堆积。
+        //优先选择无需排队、当前等待人数更少且更近的可用温泉；满员后允许有限排队但不无上限堆积。
         private static Building_HotelSpa FindSpa(CustomerActionContext context)
         {
             Pawn pawn = context.customer;
             Zone_Shop shop = context.shop;
             if (!HasLocker(shop)) return null;
+            bool hasReachableLocker = shop.Map.listerThings.AllThings.OfType<Building_HotelLocker>()
+                .Any(l => shop.ContainsCell(l.Position) && pawn.CanReach(l, PathEndMode.Touch, Danger.None));
+            if (!hasReachableLocker) return null;
+
             int funds = SimShopCustomerApi.GetAvailableFunds(pawn);
+            SpaMapComponent manager = SpaMapComponent.For(shop.Map);
             return shop.Map.listerThings.AllThings.OfType<Building_HotelSpa>()
                 .Where(s => s.Shop == shop && s.Operational && s.TicketPrice >= 0 && s.TicketPrice <= funds
                     && s.TicketPrice <= context.remainingBudget
-                    && SpaMapComponent.For(shop.Map).WaitingCount(s) < s.Capacity
-                    && pawn.CanReach(s, PathEndMode.Touch, Danger.None)
-                    && shop.Map.listerThings.AllThings.OfType<Building_HotelLocker>()
-                        .Any(l => shop.ContainsCell(l.Position) && pawn.CanReach(l, PathEndMode.Touch, Danger.None)))
-                .OrderBy(s => s.Position.DistanceToSquared(pawn.Position)).FirstOrDefault();
+                    && manager.WaitingCount(s) < s.Capacity
+                    && pawn.CanReach(s, PathEndMode.Touch, Danger.None))
+                .OrderBy(s => manager.OccupiedCount(s) + manager.WaitingCount(s) >= s.Capacity ? 1 : 0)
+                .ThenBy(s => manager.WaitingCount(s))
+                .ThenBy(s => s.Position.DistanceToSquared(pawn.Position))
+                .FirstOrDefault();
         }
 
         //有柜位设施即可排队，不要求候选查询时实际占柜。

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using RimSimHotelExtension.Buildings;
 using RimWorld;
 using Verse;
 
@@ -11,6 +12,7 @@ namespace RimSimHotelExtension.Models
         public int id;
         public int shopZoneId;
         public Building_Bed bed;
+        public Building_HotelDesk receptionDesk;
         public List<HotelGuestState> guests = new List<HotelGuestState>();
         public int startTick;
         public int receptionArrivedTick = -1;
@@ -43,6 +45,7 @@ namespace RimSimHotelExtension.Models
             Scribe_Values.Look(ref id, "id");
             Scribe_Values.Look(ref shopZoneId, "shopZoneId");
             Scribe_References.Look(ref bed, "bed");
+            Scribe_References.Look(ref receptionDesk, "receptionDesk");
             Scribe_Collections.Look(ref guests, "guests", LookMode.Deep);
             Scribe_Values.Look(ref startTick, "startTick");
             Scribe_Values.Look(ref receptionArrivedTick, "receptionArrivedTick", -1);

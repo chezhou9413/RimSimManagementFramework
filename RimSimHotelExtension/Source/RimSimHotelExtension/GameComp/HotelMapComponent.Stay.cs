@@ -20,7 +20,7 @@ namespace RimSimHotelExtension.GameComp
         {
             int now = Find.TickManager.TicksGame;
             var shop = ShopFor(stay);
-            var desk = DeskFor(shop);
+            var desk = DeskForStay(stay, shop);
             if (shop == null || desk == null || stay.guests.Any(g => g.pawn == null || g.pawn.Dead
                 || !g.pawn.Spawned || g.pawn.Map != map || g.pawn.Downed || g.pawn.InMentalState))
             {
@@ -102,7 +102,9 @@ namespace RimSimHotelExtension.GameComp
             if (stay == null || stay.completed || stay.closing) return;
             stay.closing = true;
             stay.closingTick = Find.TickManager.TicksGame;
-            stay.checkoutServiceTicksAtStart = DeskFor(ShopFor(stay))?.CustomerServiceTicks ?? 0;
+            var desk = DeskForStay(stay, ShopFor(stay));
+            stay.receptionDesk = desk;
+            stay.checkoutServiceTicksAtStart = desk?.CustomerServiceTicks ?? 0;
             stay.closeReason = reason;
             foreach (var guest in stay.guests)
             {

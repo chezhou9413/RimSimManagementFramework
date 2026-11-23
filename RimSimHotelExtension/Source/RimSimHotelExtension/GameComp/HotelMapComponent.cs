@@ -3,12 +3,16 @@ using System.Linq;
 using RimSimHotelExtension.Buildings;
 using RimSimHotelExtension.Models;
 using RimSimHotelExtension.Settings;
+using RimSimHotelExtension.Spa;
 using RimSimHotelExtension.Tool;
+using SimManagementLib.Api;
 using SimManagementLib.GameComp;
+using SimManagementLib.SimAI;
 using SimManagementLib.SimMapComp;
 using SimManagementLib.SimZone;
 using SimManagementLib.Tool;
 using Verse;
+using Verse.AI;
 using RimWorld;
 
 namespace RimSimHotelExtension.GameComp
@@ -54,15 +58,92 @@ namespace RimSimHotelExtension.GameComp
         //按区域编号找回当前商店，区域被移除时返回空。
         public Zone_Shop ShopFor(HotelStay stay) => map.zoneManager.AllZones.OfType<Zone_Shop>().FirstOrDefault(z => z.ID == stay.shopZoneId);
 
-        //返回本旅馆的前台，独立取款机不占用前台岗位。
+        //返回本旅馆的一个有效前台，优先有人值守的服务台；独立取款机不占用前台岗位。
         public Building_HotelDesk DeskFor(Zone_Shop shop)
         {
             if (shop == null) return null;
+            Building_HotelDesk fallback = null;
             var registers = ShopDataUtility.GetCashRegisterSnapshotInZone(shop);
             for (int i = 0; i < registers.Count; i++)
-                if (registers[i] is Building_HotelDesk desk && desk.Spawned && !desk.Destroyed
-                    && desk.Faction == Faction.OfPlayer) return desk;
-            return null;
+            {
+                if (!(registers[i] is Building_HotelDesk desk) || !desk.Spawned || desk.Destroyed
+                    || desk.Faction != Faction.OfPlayer) continue;
+                if (desk.IsManned) return desk;
+                if (fallback == null) fallback = desk;
+            }
+            return fallback;
+        }
+
+        //返回指定合同当前关联的有效前台，用于对齐该前台的服务工时与超时判定。
+        public Building_HotelDesk DeskForStay(HotelStay stay, Zone_Shop shop)
+        {
+            Building_HotelDesk desk = stay?.receptionDesk;
+            if (desk != null && desk.Spawned && !desk.Destroyed && desk.Faction == Faction.OfPlayer
+                && shop != null && shop.ContainsCell(desk.Position))
+                return desk;
+            return DeskFor(shop);
+        }
+
+        //为顾客挑选当前最合适的可达前台，按有人值守优先、负载更轻优先、距离更近优先分流。
+        public Building_HotelDesk BestDeskFor(Zone_Shop shop, Pawn customer, out IntVec3 serviceCell,
+            bool requireManned = false, Danger maxDanger = Danger.None)
+        {
+            serviceCell = IntVec3.Invalid;
+            if (shop == null || customer == null) return null;
+            Building_HotelDesk best = null;
+            IntVec3 bestCell = IntVec3.Invalid;
+            int bestLoad = int.MaxValue;
+            int bestDistance = int.MaxValue;
+            var registers = ShopDataUtility.GetCashRegisterSnapshotInZone(shop);
+            for (int i = 0; i < registers.Count; i++)
+            {
+                if (!(registers[i] is Building_HotelDesk desk) || !desk.Spawned || desk.Destroyed
+                    || desk.Faction != Faction.OfPlayer) continue;
+                if (requireManned && !desk.IsManned) continue;
+                IntVec3 cell = CheckoutQueueCellUtility.FindServiceCell(desk, customer);
+                if (!cell.IsValid || !customer.CanReach(cell, PathEndMode.OnCell, maxDanger)) continue;
+                int load = DeskLoad(desk, customer);
+                int distance = desk.Position.DistanceToSquared(customer.Position);
+                if (IsBetterDesk(desk, load, distance, best, bestLoad, bestDistance))
+                {
+                    best = desk;
+                    bestCell = cell;
+                    bestLoad = load;
+                    bestDistance = distance;
+                }
+            }
+            serviceCell = bestCell;
+            return best;
+        }
+
+        //统计单个前台当前排队、正在前往办理接待以及正在前往购票的顾客总数。
+        private int DeskLoad(Building_HotelDesk desk, Pawn excludeCustomer)
+        {
+            int load = SimShopCheckoutApi.GetRegisterLoad(desk, excludeCustomer);
+            var sessions = SpaMapComponent.For(map)?.Sessions;
+            if (sessions != null)
+            {
+                for (int i = 0; i < sessions.Count; i++)
+                {
+                    var session = sessions[i];
+                    if (session.IsTerminal || session.stage != SpaSessionStage.BuyingTicket
+                        || session.ticketDesk != desk || session.customer == null || session.customer == excludeCustomer)
+                        continue;
+                    if (!SimShopCheckoutApi.IsQueuedForRegister(session.customer, desk))
+                        load++;
+                }
+            }
+            return load;
+        }
+
+        //比较候选前台优劣：优先有人值守，其次负载更轻，再看距离更近。
+        private static bool IsBetterDesk(Building_HotelDesk candidate, int load, int distance,
+            Building_HotelDesk best, int bestLoad, int bestDistance)
+        {
+            if (best == null) return true;
+            if (candidate.IsManned != best.IsManned) return candidate.IsManned;
+            if (load != bestLoad) return load < bestLoad;
+            return distance < bestDistance;
         }
 
         //通知框架刷新该旅馆的营业校验、经营指标和到客匹配快照，不依赖店内存在货柜。

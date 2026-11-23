@@ -72,6 +72,14 @@ namespace SimManagementLib.SimMapComp
             return registerId >= 0 && byRegister.TryGetValue(registerId, out LinkedList<CustomerCheckoutTicket> queue) ? queue.Count : 0;
         }
 
+        //判断指定顾客当前是否已排在指定收银台的队列中。
+        public bool IsQueuedFor(int pawnId, int registerId)
+        {
+            return pawnId > 0 && registerId >= 0
+                && byPawn.TryGetValue(pawnId, out CustomerCheckoutTicket ticket)
+                && ticket.RegisterId == registerId;
+        }
+
         //返回当前 Pawn 前方人数，职责是沿同一收银台短队列读取稳定顺序。
         public int CountAhead(int pawnId)
         {

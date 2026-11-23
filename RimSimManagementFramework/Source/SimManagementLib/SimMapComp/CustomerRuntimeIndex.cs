@@ -81,6 +81,28 @@ namespace SimManagementLib.SimMapComp
             return shopId >= 0 && pendingCheckoutCounts.TryGetValue(shopId, out int count) ? count : 0;
         }
 
+        //统计指定收银台或服务台当前已排队与正在前往办理业务的顾客总数。
+        public int CountRegisterLoad(SimThingClass.Building_CashRegister register, int excludePawnId = -1)
+        {
+            if (register == null || register.Destroyed || !register.Spawned) return 0;
+            int registerId = register.thingIDNumber;
+            int load = CheckoutQueue.CountForRegister(register);
+            if (excludePawnId > 0 && CheckoutQueue.IsQueuedFor(excludePawnId, registerId))
+                load = Math.Max(0, load - 1);
+
+            foreach (CustomerRuntimeRecord record in records.Values)
+            {
+                Pawn pawn = record?.Pawn;
+                if (pawn == null || pawn.Destroyed || pawn.Dead || !pawn.Spawned || pawn.Map != map) continue;
+                int pawnId = pawn.thingIDNumber;
+                if (pawnId == excludePawnId || CheckoutQueue.IsQueuedFor(pawnId, registerId)) continue;
+                if (HasCustomerRegisterJob(pawn, register))
+                    load++;
+            }
+
+            return load;
+        }
+
         //登记普通商店顾客，职责是用 Pawn ID 幂等覆盖旧记录并同步容量计数。
         public void RegisterShopCustomer(Pawn pawn, LordJob_CustomerVisit visit)
         {
@@ -205,6 +227,27 @@ namespace SimManagementLib.SimMapComp
                 if (job?.def?.defName == "Customer_PayAtRegister") return job;
             }
             return null;
+        }
+
+        //判断顾客当前或排队任务是否正在前往指定收银台或旅馆服务台办理业务。
+        private static bool HasCustomerRegisterJob(Pawn pawn, SimThingClass.Building_CashRegister register)
+        {
+            if (IsCustomerRegisterJobFor(pawn.CurJob, register)) return true;
+            JobQueue queue = pawn.jobs?.jobQueue;
+            if (queue == null) return false;
+            for (int i = 0; i < queue.Count; i++)
+            {
+                if (IsCustomerRegisterJobFor(queue[i]?.job, register)) return true;
+            }
+            return false;
+        }
+
+        //核对任务是否为面向指定柜台的结账或前台接待任务。
+        private static bool IsCustomerRegisterJobFor(Job job, SimThingClass.Building_CashRegister register)
+        {
+            if (job == null || job.targetA.Thing != register) return false;
+            string defName = job.def?.defName;
+            return defName == "Customer_PayAtRegister" || defName == "RSH_Reception";
         }
 
         //幂等登记运行记录，职责是避免同一 Pawn 重复增加容量。

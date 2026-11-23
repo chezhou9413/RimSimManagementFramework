@@ -34,7 +34,6 @@ namespace RimSimHotelExtension.Buildings
                     }
                 }
                 var manager = HotelMapComponent.For(Map);
-                if (manager.DeskFor(shop) != this) return false;
                 for (int i = 0; i < manager.ActiveStays.Count; i++)
                 {
                     var stay = manager.ActiveStays[i];

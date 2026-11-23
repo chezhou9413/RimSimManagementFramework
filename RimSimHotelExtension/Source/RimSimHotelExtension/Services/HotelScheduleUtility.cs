@@ -198,14 +198,13 @@ namespace RimSimHotelExtension.Services
                 HotelSleepUtility.EnsureSleeping(pawn, stay, guest);
         }
 
-        //服务格可达即可排队，队首在真正接受服务时才预约位置。
+        //按前台值守与排队负载选择可达服务台，队首在真正接受服务时才预约位置。
         private static Job Reception(Pawn pawn, HotelMapComponent manager, HotelStay stay)
         {
-            var desk = manager.DeskFor(manager.ShopFor(stay));
+            bool requireManned = stay.active && !stay.closing;
+            var desk = manager.BestDeskFor(manager.ShopFor(stay), pawn, out IntVec3 cell,
+                requireManned: requireManned, maxDanger: Danger.Some);
             if (desk == null) return null;
-            if (stay.active && !stay.closing && !desk.IsManned) return null;
-            IntVec3 cell = CheckoutQueueCellUtility.FindServiceCell(desk, pawn);
-            if (!cell.IsValid || !pawn.CanReach(cell, PathEndMode.OnCell, Danger.Some)) return null;
             Job job = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("RSH_Reception"), desk);
             job.SetTarget(TargetIndex.C, cell);
             return job;
@@ -215,7 +214,7 @@ namespace RimSimHotelExtension.Services
         private static Job WaitForCompanion(Pawn pawn, HotelStay stay)
         {
             var manager = HotelMapComponent.For(pawn.Map);
-            var desk = manager.DeskFor(manager.ShopFor(stay));
+            var desk = manager.DeskForStay(stay, manager.ShopFor(stay));
             IntVec3 serviceCell = desk == null ? IntVec3.Invalid : CheckoutQueueCellUtility.FindServiceCell(desk, pawn);
             if (stay.bed != null && pawn.Position.DistanceToSquared(stay.bed.Position) <= 9 && pawn.Position != serviceCell
                 && !pawn.Position.IsForbidden(pawn))

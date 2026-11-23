@@ -24,5 +24,23 @@ namespace SimManagementLib.Api
         {
             customer?.Map?.GetComponent<CustomerArrivalManager>()?.ReleaseCheckoutTicket(customer);
         }
+
+        //返回指定收银台或服务台已排队与正在前往的顾客总数，供多柜台分流使用。
+        public static int GetRegisterLoad(Building_CashRegister register, Pawn excludeCustomer = null)
+        {
+            if (register?.Spawned != true || register.Map == null) return 0;
+            var manager = register.Map.GetComponent<CustomerArrivalManager>();
+            if (manager == null) return 0;
+            return manager.RuntimeIndex.CountRegisterLoad(register, excludeCustomer?.thingIDNumber ?? -1);
+        }
+
+        //判断指定顾客当前是否已加入指定收银台或服务台的排队队列。
+        public static bool IsQueuedForRegister(Pawn customer, Building_CashRegister register)
+        {
+            if (customer?.Spawned != true || register?.Spawned != true || register.Map != customer.Map)
+                return false;
+            var manager = customer.Map.GetComponent<CustomerArrivalManager>();
+            return manager != null && manager.CheckoutQueue.IsQueuedFor(customer.thingIDNumber, register.thingIDNumber);
+        }
     }
 }

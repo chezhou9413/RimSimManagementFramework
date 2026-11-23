@@ -47,8 +47,7 @@ namespace SimManagementLib.SimAI
 
             Zone_Shop targetShop = lordJob.GetCurrentShop(pawn);
             CustomerArrivalManager manager = pawn.Map.GetComponent<CustomerArrivalManager>();
-            CustomerCheckoutQueueRegistry queueRegistry = manager?.CheckoutQueue;
-            Building_CashRegister register = FindBestRegister(pawn, targetShop, queueRegistry);
+            Building_CashRegister register = FindBestRegister(pawn, targetShop, manager);
             if (register == null)
             {
                 SimDebugLogger.Journey("RSMF.Checkout", $"没有找到可用收银台，取消本次结账 owed={owed}", pawn, targetShop, -1);
@@ -79,36 +78,36 @@ namespace SimManagementLib.SimAI
             return job;
         }
 
-        //选择当前最合适的收银台，职责是读取商店设施快照并只对最终候选做一次可达性判断。
-        private static Building_CashRegister FindBestRegister(Pawn pawn, Zone_Shop targetShop, CustomerCheckoutQueueRegistry queueRegistry)
+        //选择当前最合适的收银台，综合统计已排队与正在前往的顾客数并只对最终候选做一次可达性判断。
+        private static Building_CashRegister FindBestRegister(Pawn pawn, Zone_Shop targetShop, CustomerArrivalManager manager)
         {
             if (pawn?.Map == null || targetShop == null) return null;
             Building_CashRegister best = null;
-            int bestQueue = int.MaxValue;
+            int bestLoad = int.MaxValue;
             int bestDistance = int.MaxValue;
             IReadOnlyList<Building_CashRegister> registers = ShopDataUtility.GetCashRegisterSnapshotInZone(targetShop);
             for (int i = 0; i < registers.Count; i++)
             {
                 Building_CashRegister register = registers[i];
                 if (register == null || register.Destroyed || !register.Spawned) continue;
-                int queue = queueRegistry?.CountForRegister(register) ?? 0;
+                int load = manager?.RuntimeIndex.CountRegisterLoad(register, pawn.thingIDNumber) ?? 0;
                 int distance = (register.Position - pawn.Position).LengthHorizontalSquared;
-                if (IsBetterRegister(register, queue, distance, best, bestQueue, bestDistance))
+                if (IsBetterRegister(register, load, distance, best, bestLoad, bestDistance))
                 {
                     best = register;
-                    bestQueue = queue;
+                    bestLoad = load;
                     bestDistance = distance;
                 }
             }
             return best;
         }
 
-        //判断候选收银台是否优于当前最佳收银台，职责是优先有人值守、短队列和近距离。
-        private static bool IsBetterRegister(Building_CashRegister candidate, int queue, int distance, Building_CashRegister best, int bestQueue, int bestDistance)
+        //判断候选收银台是否优于当前最佳收银台，优先有人值守、负载更轻和距离更近。
+        private static bool IsBetterRegister(Building_CashRegister candidate, int load, int distance, Building_CashRegister best, int bestLoad, int bestDistance)
         {
             if (best == null) return true;
             if (candidate.IsManned != best.IsManned) return candidate.IsManned;
-            if (queue != bestQueue) return queue < bestQueue;
+            if (load != bestLoad) return load < bestLoad;
             return distance < bestDistance;
         }
 
