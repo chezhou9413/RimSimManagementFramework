@@ -278,7 +278,7 @@
       <li>
         <label>武备收藏</label>
         <weight>1.0</weight>
-        <budgetRange>1800~4600</budgetRange>
+        <budgetRange>4000~8000</budgetRange>
         <queuePatienceRange>2800~5600</queuePatienceRange>
         <activeHourRange>12~22</activeHourRange>
         <preferredGoodsCategories>
@@ -289,7 +289,7 @@
       <li>
         <label>精品置装</label>
         <weight>0.7</weight>
-        <budgetRange>1400~3200</budgetRange>
+        <budgetRange>4000~8000</budgetRange>
         <queuePatienceRange>2200~4600</queuePatienceRange>
         <activeHourRange>14~21</activeHourRange>
         <preferredGoodsCategories>
