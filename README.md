@@ -49,7 +49,7 @@ RimSimFramework/                 Git 仓库根目录
 - `E:\steam\steamapps\common\RimWorld\Mods\RimSimRestaurantExtension`
 - `E:\steam\steamapps\common\RimWorld\Mods\RimSimHotelExtension`
 
-三个临时安装目录均复制并验证完毕后才切换正式目录，保留各自已有的创意工坊发布标识。部署只更新 1.7；旧版的 `1.6`、`Content` 和根级 `Assemblies` 目录沿用当前安装，不从开发项目更新。源码、中间缓存与开发脚本不复制到安装目录。脚本不启动游戏。
+三个临时安装目录均复制并验证完毕后才切换正式目录，保留各自已有的创意工坊发布标识。部署只更新 1.7，旧版的 `1.6`、`Content` 和根级 `Assemblies` 目录沿用当前安装。源码、模组根目录的 `Tools`、中间缓存与开发脚本只用于开发。脚本不启动游戏。
 
 三个 Mod 目录内部的编译和部署脚本也转调同一套根目录入口，部署任一入口都会同时处理框架、餐厅和旅馆。
 

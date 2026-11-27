@@ -1,7 +1,7 @@
 # 本地公告
 
 公告完全读取已加载的 `SimManagementLib.SimDef.AnnouncementDef`，不再请求公告服务器。
-默认配置位于 `1.6/Defs/Reusable/AnnouncementDef/Announcements_Default.xml`。
+随框架提供的公告见[默认公告配置](../Defs/Reusable/AnnouncementDef/Announcements_Default.xml)。
 
 ## 配置
 
@@ -45,7 +45,7 @@
 
 素材来源：[RimSMF:Restaurant 工坊页面](https://steamcommunity.com/sharedfiles/filedetails/?id=3807662479)。
 四张图片取自该页面截图列表，以最高 1280 像素尺寸随框架打包，运行期间不下载图片。
-文件位于 `1.6/Textures/UI/Announcements/RestaurantRelease`。
+文件位于 `1.7/Textures/UI/Announcements/RestaurantRelease`。
 
 | 本地文件 | Steam 截图 ID | 内容 |
 | --- | --- | --- |

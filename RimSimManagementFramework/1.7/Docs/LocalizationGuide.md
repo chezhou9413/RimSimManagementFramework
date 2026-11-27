@@ -4,7 +4,7 @@
 
 ## 添加一种语言
 
-在模组的 `1.6/Languages/<语言目录名>/Keyed/` 下创建 UTF-8 XML 文件，参照 `English/Keyed` 中的键翻译。保留键名，只修改元素内的文字。独立汉化模组也可以按 RimWorld 的语言包加载方式提供这些键。
+在模组的 `1.7/Languages/<语言目录名>/Keyed/` 下创建 UTF-8 XML 文件，参照 `English/Keyed` 中的键翻译。保留键名，只修改元素内的文字。独立汉化模组也可以按 RimWorld 的语言包加载方式提供这些键。
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -65,10 +65,10 @@ private static string BuildStockLabel(int count, int capacity)
 
 公共搜索栏按译文测量标签宽度；公共按钮和页签会省略超长文字，并通过悬停提示提供完整文本。长正文仍应使用 `Text.CalcHeight` 计算高度。补货概要卡片已按当前语言的实际多行高度布局。
 
-在模组根目录执行：
+在源码仓库的 `RimSimManagementFramework` 目录运行以下命令。工具检查 `Source/SimManagementLib` 和 `1.7` 下的 Defs 与语言文件。
 
 ```powershell
-python -X utf8 Tools/Localization/audit_localization.py
+py -X utf8 Tools/Localization/audit_localization.py
 ```
 
 检查 XML 是否有效、同语言是否有重复键、中英文键集合和命名参数是否一致，以及源码和 Def 中的明确键引用是否存在。动态拼接键和英文标识需要人工确认。

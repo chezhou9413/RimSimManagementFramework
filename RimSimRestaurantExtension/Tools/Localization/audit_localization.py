@@ -6,8 +6,9 @@ import re
 import xml.etree.ElementTree as ET
 
 MOD = Path(__file__).resolve().parents[2]
-SOURCE = MOD / '1.6/Source/RimSimRestaurantExtension'
-LANGUAGES = MOD / '1.6/Languages'
+SOURCE = MOD / 'Source/RimSimRestaurantExtension'
+DEFS = MOD / '1.7/Defs'
+LANGUAGES = MOD / '1.7/Languages'
 HAN = re.compile(r'[\u3400-\u9fff]')
 LITERAL = re.compile(r'"(?:\\.|[^"\\\r\n])*"')
 PLACEHOLDER = re.compile(r'(?<!\{)\{([A-Za-z_][A-Za-z0-9_]*)\}(?!\})')
@@ -73,6 +74,9 @@ def main():
     parser = argparse.ArgumentParser(description='检查餐厅翻译键、参数和 DefInjected；不启动游戏。')
     parser.add_argument('--report', type=Path)
     args = parser.parse_args()
+    for directory in (SOURCE, DEFS, LANGUAGES / 'ChineseSimplified/Keyed', LANGUAGES / 'English/Keyed'):
+        if not directory.is_dir():
+            parser.error(f'找不到语言检查所需的目录：{directory}')
     errors, candidates, references = [], [], set()
     zh = read_language('ChineseSimplified', errors)
     en = read_language('English', errors)
@@ -106,7 +110,7 @@ def main():
             if kind == '待人工核对':
                 errors.append(f'{file}:{number}: 未分类的中文文本')
     targets = {}
-    for path in (MOD / '1.6/Defs').rglob('*.xml'):
+    for path in DEFS.rglob('*.xml'):
         for definition in ET.parse(path).getroot():
             name = definition.findtext('defName')
             if not name:

@@ -9,15 +9,15 @@
 1. 给某个种族的小人顾客配置专属表情包。
 2. 给某个主题人设或子种类配置专属表情风格，例如女仆咖啡店、兽耳店员、异星游客等。
 
-当前实现只支持“图片表情气泡”，不直接支持文本 emoji 或纯文字表情。
+表情规则使用图片。扩展可以用 `CustomerExpressionRequest.WithLabel` 为图标附上文字。
 
 ## 2. 代码结构
 
 ### 2.1 核心 Def
 
-表情 Def 定义在：
+源码链接指向本仓库。表情 Def 定义见下方文件。
 
-- [CustomerExpressionSetDef.cs](/E:/RimModDev/RimSimFramework/RimSimManagementFramework/1.6/Source/SimManagementLib/SimDef/CustomerExpressionSetDef.cs)
+- [CustomerExpressionSetDef.cs](../../Source/SimManagementLib/SimDef/CustomerExpressionSetDef.cs)
 
 核心类型有三个：
 
@@ -34,11 +34,11 @@
 
 表情选择和播放入口在：
 
-- [CustomerExpressionUtility.cs](/E:/RimModDev/RimSimFramework/RimSimManagementFramework/1.6/Source/SimManagementLib/Tool/CustomerExpressionUtility.cs)
+- [CustomerExpressionUtility.cs](../../Source/SimManagementLib/Tool/CustomerExpressionUtility.cs)
 
 显示气泡的底层工具在：
 
-- [ShopBubbleUtility.cs](/E:/RimModDev/RimSimFramework/RimSimManagementFramework/1.6/Source/SimManagementLib/Tool/ShopBubbleUtility.cs)
+- [ShopBubbleUtility.cs](../../Source/SimManagementLib/Tool/ShopBubbleUtility.cs)
 
 匹配流程如下：
 
@@ -47,9 +47,9 @@
 3. 从全部 `CustomerExpressionSetDef` 中筛出匹配该顾客的表情集。
 4. 如果命中多个表情集，只保留 `priority` 最高的一组。
 5. 从这组里筛选 `eventId` 和上下文标签匹配的 `CustomerExpressionEntry`。
-6. 先过 `chance`，再按 `weight` 做加权随机。
-7. 通过 `iconTexPath` 加载贴图并弹出头顶气泡。
-8. 同一个 `pawn + eventId` 受 `cooldownTicks` 限制。
+6. 按 `weight` 从候选规则中抽取一条，再检查这条规则的 `chance`。
+7. 检查该顾客同一事件的冷却时间。
+8. 找到 `iconTexPath` 对应的贴图后显示气泡并记录显示时间。
 
 ## 3. 标签系统
 
@@ -171,7 +171,7 @@
 
 ### 5.1 路径规则
 
-`iconTexPath` 是相对 `Content/Textures/` 的路径，不带 `.png` 后缀。
+`iconTexPath` 相对于模组加载目录中的 `Textures/`，省略 `.png` 后缀。本框架的 1.7 加载目录是 `1.7/`。
 
 例如：
 
@@ -181,17 +181,11 @@
 
 对应文件应放在：
 
-`Content/Textures/MyRace/CustomerExpressions/arrival.png`
+`1.7/Textures/MyRace/CustomerExpressions/arrival.png`
 
 ### 5.2 加载逻辑
 
-`CustomerExpressionEntry.ResolveTexture()` 会优先尝试从当前模组内容目录直接读 PNG，再回退到 `ContentFinder`。
-
-这意味着：
-
-1. 正常情况下直接放在模组 `Content/Textures/` 下即可。
-2. 资源路径最好稳定，不要频繁改名。
-3. 如果贴图加载失败，该表情不会显示，但不会让系统崩溃。
+`CustomerExpressionEntry.ResolveTexture()` 使用原版 `ContentFinder` 按逻辑路径查找贴图。扩展可以把图片放在自己的加载目录中。多个模组提供同一路径时，后加载的模组优先。查找结果会被缓存，缺图的规则会跳过显示。
 
 ## 6. 配置字段说明
 
@@ -246,23 +240,24 @@
 
 ## 7. 现有可配置表情时机表
 
-下表基于当前代码实现整理，都是已经接入、可以直接配置的 `eventId`。
+下表列出框架 1.7 会主动触发的事件。表情集可以按 `eventId` 提供对应规则。
 
 | eventId | 触发时机 | 代码位置 | 额外上下文标签 | 适合配置的表情方向 |
 |---|---|---|---|---|
-| `arrival` | 顾客刚生成并到店时 | [CustomerArrivalManager.cs](/E:/RimModDev/RimSimFramework/RimSimManagementFramework/1.6/Source/SimManagementLib/SimMapComp/CustomerArrivalManager.cs) | 无 | 兴奋、期待、逛街、入店 |
-| `browse_start` | 到达货架开始浏览时 | [JobDriver_BrowseAndPick.cs](/E:/RimModDev/RimSimFramework/RimSimManagementFramework/1.6/Source/SimManagementLib/SimAI/JobDriver_BrowseAndPick.cs) | 无 | 好奇、观察、挑选 |
-| `browse_wait` | 顾客等待或暂时找不到合适目标时 | [JobGiver_Customer_BrowseAndPick.cs](/E:/RimModDev/RimSimFramework/RimSimManagementFramework/1.6/Source/SimManagementLib/SimAI/JobGiver_Customer_BrowseAndPick.cs) | 无 | 发呆、困惑、犹豫 |
-| `browse_no_match` | 当前预算或库存下没有合适商品时 | [JobDriver_BrowseAndPick.cs](/E:/RimModDev/RimSimFramework/RimSimManagementFramework/1.6/Source/SimManagementLib/SimAI/JobDriver_BrowseAndPick.cs) | 无 | 失望、问号、无奈 |
-| `purchase_item` | 成功购买普通商品时 | [JobDriver_BrowseAndPick.cs](/E:/RimModDev/RimSimFramework/RimSimManagementFramework/1.6/Source/SimManagementLib/SimAI/JobDriver_BrowseAndPick.cs) | 无 | 满意、开心、普通购买反馈 |
-| `purchase_preferred_item` | 成功购买偏好商品时 | [JobDriver_BrowseAndPick.cs](/E:/RimModDev/RimSimFramework/RimSimManagementFramework/1.6/Source/SimManagementLib/SimAI/JobDriver_BrowseAndPick.cs) | `preferred` | 惊喜、爱心眼、强烈喜爱 |
-| `purchase_combo` | 成功购买套餐时 | [JobDriver_BrowseAndPick.cs](/E:/RimModDev/RimSimFramework/RimSimManagementFramework/1.6/Source/SimManagementLib/SimAI/JobDriver_BrowseAndPick.cs) | `combo` | 超值、满足、豪华套餐 |
-| `checkout_queue_start` | 到收银台开始排队时 | [JobDriver_PayAtRegister.cs](/E:/RimModDev/RimSimFramework/RimSimManagementFramework/1.6/Source/SimManagementLib/SimAI/JobDriver_PayAtRegister.cs) | 无 | 准备付款、耐心等待 |
-| `checkout_service_start` | 轮到自己开始结账服务时 | [JobDriver_PayAtRegister.cs](/E:/RimModDev/RimSimFramework/RimSimManagementFramework/1.6/Source/SimManagementLib/SimAI/JobDriver_PayAtRegister.cs) | 无 | 递钱、结账、确认账单 |
-| `checkout_paid` | 完成付款后 | [JobDriver_PayAtRegister.cs](/E:/RimModDev/RimSimFramework/RimSimManagementFramework/1.6/Source/SimManagementLib/SimAI/JobDriver_PayAtRegister.cs) | 无 | 满足、轻松、交易完成 |
-| `checkout_timeout` | 排队超时，放弃结账时 | [JobDriver_PayAtRegister.cs](/E:/RimModDev/RimSimFramework/RimSimManagementFramework/1.6/Source/SimManagementLib/SimAI/JobDriver_PayAtRegister.cs) | 无 | 生气、不耐烦、抱怨 |
-| `dine_start` | 堂食行为开始时 | [JobDriver_PostPurchaseDineInShop.cs](/E:/RimModDev/RimSimFramework/RimSimManagementFramework/1.6/Source/SimManagementLib/SimAI/JobDriver_PostPurchaseDineInShop.cs) | 无 | 开吃、期待、美食前摇 |
-| `dine_finish` | 堂食结束时 | [JobDriver_PostPurchaseDineInShop.cs](/E:/RimModDev/RimSimFramework/RimSimManagementFramework/1.6/Source/SimManagementLib/SimAI/JobDriver_PostPurchaseDineInShop.cs) | 无 | 满足、回味、吃饱 |
+| `arrival` | 顾客刚生成并到店时 | [CustomerArrivalManager.cs](../../Source/SimManagementLib/SimMapComp/CustomerArrivalManager.cs) | 无 | 兴奋、期待、逛街、入店 |
+| `browse_start` | 到达货架开始浏览时 | [JobDriver_BrowseAndPick.cs](../../Source/SimManagementLib/SimAI/JobDriver_BrowseAndPick.cs) | 无 | 好奇、观察、挑选 |
+| `browse_no_match` | 当前预算或库存下没有合适商品时 | [JobDriver_BrowseAndPick.cs](../../Source/SimManagementLib/SimAI/JobDriver_BrowseAndPick.cs) | 无 | 失望、问号、无奈 |
+| `purchase_item` | 成功购买普通商品时 | [JobDriver_BrowseAndPick.cs](../../Source/SimManagementLib/SimAI/JobDriver_BrowseAndPick.cs) | 无 | 满意、开心、普通购买反馈 |
+| `purchase_preferred_item` | 成功购买偏好商品时 | [JobDriver_BrowseAndPick.cs](../../Source/SimManagementLib/SimAI/JobDriver_BrowseAndPick.cs) | `preferred` | 惊喜、爱心眼、强烈喜爱 |
+| `purchase_combo` | 成功购买套餐时 | [JobDriver_BrowseAndPick.cs](../../Source/SimManagementLib/SimAI/JobDriver_BrowseAndPick.cs) | `combo` | 超值、满足、豪华套餐 |
+| `checkout_queue_start` | 到收银台开始排队时 | [JobDriver_PayAtRegister.cs](../../Source/SimManagementLib/SimAI/JobDriver_PayAtRegister.cs) | 无 | 准备付款、耐心等待 |
+| `checkout_service_start` | 轮到自己开始结账服务时 | [JobDriver_PayAtRegister.cs](../../Source/SimManagementLib/SimAI/JobDriver_PayAtRegister.cs) | 无 | 递钱、结账、确认账单 |
+| `checkout_paid` | 完成付款后 | [JobDriver_PayAtRegister.cs](../../Source/SimManagementLib/SimAI/JobDriver_PayAtRegister.cs) | 无 | 满足、轻松、交易完成 |
+| `checkout_timeout` | 排队超时，放弃结账时 | [JobDriver_PayAtRegister.cs](../../Source/SimManagementLib/SimAI/JobDriver_PayAtRegister.cs) | 无 | 生气、不耐烦、抱怨 |
+| `drug_use_start` | 购后店内用药开始时，随后显示用药文字气泡 | [JobDriver_PostPurchaseUseDrugInShop.cs](../../Source/SimManagementLib/SimAI/JobDriver_PostPurchaseUseDrugInShop.cs) | 无 | 开始用药 |
+| `drug_use_finish` | 店内用药动作收尾时 | [JobDriver_PostPurchaseUseDrugInShop.cs](../../Source/SimManagementLib/SimAI/JobDriver_PostPurchaseUseDrugInShop.cs) | 无 | 结束用药 |
+
+默认表情集也为 `browse_wait`、`dine_start` 和 `dine_finish` 提供贴图。这三个事件由扩展按需调用 `TryShowExpression` 触发。
 
 ## 8. 建议的种族接入策略
 
@@ -272,7 +267,7 @@
 
 - `targetRaceDefs`
 - `requiredTags = humanlike`
-- 一套完整的 13 个事件表情
+- 为种族会参与的事件提供贴图
 
 这样最稳，也最容易维护。
 
@@ -349,14 +344,12 @@
 
 可以直接参考这两个已有配置：
 
-- [CustomerExpressions_VanillaEmoji.xml](/E:/RimModDev/RimSimFramework/RimSimManagementFramework/1.6/Defs/Reusable/CustomerExpressionSetDef/CustomerExpressions_VanillaEmoji.xml)
-- [CustomerExpressions_TagTemplate.xml](/E:/RimModDev/RimSimFramework/RimSimManagementFramework/1.6/Defs/Reusable/CustomerExpressionSetDef/CustomerExpressions_TagTemplate.xml)
+- [CustomerExpressions_VanillaEmoji.xml](../Defs/Reusable/CustomerExpressionSetDef/CustomerExpressions_VanillaEmoji.xml)
+- [CustomerExpressions_TagTemplate.xml](../Defs/Reusable/CustomerExpressionSetDef/CustomerExpressions_TagTemplate.xml)
 
 ## 12. 当前系统限制
 
-截至 2026-04-06，这套系统有几个边界要注意：
-
-- 只支持图片表情，不支持直接配文本 emoji。
+- 每条表情规则需要一张可加载的贴图。纯文字气泡可由代码调用 `ShopBubbleUtility.ShowTextBubble`。
 - 同一时刻只显示一个气泡，新的气泡会销毁旧的气泡。
 - `cooldownTicks` 是按 `pawn + eventId` 计算，不区分不同图片候选。
 - 多套表情集同时命中时，只取最高优先级层，不会跨优先级混合。
@@ -368,7 +361,7 @@
 
 1. 种族或 PawnKind 的 DefName。
 2. 是否需要额外主题标签。
-3. 一套 `Content/Textures/...` 下的 PNG 表情资源。
+3. 一套放在扩展加载目录 `Textures/` 下的 PNG 表情资源。
 4. 一份 `CustomerExpressionSetDef` XML。
 5. 至少覆盖以下关键事件：
    `arrival`、`browse_start`、`purchase_item`、`checkout_paid`、`checkout_timeout`。

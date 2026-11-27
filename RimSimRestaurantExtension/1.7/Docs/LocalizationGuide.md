@@ -1,6 +1,6 @@
 # 餐厅扩展多语言开发
 
-餐厅扩展使用原版语言加载机制，运行时复用框架的 `SimTranslation.T`。语言文件位于 `1.6/Languages`，已提供 `ChineseSimplified` 和 `English`。
+餐厅扩展使用原版语言加载机制，运行时复用框架的 `SimTranslation.T`。语言文件位于 `1.7/Languages`，已提供 `ChineseSimplified` 和 `English`。
 
 ## 翻译目录
 
@@ -49,12 +49,10 @@ Def 自带的 `label`、`description`、`reportString`、`verb`、`gerund` 使�
 
 ## 静态检查
 
-在仓库根目录执行：
+在源码仓库根目录运行以下命令。工具检查餐厅的 `Source` 和 `1.7` 下的 Defs 与语言文件。
 
 ```powershell
-python RimSimRestaurantExtension/Tools/Localization/audit_localization.py
+py -X utf8 RimSimRestaurantExtension/Tools/Localization/audit_localization.py
 ```
 
 检查中英文键集合、重复键、空文本、XML、调用参数和 Def 字段覆盖。`--report <路径>` 可输出 UTF-8 JSON 明细。新增语言的译者需同时参考英文与中文参数，不删除占位符。
-
-本次迁移覆盖 341 个运行时键和 68 个 Def 字段。扫描 129 个 C# 文件，保留的中文候选为：开发者生成工具 35 行、日志及异常配置诊断 19 行、仅写日志的补餐失败原因 11 行、渲染内部名称或日志 7 行。经营界面未发现未分类的中文硬编码文本。

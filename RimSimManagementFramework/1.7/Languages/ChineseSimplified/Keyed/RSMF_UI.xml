@@ -494,10 +494,6 @@
   <RSMF.ShopManager.Status.OutOfStock>缺货</RSMF.ShopManager.Status.OutOfStock>
   <RSMF.ShopManager.Status.Low>不足</RSMF.ShopManager.Status.Low>
   <RSMF.ShopManager.Status.Enough>充足</RSMF.ShopManager.Status.Enough>
-  <RSMF.ShopManager.TargetPriceHeader>单价</RSMF.ShopManager.TargetPriceHeader>
-  <RSMF.ShopManager.TargetCountHeader>目标量</RSMF.ShopManager.TargetCountHeader>
-  <RSMF.ShopManager.TargetSliderHeader>快速调节</RSMF.ShopManager.TargetSliderHeader>
-  <RSMF.ShopManager.TargetGoodsHeader>商品名称  （勾选即上架）</RSMF.ShopManager.TargetGoodsHeader>
   <RSMF.ShopManager.ComboItemCount>{kindCount} 种 · {totalItems} 件</RSMF.ShopManager.ComboItemCount>
   <RSMF.ShopManager.ComboName>套餐名称</RSMF.ShopManager.ComboName>
   <RSMF.ShopManager.AiNameCombo>AI取名</RSMF.ShopManager.AiNameCombo>
@@ -549,9 +545,6 @@
   <RSMF.ShopManager.Sidebar.Services>服务管理</RSMF.ShopManager.Sidebar.Services>
   <RSMF.ShopManager.CombosHeader>套  餐  ({count})</RSMF.ShopManager.CombosHeader>
   <RSMF.ShopManager.StorageHeader>货柜 ({count})</RSMF.ShopManager.StorageHeader>
-  <RSMF.ShopManager.NoStorageSelected>请选择一个货柜进行独立管理。</RSMF.ShopManager.NoStorageSelected>
-  <RSMF.ShopManager.StorageSummaryLine>分类：{category}  库存：{stored}/{capacity}</RSMF.ShopManager.StorageSummaryLine>
-  <RSMF.ShopManager.StorageHintLine>此页面只展示当前货柜的真实配置，编辑请使用右侧“打开货柜管理”。</RSMF.ShopManager.StorageHintLine>
   <RSMF.ShopManager.NewCombo>+ 新建套餐</RSMF.ShopManager.NewCombo>
   <RSMF.ShopSchedule.ManuallyClosed>手动停业</RSMF.ShopSchedule.ManuallyClosed>
   <RSMF.ShopSchedule.OpenAllDay>全天营业</RSMF.ShopSchedule.OpenAllDay>

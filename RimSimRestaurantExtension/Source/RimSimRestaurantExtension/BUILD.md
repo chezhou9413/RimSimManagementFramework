@@ -17,7 +17,7 @@ dotnet build RimSimRestaurantExtension.csproj -c Release
 
 ## 加载
 
-两个 Mod 是同级目录，统一由 `RimSimFramework` 根目录的 Git 仓库管理。运行根目录或任一 Mod 目录的 `deploy_modSelf.bat`，会先编译再部署框架与餐厅到 Steam 游戏的两个独立 Mod 目录。脚本不启动游戏。
+仓库根目录和各模组目录中的 `deploy_modSelf.bat` 共用同一入口。它构建统一解决方案，将框架、餐厅和旅馆分别安装到游戏的 `Mods` 目录。餐厅在游戏中只依赖框架。
 
 ## 排错
 

@@ -75,9 +75,7 @@ namespace SimManagementLib.SimDialog
             comboItemsCacheSignature = itemsSignature;
         }
 
-        /// <summary>
-        /// 重建可售商品和参考价缓存，负责避免每帧调用 HasAnyStorageSellingThing。
-        /// </summary>
+        //按当前货柜配置和搜索条件重建套餐可选商品及参考价。
         private void RebuildComboSellableCache(int storageSignature, string searchKey)
         {
             comboSellableCache.Clear();

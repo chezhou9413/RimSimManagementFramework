@@ -313,13 +313,11 @@ namespace SimManagementLib.SimThingComp
         //未配置阈值时使用目标量。
         public int EffectiveRestockThreshold => GetEffectiveRestockThreshold(count, restockThreshold);
 
-        //根据目标量和保存值计算有效阈值，负责兼容未保存阈值的配置。
+        //未指定阈值时采用目标量，指定的阈值最多取到目标量。
         public static int GetEffectiveRestockThreshold(int targetCount, int configuredThreshold)
         {
             int target = Math.Max(0, targetCount);
-            if (target <= 0) return 0;
-            int fallback = target;
-            return Math.Max(0, Math.Min(target, configuredThreshold < 0 ? fallback : configuredThreshold));
+            return configuredThreshold < 0 ? target : Math.Min(target, configuredThreshold);
         }
 
         //规范化保存的补货阈值，负责避免阈值超过目标量或出现非法负数。

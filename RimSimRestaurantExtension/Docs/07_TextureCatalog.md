@@ -1,6 +1,6 @@
 # 餐厅贴图资源清单
 
-来源：用户提供的 `餐厅组.zip`，共 61 张 PNG，按英文名称整理到餐厅 Mod 的 `1.7/Textures`。本次入库保持原图字节、尺寸和透明通道不变。
+原始素材来自 `餐厅组.zip`，共 61 张 PNG。下表列出它们在餐厅 Mod 的 `1.7/Textures` 中对应的路径。
 
 ## 命名与目录规则
 
@@ -95,14 +95,14 @@
 | 常规桌椅组/1x2桌子（横向）（遮罩蒙版）.png | `Things/Building/Restaurant/DiningTable1x2/RSR_DiningTable1x2_eastm.png` | 512×512 |
 | 吧台桌高脚椅组/吧台桌.png | `Things/Building/Restaurant/BarCounter/RSR_BarCounter_Atlas.png` | 1024×1024 |
 | 吧台桌高脚椅组/吧台桌（遮罩蒙版）.png | `Things/Building/Restaurant/BarCounter/RSR_BarCounter_Atlas_m.png` | 1024×1024 |
-| 吧台桌高脚椅组/吧台桌（图标）.png | `UI/Icons/Buildings/Restaurant/RSR_BarCounter.png` | 256×256 |
-| 吧台桌高脚椅组/吧台桌（图标）（遮罩蒙版）.png | `UI/Icons/Buildings/Restaurant/RSR_BarCounter_m.png` | 256×256 |
+| 吧台桌高脚椅组/吧台桌（图标）.png | `UI/Icons/Buildings/Restaurant/RSR_BarCounter_blueprint.png` | 256×256 |
+| 吧台桌高脚椅组/吧台桌（图标）（遮罩蒙版）.png | `UI/Icons/Buildings/Restaurant/RSR_BarCounter_blueprint_m.png` | 256×256 |
 | 旋转寿司台组/旋转寿司台（原版）.png | `Things/Building/Restaurant/SushiConveyor/RSR_SushiConveyor_Atlas.png` | 1024×1024 |
 | 旋转寿司台组/旋转寿司台（遮罩蒙版）.png | `Things/Building/Restaurant/SushiConveyor/RSR_SushiConveyor_Atlas_m.png` | 1024×1024 |
 | 旋转寿司台组/旋转寿司台（无表面传送带款）.png | `Things/Building/Restaurant/SushiConveyor/RSR_SushiConveyor_BaseAtlas.png` | 1024×1024 |
 | 旋转寿司台组/旋转寿司台（传送带区域蒙版）.png | `Things/Building/Restaurant/SushiConveyor/Masks/RSR_SushiConveyor_BeltRegion.png` | 1024×1024 |
-| 旋转寿司台组/旋转寿司台（图标）.png | `UI/Icons/Buildings/Restaurant/RSR_SushiConveyor.png` | 256×256 |
-| 旋转寿司台组/旋转寿司台（图标）（遮罩蒙版）.png | `UI/Icons/Buildings/Restaurant/RSR_SushiConveyor_m.png` | 256×256 |
+| 旋转寿司台组/旋转寿司台（图标）.png | `UI/Icons/Buildings/Restaurant/RSR_SushiConveyor_blueprint.png` | 256×256 |
+| 旋转寿司台组/旋转寿司台（图标）（遮罩蒙版）.png | `UI/Icons/Buildings/Restaurant/RSR_SushiConveyor_blueprint_m.png` | 256×256 |
 | 旋转寿司台组/传送带动画1.png | `Things/Building/Restaurant/SushiConveyor/Animation/RSR_SushiConveyor_Belt_Frame01.png` | 512×512 |
 | 旋转寿司台组/传送带动画2.png | `Things/Building/Restaurant/SushiConveyor/Animation/RSR_SushiConveyor_Belt_Frame02.png` | 512×512 |
 | 旋转寿司台组/传送带动画3.png | `Things/Building/Restaurant/SushiConveyor/Animation/RSR_SushiConveyor_Belt_Frame03.png` | 512×512 |

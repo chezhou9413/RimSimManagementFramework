@@ -171,27 +171,6 @@ namespace SimManagementLib.SimDialog
         }
 
         /// <summary>
-        /// 判断店内是否存在任意一个正在售卖指定商品的货柜，负责给套餐编辑页过滤可选商品。
-        /// </summary>
-        private bool HasAnyStorageSellingThing(ThingDef thingDef)
-        {
-            if (thingDef == null || storages.NullOrEmpty())
-                return false;
-
-            foreach (Building_SimContainer storage in storages)
-            {
-                if (storage == null || storage.Destroyed) continue;
-                ThingComp_GoodsData comp = storage.GetComp<ThingComp_GoodsData>();
-                if (comp == null) continue;
-                GoodsItemData data = comp.FindItemData(thingDef);
-                if (data != null && data.enabled && data.count > 0)
-                    return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
         /// 返回套餐估价时参考的单件售价，负责优先使用当前选中货柜的配置价，再回退到其他货柜或物品基础市价。
         /// </summary>
         private float GetReferencePriceForCombo(ThingDef thingDef)
@@ -211,9 +190,7 @@ namespace SimManagementLib.SimDialog
             return Mathf.Max(1f, thingDef.BaseMarketValue);
         }
 
-        /// <summary>
-        /// 读取指定货柜对某个商品的配置售价，负责给套餐页和总管概览复用同一套判断。
-        /// </summary>
+        //读取货柜已启售商品的配置价，供套餐估价使用。
         private static bool TryGetConfiguredPrice(Building_SimContainer storage, ThingDef thingDef, out float price)
         {
             price = 0f;
@@ -221,7 +198,7 @@ namespace SimManagementLib.SimDialog
 
             ThingComp_GoodsData comp = storage.GetComp<ThingComp_GoodsData>();
             GoodsItemData data = comp?.FindItemData(thingDef);
-            if (data == null || !data.enabled || data.price <= 0f)
+            if (data == null || data.price <= 0f)
                 return false;
 
             price = Mathf.Max(1f, data.price);
@@ -289,14 +266,6 @@ namespace SimManagementLib.SimDialog
             GUI.color = CTextDim;
             Widgets.Label(rect, text);
             GUI.color = Color.white;
-        }
-
-        private void DrawDash(Rect rect)
-        {
-            Text.Anchor = TextAnchor.MiddleCenter;
-            GUI.color = new Color(0.25f, 0.25f, 0.25f);
-            Widgets.Label(rect, "—");
-            ResetText();
         }
 
         private void DrawBorderRect(Rect rect, Color color, float thickness)

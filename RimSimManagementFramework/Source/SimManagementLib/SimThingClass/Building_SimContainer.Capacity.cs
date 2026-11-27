@@ -125,7 +125,7 @@ namespace SimManagementLib.SimThingClass
         {
             int total = 0;
             foreach (ThingDef thingDef in ActiveDefs)
-                total += Math.Max(0, GetTargetCount(thingDef));
+                total += GetTargetCount(thingDef);
             return total;
         }
 
@@ -138,7 +138,7 @@ namespace SimManagementLib.SimThingClass
             if (!comp.AllowsGoodsCategory(comp.ActiveGoodsDefName) || !Tool.GoodsCatalog.Contains(comp.ActiveGoodsDefName, thingDef))
                 return 0;
             SimThingComp.GoodsItemData item = comp.FindItemData(thingDef);
-            return item == null || !item.enabled ? 0 : Math.Max(0, item.count);
+            return item == null ? 0 : Math.Max(0, item.count);
         }
 
         //返回指定商品触发自动补货的库存阈值。
@@ -150,7 +150,7 @@ namespace SimManagementLib.SimThingClass
             if (!comp.AllowsGoodsCategory(comp.ActiveGoodsDefName) || !Tool.GoodsCatalog.Contains(comp.ActiveGoodsDefName, thingDef))
                 return 0;
             SimThingComp.GoodsItemData item = comp.FindItemData(thingDef);
-            return item == null || !item.enabled ? 0 : item.EffectiveRestockThreshold;
+            return item?.EffectiveRestockThreshold ?? 0;
         }
 
         //返回指定商品的实际库存数量。

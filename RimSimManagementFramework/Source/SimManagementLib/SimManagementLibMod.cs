@@ -562,6 +562,7 @@ namespace SimManagementLib
         }
     }
 
+    //在游戏加载时安装框架补丁并注册区划指令。
     [StaticConstructorOnStartup]
     public static class SimManagementLibBootstrap
     {
@@ -569,7 +570,7 @@ namespace SimManagementLib
         static SimManagementLibBootstrap()
         {
             Harmony harmony = new Harmony("com.Chezhou.simmanagementlib");
-            harmony.PatchAll();
+            harmony.PatchAll(typeof(SimManagementLibBootstrap).Assembly);
             EnsureShopDesignatorRegistered();
         }
         //将商店区和快捷商品注册指令接入原版区划分类，负责兼容只打开原版区划页的玩家操作路径。

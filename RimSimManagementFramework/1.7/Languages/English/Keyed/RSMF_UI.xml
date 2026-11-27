@@ -494,10 +494,6 @@
   <RSMF.ShopManager.Status.OutOfStock>Out</RSMF.ShopManager.Status.OutOfStock>
   <RSMF.ShopManager.Status.Low>Low</RSMF.ShopManager.Status.Low>
   <RSMF.ShopManager.Status.Enough>Enough</RSMF.ShopManager.Status.Enough>
-  <RSMF.ShopManager.TargetPriceHeader>Price</RSMF.ShopManager.TargetPriceHeader>
-  <RSMF.ShopManager.TargetCountHeader>Target</RSMF.ShopManager.TargetCountHeader>
-  <RSMF.ShopManager.TargetSliderHeader>Quick adjust</RSMF.ShopManager.TargetSliderHeader>
-  <RSMF.ShopManager.TargetGoodsHeader>Item name  (check to stock)</RSMF.ShopManager.TargetGoodsHeader>
   <RSMF.ShopManager.ComboItemCount>{kindCount} kinds · {totalItems} items</RSMF.ShopManager.ComboItemCount>
   <RSMF.ShopManager.ComboName>Bundle name</RSMF.ShopManager.ComboName>
   <RSMF.ShopManager.AiNameCombo>AI name</RSMF.ShopManager.AiNameCombo>
@@ -549,9 +545,6 @@
   <RSMF.ShopManager.Sidebar.Services>Services</RSMF.ShopManager.Sidebar.Services>
   <RSMF.ShopManager.CombosHeader>Bundles  ({count})</RSMF.ShopManager.CombosHeader>
   <RSMF.ShopManager.StorageHeader>Storages ({count})</RSMF.ShopManager.StorageHeader>
-  <RSMF.ShopManager.NoStorageSelected>Select a storage building to manage it separately.</RSMF.ShopManager.NoStorageSelected>
-  <RSMF.ShopManager.StorageSummaryLine>Category: {category}  Stock: {stored}/{capacity}</RSMF.ShopManager.StorageSummaryLine>
-  <RSMF.ShopManager.StorageHintLine>This page shows the current storage settings. Use "Manage storage" to edit them.</RSMF.ShopManager.StorageHintLine>
   <RSMF.ShopManager.NewCombo>+ New bundle</RSMF.ShopManager.NewCombo>
   <RSMF.ShopSchedule.ManuallyClosed>Manually closed</RSMF.ShopSchedule.ManuallyClosed>
   <RSMF.ShopSchedule.OpenAllDay>Open all day</RSMF.ShopSchedule.OpenAllDay>
@@ -1180,7 +1173,7 @@
 
   <RSMF.Business.Tutorial.StorageManagement.Title>How to manage storage</RSMF.Business.Tutorial.StorageManagement.Title>
   <RSMF.Business.Tutorial.StorageManagement.BeforeImage>Select a shelf and click 'Shelf Management' below to stock items. You can switch between different product categories on the left, but each shelf can only hold items of the same category.</RSMF.Business.Tutorial.StorageManagement.BeforeImage>
-  <RSMF.Business.Tutorial.StorageManagement.AfterImage>Below, you can copy the current shelf's configuration to quickly set up multiple identical shelves at once.\nPlease note that the stock replenishment threshold for shelves defaults to 0, meaning staff will only restock items when they are sold out!</RSMF.Business.Tutorial.StorageManagement.AfterImage>
+  <RSMF.Business.Tutorial.StorageManagement.AfterImage>You can copy these settings to other shelves of the same kind.\nAutomatic restocking starts when stock on hand plus incoming stock is below the target and at or below the restock threshold. Set the threshold to 0 to wait until the item sells out.</RSMF.Business.Tutorial.StorageManagement.AfterImage>
 
   <RSMF.Business.Tutorial.HotRegisteringItems.Title>How to hot register items</RSMF.Business.Tutorial.HotRegisteringItems.Title>
   <RSMF.Business.Tutorial.HotRegisteringItems.BeforeImage>To stock items from other mods without a compatibility patch, use quick registration.\nOpen the Simulation Management Framework building menu and click Quick register goods. Search for items or filter by source mod. Select one or more items, click Choose goods category, select the appropriate category, then click Register here to apply. The items do not need to exist on the map.</RSMF.Business.Tutorial.HotRegisteringItems.BeforeImage>

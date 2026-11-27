@@ -10,10 +10,10 @@
   <RSMF.Business.Tutorial.HotRegisteringItems.Title>怎么快速注册商品</RSMF.Business.Tutorial.HotRegisteringItems.Title>
   <RSMF.Business.Tutorial.OperatingHours.BeforeImage>选择已划定的商店区域，点击下方的商店管理，再点选左侧的营业时间即可对营业日程进行管理，默认为全天营业。</RSMF.Business.Tutorial.OperatingHours.BeforeImage>
   <RSMF.Business.Tutorial.OperatingHours.Title>怎么设置营业时间</RSMF.Business.Tutorial.OperatingHours.Title>
-  <RSMF.Business.Tutorial.Storage.AfterImage>下方可以复制当前货柜的配置以快速同时配置多个相同的货柜。\n请注意，货柜的商品补货阈值默认为0，即店员只会在商品售罄时进行补货！</RSMF.Business.Tutorial.Storage.AfterImage>
-  <RSMF.Business.Tutorial.Storage.BeforeImage>选择某一货架，点击下方的货架管理即可上架物品，可以从左侧切换不同的商品种类，但每个货架只能放同种类的商品。</RSMF.Business.Tutorial.Storage.BeforeImage>
-  <RSMF.Business.Tutorial.Storage.Title>怎么管理货柜</RSMF.Business.Tutorial.Storage.Title>
-  <RSMF.Business.Tutorial.StorageManagement.AfterImage>下方可以复制当前货柜的配置以快速同时配置多个相同的货柜。\n请注意，货柜的商品补货阈值默认为0，即店员只会在商品售罄时进行补货！</RSMF.Business.Tutorial.StorageManagement.AfterImage>
+  <RSMF.Business.Tutorial.QA.Title>QA</RSMF.Business.Tutorial.QA.Title>
+  <RSMF.Business.Tutorial.QA.BeforeImage>为什么我的角色不进行补货/服务等工作?\n导致这种状况出现的可能性有很多。\n首先,任何的多线程类优化模组都有极大地概率造成此种情况。\n其次,请先进入您商店的"店员配置"界面,同一名角色同时承担补货与服务工作会有概率造成此种情况。\n在此之后,请于"工作"菜单栏中检查您进行补货/服务等工作的角色的对应优先级,可能是您的角色被其他更重要的事情占据了优先级。</RSMF.Business.Tutorial.QA.BeforeImage>
+  <RSMF.Business.Tutorial.QA.AfterImage>除此之外,同样有可能是您的角色在其他方面的需求条过低,如饮食等,导致其需要进行其他方面的活动,这种情况下一般等待片刻即可。</RSMF.Business.Tutorial.QA.AfterImage>
+  <RSMF.Business.Tutorial.StorageManagement.AfterImage>可以把当前货柜的配置复制给相同的货柜。\n库存与在途数量合计低于目标量且不高于补货阈值时，会触发自动补货。想等商品售罄再补货，可将阈值设为 0。</RSMF.Business.Tutorial.StorageManagement.AfterImage>
   <RSMF.Business.Tutorial.StorageManagement.BeforeImage>选择某一货架，点击下方的货架管理即可上架物品，可以从左侧切换不同的商品种类，但每个货架只能放同种类的商品。</RSMF.Business.Tutorial.StorageManagement.BeforeImage>
   <RSMF.Business.Tutorial.StorageManagement.Title>怎么管理货柜</RSMF.Business.Tutorial.StorageManagement.Title>
 </LanguageData>

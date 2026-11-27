@@ -6,8 +6,9 @@ import re
 import xml.etree.ElementTree as ET
 
 MOD = Path(__file__).resolve().parents[2]
-SOURCE = MOD / '1.6/Source/SimManagementLib'
-LANGUAGES = MOD / '1.6/Languages'
+SOURCE = MOD / 'Source/SimManagementLib'
+DEFS = MOD / '1.7/Defs'
+LANGUAGES = MOD / '1.7/Languages'
 KEY_CALL = re.compile(r'SimTranslation\.T(?:OrFallback)?\(\s*"(RSMF\.[^"\r\n]+)"\s*[,)]')
 FALLBACK = re.compile(r'SimTranslation\.TOrFallback\(\s*"RSMF\.[^"]+",\s*"(?:\\.|[^"\\])*"\)')
 PLACEHOLDER = re.compile(r'(?<!\{)\{([A-Za-z_][A-Za-z0-9_]*)(?:[^{}]*)\}(?!\})')
@@ -64,7 +65,7 @@ def scan_source():
             if line.lstrip().startswith(('//', '*')) or not HAN_LITERAL.search(line):
                 continue
             candidates.append({'file': file, 'line': number, 'category': classify(file, line), 'text': line.strip()})
-    for path in sorted((MOD / '1.6/Defs').rglob('*.xml')):
+    for path in sorted(DEFS.rglob('*.xml')):
         for element in ET.parse(path).getroot().iter():
             if element.tag.lower().endswith('key') and (element.text or '').startswith('RSMF.'):
                 references.setdefault(element.text.strip(), []).append(path.relative_to(MOD).as_posix())
@@ -75,6 +76,9 @@ def main():
     parser = argparse.ArgumentParser(description='检查框架语言键与源码引用；不启动游戏。')
     parser.add_argument('--report', type=Path, help='可选的 UTF-8 JSON 报告路径')
     args = parser.parse_args()
+    for directory in (SOURCE, DEFS, LANGUAGES / 'ChineseSimplified/Keyed', LANGUAGES / 'English/Keyed'):
+        if not directory.is_dir():
+            parser.error(f'找不到语言检查所需的目录：{directory}')
     languages, errors = {}, []
     for language in ['ChineseSimplified', 'English']:
         languages[language], found = read_language(language)

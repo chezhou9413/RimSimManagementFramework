@@ -186,4 +186,7 @@
   <RSR.UI.WaitingReachableWaiter>等待能到达顾客旁的服务员</RSR.UI.WaitingReachableWaiter>
   <RSR.UI.WaitingStaff>等待员工接单</RSR.UI.WaitingStaff>
   <RSR.UI.WasteCost>累计损耗成本：{cost}</RSR.UI.WasteCost>
+  <RSMF.Business.Tutorial.StartBusinessRestaurants.Title>怎么建立一个餐厅</RSMF.Business.Tutorial.StartBusinessRestaurants.Title>
+  <RSMF.Business.Tutorial.StartBusinessRestaurants.BeforeImage>划定一个室内商店区，并在区域里放置一个收银台，一个餐厅接待与出餐台，一个炉灶以及至少一套桌椅。</RSMF.Business.Tutorial.StartBusinessRestaurants.BeforeImage>
+  <RSMF.Business.Tutorial.StartBusinessRestaurants.AfterImage>进入商店管理中的餐厅设置界面，编辑你想要上架的菜品，安排好员工\n在这个室内商店区内放置一个储存架并在其中储存所需食材，即可开始营业</RSMF.Business.Tutorial.StartBusinessRestaurants.AfterImage>
 </LanguageData>

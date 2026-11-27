@@ -116,7 +116,7 @@ namespace SimManagementLib.BusinessAdvisor
                     + " research=" + string.Join(",", (def.researchPrerequisites ?? new List<ResearchProjectDef>()).Select(r => r.defName + ":" + r.IsFinished));
         }
 
-        //把框架货柜与普通储物架明确区分，避免用原版 Shelf 冒充可售货设施。
+        //按建筑类型或销售组件标记可用于经营的设施。
         private static string ShopBuildingRole(BuildableDef def)
         {
             if (def is not ThingDef thing || thing.thingClass == null) return "none";

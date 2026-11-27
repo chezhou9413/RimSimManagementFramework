@@ -97,7 +97,7 @@ foreach ($plan in $plans) {
     Remove-DeploymentStage $plan.Temporary
     New-Item -ItemType Directory -Path $plan.Temporary | Out-Null
     $excludedLegacyPaths = @($legacyFolders | ForEach-Object { Join-Path $plan.Source $_ })
-    & robocopy $plan.Source $plan.Temporary /MIR /R:1 /W:1 /NFL /NDL /NJH /NJS /NP /XD Source obj bin .git .vs @excludedLegacyPaths /XF 'compile_modSelf.*' 'deploy_modSelf.*' build.bat
+    & robocopy $plan.Source $plan.Temporary /MIR /R:1 /W:1 /NFL /NDL /NJH /NJS /NP /XD Source obj bin .git .vs (Join-Path $plan.Source 'Tools') @excludedLegacyPaths /XF 'compile_modSelf.*' 'deploy_modSelf.*' build.bat
     if ($LASTEXITCODE -gt 7) {
         throw "复制 $($plan.Name) 失败，退出码：$LASTEXITCODE"
     }
