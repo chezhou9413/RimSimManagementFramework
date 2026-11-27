@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <!-- 只给具体建筑补建本地组件列表，保留父定义和其他模组添加的组件。 -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/ThingDef[
+      defName="Shelf" or defName="ShelfSmall" or defName="Hopper" or
+      defName="Bookcase" or defName="BookcaseSmall" or
+      defName="Building_OutfitStand" or defName="Building_KidOutfitStand"
+    ][not(comps)]</xpath>
+    <value><comps /></value>
+    <success>Always</success>
+  </Operation>
+  <!-- 已有销售组件的建筑直接沿用原配置，未启用的资料片没有对应定义。 -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/ThingDef[
+      defName="Shelf" or defName="ShelfSmall" or defName="Hopper" or
+      defName="Bookcase" or defName="BookcaseSmall" or
+      defName="Building_OutfitStand" or defName="Building_KidOutfitStand"
+    ]/comps[not(li[@Class="SimManagementLib.SimThingComp.CompProperties_StorageSales"])]</xpath>
+    <value><li Class="SimManagementLib.SimThingComp.CompProperties_StorageSales" /></value>
+    <success>Always</success>
+  </Operation>
+</Patch>

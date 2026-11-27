@@ -31,24 +31,36 @@
 
 管理窗口会显示整柜已上架件数，以及每个品种的「可售/现存」。原版搬运和店员补货可以继续备足 100 件，具体能存多少由宿主容量和储存筛选决定。
 
-## 原版大小储物架示例
+## 已接入的原版储存建筑
 
-框架 1.7 已为原版储物架（`Shelf`）和小型储物架（`ShelfSmall`）挂载组件，销售默认关闭。给其他模组的建筑接入时，可复制下面的补丁到兼容模组的 `1.7/Patches/` 目录，将 XPath 中的建筑名换成目标 `defName`。[框架自带的货架补丁](../Patches/StorageSales_VanillaShelves.xml)
+| 所需内容 | 建筑 | 销售的实物 |
+| --- | --- | --- |
+| 核心游戏 | 物品架、小物品架 | 储物格中的商品 |
+| 核心游戏 | 书柜、小书柜 | 柜中存放的书 |
+| 核心游戏 | 进料口 | 同时供营养膏机取用的原料 |
+| Odyssey | 服装架 | 架上的服装和武器 |
+| Odyssey 与 Biotech | 儿童服装架 | 儿童服装架上存放的装备 |
+
+服装架出售装备时也遵守原版的取出开关。要把架上的装备卖给顾客，请同时允许取出并开启货柜销售。[框架自带的原版储存建筑补丁](../Patches/StorageSales_VanillaStorage.xml)
+
+## 给其他模组的储存建筑打补丁
+
+将下面的补丁放入兼容模组的 `1.7/Patches/`，把 `MyMod_Storage` 换成目标建筑的 `defName`。
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <Patch>
   <Operation Class="PatchOperationConditional">
-    <xpath>Defs/ThingDef[defName="Shelf" or defName="ShelfSmall"][not(comps)]</xpath>
+    <xpath>Defs/ThingDef[defName="MyMod_Storage"][not(comps)]</xpath>
     <match Class="PatchOperationAdd">
-      <xpath>Defs/ThingDef[defName="Shelf" or defName="ShelfSmall"][not(comps)]</xpath>
+      <xpath>Defs/ThingDef[defName="MyMod_Storage"][not(comps)]</xpath>
       <value><comps /></value>
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>Defs/ThingDef[defName="Shelf" or defName="ShelfSmall"]/comps[not(li[@Class="SimManagementLib.SimThingComp.CompProperties_StorageSales"])]</xpath>
+    <xpath>Defs/ThingDef[defName="MyMod_Storage"]/comps[not(li[@Class="SimManagementLib.SimThingComp.CompProperties_StorageSales"])]</xpath>
     <match Class="PatchOperationAdd">
-      <xpath>Defs/ThingDef[defName="Shelf" or defName="ShelfSmall"]/comps[not(li[@Class="SimManagementLib.SimThingComp.CompProperties_StorageSales"])]</xpath>
+      <xpath>Defs/ThingDef[defName="MyMod_Storage"]/comps[not(li[@Class="SimManagementLib.SimThingComp.CompProperties_StorageSales"])]</xpath>
       <value><li Class="SimManagementLib.SimThingComp.CompProperties_StorageSales" /></value>
     </match>
   </Operation>
@@ -57,7 +69,7 @@
 
 ## 玩家使用
 
-货架默认关闭“货柜销售”，划入商店后仍按普通储物架使用。要出售架上的物品，选中这座货架，手动开启“货柜销售”。开关按建筑保存，读档后沿用。
+每座建筑默认关闭“货柜销售”。将建筑划入商店后，选中它并开启“货柜销售”，顾客就能选购其中的实物。开关按建筑保存，读档后沿用。
 
 通过建筑的“货柜管理”按钮，或经营总管里该店的货柜入口，可以设置各品种的上架状态、单价、目标件数和补货阈值。点击“保存设置”后生效。
 
