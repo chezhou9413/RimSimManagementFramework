@@ -173,7 +173,7 @@ namespace SimManagementLib.GameComp
         private sealed class ShopMetricsWork
         {
             private readonly IReadOnlyList<Building_CashRegister> registers;
-            private readonly IReadOnlyList<Building_SimContainer> storages;
+            private readonly IReadOnlyList<IShopStorage> storages;
             private int cellCursor;
             private int facilityCursor;
             public Zone_Shop Zone { get; }
@@ -200,7 +200,7 @@ namespace SimManagementLib.GameComp
                 Zone = zone;
                 State = state;
                 registers = ShopDataUtility.GetCashRegisterSnapshotInZone(zone);
-                storages = ShopDataUtility.GetStorageSnapshotInZone(zone);
+                storages = ShopDataUtility.GetRetailStorages(zone);
             }
 
             //分片处理区划格，职责是累计清洁度和室内率。
@@ -249,20 +249,20 @@ namespace SimManagementLib.GameComp
             }
 
             //采样货柜，职责是按商品 Def 聚合有售和有货种类。
-            private void ProcessStorage(Building_SimContainer storage)
+            private void ProcessStorage(IShopStorage storage)
             {
-                if (storage == null || storage.Destroyed) return;
+                if (storage == null || storage.Host.Destroyed) return;
                 bool stocked = false;
                 foreach (ThingDef def in storage.ActiveDefs)
                 {
                     if (def == null) continue;
                     GoodsKinds.Add(def);
-                    if (storage.CountStored(def) <= 0) continue;
+                    if (storage.SaleCount(def) <= 0) continue;
                     InStockKinds.Add(def);
                     stocked = true;
                 }
                 if (stocked) StockedStorageCount++;
-                AddBeauty(storage.Position);
+                AddBeauty(storage.Host.Position);
             }
 
             //增加一个美观样本，职责是忽略地图外格并累计近似美观。

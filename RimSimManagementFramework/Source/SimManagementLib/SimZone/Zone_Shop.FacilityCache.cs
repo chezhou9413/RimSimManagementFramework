@@ -1,3 +1,4 @@
+using RimWorld;
 using SimManagementLib.SimThingClass;
 using System.Collections.Generic;
 using Verse;
@@ -9,6 +10,16 @@ namespace SimManagementLib.SimZone
     {
         private readonly List<Building_SimContainer> cachedStorages = new List<Building_SimContainer>();
         private readonly List<Building_CashRegister> cachedCashRegisters = new List<Building_CashRegister>();
+        private readonly List<IShopStorage> retailStorages = new();
+        private readonly List<IShopStorage> allStorages = new();
+
+        //供经营与管理共用，管理列表也包含已停售的宿主建筑。
+        internal IReadOnlyList<IShopStorage> RetailStorages(bool includeDisabled)
+        {
+            RefreshFacilityCacheIfNeeded();
+            return includeDisabled ? allStorages : retailStorages;
+        }
+
         private bool facilityCacheDirty = true;
 
         //返回商店当前货柜快照，职责是在区划或建筑未变化时复用稳定列表。
@@ -40,6 +51,8 @@ namespace SimManagementLib.SimZone
 
             facilityCacheDirty = false;
             cachedStorages.Clear();
+            retailStorages.Clear();
+            allStorages.Clear();
             cachedCashRegisters.Clear();
             if (Map == null || Cells == null)
                 return;
@@ -55,7 +68,13 @@ namespace SimManagementLib.SimZone
                         continue;
                     if (thing is Building_SimContainer storage)
                         cachedStorages.Add(storage);
-                    else if (thing is Building_CashRegister register)
+                    IShopStorage retail = ShopStorage.For(thing);
+                    if (retail != null && (retail is Building_SimContainer || retail.Host.Faction == Faction.OfPlayer && ContainsCell(retail.Host.Position)))
+                    {
+                        allStorages.Add(retail);
+                        if (retail is Building_SimContainer || retail.AllowsCustomerSelfPurchase) retailStorages.Add(retail);
+                    }
+                    if (thing is Building_CashRegister register)
                         cachedCashRegisters.Add(register);
                 }
             }

@@ -15,6 +15,11 @@ namespace SimManagementLib.SimMapComp
         private readonly HashSet<int> unresolvedExactThingIds = new HashSet<int>();
         private MapComponent_InventoryReservations cachedInventoryReservations;
 
+        //避免店员从正在营业的货柜抽货或把货架当作自己的货源。
+        internal static bool IsRetailSupply(Thing thing) =>
+            thing?.Spawned == true && thing.GetSlotGroup()?.parent is Building host && ShopStorage.For(host) is IShopStorage storage
+            && (storage is Building_SimContainer || storage.AllowsCustomerSelfPurchase);
+
         //创建当前地图的货源解析器。
         public RestockSourceResolver(Map map)
         {
@@ -58,9 +63,9 @@ namespace SimManagementLib.SimMapComp
         }
 
         //快速判断地图是否存在基础状态有效的普通货源，不执行预约或可达查询。
-        public bool HasPotentialBulkSupply(Building_SimContainer storage, ThingDef thingDef)
+        public bool HasPotentialBulkSupply(IShopStorage storage, ThingDef thingDef)
         {
-            if (storage == null || thingDef == null || storage.Map != map)
+            if (storage == null || thingDef == null || storage.Host.Map != map)
                 return false;
             List<Thing> candidates = map.listerThings?.ThingsOfDef(thingDef);
             if (candidates == null)
@@ -73,7 +78,7 @@ namespace SimManagementLib.SimMapComp
                     continue;
                 if (!storage.AllowsRestockSource(thing)
                     || (reservations != null && reservations.Available(thing) <= 0)
-                    || thing.GetSlotGroup()?.parent is Building_SimContainer)
+                    || IsRetailSupply(thing))
                     continue;
                 return true;
             }
@@ -81,7 +86,7 @@ namespace SimManagementLib.SimMapComp
         }
 
         //查找当前 Pawn 最近的普通补货货源，深度模式只执行兜底搜索以避免重复区域查询。
-        public Thing FindBulkSupply(Pawn pawn, Building_SimContainer storage, ThingDef thingDef, bool allowDeepSearch, bool forced = false)
+        public Thing FindBulkSupply(Pawn pawn, IShopStorage storage, ThingDef thingDef, bool allowDeepSearch, bool forced = false)
         {
             if (pawn?.Map != map || storage == null || thingDef == null)
                 return null;
@@ -158,17 +163,17 @@ namespace SimManagementLib.SimMapComp
         }
 
         //判断地图物品是否可作为指定 Pawn 的普通货柜货源，玩家强制指令允许抢占其他普通预约。
-        private static bool IsBulkSupplyCandidate(Pawn pawn, Building_SimContainer storage, Thing thing, ThingDef thingDef, MapComponent_InventoryReservations reservations, bool forced)
+        private static bool IsBulkSupplyCandidate(Pawn pawn, IShopStorage storage, Thing thing, ThingDef thingDef, MapComponent_InventoryReservations reservations, bool forced)
         {
             if (pawn == null || storage == null || thing == null || thingDef == null)
                 return false;
             if (thing.Destroyed || !thing.Spawned || thing.stackCount <= 0 || thing.def != thingDef)
                 return false;
-            if (thing.Map != pawn.Map || storage.Map != pawn.Map || thing.IsForbidden(pawn))
+            if (thing.Map != pawn.Map || storage.Host.Map != pawn.Map || thing.IsForbidden(pawn))
                 return false;
             if (!storage.AllowsRestockSource(thing)
                 || (reservations != null && reservations.Available(thing) <= 0)
-                || thing.GetSlotGroup()?.parent is Building_SimContainer)
+                || IsRetailSupply(thing))
                 return false;
             return pawn.CanReserve(thing, 1, -1, null, forced);
         }

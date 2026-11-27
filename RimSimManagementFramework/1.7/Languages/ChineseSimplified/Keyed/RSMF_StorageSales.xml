@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.StorageSales.Toggle>货柜销售</RSMF.StorageSales.Toggle>
+  <RSMF.StorageSales.ToggleDesc>默认关闭。开启后，顾客可以在商店内购买这里存放的物品。</RSMF.StorageSales.ToggleDesc>
+  <RSMF.StorageSales.ManageDesc>打开框架货柜管理面板，设置品种上架状态、售价、目标库存与补货阈值。</RSMF.StorageSales.ManageDesc>
+  <RSMF.StorageSales.Back>返回货柜</RSMF.StorageSales.Back>
+  <RSMF.StorageSales.Add>添加可储存品种</RSMF.StorageSales.Add>
+  <RSMF.StorageSales.Hint>售价 0 使用每件实物的市价。目标 0 只卖现货，阈值 −1 使用目标量。</RSMF.StorageSales.Hint>
+  <RSMF.StorageSales.Item>商品</RSMF.StorageSales.Item>
+  <RSMF.StorageSales.ListingCapacity>当前上架 {count} / {capacity} 件。</RSMF.StorageSales.ListingCapacity>
+  <RSMF.StorageSales.ListedStock>可售/现存</RSMF.StorageSales.ListedStock>
+  <RSMF.StorageSales.Stock>现存</RSMF.StorageSales.Stock>
+  <RSMF.StorageSales.Sell>上架</RSMF.StorageSales.Sell>
+  <RSMF.StorageSales.Price>单价</RSMF.StorageSales.Price>
+  <RSMF.StorageSales.Target>补货目标</RSMF.StorageSales.Target>
+  <RSMF.StorageSales.Threshold>补货阈值</RSMF.StorageSales.Threshold>
+  <RSMF.StorageSales.Save>保存设置</RSMF.StorageSales.Save>
+  <RSMF.StorageSales.Action>操作</RSMF.StorageSales.Action>
+  <RSMF.StorageSales.Inspect.Active>货柜销售：已开启</RSMF.StorageSales.Inspect.Active>
+  <RSMF.StorageSales.Inspect.ActiveWithCap>货柜销售：已开启（可售 {listed}/{capacity}）</RSMF.StorageSales.Inspect.ActiveWithCap>
+  <RSMF.StorageSales.Inspect.NotInShop>货柜销售：已开启（未位于商店区域）</RSMF.StorageSales.Inspect.NotInShop>
+  <RSMF.StorageSales.SubtitleShop>所属商店：{shop}</RSMF.StorageSales.SubtitleShop>
+  <RSMF.StorageSales.SubtitleNoShop>未位于商店区域</RSMF.StorageSales.SubtitleNoShop>
+  <RSMF.StorageSales.Status.Active>销售中</RSMF.StorageSales.Status.Active>
+  <RSMF.StorageSales.Status.NoShop>未入店</RSMF.StorageSales.Status.NoShop>
+  <RSMF.StorageSales.Status.Off>已关闭</RSMF.StorageSales.Status.Off>
+  <RSMF.StorageSales.EnableSales>开启销售</RSMF.StorageSales.EnableSales>
+  <RSMF.StorageSales.DisableSales>停用销售</RSMF.StorageSales.DisableSales>
+  <RSMF.StorageSales.WarningOff>当前货柜销售已关闭，顾客不会购买架上物品。可点击右上角「开启销售」启用。</RSMF.StorageSales.WarningOff>
+  <RSMF.StorageSales.WarningNoShop>已开启销售，但该建筑未位于商店区域内，顾客无法前来购买；请先将其划入商店区域。</RSMF.StorageSales.WarningNoShop>
+  <RSMF.StorageSales.HintFriendly>单价填 0 按每件实物市价报价（含品质与耐久）；补货目标为 0 表示仅卖现货，大于 0 时可调整触发补货的库存阈值。</RSMF.StorageSales.HintFriendly>
+  <RSMF.StorageSales.Metric.ListedDefs>上架品种</RSMF.StorageSales.Metric.ListedDefs>
+  <RSMF.StorageSales.Metric.Stock>货柜库存</RSMF.StorageSales.Metric.Stock>
+  <RSMF.StorageSales.Metric.Target>补货目标</RSMF.StorageSales.Metric.Target>
+  <RSMF.StorageSales.Metric.Pending>在途补货</RSMF.StorageSales.Metric.Pending>
+  <RSMF.StorageSales.Metric.StockWithCap>可售 {listed}/{capacity} · 现存 {stock}</RSMF.StorageSales.Metric.StockWithCap>
+  <RSMF.StorageSales.Tab.Manage>货柜清单 ({count})</RSMF.StorageSales.Tab.Manage>
+  <RSMF.StorageSales.Tab.Picker>添加品种</RSMF.StorageSales.Tab.Picker>
+  <RSMF.StorageSales.Filter.All>全部</RSMF.StorageSales.Filter.All>
+  <RSMF.StorageSales.Filter.InStock>有现货</RSMF.StorageSales.Filter.InStock>
+  <RSMF.StorageSales.Filter.Restocking>已设补货</RSMF.StorageSales.Filter.Restocking>
+  <RSMF.StorageSales.Filter.Paused>已停售</RSMF.StorageSales.Filter.Paused>
+  <RSMF.StorageSales.Sort.Label>排序：{mode}</RSMF.StorageSales.Sort.Label>
+  <RSMF.StorageSales.Sort.Default>默认</RSMF.StorageSales.Sort.Default>
+  <RSMF.StorageSales.Sort.StockDesc>库存优先</RSMF.StorageSales.Sort.StockDesc>
+  <RSMF.StorageSales.Sort.NameAsc>名称</RSMF.StorageSales.Sort.NameAsc>
+  <RSMF.StorageSales.Sort.PriceDesc>单价</RSMF.StorageSales.Sort.PriceDesc>
+  <RSMF.StorageSales.Sort.TargetDesc>补货目标</RSMF.StorageSales.Sort.TargetDesc>
+  <RSMF.StorageSales.Batch.Button>批量操作</RSMF.StorageSales.Batch.Button>
+  <RSMF.StorageSales.Batch.SellAll>当前筛选全部上架</RSMF.StorageSales.Batch.SellAll>
+  <RSMF.StorageSales.Batch.PauseAll>当前筛选全部停售</RSMF.StorageSales.Batch.PauseAll>
+  <RSMF.StorageSales.Batch.PriceMarket>当前筛选恢复按市价报价</RSMF.StorageSales.Batch.PriceMarket>
+  <RSMF.StorageSales.Batch.PriceMult>当前筛选按市价 ×{mult} 定价</RSMF.StorageSales.Batch.PriceMult>
+  <RSMF.StorageSales.Batch.TargetFromStock>补货目标设为当前现存</RSMF.StorageSales.Batch.TargetFromStock>
+  <RSMF.StorageSales.Batch.ThresholdMax>补货阈值设为各自目标</RSMF.StorageSales.Batch.ThresholdMax>
+  <RSMF.StorageSales.Batch.ClearEmptyRules>清理无现货的空规则</RSMF.StorageSales.Batch.ClearEmptyRules>
+  <RSMF.StorageSales.MetaMarket>参考市价 {value} 银 · 按实物市价</RSMF.StorageSales.MetaMarket>
+  <RSMF.StorageSales.MetaFixed>参考市价 {value} 银 · 固定单价</RSMF.StorageSales.MetaFixed>
+  <RSMF.StorageSales.HostDisallowed>宿主储存筛选未允许（已暂停补货）</RSMF.StorageSales.HostDisallowed>
+  <RSMF.StorageSales.PendingBadge>在途 +{count}</RSMF.StorageSales.PendingBadge>
+  <RSMF.StorageSales.PriceMarketBtn>市价</RSMF.StorageSales.PriceMarketBtn>
+  <RSMF.StorageSales.PriceCustomBtn>定价</RSMF.StorageSales.PriceCustomBtn>
+  <RSMF.StorageSales.PriceMarketTip>将单价重置为 0，改为按每件实物的市价（含品质与耐久）动态报价。</RSMF.StorageSales.PriceMarketTip>
+  <RSMF.StorageSales.PriceCustomTip>按参考市价填入固定单价，便于手动微调。</RSMF.StorageSales.PriceCustomTip>
+  <RSMF.StorageSales.PriceFieldTip>参考市价：{value} 银。&#10;填 0 表示按每件实物市价报价；填正数表示统一基础单价。</RSMF.StorageSales.PriceFieldTip>
+  <RSMF.StorageSales.TargetStepTip>点击 ±1；按住 Shift ±10；按住 Ctrl ±5。&#10;设为 0 时仅卖现货，不派员补货。</RSMF.StorageSales.TargetStepTip>
+  <RSMF.StorageSales.ThresholdDisabledTip>补货目标大于 0 后，可设置触发补货的库存阈值。</RSMF.StorageSales.ThresholdDisabledTip>
+  <RSMF.StorageSales.ThresholdFieldTip>当前现存与在途总量小于或等于此值时，补货员将补货至目标量。</RSMF.StorageSales.ThresholdFieldTip>
+  <RSMF.StorageSales.RemoveRuleTip>从本货柜规则中移除该无库存品种。</RSMF.StorageSales.RemoveRuleTip>
+  <RSMF.StorageSales.ResetRuleTip>恢复默认设置（上架、按市价报价、不补货）。</RSMF.StorageSales.ResetRuleTip>
+  <RSMF.StorageSales.EmptyManage>当前筛选条件下没有商品。&#10;可切换筛选条件，或切换到「添加品种」预设需要补货售卖的物品。</RSMF.StorageSales.EmptyManage>
+  <RSMF.StorageSales.Picker.ScopeColony>殖民地现有 ({count})</RSMF.StorageSales.Picker.ScopeColony>
+  <RSMF.StorageSales.Picker.ScopeAll>全部可储存 ({count})</RSMF.StorageSales.Picker.ScopeAll>
+  <RSMF.StorageSales.Picker.AllCategories>全部分类</RSMF.StorageSales.Picker.AllCategories>
+  <RSMF.StorageSales.Picker.OtherCategory>其他</RSMF.StorageSales.Picker.OtherCategory>
+  <RSMF.StorageSales.Picker.AddFiltered>添加筛选 ({count})</RSMF.StorageSales.Picker.AddFiltered>
+  <RSMF.StorageSales.Picker.AddFilteredTip>将当前筛选结果中尚未加入清单的品种全部加入草稿（单次最多 {limit} 项）。</RSMF.StorageSales.Picker.AddFilteredTip>
+  <RSMF.StorageSales.Picker.MapStock>地图现存</RSMF.StorageSales.Picker.MapStock>
+  <RSMF.StorageSales.Picker.BaseValue>参考市价</RSMF.StorageSales.Picker.BaseValue>
+  <RSMF.StorageSales.Picker.AddOne>+ 添加</RSMF.StorageSales.Picker.AddOne>
+  <RSMF.StorageSales.Picker.Added>✓ 已添加</RSMF.StorageSales.Picker.Added>
+  <RSMF.StorageSales.Picker.OnShelf>货架现存</RSMF.StorageSales.Picker.OnShelf>
+  <RSMF.StorageSales.Picker.AddedTip>已加入待保存清单，点击可移出。</RSMF.StorageSales.Picker.AddedTip>
+  <RSMF.StorageSales.Picker.OnShelfTip>货架上已有该品种的实物库存。</RSMF.StorageSales.Picker.OnShelfTip>
+  <RSMF.StorageSales.Picker.Empty>当前筛选条件下没有可添加的品种。</RSMF.StorageSales.Picker.Empty>
+  <RSMF.StorageSales.RestockNow>立即补货</RSMF.StorageSales.RestockNow>
+  <RSMF.StorageSales.RestockNowTip>按已保存的补货目标立即触发一次补货周期。</RSMF.StorageSales.RestockNowTip>
+  <RSMF.StorageSales.RestockTriggered>已为 {count} 种目标商品触发补货。</RSMF.StorageSales.RestockTriggered>
+  <RSMF.StorageSales.CopyDone>已复制 {count} 条货柜销售规则。</RSMF.StorageSales.CopyDone>
+  <RSMF.StorageSales.PasteDone>已粘贴 {applied} 条规则，保存后生效。</RSMF.StorageSales.PasteDone>
+  <RSMF.StorageSales.PastePartial>已粘贴 {applied} 条规则，另有 {skipped} 条因当前货柜不支持而跳过。</RSMF.StorageSales.PastePartial>
+  <RSMF.StorageSales.PasteNone>剪贴板中没有适用于当前货柜的规则。</RSMF.StorageSales.PasteNone>
+  <RSMF.StorageSales.UnsavedHint>有未保存更改</RSMF.StorageSales.UnsavedHint>
+</LanguageData>

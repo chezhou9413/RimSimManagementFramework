@@ -22,7 +22,6 @@ namespace SimManagementLib.SimDialog
         private static readonly Color Accent = new Color(0.25f, 0.65f, 0.85f, 1f);
         private static readonly Color AccentSoft = new Color(0.25f, 0.65f, 0.85f, 0.18f);
         private static readonly Color MutedText = new Color(0.72f, 0.76f, 0.82f, 1f);
-        private static readonly Color DangerText = new Color(1f, 0.72f, 0.72f, 1f);
 
         private readonly Building_CollectibleDisplayStand stand;
         private Vector2 gridScroll;

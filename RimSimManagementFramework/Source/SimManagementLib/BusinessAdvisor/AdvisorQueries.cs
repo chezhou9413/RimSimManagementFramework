@@ -88,10 +88,19 @@ namespace SimManagementLib.BusinessAdvisor
         //显示所有储物类型的实际库存和配置，厨房库存不再被当成零售缺货。
         private static IEnumerable<string> Inventory(AdvisorQuery q)
         {
-            foreach (var storage in Maps(q).SelectMany(m => m.listerThings.AllThings.OfType<Building_SimContainer>())
-                .Where(s => (!q.targetId.HasValue || q.targetId == s.thingIDNumber)
-                    && (!q.shopId.HasValue || ShopStaffUtility.FindShopFor(s)?.ID == q.shopId)))
+            foreach (var host in Maps(q).SelectMany(m => m.listerThings.ThingsInGroup(ThingRequestGroup.BuildingArtificial))
+                .Where(b => (!q.targetId.HasValue || q.targetId == b.thingIDNumber)
+                    && (!q.shopId.HasValue || ShopDataUtility.FindShopZone(b.Map, b.Position)?.ID == q.shopId)))
             {
+                if (ShopStorage.For(host) is ThingComp_StorageSales sales)
+                {
+                    yield return ThingRow(host) + " containerKind=storage_sales operations=shelf goodsQuery=shelf_goods selfPurchase=" + sales.AllowsCustomerSelfPurchase;
+                    foreach (var def in sales.ManagedDefs)
+                        yield return "containerId=" + host.thingIDNumber + " definition=" + def.defName + " stored=" + sales.CountStored(def)
+                            + " onSale=" + sales.OnSale(def) + " price=" + (sales.Rule(def)?.price ?? 0f) + " target=" + sales.GetTargetCount(def);
+                    continue;
+                }
+                if (host is not Building_SimContainer storage) continue;
                 var comp = storage.GetComp<ThingComp_GoodsData>();
                 yield return ThingRow(storage) + " category=" + comp?.ActiveGoodsDefName + " capacity=" + storage.MaxTotalCapacity
                     + " containerKind=" + (storage is Building_UniqueGoodsContainer ? "unique" : "bulk")

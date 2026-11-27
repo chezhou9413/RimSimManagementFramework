@@ -101,6 +101,15 @@ namespace SimManagementLib.SimMapComp
             return ticket.Node.List.First == ticket.Node;
         }
 
+        //判断指定收银台队首当前是否仍停留在等待格中，用于决定后续排队格的紧贴偏移。
+        public bool IsHeadHoldingWaitingCell(Building_CashRegister register)
+        {
+            int registerId = register?.thingIDNumber ?? -1;
+            if (registerId < 0 || !byRegister.TryGetValue(registerId, out LinkedList<CustomerCheckoutTicket> queue) || queue.First == null)
+                return false;
+            return queue.First.Value.WaitingCell.IsValid;
+        }
+
         //读取票据持有的等待格，人物尚未走到时也保留该位置。
         public IntVec3 WaitingCellFor(int pawnId)
             => byPawn.TryGetValue(pawnId, out CustomerCheckoutTicket ticket) ? ticket.WaitingCell : IntVec3.Invalid;
@@ -113,9 +122,10 @@ namespace SimManagementLib.SimMapComp
         public void SetWaitingCell(int pawnId, IntVec3 cell)
         {
             CustomerCheckoutTicket ticket = byPawn[pawnId];
+            if (ticket.WaitingCell == cell) return;
             ReleaseWaitingCell(pawnId);
             ticket.WaitingCell = cell;
-            waitingCells.Add(cell, pawnId);
+            waitingCells[cell] = pawnId;
         }
 
         //进入服务格或结束排队时交还等待位置。

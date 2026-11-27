@@ -1,3 +1,4 @@
+using SimManagementLib.SimThingComp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +25,7 @@ namespace SimManagementLib.BusinessAdvisor
             int roofed = shop.Cells.Count(c => c.Roofed(shop.Map));
             int roofWork = shop.Cells.Count(c => shop.Map.areaManager.BuildRoof[c] && !c.Roofed(shop.Map));
             var registers = ShopDataUtility.GetCashRegisterSnapshotInZone(shop);
-            var storages = ShopDataUtility.GetStorageSnapshotInZone(shop);
+            var storages = ShopDataUtility.GetRetailStorages(shop);
             yield return "indoorInvalidCells=" + outdoors + " cashRegisters=" + registers.Count + " manned=" + registers.Count(r => r.IsManned)
                 + " storages=" + storages.Count + " serviceProviders=" + ShopServiceUtility.GetServiceProvidersInZone(shop).Count
                 + " scheduleOpen=" + shop.GetSchedule().IsOpenNow(shop.Map);
@@ -33,8 +34,14 @@ namespace SimManagementLib.BusinessAdvisor
             yield return "indoorInvalidPositions=" + string.Join(";", shop.Cells.Where(c => !c.Roofed(shop.Map)
                 && (c.GetRoom(shop.Map)?.PsychologicallyOutdoors ?? true)).Take(20)) + "；最多列出20格，按坐标查询，不用猜测缺陷位置。";
             foreach (var r in registers) yield return ThingRow(r) + " cashierId=" + r.CurrentCashier?.thingIDNumber + " silver=" + r.StoredSilver;
-            foreach (var s in storages) yield return ThingRow(s) + " stored=" + s.CountTotalStored() + " target=" + s.CountConfiguredTargets()
-                + " sourceIssue=" + Q(s.RestockSourceIssue);
+            foreach (var s in storages)
+            {
+                if (s is ThingComp_StorageSales sales)
+                    yield return ThingRow(s.Host) + " stored=" + sales.StockThings.Sum(t => t.stackCount) + " target=" + sales.RestockDefs.Sum(sales.GetTargetCount);
+                else if (s is Building_SimContainer native)
+                    yield return ThingRow(native) + " stored=" + native.CountTotalStored() + " target=" + native.CountConfiguredTargets()
+                        + " sourceIssue=" + Q(native.RestockSourceIssue);
+            }
             var queue = shop.Map.GetComponent<MapComponent_RestockTaskQueue>().CreateDebugSnapshot();
             yield return "mapRestockQueue=" + ScalarFields(queue);
             yield return "waitingReasons=" + string.Join(";", queue.WaitingReasonCounts.Select(p => p.Key + ":" + p.Value));
@@ -114,7 +121,7 @@ namespace SimManagementLib.BusinessAdvisor
         {
             if (def is not ThingDef thing || thing.thingClass == null) return "none";
             if (typeof(Building_UniqueGoodsContainer).IsAssignableFrom(thing.thingClass)) return "unique_goods_container";
-            if (typeof(Building_SimContainer).IsAssignableFrom(thing.thingClass)) return "goods_container";
+            if (typeof(Building_SimContainer).IsAssignableFrom(thing.thingClass) || thing.HasComp(typeof(ThingComp_StorageSales))) return "goods_container";
             if (typeof(Building_CashRegister).IsAssignableFrom(thing.thingClass)) return "cash_register";
             return "none";
         }

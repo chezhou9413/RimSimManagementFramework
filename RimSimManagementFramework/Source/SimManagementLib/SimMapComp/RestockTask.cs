@@ -21,9 +21,12 @@ namespace SimManagementLib.SimMapComp
         public int SourceThingId => Key.SourceThingId;
 
         //创建普通货柜补货请求。
-        public RestockTask(Building_SimContainer storage, ThingDef thingDef, int createdTick)
+        public RestockTask(Building_SimContainer storage, ThingDef thingDef, int createdTick) : this((IShopStorage)storage, thingDef, createdTick) { }
+
+        //保存宿主的地图编号以便重建工作。
+        internal RestockTask(IShopStorage storage, ThingDef thingDef, int createdTick)
         {
-            Key = new RestockTaskKey(storage?.thingIDNumber ?? -1, thingDef);
+            Key = new RestockTaskKey(storage?.Host.thingIDNumber ?? -1, thingDef);
             CreatedTick = createdTick;
         }
 

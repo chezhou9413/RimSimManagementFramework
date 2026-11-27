@@ -15,10 +15,10 @@ using Verse.AI.Group;
 
 namespace SimManagementLib.SimAI
 {
-    //执行顾客到货柜浏览、选择商品、扣减虚拟库存并写入购物车的流程。
-    public class JobDriver_BrowseAndPick : JobDriver
+    //顾客在货柜浏览、选购并把取走的实物交给购物车。
+    public partial class JobDriver_BrowseAndPick : JobDriver
     {
-        private Building_SimContainer TargetShelf => (Building_SimContainer)job.GetTarget(TargetIndex.A).Thing;
+        private IShopStorage TargetShelf => ShopStorage.For(job.GetTarget(TargetIndex.A).Thing);
 
         //跳过目标货柜预约，负责允许任意数量顾客同时浏览同一货柜。
         public override bool TryMakePreToilReservations(bool errorOnFailed)
@@ -31,7 +31,12 @@ namespace SimManagementLib.SimAI
         {
             this.FailOnDespawnedOrNull(TargetIndex.A);
             this.FailOn(() => TargetShelf?.AllowsCustomerSelfPurchase != true);
-            yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.Touch);
+            if (TargetShelf is ThingComp_StorageSales shelf)
+            {
+                job.targetB = shelf.InventoryInteractionTarget;
+                yield return Toils_Goto.GotoThing(TargetIndex.B, shelf.InventoryInteractionEndMode);
+            }
+            else yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.Touch);
 
             Toil browse = Toils_General.Wait(300);
             browse.initAction = () =>
@@ -40,7 +45,7 @@ namespace SimManagementLib.SimAI
                 CustomerVisitSession session = lordJob?.GetOrCreateSession(pawn);
                 session?.NotifyBrowseStarted(lordJob, pawn);
                 lordJob?.MarkCurrentShopBrowsed(pawn);
-                lordJob?.RecordCurrentShopStorageVisit(pawn, TargetShelf);
+                lordJob?.RecordCurrentShopStorageVisit(pawn, TargetShelf.Host);
                 CustomerExpressionUtility.TryShowExpression(pawn, CustomerExpressionEvents.BrowseStart);
             };
             browse.tickAction = () =>
@@ -75,29 +80,21 @@ namespace SimManagementLib.SimAI
                 if (shopZone != null)
                 {
                     List<ComboData> combos = CustomerShoppingMatchUtility.GetMatchingAffordableInStockCombos(shopZone, lordJob, pawn, remainingBudget);
-                    List<CustomerCartItem> currentCart = lordJob.GetCartItems(pId);
                     if (!combos.NullOrEmpty())
                     {
                         ComboData targetCombo = combos
                             .OrderByDescending(c => GetComboPurchaseScore(lordJob, pId, shopZone, c))
                             .ThenByDescending(c => ShopDataUtility.GetComboEffectivePrice(shopZone, c))
                             .FirstOrDefault();
-                        if (targetCombo != null && ShopDataUtility.TryPurchaseCombo(shopZone, targetCombo, out float comboPrice))
+                        if (targetCombo != null && ShopDataUtility.TryPurchaseCombo(shopZone, targetCombo, out float comboPrice, out var comboItems))
                         {
-                            float comboCost = 0f;
-                            for (int i = 0; i < targetCombo.items.Count; i++)
-                            {
-                                ComboItem ci = targetCombo.items[i];
-                                if (ci?.def == null || ci.count <= 0) continue;
-                                comboCost += Mathf.Max(0f, ci.def.BaseMarketValue * ci.count);
-                            }
-
+                            float comboCost = comboItems.Sum(item => item.marketValue * item.count);
+                            lordJob.AddExactCartItems(pId, comboItems);
                             lordJob.AddCustomerBill(pId, comboPrice);
-                            lordJob.AddCartItemsFromCombo(pId, targetCombo.items);
                             lordJob.ClearCurrentShopNoProgressBrowse(pawn);
                             lordJob.ClearPriceRejectionReason(pId);
                             string comboName = string.IsNullOrEmpty(targetCombo.comboName) ? SimTranslation.T("RSMF.Common.UnnamedCombo") : targetCombo.comboName;
-                    finance?.QueueComboSale(pawn, shopZone, comboName, comboPrice, comboCost);
+                            finance?.QueueComboSale(pawn, shopZone, comboName, comboPrice, comboCost);
                             CustomerExpressionUtility.TryShowExpression(
                                 pawn,
                                 CustomerExpressionEvents.PurchaseCombo,
@@ -125,6 +122,13 @@ namespace SimManagementLib.SimAI
                     }
                 }
 
+                if (TargetShelf is ThingComp_StorageSales sales)
+                {
+                    if (sales.Host.Map.zoneManager.ZoneAt(sales.Host.Position) != shopZone
+                        || !TryPickHostGoods(sales, lordJob, shopZone, remainingBudget, finance))
+                        RegisterNoProgressAndCheckoutIfNeeded(lordJob, ref noProgressRecorded);
+                    return;
+                }
                 if (TargetShelf is Building_UniqueGoodsContainer uniqueContainer)
                 {
                     List<(UniqueGoodsSlotData slot, Thing thing, float unitPrice, CustomerPriceEvaluation price)> uniqueCandidates
@@ -188,10 +192,10 @@ namespace SimManagementLib.SimAI
                 string rejectedReason = "";
                 foreach (ThingDef def in TargetShelf.ActiveDefs)
                 {
-                    if (TargetShelf.CountStored(def) <= 0) continue;
+                    if (TargetShelf.SaleCount(def) <= 0) continue;
                     if (!CustomerShoppingMatchUtility.ThingMatchesCustomer(lordJob, def)) continue;
 
-                    float unitPrice = ShopPricingUtility.GetUnitPrice(TargetShelf, def);
+                    float unitPrice = ShopPricingUtility.GetUnitPrice((Building_SimContainer)TargetShelf, def);
                     CustomerPriceEvaluation price = CustomerPriceUtility.Evaluate(def, unitPrice, lordJob.GetPriceSensitivity(pId));
                     if (price.rejected)
                     {
@@ -227,7 +231,7 @@ namespace SimManagementLib.SimAI
                     Mathf.Max(0.001f, lordJob.GetPreferenceMultiplier(pId, c.def) * c.price.purchaseWeight));
 
                 int maxByBudget = Mathf.FloorToInt(remainingBudget / itemPrice);
-                int maxByStock = TargetShelf.CountStored(itemToBuy);
+                int maxByStock = TargetShelf.SaleCount(itemToBuy);
                 int maxCount = Mathf.Min(maxByBudget, maxByStock);
                 if (maxCount <= 0)
                 {
@@ -237,18 +241,17 @@ namespace SimManagementLib.SimAI
                 }
                 int buyCount = PickPurchaseCount(maxCount, itemPriceEvaluation);
 
-                Thing taken = TargetShelf.TryVirtualBuy(itemToBuy, buyCount, out _);
-                if (taken != null)
+                var purchases = new List<CustomerCartItem>();
+                int actualCount = ShopDataUtility.TakeSaleStacks(TargetShelf, itemToBuy, buyCount, itemPrice, purchases);
+                if (actualCount > 0)
                 {
-                    int actualCount = Mathf.Max(1, taken.stackCount);
                     float totalPrice = itemPrice * actualCount;
-                    float totalCost = Mathf.Max(0f, itemToBuy.BaseMarketValue * actualCount);
+                    float totalCost = purchases.Sum(item => item.marketValue * item.count);
+                    lordJob.AddExactCartItems(pId, purchases);
                     lordJob.AddCustomerBill(pId, totalPrice);
-                    lordJob.AddCartItem(pId, itemToBuy, actualCount);
                     lordJob.ClearCurrentShopNoProgressBrowse(pawn);
                     lordJob.ClearPriceRejectionReason(pId);
                     finance?.QueueProductSale(pawn, shopZone, itemToBuy, actualCount, totalPrice, totalCost);
-                    taken.Destroy(DestroyMode.Vanish);
                     float preferenceMultiplier = lordJob.GetPreferenceMultiplier(pId, itemToBuy);
                     CustomerExpressionUtility.TryShowExpression(
                         pawn,

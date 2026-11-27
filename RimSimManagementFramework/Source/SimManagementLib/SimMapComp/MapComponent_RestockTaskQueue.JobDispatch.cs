@@ -67,7 +67,7 @@ namespace SimManagementLib.SimMapComp
                         ScheduleDispatch(key, task.RetryTick, now);
                         continue;
                     }
-                    if (!storagesById.TryGetValue(task.StorageId, out Building_SimContainer storage) || !IsValidStorage(storage))
+                    if (!storagesById.TryGetValue(task.StorageId, out IShopStorage storage) || !IsValidStorage(storage))
                     {
                         RemoveRequest(key);
                         continue;
@@ -115,6 +115,10 @@ namespace SimManagementLib.SimMapComp
 
         //为手动调用在指定普通货柜上确定性创建补货 Job，不提前改写自动补货队列状态，玩家强制指令忽略名单、排班与深搜冷却。
         public Job TryMakeBulkJobForStorage(Pawn pawn, Building_SimContainer storage, bool forced)
+            => TryMakeBulkJobForStorage(pawn, (IShopStorage)storage, forced);
+
+        //通过统一货柜入口处理宿主建筑。
+        internal Job TryMakeBulkJobForStorage(Pawn pawn, IShopStorage storage, bool forced)
         {
             if (!IsValidStorage(storage) || storage is Building_UniqueGoodsContainer || pawn?.Map != map)
                 return null;
@@ -192,7 +196,7 @@ namespace SimManagementLib.SimMapComp
         }
 
         //尝试把一个可靠请求转换成具体 Job，并通过 failureScope 区分单人条件与全局阻塞。
-        private Job TryBuildJob(Pawn pawn, Building_SimContainer storage, RestockTask task, int now, bool ignoreBudget, out BuildFailureScope failureScope, bool forced = false)
+        private Job TryBuildJob(Pawn pawn, IShopStorage storage, RestockTask task, int now, bool ignoreBudget, out BuildFailureScope failureScope, bool forced = false)
         {
             failureScope = BuildFailureScope.None;
             if (!IsValidStorage(storage))
@@ -231,7 +235,7 @@ namespace SimManagementLib.SimMapComp
         }
 
         //创建普通补货 Job，并把结果状态同步回可靠请求。
-        private Job TryBuildBulkJob(Pawn pawn, Building_SimContainer storage, RestockTask task, int now, bool ignoreBudget, bool forced, out BuildFailureScope failureScope)
+        private Job TryBuildBulkJob(Pawn pawn, IShopStorage storage, RestockTask task, int now, bool ignoreBudget, bool forced, out BuildFailureScope failureScope)
         {
             int needed = CalculateBulkAvailable(storage, task.ThingDef);
             if (needed <= 0)
@@ -265,7 +269,7 @@ namespace SimManagementLib.SimMapComp
         //搜索普通货源并按原版手搬容量构造补货 Job。
         private Job TryCreateBulkJob(
             Pawn pawn,
-            Building_SimContainer storage,
+            IShopStorage storage,
             ThingDef thingDef,
             int needed,
             int now,
@@ -307,6 +311,12 @@ namespace SimManagementLib.SimMapComp
             }
 
             int availableSupply = InventoryReservations != null ? InventoryReservations.Available(supply) : supply.stackCount;
+            LocalTargetInfo target = LocalTargetInfo.Invalid;
+            if (storage is SimThingComp.ThingComp_StorageSales sales)
+            {
+                target = sales.FindDeliveryTarget(pawn, supply);
+                needed = Math.Min(needed, sales.DeliveryRoom(pawn, supply, target));
+            }
             int amount = Math.Min(needed, Math.Min(carryMax, availableSupply));
             if (amount <= 0)
             {
@@ -315,7 +325,8 @@ namespace SimManagementLib.SimMapComp
                 return null;
             }
             JobDef jobDef = cachedDepositJobDef ??= DefDatabase<JobDef>.GetNamed("DepositToMegaStorage");
-            Job job = JobMaker.MakeJob(jobDef, supply, storage);
+            Job job = JobMaker.MakeJob(jobDef, supply, storage.Host);
+            if (target.IsValid) job.targetC = target;
             job.count = amount;
             job.haulMode = HaulMode.ToCellStorage;
             job.plantDefToSow = thingDef;
@@ -465,11 +476,11 @@ namespace SimManagementLib.SimMapComp
         }
 
         //判断 Pawn 是否具备指定补货工作的能力、岗位权限和地图状态，玩家强制指令忽略固定名单与排班小时。
-        private static bool CanPawnUseRequest(Pawn pawn, Building_SimContainer storage, RestockRequestKind kind, bool forced = false)
+        private static bool CanPawnUseRequest(Pawn pawn, IShopStorage storage, RestockRequestKind kind, bool forced = false)
         {
             if (pawn == null || pawn.Destroyed || pawn.Dead || !pawn.Spawned || pawn.Downed || pawn.InMentalState || pawn.Drafted)
                 return false;
-            if (storage == null || storage.Destroyed || !storage.Spawned || storage.Map != pawn.Map)
+            if (storage == null || storage.Host.Destroyed || !storage.Host.Spawned || storage.Host.Map != pawn.Map)
                 return false;
             WorkGiverDef workGiverDef = GetWorkGiverDef(kind);
             if (workGiverDef == null)
@@ -480,9 +491,9 @@ namespace SimManagementLib.SimMapComp
                 return false;
             if (!HasRequiredCapacities(pawn, workGiverDef))
                 return false;
-            if (VendingMachineUtility.IsVendingMachine(storage))
+            if (VendingMachineUtility.IsVendingMachine(storage as Building_SimContainer))
                 return true;
-            SimZone.Zone_Shop shop = ShopStaffUtility.FindShopFor(storage);
+            SimZone.Zone_Shop shop = ShopDataUtility.FindShopZone(storage.Host.Map, storage.Host.Position);
             return forced
                 ? ShopStaffUtility.AllowsPawnForForcedWorkGiver(shop, pawn, workGiverDef)
                 : ShopStaffUtility.AllowsPawnForWorkGiver(shop, pawn, workGiverDef, 0, false);
@@ -515,11 +526,11 @@ namespace SimManagementLib.SimMapComp
         }
 
         //计算普通商品扣除全部有效租约后的可派发数量。
-        private int CalculateBulkAvailable(Building_SimContainer storage, ThingDef thingDef)
+        private int CalculateBulkAvailable(IShopStorage storage, ThingDef thingDef)
         {
             if (!IsValidStorage(storage) || thingDef == null)
                 return 0;
-            if (!configurationIndex.TryGetSettings(storage.thingIDNumber, thingDef, out RestockTargetSettings settings))
+            if (!configurationIndex.TryGetSettings(storage.Host.thingIDNumber, thingDef, out RestockTargetSettings settings))
                 return 0;
             int target = settings.TargetCount;
             int stored = storage.CountStored(thingDef);
@@ -527,13 +538,14 @@ namespace SimManagementLib.SimMapComp
         }
 
         //使用已经读取的目标和库存计算普通商品可派发数量，避免同一次需求重算重复访问配置。
-        private int CalculateBulkAvailable(Building_SimContainer storage, ThingDef thingDef, int target, int stored)
+        private int CalculateBulkAvailable(IShopStorage storage, ThingDef thingDef, int target, int stored)
         {
             if (target <= 0 || stored >= target)
                 return 0;
-            int pendingForDef = leases.CountPending(storage.thingIDNumber, thingDef);
+            int pendingForDef = leases.CountPending(storage.Host.thingIDNumber, thingDef);
             int perDefNeed = Math.Max(0, target - stored - pendingForDef);
-            int capacity = Math.Max(0, storage.MaxTotalCapacity - storage.CountTotalStored() - leases.CountTotalPending(storage.thingIDNumber));
+            if (storage is not Building_SimContainer native) return perDefNeed;
+            int capacity = Math.Max(0, native.MaxTotalCapacity - native.CountTotalStored() - leases.CountTotalPending(storage.Host.thingIDNumber));
             return Math.Min(perDefNeed, capacity);
         }
     }

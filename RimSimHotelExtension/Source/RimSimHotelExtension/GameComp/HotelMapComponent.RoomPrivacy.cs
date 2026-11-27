@@ -13,7 +13,6 @@ namespace RimSimHotelExtension.GameComp
         private volatile HotelRoomPrivacySnapshot roomPrivacy = HotelRoomPrivacySnapshot.Empty;
         private bool roomPrivacyDirty = true;
         private int roomPrivacyBuildingsHash;
-        internal HotelRoomPrivacySnapshot RoomPrivacy => roomPrivacy;
 
         //供主线程和 1.7 异步寻路线程无锁读取指定地图的客房权限快照，避免热路径线性扫描 MapComponent。
         internal static HotelRoomPrivacySnapshot SnapshotForMap(Map targetMap)

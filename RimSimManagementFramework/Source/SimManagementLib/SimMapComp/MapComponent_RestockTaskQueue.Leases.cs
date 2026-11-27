@@ -15,14 +15,24 @@ namespace SimManagementLib.SimMapComp
             ThingDef thingDef,
             int wanted,
             out int reserved)
+            => TryAcquireBulkLease(pawn, job, (IShopStorage)storage, thingDef, wanted, out reserved);
+
+        //通过统一货柜入口处理宿主建筑。
+        internal bool TryAcquireBulkLease(
+            Pawn pawn,
+            Job job,
+            IShopStorage storage,
+            ThingDef thingDef,
+            int wanted,
+            out int reserved)
         {
             reserved = 0;
             if (!IsValidStorage(storage) || storage is Building_UniqueGoodsContainer || thingDef == null || job == null)
                 return false;
             EnsureRuntimeInitialized();
-            if (!configurationIndex.TryGetSettings(storage.thingIDNumber, thingDef, out _))
+            if (!configurationIndex.TryGetSettings(storage.Host.thingIDNumber, thingDef, out _))
                 configurationIndex.Refresh(storage);
-            RestockTaskKey key = new RestockTaskKey(storage.thingIDNumber, thingDef);
+            RestockTaskKey key = new RestockTaskKey(storage.Host.thingIDNumber, thingDef);
             activeRestockCycles.Add(key);
             int available = CalculateBulkAvailable(storage, thingDef);
             if (!leases.TryAcquire(pawn, job, key, wanted, available, out reserved))

@@ -34,7 +34,6 @@ namespace SimManagementLib.SimAI
         internal Dictionary<int, CustomerRuntimeSettings> pawnSettings => pawnSettingsState.pawnSettings;
         internal Dictionary<int, int> effectiveBudgetCaps => cartState.effectiveBudgetCaps;
         internal Dictionary<int, int> checkoutOrder => checkoutState.checkoutOrder;
-        internal Dictionary<int, CustomerVisitSession> customerVisitSessions => visitSessions;
         internal int nextServiceOrderId
         {
             get => serviceOrderState.nextServiceOrderId;

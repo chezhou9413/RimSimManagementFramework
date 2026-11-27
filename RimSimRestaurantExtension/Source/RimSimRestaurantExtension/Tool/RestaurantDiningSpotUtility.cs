@@ -142,21 +142,6 @@ namespace RimSimRestaurantExtension.Tool
             return deliveryCell.IsValid;
         }
 
-        //查找座位四周的进食桌面，职责是匹配原版进食对 SurfaceType.Eat 的判定。
-        private static Building FindAdjacentEatSurface(Zone_Shop shop, IntVec3 seatCell)
-        {
-            if (shop?.Map == null || !seatCell.IsValid) return null;
-            for (int i = 0; i < GenAdj.CardinalDirections.Length; i++)
-            {
-                IntVec3 cell = seatCell + GenAdj.CardinalDirections[i];
-                if (!cell.InBounds(shop.Map) || !IsCellInShop(shop, cell)) continue;
-                Building building = cell.GetEdifice(shop.Map);
-                if (building != null && !building.Destroyed && building.Spawned && building.def?.surfaceType == SurfaceType.Eat)
-                    return building;
-            }
-            return null;
-        }
-
         //判断建筑是否为可坐家具，职责是复用原版 building.isSittable 语义。
         private static bool IsChair(Building building)
         {

@@ -18,6 +18,13 @@ namespace SimManagementLib.Tool
             return ScanStorages(zone);
         }
 
+        //枚举所有可用于经营的货柜，管理窗口也可读取逐座停售的建筑。
+        public static IReadOnlyList<IShopStorage> GetRetailStorages(Zone zone, bool includeDisabled = false)
+        {
+            if (zone is Zone_Shop shop) return shop.RetailStorages(includeDisabled);
+            return GetStorageSnapshotInZone(zone);
+        }
+
         //返回商店收银台只读快照，职责是复用商店区设施缓存。
         public static IReadOnlyList<Building_CashRegister> GetCashRegisterSnapshotInZone(Zone_Shop shop)
         {
@@ -34,6 +41,45 @@ namespace SimManagementLib.Tool
             if (shop == null)
                 return;
 
+            NotifyShopFacilityChanged(map, shop);
+        }
+
+        //通知指定建筑的经营状态变化，并在建筑处于商店区空洞或部分覆盖时立即归并回所属商店。
+        internal static void NotifyBuildingChanged(Building building)
+        {
+            if (building == null || !building.Spawned || building.Map == null)
+                return;
+
+            Map map = building.Map;
+            ZoneManager zoneManager = map.zoneManager;
+            if (zoneManager == null) return;
+
+            HashSet<Zone_Shop> shops = new HashSet<Zone_Shop>();
+            CellRect searchRect = building.OccupiedRect().ExpandedBy(1);
+            for (int z = searchRect.minZ; z <= searchRect.maxZ; z++)
+            {
+                for (int x = searchRect.minX; x <= searchRect.maxX; x++)
+                {
+                    IntVec3 c = new IntVec3(x, 0, z);
+                    if (c.InBounds(map) && zoneManager.ZoneAt(c) is Zone_Shop shop)
+                        shops.Add(shop);
+                }
+            }
+            if (shops.Count == 0) return;
+
+            if (ShopStorage.IsFacility(building) || building is Building_CashRegister || ShopServiceUtility.HasEnabledService(building))
+            {
+                foreach (Zone_Shop shop in shops)
+                    if (shop.TryRepairFacilityCoverage(building)) break;
+            }
+
+            foreach (Zone_Shop shop in shops)
+                NotifyShopFacilityChanged(map, shop);
+        }
+
+        //统一刷新单个商店的设施、运行态、岗位和经营统计缓存。
+        private static void NotifyShopFacilityChanged(Map map, Zone_Shop shop)
+        {
             shop.InvalidateShopFacilityCache();
             shop.InvalidateShopRuntimeCache();
             ShopStaffUtility.NotifyShopChanged(shop);
@@ -44,7 +90,13 @@ namespace SimManagementLib.Tool
         //通知货柜库存或配置发生变化，职责是只失效依赖商品状态的经营指标。
         public static void NotifyShopContentsChanged(Building_SimContainer storage)
         {
-            Zone_Shop shop = storage == null ? null : FindShopForStorage(storage);
+            NotifyShopContentsChanged((Building)storage);
+        }
+
+        //宿主实物或货柜设置变化时刷新所属店铺。
+        internal static void NotifyShopContentsChanged(Building storage)
+        {
+            Zone_Shop shop = storage?.Map?.zoneManager.ZoneAt(storage.Position) as Zone_Shop;
             if (shop == null)
                 return;
 
@@ -74,12 +126,5 @@ namespace SimManagementLib.Tool
             return storages;
         }
 
-        //查找货柜所在商店，职责是使用建筑根格直接定位缓存所属区划。
-        private static Zone_Shop FindShopForStorage(Building_SimContainer storage)
-        {
-            if (storage?.Map == null || !storage.Spawned)
-                return null;
-            return storage.Map.zoneManager?.ZoneAt(storage.Position) as Zone_Shop;
-        }
     }
 }

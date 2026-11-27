@@ -16,7 +16,15 @@ namespace SimManagementLib.BusinessAdvisor
         {
             Map map = Map(Required(q.mapId, "mapId"));
             int id = Required(q.targetId, "targetId（普通货柜编号）");
-            var shelf = map.listerThings.AllThings.OfType<Building_SimContainer>().FirstOrDefault(s => s.thingIDNumber == id);
+            var host = map.listerThings.AllThings.FirstOrDefault(s => s.thingIDNumber == id);
+            if (ShopStorage.For(host) is ThingComp_StorageSales sales)
+            {
+                foreach (var def in DefDatabase<ThingDef>.AllDefsListForReading.Where(d => sales.AllowsDef(d) && Match(d.defName + " " + d.label, q.filter)))
+                    yield return "containerId=" + id + " definition=" + def.defName + " label=" + Q(def.label)
+                        + " stored=" + sales.CountStored(def) + " market=" + def.BaseMarketValue + " onSale=" + sales.OnSale(def);
+                yield break;
+            }
+            var shelf = host as Building_SimContainer;
             if (shelf == null || shelf is Building_UniqueGoodsContainer)
                 throw new System.InvalidOperationException("shelf_goods 需要普通货柜；专业货柜请查 unique_sources。");
             var comp = shelf.GetComp<ThingComp_GoodsData>();

@@ -301,17 +301,17 @@ namespace SimManagementLib.SimDialog
         }
 
         //打开货柜选择菜单，职责是让用户选择要管理的具体设施。
-        private static void OpenStorageManagerMenu(HashSet<Building_SimContainer> storages)
+        private static void OpenStorageManagerMenu(IReadOnlyList<IShopStorage> storages)
         {
-            if (storages.NullOrEmpty())
+            if (storages.Count == 0)
             {
                 Messages.Message(SimTranslation.T("RSMF.Business.Storage.NotFoundMessage"), MessageTypeDefOf.RejectInput, false);
                 return;
             }
 
-            List<Building_SimContainer> ordered = storages
-                .Where(s => s != null && !s.Destroyed)
-                .OrderBy(s => s.thingIDNumber)
+            List<IShopStorage> ordered = storages
+                .Where(s => s != null && !s.Host.Destroyed)
+                .OrderBy(s => s.Host.thingIDNumber)
                 .ToList();
             if (ordered.NullOrEmpty())
             {
@@ -328,11 +328,11 @@ namespace SimManagementLib.SimDialog
             List<FloatMenuOption> options = new List<FloatMenuOption>();
             for (int i = 0; i < ordered.Count; i++)
             {
-                Building_SimContainer storage = ordered[i];
-                Building_SimContainer local = storage;
+                IShopStorage storage = ordered[i];
+                IShopStorage local = storage;
                 string label = SimTranslation.T("RSMF.Business.Storage.OptionLabel",
                     (i + 1).Named("index"),
-                    local.StorageDisplayLabel.Named("label"));
+                    local.Host.LabelCap.ToString().Named("label"));
                 options.Add(new FloatMenuOption(label, () => OpenStorageManager(local)));
             }
 
@@ -340,15 +340,8 @@ namespace SimManagementLib.SimDialog
         }
 
         //打开指定货柜的管理窗口，职责是尊重扩展提供的窗口策略。
-        private static void OpenStorageManager(Building_SimContainer storage)
+        private static void OpenStorageManager(IShopStorage storage)
         {
-            ThingComp_GoodsData comp = storage?.GetComp<ThingComp_GoodsData>();
-            if (comp == null)
-            {
-                Messages.Message(SimTranslation.T("RSMF.Business.Storage.CannotOpenMessage"), MessageTypeDefOf.RejectInput, false);
-                return;
-            }
-
             storage.OpenInventoryManagement();
         }
     }

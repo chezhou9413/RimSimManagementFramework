@@ -35,7 +35,7 @@ namespace SimManagementLib.SimAI
             if (sourceThingId < 0)
                 sourceThingId = source?.thingIDNumber ?? -1;
             MapComponent_RestockTaskQueue queue = pawn?.Map?.GetComponent<MapComponent_RestockTaskQueue>();
-            if (source == null || container == null || queue == null
+            if (source == null || RestockSourceResolver.IsRetailSupply(source) || container == null || queue == null
                 || !queue.TryAcquireUniqueLease(pawn, job, container, sourceThingId))
                 return false;
             if (pawn.Reserve(source, job, 1, 1, null, errorOnFailed))
@@ -55,7 +55,8 @@ namespace SimManagementLib.SimAI
             this.FailOnDestroyedOrNull(TargetIndex.A);
             this.FailOnDestroyedOrNull(TargetIndex.B);
             AddFinishAction(CleanupLease);
-            yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.ClosestTouch);
+            yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.ClosestTouch)
+                .FailOn(() => RestockSourceResolver.IsRetailSupply(job.targetA.Thing));
             yield return Toils_Haul.StartCarryThing(TargetIndex.A, false, false, false, false);
             yield return Toils_Goto.GotoThing(TargetIndex.B, PathEndMode.Touch);
 

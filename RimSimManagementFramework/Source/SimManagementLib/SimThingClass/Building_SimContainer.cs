@@ -9,7 +9,7 @@ using Verse;
 namespace SimManagementLib.SimThingClass
 {
     //虚拟化存储货柜，职责是保存商店商品库存、配置目标并通知地图级补货协调器。
-    public partial class Building_SimContainer : Building, IThingHolder, IRenameable, IThingHolderEvents<Thing>
+    public partial class Building_SimContainer : Building, IShopStorage, IThingHolder, IRenameable, IThingHolderEvents<Thing>
     {
         private const int DefaultMaxTotalCapacity = 600;
 
@@ -26,6 +26,8 @@ namespace SimManagementLib.SimThingClass
 
         private ThingComp_GoodsData GoodsComp => GetComp<ThingComp_GoodsData>();
         private ThingComp_ProgressStageGraphic ProgressStageGraphicComp => GetComp<ThingComp_ProgressStageGraphic>();
+        public Building Host => this;
+
         protected ThingOwner<Thing> VirtualStorage => virtualStorage;
 
         public string RenamableLabel

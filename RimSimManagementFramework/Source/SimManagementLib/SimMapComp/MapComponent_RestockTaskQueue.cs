@@ -15,8 +15,8 @@ namespace SimManagementLib.SimMapComp
         private const int ReconcileTargetTicks = 120;
         private const int IdleDispatchIntervalTicks = 15;
 
-        private readonly Dictionary<int, Building_SimContainer> storagesById = new Dictionary<int, Building_SimContainer>();
-        private readonly List<Building_SimContainer> storageOrder = new List<Building_SimContainer>();
+        private readonly Dictionary<int, IShopStorage> storagesById = new Dictionary<int, IShopStorage>();
+        private readonly List<IShopStorage> storageOrder = new List<IShopStorage>();
         private readonly Dictionary<RestockTaskKey, RestockTask> requests = new Dictionary<RestockTaskKey, RestockTask>();
         private readonly Queue<RestockTaskKey> dirtyQueue = new Queue<RestockTaskKey>();
         private readonly HashSet<RestockTaskKey> dirtySet = new HashSet<RestockTaskKey>();
@@ -101,10 +101,14 @@ namespace SimManagementLib.SimMapComp
 
         //注册货柜并在运行态已建立时立即刷新其需求。
         public void RegisterStorage(Building_SimContainer storage, string reason)
+            => RegisterStorage((IShopStorage)storage, reason);
+
+        //通过统一货柜入口处理宿主建筑。
+        internal void RegisterStorage(IShopStorage storage, string reason)
         {
             if (!IsValidStorage(storage))
                 return;
-            int storageId = storage.thingIDNumber;
+            int storageId = storage.Host.thingIDNumber;
             bool added = !storagesById.ContainsKey(storageId);
             storagesById[storageId] = storage;
             if (added)
@@ -118,10 +122,14 @@ namespace SimManagementLib.SimMapComp
 
         //注销货柜并只移除属于该货柜的请求、周期和租约。
         public void UnregisterStorage(Building_SimContainer storage, string reason)
+            => UnregisterStorage((IShopStorage)storage, reason);
+
+        //通过统一货柜入口处理宿主建筑。
+        internal void UnregisterStorage(IShopStorage storage, string reason)
         {
             if (storage == null)
                 return;
-            int storageId = storage.thingIDNumber;
+            int storageId = storage.Host.thingIDNumber;
             storagesById.Remove(storageId);
             storageOrder.Remove(storage);
             configurationIndex.Remove(storageId);
@@ -135,6 +143,10 @@ namespace SimManagementLib.SimMapComp
 
         //标记整个货柜配置需要重新计算，并清理不再存在的请求。
         public void MarkStorageDirty(Building_SimContainer storage, string reason)
+            => MarkStorageDirty((IShopStorage)storage, reason);
+
+        //通过统一货柜入口处理宿主建筑。
+        internal void MarkStorageDirty(IShopStorage storage, string reason)
         {
             if (!IsValidStorage(storage))
                 return;
@@ -148,6 +160,10 @@ namespace SimManagementLib.SimMapComp
 
         //标记普通货柜指定商品需求需要重新计算。
         public void MarkDirty(Building_SimContainer storage, ThingDef thingDef, string reason)
+            => MarkDirty((IShopStorage)storage, thingDef, reason);
+
+        //通过统一货柜入口处理宿主建筑。
+        internal void MarkDirty(IShopStorage storage, ThingDef thingDef, string reason)
         {
             if (!IsValidStorage(storage) || storage is Building_UniqueGoodsContainer || thingDef == null)
                 return;
@@ -185,10 +201,10 @@ namespace SimManagementLib.SimMapComp
                 return;
             for (int i = 0; i < storageOrder.Count; i++)
             {
-                Building_SimContainer storage = storageOrder[i];
+                IShopStorage storage = storageOrder[i];
                 if (!(storage is Building_UniqueGoodsContainer) && IsValidStorage(storage)
-                    && dirtyConfigurationSet.Add(storage.thingIDNumber))
-                    dirtyConfigurationQueue.Enqueue(storage.thingIDNumber);
+                    && dirtyConfigurationSet.Add(storage.Host.thingIDNumber))
+                    dirtyConfigurationQueue.Enqueue(storage.Host.thingIDNumber);
             }
         }
 
@@ -215,10 +231,14 @@ namespace SimManagementLib.SimMapComp
 
         //激活普通商品补货周期，使补货持续到配置目标量。
         public void ActivateRestockCycle(Building_SimContainer storage, ThingDef thingDef)
+            => ActivateRestockCycle((IShopStorage)storage, thingDef);
+
+        //通过统一货柜入口处理宿主建筑。
+        internal void ActivateRestockCycle(IShopStorage storage, ThingDef thingDef)
         {
             if (!IsValidStorage(storage) || storage is Building_UniqueGoodsContainer || thingDef == null)
                 return;
-            RestockTaskKey key = new RestockTaskKey(storage.thingIDNumber, thingDef);
+            RestockTaskKey key = new RestockTaskKey(storage.Host.thingIDNumber, thingDef);
             activeRestockCycles.Add(key);
             if (runtimeInitialized)
                 EnsureBulkRequest(storage, thingDef, "激活补货周期");
@@ -241,20 +261,28 @@ namespace SimManagementLib.SimMapComp
 
         //返回指定普通商品当前全部有效在途数量。
         public int CountPending(Building_SimContainer storage, ThingDef thingDef)
+            => CountPending((IShopStorage)storage, thingDef);
+
+        //通过统一货柜入口处理宿主建筑。
+        internal int CountPending(IShopStorage storage, ThingDef thingDef)
         {
             if (storage == null || thingDef == null)
                 return 0;
             EnsureRuntimeInitialized();
-            return leases.CountPending(storage.thingIDNumber, thingDef);
+            return leases.CountPending(storage.Host.thingIDNumber, thingDef);
         }
 
         //返回指定货柜当前全部普通补货在途数量。
         public int CountTotalPending(Building_SimContainer storage)
+            => CountTotalPending((IShopStorage)storage);
+
+        //通过统一货柜入口处理宿主建筑。
+        internal int CountTotalPending(IShopStorage storage)
         {
             if (storage == null)
                 return 0;
             EnsureRuntimeInitialized();
-            return leases.CountTotalPending(storage.thingIDNumber);
+            return leases.CountTotalPending(storage.Host.thingIDNumber);
         }
 
         //创建按需分配的诊断快照，不让调试对象进入运行热路径。

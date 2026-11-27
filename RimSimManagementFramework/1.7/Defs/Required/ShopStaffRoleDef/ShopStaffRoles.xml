@@ -21,6 +21,7 @@
     <defName>SimShopRole_Restocker</defName>
     <label>补货</label>
     <description>负责货柜补货和货柜库存整理工作。</description>
+    <workerClass>SimManagementLib.SimDef.ShopStaffRoleWorker_Restocker</workerClass>
     <maxAssignedPawns>10</maxAssignedPawns>
     <requiredThingClasses>
       <li>SimManagementLib.SimThingClass.Building_SimContainer</li>

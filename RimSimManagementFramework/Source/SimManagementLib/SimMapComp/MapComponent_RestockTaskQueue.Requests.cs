@@ -34,9 +34,10 @@ namespace SimManagementLib.SimMapComp
                 return;
             for (int i = 0; i < buildings.Count; i++)
             {
-                if (buildings[i] is Building_SimContainer storage && IsValidStorage(storage))
+                IShopStorage storage = ShopStorage.For(buildings[i]);
+                if (IsValidStorage(storage))
                 {
-                    storagesById[storage.thingIDNumber] = storage;
+                    storagesById[storage.Host.thingIDNumber] = storage;
                     storageOrder.Add(storage);
                     configurationIndex.Refresh(storage);
                 }
@@ -44,7 +45,7 @@ namespace SimManagementLib.SimMapComp
         }
 
         //刷新指定货柜的普通或专业请求，并按需清理失效配置。
-        private void RefreshStorageRequests(Building_SimContainer storage, string reason, bool cleanupMissing)
+        private void RefreshStorageRequests(IShopStorage storage, string reason, bool cleanupMissing)
         {
             if (storage is Building_UniqueGoodsContainer uniqueStorage)
             {
@@ -52,7 +53,7 @@ namespace SimManagementLib.SimMapComp
                 configurationIndex.ObserveInventory(storage);
                 return;
             }
-            IReadOnlyList<RestockTargetSettings> items = configurationIndex.GetItems(storage.thingIDNumber);
+            IReadOnlyList<RestockTargetSettings> items = configurationIndex.GetItems(storage.Host.thingIDNumber);
             for (int i = 0; i < items.Count; i++)
                 EnsureBulkRequest(storage, items[i].ThingDef, reason);
             if (cleanupMissing)
@@ -61,10 +62,10 @@ namespace SimManagementLib.SimMapComp
         }
 
         //确保普通商品在满足阈值或已启动周期时拥有可靠请求。
-        private void EnsureBulkRequest(Building_SimContainer storage, ThingDef thingDef, string reason)
+        private void EnsureBulkRequest(IShopStorage storage, ThingDef thingDef, string reason)
         {
-            RestockTaskKey key = new RestockTaskKey(storage.thingIDNumber, thingDef);
-            if (!configurationIndex.TryGetSettings(storage.thingIDNumber, thingDef, out RestockTargetSettings settings))
+            RestockTaskKey key = new RestockTaskKey(storage.Host.thingIDNumber, thingDef);
+            if (!configurationIndex.TryGetSettings(storage.Host.thingIDNumber, thingDef, out RestockTargetSettings settings))
             {
                 activeRestockCycles.Remove(key);
                 RemoveRequest(key);
@@ -72,7 +73,7 @@ namespace SimManagementLib.SimMapComp
             }
             int target = settings.TargetCount;
             int stored = storage.CountStored(thingDef);
-            int pending = leases.CountPending(storage.thingIDNumber, thingDef);
+            int pending = leases.CountPending(storage.Host.thingIDNumber, thingDef);
             if (target <= 0 || stored >= target)
             {
                 activeRestockCycles.Remove(key);
@@ -136,14 +137,14 @@ namespace SimManagementLib.SimMapComp
         }
 
         //清理普通货柜配置中已经不存在的商品请求和周期。
-        private void CleanupMissingBulkRequests(Building_SimContainer storage)
+        private void CleanupMissingBulkRequests(IShopStorage storage)
         {
             tmpRequestKeys.Clear();
             foreach (RestockTaskKey key in requests.Keys)
             {
                 if (key.Kind == RestockRequestKind.Bulk
-                    && key.StorageId == storage.thingIDNumber
-                    && !configurationIndex.TryGetSettings(storage.thingIDNumber, key.ThingDef, out _))
+                    && key.StorageId == storage.Host.thingIDNumber
+                    && !configurationIndex.TryGetSettings(storage.Host.thingIDNumber, key.ThingDef, out _))
                     tmpRequestKeys.Add(key);
             }
             for (int i = 0; i < tmpRequestKeys.Count; i++)
@@ -183,7 +184,7 @@ namespace SimManagementLib.SimMapComp
         //根据权威库存、槽位和租约状态更新一个请求。
         private void EvaluateRequest(RestockTask task, int now)
         {
-            if (!storagesById.TryGetValue(task.StorageId, out Building_SimContainer storage) || !IsValidStorage(storage))
+            if (!storagesById.TryGetValue(task.StorageId, out IShopStorage storage) || !IsValidStorage(storage))
             {
                 RemoveRequest(task.Key);
                 return;
@@ -266,9 +267,9 @@ namespace SimManagementLib.SimMapComp
         }
 
         //判断货柜是否仍属于当前地图并可参与补货。
-        private bool IsValidStorage(Building_SimContainer storage)
+        private bool IsValidStorage(IShopStorage storage)
         {
-            return storage != null && !storage.Destroyed && storage.Spawned && storage.Map == map;
+            return storage != null && !storage.Host.Destroyed && storage.Host.Spawned && storage.Host.Map == map;
         }
     }
 }

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <RSMF.StorageSales.Toggle>Retail sales</RSMF.StorageSales.Toggle>
+  <RSMF.StorageSales.ToggleDesc>Off by default. Turn on to sell this building’s stock while it is in a shop.</RSMF.StorageSales.ToggleDesc>
+  <RSMF.StorageSales.ManageDesc>Open the storage management panel to configure sale status, prices, restock targets, and thresholds.</RSMF.StorageSales.ManageDesc>
+  <RSMF.StorageSales.Back>Back to stock</RSMF.StorageSales.Back>
+  <RSMF.StorageSales.Add>Add stock type</RSMF.StorageSales.Add>
+  <RSMF.StorageSales.Hint>Price 0 uses each item’s market value. Target 0 sells existing stock. Threshold −1 uses the target.</RSMF.StorageSales.Hint>
+  <RSMF.StorageSales.Item>Item</RSMF.StorageSales.Item>
+  <RSMF.StorageSales.ListingCapacity>{count} of {capacity} units on sale.</RSMF.StorageSales.ListingCapacity>
+  <RSMF.StorageSales.ListedStock>Sale/stock</RSMF.StorageSales.ListedStock>
+  <RSMF.StorageSales.Stock>In stock</RSMF.StorageSales.Stock>
+  <RSMF.StorageSales.Sell>Sell</RSMF.StorageSales.Sell>
+  <RSMF.StorageSales.Price>Unit price</RSMF.StorageSales.Price>
+  <RSMF.StorageSales.Target>Target</RSMF.StorageSales.Target>
+  <RSMF.StorageSales.Threshold>Threshold</RSMF.StorageSales.Threshold>
+  <RSMF.StorageSales.Save>Save settings</RSMF.StorageSales.Save>
+  <RSMF.StorageSales.Action>Action</RSMF.StorageSales.Action>
+  <RSMF.StorageSales.Inspect.Active>Retail sales: Active</RSMF.StorageSales.Inspect.Active>
+  <RSMF.StorageSales.Inspect.ActiveWithCap>Retail sales: Active ({listed}/{capacity} on sale)</RSMF.StorageSales.Inspect.ActiveWithCap>
+  <RSMF.StorageSales.Inspect.NotInShop>Retail sales: On (outside shop zone)</RSMF.StorageSales.Inspect.NotInShop>
+  <RSMF.StorageSales.SubtitleShop>Shop: {shop}</RSMF.StorageSales.SubtitleShop>
+  <RSMF.StorageSales.SubtitleNoShop>Outside shop zone</RSMF.StorageSales.SubtitleNoShop>
+  <RSMF.StorageSales.Status.Active>Selling</RSMF.StorageSales.Status.Active>
+  <RSMF.StorageSales.Status.NoShop>No shop</RSMF.StorageSales.Status.NoShop>
+  <RSMF.StorageSales.Status.Off>Off</RSMF.StorageSales.Status.Off>
+  <RSMF.StorageSales.EnableSales>Enable sales</RSMF.StorageSales.EnableSales>
+  <RSMF.StorageSales.DisableSales>Disable sales</RSMF.StorageSales.DisableSales>
+  <RSMF.StorageSales.WarningOff>Retail sales are currently off; customers will not buy items stored here. Click "Enable sales" above to turn it on.</RSMF.StorageSales.WarningOff>
+  <RSMF.StorageSales.WarningNoShop>Retail sales are enabled, but this building is not inside a shop zone. Expand a shop zone over it so customers can browse it.</RSMF.StorageSales.WarningNoShop>
+  <RSMF.StorageSales.HintFriendly>Price 0 uses each physical item’s market value (including quality and hit points). Target 0 sells existing stock; set a target above 0 to configure restock thresholds.</RSMF.StorageSales.HintFriendly>
+  <RSMF.StorageSales.Metric.ListedDefs>On sale</RSMF.StorageSales.Metric.ListedDefs>
+  <RSMF.StorageSales.Metric.Stock>Stock</RSMF.StorageSales.Metric.Stock>
+  <RSMF.StorageSales.Metric.Target>Restock target</RSMF.StorageSales.Metric.Target>
+  <RSMF.StorageSales.Metric.Pending>In transit</RSMF.StorageSales.Metric.Pending>
+  <RSMF.StorageSales.Metric.StockWithCap>{listed}/{capacity} on sale · {stock} stored</RSMF.StorageSales.Metric.StockWithCap>
+  <RSMF.StorageSales.Tab.Manage>Stock list ({count})</RSMF.StorageSales.Tab.Manage>
+  <RSMF.StorageSales.Tab.Picker>Add items</RSMF.StorageSales.Tab.Picker>
+  <RSMF.StorageSales.Filter.All>All</RSMF.StorageSales.Filter.All>
+  <RSMF.StorageSales.Filter.InStock>In stock</RSMF.StorageSales.Filter.InStock>
+  <RSMF.StorageSales.Filter.Restocking>Restocking</RSMF.StorageSales.Filter.Restocking>
+  <RSMF.StorageSales.Filter.Paused>Paused</RSMF.StorageSales.Filter.Paused>
+  <RSMF.StorageSales.Sort.Label>Sort: {mode}</RSMF.StorageSales.Sort.Label>
+  <RSMF.StorageSales.Sort.Default>Default</RSMF.StorageSales.Sort.Default>
+  <RSMF.StorageSales.Sort.StockDesc>Stock</RSMF.StorageSales.Sort.StockDesc>
+  <RSMF.StorageSales.Sort.NameAsc>Name</RSMF.StorageSales.Sort.NameAsc>
+  <RSMF.StorageSales.Sort.PriceDesc>Price</RSMF.StorageSales.Sort.PriceDesc>
+  <RSMF.StorageSales.Sort.TargetDesc>Target</RSMF.StorageSales.Sort.TargetDesc>
+  <RSMF.StorageSales.Batch.Button>Batch</RSMF.StorageSales.Batch.Button>
+  <RSMF.StorageSales.Batch.SellAll>Enable sale for filtered</RSMF.StorageSales.Batch.SellAll>
+  <RSMF.StorageSales.Batch.PauseAll>Pause sale for filtered</RSMF.StorageSales.Batch.PauseAll>
+  <RSMF.StorageSales.Batch.PriceMarket>Reset filtered prices to market value</RSMF.StorageSales.Batch.PriceMarket>
+  <RSMF.StorageSales.Batch.PriceMult>Set filtered prices to {mult}× market value</RSMF.StorageSales.Batch.PriceMult>
+  <RSMF.StorageSales.Batch.TargetFromStock>Match restock targets to current stock</RSMF.StorageSales.Batch.TargetFromStock>
+  <RSMF.StorageSales.Batch.ThresholdMax>Set thresholds to match targets</RSMF.StorageSales.Batch.ThresholdMax>
+  <RSMF.StorageSales.Batch.ClearEmptyRules>Remove out-of-stock rules</RSMF.StorageSales.Batch.ClearEmptyRules>
+  <RSMF.StorageSales.MetaMarket>Base value {value} silver · Per-item market value</RSMF.StorageSales.MetaMarket>
+  <RSMF.StorageSales.MetaFixed>Base value {value} silver · Fixed unit price</RSMF.StorageSales.MetaFixed>
+  <RSMF.StorageSales.HostDisallowed>Blocked by host storage filter (restock paused)</RSMF.StorageSales.HostDisallowed>
+  <RSMF.StorageSales.PendingBadge>+{count} incoming</RSMF.StorageSales.PendingBadge>
+  <RSMF.StorageSales.PriceMarketBtn>Mkt</RSMF.StorageSales.PriceMarketBtn>
+  <RSMF.StorageSales.PriceCustomBtn>Fix</RSMF.StorageSales.PriceCustomBtn>
+  <RSMF.StorageSales.PriceMarketTip>Reset price to 0 to quote each item’s live market value (including quality and hit points).</RSMF.StorageSales.PriceMarketTip>
+  <RSMF.StorageSales.PriceCustomTip>Fill in the base market value as a fixed starting price.</RSMF.StorageSales.PriceCustomTip>
+  <RSMF.StorageSales.PriceFieldTip>Base market value: {value} silver.&#10;Enter 0 to use each item’s own market value, or a positive number for a fixed base price.</RSMF.StorageSales.PriceFieldTip>
+  <RSMF.StorageSales.TargetStepTip>Click for ±1; hold Shift for ±10; hold Ctrl for ±5.&#10;Set to 0 to sell existing stock without restocking.</RSMF.StorageSales.TargetStepTip>
+  <RSMF.StorageSales.ThresholdDisabledTip>Set a restock target above 0 to configure the trigger threshold.</RSMF.StorageSales.ThresholdDisabledTip>
+  <RSMF.StorageSales.ThresholdFieldTip>Restockers refill up to the target when current stock plus incoming stock drops to or below this value.</RSMF.StorageSales.ThresholdFieldTip>
+  <RSMF.StorageSales.RemoveRuleTip>Remove this out-of-stock item rule from the storage.</RSMF.StorageSales.RemoveRuleTip>
+  <RSMF.StorageSales.ResetRuleTip>Reset to defaults (on sale, market value, no restock target).</RSMF.StorageSales.ResetRuleTip>
+  <RSMF.StorageSales.EmptyManage>No items match the current filter.&#10;Adjust the filter or switch to "Add items" to pre-configure goods for this storage.</RSMF.StorageSales.EmptyManage>
+  <RSMF.StorageSales.Picker.ScopeColony>In colony ({count})</RSMF.StorageSales.Picker.ScopeColony>
+  <RSMF.StorageSales.Picker.ScopeAll>All storable ({count})</RSMF.StorageSales.Picker.ScopeAll>
+  <RSMF.StorageSales.Picker.AllCategories>All categories</RSMF.StorageSales.Picker.AllCategories>
+  <RSMF.StorageSales.Picker.OtherCategory>Other</RSMF.StorageSales.Picker.OtherCategory>
+  <RSMF.StorageSales.Picker.AddFiltered>Add shown ({count})</RSMF.StorageSales.Picker.AddFiltered>
+  <RSMF.StorageSales.Picker.AddFilteredTip>Add all currently filtered items that are not yet in the list (up to {limit} at once).</RSMF.StorageSales.Picker.AddFilteredTip>
+  <RSMF.StorageSales.Picker.MapStock>On map</RSMF.StorageSales.Picker.MapStock>
+  <RSMF.StorageSales.Picker.BaseValue>Base value</RSMF.StorageSales.Picker.BaseValue>
+  <RSMF.StorageSales.Picker.AddOne>+ Add</RSMF.StorageSales.Picker.AddOne>
+  <RSMF.StorageSales.Picker.Added>✓ Added</RSMF.StorageSales.Picker.Added>
+  <RSMF.StorageSales.Picker.OnShelf>On shelf</RSMF.StorageSales.Picker.OnShelf>
+  <RSMF.StorageSales.Picker.AddedTip>Already in draft list; click to remove.</RSMF.StorageSales.Picker.AddedTip>
+  <RSMF.StorageSales.Picker.OnShelfTip>This item is physically stored in this building.</RSMF.StorageSales.Picker.OnShelfTip>
+  <RSMF.StorageSales.Picker.Empty>No addable items match the current filter.</RSMF.StorageSales.Picker.Empty>
+  <RSMF.StorageSales.RestockNow>Restock now</RSMF.StorageSales.RestockNow>
+  <RSMF.StorageSales.RestockNowTip>Immediately trigger a restock cycle for all saved targets.</RSMF.StorageSales.RestockNowTip>
+  <RSMF.StorageSales.RestockTriggered>Triggered restocking for {count} target item(s).</RSMF.StorageSales.RestockTriggered>
+  <RSMF.StorageSales.CopyDone>Copied {count} storage sales rule(s).</RSMF.StorageSales.CopyDone>
+  <RSMF.StorageSales.PasteDone>Pasted {applied} rule(s). Save to apply.</RSMF.StorageSales.PasteDone>
+  <RSMF.StorageSales.PastePartial>Pasted {applied} rule(s); skipped {skipped} unsupported by this storage.</RSMF.StorageSales.PastePartial>
+  <RSMF.StorageSales.PasteNone>No rules in clipboard apply to this storage.</RSMF.StorageSales.PasteNone>
+  <RSMF.StorageSales.UnsavedHint>Unsaved changes</RSMF.StorageSales.UnsavedHint>
+</LanguageData>

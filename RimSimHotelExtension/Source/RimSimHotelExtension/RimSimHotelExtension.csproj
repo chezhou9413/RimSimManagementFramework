@@ -19,8 +19,4 @@
     <Reference Include="Waylith"><HintPath>$(RimWorldPath)/Waylith.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="0Harmony"><HintPath>$(HarmonyPath)</HintPath><Private>false</Private></Reference>
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="**/*.cs" Exclude="obj/**;bin/**"><LogicalName>AdvisorSource/Source/%(RecursiveDir)%(Filename)%(Extension)</LogicalName></EmbeddedResource>
-    <EmbeddedResource Include="../../1.7/Defs/**/*.xml"><LogicalName>AdvisorSource/Defs/%(RecursiveDir)%(Filename)%(Extension)</LogicalName></EmbeddedResource>
-  </ItemGroup>
 </Project>

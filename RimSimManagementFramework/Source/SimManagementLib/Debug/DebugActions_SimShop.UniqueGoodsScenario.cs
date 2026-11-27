@@ -1,8 +1,10 @@
 using LudeonTK;
 using RimWorld;
+using SimManagementLib.SimDef;
 using SimManagementLib.SimMapComp;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimZone;
+using SimManagementLib.Tool;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -61,7 +63,8 @@ namespace SimManagementLib.Debug
                 return;
             }
 
-            Pawn cashier = SpawnScenarioStaff(map, register.InteractionCell, "SimShopRole_Cashier", zone, 2);
+            Pawn cashier = SpawnScenarioStaff(map, register.InteractionCell, "SimShopRole_Cashier", zone);
+            if (cashier == null) return;
             StartScenarioCashierJob(cashier, register);
             int stocked = FillRealtimeUniqueGoodsContainers(containers);
             int capacity = containers.Sum(container => container.UniqueSlotCount);
@@ -78,24 +81,36 @@ namespace SimManagementLib.Debug
             Find.Selector.Select(containers[containers.Count - 1]);
         }
 
-        //生成并分配一名测试店员。
-        private static Pawn SpawnScenarioStaff(Map map, IntVec3 nearCell, string roleDefName, Zone_Shop zone, int maxCount)
+        //在岗位附近生成具备所需工作能力的殖民者，并登记到测试店的员工名单。
+        private static Pawn SpawnScenarioStaff(Map map, IntVec3 nearCell, string roleDefName, Zone_Shop zone)
         {
-            Pawn pawn = PawnGenerator.GeneratePawn(PawnKindDefOf.Colonist, Faction.OfPlayer);
+            var role = DefDatabase<ShopStaffRoleDef>.GetNamed(roleDefName);
             IntVec3 spawnCell = nearCell;
-            if (!spawnCell.InBounds(map) || !spawnCell.Standable(map))
-                CellFinder.TryFindRandomCellNear(nearCell, map, 6, cell => cell.Standable(map), out spawnCell);
+            if ((!spawnCell.InBounds(map) || !spawnCell.Standable(map))
+                && !CellFinder.TryFindRandomCellNear(nearCell, map, 6, cell => cell.Standable(map), out spawnCell))
+            {
+                Messages.Message($"测试店的{role.label}缺少可站立的位置。", MessageTypeDefOf.RejectInput, false);
+                return null;
+            }
+            var request = new PawnGenerationRequest(PawnKindDefOf.Colonist, Faction.OfPlayer, forceGenerateNewPawn: true,
+                canGeneratePawnRelations: false, validatorPreGear: candidate => ShopStaffUtility.IsPawnEligibleForRole(zone, candidate, role));
+            Pawn pawn = PawnGenerator.GeneratePawn(request);
+            if (!ShopStaffUtility.IsPawnEligibleForRole(zone, pawn, role))
+            {
+                Messages.Message($"无法生成具备{role.label}工作能力的测试店员。", MessageTypeDefOf.RejectInput, false);
+                return null;
+            }
             GenSpawn.Spawn(pawn, spawnCell, map);
-            zone.AddAssignedPawn(roleDefName, pawn, maxCount);
+            zone.AddAssignedPawn(roleDefName, pawn, role.MaxAssignedPawns);
             return pawn;
         }
 
         //让测试收银员立即开始操作收银台。
-        private static void StartScenarioCashierJob(Pawn cashier, Building_CashRegister register)
+        private static bool StartScenarioCashierJob(Pawn cashier, Building_CashRegister register)
         {
             JobDef jobDef = DefDatabase<JobDef>.GetNamedSilentFail("Sim_ManCashRegister");
-            if (cashier == null || register == null || jobDef == null) return;
-            cashier.jobs.TryTakeOrderedJob(JobMaker.MakeJob(jobDef, register), JobTag.MiscWork);
+            return cashier != null && register != null && jobDef != null
+                && cashier.jobs.TryTakeOrderedJob(JobMaker.MakeJob(jobDef, register), JobTag.MiscWork);
         }
 
         //生成五种实时绘制专业货柜，职责是按两行布局避免不同尺寸建筑互相覆盖。

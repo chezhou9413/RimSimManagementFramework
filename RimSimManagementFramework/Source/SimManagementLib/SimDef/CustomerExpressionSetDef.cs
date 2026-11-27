@@ -1,16 +1,17 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.IO;
 using UnityEngine;
 using Verse;
 
 namespace SimManagementLib.SimDef
 {
+    //为种族或角色种类补充表情匹配标签。
     public class CustomerExpressionTagExtension : DefModExtension
     {
         public List<string> expressionTags = new List<string>();
     }
 
+    //按种族和标签选择顾客可使用的表情集。
     public class CustomerExpressionSetDef : Def
     {
         public int priority = 0;
@@ -20,6 +21,7 @@ namespace SimManagementLib.SimDef
         public List<string> excludedTags = new List<string>();
         public List<CustomerExpressionEntry> expressions = new List<CustomerExpressionEntry>();
 
+        //检查顾客是否符合这套表情的种族和标签条件。
         public bool MatchesPawn(Pawn pawn, HashSet<string> tags)
         {
             if (pawn == null) return false;
@@ -31,6 +33,7 @@ namespace SimManagementLib.SimDef
         }
     }
 
+    //保存一次表情触发的条件、贴图和显示参数。
     public class CustomerExpressionEntry
     {
         public string eventId = string.Empty;
@@ -46,6 +49,7 @@ namespace SimManagementLib.SimDef
         [Unsaved] private Texture2D cachedTexture;
         [Unsaved] private bool textureResolved;
 
+        //检查事件及本次动作附带的标签。
         public bool MatchesEvent(string incomingEventId, HashSet<string> tags)
         {
             if (string.IsNullOrEmpty(eventId) || !string.Equals(eventId, incomingEventId)) return false;
@@ -54,45 +58,14 @@ namespace SimManagementLib.SimDef
             return true;
         }
 
+        //按已启用模组的加载顺序查找表情贴图，并缓存查找结果。
         public Texture2D ResolveTexture()
         {
             if (textureResolved) return cachedTexture;
             textureResolved = true;
-            cachedTexture = TryLoadTextureFromContent(iconTexPath) ?? (iconTexPath.NullOrEmpty() ? null : ContentFinder<Texture2D>.Get(iconTexPath, false));
+            if (!iconTexPath.NullOrEmpty())
+                cachedTexture = ContentFinder<Texture2D>.Get(iconTexPath.Replace('\\', '/'), false);
             return cachedTexture;
-        }
-
-        private static Texture2D TryLoadTextureFromContent(string relativePath)
-        {
-            if (relativePath.NullOrEmpty()) return null;
-
-            string rootDir = SimManagementLib.SimManagementLibMod.ActiveContentPack?.RootDir;
-            if (rootDir.NullOrEmpty()) return null;
-
-            string normalized = relativePath.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
-            string fullPath = Path.Combine(rootDir, "Content", "Textures", normalized + ".png");
-            if (!File.Exists(fullPath)) return null;
-
-            try
-            {
-                byte[] bytes = File.ReadAllBytes(fullPath);
-                if (bytes == null || bytes.Length == 0) return null;
-
-                Texture2D texture = new Texture2D(2, 2, TextureFormat.ARGB32, false);
-                if (!ImageConversion.LoadImage(texture, bytes))
-                {
-                    Object.Destroy(texture);
-                    return null;
-                }
-
-                texture.filterMode = FilterMode.Bilinear;
-                texture.wrapMode = TextureWrapMode.Clamp;
-                return texture;
-            }
-            catch
-            {
-                return null;
-            }
         }
     }
 }

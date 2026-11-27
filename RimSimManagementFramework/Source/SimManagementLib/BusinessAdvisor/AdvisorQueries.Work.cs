@@ -44,17 +44,27 @@ namespace SimManagementLib.BusinessAdvisor
             var shop = Shop(Required(q.mapId, "mapId"), q.shopId.Value);
             int remaining = 0;
             var rows = new List<string>();
-            foreach (var storage in ShopDataUtility.GetStorageSnapshotInZone(shop))
+            foreach (var storage in ShopDataUtility.GetRetailStorages(shop))
             {
                 if (storage is Building_UniqueGoodsContainer unique)
                 {
                     int pending = unique.AdvisorSlots.Count(s => s.HasPendingSource);
                     remaining += pending;
-                    if (pending > 0) rows.Add("containerId=" + storage.thingIDNumber + " pendingSources=" + pending);
+                    if (pending > 0) rows.Add("containerId=" + storage.Host.thingIDNumber + " pendingSources=" + pending);
+                }
+                else if (storage is ThingComp_StorageSales sales)
+                {
+                    foreach (var def in sales.RestockDefs)
+                    {
+                        int stored = sales.CountStored(def), target = sales.GetTargetCount(def);
+                        if (stored >= target) continue;
+                        remaining++;
+                        if (rows.Count < 20) rows.Add("containerId=" + sales.Host.thingIDNumber + " definition=" + def.defName + " stored=" + stored + " target=" + target);
+                    }
                 }
                 else
                 {
-                    var comp = storage.GetComp<ThingComp_GoodsData>();
+                    var comp = storage.Host.GetComp<ThingComp_GoodsData>();
                     if (comp == null) continue;
                     foreach (var pair in comp.itemData.Where(p => p.Value.enabled && p.Value.count > 0))
                     {
@@ -62,7 +72,7 @@ namespace SimManagementLib.BusinessAdvisor
                         int stored = def == null ? 0 : storage.CountStored(def);
                         if (stored >= pair.Value.count) continue;
                         remaining++;
-                        if (rows.Count < 20) rows.Add("containerId=" + storage.thingIDNumber + " definition=" + pair.Key + " stored=" + stored + " target=" + pair.Value.count);
+                        if (rows.Count < 20) rows.Add("containerId=" + storage.Host.thingIDNumber + " definition=" + pair.Key + " stored=" + stored + " target=" + pair.Value.count);
                     }
                 }
             }

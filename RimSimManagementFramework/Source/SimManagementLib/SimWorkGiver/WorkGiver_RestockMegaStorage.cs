@@ -33,19 +33,19 @@ namespace SimManagementLib.SimWorkGiver
         //判断指定普通货柜是否能为当前 Pawn 创建 Job，并缓存同 tick 结果。
         public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
-            return ResolveManualJob(pawn, t as Building_SimContainer, forced) != null;
+            return ResolveManualJob(pawn, ShopStorage.For(t), forced) != null;
         }
 
         //返回指定普通货柜的手动补货 Job。
         public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
-            Job result = ResolveManualJob(pawn, t as Building_SimContainer, forced);
+            Job result = ResolveManualJob(pawn, ShopStorage.For(t), forced);
             ClearManualCache();
             return result;
         }
 
         //通过协调器解析一次手动补货，只缓存有效 Job 避免暂停态二次右键命中空缓存。
-        private Job ResolveManualJob(Pawn pawn, Building_SimContainer storage, bool forced)
+        private Job ResolveManualJob(Pawn pawn, IShopStorage storage, bool forced)
         {
             if (storage == null || storage is Building_UniqueGoodsContainer || pawn?.Map == null)
                 return null;
@@ -53,7 +53,7 @@ namespace SimManagementLib.SimWorkGiver
             if (cachedJob != null
                 && cachedTick == now
                 && cachedPawnId == pawn.thingIDNumber
-                && cachedStorageId == storage.thingIDNumber
+                && cachedStorageId == storage.Host.thingIDNumber
                 && cachedForced == forced)
                 return cachedJob;
 
@@ -67,7 +67,7 @@ namespace SimManagementLib.SimWorkGiver
 
             cachedTick = now;
             cachedPawnId = pawn.thingIDNumber;
-            cachedStorageId = storage.thingIDNumber;
+            cachedStorageId = storage.Host.thingIDNumber;
             cachedForced = forced;
             cachedJob = job;
             return job;

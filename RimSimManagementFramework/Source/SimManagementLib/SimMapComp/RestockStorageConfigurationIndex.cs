@@ -30,11 +30,11 @@ namespace SimManagementLib.SimMapComp
         private readonly Dictionary<int, int> observedInventoryVersions = new Dictionary<int, int>();
 
         //从货柜权威配置刷新普通商品快照，专业货柜只登记库存版本。
-        public void Refresh(Building_SimContainer storage)
+        public void Refresh(IShopStorage storage)
         {
             if (storage == null)
                 return;
-            int storageId = storage.thingIDNumber;
+            int storageId = storage.Host.thingIDNumber;
             observedInventoryVersions[storageId] = storage.StoredCountVersion;
             itemsByStorage.Remove(storageId);
             lookupByStorage.Remove(storageId);
@@ -43,7 +43,8 @@ namespace SimManagementLib.SimMapComp
 
             List<RestockTargetSettings> items = new List<RestockTargetSettings>();
             Dictionary<ThingDef, RestockTargetSettings> lookup = new Dictionary<ThingDef, RestockTargetSettings>();
-            foreach (ThingDef thingDef in storage.ActiveDefs)
+            var definitions = storage is SimThingComp.ThingComp_StorageSales sales ? sales.RestockDefs : storage.ActiveDefs;
+            foreach (ThingDef thingDef in definitions)
             {
                 if (thingDef == null || lookup.ContainsKey(thingDef))
                     continue;
@@ -79,18 +80,18 @@ namespace SimManagementLib.SimMapComp
         }
 
         //记录库存变化已经由精确通知处理，避免兜底巡检重复重算同一货柜。
-        public void ObserveInventory(Building_SimContainer storage)
+        public void ObserveInventory(IShopStorage storage)
         {
             if (storage != null)
-                observedInventoryVersions[storage.thingIDNumber] = storage.StoredCountVersion;
+                observedInventoryVersions[storage.Host.thingIDNumber] = storage.StoredCountVersion;
         }
 
         //判断货柜库存版本是否绕过了精确通知发生变化。
-        public bool HasUnobservedInventoryChange(Building_SimContainer storage)
+        public bool HasUnobservedInventoryChange(IShopStorage storage)
         {
             if (storage == null)
                 return false;
-            return !observedInventoryVersions.TryGetValue(storage.thingIDNumber, out int observed)
+            return !observedInventoryVersions.TryGetValue(storage.Host.thingIDNumber, out int observed)
                 || observed != storage.StoredCountVersion;
         }
 

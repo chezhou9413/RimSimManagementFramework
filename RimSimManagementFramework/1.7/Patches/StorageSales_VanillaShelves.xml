@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <!-- 原版大小储物架从父定义继承组件，补丁只操作这两个具体定义。 -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="Shelf" or defName="ShelfSmall"][not(comps)]</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>Defs/ThingDef[defName="Shelf" or defName="ShelfSmall"][not(comps)]</xpath>
+      <value><comps /></value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="Shelf" or defName="ShelfSmall"]/comps[not(li[@Class="SimManagementLib.SimThingComp.CompProperties_StorageSales"])]</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>Defs/ThingDef[defName="Shelf" or defName="ShelfSmall"]/comps[not(li[@Class="SimManagementLib.SimThingComp.CompProperties_StorageSales"])]</xpath>
+      <value><li Class="SimManagementLib.SimThingComp.CompProperties_StorageSales" /></value>
+    </match>
+  </Operation>
+</Patch>

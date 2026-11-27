@@ -307,7 +307,10 @@ namespace SimManagementLib.SimThingComp
         [NonSerialized] public string priceBuffer;
         [NonSerialized] public string restockThresholdBuffer;
 
-        //返回实际生效的补货触发阈值，负责让未配置阈值的商品默认补到目标量。
+        //建立独立设置副本，报表汇总和窗口草稿不会回写货柜。
+        internal GoodsItemData Copy() => new() { enabled = enabled, count = count, price = price, restockThreshold = restockThreshold };
+
+        //未配置阈值时使用目标量。
         public int EffectiveRestockThreshold => GetEffectiveRestockThreshold(count, restockThreshold);
 
         //根据目标量和保存值计算有效阈值，负责兼容未保存阈值的配置。
@@ -337,7 +340,7 @@ namespace SimManagementLib.SimThingComp
             {
                 count = Math.Max(0, count);
                 price = Math.Max(0f, price);
-                restockThreshold = NormalizeRestockThreshold(restockThreshold, count);
+                if (restockThreshold != -1) restockThreshold = NormalizeRestockThreshold(restockThreshold, count);
             }
         }
     }

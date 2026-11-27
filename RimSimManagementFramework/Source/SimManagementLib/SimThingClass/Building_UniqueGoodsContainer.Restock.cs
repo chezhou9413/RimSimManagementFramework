@@ -17,7 +17,7 @@ namespace SimManagementLib.SimThingClass
         {
             reason = "";
             EnsureUniqueSlots();
-            if (!IsEligibleUniqueThing(source) || !source.Spawned || source.Map != Map)
+            if (!IsEligibleUniqueThing(source) || !source.Spawned || source.Map != Map || RestockSourceResolver.IsRetailSupply(source))
             {
                 reason = SimTranslation.T("RSMF.UniqueGoods.Restock.Ineligible");
                 return false;
@@ -71,7 +71,7 @@ namespace SimManagementLib.SimThingClass
                     ClearDestroyedPendingSource(i, candidate.pendingSourceThingId);
                     continue;
                 }
-                if (found == null || !IsEligibleUniqueThingForSlot(found, candidate.index)
+                if (found == null || !IsEligiblePendingSource(candidate.index, found)
                     || !found.Spawned || found.Map != Map)
                     continue;
                 if (pawn == null || found.IsForbidden(pawn) || !pawn.CanReserve(found)
@@ -112,7 +112,7 @@ namespace SimManagementLib.SimThingClass
         //判断解析出的真实来源是否仍符合原指派槽位的接收条件。
         public bool IsEligiblePendingSource(int slotIndex, Thing source)
         {
-            return source != null && IsPendingSlotMatch(slotIndex, source.thingIDNumber)
+            return source != null && !RestockSourceResolver.IsRetailSupply(source) && IsPendingSlotMatch(slotIndex, source.thingIDNumber)
                 && IsEligibleUniqueThingForSlot(source, slotIndex);
         }
 

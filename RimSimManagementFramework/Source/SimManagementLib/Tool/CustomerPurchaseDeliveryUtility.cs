@@ -7,9 +7,7 @@ using Verse;
 
 namespace SimManagementLib.Tool
 {
-    /// <summary>
-    /// 负责在顾客付款成功后把购物车中的虚拟商品转换为顾客可持有的实体物品。
-    /// </summary>
+    //付款后交付购物车所持实物，兼容扩展登记的数量条目。
     public static class CustomerPurchaseDeliveryUtility
     {
         /// <summary>
@@ -19,17 +17,21 @@ namespace SimManagementLib.Tool
         {
             if (customer == null || items.NullOrEmpty()) return;
 
-            for (int i = 0; i < items.Count; i++)
+            //先交付数量条目，避免新生成的物品并入随后交付的原物堆。
+            foreach (var item in items.OrderBy(i => i?.HasExactThing == true))
             {
-                CustomerCartItem item = items[i];
-                if (item == null || item.def == null || item.count <= 0) continue;
+                if (item?.def == null || item.count <= 0 || item.deliveredThingId >= 0) continue;
                 if (item.HasExactThing)
                 {
                     Thing exact = item.TakeExactThing();
                     if (exact == null) continue;
                     item.deliveredThingId = exact.thingIDNumber;
-                    PlaceThingForCustomer(customer, exact);
-                    FindUniqueContainer(customer.MapHeld, item.sourceContainerId)?.FinalizeCustomerSale(item.sourceSlotIndex, customer.thingIDNumber);
+                    PlaceThingForCustomer(customer, exact, item);
+                    if (item.sourceSlotIndex >= 0) FindUniqueContainer(customer.MapHeld, item.sourceContainerId)?.FinalizeCustomerSale(item.sourceSlotIndex, customer.thingIDNumber);
+                }
+                else if (item.sourceCell.IsValid || item.sourceSlotIndex >= 0)
+                {
+                    Log.Error($"[RSMF] 交付条目缺少实物：{item.def}，来源货柜 {item.sourceContainerId}。");
                 }
                 else
                 {
@@ -172,38 +174,15 @@ namespace SimManagementLib.Tool
             }
         }
 
-        /// <summary>
-        /// 将单个实体物品放到顾客可访问的位置，负责处理背包、手持和落地兜底。
-        /// </summary>
-        private static void PlaceThingForCustomer(Pawn customer, Thing thing)
+        //实物在顾客背包中独立保存，背包无法接收时依次尝试手持和落地。
+        private static void PlaceThingForCustomer(Pawn customer, Thing thing, CustomerCartItem source = null)
         {
-            if (customer == null || thing == null || thing.Destroyed)
-                return;
-
-            ThingOwner inventory = customer.inventory?.innerContainer;
-            if (inventory != null && inventory.TryAdd(thing))
-                return;
-
-            if (customer.carryTracker != null && customer.carryTracker.CarriedThing == null)
-            {
-                try
-                {
-                    if (customer.carryTracker.TryStartCarry(thing))
-                        return;
-                }
-                catch
-                {
-                }
-            }
-
-            if (customer.Spawned && customer.Map != null)
-            {
-                GenPlace.TryPlaceThing(thing, customer.Position, customer.Map, ThingPlaceMode.Near, out _);
-                return;
-            }
-
-            if (!thing.Destroyed)
-                thing.Destroy(DestroyMode.Vanish);
+            if (customer.inventory?.innerContainer.TryAdd(thing, canMergeWithExistingStacks: source == null) == true) return;
+            if (customer.carryTracker != null && customer.carryTracker.CarriedThing == null
+                && customer.carryTracker.TryStartCarry(thing)) return;
+            Map map = customer.MapHeld ?? source?.sourceMap;
+            IntVec3 cell = customer.MapHeld != null ? customer.PositionHeld : source?.sourceCell ?? IntVec3.Invalid;
+            ShopDataUtility.PlaceLooseGoods(thing, map, cell);
         }
 
         //按编号查找顾客所在地图的专业货柜。

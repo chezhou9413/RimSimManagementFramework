@@ -453,14 +453,6 @@ namespace SimManagementLib.Tool
         }
 
         /// <summary>
-        /// 构造 Anthropic 消息数组，负责把滚动对话历史和当前顾客资料作为同一前缀发送。
-        /// </summary>
-        private static string BuildMessagesArray(CustomerReviewDialogueRequest request)
-        {
-            return "[" + BuildMessagesArrayItems(request) + "]";
-        }
-
-        /// <summary>
         /// 构造消息数组内容，负责保持历史消息顺序稳定以便服务端前缀缓存命中。
         /// </summary>
         private static string BuildMessagesArrayItems(CustomerReviewDialogueRequest request, bool cacheLastBlock = false)

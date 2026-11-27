@@ -24,9 +24,9 @@ namespace SimManagementLib.Tool
         public static List<ShopItemStatus> GetAllSellableGoods(Zone zone)
         {
             var aggregatedData = new Dictionary<ThingDef, ShopItemStatus>();
-            IReadOnlyList<Building_SimContainer> storages = GetStorageSnapshotInZone(zone);
+            IReadOnlyList<IShopStorage> storages = GetRetailStorages(zone);
 
-            foreach (Building_SimContainer storage in storages)
+            foreach (IShopStorage storage in storages)
             {
                 if (!storage.AllowsCustomerSelfPurchase) continue;
                 if (storage is Building_UniqueGoodsContainer uniqueContainer)
@@ -54,7 +54,20 @@ namespace SimManagementLib.Tool
                     continue;
                 }
 
-                var comp = storage.GetComp<ThingComp_GoodsData>();
+                if (storage is ThingComp_StorageSales physical)
+                {
+                    var listed = physical.ListedStock().GroupBy(stack => stack.Thing.def)
+                        .ToDictionary(group => group.Key, group => group.Sum(stack => stack.Count));
+                    foreach (var def in physical.ActiveDefs)
+                    {
+                        int count = listed.GetValueOrDefault(def);
+                        if (aggregatedData.TryGetValue(def, out var status)) status.CurrentStock += count;
+                        else aggregatedData[def] = new ShopItemStatus { Def = def, CurrentStock = count,
+                            Config = physical.Rule(def)?.Copy() ?? new GoodsItemData { enabled = true, count = 0 } };
+                    }
+                    continue;
+                }
+                var comp = storage.Host.GetComp<ThingComp_GoodsData>();
                 if (comp == null || string.IsNullOrEmpty(comp.ActiveGoodsDefName)) continue;
 
                 foreach (ThingDef td in storage.ActiveDefs)
@@ -62,7 +75,7 @@ namespace SimManagementLib.Tool
                     GoodsItemData config = comp.FindItemData(td);
                     if (config == null || !config.enabled) continue;
 
-                    int stock = storage.CountStored(td);
+                    int stock = storage.SaleCount(td);
 
                     if (aggregatedData.TryGetValue(td, out ShopItemStatus existingStatus))
                     {
@@ -73,7 +86,7 @@ namespace SimManagementLib.Tool
                         aggregatedData[td] = new ShopItemStatus
                         {
                             Def = td,
-                            Config = config,
+                            Config = config.Copy(),
                             CurrentStock = stock
                         };
                     }
@@ -193,76 +206,14 @@ namespace SimManagementLib.Tool
         //按套餐配置从整个商店区域扣减库存，成功返回 true 并输出应付金额。
         public static bool TryPurchaseCombo(Zone zone, ComboData combo, out float paidPrice)
         {
-            paidPrice = 0f;
-            if (zone == null || zone.Map == null || combo == null || combo.items.NullOrEmpty())
-                return false;
-
-            List<Building_SimContainer> storages = GetStorageSnapshotInZone(zone)
-                .Where(storage => storage.AllowsCustomerSelfPurchase && !(storage is Building_UniqueGoodsContainer))
-                .ToList();
-            if (storages.NullOrEmpty()) return false;
-            if (!HasEnoughStockForCombo(zone, combo)) return false;
-
-            List<ComboExtractEntry> extracted = new List<ComboExtractEntry>();
-
-            foreach (ComboItem item in combo.items)
-            {
-                if (item == null || item.def == null || item.count <= 0)
-                {
-                    RollbackComboExtract(extracted);
-                    return false;
-                }
-
-                int remaining = item.count;
-                foreach (Building_SimContainer storage in storages)
-                {
-                    if (remaining <= 0) break;
-
-                    int available = storage.CountStored(item.def);
-                    if (available <= 0) continue;
-
-                    int toTake = System.Math.Min(remaining, available);
-                    Thing taken = storage.TryVirtualBuy(item.def, toTake, out _);
-                    if (taken == null || taken.stackCount <= 0) continue;
-
-                    extracted.Add(new ComboExtractEntry(storage, taken));
-                    remaining -= taken.stackCount;
-                }
-
-                if (remaining > 0)
-                {
-                    RollbackComboExtract(extracted);
-                    return false;
-                }
-            }
-
-            foreach (ComboExtractEntry entry in extracted)
-            {
-                if (entry.Thing != null && !entry.Thing.Destroyed)
-                    entry.Thing.Destroy(DestroyMode.Vanish);
-            }
-
-            paidPrice = GetComboEffectivePrice(zone, combo);
-            return paidPrice > 0f;
-        }
-
-        //检查套餐实物库存，职责是只统计允许顾客自取的货柜。
-        private static bool HasEnoughStockForCombo(Zone zone, ComboData combo)
-        {
-            List<Building_SimContainer> storages = GetStorageSnapshotInZone(zone)
-                .Where(storage => storage.AllowsCustomerSelfPurchase && !(storage is Building_UniqueGoodsContainer))
-                .ToList();
-            if (storages.NullOrEmpty()) return false;
-
-            foreach (ComboItem item in combo.items)
-            {
-                if (item == null || item.def == null || item.count <= 0) return false;
-                int totalStock = storages.Sum(s => s.CountStored(item.def));
-                if (totalStock < item.count) return false;
-            }
-
+            if (!TryPurchaseCombo(zone, combo, out paidPrice, out var items)) return false;
+            //此旧入口代表直接消耗；顾客结账使用带实物购物车的重载。
+            foreach (var item in items) item.TakeExactThing().Destroy(DestroyMode.Vanish);
             return true;
         }
+
+        //检查套餐实际可取数量。
+        private static bool HasEnoughStockForCombo(Zone zone, ComboData combo) => TryPlanCombo(zone, combo, null);
 
         //计算套餐成交价，职责是统一配置价格与商品参考价。
         public static float GetComboEffectivePrice(Zone zone, ComboData combo)
@@ -289,41 +240,19 @@ namespace SimManagementLib.Tool
             return CustomerPriceUtility.GetComboReferenceValue(combo);
         }
 
-        //退回未完成的套餐提取，职责是归还已有实物而不重复生成。
-        private static void RollbackComboExtract(List<ComboExtractEntry> extracted)
-        {
-            List<Building_SimContainer> storages = extracted
-                .Where(e => e?.Storage != null && !e.Storage.Destroyed)
-                .Select(e => e.Storage)
-                .Distinct()
-                .ToList();
-
-            foreach (ComboExtractEntry entry in extracted)
-            {
-                if (entry == null || entry.Storage == null || entry.Storage.Destroyed) continue;
-                if (entry.Thing == null || entry.Thing.Destroyed) continue;
-                TryReturnThingToStorages(storages, entry.Storage, entry.Thing);
-                PlaceUnstoredReturn(entry.Thing, entry.Storage.Map, entry.Storage.Position);
-            }
-        }
-
-        private sealed class ComboExtractEntry
-        {
-            public Building_SimContainer Storage;
-            public Thing Thing;
-
-            //记录套餐提取来源与实物，职责是支持失败后的库存归还。
-            public ComboExtractEntry(Building_SimContainer storage, Thing thing)
-            {
-                Storage = storage;
-                Thing = thing;
-            }
-        }
-
-        //将顾客购物车中的虚拟商品退回到商店货柜（用于结账超时/放弃结账）。
+        //取消结账时优先按每一堆实物的原始位置退货。
         public static void ReturnCartItemsToShop(Zone zone, List<CustomerCartItem> items)
         {
-            if (zone == null || zone.Map == null || items.NullOrEmpty()) return;
+            if (items.NullOrEmpty()) return;
+            foreach (var held in items)
+            {
+                if (held == null || !held.sourceCell.IsValid || held.count <= 0 || held.deliveredThingId >= 0) continue;
+                held.count = 0;
+                var thing = held.TakeExactThing();
+                if (thing != null) ReturnPhysicalThing(held, thing, zone?.Map);
+                else Log.Error($"[RSMF] 退货条目缺少实物：{held.def}，来源 {held.sourceCell}。");
+            }
+            if (zone?.Map == null) return;
 
             List<Building_SimContainer> storages = GetStorageSnapshotInZone(zone)
                 .Where(s => s != null && s.Spawned && !s.Destroyed && s.Map == zone.Map
@@ -333,7 +262,7 @@ namespace SimManagementLib.Tool
             for (int i = 0; i < items.Count; i++)
             {
                 CustomerCartItem cartItem = items[i];
-                if (cartItem == null || cartItem.def == null || cartItem.count <= 0) continue;
+                if (cartItem == null || cartItem.def == null || cartItem.count <= 0 || cartItem.deliveredThingId >= 0) continue;
                 if (cartItem.HasExactThing)
                 {
                     //先认领本次归还，容器回调重入时不能再生成同一件商品。
@@ -386,7 +315,7 @@ namespace SimManagementLib.Tool
             }
 
             IntVec3 dropCell = source?.Position ?? storages.FirstOrDefault()?.Position ?? zone.Cells.FirstOrDefault();
-            PlaceUnstoredReturn(thing, zone.Map, dropCell);
+            PlaceLooseGoods(thing, zone.Map, dropCell);
         }
 
         //退回购物车指定品种，职责是按货柜剩余容量分配归还数量。
@@ -406,7 +335,7 @@ namespace SimManagementLib.Tool
                 item.count -= chunk;
                 TryReturnThingToStorages(storages, preferred, thing, failedStorages);
                 IntVec3 dropCell = preferred?.Position ?? zone.Cells.FirstOrDefault();
-                PlaceUnstoredReturn(thing, zone.Map, dropCell);
+                PlaceLooseGoods(thing, zone.Map, dropCell);
             }
         }
 
@@ -444,13 +373,24 @@ namespace SimManagementLib.Tool
             return initial - thing.stackCount;
         }
 
-        //只放置仍未被货柜接收的实物，禁止重新生成余量或销毁退货。
-        private static void PlaceUnstoredReturn(Thing thing, Map map, IntVec3 dropCell)
+        //在原址附近放置剩余商品，周围已满时仍保留同一堆实物。
+        internal static void PlaceLooseGoods(Thing thing, Map map, IntVec3 dropCell)
         {
             if (thing.Destroyed || thing.Spawned || thing.holdingOwner != null) return;
-            if (map == null || !dropCell.InBounds(map)
-                || !GenPlace.TryPlaceThing(thing, dropCell, map, ThingPlaceMode.Near, out _))
-                Log.Error($"[RSMF] 商品退货落地失败：{thing.def.defName} × {thing.stackCount}，位置 {dropCell}。");
+            if (map == null || !dropCell.InBounds(map))
+            {
+                Log.Error($"[RSMF] 商品缺少落地位置：{thing.def.defName} × {thing.stackCount}，位置 {dropCell}。");
+                return;
+            }
+            if (GenPlace.TryPlaceThing(thing, dropCell, map, ThingPlaceMode.Near,
+                extraValidator: cell => !map.reservationManager.IsReserved(cell))) return;
+
+            //原版近距离放置已用尽周围空间，选择最近的空地，避免强行生成时挤走其他商品。
+            var ground = map.AllCells.Where(c => c.Standable(map) && c.GetEdifice(map) == null && c.GetSlotGroup(map) == null)
+                .OrderBy(c => c.GetItemCount(map) >= c.GetMaxItemsAllowedInCell(map))
+                .ThenBy(c => c.DistanceToSquared(dropCell)).FirstOrDefault(dropCell);
+            thing.Position = ground;
+            thing.SpawnSetup(map, false);
         }
     }
 }

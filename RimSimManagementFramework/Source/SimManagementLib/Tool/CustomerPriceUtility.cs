@@ -14,14 +14,7 @@ namespace SimManagementLib.Tool
         /// </summary>
         public static CustomerPriceEvaluation Evaluate(ThingDef def, float unitPrice, CustomerPriceSensitivityProps sensitivity)
         {
-            CustomerPriceSensitivityProps props = CustomerPriceSensitivityProps.Resolve(sensitivity);
-            float referenceValue = GetReferenceMarketValue(def);
-            float safePrice = Mathf.Max(0f, unitPrice);
-            float ratio = referenceValue > 0f ? safePrice / referenceValue : 1f;
-            bool rejected = ratio > props.rejectMarkupRatio;
-            bool complain = ratio >= props.complainMarkupRatio;
-            float weight = CalculateWeight(ratio, props);
-            return new CustomerPriceEvaluation(referenceValue, safePrice, ratio, weight, rejected, complain);
+            return EvaluateMarketValue(GetReferenceMarketValue(def), unitPrice, sensitivity);
         }
 
         /// <summary>
@@ -29,20 +22,17 @@ namespace SimManagementLib.Tool
         /// </summary>
         public static CustomerPriceEvaluation EvaluateCombo(float totalPrice, float referenceValue, CustomerPriceSensitivityProps sensitivity)
         {
-            CustomerPriceSensitivityProps props = CustomerPriceSensitivityProps.Resolve(sensitivity);
-            float safeReference = Mathf.Max(1f, referenceValue);
-            float safePrice = Mathf.Max(0f, totalPrice);
-            float ratio = safePrice / safeReference;
-            bool rejected = ratio > props.rejectMarkupRatio;
-            bool complain = ratio >= props.complainMarkupRatio;
-            float weight = CalculateWeight(ratio, props);
-            return new CustomerPriceEvaluation(safeReference, safePrice, ratio, weight, rejected, complain);
+            return EvaluateMarketValue(Mathf.Max(1f, referenceValue), totalPrice, sensitivity);
         }
 
         //根据真实商品实例市价评估单件售价。
         public static CustomerPriceEvaluation EvaluateMarketValue(float referenceValue, float unitPrice, CustomerPriceSensitivityProps sensitivity)
         {
-            return EvaluateCombo(unitPrice, referenceValue, sensitivity);
+            var props = CustomerPriceSensitivityProps.Resolve(sensitivity);
+            float price = Mathf.Max(0f, unitPrice);
+            float ratio = referenceValue > 0f ? price / referenceValue : 1f;
+            return new CustomerPriceEvaluation(referenceValue, price, ratio, CalculateWeight(ratio, props),
+                ratio > props.rejectMarkupRatio, ratio >= props.complainMarkupRatio);
         }
 
         /// <summary>

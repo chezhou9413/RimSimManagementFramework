@@ -188,14 +188,14 @@ namespace SimManagementLib.SimAI.CustomerVisit
             return shopZoneId >= 0 && visitedShopZoneIds != null && visitedShopZoneIds.Contains(shopZoneId);
         }
         //判断顾客在当前店是否已经看过指定货柜，负责让浏览 JobGiver 优先选择新货柜。
-        internal bool HasVisitedCurrentShopStorage(Building_SimContainer storage)
+        internal bool HasVisitedCurrentShopStorage(Building storage)
         {
             if (storage == null) return false;
             return currentShopVisitedStorageThingIds != null
                 && currentShopVisitedStorageThingIds.Contains(storage.thingIDNumber);
         }
         //记录顾客当前店的货柜浏览目标，负责避免同一顾客连续反复看同一个货柜。
-        internal void RecordCurrentShopStorageVisit(Building_SimContainer storage)
+        internal void RecordCurrentShopStorageVisit(Building storage)
         {
             if (storage == null) return;
             if (currentShopVisitedStorageThingIds == null)
@@ -332,16 +332,6 @@ namespace SimManagementLib.SimAI.CustomerVisit
             if (SimShopCustomerApi.HasLongStay(pawn)) return SimShopCustomerApi.GetAvailableFunds(pawn);
             int budget = visit.GetBudgetForPawn(pawnId);
             return Mathf.Max(0f, budget - totalSpentAcrossShops - visit.GetAmountOwedForCheckout(pawnId));
-        }
-        //返回当前店最多浏览次数，负责为无效配置提供保守默认值。
-        internal int GetBrowseLimitForVisit(LordJob_CustomerVisit visit)
-        {
-            return GetBrowseLimit(visit);
-        }
-        //返回连续无进展浏览退出阈值。
-        internal int GetNoProgressLimitForVisit(LordJob_CustomerVisit visit)
-        {
-            return GetNoProgressLimit(visit);
         }
         //判断当前店消费动作是否达到上限。
         internal bool HasReachedConsumptionLimit(LordJob_CustomerVisit visit)

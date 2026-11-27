@@ -3,7 +3,7 @@ using Verse;
 
 namespace SimManagementLib.Pojo
 {
-    //顾客购物车条目，职责是保存普通数量商品或托管一件真实专业商品。
+    //购物车按条目保管取出的实物堆，并记录成交价和退货位置。
     public class CustomerCartItem : IExposable, IThingHolder
     {
         public ThingDef def;
@@ -13,6 +13,9 @@ namespace SimManagementLib.Pojo
         public float unitPrice;
         public float marketValue;
         public int deliveredThingId = -1;
+        public Building sourceBuilding;
+        public Map sourceMap;
+        public IntVec3 sourceCell = IntVec3.Invalid;
         private ThingOwner<Thing> exactContents;
 
         public IThingHolder ParentHolder => null;
@@ -28,7 +31,7 @@ namespace SimManagementLib.Pojo
             if (stored)
             {
                 def = thing.def;
-                count = 1;
+                count = thing.stackCount;
             }
             return stored;
         }
@@ -63,6 +66,9 @@ namespace SimManagementLib.Pojo
             Scribe_Values.Look(ref unitPrice, "unitPrice", 0f);
             Scribe_Values.Look(ref marketValue, "marketValue", 0f);
             Scribe_Values.Look(ref deliveredThingId, "deliveredThingId", -1);
+            Scribe_References.Look(ref sourceBuilding, "sourceBuilding");
+            Scribe_References.Look(ref sourceMap, "sourceMap");
+            Scribe_Values.Look(ref sourceCell, "sourceCell", IntVec3.Invalid);
             Scribe_Deep.Look(ref exactContents, "exactContents", this);
             if (Scribe.mode == LoadSaveMode.PostLoadInit && exactContents == null)
                 exactContents = new ThingOwner<Thing>(this, true);

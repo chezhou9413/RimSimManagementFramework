@@ -16,7 +16,6 @@ namespace SimManagementLib.SimAI
     public class JobDriver_UsePaidService : JobDriver
     {
         private Thing Provider => job.GetTarget(TargetIndex.A).Thing;
-        private IntVec3 UseCell => job.GetTarget(TargetIndex.B).Cell;
         private CustomerServiceOrder order;
         private ShopServiceDef serviceDef;
         private int durationTicks = 300;

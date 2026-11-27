@@ -159,7 +159,7 @@ namespace RimSimHotelExtension.Jobs
                 return;
             }
 
-            if (started || pawn.IsHashIntervalTick(30))
+            if (started || pawn.IsHashIntervalTick(15) || (canUseServiceCell && job.targetB.Cell != ServiceCell))
             {
                 IntVec3 destination = canUseServiceCell ? ServiceCell
                     : CheckoutQueueCellUtility.FindQueueCell(Desk, ServiceCell, ahead, pawn);

@@ -112,7 +112,7 @@ namespace SimManagementLib.GameComp
             int registerCount = registers.Count;
             int mannedCount = registers.Count(r => r.IsManned);
 
-            IReadOnlyList<Building_SimContainer> storages = ShopDataUtility.GetStorageSnapshotInZone(zone);
+            IReadOnlyList<IShopStorage> storages = ShopDataUtility.GetRetailStorages(zone);
             int storageCount = storages.Count;
             int stockedStorageCount = CountStockedStorages(storages);
             int nonRetailFacilityUnits = CountNonRetailFacilityUnits(zone, out bool hasNonRetailOffer);
@@ -360,7 +360,7 @@ namespace SimManagementLib.GameComp
         {
             if (zone == null || zone.Map == null || zone.Cells.Count == 0) return 0f;
 
-            IReadOnlyList<Building_SimContainer> storages = ShopDataUtility.GetStorageSnapshotInZone(zone);
+            IReadOnlyList<IShopStorage> storages = ShopDataUtility.GetRetailStorages(zone);
             List<IntVec3> samples = new List<IntVec3>();
 
             for (int i = 0; i < registers.Count; i++)
@@ -376,10 +376,10 @@ namespace SimManagementLib.GameComp
                 AddSample(samples, zone.Map, mirrored);
             }
 
-            foreach (Building_SimContainer storage in storages)
+            foreach (IShopStorage storage in storages)
             {
-                if (storage == null || storage.Destroyed) continue;
-                AddSample(samples, zone.Map, storage.Position);
+                if (storage == null || storage.Host.Destroyed) continue;
+                AddSample(samples, zone.Map, storage.Host.Position);
             }
 
             if (samples.Count == 0)
@@ -478,14 +478,14 @@ namespace SimManagementLib.GameComp
             return Mathf.Clamp(cap, Mathf.Max(1, tuning.capacityMin), Mathf.Max(tuning.capacityMin, tuning.capacityMax));
         }
         //统计至少有一种启用商品且当前有库存的货柜数量。
-        private static int CountStockedStorages(IReadOnlyList<Building_SimContainer> storages)
+        private static int CountStockedStorages(IReadOnlyList<IShopStorage> storages)
         {
             if (storages == null || storages.Count == 0) return 0;
 
             int count = 0;
-            foreach (Building_SimContainer storage in storages)
+            foreach (IShopStorage storage in storages)
             {
-                if (storage == null || storage.Destroyed) continue;
+                if (storage == null || storage.Host.Destroyed) continue;
                 if (HasAnyStockedActiveDef(storage))
                     count++;
             }
@@ -493,16 +493,17 @@ namespace SimManagementLib.GameComp
             return count;
         }
         //判断货柜是否存在任意启用商品并且该商品有库存。
-        private static bool HasAnyStockedActiveDef(Building_SimContainer storage)
+        private static bool HasAnyStockedActiveDef(IShopStorage storage)
         {
             if (storage == null) return false;
-            ThingComp_GoodsData comp = storage.GetComp<ThingComp_GoodsData>();
+            if (storage is ThingComp_StorageSales sales) return sales.SaleThings().Any();
+            ThingComp_GoodsData comp = storage.Host.GetComp<ThingComp_GoodsData>();
             if (comp == null) return false;
 
             foreach (ThingDef thingDef in storage.ActiveDefs)
             {
                 GoodsItemData data = comp.FindItemData(thingDef);
-                if (data != null && data.enabled && thingDef != null && storage.CountStored(thingDef) > 0)
+                if (data != null && data.enabled && thingDef != null && storage.SaleCount(thingDef) > 0)
                     return true;
             }
 

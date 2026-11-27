@@ -122,8 +122,7 @@ namespace SimManagementLib.SimAI
             GameComponent_ShopFinanceManager finance = Current.Game?.GetComponent<GameComponent_ShopFinanceManager>();
             List<CustomerCartItem> purchasedItems = GetCartItems(pawnId);
 
-            if (shopZone != null)
-                ShopDataUtility.ReturnCartItemsToShop(shopZone, purchasedItems);
+            ShopDataUtility.ReturnCartItemsToShop(shopZone, purchasedItems);
 
             float amountOwed = GetAmountOwedForCheckout(pawnId);
             if (amountOwed > 0f)

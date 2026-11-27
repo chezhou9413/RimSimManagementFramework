@@ -133,7 +133,7 @@ namespace SimManagementLib.SimZone
                     firstOutdoorCell = cell;
                 foreach (Thing thing in Map.thingGrid.ThingsListAt(cell))
                 {
-                    if (thing is Building_SimContainer || ShopServiceUtility.HasEnabledService(thing)) hasSalesFacility = true;
+                    if (ShopStorage.IsFacility(thing) || ShopServiceUtility.HasEnabledService(thing)) hasSalesFacility = true;
                     if (thing is Building_CashRegister) hasCashRegister = true;
                 }
             }
@@ -159,7 +159,7 @@ namespace SimManagementLib.SimZone
                         for (int i = 0; i < things.Count; i++)
                         {
                             Thing thing = things[i];
-                            if (thing is Building_SimContainer || thing is Building_CashRegister || ShopServiceUtility.HasEnabledService(thing))
+                            if (ShopStorage.IsFacility(thing) || thing is Building_CashRegister || ShopServiceUtility.HasEnabledService(thing))
                                 candidates.Add(thing);
                         }
                     }
@@ -169,32 +169,43 @@ namespace SimManagementLib.SimZone
             bool changed = false;
             foreach (Thing thing in candidates)
             {
-                if (!ShouldRepairFacilityCoverage(thing)) continue;
-
-                CellRect rect = thing.OccupiedRect();
-                for (int z = rect.minZ; z <= rect.maxZ; z++)
-                {
-                    for (int x = rect.minX; x <= rect.maxX; x++)
-                    {
-                        IntVec3 cell = new IntVec3(x, 0, z);
-                        if (!cell.InBounds(Map)) continue;
-                        Zone zone = Map.zoneManager.ZoneAt(cell);
-                        if (zone != null && zone != this) continue;
-
-                        if (EnsureShopCell(cell, false))
-                            changed = true;
-                    }
-                }
+                if (TryRepairFacilityCoverage(thing, checkContiguous: false))
+                    changed = true;
             }
 
             if (changed)
                 CheckContiguous();
         }
+        //将单个被本商店区包围或部分覆盖的营业设施补回商店区划，返回是否修改了区划格。
+        internal bool TryRepairFacilityCoverage(Thing thing, bool checkContiguous = true)
+        {
+            if (!ShouldRepairFacilityCoverage(thing)) return false;
+
+            bool changed = false;
+            CellRect rect = thing.OccupiedRect();
+            for (int z = rect.minZ; z <= rect.maxZ; z++)
+            {
+                for (int x = rect.minX; x <= rect.maxX; x++)
+                {
+                    IntVec3 cell = new IntVec3(x, 0, z);
+                    if (!cell.InBounds(Map)) continue;
+                    Zone zone = Map.zoneManager.ZoneAt(cell);
+                    if (zone != null && zone != this) continue;
+
+                    if (EnsureShopCell(cell, false))
+                        changed = true;
+                }
+            }
+
+            if (changed && checkContiguous)
+                CheckContiguous();
+            return changed;
+        }
         //判断设施占用格是否像是被商店区域包围或部分覆盖，需要重新纳入商店区。
         private bool ShouldRepairFacilityCoverage(Thing thing)
         {
             if (thing == null || thing.Destroyed || thing.Map != Map) return false;
-            if (!(thing is Building_SimContainer) && !(thing is Building_CashRegister) && !ShopServiceUtility.HasEnabledService(thing)) return false;
+            if (!ShopStorage.IsFacility(thing) && !(thing is Building_CashRegister) && !ShopServiceUtility.HasEnabledService(thing)) return false;
 
             bool hasShopCell = false;
             bool hasMissingCell = false;
@@ -218,8 +229,29 @@ namespace SimManagementLib.SimZone
 
             if (!hasMissingCell) return false;
             if (hasShopCell) return true;
+            if (CountAdjacentShopCells(rect) >= GetRequiredAdjacentShopCells(rect)) return true;
 
-            return CountAdjacentShopCells(rect) >= GetRequiredAdjacentShopCells(rect);
+            Room facilityRoom = thing.Position.GetRoom(Map);
+            return facilityRoom != null && IsEnclosedInSameRoom(rect, facilityRoom);
+        }
+        //判断设施是否在同房间内被本商店区与墙壁或其他建筑围合（例如墙角或靠墙连排货架）。
+        private bool IsEnclosedInSameRoom(CellRect rect, Room facilityRoom)
+        {
+            int sameRoomShop = 0;
+            for (int z = rect.minZ - 1; z <= rect.maxZ + 1; z++)
+            {
+                for (int x = rect.minX - 1; x <= rect.maxX + 1; x++)
+                {
+                    if (x >= rect.minX && x <= rect.maxX && z >= rect.minZ && z <= rect.maxZ) continue;
+                    IntVec3 cell = new IntVec3(x, 0, z);
+                    if (!cell.InBounds(Map) || cell.GetRoom(Map) != facilityRoom) continue;
+                    if (Map.zoneManager.ZoneAt(cell) == this)
+                        sameRoomShop++;
+                    else if (cell.Standable(Map) && cell.GetEdifice(Map) == null)
+                        return false;
+                }
+            }
+            return sameRoomShop >= 2;
         }
         //统计设施占用矩形周围紧邻的商店格数量，用于区分内部洞和区域外设施。
         private int CountAdjacentShopCells(CellRect rect)

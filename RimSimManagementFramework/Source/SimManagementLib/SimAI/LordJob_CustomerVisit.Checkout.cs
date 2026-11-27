@@ -136,8 +136,7 @@ namespace SimManagementLib.SimAI
                 return;
             }
 
-            if (shopZone != null)
-                ShopDataUtility.ReturnCartItemsToShop(shopZone, purchasedItems);
+            ShopDataUtility.ReturnCartItemsToShop(shopZone, purchasedItems);
 
             ShopCheckoutContext context = new ShopCheckoutContext
             {

@@ -73,7 +73,10 @@ namespace SimManagementLib.SimAI
         /// <summary>
         /// 判断顾客当前店是否已经浏览过指定货柜，负责让外部职责不直接读取 Session 内部列表。
         /// </summary>
-        public bool HasVisitedCurrentShopStorage(Pawn pawn, Building_SimContainer storage)
+        public bool HasVisitedCurrentShopStorage(Pawn pawn, Building_SimContainer storage) => HasVisitedCurrentShopStorage(pawn, (Building)storage);
+
+        //使用地图建筑编号记录货柜访问。
+        internal bool HasVisitedCurrentShopStorage(Pawn pawn, Building storage)
         {
             CustomerVisitSession session = GetOrCreateSession(pawn);
             return session != null && session.HasVisitedCurrentShopStorage(storage);
@@ -82,7 +85,10 @@ namespace SimManagementLib.SimAI
         /// <summary>
         /// 记录顾客当前店浏览过的货柜，负责集中维护货柜访问记忆。
         /// </summary>
-        public void RecordCurrentShopStorageVisit(Pawn pawn, Building_SimContainer storage)
+        public void RecordCurrentShopStorageVisit(Pawn pawn, Building_SimContainer storage) => RecordCurrentShopStorageVisit(pawn, (Building)storage);
+
+        //使用地图建筑编号记录货柜访问。
+        internal void RecordCurrentShopStorageVisit(Pawn pawn, Building storage)
         {
             CustomerVisitSession session = GetOrCreateSession(pawn);
             session?.RecordCurrentShopStorageVisit(storage);

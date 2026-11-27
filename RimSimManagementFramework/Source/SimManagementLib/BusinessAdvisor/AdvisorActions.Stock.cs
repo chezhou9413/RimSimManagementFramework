@@ -13,7 +13,9 @@ namespace SimManagementLib.BusinessAdvisor
         //校验分类、商品资格、总容量与阈值，再生成货柜设置草稿。
         private static AdvisorPreparedStep Shelf(AdvisorAction a, Map map)
         {
-            var storage = Target(map, a.targetId) as Building_SimContainer;
+            var host = Target(map, a.targetId);
+            if (ShopStorage.For(host) is ThingComp_StorageSales sales) return ConfigureHostGoods(sales, a);
+            var storage = host as Building_SimContainer;
             if (storage == null || storage is Building_UniqueGoodsContainer) throw new InvalidOperationException("需要普通货柜，专业衣架使用 unique 操作。");
             var comp = storage.GetComp<ThingComp_GoodsData>();
             if (comp == null || string.IsNullOrEmpty(a.category) || GoodsCatalog.GetCategory(a.category) == null || !comp.AllowsGoodsCategory(a.category))
@@ -60,6 +62,25 @@ namespace SimManagementLib.BusinessAdvisor
             return new AdvisorPreparedStep { resource = "shelf:" + storage.thingIDNumber, before = before,
                 preview = "货柜：" + storage.LabelCap + " (#" + storage.thingIDNumber + ") " + storage.Position + "\n" + description,
                 apply = () => comp.ApplySettings(a.category, data) };
+        }
+
+        //按宿主筛选准备一个品种的销售草稿，批准后才应用配置。
+        private static AdvisorPreparedStep ConfigureHostGoods(ThingComp_StorageSales sales, AdvisorAction a)
+        {
+            if (a.kind != "shelf") throw new InvalidOperationException("宿主仓储按品种配置，请使用 shelf。");
+            var def = DefDatabase<ThingDef>.GetNamedSilentFail(a.definition ?? "");
+            if (!sales.SalesProps.AllowsListing(def))
+                throw new InvalidOperationException("指定商品不在这座货柜的上架范围内。");
+            if (!sales.AllowsDef(def) && sales.CountStored(def) == 0 && sales.Rule(def) == null)
+                throw new InvalidOperationException("宿主不接受指定商品。");
+            int target = AdvisorQueries.Required(a.count, "count"), threshold = AdvisorQueries.Required(a.threshold, "threshold");
+            if (!a.enabled.HasValue || target < 0 || threshold < -1 || threshold > target)
+                throw new InvalidOperationException("需要有效的上架状态、目标量和补货阈值。");
+            var next = new GoodsItemData { enabled = a.enabled.Value, count = target, restockThreshold = threshold, price = Price(a.price) };
+            string before = AdvisorQueries.ScalarFields(sales.Rule(def));
+            return new AdvisorPreparedStep { resource = "shelf:" + sales.Host.thingIDNumber, before = before,
+                preview = sales.Host.LabelCap + " · " + def.LabelCap + " " + before + " → " + AdvisorQueries.ScalarFields(next),
+                apply = () => sales.ApplyRule(def, next) };
         }
 
         //针对真实单件商品生成搬运或定价步骤，保留槽位身份检查。

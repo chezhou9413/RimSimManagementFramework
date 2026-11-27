@@ -108,6 +108,9 @@ namespace SimManagementLib.Api
         public Dialog_ShopManager Window { get; internal set; }
         public Zone_Shop Shop => Window?.ApiShopZone;
         public IReadOnlyList<Building_SimContainer> Storages => Window?.ApiStorages ?? new List<Building_SimContainer>();
+
+        //包含宿主销售组件的店内货柜列表，便于扩展管理原建筑。
+        public IReadOnlyList<IShopStorage> RetailStorages => Tool.ShopDataUtility.GetRetailStorages(Window?.ApiShopZone, true);
         public IReadOnlyList<ComboData> Combos => Window?.ApiCombos ?? new List<ComboData>();
         public IReadOnlyList<Thing> ServiceProviders => Window?.ApiServiceProviders ?? new List<Thing>();
         public Dictionary<int, List<ServiceSlotData>> DraftServiceData => Window?.ApiDraftServiceData;

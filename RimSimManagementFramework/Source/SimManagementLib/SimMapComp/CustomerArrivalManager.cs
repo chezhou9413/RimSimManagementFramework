@@ -395,14 +395,14 @@ namespace SimManagementLib.SimMapComp
         internal static HashSet<ThingDef> CollectStockedDefs(Zone_Shop shop)
         {
             HashSet<ThingDef> result = new HashSet<ThingDef>();
-            IReadOnlyList<Building_SimContainer> storages = ShopDataUtility.GetStorageSnapshotInZone(shop);
+            IReadOnlyList<IShopStorage> storages = ShopDataUtility.GetRetailStorages(shop);
             for (int i = 0; i < storages.Count; i++)
             {
-                Building_SimContainer storage = storages[i];
-                if (storage == null || storage.Destroyed || !storage.Spawned || !storage.AllowsCustomerSelfPurchase) continue;
+                IShopStorage storage = storages[i];
+                if (storage == null || storage.Host.Destroyed || !storage.Host.Spawned || !storage.AllowsCustomerSelfPurchase) continue;
                 foreach (ThingDef def in storage.ActiveDefs)
                 {
-                    if (def != null && storage.CountStored(def) > 0)
+                    if (def != null && storage.SaleCount(def) > 0)
                         result.Add(def);
                 }
             }
@@ -515,7 +515,7 @@ namespace SimManagementLib.SimMapComp
         //计算店铺顾客容量，同时计入货柜与旅馆/温泉等扩展设施规模。
         private int CalculateShopCustomerCapacity(Zone_Shop shop)
         {
-            int storageCount = ShopDataUtility.GetStorageSnapshotInZone(shop).Count;
+            int storageCount = ShopDataUtility.GetRetailStorages(shop).Count;
             int registerCount = ShopDataUtility.GetCashRegisterSnapshotInZone(shop).Count;
             int actionUnits = CustomerActionAttractionUtility.GetTotalAttractionFacilityUnits(shop);
             int estimated = registerCount * 8 + (storageCount + actionUnits) * 4;
@@ -546,9 +546,9 @@ namespace SimManagementLib.SimMapComp
                 return true;
             }
 
-            List<IntVec3> storageCells = ShopDataUtility.GetStorageSnapshotInZone(shop)
-                .Where(storage => storage != null && !storage.Destroyed && storage.Spawned && storage.AllowsCustomerSelfPurchase)
-                .Select(storage => storage.InteractionCell)
+            List<IntVec3> storageCells = ShopDataUtility.GetRetailStorages(shop)
+                .Where(storage => storage != null && !storage.Host.Destroyed && storage.Host.Spawned && storage.AllowsCustomerSelfPurchase)
+                .Select(storage => storage.Host.InteractionCell)
                 .Where(cell => cell.IsValid && cell.InBounds(map) && cell.Standable(map))
                 .ToList();
             if (!storageCells.NullOrEmpty())

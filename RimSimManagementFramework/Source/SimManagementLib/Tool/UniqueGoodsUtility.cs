@@ -54,7 +54,7 @@ namespace SimManagementLib.Tool
             {
                 Thing thing = things[i];
                 if (thing == null || !thing.Spawned || thing.Map != map || thing.IsForbidden(Faction.OfPlayer)) continue;
-                if (!IsEligible(thing, container) || container.IsSourceAssignedAnywhere(thing.thingIDNumber)) continue;
+                if (SimMapComp.RestockSourceResolver.IsRetailSupply(thing) || !IsEligible(thing, container) || container.IsSourceAssignedAnywhere(thing.thingIDNumber)) continue;
                 yield return thing;
             }
         }

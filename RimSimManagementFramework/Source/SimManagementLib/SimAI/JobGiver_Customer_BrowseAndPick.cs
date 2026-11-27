@@ -72,7 +72,7 @@ namespace SimManagementLib.SimAI
             }
 
             List<ComboData> affordableCombos = CustomerShoppingMatchUtility.GetMatchingAffordableInStockCombos(shopZone, lordJob, pawn, remainingBudget);
-            Building_SimContainer targetShelf = FindRandomReachableStockedStorage(pawn, lordJob, shopZone, remainingBudget, affordableCombos);
+            IShopStorage targetShelf = FindRandomReachableStockedStorage(pawn, lordJob, shopZone, remainingBudget, affordableCombos);
 
             //没有任何买得起的货时，先保证顾客完成最低浏览体验。
             if (targetShelf == null)
@@ -82,27 +82,27 @@ namespace SimManagementLib.SimAI
 
             //顾客浏览货柜不占用原版预约，允许多人同时访问同一货柜，避免预约拥堵导致职责树落到游荡。
             lordJob.ClearBrowseWaitStartTick(pId);
-            lordJob.RecordCurrentShopStorageVisit(pawn, targetShelf);
+            lordJob.RecordCurrentShopStorageVisit(pawn, targetShelf.Host);
 
-            Job job = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Customer_BrowseAndPick"), targetShelf);
+            Job job = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Customer_BrowseAndPick"), targetShelf.Host);
             return job;
         }
 
         //选择一个有可买内容的货柜，职责是只做库存筛选并把真实路径交给 Job 路径器。
-        private static Building_SimContainer FindRandomReachableStockedStorage(Pawn pawn, LordJob_CustomerVisit lordJob, Zone_Shop shopZone, float remainingBudget, List<ComboData> affordableCombos)
+        private static IShopStorage FindRandomReachableStockedStorage(Pawn pawn, LordJob_CustomerVisit lordJob, Zone_Shop shopZone, float remainingBudget, List<ComboData> affordableCombos)
         {
-            Building_SimContainer unvisitedSelected = null;
-            Building_SimContainer fallbackSelected = null;
+            IShopStorage unvisitedSelected = null;
+            IShopStorage fallbackSelected = null;
             int unvisitedSeen = 0;
             int fallbackSeen = 0;
-            foreach (Building_SimContainer storage in ShopDataUtility.GetStorageSnapshotInZone(shopZone))
+            foreach (IShopStorage storage in ShopDataUtility.GetRetailStorages(shopZone))
             {
                 if (!StorageHasAffordableContent(storage, pawn, lordJob, remainingBudget, affordableCombos)) continue;
                 fallbackSeen++;
                 if (Rand.RangeInclusive(1, fallbackSeen) == 1)
                     fallbackSelected = storage;
 
-                if (lordJob.HasVisitedCurrentShopStorage(pawn, storage)) continue;
+                if (lordJob.HasVisitedCurrentShopStorage(pawn, storage.Host)) continue;
 
                 unvisitedSeen++;
                 if (Rand.RangeInclusive(1, unvisitedSeen) == 1)
@@ -111,9 +111,9 @@ namespace SimManagementLib.SimAI
             return unvisitedSelected ?? fallbackSelected;
         }
         //判断货柜是否存在当前顾客可购买的商品或套餐项。
-        private static bool StorageHasAffordableContent(Building_SimContainer storage, Pawn pawn, LordJob_CustomerVisit lordJob, float remainingBudget, List<ComboData> affordableCombos)
+        private static bool StorageHasAffordableContent(IShopStorage storage, Pawn pawn, LordJob_CustomerVisit lordJob, float remainingBudget, List<ComboData> affordableCombos)
         {
-            if (storage == null || !storage.AllowsCustomerSelfPurchase || storage.Destroyed || !storage.Spawned) return false;
+            if (storage == null || !storage.AllowsCustomerSelfPurchase || storage.Host.Destroyed || !storage.Host.Spawned) return false;
             if (CustomerShoppingMatchUtility.StorageHasMatchingAffordableStock(storage, pawn, lordJob, remainingBudget))
                 return true;
             return !affordableCombos.NullOrEmpty() && CustomerShoppingMatchUtility.StorageHasComboItem(storage, affordableCombos);
@@ -166,11 +166,11 @@ namespace SimManagementLib.SimAI
             target = LocalTargetInfo.Invalid;
             if (pawn?.Map == null || shopZone == null) return false;
 
-            Building_SimContainer storageTarget = FindRandomReachableWindowStorage(pawn, lordJob, shopZone);
+            IShopStorage storageTarget = FindRandomReachableWindowStorage(pawn, lordJob, shopZone);
             if (storageTarget != null)
             {
-                lordJob?.RecordCurrentShopStorageVisit(pawn, storageTarget);
-                target = storageTarget;
+                lordJob?.RecordCurrentShopStorageVisit(pawn, storageTarget.Host);
+                target = storageTarget.Host;
                 return true;
             }
 
@@ -178,21 +178,21 @@ namespace SimManagementLib.SimAI
         }
 
         //只从允许顾客进入的位置选择浏览货柜，实际路径交给 Job 路径器。
-        private static Building_SimContainer FindRandomReachableWindowStorage(Pawn pawn, LordJob_CustomerVisit lordJob, Zone_Shop shopZone)
+        private static IShopStorage FindRandomReachableWindowStorage(Pawn pawn, LordJob_CustomerVisit lordJob, Zone_Shop shopZone)
         {
-            Building_SimContainer unvisitedSelected = null;
-            Building_SimContainer fallbackSelected = null;
+            IShopStorage unvisitedSelected = null;
+            IShopStorage fallbackSelected = null;
             int unvisitedSeen = 0;
             int fallbackSeen = 0;
-            foreach (Building_SimContainer storage in ShopDataUtility.GetStorageSnapshotInZone(shopZone))
+            foreach (IShopStorage storage in ShopDataUtility.GetRetailStorages(shopZone))
             {
-                if (storage == null || !storage.AllowsCustomerSelfPurchase || storage.Destroyed || !storage.Spawned
-                    || storage.Position.IsForbidden(pawn)) continue;
+                if (storage == null || !storage.AllowsCustomerSelfPurchase || storage.Host.Destroyed || !storage.Host.Spawned
+                    || storage.Host.Position.IsForbidden(pawn)) continue;
                 fallbackSeen++;
                 if (Rand.RangeInclusive(1, fallbackSeen) == 1)
                     fallbackSelected = storage;
 
-                if (lordJob != null && lordJob.HasVisitedCurrentShopStorage(pawn, storage)) continue;
+                if (lordJob != null && lordJob.HasVisitedCurrentShopStorage(pawn, storage.Host)) continue;
 
                 unvisitedSeen++;
                 if (Rand.RangeInclusive(1, unvisitedSeen) == 1)

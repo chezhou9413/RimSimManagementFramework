@@ -50,7 +50,7 @@ namespace SimManagementLib.SimDialog
                 DrawBorder(row, new Color(1f, 1f, 1f, 0.12f));
 
                 Zone_Shop zone = entry.Zone;
-                HashSet<Building_SimContainer> storages = ShopDataUtility.GetStoragesInZone(zone);
+                var storages = ShopDataUtility.GetRetailStorages(zone, includeDisabled: true);
                 int goodsKinds = ShopDataUtility.GetAllSellableGoods(zone).Count;
                 int inStockKinds = ShopDataUtility.GetInStockGoods(zone).Count;
                 int comboCount = comboManager?.GetCombosForZone(zone)?.Count ?? 0;

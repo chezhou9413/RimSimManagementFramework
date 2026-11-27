@@ -35,7 +35,10 @@ namespace SimManagementLib.Tool
         }
 
         //由当班收银员中最高的交易价格改善形成报价，结账时不再重复加成。
-        public static float ApplyCashierPrice(Zone_Shop shop, float basePrice)
+        public static float ApplyCashierPrice(Zone_Shop shop, float basePrice) => ApplyCashierPrice(shop, basePrice, 1f);
+
+        //组件货柜允许低于一银的实物按市价成交。
+        internal static float ApplyCashierPrice(Zone_Shop shop, float basePrice, float minimumPrice)
         {
             if (shop == null || basePrice <= 0f) return basePrice;
             float improvement = float.NegativeInfinity;
@@ -44,7 +47,7 @@ namespace SimManagementLib.Tool
                 Pawn cashier = register.CurrentCashier;
                 if (cashier != null) improvement = Mathf.Max(improvement, cashier.GetStatValue(StatDefOf.TradePriceImprovement));
             }
-            return float.IsNegativeInfinity(improvement) ? basePrice : Mathf.Max(1f, basePrice * (1f + improvement));
+            return float.IsNegativeInfinity(improvement) ? basePrice : Mathf.Max(minimumPrice, basePrice * (1f + improvement));
         }
 
         //读取货柜的商品配置价。

@@ -12,6 +12,7 @@ namespace SimManagementLib.SimThingClass
         {
             if (source == null || source.Destroyed || !source.Spawned || source.Map != Map)
                 return "来源不在本地图地面上，可能正被携带；请重新查询 stock/unique_sources。";
+            if (SimMapComp.RestockSourceResolver.IsRetailSupply(source)) return "物品已在营业货柜中上架。";
             if (source.IsForbidden(Faction.OfPlayer))
                 return "forbidden=true：物品被禁用。确需出售时先用 order command=allow targetId=" + source.thingIDNumber + " 解禁该物品，再提交上架。";
             if (CompBiocodable.IsBiocoded(source)) return "物品已生物编码，不能用于专业货柜。";

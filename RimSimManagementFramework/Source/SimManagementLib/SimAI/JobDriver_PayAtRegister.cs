@@ -206,15 +206,14 @@ namespace SimManagementLib.SimAI
                     return;
                 }
 
-                if (pawn.IsHashIntervalTick(StaffingCheckIntervalTicks) && cachedRegisterManned
-                    && CheckoutQueueCellUtility.TryReserveServiceCell(Register, ServiceCell, pawn, job))
+                if (pawn.IsHashIntervalTick(StaffingCheckIntervalTicks))
                 {
-                    ReadyForNextToil();
-                    return;
-                }
-
-                if (pawn.IsHashIntervalTick(90))
-                {
+                    if (cachedRegisterManned
+                        && CheckoutQueueCellUtility.TryReserveServiceCell(Register, ServiceCell, pawn, job))
+                    {
+                        ReadyForNextToil();
+                        return;
+                    }
                     if (!UpdateQueueCell(lordJob))
                     {
                         EndJobWith(JobCondition.Incompletable);
@@ -466,10 +465,7 @@ namespace SimManagementLib.SimAI
         //处理顾客排队超时，负责退回商品、清账并标记服务订单失败或取消。
         private void HandleCheckoutTimeout(LordJob_CustomerVisit lordJob, GameComponent_ShopFinanceManager finance, int pawnId, Zone_Shop shopZone)
         {
-            if (shopZone != null)
-            {
-                ShopDataUtility.ReturnCartItemsToShop(shopZone, lordJob.GetCartItems(pawnId));
-            }
+            ShopDataUtility.ReturnCartItemsToShop(shopZone, lordJob.GetCartItems(pawnId));
 
             finance?.ClearPendingBill(pawn);
             lordJob.ResolveServiceOrdersOnCheckoutFailure(pawnId);

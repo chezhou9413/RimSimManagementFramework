@@ -34,16 +34,19 @@ namespace SimManagementLib.Tool
 
         //寻找顾客买得起的真实食物或餐厅堂食，供生活调度与购买筛选共享。
         internal static bool ShopHasAffordableFood(Pawn pawn, Zone_Shop shop, float budget)
-            => ShopDataUtility.GetStorageSnapshotInZone(shop).Any(storage => StorageHasAffordableFood(storage, pawn, budget))
+            => ShopDataUtility.GetRetailStorages(shop).Any(storage => StorageHasAffordableFood(storage, pawn, budget))
                 || SimShopCustomerApi.HasRunnableFoodCustomerAction(pawn, shop, budget);
 
         //比较实际食物库存、报价和携带能力。
-        private static bool StorageHasAffordableFood(Building_SimContainer storage, Pawn pawn, float budget)
+        private static bool StorageHasAffordableFood(IShopStorage storage, Pawn pawn, float budget)
         {
-            if (storage == null || storage.Destroyed || !storage.AllowsCustomerSelfPurchase || budget <= 0f) return false;
-            return storage.ActiveDefs.Any(def => IsSuitableFood(pawn, def) && storage.CountStored(def) > 0
-                && ShopPricingUtility.GetUnitPrice(storage, def) <= budget
-                && !CustomerPriceUtility.Evaluate(def, ShopPricingUtility.GetUnitPrice(storage, def), GetPriceSensitivity(pawn)).rejected
+            if (storage == null || storage.Host.Destroyed || !storage.AllowsCustomerSelfPurchase || budget <= 0f) return false;
+            if (storage is SimThingComp.ThingComp_StorageSales sales)
+                return sales.SaleThings().Any(t => IsSuitableFood(pawn, t.def) && CanAffordInstance(sales, t, pawn, budget)
+                    && CustomerPurchaseDeliveryUtility.CanCarryMore(pawn, null, t.def, 1));
+            return storage.ActiveDefs.Any(def => IsSuitableFood(pawn, def) && storage.SaleCount(def) > 0
+                && ShopPricingUtility.GetUnitPrice(storage as Building_SimContainer, def) <= budget
+                && !CustomerPriceUtility.Evaluate(def, ShopPricingUtility.GetUnitPrice(storage as Building_SimContainer, def), GetPriceSensitivity(pawn)).rejected
                 && CustomerPurchaseDeliveryUtility.CanCarryMore(pawn, null, def, 1));
         }
 
@@ -72,7 +75,7 @@ namespace SimManagementLib.Tool
 
             if (AllowsGoods(kind, fallbackDef))
             {
-                foreach (Building_SimContainer storage in ShopDataUtility.GetStorageSnapshotInZone(shop))
+                foreach (IShopStorage storage in ShopDataUtility.GetRetailStorages(shop))
                 {
                     if (StorageHasMatchingSellableStock(storage, kind, fallbackDef))
                         return true;
@@ -121,7 +124,7 @@ namespace SimManagementLib.Tool
             if (IsFoodVisit(pawn)) return ShopHasAffordableFood(pawn, shop, remainingBudget);
             if (shop == null || remainingBudget <= 0f || !AllowsGoods(kind, fallbackDef)) return false;
 
-            foreach (Building_SimContainer storage in ShopDataUtility.GetStorageSnapshotInZone(shop))
+            foreach (IShopStorage storage in ShopDataUtility.GetRetailStorages(shop))
             {
                 if (StorageHasMatchingAffordableStock(storage, pawn, kind, fallbackDef, remainingBudget))
                     return true;
@@ -203,8 +206,12 @@ namespace SimManagementLib.Tool
 
         //判断货柜是否至少有一个符合顾客目标分类且有库存的商品。
         public static bool StorageHasMatchingSellableStock(Building_SimContainer storage, RuntimeCustomerKind kind, CustomerKindDef fallbackDef)
+            => StorageHasMatchingSellableStock((IShopStorage)storage, kind, fallbackDef);
+
+        //通过宿主货柜参与顾客选购。
+        internal static bool StorageHasMatchingSellableStock(IShopStorage storage, RuntimeCustomerKind kind, CustomerKindDef fallbackDef)
         {
-            if (storage == null || !storage.AllowsCustomerSelfPurchase || storage.Destroyed || !AllowsGoods(kind, fallbackDef)) return false;
+            if (storage == null || !storage.AllowsCustomerSelfPurchase || storage.Host.Destroyed || !AllowsGoods(kind, fallbackDef)) return false;
 
             if (storage is Building_UniqueGoodsContainer uniqueContainer)
             {
@@ -218,7 +225,7 @@ namespace SimManagementLib.Tool
 
             foreach (ThingDef def in storage.ActiveDefs)
             {
-                if (def == null || storage.CountStored(def) <= 0) continue;
+                if (def == null || storage.SaleCount(def) <= 0) continue;
                 if (ThingMatchesCustomer(kind, fallbackDef, def))
                     return true;
             }
@@ -228,27 +235,47 @@ namespace SimManagementLib.Tool
 
         //判断货柜是否至少有一个符合顾客目标分类、有库存且买得起的商品。
         public static bool StorageHasMatchingAffordableStock(Building_SimContainer storage, LordJob_CustomerVisit visit, float remainingBudget)
+            => StorageHasMatchingAffordableStock((IShopStorage)storage, visit, remainingBudget);
+
+        //通过宿主货柜参与顾客选购。
+        internal static bool StorageHasMatchingAffordableStock(IShopStorage storage, LordJob_CustomerVisit visit, float remainingBudget)
         {
             return StorageHasMatchingAffordableStock(storage, visit?.RuntimeCustomerKind, visit?.customerKind, remainingBudget);
         }
 
         //判断货柜是否至少有一个符合顾客目标分类、有库存且买得起的商品。
         public static bool StorageHasMatchingAffordableStock(Building_SimContainer storage, Pawn pawn, LordJob_CustomerVisit visit, float remainingBudget)
+            => StorageHasMatchingAffordableStock((IShopStorage)storage, pawn, visit, remainingBudget);
+
+        //通过宿主货柜参与顾客选购。
+        internal static bool StorageHasMatchingAffordableStock(IShopStorage storage, Pawn pawn, LordJob_CustomerVisit visit, float remainingBudget)
         {
             return StorageHasMatchingAffordableStock(storage, pawn, visit?.RuntimeCustomerKind, visit?.customerKind, remainingBudget);
         }
 
         //判断货柜是否至少有一个符合顾客目标分类、有库存且买得起的商品。
         public static bool StorageHasMatchingAffordableStock(Building_SimContainer storage, RuntimeCustomerKind kind, CustomerKindDef fallbackDef, float remainingBudget)
+            => StorageHasMatchingAffordableStock((IShopStorage)storage, kind, fallbackDef, remainingBudget);
+
+        //通过宿主货柜参与顾客选购。
+        internal static bool StorageHasMatchingAffordableStock(IShopStorage storage, RuntimeCustomerKind kind, CustomerKindDef fallbackDef, float remainingBudget)
         {
             return StorageHasMatchingAffordableStock(storage, null, kind, fallbackDef, remainingBudget);
         }
 
         //判断货柜是否至少有一个符合顾客目标分类、有库存且买得起的商品。
         public static bool StorageHasMatchingAffordableStock(Building_SimContainer storage, Pawn pawn, RuntimeCustomerKind kind, CustomerKindDef fallbackDef, float remainingBudget)
+            => StorageHasMatchingAffordableStock((IShopStorage)storage, pawn, kind, fallbackDef, remainingBudget);
+
+        //通过宿主货柜参与顾客选购。
+        internal static bool StorageHasMatchingAffordableStock(IShopStorage storage, Pawn pawn, RuntimeCustomerKind kind, CustomerKindDef fallbackDef, float remainingBudget)
         {
             if (IsFoodVisit(pawn)) return StorageHasAffordableFood(storage, pawn, remainingBudget);
-            if (storage == null || !storage.AllowsCustomerSelfPurchase || storage.Destroyed || remainingBudget <= 0f || !AllowsGoods(kind, fallbackDef)) return false;
+            if (storage == null || !storage.AllowsCustomerSelfPurchase || storage.Host.Destroyed || remainingBudget <= 0f || !AllowsGoods(kind, fallbackDef)) return false;
+
+            if (storage is SimThingComp.ThingComp_StorageSales sales)
+                return sales.SaleThings().Any(t => ThingMatchesCustomer(kind, fallbackDef, t.def)
+                    && CanAffordInstance(sales, t, pawn, remainingBudget));
 
             if (storage is Building_UniqueGoodsContainer uniqueContainer)
             {
@@ -257,7 +284,7 @@ namespace SimManagementLib.Tool
                 {
                     Thing thing = uniqueContainer.GetStoredThing(slot);
                     if (thing == null || !ThingMatchesCustomer(kind, fallbackDef, thing.def)) continue;
-                    float price = ShopPricingUtility.GetContainerPrice(storage, Mathf.Max(1f, slot.price > 0f ? slot.price : thing.MarketValue));
+                    float price = ShopPricingUtility.GetContainerPrice(storage as Building_SimContainer, Mathf.Max(1f, slot.price > 0f ? slot.price : thing.MarketValue));
                     if (price <= remainingBudget && !CustomerPriceUtility.EvaluateMarketValue(thing.MarketValue, price, uniqueSensitivity).rejected)
                         return true;
                 }
@@ -266,15 +293,22 @@ namespace SimManagementLib.Tool
 
             foreach (ThingDef def in storage.ActiveDefs)
             {
-                if (def == null || storage.CountStored(def) <= 0) continue;
+                if (def == null || storage.SaleCount(def) <= 0) continue;
                 if (!ThingMatchesCustomer(kind, fallbackDef, def)) continue;
-                float unitPrice = ShopPricingUtility.GetUnitPrice(storage, def);
+                float unitPrice = ShopPricingUtility.GetUnitPrice(storage as Building_SimContainer, def);
                 CustomerPriceSensitivityProps sensitivity = GetPriceSensitivity(pawn);
                 if (unitPrice <= remainingBudget && !CustomerPriceUtility.Evaluate(def, unitPrice, sensitivity).rejected)
                     return true;
             }
 
             return false;
+        }
+
+        //按同一件实物的市价评估预算和溢价。
+        private static bool CanAffordInstance(SimThingComp.ThingComp_StorageSales sales, Thing thing, Pawn pawn, float budget)
+        {
+            float price = sales.Price(thing);
+            return price > 0f && price <= budget && !CustomerPriceUtility.EvaluateMarketValue(thing.MarketValue, price, GetPriceSensitivity(pawn)).rejected;
         }
 
         //返回顾客运行时价格敏感度，负责让缺少 LordJob 上下文的旧调用仍使用默认参数。
@@ -286,8 +320,12 @@ namespace SimManagementLib.Tool
 
         //判断货柜是否含有指定套餐需要的目标商品，用于让顾客浏览与套餐相关的货柜。
         public static bool StorageHasComboItem(Building_SimContainer storage, IEnumerable<ComboData> combos)
+            => StorageHasComboItem((IShopStorage)storage, combos);
+
+        //通过宿主货柜参与顾客选购。
+        internal static bool StorageHasComboItem(IShopStorage storage, IEnumerable<ComboData> combos)
         {
-            if (storage == null || !storage.AllowsCustomerSelfPurchase || storage.Destroyed || combos == null) return false;
+            if (storage == null || !storage.AllowsCustomerSelfPurchase || storage.Host.Destroyed || combos == null) return false;
 
             foreach (ComboData combo in combos)
             {
@@ -295,7 +333,7 @@ namespace SimManagementLib.Tool
                 for (int i = 0; i < combo.items.Count; i++)
                 {
                     ThingDef def = combo.items[i]?.def;
-                    if (def != null && combo.items[i].count > 0 && storage.CountStored(def) > 0)
+                    if (def != null && combo.items[i].count > 0 && storage.SaleCount(def) > 0)
                         return true;
                 }
             }

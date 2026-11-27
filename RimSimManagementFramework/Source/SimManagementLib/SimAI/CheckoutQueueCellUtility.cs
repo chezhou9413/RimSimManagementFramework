@@ -48,36 +48,93 @@ namespace SimManagementLib.SimAI
             }
             return best;
         }
-        //保留已分配的等待格，只有位置失效时才按固定顺序寻找可达空位。
+        //按当前排队序号计算目标等待格，前排离开时允许后排稳步前移修正队形，同时避免同距摆动或越位插队。
         public static IntVec3 FindQueueCell(Building_CashRegister register, IntVec3 serviceCell, int queueIndex, Pawn pawn)
         {
             if (!serviceCell.IsValid) return IntVec3.Invalid;
             Map map = register.Map;
             CustomerCheckoutQueueRegistry queue = map.GetComponent<CustomerArrivalManager>()?.CheckoutQueue;
             if (queue?.Acquire(pawn, register) == null) return IntVec3.Invalid;
-            IntVec3 current = queue.WaitingCellFor(pawn.thingIDNumber);
-            //路人临时经过不会改变已分配的目标，避免两个等待者互相追逐空位。
-            if (IsWaitingLocation(register, current, serviceCell, pawn) && pawn.CanReserve(current))
-                return current;
-            queue.ReleaseWaitingCell(pawn.thingIDNumber);
 
             IntVec3 laneDir = GetQueueLaneDirection(register, serviceCell);
-            int distanceFromService = Mathf.Clamp(queueIndex + 1, 1, 8);
+            //队首已进入服务格（不持有等待格）时，第二位紧跟服务格后 1 格；队首也在等待格时整体顺延 1 格。
+            int slotOffset = queueIndex == 0 || queue.IsHeadHoldingWaitingCell(register)
+                ? queueIndex + 1
+                : queueIndex;
+            int distanceFromService = Mathf.Clamp(slotOffset, 1, 8);
             IntVec3 preferred = serviceCell + laneDir * distanceFromService;
-            IntVec3 best = IntVec3.Invalid;
-            int bestDistance = int.MaxValue;
+
+            IntVec3 current = queue.WaitingCellFor(pawn.thingIDNumber);
+            bool currentValid = IsWaitingLocation(register, current, serviceCell, pawn) && pawn.CanReserve(current);
+            //已在当前序号的理想位置时直接保持，路人临时经过不会打乱队形。
+            if (currentValid && current == preferred)
+                return current;
+
+            if (!currentValid)
+                queue.ReleaseWaitingCell(pawn.thingIDNumber);
+
+            IntVec3 best = currentValid ? current : IntVec3.Invalid;
+            int bestAheadPenalty = currentValid ? QueueAheadPenalty(current - serviceCell, laneDir, distanceFromService) : int.MaxValue;
+            int bestDistance = currentValid ? current.DistanceToSquared(preferred) : int.MaxValue;
+            int bestLateral = currentValid ? LateralOffsetSquared(current - serviceCell, laneDir) : int.MaxValue;
+
             foreach (IntVec3 cell in GenRadial.RadialCellsAround(serviceCell, 8f, false))
             {
+                int aheadPenalty = QueueAheadPenalty(cell - serviceCell, laneDir, distanceFromService);
+                if (aheadPenalty > bestAheadPenalty) continue;
                 int distance = cell.DistanceToSquared(preferred);
-                if (distance >= bestDistance || !IsWaitingLocation(register, cell, serviceCell, pawn)
-                    || !IsWaitingCellUsable(cell, map, pawn, serviceCell)
+                if (aheadPenalty == bestAheadPenalty && distance > bestDistance) continue;
+                int lateral = LateralOffsetSquared(cell - serviceCell, laneDir);
+                if (aheadPenalty == bestAheadPenalty && distance == bestDistance && lateral >= bestLateral) continue;
+                if (!IsWaitingLocation(register, cell, serviceCell, pawn)
+                    || !IsQueueSlotAvailable(cell, map, pawn, serviceCell, queue)
                     || !pawn.CanReach(cell, PathEndMode.OnCell, Danger.None)) continue;
                 best = cell;
+                bestAheadPenalty = aheadPenalty;
                 bestDistance = distance;
+                bestLateral = lateral;
             }
-            if (best.IsValid) queue.SetWaitingCell(pawn.thingIDNumber, best);
+
+            if (best.IsValid)
+            {
+                if (best != current) queue.SetWaitingCell(pawn.thingIDNumber, best);
+                return best;
+            }
             //空间已满时保留排队票据，不让等待者退回服务格。
-            return best;
+            return IntVec3.Invalid;
+        }
+
+        //优先选择不越过当前序号深度的位置，避免后排在异步 Tick 中抢占前排刚空出的格子。
+        private static int QueueAheadPenalty(IntVec3 offset, IntVec3 laneDir, int targetDepth)
+        {
+            int depth = offset.x * laneDir.x + offset.z * laneDir.z;
+            return depth < targetDepth ? 1 : 0;
+        }
+
+        //计算候选格相对队列主轴的横向偏移平方，同距离时优先排成直线队形。
+        private static int LateralOffsetSquared(IntVec3 offset, IntVec3 laneDir)
+        {
+            int lateral = laneDir.x == 0 ? offset.x : offset.z;
+            return lateral * lateral;
+        }
+
+        //检查排队格是否可进入；允许接续前排正在离开的格子，但仍避开静止人物与其他排队票据。
+        private static bool IsQueueSlotAvailable(IntVec3 cell, Map map, Pawn pawn, IntVec3 serviceCell, CustomerCheckoutQueueRegistry queue)
+        {
+            if (cell == serviceCell) return false;
+            if (!IsServiceCellStructurallyUsable(map, cell, pawn)) return false;
+            if (!pawn.CanReserve(cell) || !map.pawnDestinationReservationManager.CanReserve(cell, pawn)
+                || queue.IsWaitingCellTaken(cell, pawn.thingIDNumber))
+                return false;
+
+            List<Thing> things = map.thingGrid.ThingsListAt(cell);
+            for (int i = 0; i < things.Count; i++)
+            {
+                if (!(things[i] is Pawn other) || other == pawn) continue;
+                if (other.pather?.Moving == true && other.pather.Destination.Cell != cell) continue;
+                return false;
+            }
+            return true;
         }
 
         //只允许队首预约服务格，取得服务位置后释放原等待位置。

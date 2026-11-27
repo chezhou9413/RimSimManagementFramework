@@ -65,13 +65,13 @@ namespace SimManagementLib.SimMapComp
         {
             if (job?.def?.defName == "DepositToMegaStorage")
             {
-                Building_SimContainer storage = job.GetTarget(TargetIndex.B).Thing as Building_SimContainer;
+                IShopStorage storage = ShopStorage.For(job.GetTarget(TargetIndex.B).Thing);
                 ThingDef thingDef = job.plantDefToSow
                     ?? job.GetTarget(TargetIndex.A).Thing?.def
                     ?? pawn?.carryTracker?.CarriedThing?.def;
                 if (!IsValidStorage(storage) || storage is Building_UniqueGoodsContainer || thingDef == null)
                     return;
-                RestockTaskKey key = new RestockTaskKey(storage.thingIDNumber, thingDef);
+                RestockTaskKey key = new RestockTaskKey(storage.Host.thingIDNumber, thingDef);
                 activeRestockCycles.Add(key);
                 int available = CalculateBulkAvailable(storage, thingDef);
                 leases.TryAcquire(pawn, job, key, Math.Max(1, job.count), available, out _);
@@ -113,7 +113,7 @@ namespace SimManagementLib.SimMapComp
                 MarkRequestDirty(key, reason);
                 return;
             }
-            if (!storagesById.TryGetValue(key.StorageId, out Building_SimContainer storage))
+            if (!storagesById.TryGetValue(key.StorageId, out IShopStorage storage))
                 return;
             if (key.Kind == RestockRequestKind.Bulk)
                 EnsureBulkRequest(storage, key.ThingDef, reason);
@@ -134,9 +134,10 @@ namespace SimManagementLib.SimMapComp
             {
                 if (storageReconcileCursor >= storageOrder.Count)
                     storageReconcileCursor = 0;
-                Building_SimContainer storage = storageOrder[storageReconcileCursor++];
+                IShopStorage storage = storageOrder[storageReconcileCursor++];
                 if (!IsValidStorage(storage))
                     continue;
+                if (storage is SimThingComp.ThingComp_StorageSales sales) sales.PollHostStock();
                 if (!configurationIndex.HasUnobservedInventoryChange(storage))
                     continue;
 
@@ -153,7 +154,7 @@ namespace SimManagementLib.SimMapComp
             {
                 int storageId = dirtyConfigurationQueue.Dequeue();
                 if (!dirtyConfigurationSet.Remove(storageId)
-                    || !storagesById.TryGetValue(storageId, out Building_SimContainer storage)
+                    || !storagesById.TryGetValue(storageId, out IShopStorage storage)
                     || !IsValidStorage(storage)
                     || storage is Building_UniqueGoodsContainer)
                     continue;

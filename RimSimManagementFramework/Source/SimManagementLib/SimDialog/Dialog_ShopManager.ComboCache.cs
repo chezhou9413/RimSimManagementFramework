@@ -1,3 +1,5 @@
+using SimManagementLib.Tool;
+using System.Linq;
 using SimManagementLib.Pojo;
 using SimManagementLib.SimThingClass;
 using SimManagementLib.SimThingComp;
@@ -81,9 +83,10 @@ namespace SimManagementLib.SimDialog
             comboSellableCache.Clear();
             comboReferencePriceCache.Clear();
 
-            for (int i = 0; i < availableGoodsDefs.Count; i++)
+            var componentGoods = ShopDataUtility.GetRetailStorages(shopZone).OfType<ThingComp_StorageSales>()
+                .SelectMany(s => s.ActiveDefs).Distinct().ToList();
+            foreach (ThingDef def in availableGoodsDefs.Concat(componentGoods).Distinct().OrderBy(d => d.label))
             {
-                ThingDef def = availableGoodsDefs[i];
                 if (def == null || !MatchSearch(def.label))
                     continue;
 
@@ -138,6 +141,12 @@ namespace SimManagementLib.SimDialog
                 }
             }
 
+            foreach (var sales in ShopDataUtility.GetRetailStorages(shopZone).OfType<ThingComp_StorageSales>())
+            {
+                if (!sales.OnSale(thingDef) || sales.Rule(thingDef) == null && sales.CountStored(thingDef) == 0) continue;
+                sellable = true;
+                if (firstConfiguredPrice <= 0f) firstConfiguredPrice = sales.Rule(thingDef)?.price ?? 0f;
+            }
             if (!sellable)
                 return false;
 
@@ -248,6 +257,8 @@ namespace SimManagementLib.SimDialog
                     }
                 }
 
+                foreach (var sales in ShopDataUtility.GetRetailStorages(shopZone).OfType<ThingComp_StorageSales>())
+                    hash = hash * 31 + System.HashCode.Combine(sales.Host.thingIDNumber, sales.StoredCountVersion);
                 hash = hash * 31 + selectedStorageThingId;
                 return hash;
             }
